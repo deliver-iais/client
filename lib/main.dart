@@ -1,7 +1,12 @@
+import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(MyApp());
+
+  Fimber.plantTree(DebugTree.elapsed());
+  
+  Fimber.i("Application has been started");
 }
 
 class MyApp extends StatelessWidget {
