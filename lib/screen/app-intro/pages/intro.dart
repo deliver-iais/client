@@ -1,15 +1,74 @@
-import 'package:deliver_flutter/screen/app-intro/widgets/bubble.dart';
+import 'package:deliver_flutter/screen/app-intro/widgets/bubbles.dart';
 import 'package:deliver_flutter/screen/app-intro/widgets/sliderComponent.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
-final Map<String, String> sliderContents = {
-  'Messenger': 'assets/messengerLogo.png',
-  'Fast': 'assets/fastLogo.png',
-  'Private': 'assets/privateLogo.png',
-  'Secure': 'assets/secureLogo.png'
-};
+class IntroPage extends StatefulWidget {
+  @override
+  _IntroPageState createState() => _IntroPageState();
+}
 
+class _IntroPageState extends State<IntroPage> {
+  final CarouselController _controller = CarouselController();
+  final List<SliderComponent> _sliderComponents = [
+    SliderComponent(0),
+    SliderComponent(1),
+    SliderComponent(2),
+    SliderComponent(3),
+  ];
+  int _current = 0;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CarouselSlider(
+                items: _sliderComponents,
+                options: CarouselOptions(
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      _current = index;
+                    });
+                  },
+                  reverse: false,
+                ),
+                carouselController: _controller,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  RaisedButton(
+                    onPressed: null,
+                    child: Text("Skip"),
+                  ),
+                  Bubbles(_current, _sliderComponents.length),
+                  RaisedButton(
+                    onPressed: () {
+                      if (_current + 1 != _sliderComponents.length)
+                        _controller.nextPage();
+                    },
+                    child: Text("Next"),
+                  )
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 // final List<Widget> imageSliders = imgList
 //     .map((item) => Container(
 //           child: Container(
@@ -51,65 +110,3 @@ final Map<String, String> sliderContents = {
 //           ),
 //         ))
 //     .toList();
-
-class IntroPage extends StatefulWidget {
-  @override
-  _IntroPageState createState() => _IntroPageState();
-}
-
-class _IntroPageState extends State<IntroPage> {
-  final CarouselController _controller = CarouselController();
-  final List<SliderComponent> _sliderComponents = [];
-  int _current = 0;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  void makeSliderComponents() {
-    sliderContents.forEach((title, imgAddr) {
-      _sliderComponents.add(new SliderComponent(title, imgAddr));
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    makeSliderComponents();
-    return Scaffold(
-        body: SingleChildScrollView(
-            child: Column(children: [
-      CarouselSlider(
-        items: _sliderComponents,
-        options: CarouselOptions(
-          onPageChanged: (index, reason) {
-            setState(() {
-              _current = index;
-          });
-        },
-        reverse: false
-        ),
-        carouselController: _controller,
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-              RaisedButton(
-                onPressed: null,
-                child: Text("Skip"),
-              )
-            ] +
-            List.generate(
-                sliderContents.length, (index) => Bubble(_current, index)) +
-            <Widget>[
-              RaisedButton(
-                onPressed: (){
-                  if(_current + 1 != sliderContents.length)
-                    _controller.nextPage();},
-                child: Text("Next"),
-              )
-            ],
-      ),
-    ])));
-  }
-}
