@@ -1,11 +1,20 @@
+import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+
+void setupDI() {
+  GetIt getIt = GetIt.instance;
+  getIt.registerSingleton<UxService>(UxService());
+}
 
 void main() {
+  setupDI();
+
   runApp(MyApp());
 
   Fimber.plantTree(DebugTree.elapsed());
-  
+
   Fimber.i("Application has been started");
 }
 
@@ -13,26 +22,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+    var uxService = GetIt.I.get<UxService>();
+    return StreamBuilder(
+        stream: uxService.themeStream,
+        builder: (context, snapshot) {
+          return MaterialApp(
+            title: 'Flutter Demo',
+            theme: uxService.theme,
+            home: MyHomePage(title: 'Flutter Demo Home Page'),
+          );
+        });
   }
 }
 
@@ -59,6 +58,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() {
     setState(() {
+      var uxService = GetIt.I.get<UxService>();
+      uxService.toggleTheme();
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
       // so that the display can reflect the updated values. If we changed
