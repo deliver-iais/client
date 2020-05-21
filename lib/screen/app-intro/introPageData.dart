@@ -1,25 +1,68 @@
-import './models/sliderContent.dart';
+import 'package:flutter/material.dart';
+import 'package:intro_slider/slide_object.dart';
 
-final sliderContents = [
-  SliderContent(
-  title: 'Messenger',
-  imgAddr: 'assets/images/messenger.png',
-  description: 'The world`s fastest messaging app. It is free and secure.',
+final Color slideBackgroundColor = Colors.black;
+final slidesList = [
+  Slide(
+    title: 'Messenger',
+    pathImage: 'assets/images/messenger.png',
+    description: 'The world`s fastest messaging app. It is free and secure.',
+    backgroundColor: slideBackgroundColor,
+    styleTitle: TextStyle(
+      color: Color(0xFF2699FB),
+      fontSize: 30,
+      fontWeight: FontWeight.bold,
+    ),
+    styleDescription: TextStyle(
+      color: Color(0xFF2699FB),
+      fontSize: 18,
+    ),
+    marginDescription: EdgeInsets.only(left: 50, right: 50),
   ),
-  SliderContent(
-  title: 'Fast',
-  imgAddr: 'assets/images/fast.png',
-  description: 'Messenger delivers messages fastest than any other application.',
+  Slide(
+    pathImage: 'assets/images/fast.png',
+    title: 'Fast',
+    description:
+        'Messenger delivers messages fastest than any other application.',
+    backgroundColor: slideBackgroundColor,
+    styleTitle: TextStyle(
+      color: Color(0xFF2699FB),
+      fontSize: 30,
+      fontWeight: FontWeight.bold,
+    ),
+    styleDescription: TextStyle(
+      color: Color(0xFF2699FB),
+      fontSize: 18,
+    ),
   ),
-  SliderContent(
-  title: 'Private',
-  imgAddr: 'assets/images/private.png',
-  description: 'Messenger messages are heavily encrypted and can self-destruct.',
+  Slide(
+    title: 'Private',
+    pathImage: 'assets/images/private.png',
+    description:
+        'Messenger messages are heavily encrypted and can self-destruct.',
+    backgroundColor: slideBackgroundColor,
+    styleTitle: TextStyle(
+      color: Color(0xFF2699FB),
+      fontSize: 18,
+    ),
+    styleDescription: TextStyle(
+      color: Color(0xFF2699FB),
+      fontSize: 18,
+    ),
   ),
-  SliderContent(
-  title: 'Secure',
-  imgAddr: 'assets/images/secure.png',
-  description: 'Messenger keeps your messages safe from hacker attacks.',
+  Slide(
+    title: 'Secure',
+    pathImage: 'assets/images/secure.png',
+    description: 'Messenger keeps your messages safe from hacker attacks.',
+    backgroundColor: slideBackgroundColor,
+    styleTitle: TextStyle(
+      color: Color(0xFF2699FB),
+      fontSize: 30,
+      fontWeight: FontWeight.bold,
+    ),
+    styleDescription: TextStyle(
+      color: Color(0xFF2699FB),
+      fontSize: 18,
+    ),
   ),
 ];
-
