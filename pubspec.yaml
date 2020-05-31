@@ -1,5 +1,5 @@
 name: deliver_flutter
-description: A new Flutter project.
+description: Messenger App
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -31,11 +31,27 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.3
 
+  # Third Party Libraries
   fimber: ^0.4.2
+  # DI
+  get_it: ^4.0.2
+  # State Management Library
+  rxdart: ^0.24.1
+  # Routing Library
+  auto_route: ^0.5.0
+  # ORM
+  moor: ^3.1.0
+  moor_ffi: ^0.6.0
+  # Path for Files
+#  path_provider: ^1.6.9
+#  path: ^1.7.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  moor_generator: ^3.1.0
+  build_runner:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
