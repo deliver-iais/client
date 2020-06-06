@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './screen/app-intro/pages/intro.dart';
+import './screen/app-home/pages/home.dart';
 
 void main() {
   runApp(MyApp());
@@ -20,12 +20,12 @@ class MyApp extends StatelessWidget {
         fontFamily: "Vazir",
         textTheme: TextTheme(
           headline1: TextStyle(color: Colors.white, fontSize: 40),
-          headline2: TextStyle(color: Colors.white, fontSize: 30),
+          headline2: TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
           headline3: TextStyle(color: Colors.white, fontSize: 20),
           headline4: TextStyle(color: Colors.white, fontSize: 14),
         ),
       ),
-      home: IntroPage(),
+      home: Home(),
     );
   }
 }

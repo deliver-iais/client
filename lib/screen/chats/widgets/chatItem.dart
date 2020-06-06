@@ -1,0 +1,92 @@
+import 'package:deliver_flutter/screen/chats/models/contact.dart';
+import 'package:deliver_flutter/screen/chats/models/conversation.dart';
+import 'package:deliver_flutter/screen/contacts/contactsData.dart';
+import 'package:deliver_flutter/theme/colors.dart';
+import 'package:flutter/material.dart';
+
+class ChatItem extends StatelessWidget {
+  final Conversation conversation;
+  const ChatItem({this.conversation});
+  @override
+  Widget build(BuildContext context) {
+    Contact contact = contacts[conversation.contactId];
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20),
+      child: Row(
+        children: <Widget>[
+          Stack(
+            children: <Widget>[
+              CircleAvatar(
+                radius: 25,
+                backgroundColor: ThemeColors.circleAvatarbackground,
+                child: FittedBox(
+                  child: Icon(
+                    Icons.person,
+                    color: ThemeColors.circleAvatarIcon,
+                    size: 40,
+                  ),
+                ),
+              ),
+              Positioned(
+                child: Container(
+                  width: 12.0,
+                  height: 12.0,
+                  decoration: new BoxDecoration(
+                    color: contact.online ? Colors.green : Colors.orange,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.black,
+                      width: 2,
+                    ),
+                  ),
+                ),
+                top: 35.0,
+                right: 0.0,
+              ),
+            ],
+          ),
+          SizedBox(
+            width: 20,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                contact.firstName + " " + contact.lastName,
+                style: TextStyle(
+                  color: ThemeColors.infoChat,
+                  fontSize: 17,
+                ),
+              ),
+              Row(
+                children: <Widget>[
+                  Text(
+                    conversation.lastMessage.text,
+                    maxLines: 1,
+                    style: TextStyle(
+                      color: ThemeColors.infoChat,
+                      fontSize: 13,
+                    ),
+                  ),
+                  Text(
+                    "  . " +
+                        (DateTime.now().minute -
+                                conversation.lastMessage.sendingTime.minute)
+                            .toString() +
+                        " m",
+                    // ". " + conversation.lastMessage.sendingTime.difference(DateTime.now()).toString() + " m",
+                    maxLines: 1,
+                    style: TextStyle(
+                      color: ThemeColors.details,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
