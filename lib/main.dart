@@ -1,8 +1,9 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import './screen/app-intro/pages/intro.dart';
 
 void setupDI() {
   GetIt getIt = GetIt.instance;
@@ -30,8 +31,11 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             title: 'Flutter Demo',
             theme: uxService.theme,
-            home: IntroPage(key: Key(uxService.theme.toString())),
+            // initialRoute : Routes.introPage,
+            builder: ExtendedNavigator<Router>(router: Router()),
+            // IntroPage(key: Key(uxService.theme.toString())),
           );
         });
   }
 }
+  
