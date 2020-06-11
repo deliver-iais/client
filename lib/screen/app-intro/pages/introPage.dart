@@ -5,7 +5,8 @@ import 'package:intro_slider/intro_slider.dart';
 import '../introPageData.dart';
 
 class IntroPage extends StatefulWidget {
-  IntroPage({Key key}) : super(key: key);
+  final currentPage;
+  IntroPage({Key key, this.currentPage}) : super(key: key);
 
   @override
   _IntroPageState createState() => _IntroPageState();

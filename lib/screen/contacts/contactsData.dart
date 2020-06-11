@@ -1,6 +1,6 @@
-import 'package:deliver_flutter/screen/chats/models/contact.dart';
+import 'package:deliver_flutter/screen/contacts/models/contact.dart';
 
-List<Contact> contacts = [
+List<Contact> contactsList = [
   Contact(
     'Fatemeh',
     'Sz',
