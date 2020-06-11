@@ -35,7 +35,7 @@ class ChatItem extends StatelessWidget {
                       width: 12.0,
                       height: 12.0,
                       decoration: new BoxDecoration(
-                        color: contact.online ? Colors.green : Colors.orange,
+                        color: contact.online ? Colors.green : ThemeColors.secondColor,
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: Colors.black,
@@ -113,8 +113,8 @@ class ChatItem extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: 3.0,
-                left: 1.75,
+                top: 3.5,
+                left: 3.5,
                 child: Container(
                   width: 7,
                   height: 7,

@@ -1,7 +1,6 @@
 import 'package:deliver_flutter/screen/app-home/widgets/appBarHome.dart';
 import 'package:deliver_flutter/screen/app-home/widgets/navigationBar.dart';
 import 'package:deliver_flutter/screen/app-home/widgets/searchBox.dart';
-import 'package:deliver_flutter/screen/chats/chatsData.dart';
 import 'package:deliver_flutter/screen/chats/widgets/Chats.dart';
 import 'package:deliver_flutter/screen/contacts/widgets/contacts.dart';
 import 'package:flutter/material.dart';
@@ -21,8 +20,8 @@ class _HomePageState extends State<HomePage> {
         children: <Widget>[
           AppBarHome(),
           SearchBox(),
-          // Contacts(),
-          Chats(ChatsData.chatsList),
+          Contacts(),
+          // Chats(),
         ],
       ),
       bottomNavigationBar: NavigationBar(),
