@@ -113,11 +113,11 @@ class ChatItem extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: 3.5,
-                left: 3.5,
+                top: 4,
+                left: 4,
                 child: Container(
-                  width: 7,
-                  height: 7,
+                  width: 6.5,
+                  height: 6.5,
                   decoration: new BoxDecoration(
                     color: Theme.of(context).primaryColor,
                     shape: BoxShape.circle,

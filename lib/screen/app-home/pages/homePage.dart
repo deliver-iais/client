@@ -10,12 +10,15 @@ import 'package:get_it/get_it.dart';
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var currentPageService = GetIt.I.get<CurrentPageService>(); 
+    var currentPageService = GetIt.I.get<CurrentPageService>();
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60.0),
+        child: AppBarHome(),
+      ),
       body: Column(
         children: <Widget>[
-          AppBarHome(),
           SearchBox(),
           currentPageService.currentPage == 0 ? Chats() : Contacts(),
         ],
