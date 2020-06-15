@@ -28,17 +28,19 @@ class MyApp extends StatelessWidget {
     var uxService = GetIt.I.get<UxService>();
     var currentPageService = GetIt.I.get<CurrentPageService>();
     return StreamBuilder(
-        stream: currentPageService.currentPageStream,
-        builder: (context, snapshot) {
-          Fimber.d("theme changed ${uxService.theme.toString()}");
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'Flutter Demo',
-            theme: uxService.theme,
-            builder: ExtendedNavigator<Router>(
-              router: Router(),
-            ),
-          );
-        });
+      stream: MergeStream([uxService.themeStream as Stream, currentPageService.currentPageStream as Stream]),
+      builder: (context, snapshot) {
+        Fimber.d("theme changed ${uxService.theme.toString()}");
+        Fimber.d("currentPage changed ${currentPageService.currentPage.toString()}");
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Flutter Demo',
+          theme: uxService.theme,
+          builder: ExtendedNavigator<Router>(
+            router: Router(),
+          ),
+        );
+      },
+    );
   }
 }

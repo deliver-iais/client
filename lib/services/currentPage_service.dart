@@ -2,7 +2,7 @@ import 'package:rxdart/rxdart.dart';
 
 
 class CurrentPageService {
-  BehaviorSubject _currentPage = BehaviorSubject.seeded(1);
+  BehaviorSubject _currentPage = BehaviorSubject.seeded(0);
 
   get currentPageStream => _currentPage.stream;
 

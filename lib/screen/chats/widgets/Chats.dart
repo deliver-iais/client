@@ -1,5 +1,4 @@
 import 'package:deliver_flutter/screen/chats/chatsData.dart';
-import 'package:deliver_flutter/screen/chats/models/conversation.dart';
 import 'package:deliver_flutter/screen/chats/widgets/chatItem.dart';
 import 'package:flutter/material.dart';
 
