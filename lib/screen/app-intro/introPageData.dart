@@ -1,3 +1,4 @@
+import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:intro_slider/slide_object.dart';
 
@@ -24,11 +25,7 @@ final slidesList = [
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(30.0),
-                    child: Container(
-                      child: Image.asset(
-                        'assets/images/messenger.png',
-                      ),
-                    ),
+                    child: FlareActor("assets/images/firstPgIntro.flr", alignment:Alignment.center, fit:BoxFit.contain, animation:"messenger"),
                   ),
                 ),
               ],
