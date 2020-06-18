@@ -99,10 +99,11 @@ final slidesList = [
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(30.0),
-                    child: Container(
-                      child: Image.asset(
-                        'assets/images/fast.png',
-                      ),
+                    child: FlareActor(
+                      "assets/images/fast.flr",
+                      alignment: Alignment.center,
+                      fit: BoxFit.contain,
+                      animation: "fast",
                     ),
                   ),
                 ),
