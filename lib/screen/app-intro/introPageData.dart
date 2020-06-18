@@ -25,7 +25,12 @@ final slidesList = [
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(30.0),
-                    child: FlareActor("assets/images/firstPgIntro.flr", alignment:Alignment.center, fit:BoxFit.contain, animation:"messenger"),
+                    child: FlareActor(
+                      "assets/images/messenger.flr",
+                      alignment: Alignment.center,
+                      fit: BoxFit.contain,
+                      animation: "chat",
+                    ),
                   ),
                 ),
               ],
@@ -241,8 +246,12 @@ final slidesList = [
                   child: Padding(
                     padding: const EdgeInsets.all(30.0),
                     child: Container(
-                      child: Image.asset(
-                        'assets/images/secure.png',
+                      child: FlareActor(
+                        "assets/images/secure.flr",
+                        alignment: Alignment.center,
+                        fit: BoxFit.contain,
+                        animation: "secure",
+                        sizeFromArtboard: true,
                       ),
                     ),
                   ),

@@ -73,7 +73,10 @@ flutter:
     - assets/images/messenger.png
     - assets/images/private.png
     - assets/images/secure.png
-    - assets/images/firstPgIntro.flr
+    - assets/images/messenger.flr
+    - assets/images/secure.flr
+    - assets/images/securityIntroPg.flr
+    
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
