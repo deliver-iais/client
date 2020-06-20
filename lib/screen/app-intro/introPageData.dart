@@ -5,24 +5,11 @@ import 'package:intro_slider/slide_object.dart';
 final Color slideBackgroundColor = Colors.black;
 final slidesList = [
   Slide(
-    centerWidget: Column(
+    widgetTitle: Column(
       children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              width: 50,
-              height: 120,
-            ),
-        Column(
-          children: <Widget>[
         Container(
-          width: 180,
-          height: 150,
-          decoration: BoxDecoration(
-            color: Color(0xFF5F5F5F),
-          ),
+          width: 280,
+          height: 250,
           child: Padding(
             padding: const EdgeInsets.all(30.0),
             child: FlareActor(
@@ -32,17 +19,6 @@ final slidesList = [
               animation: "chat",
             ),
           ),
-        ),
-          ],
-        ),
-        Container(
-          width: 50,
-          height: 120,
-          decoration: BoxDecoration(
-            color: Color(0xFF5F5F5F),
-          ),
-        ),
-        ],
         ),
         Padding(
           padding: const EdgeInsets.all(16.0),
@@ -78,25 +54,9 @@ final slidesList = [
   Slide(
     centerWidget: Column(
       children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  width: 50,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF5F5F5F),
-                  ),
-                ),
-                Column(
-                  children: <Widget>[
         Container(
-          width: 180,
-          height: 150,
-          decoration: BoxDecoration(
-            color: Color(0xFF5F5F5F),
-          ),
+          width: 280,
+          height: 250,
           child: Padding(
             padding: const EdgeInsets.all(30.0),
             child: FlareActor(
@@ -106,17 +66,6 @@ final slidesList = [
               animation: "fast",
             ),
           ),
-        ),
-              ],
-            ),
-            Container(
-              width: 50,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Color(0xFF5F5F5F),
-              ),
-            ),
-          ],
         ),
         Padding(
           padding: const EdgeInsets.all(16.0),
@@ -151,27 +100,10 @@ final slidesList = [
   ),
   Slide(
     widgetTitle: Column(
-    // centerWidget: Column(
       children: <Widget>[
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //   crossAxisAlignment: CrossAxisAlignment.center,
-        //   children: <Widget>[
-        //     Container(
-        //       width: 50,
-        //       height: 120,
-        //       decoration: BoxDecoration(
-        //         color: Color(0xFF5F5F5F),
-        //       ),
-        //     ),
-        //     Column(
-        //       children: <Widget>[
         Container(
           width: 280,
           height: 250,
-          // decoration: BoxDecoration(
-          //   color: Color(0xFF5F5F5F),
-          // ),
           child: Padding(
             padding: const EdgeInsets.all(30.0),
             child: FlareActor(
@@ -182,17 +114,6 @@ final slidesList = [
             ),
           ),
         ),
-        //   ],
-        // ),
-        //     Container(
-        //       width: 50,
-        //       height: 120,
-        //       decoration: BoxDecoration(
-        //         color: Color(0xFF5F5F5F),
-        //       ),
-        //     ),
-        //   ],
-        // ),
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Container(
@@ -230,44 +151,20 @@ final slidesList = [
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //   crossAxisAlignment: CrossAxisAlignment.center,
-        //   children: <Widget>[
-        //     Container(
-        //       width: 50,
-        //       height: 120,
-        //       decoration: BoxDecoration(
-        //         color: Color(0xFF5F5F5F),
-        //       ),
-        //     ),
-        //     Column(
-        //       children: <Widget>[
-                Container(
-                  width: 280,
-                  height: 250,
-                  // decoration: BoxDecoration(
-                  //   color: Color(0xFF5F5F5F),
-                  // ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: FlareActor(
-                      "assets/images/secure.flr",
-                      alignment: Alignment.center,
-                      fit: BoxFit.contain,
-                      animation: "secure",
-                      sizeFromArtboard: true,
-                    ),
-                  ),
-                ),
-        //       ],
-        //     ),
-        //     Container(
-        //       width: 50,
-        //       height: 120,
-        //     ),
-        //   ],
-        // ),
+        Container(
+          width: 280,
+          height: 250,
+          child: Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: FlareActor(
+              "assets/images/secure.flr",
+              alignment: Alignment.center,
+              fit: BoxFit.contain,
+              animation: "secure",
+              sizeFromArtboard: true,
+            ),
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Container(
