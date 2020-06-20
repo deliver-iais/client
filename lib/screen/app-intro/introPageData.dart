@@ -15,34 +15,34 @@ final slidesList = [
               width: 50,
               height: 120,
             ),
-            Column(
-              children: <Widget>[
-                Container(
-                  width: 180,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF5F5F5F),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: FlareActor(
-                      "assets/images/messenger.flr",
-                      alignment: Alignment.center,
-                      fit: BoxFit.contain,
-                      animation: "chat",
-                    ),
-                  ),
-                ),
-              ],
+        Column(
+          children: <Widget>[
+        Container(
+          width: 180,
+          height: 150,
+          decoration: BoxDecoration(
+            color: Color(0xFF5F5F5F),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: FlareActor(
+              "assets/images/messenger.flr",
+              alignment: Alignment.center,
+              fit: BoxFit.contain,
+              animation: "chat",
             ),
-            Container(
-              width: 50,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Color(0xFF5F5F5F),
-              ),
-            ),
+          ),
+        ),
           ],
+        ),
+        Container(
+          width: 50,
+          height: 120,
+          decoration: BoxDecoration(
+            color: Color(0xFF5F5F5F),
+          ),
+        ),
+        ],
         ),
         Padding(
           padding: const EdgeInsets.all(16.0),
@@ -78,35 +78,35 @@ final slidesList = [
   Slide(
     centerWidget: Column(
       children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              width: 50,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Color(0xFF5F5F5F),
-              ),
-            ),
-            Column(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Container(
-                  width: 180,
-                  height: 150,
+                  width: 50,
+                  height: 120,
                   decoration: BoxDecoration(
                     color: Color(0xFF5F5F5F),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: FlareActor(
-                      "assets/images/fast.flr",
-                      alignment: Alignment.center,
-                      fit: BoxFit.contain,
-                      animation: "fast",
-                    ),
-                  ),
                 ),
+                Column(
+                  children: <Widget>[
+        Container(
+          width: 180,
+          height: 150,
+          decoration: BoxDecoration(
+            color: Color(0xFF5F5F5F),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: FlareActor(
+              "assets/images/fast.flr",
+              alignment: Alignment.center,
+              fit: BoxFit.contain,
+              animation: "fast",
+            ),
+          ),
+        ),
               ],
             ),
             Container(
@@ -150,48 +150,49 @@ final slidesList = [
     backgroundColor: slideBackgroundColor,
   ),
   Slide(
-    centerWidget: Column(
+    widgetTitle: Column(
+    // centerWidget: Column(
       children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              width: 50,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Color(0xFF5F5F5F),
-              ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //   crossAxisAlignment: CrossAxisAlignment.center,
+        //   children: <Widget>[
+        //     Container(
+        //       width: 50,
+        //       height: 120,
+        //       decoration: BoxDecoration(
+        //         color: Color(0xFF5F5F5F),
+        //       ),
+        //     ),
+        //     Column(
+        //       children: <Widget>[
+        Container(
+          width: 280,
+          height: 250,
+          // decoration: BoxDecoration(
+          //   color: Color(0xFF5F5F5F),
+          // ),
+          child: Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: FlareActor(
+              "assets/images/infinity.flr",
+              alignment: Alignment.center,
+              fit: BoxFit.contain,
+              animation: "infinity",
             ),
-            Column(
-              children: <Widget>[
-                Container(
-                  width: 180,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF5F5F5F),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: FlareActor(
-                      "assets/images/infinity.flr",
-                      alignment: Alignment.center,
-                      fit: BoxFit.contain,
-                      animation: "infinity",
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Container(
-              width: 50,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Color(0xFF5F5F5F),
-              ),
-            ),
-          ],
+          ),
         ),
+        //   ],
+        // ),
+        //     Container(
+        //       width: 50,
+        //       height: 120,
+        //       decoration: BoxDecoration(
+        //         color: Color(0xFF5F5F5F),
+        //       ),
+        //     ),
+        //   ],
+        // ),
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Container(
@@ -224,48 +225,49 @@ final slidesList = [
     backgroundColor: slideBackgroundColor,
   ),
   Slide(
-    centerWidget: Column(
+    widgetTitle: Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              width: 50,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Color(0xFF5F5F5F),
-              ),
-            ),
-            Column(
-              children: <Widget>[
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //   crossAxisAlignment: CrossAxisAlignment.center,
+        //   children: <Widget>[
+        //     Container(
+        //       width: 50,
+        //       height: 120,
+        //       decoration: BoxDecoration(
+        //         color: Color(0xFF5F5F5F),
+        //       ),
+        //     ),
+        //     Column(
+        //       children: <Widget>[
                 Container(
-                  width: 180,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF5F5F5F),
-                  ),
+                  width: 280,
+                  height: 250,
+                  // decoration: BoxDecoration(
+                  //   color: Color(0xFF5F5F5F),
+                  // ),
                   child: Padding(
                     padding: const EdgeInsets.all(30.0),
-                    child: Container(
-                      child: FlareActor(
-                        "assets/images/secure.flr",
-                        alignment: Alignment.center,
-                        fit: BoxFit.contain,
-                        animation: "secure",
-                        sizeFromArtboard: true,
-                      ),
+                    child: FlareActor(
+                      "assets/images/secure.flr",
+                      alignment: Alignment.center,
+                      fit: BoxFit.contain,
+                      animation: "secure",
+                      sizeFromArtboard: true,
                     ),
                   ),
                 ),
-              ],
-            ),
-            Container(
-              width: 50,
-              height: 120,
-            ),
-          ],
-        ),
+        //       ],
+        //     ),
+        //     Container(
+        //       width: 50,
+        //       height: 120,
+        //     ),
+        //   ],
+        // ),
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Container(
