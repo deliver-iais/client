@@ -173,10 +173,11 @@ final slidesList = [
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(30.0),
-                    child: Container(
-                      child: Image.asset(
-                        'assets/images/private.png',
-                      ),
+                    child: FlareActor(
+                      "assets/images/infinity.flr",
+                      alignment: Alignment.center,
+                      fit: BoxFit.contain,
+                      animation: "infinity",
                     ),
                   ),
                 ),
@@ -195,7 +196,7 @@ final slidesList = [
           padding: const EdgeInsets.all(16.0),
           child: Container(
             child: Text(
-              'Private',
+              'Powerful',
               style: TextStyle(
                 color: Color(0xFF2699FB),
                 fontSize: 22,
@@ -209,7 +210,7 @@ final slidesList = [
           child: Container(
             width: 200,
             child: Text(
-              'Messenger messages are heavily encrypted and can self-destruct.',
+              'Messenger has no limits on the size of your media and chats.',
               style: TextStyle(
                 color: Color(0xFF2699FB),
                 fontSize: 14,
