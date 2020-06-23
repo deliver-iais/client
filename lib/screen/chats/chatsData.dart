@@ -6,48 +6,48 @@ class ChatsData {
   static List<Conversation> chatsList = [
     Conversation(
       0,
-      Message(
+      SendedMessage(
         "hi1",
-        DateTime.now(),
-        false,
-        true,
+        DateTime(2020, 2, 21),
+        0,
       ),
+      false,
     ),
     Conversation(
       1,
-      Message(
+      SendedMessage(
         "hi2",
         DateTime(2020, 5, 21),
-        false,
-        true,
+        1,
       ),
+      true,
     ),
     Conversation(
       2,
-      Message(
+      SendedMessage(
         "hi3",
         DateTime(2020, 4, 21),
-        false,
-        true,
+        2,
       ),
+      true,
     ),
     Conversation(
       3,
-      Message(
+      RecievedMessage(
         "hi4",
-        DateTime(2020, 5, 25),
+        DateTime(2020, 3, 25),
         false,
-        true,
       ),
+      false,
     ),
     Conversation(
       4,
-      Message(
+      RecievedMessage(
         "hi5",
-        DateTime(2020, 5, 1),
-        false,
+        DateTime(2020, 6, 23, 11, 8),
         true,
       ),
+      false,
     ),
   ];
 }

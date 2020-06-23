@@ -32,7 +32,7 @@ class ContactItem extends StatelessWidget {
                       width: 12.0,
                       height: 12.0,
                       decoration: new BoxDecoration(
-                        color: contact.online ? Colors.green : ThemeColors.secondColor,
+                        color: contact.isOnline ? Colors.green : ThemeColors.secondColor,
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: Colors.black,

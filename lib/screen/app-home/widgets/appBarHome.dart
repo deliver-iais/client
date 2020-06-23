@@ -6,34 +6,60 @@ import 'package:get_it/get_it.dart';
 class AppBarHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var currentPageService = GetIt.I.get<CurrentPageService>(); 
+    var currentPageService = GetIt.I.get<CurrentPageService>();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: AppBar(
-          backgroundColor: Theme.of(context).backgroundColor,
-          title: Row(
-            children: <Widget>[
-              Container(
-                child: CircleAvatar(
-                  radius: 20,
-                  backgroundColor: ThemeColors.circleAvatarbackground,
-                  child: FittedBox(
-                    child: Icon(
-                      Icons.person,
-                      color: ThemeColors.circleAvatarIcon,
+        backgroundColor: Theme.of(context).backgroundColor,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                Container(
+                  child: CircleAvatar(
+                    radius: 20,
+                    backgroundColor: ThemeColors.circleAvatarbackground,
+                    child: FittedBox(
+                      child: Icon(
+                        Icons.person,
+                        color: ThemeColors.circleAvatarIcon,
+                      ),
                     ),
                   ),
                 ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  currentPageService.currentPage == 0 ? "Chats" : "Contacts",
+                  style: Theme.of(context).textTheme.headline2,
+                ),
+              ],
+            ),
+            Container(
+              child: IconButton(
+                icon: Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: ThemeColors.secondColor,
+                  ),
+                  child: Icon(
+                    currentPageService.currentPage == 0
+                        ? Icons.create
+                        : Icons.add,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                onPressed: null,
               ),
-              SizedBox(
-                width: 10,
-              ),
-              Text(
-                currentPageService.currentPage == 0 ? "Chats" : "Contacts",
-                style: Theme.of(context).textTheme.headline2,
-              ),
-            ],
-          )),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

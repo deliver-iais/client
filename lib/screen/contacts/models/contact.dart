@@ -1,9 +1,9 @@
 class Contact{
   final String firstName;
   final String lastName;
-  // final String profilePhoto;
+  final String photoName;
   final int id;
-  final bool online;
+  final bool isOnline;
 
-  Contact(this.firstName, this.lastName, this.id, this.online);
+  Contact(this.firstName, this.lastName, this.id, this.isOnline, this.photoName);
 }
