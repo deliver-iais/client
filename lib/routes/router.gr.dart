@@ -9,13 +9,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/screen/app-intro/pages/introPage.dart';
 import 'package:deliver_flutter/screen/app-home/pages/homePage.dart';
+import 'package:deliver_flutter/screen/app-auth/pages/loginPage.dart';
+import 'package:deliver_flutter/screen/app-auth/pages/verificationPage.dart';
 
 abstract class Routes {
   static const introPage = '/';
   static const homePage = '/home-page';
+  static const loginPage = '/login-page';
+  static const verificationPage = '/verification-page';
   static const all = {
     introPage,
     homePage,
+    loginPage,
+    verificationPage,
   };
 }
 
@@ -37,12 +43,23 @@ class Router extends RouterBase {
         }
         final typedArgs = args as IntroPageArguments ?? IntroPageArguments();
         return MaterialPageRoute<dynamic>(
-          builder: (context) => IntroPage(key: typedArgs.key),
+          builder: (context) =>
+              IntroPage(key: typedArgs.key, currentPage: typedArgs.currentPage),
           settings: settings,
         );
       case Routes.homePage:
         return MaterialPageRoute<dynamic>(
           builder: (context) => HomePage(),
+          settings: settings,
+        );
+      case Routes.loginPage:
+        return MaterialPageRoute<dynamic>(
+          builder: (context) => LoginPage(),
+          settings: settings,
+        );
+      case Routes.verificationPage:
+        return MaterialPageRoute<dynamic>(
+          builder: (context) => VerificationPage(),
           settings: settings,
         );
       default:
@@ -58,5 +75,6 @@ class Router extends RouterBase {
 //IntroPage arguments holder class
 class IntroPageArguments {
   final Key key;
-  IntroPageArguments({this.key});
+  final dynamic currentPage;
+  IntroPageArguments({this.key, this.currentPage});
 }

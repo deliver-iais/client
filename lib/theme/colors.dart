@@ -9,4 +9,5 @@ class ThemeColors{
   static Color secondColor = Color(0xFF393939);
   static Color active = Colors.white;
   static Color infoChat = Colors.white;
+  static Color authText = Color(0xFFBCE0FD);
 }

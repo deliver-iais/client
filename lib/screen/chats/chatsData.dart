@@ -26,7 +26,7 @@ class ChatsData {
       2,
       SendedMessage(
         "hi3",
-        DateTime(2020, 4, 21),
+        DateTime(2020, 5, 27),
         2,
       ),
       true,
@@ -44,7 +44,7 @@ class ChatsData {
       4,
       RecievedMessage(
         "hi5",
-        DateTime(2020, 6, 23, 11, 8),
+        DateTime(2020, 6, 27, 11, 8),
         true,
       ),
       false,

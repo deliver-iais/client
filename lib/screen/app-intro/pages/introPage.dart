@@ -18,7 +18,7 @@ class _IntroPageState extends State<IntroPage> {
   }
 
   void navigateToHomePage(BuildContext context) {
-    ExtendedNavigator.of(context).pushReplacementNamed(Routes.homePage);
+    ExtendedNavigator.of(context).pushReplacementNamed(Routes.loginPage);
   }
 
   @override
