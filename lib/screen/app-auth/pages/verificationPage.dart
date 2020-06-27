@@ -14,9 +14,18 @@ class _VerificationPageState extends State<VerificationPage> {
     await SmsAutoFill().listenForCode;
   }
 
+  @override
   void initState() {
     super.initState();
     _listenOpt();
+  }
+
+  _navigationToHome() {
+    Future.delayed(const Duration(milliseconds: 500), () {
+      CircularProgressIndicator();
+    });
+    ExtendedNavigator.of(context)
+        .pushNamedAndRemoveUntil(Routes.homePage, (_) => false);
   }
 
   @override
@@ -65,35 +74,22 @@ class _VerificationPageState extends State<VerificationPage> {
                         Radius.circular(5),
                       ),
                     ),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          flex: 2,
-                          child: Container(),
+                    child: TextFieldPinAutoFill(
+                      // onCodeSubmitted: _navigationToHome(),
+                      codeLength: 5,
+                      onCodeChanged: (val) => print(val),
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 80),
+                        hintText: "Verification Code",
+                        focusedBorder: InputBorder.none,
+                        border: InputBorder.none,
+                        hintStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: ThemeColors.authText,
+                          fontSize: 16,
                         ),
-                        Expanded(
-                          flex: 3,
-                          child: TextFieldPinAutoFill(
-                            codeLength: 5,
-                            onCodeChanged: (val) => print(val),
-                            decoration: InputDecoration(
-                              hintText: "Verification Code",
-                              focusedBorder: InputBorder.none,
-                              border: InputBorder.none,
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: ThemeColors.authText,
-                                fontSize: 16,
-                              ),
-                              counterText: "",
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Container(),
-                        ),
-                      ],
+                        counterText: "",
+                      ),
                     ),
                   ),
                 ),
@@ -114,10 +110,7 @@ class _VerificationPageState extends State<VerificationPage> {
                   ),
                 ),
                 color: Theme.of(context).backgroundColor,
-                onPressed: () {
-                  ExtendedNavigator.of(context)
-                      .pushNamedAndRemoveUntil(Routes.homePage, (_) => false);
-                },
+                onPressed: _navigationToHome(),
               ),
             ),
           ),

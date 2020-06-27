@@ -44,6 +44,7 @@ dependencies:
   moor: ^3.1.0
   moor_ffi: ^0.6.0
   sms_autofill: ^1.2.1
+  shared_preferences: ^0.5.7+3
   # Path for Files
 #  path_provider: ^1.6.9
 #  path: ^1.7.0
