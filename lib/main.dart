@@ -1,12 +1,16 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import './screen/app-intro/pages/intro.dart';
+import 'package:rxdart/rxdart.dart';
 
 void setupDI() {
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<UxService>(UxService());
+  getIt.registerSingleton<CurrentPageService>(CurrentPageService());
 }
 
 void main() {
@@ -22,16 +26,21 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var uxService = GetIt.I.get<UxService>();
+    var currentPageService = GetIt.I.get<CurrentPageService>();
     return StreamBuilder(
-        stream: uxService.themeStream,
-        builder: (context, snapshot) {
-          Fimber.d("theme changed ${uxService.theme.toString()}");
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'Flutter Demo',
-            theme: uxService.theme,
-            home: IntroPage(key: Key(uxService.theme.toString())),
-          );
-        });
+      stream: MergeStream([uxService.themeStream as Stream, currentPageService.currentPageStream as Stream]),
+      builder: (context, snapshot) {
+        Fimber.d("theme changed ${uxService.theme.toString()}");
+        Fimber.d("currentPage changed ${currentPageService.currentPage.toString()}");
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Flutter Demo',
+          theme: uxService.theme,
+          builder: ExtendedNavigator<Router>(
+            router: Router(),
+          ),
+        );
+      },
+    );
   }
 }
