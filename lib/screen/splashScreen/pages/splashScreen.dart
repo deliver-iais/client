@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/screen/app-auth/models/loggedinStatus.dart';
+import 'package:deliver_flutter/models/loggedinStatus.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
