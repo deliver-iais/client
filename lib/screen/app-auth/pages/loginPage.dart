@@ -1,10 +1,40 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_flutter/screen/app-auth/models/loggedinStatus.dart';
 import 'package:deliver_flutter/screen/app-auth/widgets/inputFeilds.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  var phoneNum;
+
+  var code;
+  _sets() async {
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    print("object");
+    _prefs.setString(
+      "loggedinUserId",
+      code + phoneNum,
+    );
+    _prefs.setString(
+      "loggedinStatus",
+      enumToString(LoggedinStatus.waitForVerify),
+    );
+  }
+
+  _navigateToVerificationPage() async {
+    final signCode = await SmsAutoFill().getAppSignature;
+    print(signCode);
+    _sets();
+    ExtendedNavigator.ofRouter<Router>().pushNamed(Routes.verificationPage);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +72,20 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
                 // PhoneFieldHint(),
-                InputFeilds(),
+                InputFeilds(
+                  onChangeCode: (val) => setState(
+                    () {
+                      code = val;
+                      print(val);
+                    },
+                  ),
+                  onChangePhoneNum: (val) => setState(
+                    () {
+                      phoneNum = val;
+                      print(val);
+                    },
+                  ),
+                ),
               ],
             ),
           ),
@@ -60,12 +103,7 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
                 color: Theme.of(context).backgroundColor,
-                onPressed: () async {
-                  final signCode = await SmsAutoFill().getAppSignature;
-                  print(signCode);
-                  ExtendedNavigator.of(context)
-                      .pushNamed(Routes.verificationPage);
-                },
+                onPressed: _navigateToVerificationPage,
               ),
             ),
           ),

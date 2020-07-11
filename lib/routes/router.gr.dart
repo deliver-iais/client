@@ -7,17 +7,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/screen/splashScreen/splashScreen.dart';
 import 'package:deliver_flutter/screen/app-intro/pages/introPage.dart';
 import 'package:deliver_flutter/screen/app-home/pages/homePage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/loginPage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/verificationPage.dart';
 
 abstract class Routes {
-  static const introPage = '/';
+  static const splashScreen = '/';
+  static const introPage = '/intro-page';
   static const homePage = '/home-page';
   static const loginPage = '/login-page';
   static const verificationPage = '/verification-page';
   static const all = {
+    splashScreen,
     introPage,
     homePage,
     loginPage,
@@ -37,6 +40,11 @@ class Router extends RouterBase {
   Route<dynamic> onGenerateRoute(RouteSettings settings) {
     final args = settings.arguments;
     switch (settings.name) {
+      case Routes.splashScreen:
+        return MaterialPageRoute<dynamic>(
+          builder: (context) => SplashScreen(),
+          settings: settings,
+        );
       case Routes.introPage:
         if (hasInvalidArgs<IntroPageArguments>(args)) {
           return misTypedArgsRoute<IntroPageArguments>(args);

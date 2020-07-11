@@ -2,6 +2,11 @@ import 'package:deliver_flutter/theme/colors.dart';
 import 'package:flutter/material.dart';
 
 class InputFeilds extends StatelessWidget {
+  final Function onChangeCode;
+  final Function onChangePhoneNum;
+
+  const InputFeilds({Key key, this.onChangeCode, this.onChangePhoneNum})
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -89,6 +94,7 @@ class InputFeilds extends StatelessWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: Center(
                   child: TextField(
+                    onChanged: onChangePhoneNum,
                     textAlignVertical: TextAlignVertical.center,
                     textAlign: TextAlign.center,
                     autofocus: false,

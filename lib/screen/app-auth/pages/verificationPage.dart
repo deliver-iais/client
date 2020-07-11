@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_flutter/screen/app-auth/models/loggedinStatus.dart';
 import 'package:deliver_flutter/theme/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
 class VerificationPage extends StatefulWidget {
@@ -14,18 +16,22 @@ class _VerificationPageState extends State<VerificationPage> {
     await SmsAutoFill().listenForCode;
   }
 
+  _set() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('loggedinStatus', enumToString(LoggedinStatus.loggedin));
+  }
+
+  _navigationToHome() {
+    print("hi");
+    _set();
+    ExtendedNavigator.of(context)
+        .pushNamedAndRemoveUntil(Routes.homePage, (_) => false);
+  }
+
   @override
   void initState() {
     super.initState();
     _listenOpt();
-  }
-
-  _navigationToHome() {
-    Future.delayed(const Duration(milliseconds: 500), () {
-      CircularProgressIndicator();
-    });
-    ExtendedNavigator.of(context)
-        .pushNamedAndRemoveUntil(Routes.homePage, (_) => false);
   }
 
   @override
@@ -110,7 +116,7 @@ class _VerificationPageState extends State<VerificationPage> {
                   ),
                 ),
                 color: Theme.of(context).backgroundColor,
-                onPressed: _navigationToHome(),
+                onPressed: _navigationToHome,
               ),
             ),
           ),
