@@ -7,7 +7,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/screen/splashScreen/splashScreen.dart';
+import 'package:deliver_flutter/screen/splashScreen/pages/splashScreen.dart';
 import 'package:deliver_flutter/screen/app-intro/pages/introPage.dart';
 import 'package:deliver_flutter/screen/app-home/pages/homePage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/loginPage.dart';

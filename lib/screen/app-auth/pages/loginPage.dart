@@ -12,12 +12,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  var phoneNum;
+  String phoneNum = "";
+  String code = "";
+  String inputError;
 
-  var code;
   _sets() async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
-    print("object");
     _prefs.setString(
       "loggedinUserId",
       code + phoneNum,
@@ -29,10 +29,18 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _navigateToVerificationPage() async {
-    final signCode = await SmsAutoFill().getAppSignature;
-    print(signCode);
-    _sets();
-    ExtendedNavigator.ofRouter<Router>().pushNamed(Routes.verificationPage);
+    if (code == "" || phoneNum == "") {
+      setState(() {
+        inputError = code == "" && phoneNum == ""
+            ? "both"
+            : code == "" ? "code" : "phoneNum";
+      });
+    } else {
+      final signCode = await SmsAutoFill().getAppSignature;
+      print(signCode);
+      _sets();
+      ExtendedNavigator.ofRouter<Router>().pushNamed(Routes.verificationPage);
+    }
   }
 
   @override
@@ -76,15 +84,22 @@ class _LoginPageState extends State<LoginPage> {
                   onChangeCode: (val) => setState(
                     () {
                       code = val;
+                      inputError = inputError == "code"
+                          ? null
+                          : inputError == "both" ? "phoneNum" : null;
                       print(val);
                     },
                   ),
                   onChangePhoneNum: (val) => setState(
                     () {
                       phoneNum = val;
+                      inputError = inputError == "phoneNum"
+                          ? null
+                          : inputError == "both" ? "code" : null;
                       print(val);
                     },
                   ),
+                  inputError: inputError,
                 ),
               ],
             ),

@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _getLoggedinStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // prefs.clear();
+    prefs.clear();
     loggedinStatus = enumFromString(prefs.getString("loggedinStatus"));
     if (loggedinStatus == null) loggedinStatus = LoggedinStatus.noLoggeding;
     print("loggedinStatus : " + enumToString(loggedinStatus));
