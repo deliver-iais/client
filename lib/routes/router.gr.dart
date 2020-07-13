@@ -12,6 +12,7 @@ import 'package:deliver_flutter/screen/app-intro/pages/introPage.dart';
 import 'package:deliver_flutter/screen/app-home/pages/homePage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/loginPage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/verificationPage.dart';
+import 'package:deliver_flutter/screen/privateChat/pages/privateChat.dart';
 
 abstract class Routes {
   static const splashScreen = '/';
@@ -19,12 +20,14 @@ abstract class Routes {
   static const homePage = '/home-page';
   static const loginPage = '/login-page';
   static const verificationPage = '/verification-page';
+  static const privateChat = '/private-chat';
   static const all = {
     splashScreen,
     introPage,
     homePage,
     loginPage,
     verificationPage,
+    privateChat,
   };
 }
 
@@ -68,6 +71,11 @@ class Router extends RouterBase {
       case Routes.verificationPage:
         return MaterialPageRoute<dynamic>(
           builder: (context) => VerificationPage(),
+          settings: settings,
+        );
+      case Routes.privateChat:
+        return MaterialPageRoute<dynamic>(
+          builder: (context) => PrivateChat(),
           settings: settings,
         );
       default:

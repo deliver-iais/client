@@ -1,40 +1,40 @@
+import 'package:auto_route/auto_route.dart';
+import '../routes/router.gr.dart';
+import 'appbarTitle.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
+import 'package:deliver_flutter/shared/appbarPic.dart';
 import 'package:deliver_flutter/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class AppBarHome extends StatelessWidget {
+class Appbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var currentPageService = GetIt.I.get<CurrentPageService>();
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: AppBar(
+        leading: currentPageService.currentPage == -1
+            ? new IconButton(
+                icon: new Icon(Icons.arrow_back),
+                onPressed: () {
+                  currentPageService.setToHome();
+                  ExtendedNavigator.of(context)
+                      .pushNamedAndRemoveUntil(Routes.homePage, (_) => false);
+                },
+              )
+            : null,
         backgroundColor: Theme.of(context).backgroundColor,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Row(
               children: <Widget>[
-                Container(
-                  child: CircleAvatar(
-                    radius: 20,
-                    backgroundColor: ThemeColors.circleAvatarbackground,
-                    child: FittedBox(
-                      child: Icon(
-                        Icons.person,
-                        color: ThemeColors.circleAvatarIcon,
-                      ),
-                    ),
-                  ),
-                ),
+                AppbarPic(),
                 SizedBox(
                   width: 10,
                 ),
-                Text(
-                  currentPageService.currentPage == 0 ? "Chats" : "Contacts",
-                  style: Theme.of(context).textTheme.headline2,
-                ),
+                AppbarTitle(),
               ],
             ),
             Container(
@@ -47,9 +47,11 @@ class AppBarHome extends StatelessWidget {
                     color: ThemeColors.secondColor,
                   ),
                   child: Icon(
-                    currentPageService.currentPage == 0
-                        ? Icons.create
-                        : Icons.add,
+                    currentPageService.currentPage == -1
+                        ? Icons.settings
+                        : currentPageService.currentPage == 0
+                            ? Icons.create
+                            : Icons.add,
                     color: Colors.white,
                     size: 20,
                   ),

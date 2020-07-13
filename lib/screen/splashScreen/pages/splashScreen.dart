@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/models/loggedinStatus.dart';
+import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -20,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _getLoggedinStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.clear();
+    // prefs.clear();
     loggedinStatus = enumFromString(prefs.getString("loggedinStatus"));
     if (loggedinStatus == null) loggedinStatus = LoggedinStatus.noLoggeding;
     print("loggedinStatus : " + enumToString(loggedinStatus));
@@ -33,11 +35,13 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToIntroPage() {
-    ExtendedNavigator.ofRouter<Router>().pushNamed(Routes.introPage);
+    ExtendedNavigator.ofRouter<Router>().pushReplacementNamed(Routes.introPage);
   }
 
   void _navigateToHomePage() {
-    ExtendedNavigator.of(context).pushNamed(Routes.homePage);
+    var currentPageService = GetIt.I.get<CurrentPageService>();
+    currentPageService.setToHome();
+    ExtendedNavigator.of(context).pushReplacementNamed(Routes.homePage);
   }
 
   @override

@@ -91,7 +91,7 @@ class _VerificationPageState extends State<VerificationPage> {
                         border: InputBorder.none,
                         hintStyle: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: ThemeColors.authText,
+                          color: ThemeColors.text,
                           fontSize: 16,
                         ),
                         counterText: "",

@@ -6,7 +6,7 @@ import 'package:deliver_flutter/models/conversation.dart';
 import 'package:deliver_flutter/screen/contacts/contactsData.dart';
 import 'package:deliver_flutter/theme/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/profilePic.dart';
+import 'package:deliver_flutter/screen/chats/widgets/ContactPic.dart';
 
 class ChatItem extends StatelessWidget {
   final Conversation conversation;
@@ -23,7 +23,7 @@ class ChatItem extends StatelessWidget {
         children: <Widget>[
           Row(
             children: <Widget>[
-              ProfilePic(contact.isOnline, contact.photoName),
+              ContactPic(contact.isOnline, contact.photoName),
               SizedBox(
                 width: 20,
               ),

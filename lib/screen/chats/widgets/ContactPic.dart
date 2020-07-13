@@ -2,11 +2,11 @@ import 'package:deliver_flutter/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class ProfilePic extends StatelessWidget {
+class ContactPic extends StatelessWidget {
   final bool isOnline;
   final String photoName;
 
-  const ProfilePic(this.isOnline, this.photoName);
+  const ContactPic(this.isOnline, this.photoName);
   @override
   Widget build(BuildContext context) {
     return Stack(

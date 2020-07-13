@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/screen/app-home/widgets/appBarHome.dart';
+import 'package:deliver_flutter/shared/appbar.dart';
 import 'package:deliver_flutter/screen/app-home/widgets/navigationBar.dart';
 import 'package:deliver_flutter/screen/app-home/widgets/searchBox.dart';
 import 'package:deliver_flutter/screen/chats/widgets/Chats.dart';
@@ -15,7 +15,7 @@ class HomePage extends StatelessWidget {
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
-        child: AppBarHome(),
+        child: Appbar(),
       ),
       body: Column(
         children: <Widget>[
