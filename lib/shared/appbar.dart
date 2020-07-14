@@ -19,8 +19,7 @@ class Appbar extends StatelessWidget {
                 icon: new Icon(Icons.arrow_back),
                 onPressed: () {
                   currentPageService.setToHome();
-                  ExtendedNavigator.of(context)
-                      .pushNamedAndRemoveUntil(Routes.homePage, (_) => false);
+                  ExtendedNavigator.of(context).pop();
                 },
               )
             : null,

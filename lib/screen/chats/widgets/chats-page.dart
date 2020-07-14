@@ -16,11 +16,15 @@ class Chats extends StatelessWidget {
           itemCount: ChatsData.chatsList.length,
           itemBuilder: (BuildContext ctxt, int index) {
             return GestureDetector(
-                child: ChatItem(conversation: ChatsData.chatsList[index]),
-                onTap: () {
-                  currentPageService.resetPage();
-                  ExtendedNavigator.of(context).pushNamed(Routes.privateChat);
-                });
+              child: ChatItem(conversation: ChatsData.chatsList[index]),
+              onTap: () {
+                currentPageService.resetPage();
+                NestedNavigator(
+                  name: 'nestedNav',
+                );
+                ExtendedNavigator.byName('nestedNav').pushNamed("/chat:" + "");
+              },
+            );
           },
         ),
       ),

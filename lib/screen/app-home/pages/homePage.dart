@@ -1,7 +1,7 @@
 import 'package:deliver_flutter/shared/appbar.dart';
 import 'package:deliver_flutter/screen/app-home/widgets/navigationBar.dart';
 import 'package:deliver_flutter/screen/app-home/widgets/searchBox.dart';
-import 'package:deliver_flutter/screen/chats/widgets/Chats.dart';
+import 'package:deliver_flutter/screen/chats/widgets/chats-page.dart';
 import 'package:deliver_flutter/screen/contacts/widgets/contacts.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:flutter/material.dart';

@@ -39,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
       final signCode = await SmsAutoFill().getAppSignature;
       print(signCode);
       _sets();
-      ExtendedNavigator.ofRouter<Router>().pushNamed(Routes.verificationPage);
+      NestedNavigator();
     }
   }
 

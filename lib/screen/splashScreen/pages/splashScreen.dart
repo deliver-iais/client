@@ -13,6 +13,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   var loggedinStatus;
+  var contactId;
   @override
   void initState() {
     super.initState();
@@ -25,6 +26,8 @@ class _SplashScreenState extends State<SplashScreen> {
     // prefs.clear();
     loggedinStatus = enumFromString(prefs.getString("loggedinStatus"));
     if (loggedinStatus == null) loggedinStatus = LoggedinStatus.noLoggeding;
+    if (loggedinStatus == LoggedinStatus.loggedin)
+      contactId = prefs.get("loggedinUserId");
     print("loggedinStatus : " + enumToString(loggedinStatus));
   }
 
@@ -35,13 +38,15 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToIntroPage() {
-    ExtendedNavigator.ofRouter<Router>().pushReplacementNamed(Routes.introPage);
+    ExtendedNavigator.ofRouter<Router>()
+        .pushNamedAndRemoveUntil(Routes.introPage, (_) => false);
   }
 
   void _navigateToHomePage() {
     var currentPageService = GetIt.I.get<CurrentPageService>();
     currentPageService.setToHome();
-    ExtendedNavigator.of(context).pushReplacementNamed(Routes.homePage);
+    ExtendedNavigator.of(context)
+        .pushNamedAndRemoveUntil(Routes.homePage(id: contactId), (_) => false);
   }
 
   @override

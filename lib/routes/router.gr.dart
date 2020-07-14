@@ -9,79 +9,124 @@ import 'package:flutter/cupertino.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/screen/splashScreen/pages/splashScreen.dart';
 import 'package:deliver_flutter/screen/app-intro/pages/introPage.dart';
-import 'package:deliver_flutter/screen/app-home/pages/homePage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/loginPage.dart';
+import 'package:deliver_flutter/screen/app-home/pages/homePage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/verificationPage.dart';
 import 'package:deliver_flutter/screen/privateChat/pages/privateChat.dart';
 
-abstract class Routes {
-  static const splashScreen = '/';
-  static const introPage = '/intro-page';
-  static const homePage = '/home-page';
-  static const loginPage = '/login-page';
-  static const verificationPage = '/verification-page';
-  static const privateChat = '/private-chat';
-  static const all = {
+class Routes {
+  static const String splashScreen = '/';
+  static const String introPage = '/intro-page';
+  static const String loginPage = '/login-page';
+  static const String _homePage = '/users:id';
+  static homePage({@required id}) => '/users$id';
+  static const all = <String>{
     splashScreen,
     introPage,
-    homePage,
     loginPage,
-    verificationPage,
-    privateChat,
+    _homePage,
   };
 }
 
 class Router extends RouterBase {
   @override
-  Set<String> get allRoutes => Routes.all;
-
-  @Deprecated('call ExtendedNavigator.ofRouter<Router>() directly')
-  static ExtendedNavigatorState get navigator =>
-      ExtendedNavigator.ofRouter<Router>();
-
+  List<RouteDef> get routes => _routes;
+  final _routes = <RouteDef>[
+    RouteDef(Routes.splashScreen, page: SplashScreen),
+    RouteDef(Routes.introPage, page: IntroPage),
+    RouteDef(
+      Routes.loginPage,
+      page: LoginPage,
+      innerRouter: () => LoginPageRouter(),
+    ),
+    RouteDef(
+      Routes._homePage,
+      page: HomePage,
+      innerRouter: () => HomePageRouter(),
+    ),
+  ];
   @override
-  Route<dynamic> onGenerateRoute(RouteSettings settings) {
-    final args = settings.arguments;
-    switch (settings.name) {
-      case Routes.splashScreen:
-        return MaterialPageRoute<dynamic>(
-          builder: (context) => SplashScreen(),
-          settings: settings,
-        );
-      case Routes.introPage:
-        if (hasInvalidArgs<IntroPageArguments>(args)) {
-          return misTypedArgsRoute<IntroPageArguments>(args);
-        }
-        final typedArgs = args as IntroPageArguments ?? IntroPageArguments();
-        return MaterialPageRoute<dynamic>(
-          builder: (context) =>
-              IntroPage(key: typedArgs.key, currentPage: typedArgs.currentPage),
-          settings: settings,
-        );
-      case Routes.homePage:
-        return MaterialPageRoute<dynamic>(
-          builder: (context) => HomePage(),
-          settings: settings,
-        );
-      case Routes.loginPage:
-        return MaterialPageRoute<dynamic>(
-          builder: (context) => LoginPage(),
-          settings: settings,
-        );
-      case Routes.verificationPage:
-        return MaterialPageRoute<dynamic>(
-          builder: (context) => VerificationPage(),
-          settings: settings,
-        );
-      case Routes.privateChat:
-        return MaterialPageRoute<dynamic>(
-          builder: (context) => PrivateChat(),
-          settings: settings,
-        );
-      default:
-        return unknownRoutePage(settings.name);
-    }
-  }
+  Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
+  final _pagesMap = <Type, AutoRouteFactory>{
+    SplashScreen: (RouteData data) {
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => SplashScreen(),
+        settings: data,
+      );
+    },
+    IntroPage: (RouteData data) {
+      var args =
+          data.getArgs<IntroPageArguments>(orElse: () => IntroPageArguments());
+      return MaterialPageRoute<dynamic>(
+        builder: (context) =>
+            IntroPage(key: args.key, currentPage: args.currentPage),
+        settings: data,
+      );
+    },
+    LoginPage: (RouteData data) {
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => LoginPage(),
+        settings: data,
+      );
+    },
+    HomePage: (RouteData data) {
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => HomePage(),
+        settings: data,
+      );
+    },
+  };
+}
+
+class LoginPageRoutes {
+  static const String verificationPage = '/verification';
+  static const all = <String>{
+    verificationPage,
+  };
+}
+
+class LoginPageRouter extends RouterBase {
+  @override
+  List<RouteDef> get routes => _routes;
+  final _routes = <RouteDef>[
+    RouteDef(LoginPageRoutes.verificationPage, page: VerificationPage),
+  ];
+  @override
+  Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
+  final _pagesMap = <Type, AutoRouteFactory>{
+    VerificationPage: (RouteData data) {
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => VerificationPage(),
+        settings: data,
+      );
+    },
+  };
+}
+
+class HomePageRoutes {
+  static const String _privateChat = '/chat:chatId';
+  static privateChat({@required chatId}) => '/chat$chatId';
+  static const all = <String>{
+    _privateChat,
+  };
+}
+
+class HomePageRouter extends RouterBase {
+  @override
+  List<RouteDef> get routes => _routes;
+  final _routes = <RouteDef>[
+    RouteDef(HomePageRoutes._privateChat, page: PrivateChat),
+  ];
+  @override
+  Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
+  final _pagesMap = <Type, AutoRouteFactory>{
+    PrivateChat: (RouteData data) {
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => PrivateChat(),
+        settings: data,
+      );
+    },
+  };
 }
 
 // *************************************************************************

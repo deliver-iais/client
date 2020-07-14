@@ -6,13 +6,23 @@ import 'package:deliver_flutter/screen/app-auth/pages/verificationPage.dart';
 import 'package:deliver_flutter/screen/privateChat/pages/privateChat.dart';
 import 'package:deliver_flutter/screen/splashScreen/pages/splashScreen.dart';
 
-@MaterialAutoRouter()
-class $Router {
-  @initial
-  SplashScreen splashScreen;
-  IntroPage introPage;
-  HomePage homePage;
-  LoginPage loginPage;
-  VerificationPage verificationPage;
-  PrivateChat privateChat;
-}
+@MaterialAutoRouter(
+  routes: <AutoRoute>[
+    MaterialRoute(page: SplashScreen, initial: true),
+    MaterialRoute(page: IntroPage),
+    MaterialRoute(
+      page: LoginPage,
+      children: <AutoRoute>[
+        MaterialRoute(path: '/verification', page: VerificationPage)
+      ],
+    ),
+    MaterialRoute(
+      path: '/users:id',
+      page: HomePage,
+      children: <AutoRoute>[
+        MaterialRoute(path: '/chat:chatId', page: PrivateChat)
+      ],
+    ),
+  ],
+)
+class $Router {}
