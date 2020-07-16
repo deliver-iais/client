@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import '../routes/router.gr.dart';
 import 'appbarTitle.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/shared/appbarPic.dart';
@@ -10,7 +9,9 @@ import 'package:get_it/get_it.dart';
 class Appbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    print('hi');
     var currentPageService = GetIt.I.get<CurrentPageService>();
+    print('currentPage : ' + currentPageService.currentPage.toString());
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: AppBar(

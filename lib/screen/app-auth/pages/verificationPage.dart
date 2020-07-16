@@ -12,21 +12,24 @@ class VerificationPage extends StatefulWidget {
 }
 
 class _VerificationPageState extends State<VerificationPage> {
-  var contactId = '';
+  var loggedinUserId = '';
   void _listenOpt() async {
     await SmsAutoFill().listenForCode;
   }
 
-  _getContactId() async {
+  _getLoggedinUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('loggedinStatus', enumToString(LoggedinStatus.loggedin));
-    contactId = prefs.getString('loggedinUserId');
+    loggedinUserId = prefs.getString('loggedinUserId');
   }
 
   _navigationToHome() {
     print("hi");
-    _getContactId().then((value) => ExtendedNavigator.of(context)
-        .pushNamedAndRemoveUntil(Routes.homePage(id: contactId), (_) => false));
+    _getLoggedinUserId()
+        .then((value) => ExtendedNavigator.of(context).pushNamedAndRemoveUntil(
+              Routes.homePage(id: loggedinUserId),
+              (_) => false,
+            ));
   }
 
   @override

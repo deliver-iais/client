@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
@@ -8,12 +9,15 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import './db/dao/MessageDao.dart';
+import 'db/dao/ChatDao.dart';
 
 void setupDI() {
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<UxService>(UxService());
   getIt.registerSingleton<CurrentPageService>(CurrentPageService());
-  getIt.registerSingleton<MessageDao>(Database().messageDao);
+  Database db = Database();
+  getIt.registerSingleton<MessageDao>(db.messageDao);
+  getIt.registerSingleton<ChatDao>(db.chatDao);
 }
 
 void main() {
@@ -31,20 +35,44 @@ class MyApp extends StatelessWidget {
     var uxService = GetIt.I.get<UxService>();
     var currentPageService = GetIt.I.get<CurrentPageService>();
     var messagesDao = GetIt.I.get<MessageDao>();
+    var chatDao = GetIt.I.get<ChatDao>();
     return StreamBuilder(
       stream: MergeStream([
         uxService.themeStream as Stream,
         currentPageService.currentPageStream as Stream,
         messagesDao.watchAllMessages(),
+        chatDao.watchAllChats(),
       ]),
       builder: (context, snapshot) {
         Fimber.d("theme changed ${uxService.theme.toString()}");
         Fimber.d(
             "currentPage changed ${currentPageService.currentPage.toString()}");
+
+        messagesDao.insertMessage(Message(
+            chatId: 0,
+            id: 0,
+            time: DateTime.now(),
+            from: '0000000000000000000000',
+            to: '0000000000000000000001',
+            forwardedFrom: null,
+            replyToId: null,
+            edited: false,
+            encrypted: false,
+            type: MessageType.text,
+            content: 'hi',
+            seen: false));
+        chatDao.insertChat(Chat(
+            chatId: 0,
+            sender: '0000000000000000000000',
+            reciever: '0000000000000000000001',
+            mentioned: null,
+            lastMessage: 0));
+
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Flutter Demo',
           theme: uxService.theme,
+          onGenerateRoute: Router(),
           builder: ExtendedNavigator<Router>(
             router: Router(),
           ),
@@ -53,3 +81,12 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+//TODO
+//ConvertTime To Shared
+//edit details
+//edit ChatItem
+//delete extra models
+//edit address of files
+//userid for chat item
+//message doesnt send in database?

@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/models/loggedinStatus.dart';
+import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-auth/widgets/inputFeilds.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,18 +16,6 @@ class _LoginPageState extends State<LoginPage> {
   String code = "";
   String inputError;
 
-  _sets() async {
-    SharedPreferences _prefs = await SharedPreferences.getInstance();
-    _prefs.setString(
-      "loggedinUserId",
-      code + phoneNum,
-    );
-    _prefs.setString(
-      "loggedinStatus",
-      enumToString(LoggedinStatus.waitForVerify),
-    );
-  }
-
   _navigateToVerificationPage() async {
     if (code == "" || phoneNum == "") {
       setState(() {
@@ -38,8 +26,19 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       final signCode = await SmsAutoFill().getAppSignature;
       print(signCode);
-      _sets();
-      NestedNavigator();
+      SharedPreferences _prefs = await SharedPreferences.getInstance();
+      _prefs
+          .setString(
+              "loggedinUserId",
+              // code + phoneNum,
+              '0000000000000000000000')
+          .then((value) => _prefs
+              .setString(
+                "loggedinStatus",
+                enumToString(LoggedinStatus.waitForVerify),
+              )
+              .then((value) => ExtendedNavigator.of(context)
+                  .pushNamed(Routes.verificationPage)));
     }
   }
 

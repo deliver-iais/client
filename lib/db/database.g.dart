@@ -18,17 +18,21 @@ class Message extends DataClass implements Insertable<Message> {
   final bool edited;
   final bool encrypted;
   final MessageType type;
+  final String content;
+  final bool seen;
   Message(
       {@required this.chatId,
       @required this.id,
       @required this.time,
       @required this.from,
       @required this.to,
-      @required this.forwardedFrom,
-      @required this.replyToId,
+      this.forwardedFrom,
+      this.replyToId,
       @required this.edited,
       @required this.encrypted,
-      @required this.type});
+      @required this.type,
+      @required this.content,
+      @required this.seen});
   factory Message.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -54,6 +58,9 @@ class Message extends DataClass implements Insertable<Message> {
           boolType.mapFromDatabaseResponse(data['${effectivePrefix}encrypted']),
       type: $MessagesTable.$converter0.mapToDart(
           intType.mapFromDatabaseResponse(data['${effectivePrefix}type'])),
+      content:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}content']),
+      seen: boolType.mapFromDatabaseResponse(data['${effectivePrefix}seen']),
     );
   }
   @override
@@ -90,6 +97,12 @@ class Message extends DataClass implements Insertable<Message> {
       final converter = $MessagesTable.$converter0;
       map['type'] = Variable<int>(converter.mapToSql(type));
     }
+    if (!nullToAbsent || content != null) {
+      map['content'] = Variable<String>(content);
+    }
+    if (!nullToAbsent || seen != null) {
+      map['seen'] = Variable<bool>(seen);
+    }
     return map;
   }
 
@@ -113,6 +126,10 @@ class Message extends DataClass implements Insertable<Message> {
           ? const Value.absent()
           : Value(encrypted),
       type: type == null && nullToAbsent ? const Value.absent() : Value(type),
+      content: content == null && nullToAbsent
+          ? const Value.absent()
+          : Value(content),
+      seen: seen == null && nullToAbsent ? const Value.absent() : Value(seen),
     );
   }
 
@@ -130,6 +147,8 @@ class Message extends DataClass implements Insertable<Message> {
       edited: serializer.fromJson<bool>(json['edited']),
       encrypted: serializer.fromJson<bool>(json['encrypted']),
       type: serializer.fromJson<MessageType>(json['type']),
+      content: serializer.fromJson<String>(json['content']),
+      seen: serializer.fromJson<bool>(json['seen']),
     );
   }
   @override
@@ -146,6 +165,8 @@ class Message extends DataClass implements Insertable<Message> {
       'edited': serializer.toJson<bool>(edited),
       'encrypted': serializer.toJson<bool>(encrypted),
       'type': serializer.toJson<MessageType>(type),
+      'content': serializer.toJson<String>(content),
+      'seen': serializer.toJson<bool>(seen),
     };
   }
 
@@ -159,7 +180,9 @@ class Message extends DataClass implements Insertable<Message> {
           int replyToId,
           bool edited,
           bool encrypted,
-          MessageType type}) =>
+          MessageType type,
+          String content,
+          bool seen}) =>
       Message(
         chatId: chatId ?? this.chatId,
         id: id ?? this.id,
@@ -171,6 +194,8 @@ class Message extends DataClass implements Insertable<Message> {
         edited: edited ?? this.edited,
         encrypted: encrypted ?? this.encrypted,
         type: type ?? this.type,
+        content: content ?? this.content,
+        seen: seen ?? this.seen,
       );
   @override
   String toString() {
@@ -184,7 +209,9 @@ class Message extends DataClass implements Insertable<Message> {
           ..write('replyToId: $replyToId, ')
           ..write('edited: $edited, ')
           ..write('encrypted: $encrypted, ')
-          ..write('type: $type')
+          ..write('type: $type, ')
+          ..write('content: $content, ')
+          ..write('seen: $seen')
           ..write(')'))
         .toString();
   }
@@ -206,8 +233,12 @@ class Message extends DataClass implements Insertable<Message> {
                               replyToId.hashCode,
                               $mrjc(
                                   edited.hashCode,
-                                  $mrjc(encrypted.hashCode,
-                                      type.hashCode))))))))));
+                                  $mrjc(
+                                      encrypted.hashCode,
+                                      $mrjc(
+                                          type.hashCode,
+                                          $mrjc(content.hashCode,
+                                              seen.hashCode))))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -221,7 +252,9 @@ class Message extends DataClass implements Insertable<Message> {
           other.replyToId == this.replyToId &&
           other.edited == this.edited &&
           other.encrypted == this.encrypted &&
-          other.type == this.type);
+          other.type == this.type &&
+          other.content == this.content &&
+          other.seen == this.seen);
 }
 
 class MessagesCompanion extends UpdateCompanion<Message> {
@@ -235,6 +268,8 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   final Value<bool> edited;
   final Value<bool> encrypted;
   final Value<MessageType> type;
+  final Value<String> content;
+  final Value<bool> seen;
   const MessagesCompanion({
     this.chatId = const Value.absent(),
     this.id = const Value.absent(),
@@ -246,6 +281,8 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     this.edited = const Value.absent(),
     this.encrypted = const Value.absent(),
     this.type = const Value.absent(),
+    this.content = const Value.absent(),
+    this.seen = const Value.absent(),
   });
   MessagesCompanion.insert({
     @required int chatId,
@@ -253,19 +290,20 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     @required DateTime time,
     @required String from,
     @required String to,
-    @required String forwardedFrom,
-    @required int replyToId,
+    this.forwardedFrom = const Value.absent(),
+    this.replyToId = const Value.absent(),
     this.edited = const Value.absent(),
     this.encrypted = const Value.absent(),
     @required MessageType type,
+    @required String content,
+    this.seen = const Value.absent(),
   })  : chatId = Value(chatId),
         id = Value(id),
         time = Value(time),
         from = Value(from),
         to = Value(to),
-        forwardedFrom = Value(forwardedFrom),
-        replyToId = Value(replyToId),
-        type = Value(type);
+        type = Value(type),
+        content = Value(content);
   static Insertable<Message> custom({
     Expression<int> chatId,
     Expression<int> id,
@@ -277,6 +315,8 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     Expression<bool> edited,
     Expression<bool> encrypted,
     Expression<int> type,
+    Expression<String> content,
+    Expression<bool> seen,
   }) {
     return RawValuesInsertable({
       if (chatId != null) 'chat_id': chatId,
@@ -289,6 +329,8 @@ class MessagesCompanion extends UpdateCompanion<Message> {
       if (edited != null) 'edited': edited,
       if (encrypted != null) 'encrypted': encrypted,
       if (type != null) 'type': type,
+      if (content != null) 'content': content,
+      if (seen != null) 'seen': seen,
     });
   }
 
@@ -302,7 +344,9 @@ class MessagesCompanion extends UpdateCompanion<Message> {
       Value<int> replyToId,
       Value<bool> edited,
       Value<bool> encrypted,
-      Value<MessageType> type}) {
+      Value<MessageType> type,
+      Value<String> content,
+      Value<bool> seen}) {
     return MessagesCompanion(
       chatId: chatId ?? this.chatId,
       id: id ?? this.id,
@@ -314,6 +358,8 @@ class MessagesCompanion extends UpdateCompanion<Message> {
       edited: edited ?? this.edited,
       encrypted: encrypted ?? this.encrypted,
       type: type ?? this.type,
+      content: content ?? this.content,
+      seen: seen ?? this.seen,
     );
   }
 
@@ -351,6 +397,12 @@ class MessagesCompanion extends UpdateCompanion<Message> {
       final converter = $MessagesTable.$converter0;
       map['type'] = Variable<int>(converter.mapToSql(type.value));
     }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (seen.present) {
+      map['seen'] = Variable<bool>(seen.value);
+    }
     return map;
   }
 
@@ -366,7 +418,9 @@ class MessagesCompanion extends UpdateCompanion<Message> {
           ..write('replyToId: $replyToId, ')
           ..write('edited: $edited, ')
           ..write('encrypted: $encrypted, ')
-          ..write('type: $type')
+          ..write('type: $type, ')
+          ..write('content: $content, ')
+          ..write('seen: $seen')
           ..write(')'))
         .toString();
   }
@@ -434,7 +488,7 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   GeneratedTextColumn get forwardedFrom =>
       _forwardedFrom ??= _constructForwardedFrom();
   GeneratedTextColumn _constructForwardedFrom() {
-    return GeneratedTextColumn('forwarded_from', $tableName, false,
+    return GeneratedTextColumn('forwarded_from', $tableName, true,
         minTextLength: 22, maxTextLength: 22);
   }
 
@@ -446,7 +500,7 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
     return GeneratedIntColumn(
       'reply_to_id',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -480,6 +534,27 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
     );
   }
 
+  final VerificationMeta _contentMeta = const VerificationMeta('content');
+  GeneratedTextColumn _content;
+  @override
+  GeneratedTextColumn get content => _content ??= _constructContent();
+  GeneratedTextColumn _constructContent() {
+    return GeneratedTextColumn(
+      'content',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _seenMeta = const VerificationMeta('seen');
+  GeneratedBoolColumn _seen;
+  @override
+  GeneratedBoolColumn get seen => _seen ??= _constructSeen();
+  GeneratedBoolColumn _constructSeen() {
+    return GeneratedBoolColumn('seen', $tableName, false,
+        defaultValue: Constant(false));
+  }
+
   @override
   List<GeneratedColumn> get $columns => [
         chatId,
@@ -491,7 +566,9 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
         replyToId,
         edited,
         encrypted,
-        type
+        type,
+        content,
+        seen
       ];
   @override
   $MessagesTable get asDslTable => this;
@@ -537,14 +614,10 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
           _forwardedFromMeta,
           forwardedFrom.isAcceptableOrUnknown(
               data['forwarded_from'], _forwardedFromMeta));
-    } else if (isInserting) {
-      context.missing(_forwardedFromMeta);
     }
     if (data.containsKey('reply_to_id')) {
       context.handle(_replyToIdMeta,
           replyToId.isAcceptableOrUnknown(data['reply_to_id'], _replyToIdMeta));
-    } else if (isInserting) {
-      context.missing(_replyToIdMeta);
     }
     if (data.containsKey('edited')) {
       context.handle(_editedMeta,
@@ -555,6 +628,16 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
           encrypted.isAcceptableOrUnknown(data['encrypted'], _encryptedMeta));
     }
     context.handle(_typeMeta, const VerificationResult.success());
+    if (data.containsKey('content')) {
+      context.handle(_contentMeta,
+          content.isAcceptableOrUnknown(data['content'], _contentMeta));
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('seen')) {
+      context.handle(
+          _seenMeta, seen.isAcceptableOrUnknown(data['seen'], _seenMeta));
+    }
     return context;
   }
 
@@ -585,7 +668,7 @@ class Chat extends DataClass implements Insertable<Chat> {
       {@required this.chatId,
       @required this.sender,
       @required this.reciever,
-      @required this.mentioned,
+      this.mentioned,
       @required this.lastMessage});
   factory Chat.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
@@ -727,11 +810,10 @@ class ChatsCompanion extends UpdateCompanion<Chat> {
     this.chatId = const Value.absent(),
     @required String sender,
     @required String reciever,
-    @required String mentioned,
+    this.mentioned = const Value.absent(),
     @required int lastMessage,
   })  : sender = Value(sender),
         reciever = Value(reciever),
-        mentioned = Value(mentioned),
         lastMessage = Value(lastMessage);
   static Insertable<Chat> custom({
     Expression<int> chatId,
@@ -834,7 +916,7 @@ class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
   @override
   GeneratedTextColumn get mentioned => _mentioned ??= _constructMentioned();
   GeneratedTextColumn _constructMentioned() {
-    return GeneratedTextColumn('mentioned', $tableName, false,
+    return GeneratedTextColumn('mentioned', $tableName, true,
         minTextLength: 22, maxTextLength: 22);
   }
 
@@ -845,11 +927,8 @@ class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
   GeneratedIntColumn get lastMessage =>
       _lastMessage ??= _constructLastMessage();
   GeneratedIntColumn _constructLastMessage() {
-    return GeneratedIntColumn(
-      'last_message',
-      $tableName,
-      false,
-    );
+    return GeneratedIntColumn('last_message', $tableName, false,
+        $customConstraints: 'REFERENCES messages(id)');
   }
 
   @override
@@ -885,8 +964,6 @@ class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
     if (data.containsKey('mentioned')) {
       context.handle(_mentionedMeta,
           mentioned.isAcceptableOrUnknown(data['mentioned'], _mentionedMeta));
-    } else if (isInserting) {
-      context.missing(_mentionedMeta);
     }
     if (data.containsKey('last_message')) {
       context.handle(

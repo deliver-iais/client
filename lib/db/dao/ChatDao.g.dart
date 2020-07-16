@@ -8,4 +8,5 @@ part of 'ChatDao.dart';
 
 mixin _$ChatDaoMixin on DatabaseAccessor<Database> {
   $ChatsTable get chats => attachedDatabase.chats;
+  $MessagesTable get messages => attachedDatabase.messages;
 }

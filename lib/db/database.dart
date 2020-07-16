@@ -17,5 +17,18 @@ class Database extends _$Database {
         ));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onUpgrade: (migrator, from, to) async {
+          if (from == 2) {
+            await migrator.addColumn(messages, messages.content);
+            await migrator.addColumn(messages, messages.seen);
+          }
+        },
+        beforeOpen: (details) async {
+          await customStatement('PRAGMA foreign_keys = ON');
+        },
+      );
 }

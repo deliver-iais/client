@@ -10,19 +10,10 @@ import 'package:deliver_flutter/screen/splashScreen/pages/splashScreen.dart';
   routes: <AutoRoute>[
     MaterialRoute(page: SplashScreen, initial: true),
     MaterialRoute(page: IntroPage),
-    MaterialRoute(
-      page: LoginPage,
-      children: <AutoRoute>[
-        MaterialRoute(path: '/verification', page: VerificationPage)
-      ],
-    ),
-    MaterialRoute(
-      path: '/users:id',
-      page: HomePage,
-      children: <AutoRoute>[
-        MaterialRoute(path: '/chat:chatId', page: PrivateChat)
-      ],
-    ),
+    MaterialRoute(page: LoginPage),
+    MaterialRoute(page: VerificationPage),
+    MaterialRoute(path: '/users:id', page: HomePage),
+    MaterialRoute(path: '/chat:chatId', page: PrivateChat),
   ],
 )
 class $Router {}

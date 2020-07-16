@@ -7,11 +7,14 @@ class Messages extends Table {
   DateTimeColumn get time => dateTime()();
   TextColumn get from => text().withLength(min: 22, max: 22)();
   TextColumn get to => text().withLength(min: 22, max: 22)();
-  TextColumn get forwardedFrom => text().withLength(min: 22, max: 22)();
-  IntColumn get replyToId => integer()();
+  TextColumn get forwardedFrom =>
+      text().nullable().withLength(min: 22, max: 22)();
+  IntColumn get replyToId => integer().nullable()();
   BoolColumn get edited => boolean().withDefault(Constant(false))();
   BoolColumn get encrypted => boolean().withDefault(Constant(false))();
   IntColumn get type => intEnum<MessageType>()();
+  TextColumn get content => text()();
+  BoolColumn get seen => boolean().withDefault(Constant(false))();
 
   @override
   Set<Column> get primaryKey => {chatId, id};

@@ -5,6 +5,7 @@ class Chats extends Table {
   IntColumn get chatId => integer().autoIncrement()();
   TextColumn get sender => text().withLength(min: 22, max: 22)();
   TextColumn get reciever => text().withLength(min: 22, max: 22)();
-  TextColumn get mentioned => text().withLength(min: 22, max: 22)();
-  IntColumn get lastMessage => integer()();
+  TextColumn get mentioned => text().withLength(min: 22, max: 22).nullable()();
+  IntColumn get lastMessage =>
+      integer().customConstraint('REFERENCES messages(id)')();
 }

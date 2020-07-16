@@ -10,21 +10,26 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/screen/splashScreen/pages/splashScreen.dart';
 import 'package:deliver_flutter/screen/app-intro/pages/introPage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/loginPage.dart';
-import 'package:deliver_flutter/screen/app-home/pages/homePage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/verificationPage.dart';
+import 'package:deliver_flutter/screen/app-home/pages/homePage.dart';
 import 'package:deliver_flutter/screen/privateChat/pages/privateChat.dart';
 
 class Routes {
   static const String splashScreen = '/';
   static const String introPage = '/intro-page';
   static const String loginPage = '/login-page';
+  static const String verificationPage = '/verification-page';
   static const String _homePage = '/users:id';
   static homePage({@required id}) => '/users$id';
+  static const String _privateChat = '/chat:chatId';
+  static privateChat({@required chatId}) => '/chat$chatId';
   static const all = <String>{
     splashScreen,
     introPage,
     loginPage,
+    verificationPage,
     _homePage,
+    _privateChat,
   };
 }
 
@@ -34,16 +39,10 @@ class Router extends RouterBase {
   final _routes = <RouteDef>[
     RouteDef(Routes.splashScreen, page: SplashScreen),
     RouteDef(Routes.introPage, page: IntroPage),
-    RouteDef(
-      Routes.loginPage,
-      page: LoginPage,
-      innerRouter: () => LoginPageRouter(),
-    ),
-    RouteDef(
-      Routes._homePage,
-      page: HomePage,
-      innerRouter: () => HomePageRouter(),
-    ),
+    RouteDef(Routes.loginPage, page: LoginPage),
+    RouteDef(Routes.verificationPage, page: VerificationPage),
+    RouteDef(Routes._homePage, page: HomePage),
+    RouteDef(Routes._privateChat, page: PrivateChat),
   ];
   @override
   Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
@@ -69,57 +68,18 @@ class Router extends RouterBase {
         settings: data,
       );
     },
-    HomePage: (RouteData data) {
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => HomePage(),
-        settings: data,
-      );
-    },
-  };
-}
-
-class LoginPageRoutes {
-  static const String verificationPage = '/verification';
-  static const all = <String>{
-    verificationPage,
-  };
-}
-
-class LoginPageRouter extends RouterBase {
-  @override
-  List<RouteDef> get routes => _routes;
-  final _routes = <RouteDef>[
-    RouteDef(LoginPageRoutes.verificationPage, page: VerificationPage),
-  ];
-  @override
-  Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
-  final _pagesMap = <Type, AutoRouteFactory>{
     VerificationPage: (RouteData data) {
       return MaterialPageRoute<dynamic>(
         builder: (context) => VerificationPage(),
         settings: data,
       );
     },
-  };
-}
-
-class HomePageRoutes {
-  static const String _privateChat = '/chat:chatId';
-  static privateChat({@required chatId}) => '/chat$chatId';
-  static const all = <String>{
-    _privateChat,
-  };
-}
-
-class HomePageRouter extends RouterBase {
-  @override
-  List<RouteDef> get routes => _routes;
-  final _routes = <RouteDef>[
-    RouteDef(HomePageRoutes._privateChat, page: PrivateChat),
-  ];
-  @override
-  Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
-  final _pagesMap = <Type, AutoRouteFactory>{
+    HomePage: (RouteData data) {
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => HomePage(),
+        settings: data,
+      );
+    },
     PrivateChat: (RouteData data) {
       return MaterialPageRoute<dynamic>(
         builder: (context) => PrivateChat(),
