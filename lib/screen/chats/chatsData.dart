@@ -1,6 +1,6 @@
-import 'package:deliver_flutter/screen/chats/models/message.dart';
+import 'package:deliver_flutter/models/message.dart';
 
-import './models/conversation.dart';
+import 'package:deliver_flutter/models/conversation.dart';
 
 class ChatsData {
   static List<Conversation> chatsList = [

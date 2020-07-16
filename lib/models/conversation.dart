@@ -1,6 +1,6 @@
-import 'package:deliver_flutter/screen/chats/models/message.dart';
+import 'package:deliver_flutter/models/message.dart';
 
-class Conversation{
+class Conversation {
   final int contactId;
   final Message lastMessage;
   final bool mentioned;
