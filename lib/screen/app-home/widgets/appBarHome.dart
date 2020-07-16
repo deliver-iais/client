@@ -1,3 +1,5 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/theme/colors.dart';
 import 'package:flutter/material.dart';
@@ -15,15 +17,20 @@ class AppBarHome extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Row(
+
               children: <Widget>[
                 Container(
                   child: CircleAvatar(
                     radius: 20,
                     backgroundColor: ThemeColors.circleAvatarbackground,
                     child: FittedBox(
-                      child: Icon(
-                        Icons.person,
+                      child: IconButton(
+                        icon:Icon(Icons.person),
                         color: ThemeColors.circleAvatarIcon,
+                        onPressed: (){
+                          ExtendedNavigator.of(context)
+                              .pushNamed(Routes.settings);
+                        },
                       ),
                     ),
                   ),
@@ -54,7 +61,6 @@ class AppBarHome extends StatelessWidget {
                     size: 20,
                   ),
                 ),
-                onPressed: null,
               ),
             )
           ],

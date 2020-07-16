@@ -6,6 +6,8 @@ ThemeData darkTheme =
         visualDensity: VisualDensity.adaptivePlatformDensity,
         primaryColor: Color(0xFF2699FB),
         accentColor: Color(0xFF5F5F5F),
+        scaffoldBackgroundColor: Colors.black,
+        bottomAppBarColor: Color.fromRGBO(255, 255, 255, 0.2),
         backgroundColor: Colors.black,
         textTheme: TextTheme(
           headline1: TextStyle(color: Colors.white, fontSize: 40),
@@ -13,13 +15,14 @@ ThemeData darkTheme =
           headline3: TextStyle(color: Colors.white, fontSize: 20),
           headline4: TextStyle(color: Colors.white, fontSize: 14),
         ),
-        appBarTheme: AppBarTheme(color: Color(0xff1f655d)));
+        appBarTheme: AppBarTheme(color: Colors.black));
 
 ThemeData lightTheme =
     ThemeData(brightness: Brightness.dark, fontFamily: "Vazir").copyWith(
         visualDensity: VisualDensity.adaptivePlatformDensity,
         primaryColor: Color(0xfff5f5f5),
         accentColor: Color(0xff40bf7a),
+        scaffoldBackgroundColor: Colors.white,
         backgroundColor: Colors.black,
         textTheme: TextTheme(
           headline1: TextStyle(color: Colors.white, fontSize: 40),

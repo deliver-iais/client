@@ -4,6 +4,7 @@
 // AutoRouteGenerator
 // **************************************************************************
 
+import 'package:deliver_flutter/screen/settings/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:auto_route/auto_route.dart';
@@ -17,11 +18,13 @@ abstract class Routes {
   static const homePage = '/home-page';
   static const loginPage = '/login-page';
   static const verificationPage = '/verification-page';
+  static const settings = "/settings_page";
   static const all = {
     introPage,
     homePage,
     loginPage,
     verificationPage,
+    settings,
   };
 }
 
@@ -60,6 +63,11 @@ class Router extends RouterBase {
       case Routes.verificationPage:
         return MaterialPageRoute<dynamic>(
           builder: (context) => VerificationPage(),
+          settings: settings,
+        );
+      case Routes.settings:
+        return MaterialPageRoute<dynamic>(
+          builder:  (context) => SettingsPage(),
           settings: settings,
         );
       default:

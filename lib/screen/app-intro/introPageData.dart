@@ -52,7 +52,7 @@ final slidesList = [
     backgroundColor: slideBackgroundColor,
   ),
   Slide(
-    centerWidget: Column(
+    widgetTitle: Column(
       children: <Widget>[
         Container(
           width: 280,
