@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/screen/contacts/models/contact.dart';
+import 'package:deliver_flutter/models/contact.dart';
 
 List<Contact> contactsList = [
   Contact(
@@ -11,7 +11,7 @@ List<Contact> contactsList = [
   Contact(
     'Me',
     'Ghasemi',
-    1, 
+    1,
     false,
     "",
   ),
@@ -46,7 +46,7 @@ List<Contact> contactsList = [
   Contact(
     'f',
     'sz',
-    6 ,
+    6,
     false,
     "",
   ),

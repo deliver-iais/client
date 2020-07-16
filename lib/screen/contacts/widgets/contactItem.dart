@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/screen/contacts/models/contact.dart';
+import 'package:deliver_flutter/models/contact.dart';
 import 'package:deliver_flutter/theme/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -32,7 +32,9 @@ class ContactItem extends StatelessWidget {
                       width: 12.0,
                       height: 12.0,
                       decoration: new BoxDecoration(
-                        color: contact.isOnline ? Colors.green : ThemeColors.secondColor,
+                        color: contact.isOnline
+                            ? Colors.green
+                            : ThemeColors.secondColor,
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: Colors.black,

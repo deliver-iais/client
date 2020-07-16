@@ -1,8 +1,8 @@
-import 'package:deliver_flutter/screen/chats/models/message.dart';
+import 'package:deliver_flutter/models/message.dart';
 import 'package:deliver_flutter/screen/chats/widgets/recievedMsgStatusIcon.dart';
 import 'package:deliver_flutter/screen/chats/widgets/sendedMsgStatusIcon.dart';
-import 'package:deliver_flutter/screen/contacts/models/contact.dart';
-import 'package:deliver_flutter/screen/chats/models/conversation.dart';
+import 'package:deliver_flutter/models/contact.dart';
+import 'package:deliver_flutter/models/conversation.dart';
 import 'package:deliver_flutter/screen/contacts/contactsData.dart';
 import 'package:deliver_flutter/theme/colors.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +40,9 @@ class ChatItem extends StatelessWidget {
                   Row(
                     children: <Widget>[
                       messageType == "send"
-                          ? SendedMsgIcon((conversation.lastMessage as SendedMessage).status)
+                          ? SendedMsgIcon(
+                              (conversation.lastMessage as SendedMessage)
+                                  .status)
                           : Container(),
                       Padding(
                         padding: const EdgeInsets.only(
@@ -119,9 +121,11 @@ class ChatItem extends StatelessWidget {
                         ],
                       ),
                     ))
-                  : messageType == "recieve" ? 
-                  RecievedMsgIcon((conversation.lastMessage as RecievedMessage).status) : Container()
-            ] ,
+                  : messageType == "recieve"
+                      ? RecievedMsgIcon(
+                          (conversation.lastMessage as RecievedMessage).status)
+                      : Container()
+            ],
           )
         ],
       ),

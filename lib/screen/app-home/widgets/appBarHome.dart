@@ -29,7 +29,7 @@ class AppBarHome extends StatelessWidget {
                         color: ThemeColors.circleAvatarIcon,
                         onPressed: (){
                           ExtendedNavigator.of(context)
-                              .pushNamed(Routes.settings);
+                              .pushNamed(Routes.settingsPage);
                         },
                       ),
                     ),
