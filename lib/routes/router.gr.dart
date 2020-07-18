@@ -12,7 +12,7 @@ import 'package:deliver_flutter/screen/app-intro/pages/introPage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/loginPage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/verificationPage.dart';
 import 'package:deliver_flutter/screen/app-home/pages/homePage.dart';
-import 'package:deliver_flutter/screen/privateChat/pages/privateChat.dart';
+import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
 
 class Routes {
   static const String splashScreen = '/';
@@ -21,15 +21,15 @@ class Routes {
   static const String verificationPage = '/verification-page';
   static const String _homePage = '/users:id';
   static homePage({@required id}) => '/users$id';
-  static const String _privateChat = '/chat:chatId';
-  static privateChat({@required chatId}) => '/chat$chatId';
+  static const String _roomPage = '/room:roomId';
+  static roomPage({@required roomId}) => '/room$roomId';
   static const all = <String>{
     splashScreen,
     introPage,
     loginPage,
     verificationPage,
     _homePage,
-    _privateChat,
+    _roomPage,
   };
 }
 
@@ -42,7 +42,7 @@ class Router extends RouterBase {
     RouteDef(Routes.loginPage, page: LoginPage),
     RouteDef(Routes.verificationPage, page: VerificationPage),
     RouteDef(Routes._homePage, page: HomePage),
-    RouteDef(Routes._privateChat, page: PrivateChat),
+    RouteDef(Routes._roomPage, page: RoomPage),
   ];
   @override
   Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
@@ -80,9 +80,9 @@ class Router extends RouterBase {
         settings: data,
       );
     },
-    PrivateChat: (RouteData data) {
+    RoomPage: (RouteData data) {
       return MaterialPageRoute<dynamic>(
-        builder: (context) => PrivateChat(),
+        builder: (context) => RoomPage(),
         settings: data,
       );
     },

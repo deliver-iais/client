@@ -6,7 +6,8 @@ class RecievedMsgIcon extends StatelessWidget {
   const RecievedMsgIcon(this.status);
   @override
   Widget build(BuildContext context) {
-    return this.status == false
+    print('sstatus : ' + status);
+    return status == false
         ? Padding(
             padding: const EdgeInsets.only(
               right: 7.0,

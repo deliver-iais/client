@@ -8,7 +8,7 @@ part of 'database.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
 class Message extends DataClass implements Insertable<Message> {
-  final int chatId;
+  final int roomId;
   final int id;
   final DateTime time;
   final String from;
@@ -21,7 +21,7 @@ class Message extends DataClass implements Insertable<Message> {
   final String content;
   final bool seen;
   Message(
-      {@required this.chatId,
+      {@required this.roomId,
       @required this.id,
       @required this.time,
       @required this.from,
@@ -41,8 +41,8 @@ class Message extends DataClass implements Insertable<Message> {
     final stringType = db.typeSystem.forDartType<String>();
     final boolType = db.typeSystem.forDartType<bool>();
     return Message(
-      chatId:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}chat_id']),
+      roomId:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
       id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       time:
           dateTimeType.mapFromDatabaseResponse(data['${effectivePrefix}time']),
@@ -66,8 +66,8 @@ class Message extends DataClass implements Insertable<Message> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || chatId != null) {
-      map['chat_id'] = Variable<int>(chatId);
+    if (!nullToAbsent || roomId != null) {
+      map['room_id'] = Variable<int>(roomId);
     }
     if (!nullToAbsent || id != null) {
       map['id'] = Variable<int>(id);
@@ -108,8 +108,8 @@ class Message extends DataClass implements Insertable<Message> {
 
   MessagesCompanion toCompanion(bool nullToAbsent) {
     return MessagesCompanion(
-      chatId:
-          chatId == null && nullToAbsent ? const Value.absent() : Value(chatId),
+      roomId:
+          roomId == null && nullToAbsent ? const Value.absent() : Value(roomId),
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       time: time == null && nullToAbsent ? const Value.absent() : Value(time),
       from: from == null && nullToAbsent ? const Value.absent() : Value(from),
@@ -137,7 +137,7 @@ class Message extends DataClass implements Insertable<Message> {
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Message(
-      chatId: serializer.fromJson<int>(json['chatId']),
+      roomId: serializer.fromJson<int>(json['roomId']),
       id: serializer.fromJson<int>(json['id']),
       time: serializer.fromJson<DateTime>(json['time']),
       from: serializer.fromJson<String>(json['from']),
@@ -155,7 +155,7 @@ class Message extends DataClass implements Insertable<Message> {
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'chatId': serializer.toJson<int>(chatId),
+      'roomId': serializer.toJson<int>(roomId),
       'id': serializer.toJson<int>(id),
       'time': serializer.toJson<DateTime>(time),
       'from': serializer.toJson<String>(from),
@@ -171,7 +171,7 @@ class Message extends DataClass implements Insertable<Message> {
   }
 
   Message copyWith(
-          {int chatId,
+          {int roomId,
           int id,
           DateTime time,
           String from,
@@ -184,7 +184,7 @@ class Message extends DataClass implements Insertable<Message> {
           String content,
           bool seen}) =>
       Message(
-        chatId: chatId ?? this.chatId,
+        roomId: roomId ?? this.roomId,
         id: id ?? this.id,
         time: time ?? this.time,
         from: from ?? this.from,
@@ -200,7 +200,7 @@ class Message extends DataClass implements Insertable<Message> {
   @override
   String toString() {
     return (StringBuffer('Message(')
-          ..write('chatId: $chatId, ')
+          ..write('roomId: $roomId, ')
           ..write('id: $id, ')
           ..write('time: $time, ')
           ..write('from: $from, ')
@@ -218,7 +218,7 @@ class Message extends DataClass implements Insertable<Message> {
 
   @override
   int get hashCode => $mrjf($mrjc(
-      chatId.hashCode,
+      roomId.hashCode,
       $mrjc(
           id.hashCode,
           $mrjc(
@@ -243,7 +243,7 @@ class Message extends DataClass implements Insertable<Message> {
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Message &&
-          other.chatId == this.chatId &&
+          other.roomId == this.roomId &&
           other.id == this.id &&
           other.time == this.time &&
           other.from == this.from &&
@@ -258,7 +258,7 @@ class Message extends DataClass implements Insertable<Message> {
 }
 
 class MessagesCompanion extends UpdateCompanion<Message> {
-  final Value<int> chatId;
+  final Value<int> roomId;
   final Value<int> id;
   final Value<DateTime> time;
   final Value<String> from;
@@ -271,7 +271,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   final Value<String> content;
   final Value<bool> seen;
   const MessagesCompanion({
-    this.chatId = const Value.absent(),
+    this.roomId = const Value.absent(),
     this.id = const Value.absent(),
     this.time = const Value.absent(),
     this.from = const Value.absent(),
@@ -285,7 +285,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     this.seen = const Value.absent(),
   });
   MessagesCompanion.insert({
-    @required int chatId,
+    @required int roomId,
     @required int id,
     @required DateTime time,
     @required String from,
@@ -297,7 +297,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     @required MessageType type,
     @required String content,
     this.seen = const Value.absent(),
-  })  : chatId = Value(chatId),
+  })  : roomId = Value(roomId),
         id = Value(id),
         time = Value(time),
         from = Value(from),
@@ -305,7 +305,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
         type = Value(type),
         content = Value(content);
   static Insertable<Message> custom({
-    Expression<int> chatId,
+    Expression<int> roomId,
     Expression<int> id,
     Expression<DateTime> time,
     Expression<String> from,
@@ -319,7 +319,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     Expression<bool> seen,
   }) {
     return RawValuesInsertable({
-      if (chatId != null) 'chat_id': chatId,
+      if (roomId != null) 'room_id': roomId,
       if (id != null) 'id': id,
       if (time != null) 'time': time,
       if (from != null) 'from': from,
@@ -335,7 +335,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   }
 
   MessagesCompanion copyWith(
-      {Value<int> chatId,
+      {Value<int> roomId,
       Value<int> id,
       Value<DateTime> time,
       Value<String> from,
@@ -348,7 +348,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
       Value<String> content,
       Value<bool> seen}) {
     return MessagesCompanion(
-      chatId: chatId ?? this.chatId,
+      roomId: roomId ?? this.roomId,
       id: id ?? this.id,
       time: time ?? this.time,
       from: from ?? this.from,
@@ -366,8 +366,8 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (chatId.present) {
-      map['chat_id'] = Variable<int>(chatId.value);
+    if (roomId.present) {
+      map['room_id'] = Variable<int>(roomId.value);
     }
     if (id.present) {
       map['id'] = Variable<int>(id.value);
@@ -409,7 +409,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   @override
   String toString() {
     return (StringBuffer('MessagesCompanion(')
-          ..write('chatId: $chatId, ')
+          ..write('roomId: $roomId, ')
           ..write('id: $id, ')
           ..write('time: $time, ')
           ..write('from: $from, ')
@@ -430,13 +430,13 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   final GeneratedDatabase _db;
   final String _alias;
   $MessagesTable(this._db, [this._alias]);
-  final VerificationMeta _chatIdMeta = const VerificationMeta('chatId');
-  GeneratedIntColumn _chatId;
+  final VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
+  GeneratedIntColumn _roomId;
   @override
-  GeneratedIntColumn get chatId => _chatId ??= _constructChatId();
-  GeneratedIntColumn _constructChatId() {
+  GeneratedIntColumn get roomId => _roomId ??= _constructRoomId();
+  GeneratedIntColumn _constructRoomId() {
     return GeneratedIntColumn(
-      'chat_id',
+      'room_id',
       $tableName,
       false,
     );
@@ -447,8 +447,11 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   @override
   GeneratedIntColumn get id => _id ??= _constructId();
   GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        hasAutoIncrement: true, declaredAsPrimaryKey: true);
+    return GeneratedIntColumn(
+      'id',
+      $tableName,
+      false,
+    );
   }
 
   final VerificationMeta _timeMeta = const VerificationMeta('time');
@@ -488,8 +491,11 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   GeneratedTextColumn get forwardedFrom =>
       _forwardedFrom ??= _constructForwardedFrom();
   GeneratedTextColumn _constructForwardedFrom() {
-    return GeneratedTextColumn('forwarded_from', $tableName, true,
-        minTextLength: 22, maxTextLength: 22);
+    return GeneratedTextColumn(
+      'forwarded_from',
+      $tableName,
+      true,
+    );
   }
 
   final VerificationMeta _replyToIdMeta = const VerificationMeta('replyToId');
@@ -557,7 +563,7 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
 
   @override
   List<GeneratedColumn> get $columns => [
-        chatId,
+        roomId,
         id,
         time,
         from,
@@ -581,11 +587,11 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('chat_id')) {
-      context.handle(_chatIdMeta,
-          chatId.isAcceptableOrUnknown(data['chat_id'], _chatIdMeta));
+    if (data.containsKey('room_id')) {
+      context.handle(_roomIdMeta,
+          roomId.isAcceptableOrUnknown(data['room_id'], _roomIdMeta));
     } else if (isInserting) {
-      context.missing(_chatIdMeta);
+      context.missing(_roomIdMeta);
     }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
@@ -642,7 +648,7 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {chatId, id};
+  Set<GeneratedColumn> get $primaryKey => {roomId, id};
   @override
   Message map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -658,26 +664,26 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
       const EnumIndexConverter<MessageType>(MessageType.values);
 }
 
-class Chat extends DataClass implements Insertable<Chat> {
-  final int chatId;
+class Room extends DataClass implements Insertable<Room> {
+  final int roomId;
   final String sender;
   final String reciever;
   final String mentioned;
   final int lastMessage;
-  Chat(
-      {@required this.chatId,
+  Room(
+      {@required this.roomId,
       @required this.sender,
       @required this.reciever,
       this.mentioned,
       @required this.lastMessage});
-  factory Chat.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+  factory Room.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
-    return Chat(
-      chatId:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}chat_id']),
+    return Room(
+      roomId:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
       sender:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}sender']),
       reciever: stringType
@@ -691,8 +697,8 @@ class Chat extends DataClass implements Insertable<Chat> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || chatId != null) {
-      map['chat_id'] = Variable<int>(chatId);
+    if (!nullToAbsent || roomId != null) {
+      map['room_id'] = Variable<int>(roomId);
     }
     if (!nullToAbsent || sender != null) {
       map['sender'] = Variable<String>(sender);
@@ -709,10 +715,10 @@ class Chat extends DataClass implements Insertable<Chat> {
     return map;
   }
 
-  ChatsCompanion toCompanion(bool nullToAbsent) {
-    return ChatsCompanion(
-      chatId:
-          chatId == null && nullToAbsent ? const Value.absent() : Value(chatId),
+  RoomsCompanion toCompanion(bool nullToAbsent) {
+    return RoomsCompanion(
+      roomId:
+          roomId == null && nullToAbsent ? const Value.absent() : Value(roomId),
       sender:
           sender == null && nullToAbsent ? const Value.absent() : Value(sender),
       reciever: reciever == null && nullToAbsent
@@ -727,11 +733,11 @@ class Chat extends DataClass implements Insertable<Chat> {
     );
   }
 
-  factory Chat.fromJson(Map<String, dynamic> json,
+  factory Room.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
-    return Chat(
-      chatId: serializer.fromJson<int>(json['chatId']),
+    return Room(
+      roomId: serializer.fromJson<int>(json['roomId']),
       sender: serializer.fromJson<String>(json['sender']),
       reciever: serializer.fromJson<String>(json['reciever']),
       mentioned: serializer.fromJson<String>(json['mentioned']),
@@ -742,7 +748,7 @@ class Chat extends DataClass implements Insertable<Chat> {
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'chatId': serializer.toJson<int>(chatId),
+      'roomId': serializer.toJson<int>(roomId),
       'sender': serializer.toJson<String>(sender),
       'reciever': serializer.toJson<String>(reciever),
       'mentioned': serializer.toJson<String>(mentioned),
@@ -750,14 +756,14 @@ class Chat extends DataClass implements Insertable<Chat> {
     };
   }
 
-  Chat copyWith(
-          {int chatId,
+  Room copyWith(
+          {int roomId,
           String sender,
           String reciever,
           String mentioned,
           int lastMessage}) =>
-      Chat(
-        chatId: chatId ?? this.chatId,
+      Room(
+        roomId: roomId ?? this.roomId,
         sender: sender ?? this.sender,
         reciever: reciever ?? this.reciever,
         mentioned: mentioned ?? this.mentioned,
@@ -765,8 +771,8 @@ class Chat extends DataClass implements Insertable<Chat> {
       );
   @override
   String toString() {
-    return (StringBuffer('Chat(')
-          ..write('chatId: $chatId, ')
+    return (StringBuffer('Room(')
+          ..write('roomId: $roomId, ')
           ..write('sender: $sender, ')
           ..write('reciever: $reciever, ')
           ..write('mentioned: $mentioned, ')
@@ -777,7 +783,7 @@ class Chat extends DataClass implements Insertable<Chat> {
 
   @override
   int get hashCode => $mrjf($mrjc(
-      chatId.hashCode,
+      roomId.hashCode,
       $mrjc(
           sender.hashCode,
           $mrjc(reciever.hashCode,
@@ -785,29 +791,29 @@ class Chat extends DataClass implements Insertable<Chat> {
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
-      (other is Chat &&
-          other.chatId == this.chatId &&
+      (other is Room &&
+          other.roomId == this.roomId &&
           other.sender == this.sender &&
           other.reciever == this.reciever &&
           other.mentioned == this.mentioned &&
           other.lastMessage == this.lastMessage);
 }
 
-class ChatsCompanion extends UpdateCompanion<Chat> {
-  final Value<int> chatId;
+class RoomsCompanion extends UpdateCompanion<Room> {
+  final Value<int> roomId;
   final Value<String> sender;
   final Value<String> reciever;
   final Value<String> mentioned;
   final Value<int> lastMessage;
-  const ChatsCompanion({
-    this.chatId = const Value.absent(),
+  const RoomsCompanion({
+    this.roomId = const Value.absent(),
     this.sender = const Value.absent(),
     this.reciever = const Value.absent(),
     this.mentioned = const Value.absent(),
     this.lastMessage = const Value.absent(),
   });
-  ChatsCompanion.insert({
-    this.chatId = const Value.absent(),
+  RoomsCompanion.insert({
+    this.roomId = const Value.absent(),
     @required String sender,
     @required String reciever,
     this.mentioned = const Value.absent(),
@@ -815,15 +821,15 @@ class ChatsCompanion extends UpdateCompanion<Chat> {
   })  : sender = Value(sender),
         reciever = Value(reciever),
         lastMessage = Value(lastMessage);
-  static Insertable<Chat> custom({
-    Expression<int> chatId,
+  static Insertable<Room> custom({
+    Expression<int> roomId,
     Expression<String> sender,
     Expression<String> reciever,
     Expression<String> mentioned,
     Expression<int> lastMessage,
   }) {
     return RawValuesInsertable({
-      if (chatId != null) 'chat_id': chatId,
+      if (roomId != null) 'room_id': roomId,
       if (sender != null) 'sender': sender,
       if (reciever != null) 'reciever': reciever,
       if (mentioned != null) 'mentioned': mentioned,
@@ -831,14 +837,14 @@ class ChatsCompanion extends UpdateCompanion<Chat> {
     });
   }
 
-  ChatsCompanion copyWith(
-      {Value<int> chatId,
+  RoomsCompanion copyWith(
+      {Value<int> roomId,
       Value<String> sender,
       Value<String> reciever,
       Value<String> mentioned,
       Value<int> lastMessage}) {
-    return ChatsCompanion(
-      chatId: chatId ?? this.chatId,
+    return RoomsCompanion(
+      roomId: roomId ?? this.roomId,
       sender: sender ?? this.sender,
       reciever: reciever ?? this.reciever,
       mentioned: mentioned ?? this.mentioned,
@@ -849,8 +855,8 @@ class ChatsCompanion extends UpdateCompanion<Chat> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (chatId.present) {
-      map['chat_id'] = Variable<int>(chatId.value);
+    if (roomId.present) {
+      map['room_id'] = Variable<int>(roomId.value);
     }
     if (sender.present) {
       map['sender'] = Variable<String>(sender.value);
@@ -869,8 +875,8 @@ class ChatsCompanion extends UpdateCompanion<Chat> {
 
   @override
   String toString() {
-    return (StringBuffer('ChatsCompanion(')
-          ..write('chatId: $chatId, ')
+    return (StringBuffer('RoomsCompanion(')
+          ..write('roomId: $roomId, ')
           ..write('sender: $sender, ')
           ..write('reciever: $reciever, ')
           ..write('mentioned: $mentioned, ')
@@ -880,16 +886,16 @@ class ChatsCompanion extends UpdateCompanion<Chat> {
   }
 }
 
-class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
+class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
   final GeneratedDatabase _db;
   final String _alias;
-  $ChatsTable(this._db, [this._alias]);
-  final VerificationMeta _chatIdMeta = const VerificationMeta('chatId');
-  GeneratedIntColumn _chatId;
+  $RoomsTable(this._db, [this._alias]);
+  final VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
+  GeneratedIntColumn _roomId;
   @override
-  GeneratedIntColumn get chatId => _chatId ??= _constructChatId();
-  GeneratedIntColumn _constructChatId() {
-    return GeneratedIntColumn('chat_id', $tableName, false,
+  GeneratedIntColumn get roomId => _roomId ??= _constructRoomId();
+  GeneratedIntColumn _constructRoomId() {
+    return GeneratedIntColumn('room_id', $tableName, false,
         hasAutoIncrement: true, declaredAsPrimaryKey: true);
   }
 
@@ -933,21 +939,21 @@ class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
 
   @override
   List<GeneratedColumn> get $columns =>
-      [chatId, sender, reciever, mentioned, lastMessage];
+      [roomId, sender, reciever, mentioned, lastMessage];
   @override
-  $ChatsTable get asDslTable => this;
+  $RoomsTable get asDslTable => this;
   @override
-  String get $tableName => _alias ?? 'chats';
+  String get $tableName => _alias ?? 'rooms';
   @override
-  final String actualTableName = 'chats';
+  final String actualTableName = 'rooms';
   @override
-  VerificationContext validateIntegrity(Insertable<Chat> instance,
+  VerificationContext validateIntegrity(Insertable<Room> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('chat_id')) {
-      context.handle(_chatIdMeta,
-          chatId.isAcceptableOrUnknown(data['chat_id'], _chatIdMeta));
+    if (data.containsKey('room_id')) {
+      context.handle(_roomIdMeta,
+          roomId.isAcceptableOrUnknown(data['room_id'], _roomIdMeta));
     }
     if (data.containsKey('sender')) {
       context.handle(_senderMeta,
@@ -977,16 +983,16 @@ class $ChatsTable extends Chats with TableInfo<$ChatsTable, Chat> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {chatId};
+  Set<GeneratedColumn> get $primaryKey => {roomId};
   @override
-  Chat map(Map<String, dynamic> data, {String tablePrefix}) {
+  Room map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Chat.fromData(data, _db, prefix: effectivePrefix);
+    return Room.fromData(data, _db, prefix: effectivePrefix);
   }
 
   @override
-  $ChatsTable createAlias(String alias) {
-    return $ChatsTable(_db, alias);
+  $RoomsTable createAlias(String alias) {
+    return $RoomsTable(_db, alias);
   }
 }
 
@@ -994,14 +1000,14 @@ abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $MessagesTable _messages;
   $MessagesTable get messages => _messages ??= $MessagesTable(this);
-  $ChatsTable _chats;
-  $ChatsTable get chats => _chats ??= $ChatsTable(this);
+  $RoomsTable _rooms;
+  $RoomsTable get rooms => _rooms ??= $RoomsTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
-  ChatDao _chatDao;
-  ChatDao get chatDao => _chatDao ??= ChatDao(this as Database);
+  RoomDao _roomDao;
+  RoomDao get roomDao => _roomDao ??= RoomDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [messages, chats];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [messages, rooms];
 }

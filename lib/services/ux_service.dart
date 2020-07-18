@@ -3,17 +3,19 @@ import 'package:rxdart/rxdart.dart';
 
 ThemeData darkTheme =
     ThemeData(brightness: Brightness.dark, fontFamily: "Vazir").copyWith(
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        primaryColor: Color(0xFF2699FB),
-        accentColor: Color(0xFF5F5F5F),
-        backgroundColor: Colors.black,
-        textTheme: TextTheme(
-          headline1: TextStyle(color: Colors.white, fontSize: 40),
-          headline2: TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
-          headline3: TextStyle(color: Colors.white, fontSize: 20),
-          headline4: TextStyle(color: Colors.white, fontSize: 14),
-        ),
-        appBarTheme: AppBarTheme(color: Color(0xff1f655d)));
+  visualDensity: VisualDensity.adaptivePlatformDensity,
+  primaryColor: Color(0xFF2699FB),
+  accentColor: Color(0xFF5F5F5F),
+  backgroundColor: Colors.black,
+  textTheme: TextTheme(
+    headline1: TextStyle(color: Colors.white, fontSize: 40),
+    headline2: TextStyle(
+        color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
+    headline3: TextStyle(color: Colors.white, fontSize: 20),
+    headline4: TextStyle(color: Colors.white, fontSize: 14),
+  ),
+  appBarTheme: AppBarTheme(color: Color(0xff1f655d)),
+);
 
 ThemeData lightTheme =
     ThemeData(brightness: Brightness.dark, fontFamily: "Vazir").copyWith(
@@ -23,7 +25,8 @@ ThemeData lightTheme =
         backgroundColor: Colors.black,
         textTheme: TextTheme(
           headline1: TextStyle(color: Colors.white, fontSize: 40),
-          headline2: TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
+          headline2: TextStyle(
+              color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
           headline3: TextStyle(color: Colors.white, fontSize: 20),
           headline4: TextStyle(color: Colors.white, fontSize: 14),
         ),
