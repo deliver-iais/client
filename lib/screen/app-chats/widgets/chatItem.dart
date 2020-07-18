@@ -3,11 +3,8 @@ import 'package:deliver_flutter/models/chatWithMessage.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/recievedMsgStatusIcon.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/sendedMsgStatusIcon.dart';
-// import 'package:deliver_flutter/models/contact.dart';
-// import 'package:deliver_flutter/screen/app-contacts/contactsData.dart';
-import 'package:deliver_flutter/theme/colors.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
-// import 'package:deliver_flutter/screen/chats/widgets/ContactPic.dart';
 
 class ChatItem extends StatelessWidget {
   final ChatWithMessage chatWithMessage;
@@ -36,7 +33,7 @@ class ChatItem extends StatelessWidget {
                     // contact.firstName + " " + contact.lastName,
                     'okey',
                     style: TextStyle(
-                      color: ThemeColors.infoChat,
+                      color: ExtraTheme.of(context).infoChat,
                       fontSize: 17,
                     ),
                   ),
@@ -60,7 +57,7 @@ class ChatItem extends StatelessWidget {
                                     : '',
                             maxLines: 1,
                             style: TextStyle(
-                              color: ThemeColors.infoChat,
+                              color: ExtraTheme.of(context).infoChat,
                               fontSize: 13,
                             ),
                           )),
@@ -81,7 +78,7 @@ class ChatItem extends StatelessWidget {
                   findSendingTime(chatWithMessage.lastMessage.time),
                   maxLines: 1,
                   style: TextStyle(
-                    color: ThemeColors.details,
+                    color: ExtraTheme.of(context).details,
                     fontSize: 11,
                   ),
                 ),

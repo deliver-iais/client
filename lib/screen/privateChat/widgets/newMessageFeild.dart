@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/theme/colors.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
 class NewMessageFeild extends StatefulWidget {
@@ -13,18 +13,18 @@ class _NewMessageFeildState extends State<NewMessageFeild> {
       child: TextField(
         keyboardType: TextInputType.multiline,
         style: TextStyle(
-          color: ThemeColors.text,
+          color: ExtraTheme.of(context).text,
         ),
         maxLines: null,
         decoration: InputDecoration(
           hintText: 'Message',
           hintStyle: TextStyle(
-            color: ThemeColors.text,
+            color: ExtraTheme.of(context).text,
           ),
           prefixIcon: IconButton(
             icon: Icon(
               Icons.mood,
-              color: ThemeColors.text,
+              color: ExtraTheme.of(context).text,
             ),
             onPressed: null,
           ),

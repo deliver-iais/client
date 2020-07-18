@@ -59,7 +59,7 @@ class SettingState extends State<SettingsPage> {
                               Text(
                                 'User Name',
                                 style: TextStyle(
-                                    color: ExtraTheme.of(context).authText, fontSize: 13),
+                                    color: ExtraTheme.of(context).text, fontSize: 13),
                               ),
                             ],
                           )),
@@ -69,7 +69,7 @@ class SettingState extends State<SettingsPage> {
                             Text(
                               'john_due',
                               style: TextStyle(
-                                  color: ExtraTheme.of(context).authText, fontSize: 13),
+                                  color: ExtraTheme.of(context).text, fontSize: 13),
                             ),
                             IconButton(
                                 icon: Icon(Icons.navigate_next),
@@ -99,7 +99,7 @@ class SettingState extends State<SettingsPage> {
                               Text(
                                 'Phone',
                                 style: TextStyle(
-                                    color: ExtraTheme.of(context).authText, fontSize: 13),
+                                    color: ExtraTheme.of(context).text, fontSize: 13),
                               ),
                             ],
                           )),
@@ -109,7 +109,7 @@ class SettingState extends State<SettingsPage> {
                             Text(
                               '091222222222',
                               style: TextStyle(
-                                  color: ExtraTheme.of(context).authText, fontSize: 13),
+                                  color: ExtraTheme.of(context).text, fontSize: 13),
                             ),
                             IconButton(
                                 icon: Icon(Icons.navigate_next),
@@ -138,7 +138,7 @@ class SettingState extends State<SettingsPage> {
                               Text(
                                 'Dark Mode',
                                 style: TextStyle(
-                                    color: ExtraTheme.of(context).authText, fontSize: 13),
+                                    color: ExtraTheme.of(context).text, fontSize: 13),
                               ),
                             ],
                           )),
@@ -171,7 +171,7 @@ class SettingState extends State<SettingsPage> {
                               Text(
                                 'Notification',
                                 style: TextStyle(
-                                    color: ExtraTheme.of(context).authText, fontSize: 13),
+                                    color: ExtraTheme.of(context).text, fontSize: 13),
                               ),
                             ])),
                         Switch(

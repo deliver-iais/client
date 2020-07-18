@@ -1,8 +1,8 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'appbarTitle.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/shared/appbarPic.dart';
-import 'package:deliver_flutter/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -44,7 +44,7 @@ class Appbar extends StatelessWidget {
                   height: 60,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: ThemeColors.secondColor,
+                    color: ExtraTheme.of(context).secondColor,
                   ),
                   child: Icon(
                     currentPageService.currentPage == -1

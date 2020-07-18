@@ -27,5 +27,5 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   secondColor: Color(0xFF393939),
   active: Colors.white,
   infoChat: Colors.white,
-  authText: Color(0xFFBCE0FD),
+  text: Color(0xFFBCE0FD),
 );

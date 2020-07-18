@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/theme/colors.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
 class AppbarPic extends StatefulWidget {
@@ -12,11 +12,11 @@ class _AppbarPicState extends State<AppbarPic> {
     return Container(
       child: CircleAvatar(
         radius: 20,
-        backgroundColor: ThemeColors.circleAvatarbackground,
+        backgroundColor: ExtraTheme.of(context).circleAvatarBackground,
         child: FittedBox(
           child: Icon(
             Icons.person,
-            color: ThemeColors.circleAvatarIcon,
+            color: ExtraTheme.of(context).circleAvatarIcon,
           ),
         ),
       ),
