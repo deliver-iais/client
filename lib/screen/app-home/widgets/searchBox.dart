@@ -1,11 +1,11 @@
-import 'package:deliver_flutter/theme/colors.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
 class SearchBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle = TextStyle(
-      color: ThemeColors.details,
+      color: ExtraTheme.of(context).details,
       fontSize: 16,
     );
     return Padding(
@@ -17,7 +17,7 @@ class SearchBox extends StatelessWidget {
       child: Container(
         height: 40,
         decoration: BoxDecoration(
-          color: ThemeColors.secondColor,
+          color: ExtraTheme.of(context).secondColor,
           borderRadius: BorderRadius.all(
             Radius.circular(25),
           ),
@@ -28,13 +28,13 @@ class SearchBox extends StatelessWidget {
           textAlign: TextAlign.start,
           autofocus: false,
           maxLines: 1,
-          cursorColor: ThemeColors.details,
+          cursorColor: ExtraTheme.of(context).details,
           decoration: InputDecoration(
             focusedBorder: InputBorder.none,
             border: InputBorder.none,
             prefixIcon: Icon(
               Icons.search,
-              color: ThemeColors.details,
+              color: ExtraTheme.of(context).details,
             ),
             hintText: 'Search',
             hintStyle: textStyle,
