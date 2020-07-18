@@ -1,7 +1,7 @@
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
-import 'package:deliver_flutter/theme/colors.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
@@ -41,18 +41,18 @@ class _NewMessageInputState extends State<NewMessageInput> {
         controller: controller,
         keyboardType: TextInputType.multiline,
         style: TextStyle(
-          color: ThemeColors.text,
+          color: ExtraTheme.of(context).text,
         ),
         maxLines: null,
         decoration: InputDecoration(
           hintText: 'Message',
           hintStyle: TextStyle(
-            color: ThemeColors.text,
+            color: ExtraTheme.of(context).text,
           ),
           prefixIcon: IconButton(
             icon: Icon(
               Icons.mood,
-              color: ThemeColors.text,
+              color: ExtraTheme.of(context).text,
             ),
             onPressed: null,
           ),

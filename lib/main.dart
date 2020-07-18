@@ -48,13 +48,16 @@ class MyApp extends StatelessWidget {
         Fimber.d(
             "currentPage changed ${currentPageService.currentPage.toString()}");
 
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Flutter Demo',
-          theme: uxService.theme,
-          onGenerateRoute: Router(),
-          builder: ExtendedNavigator<Router>(
-            router: Router(),
+        return ExtraTheme(
+          extraThemeData: uxService.extraTheme,
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Flutter Demo',
+            theme: uxService.theme,
+            onGenerateRoute: Router(),
+            builder: ExtendedNavigator<Router>(
+              router: Router(),
+            ),
           ),
         );
       },
