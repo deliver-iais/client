@@ -1,5 +1,5 @@
 import 'package:deliver_flutter/services/ux_service.dart';
-import 'package:deliver_flutter/theme/colors.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -25,11 +25,11 @@ class SettingState extends State<SettingsPage> {
         children: <Widget>[
           CircleAvatar(
             radius: 56,
-            backgroundColor: ThemeColors.circleAvatarbackground,
+            backgroundColor: ExtraTheme.of(context).circleAvatarBackground,
             child: FittedBox(
               child: Icon(
                 Icons.person,
-                color: ThemeColors.circleAvatarIcon,
+                color: ExtraTheme.of(context).circleAvatarIcon,
                 size: 45,
               ),
             ),
@@ -59,7 +59,7 @@ class SettingState extends State<SettingsPage> {
                               Text(
                                 'User Name',
                                 style: TextStyle(
-                                    color: ThemeColors.authText, fontSize: 13),
+                                    color: ExtraTheme.of(context).authText, fontSize: 13),
                               ),
                             ],
                           )),
@@ -69,7 +69,7 @@ class SettingState extends State<SettingsPage> {
                             Text(
                               'john_due',
                               style: TextStyle(
-                                  color: ThemeColors.authText, fontSize: 13),
+                                  color: ExtraTheme.of(context).authText, fontSize: 13),
                             ),
                             IconButton(
                                 icon: Icon(Icons.navigate_next),
@@ -99,7 +99,7 @@ class SettingState extends State<SettingsPage> {
                               Text(
                                 'Phone',
                                 style: TextStyle(
-                                    color: ThemeColors.authText, fontSize: 13),
+                                    color: ExtraTheme.of(context).authText, fontSize: 13),
                               ),
                             ],
                           )),
@@ -109,7 +109,7 @@ class SettingState extends State<SettingsPage> {
                             Text(
                               '091222222222',
                               style: TextStyle(
-                                  color: ThemeColors.authText, fontSize: 13),
+                                  color: ExtraTheme.of(context).authText, fontSize: 13),
                             ),
                             IconButton(
                                 icon: Icon(Icons.navigate_next),
@@ -138,7 +138,7 @@ class SettingState extends State<SettingsPage> {
                               Text(
                                 'Dark Mode',
                                 style: TextStyle(
-                                    color: ThemeColors.authText, fontSize: 13),
+                                    color: ExtraTheme.of(context).authText, fontSize: 13),
                               ),
                             ],
                           )),
@@ -171,7 +171,7 @@ class SettingState extends State<SettingsPage> {
                               Text(
                                 'Notification',
                                 style: TextStyle(
-                                    color: ThemeColors.authText, fontSize: 13),
+                                    color: ExtraTheme.of(context).authText, fontSize: 13),
                               ),
                             ])),
                         Switch(

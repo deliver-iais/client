@@ -1,51 +1,26 @@
+import 'package:deliver_flutter/theme/dark.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/light.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
-ThemeData darkTheme =
-    ThemeData(brightness: Brightness.dark, fontFamily: "Vazir").copyWith(
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        primaryColor: Color(0xFF2699FB),
-        accentColor: Color(0xFF5F5F5F),
-        scaffoldBackgroundColor: Colors.black,
-        bottomAppBarColor: Color.fromRGBO(255, 255, 255, 0.2),
-        backgroundColor: Colors.black,
-        textTheme: TextTheme(
-          headline1: TextStyle(color: Colors.white, fontSize: 40),
-          headline2: TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
-          headline3: TextStyle(color: Colors.white, fontSize: 20),
-          headline4: TextStyle(color: Colors.white, fontSize: 14),
-        ),
-        appBarTheme: AppBarTheme(color: Colors.black));
-
-ThemeData lightTheme =
-    ThemeData(brightness: Brightness.dark, fontFamily: "Vazir").copyWith(
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        primaryColor: Color(0xfff5f5f5),
-        accentColor: Color(0xff40bf7a),
-        scaffoldBackgroundColor: Colors.white,
-        backgroundColor: Colors.black,
-        textTheme: TextTheme(
-          headline1: TextStyle(color: Colors.white, fontSize: 40),
-          headline2: TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
-          headline3: TextStyle(color: Colors.white, fontSize: 20),
-          headline4: TextStyle(color: Colors.white, fontSize: 14),
-        ),
-        appBarTheme: AppBarTheme(
-            color: Color(0xff1f655d),
-            actionsIconTheme: IconThemeData(color: Colors.white)));
-
 class UxService {
-  BehaviorSubject _theme = BehaviorSubject.seeded(darkTheme);
+  BehaviorSubject<ThemeData> _theme = BehaviorSubject.seeded(DarkTheme);
+  BehaviorSubject<ExtraThemeData> _extraTheme = BehaviorSubject.seeded(DarkExtraTheme);
 
   get themeStream => _theme.stream;
+  get extraThemeStream => _extraTheme.stream;
 
   get theme => _theme.value;
+  get extraTheme => _extraTheme.value;
 
   toggleTheme() {
-    if (theme == darkTheme) {
-      _theme.add(lightTheme);
+    if (theme == DarkTheme) {
+      _theme.add(LightTheme);
+      _extraTheme.add(LightExtraTheme);
     } else {
-      _theme.add(darkTheme);
+      _theme.add(DarkTheme);
+      _extraTheme.add(DarkExtraTheme);
     }
   }
 }

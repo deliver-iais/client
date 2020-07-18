@@ -4,7 +4,7 @@ import 'package:deliver_flutter/screen/chats/widgets/sendedMsgStatusIcon.dart';
 import 'package:deliver_flutter/models/contact.dart';
 import 'package:deliver_flutter/models/conversation.dart';
 import 'package:deliver_flutter/screen/contacts/contactsData.dart';
-import 'package:deliver_flutter/theme/colors.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/profilePic.dart';
 
@@ -33,7 +33,7 @@ class ChatItem extends StatelessWidget {
                   Text(
                     contact.firstName + " " + contact.lastName,
                     style: TextStyle(
-                      color: ThemeColors.infoChat,
+                      color: ExtraTheme.of(context).infoChat,
                       fontSize: 17,
                     ),
                   ),
@@ -52,7 +52,7 @@ class ChatItem extends StatelessWidget {
                           conversation.lastMessage.text,
                           maxLines: 1,
                           style: TextStyle(
-                            color: ThemeColors.infoChat,
+                            color: ExtraTheme.of(context).infoChat,
                             fontSize: 13,
                           ),
                         ),
@@ -74,7 +74,7 @@ class ChatItem extends StatelessWidget {
                   findSendingTime(conversation.lastMessage.sendingTime),
                   maxLines: 1,
                   style: TextStyle(
-                    color: ThemeColors.details,
+                    color: ExtraTheme.of(context).details,
                     fontSize: 11,
                   ),
                 ),

@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/theme/colors.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
@@ -12,8 +12,8 @@ class ChatsButton extends StatelessWidget {
         icon: Icon(
           Icons.question_answer,
           color: currentPageService.currentPage == 0
-              ? ThemeColors.active
-              : ThemeColors.details,
+              ? ExtraTheme.of(context).active
+              : ExtraTheme.of(context).details,
           size: 28,
         ),
         onPressed: currentPageService.currentPage == 0

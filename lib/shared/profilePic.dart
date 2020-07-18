@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/theme/colors.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -13,13 +13,13 @@ class ProfilePic extends StatelessWidget {
       children: <Widget>[
         CircleAvatar(
           radius: 25,
-          backgroundColor: ThemeColors.circleAvatarbackground,
+          backgroundColor: ExtraTheme.of(context).circleAvatarBackground,
           child: FittedBox(
             child: photoName != ""
                 ? Image.asset(photoName)
                 : Icon(
                     Icons.person,
-                    color: ThemeColors.circleAvatarIcon,
+                    color: ExtraTheme.of(context).circleAvatarIcon,
                     size: 40,
                   ),
           ),
@@ -29,7 +29,7 @@ class ProfilePic extends StatelessWidget {
             width: 12.0,
             height: 12.0,
             decoration: new BoxDecoration(
-              color: this.isOnline ? Colors.green : ThemeColors.secondColor,
+              color: this.isOnline ? Colors.green : ExtraTheme.of(context).secondColor,
               shape: BoxShape.circle,
               border: Border.all(
                 color: Colors.black,

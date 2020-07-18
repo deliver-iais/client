@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -30,18 +31,22 @@ class MyApp extends StatelessWidget {
     return StreamBuilder(
       stream: MergeStream([
         uxService.themeStream as Stream,
+        uxService.extraThemeStream as Stream,
         currentPageService.currentPageStream as Stream
       ]),
       builder: (context, snapshot) {
         Fimber.d("theme changed ${uxService.theme.toString()}");
         Fimber.d(
             "currentPage changed ${currentPageService.currentPage.toString()}");
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Flutter Demo',
-          theme: uxService.theme,
-          builder: ExtendedNavigator<Router>(
-            router: Router(),
+        return ExtraTheme(
+          extraThemeData: uxService.extraTheme,
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Flutter Demo',
+            theme: uxService.theme,
+            builder: ExtendedNavigator<Router>(
+              router: Router(),
+            ),
           ),
         );
       },
