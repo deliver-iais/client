@@ -1,5 +1,5 @@
 import 'package:deliver_flutter/models/contact.dart';
-import 'package:deliver_flutter/theme/colors.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
 class ContactItem extends StatelessWidget {
@@ -18,11 +18,11 @@ class ContactItem extends StatelessWidget {
                 children: <Widget>[
                   CircleAvatar(
                     radius: 19,
-                    backgroundColor: ThemeColors.circleAvatarbackground,
+                    backgroundColor: ExtraTheme.of(context).circleAvatarBackground,
                     child: FittedBox(
                       child: Icon(
                         Icons.person,
-                        color: ThemeColors.circleAvatarIcon,
+                        color: ExtraTheme.of(context).circleAvatarIcon,
                         size: 28,
                       ),
                     ),
@@ -34,7 +34,7 @@ class ContactItem extends StatelessWidget {
                       decoration: new BoxDecoration(
                         color: contact.isOnline
                             ? Colors.green
-                            : ThemeColors.secondColor,
+                            : ExtraTheme.of(context).secondColor,
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: Colors.black,
@@ -53,7 +53,7 @@ class ContactItem extends StatelessWidget {
               Text(
                 contact.firstName + " " + contact.lastName,
                 style: TextStyle(
-                  color: ThemeColors.infoChat,
+                  color: ExtraTheme.of(context).infoChat,
                   fontSize: 15,
                 ),
               ),
@@ -61,11 +61,11 @@ class ContactItem extends StatelessWidget {
           ),
           CircleAvatar(
             radius: 16.5,
-            backgroundColor: ThemeColors.secondColor,
+            backgroundColor: ExtraTheme.of(context).secondColor,
             child: FittedBox(
               child: Icon(
                 Icons.message,
-                color: ThemeColors.circleAvatarIcon,
+                color: ExtraTheme.of(context).circleAvatarIcon,
                 size: 14,
               ),
             ),

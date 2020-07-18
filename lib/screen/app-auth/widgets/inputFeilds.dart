@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/theme/colors.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
 class InputFeilds extends StatelessWidget {
@@ -30,7 +30,7 @@ class InputFeilds extends StatelessWidget {
                 child: Container(
                   height: 40,
                   decoration: BoxDecoration(
-                    color: ThemeColors.secondColor,
+                    color: ExtraTheme.of(context).secondColor,
                     borderRadius: BorderRadius.all(
                       Radius.circular(5),
                     ),
@@ -57,7 +57,7 @@ class InputFeilds extends StatelessWidget {
                               textAlignVertical: TextAlignVertical.center,
                               textAlign: TextAlign.start,
                               autofocus: false,
-                              cursorColor: ThemeColors.authText,
+                              cursorColor: ExtraTheme.of(context).authText,
                               maxLengthEnforced: true,
                               decoration: InputDecoration(
                                 counterText: "",
@@ -66,7 +66,7 @@ class InputFeilds extends StatelessWidget {
                                 hintText: 'Code',
                                 hintStyle: TextStyle(
                                   fontSize: 14,
-                                  color: ThemeColors.authText,
+                                  color: ExtraTheme.of(context).authText,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -94,7 +94,7 @@ class InputFeilds extends StatelessWidget {
                 child: Container(
                   height: 40,
                   decoration: BoxDecoration(
-                    color: ThemeColors.secondColor,
+                    color: ExtraTheme.of(context).secondColor,
                     borderRadius: BorderRadius.all(
                       Radius.circular(5),
                     ),
@@ -107,7 +107,7 @@ class InputFeilds extends StatelessWidget {
                         textAlignVertical: TextAlignVertical.center,
                         textAlign: TextAlign.center,
                         autofocus: false,
-                        cursorColor: ThemeColors.authText,
+                        cursorColor: ExtraTheme.of(context).authText,
                         decoration: InputDecoration(
                           counterText: "",
                           focusedBorder: InputBorder.none,
@@ -116,7 +116,7 @@ class InputFeilds extends StatelessWidget {
                           hintStyle: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
-                            color: ThemeColors.authText,
+                            color: ExtraTheme.of(context).authText,
                           ),
                         ),
                         maxLength: 10,

@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/models/loggedinStatus.dart';
-import 'package:deliver_flutter/theme/colors.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
@@ -75,7 +75,7 @@ class _VerificationPageState extends State<VerificationPage> {
                   child: Container(
                     height: 60,
                     decoration: BoxDecoration(
-                      color: ThemeColors.secondColor,
+                      color: ExtraTheme.of(context).secondColor,
                       borderRadius: BorderRadius.all(
                         Radius.circular(5),
                       ),
@@ -91,7 +91,7 @@ class _VerificationPageState extends State<VerificationPage> {
                         border: InputBorder.none,
                         hintStyle: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: ThemeColors.authText,
+                          color: ExtraTheme.of(context).authText,
                           fontSize: 16,
                         ),
                         counterText: "",

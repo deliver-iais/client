@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/theme/colors.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
 class SendedMsgIcon extends StatelessWidget {
@@ -15,7 +15,7 @@ class SendedMsgIcon extends StatelessWidget {
           ),
           child: Icon(
             Icons.done,
-            color: ThemeColors.details,
+            color: ExtraTheme.of(context).details,
             size: 15,
           ),
         );
@@ -26,7 +26,7 @@ class SendedMsgIcon extends StatelessWidget {
           ),
           child: Icon(
             Icons.done_all,
-            color: ThemeColors.details,
+            color: ExtraTheme.of(context).details,
             size: 15,
           ),
         );
@@ -37,7 +37,7 @@ class SendedMsgIcon extends StatelessWidget {
           ),
           child: Icon(
             Icons.access_alarm,
-            color: ThemeColors.details,
+            color: ExtraTheme.of(context).details,
             size:15
           ),
         );
