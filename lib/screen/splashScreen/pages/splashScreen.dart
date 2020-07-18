@@ -16,8 +16,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  var loggedinStatus;
-  var loggedinUserId;
+  var loggedInStatus;
+  var loggedInUserId;
   @override
   void initState() {
     super.initState();
@@ -57,24 +57,24 @@ class _SplashScreenState extends State<SplashScreen> {
                 reciever: '0000000000000000000001',
                 mentioned: null,
                 lastMessage: 2))));
-    _onloading().then(
+    _onLoading().then(
         (value) => value ? _navigateToHomePage() : _navigateToIntroPage());
   }
 
-  void _getLoggedinStatus() async {
+  void _getLoggedInStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // prefs.clear();
-    loggedinStatus = enumFromString(prefs.getString("loggedinStatus"));
-    if (loggedinStatus == null) loggedinStatus = LoggedinStatus.noLoggeding;
-    if (loggedinStatus == LoggedinStatus.loggedin)
-      loggedinUserId = prefs.get("loggedinUserId");
-    print("loggedinStatus : " + enumToString(loggedinStatus));
+    loggedInStatus = enumFromString(prefs.getString("loggedInStatus"));
+    if (loggedInStatus == null) loggedInStatus = LoggedinStatus.noLoggeding;
+    if (loggedInStatus == LoggedinStatus.loggedin)
+      loggedInUserId = prefs.get("loggedInUserId");
+    print("loggedInStatus : " + enumToString(loggedInStatus));
   }
 
-  Future<bool> _onloading() async {
-    _getLoggedinStatus();
+  Future<bool> _onLoading() async {
+    _getLoggedInStatus();
     await Future.delayed(Duration(milliseconds: 3000), () {});
-    return loggedinStatus == LoggedinStatus.loggedin ? true : false;
+    return loggedInStatus == LoggedinStatus.loggedin ? true : false;
   }
 
   void _navigateToIntroPage() {
@@ -86,7 +86,7 @@ class _SplashScreenState extends State<SplashScreen> {
     var currentPageService = GetIt.I.get<CurrentPageService>();
     currentPageService.setToHome();
     ExtendedNavigator.of(context).pushNamedAndRemoveUntil(
-      Routes.homePage(id: loggedinUserId),
+      Routes.homePage(id: loggedInUserId),
       (_) => false,
     );
   }
