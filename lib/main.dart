@@ -4,6 +4,7 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -36,6 +37,27 @@ class MyApp extends StatelessWidget {
     var currentPageService = GetIt.I.get<CurrentPageService>();
     var messagesDao = GetIt.I.get<MessageDao>();
     var chatDao = GetIt.I.get<ChatDao>();
+
+    messagesDao.insertMessage(Message(
+        chatId: 0,
+        id: 0,
+        time: DateTime.now(),
+        from: '0000000000000000000000',
+        to: '0000000000000000000001',
+        forwardedFrom: null,
+        replyToId: null,
+        edited: false,
+        encrypted: false,
+        type: MessageType.text,
+        content: 'hi',
+        seen: false));
+    chatDao.insertChat(Chat(
+        chatId: 0,
+        sender: '0000000000000000000000',
+        reciever: '0000000000000000000001',
+        mentioned: null,
+        lastMessage: 0));
+
     return StreamBuilder(
       stream: MergeStream([
         uxService.themeStream as Stream,
@@ -48,33 +70,16 @@ class MyApp extends StatelessWidget {
         Fimber.d(
             "currentPage changed ${currentPageService.currentPage.toString()}");
 
-        messagesDao.insertMessage(Message(
-            chatId: 0,
-            id: 0,
-            time: DateTime.now(),
-            from: '0000000000000000000000',
-            to: '0000000000000000000001',
-            forwardedFrom: null,
-            replyToId: null,
-            edited: false,
-            encrypted: false,
-            type: MessageType.text,
-            content: 'hi',
-            seen: false));
-        chatDao.insertChat(Chat(
-            chatId: 0,
-            sender: '0000000000000000000000',
-            reciever: '0000000000000000000001',
-            mentioned: null,
-            lastMessage: 0));
-
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Flutter Demo',
-          theme: uxService.theme,
-          onGenerateRoute: Router(),
-          builder: ExtendedNavigator<Router>(
-            router: Router(),
+        return ExtraTheme(
+          extraThemeData: uxService.extraTheme,
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Flutter Demo',
+            theme: uxService.theme,
+            onGenerateRoute: Router(),
+            builder: ExtendedNavigator<Router>(
+              router: Router(),
+            ),
           ),
         );
       },
