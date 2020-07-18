@@ -2,13 +2,13 @@ import 'package:deliver_flutter/db/Messages.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:moor_flutter/moor_flutter.dart';
 
-import 'Chats.dart';
-import 'dao/ChatDao.dart';
+import 'Rooms.dart';
+import 'dao/RoomDao.dart';
 import 'dao/MessageDao.dart';
 
 part 'database.g.dart';
 
-@UseMoor(tables: [Messages, Chats], daos: [MessageDao, ChatDao])
+@UseMoor(tables: [Messages, Rooms], daos: [MessageDao, RoomDao])
 class Database extends _$Database {
   Database()
       : super(FlutterQueryExecutor.inDatabaseFolder(
@@ -17,14 +17,14 @@ class Database extends _$Database {
         ));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onUpgrade: (migrator, from, to) async {
-          if (from == 2) {
-            await migrator.addColumn(messages, messages.content);
-            await migrator.addColumn(messages, messages.seen);
+          if (from == 6) {
+            await migrator.createTable(rooms);
+            await migrator.createTable(messages);
           }
         },
         beforeOpen: (details) async {

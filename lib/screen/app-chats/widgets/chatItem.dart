@@ -1,5 +1,5 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/models/chatWithMessage.dart';
+import 'package:deliver_flutter/models/roomWithMessage.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/recievedMsgStatusIcon.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/sendedMsgStatusIcon.dart';
@@ -7,14 +7,14 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
 class ChatItem extends StatelessWidget {
-  final ChatWithMessage chatWithMessage;
-  const ChatItem({this.chatWithMessage});
+  final RoomWithMessage roomWithMessage;
+  const ChatItem({this.roomWithMessage});
   @override
   Widget build(BuildContext context) {
     var routeData = RouteData.of(context);
     String loggedinUserId = routeData.pathParams['id'].value;
     var messageType =
-        chatWithMessage.lastMessage.from == loggedinUserId ? "send" : "recieve";
+        roomWithMessage.lastMessage.from == loggedinUserId ? "send" : "recieve";
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 30),
       child: Row(
@@ -41,17 +41,17 @@ class ChatItem extends StatelessWidget {
                     children: <Widget>[
                       messageType == "send"
                           ? SendedMsgIcon(
-                              chatWithMessage.lastMessage.seen as int)
+                              (roomWithMessage.lastMessage.seen) ? 1 : 0)
                           : Container(),
                       Padding(
                           padding: const EdgeInsets.only(
                             top: 3.0,
                           ),
                           child: Text(
-                            chatWithMessage.lastMessage.type.index ==
+                            roomWithMessage.lastMessage.type.index ==
                                     MessageType.text.index
-                                ? chatWithMessage.lastMessage.content
-                                : chatWithMessage.lastMessage.type.index ==
+                                ? roomWithMessage.lastMessage.content
+                                : roomWithMessage.lastMessage.type.index ==
                                         MessageType.photo.index
                                     ? 'Photo'
                                     : '',
@@ -75,7 +75,7 @@ class ChatItem extends StatelessWidget {
                   bottom: 4.0,
                 ),
                 child: Text(
-                  findSendingTime(chatWithMessage.lastMessage.time),
+                  findSendingTime(roomWithMessage.lastMessage.time),
                   maxLines: 1,
                   style: TextStyle(
                     color: ExtraTheme.of(context).details,
@@ -83,8 +83,8 @@ class ChatItem extends StatelessWidget {
                   ),
                 ),
               ),
-              chatWithMessage.chat.mentioned != null
-                  ? (Padding(
+              roomWithMessage.room.mentioned != null
+                  ? Padding(
                       padding: const EdgeInsets.only(
                         right: 3.0,
                       ),
@@ -124,9 +124,9 @@ class ChatItem extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ))
+                    )
                   : messageType == "recieve"
-                      ? RecievedMsgIcon(chatWithMessage.lastMessage.seen)
+                      ? RecievedMsgIcon(roomWithMessage.lastMessage.seen)
                       : Container()
             ],
           )

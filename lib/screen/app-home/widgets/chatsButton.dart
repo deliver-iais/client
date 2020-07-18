@@ -17,7 +17,7 @@ class ChatsButton extends StatelessWidget {
           size: 28,
         ),
         onPressed: currentPageService.currentPage == 0
-            ? (){}
+            ? () {}
             : currentPageService.toggleCurrentPage,
       ),
     );

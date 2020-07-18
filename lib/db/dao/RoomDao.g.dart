@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'ChatDao.dart';
+part of 'RoomDao.dart';
 
 // **************************************************************************
 // DaoGenerator
 // **************************************************************************
 
-mixin _$ChatDaoMixin on DatabaseAccessor<Database> {
-  $ChatsTable get chats => attachedDatabase.chats;
+mixin _$RoomDaoMixin on DatabaseAccessor<Database> {
+  $RoomsTable get rooms => attachedDatabase.rooms;
   $MessagesTable get messages => attachedDatabase.messages;
 }

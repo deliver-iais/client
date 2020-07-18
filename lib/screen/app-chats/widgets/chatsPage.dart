@@ -1,5 +1,5 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/db/dao/ChatDao.dart';
+import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/chatItem.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
@@ -13,26 +13,24 @@ class ChatsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var currentPageService = GetIt.I.get<CurrentPageService>();
-    var chatDao = GetIt.I.get<ChatDao>();
+    var roomDao = GetIt.I.get<RoomDao>();
     return StreamBuilder(
-        stream: chatDao.getByContactId(loggedinUserId),
+        stream: roomDao.getByContactId(loggedinUserId),
         builder: (context, snapshot) {
-          final chats = snapshot.data ?? [];
-          return Expanded(
-            child: Container(
-              child: ListView.builder(
-                itemCount: chats.length,
-                itemBuilder: (BuildContext ctxt, int index) {
-                  return GestureDetector(
-                    child: ChatItem(chatWithMessage: chats[index]),
-                    onTap: () {
-                      currentPageService.resetPage();
-                      ExtendedNavigator.of(context).pushNamed(
-                          Routes.privateChat(chatId: chats[index].chat.chatId));
-                    },
-                  );
-                },
-              ),
+          final rooms = snapshot.data ?? [];
+          return Container(
+            child: ListView.builder(
+              itemCount: rooms.length,
+              itemBuilder: (BuildContext ctxt, int index) {
+                return GestureDetector(
+                  child: ChatItem(roomWithMessage: rooms[index]),
+                  onTap: () {
+                    currentPageService.resetPage();
+                    ExtendedNavigator.of(context).pushNamed(
+                        Routes.roomPage(roomId: rooms[index].room.roomId));
+                  },
+                );
+              },
             ),
           );
         });

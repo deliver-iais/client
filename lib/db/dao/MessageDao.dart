@@ -17,7 +17,7 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
   Future updateMessage(Message updatedMessage) =>
       update(messages).replace(updatedMessage);
 
-  Stream getByChatId(int chatId) {
+  Stream getByRoomId(int roomId) {
     return (select(messages)
           ..orderBy([
             (m) => OrderingTerm(expression: m.time, mode: OrderingMode.desc)
