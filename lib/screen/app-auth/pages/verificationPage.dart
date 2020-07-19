@@ -1,8 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/models/loggedinStatus.dart';
+import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
@@ -25,6 +27,8 @@ class _VerificationPageState extends State<VerificationPage> {
 
   _navigationToHome() {
     print("hi");
+    var currentPageService = GetIt.I.get<CurrentPageService>();
+    currentPageService.setToHome();
     _getLoggedinUserId()
         .then((value) => ExtendedNavigator.of(context).pushNamedAndRemoveUntil(
               Routes.homePage(id: loggedinUserId),
