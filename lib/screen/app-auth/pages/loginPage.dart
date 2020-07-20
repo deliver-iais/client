@@ -1,8 +1,17 @@
+import 'dart:ffi';
+
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/generated/pub/v1/models/phone.pb.dart';
+import 'package:deliver_flutter/generated/pub/v1/profile.pb.dart';
+import 'package:deliver_flutter/generated/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_flutter/models/loggedinStatus.dart';
+import 'package:deliver_flutter/repository/profileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-auth/widgets/inputFeilds.dart';
+
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
@@ -26,6 +35,9 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       final signCode = await SmsAutoFill().getAppSignature;
       print(signCode);
+      Fluttertoast.showToast(msg: "dsrhfis");
+
+      //ProfileRepo().getVerificationCode(int.parse(code), phoneNum);
       SharedPreferences _prefs = await SharedPreferences.getInstance();
       _prefs
           .setString(
