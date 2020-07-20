@@ -1,0 +1,3 @@
+[submodule "proto/pub"]
+	path = proto/pub
+	url = https://gitlab.iais.co/deliver/protocol/pub.git
