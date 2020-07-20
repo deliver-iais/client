@@ -8,7 +8,7 @@
 const IsUsernameValidReq$json = const {
   '1': 'IsUsernameValidReq',
   '2': const [
-    const {'1': 'username', '3': 1, '4': 1, '5': 9, '10': 'username'},
+    const {'1': 'username', '3': 1, '4': 1, '5': 9, '8': const {}, '10': 'username'},
   ],
 };
 
@@ -32,10 +32,10 @@ const IsUsernameValidRes_Status$json = const {
 const FetchMessagesReq$json = const {
   '1': 'FetchMessagesReq',
   '2': const [
-    const {'1': 'with', '3': 1, '4': 1, '5': 11, '6': '.proto.pub.v1.models.Uid', '10': 'with'},
+    const {'1': 'with', '3': 1, '4': 1, '5': 11, '6': '.proto.pub.v1.models.Uid', '8': const {}, '10': 'with'},
     const {'1': 'pointer', '3': 2, '4': 1, '5': 3, '10': 'pointer'},
     const {'1': 'type', '3': 3, '4': 1, '5': 14, '6': '.proto.pub.v1.api.FetchMessagesReq.Type', '10': 'type'},
-    const {'1': 'limit', '3': 4, '4': 1, '5': 5, '10': 'limit'},
+    const {'1': 'limit', '3': 4, '4': 1, '5': 5, '8': const {}, '10': 'limit'},
   ],
   '4': const [FetchMessagesReq_Type$json],
 };

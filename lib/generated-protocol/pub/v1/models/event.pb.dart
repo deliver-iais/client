@@ -10,12 +10,12 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'uid.pb.dart' as $0;
+import 'uid.pb.dart' as $5;
 
 class Seen extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('Seen', package: const $pb.PackageName('proto.pub.v1.models'), createEmptyInstance: create)
-    ..aOM<$0.Uid>(1, 'from', subBuilder: $0.Uid.create)
-    ..aOM<$0.Uid>(2, 'to', subBuilder: $0.Uid.create)
+    ..aOM<$5.Uid>(1, 'from', subBuilder: $5.Uid.create)
+    ..aOM<$5.Uid>(2, 'to', subBuilder: $5.Uid.create)
     ..aInt64(3, 'id')
     ..hasRequiredFields = false
   ;
@@ -36,26 +36,26 @@ class Seen extends $pb.GeneratedMessage {
   static Seen _defaultInstance;
 
   @$pb.TagNumber(1)
-  $0.Uid get from => $_getN(0);
+  $5.Uid get from => $_getN(0);
   @$pb.TagNumber(1)
-  set from($0.Uid v) { setField(1, v); }
+  set from($5.Uid v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasFrom() => $_has(0);
   @$pb.TagNumber(1)
   void clearFrom() => clearField(1);
   @$pb.TagNumber(1)
-  $0.Uid ensureFrom() => $_ensure(0);
+  $5.Uid ensureFrom() => $_ensure(0);
 
   @$pb.TagNumber(2)
-  $0.Uid get to => $_getN(1);
+  $5.Uid get to => $_getN(1);
   @$pb.TagNumber(2)
-  set to($0.Uid v) { setField(2, v); }
+  set to($5.Uid v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasTo() => $_has(1);
   @$pb.TagNumber(2)
   void clearTo() => clearField(2);
   @$pb.TagNumber(2)
-  $0.Uid ensureTo() => $_ensure(1);
+  $5.Uid ensureTo() => $_ensure(1);
 
   @$pb.TagNumber(3)
   $fixnum.Int64 get id => $_getI64(2);
@@ -69,7 +69,7 @@ class Seen extends $pb.GeneratedMessage {
 
 class SeenByClient extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('SeenByClient', package: const $pb.PackageName('proto.pub.v1.models'), createEmptyInstance: create)
-    ..aOM<$0.Uid>(2, 'to', subBuilder: $0.Uid.create)
+    ..aOM<$5.Uid>(2, 'to', subBuilder: $5.Uid.create)
     ..aInt64(3, 'id')
     ..hasRequiredFields = false
   ;
@@ -90,15 +90,15 @@ class SeenByClient extends $pb.GeneratedMessage {
   static SeenByClient _defaultInstance;
 
   @$pb.TagNumber(2)
-  $0.Uid get to => $_getN(0);
+  $5.Uid get to => $_getN(0);
   @$pb.TagNumber(2)
-  set to($0.Uid v) { setField(2, v); }
+  set to($5.Uid v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasTo() => $_has(0);
   @$pb.TagNumber(2)
   void clearTo() => clearField(2);
   @$pb.TagNumber(2)
-  $0.Uid ensureTo() => $_ensure(0);
+  $5.Uid ensureTo() => $_ensure(0);
 
   @$pb.TagNumber(3)
   $fixnum.Int64 get id => $_getI64(1);
@@ -112,8 +112,8 @@ class SeenByClient extends $pb.GeneratedMessage {
 
 class Activity extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('Activity', package: const $pb.PackageName('proto.pub.v1.models'), createEmptyInstance: create)
-    ..aOM<$0.Uid>(1, 'from', subBuilder: $0.Uid.create)
-    ..aOM<$0.Uid>(2, 'to', subBuilder: $0.Uid.create)
+    ..aOM<$5.Uid>(1, 'from', subBuilder: $5.Uid.create)
+    ..aOM<$5.Uid>(2, 'to', subBuilder: $5.Uid.create)
     ..aOS(3, 'typeOfActivity')
     ..hasRequiredFields = false
   ;
@@ -134,26 +134,26 @@ class Activity extends $pb.GeneratedMessage {
   static Activity _defaultInstance;
 
   @$pb.TagNumber(1)
-  $0.Uid get from => $_getN(0);
+  $5.Uid get from => $_getN(0);
   @$pb.TagNumber(1)
-  set from($0.Uid v) { setField(1, v); }
+  set from($5.Uid v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasFrom() => $_has(0);
   @$pb.TagNumber(1)
   void clearFrom() => clearField(1);
   @$pb.TagNumber(1)
-  $0.Uid ensureFrom() => $_ensure(0);
+  $5.Uid ensureFrom() => $_ensure(0);
 
   @$pb.TagNumber(2)
-  $0.Uid get to => $_getN(1);
+  $5.Uid get to => $_getN(1);
   @$pb.TagNumber(2)
-  set to($0.Uid v) { setField(2, v); }
+  set to($5.Uid v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasTo() => $_has(1);
   @$pb.TagNumber(2)
   void clearTo() => clearField(2);
   @$pb.TagNumber(2)
-  $0.Uid ensureTo() => $_ensure(1);
+  $5.Uid ensureTo() => $_ensure(1);
 
   @$pb.TagNumber(3)
   $core.String get typeOfActivity => $_getSZ(2);
@@ -167,7 +167,7 @@ class Activity extends $pb.GeneratedMessage {
 
 class ActivityByClient extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('ActivityByClient', package: const $pb.PackageName('proto.pub.v1.models'), createEmptyInstance: create)
-    ..aOM<$0.Uid>(2, 'to', subBuilder: $0.Uid.create)
+    ..aOM<$5.Uid>(2, 'to', subBuilder: $5.Uid.create)
     ..aOS(3, 'typeOfActivity')
     ..hasRequiredFields = false
   ;
@@ -188,15 +188,15 @@ class ActivityByClient extends $pb.GeneratedMessage {
   static ActivityByClient _defaultInstance;
 
   @$pb.TagNumber(2)
-  $0.Uid get to => $_getN(0);
+  $5.Uid get to => $_getN(0);
   @$pb.TagNumber(2)
-  set to($0.Uid v) { setField(2, v); }
+  set to($5.Uid v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasTo() => $_has(0);
   @$pb.TagNumber(2)
   void clearTo() => clearField(2);
   @$pb.TagNumber(2)
-  $0.Uid ensureTo() => $_ensure(0);
+  $5.Uid ensureTo() => $_ensure(0);
 
   @$pb.TagNumber(3)
   $core.String get typeOfActivity => $_getSZ(1);

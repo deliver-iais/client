@@ -9,14 +9,14 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'uid.pb.dart' as $0;
-import 'phone.pb.dart' as $1;
+import 'uid.pb.dart' as $5;
+import 'phone.pb.dart' as $11;
 
 class Contact extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('Contact', package: const $pb.PackageName('proto.pub.v1.models'), createEmptyInstance: create)
     ..aOS(1, 'uuid')
-    ..aOM<$0.Uid>(2, 'owner', subBuilder: $0.Uid.create)
-    ..aOM<$1.PhoneNumber>(3, 'phoneNumber', protoName: 'phoneNumber', subBuilder: $1.PhoneNumber.create)
+    ..aOM<$5.Uid>(2, 'owner', subBuilder: $5.Uid.create)
+    ..aOM<$11.PhoneNumber>(3, 'phoneNumber', protoName: 'phoneNumber', subBuilder: $11.PhoneNumber.create)
     ..aOS(4, 'firstName')
     ..aOS(5, 'lastName')
     ..hasRequiredFields = false
@@ -47,26 +47,26 @@ class Contact extends $pb.GeneratedMessage {
   void clearUuid() => clearField(1);
 
   @$pb.TagNumber(2)
-  $0.Uid get owner => $_getN(1);
+  $5.Uid get owner => $_getN(1);
   @$pb.TagNumber(2)
-  set owner($0.Uid v) { setField(2, v); }
+  set owner($5.Uid v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasOwner() => $_has(1);
   @$pb.TagNumber(2)
   void clearOwner() => clearField(2);
   @$pb.TagNumber(2)
-  $0.Uid ensureOwner() => $_ensure(1);
+  $5.Uid ensureOwner() => $_ensure(1);
 
   @$pb.TagNumber(3)
-  $1.PhoneNumber get phoneNumber => $_getN(2);
+  $11.PhoneNumber get phoneNumber => $_getN(2);
   @$pb.TagNumber(3)
-  set phoneNumber($1.PhoneNumber v) { setField(3, v); }
+  set phoneNumber($11.PhoneNumber v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasPhoneNumber() => $_has(2);
   @$pb.TagNumber(3)
   void clearPhoneNumber() => clearField(3);
   @$pb.TagNumber(3)
-  $1.PhoneNumber ensurePhoneNumber() => $_ensure(2);
+  $11.PhoneNumber ensurePhoneNumber() => $_ensure(2);
 
   @$pb.TagNumber(4)
   $core.String get firstName => $_getSZ(3);

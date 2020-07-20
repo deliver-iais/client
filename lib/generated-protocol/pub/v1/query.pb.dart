@@ -11,8 +11,8 @@ import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'models/uid.pb.dart' as $5;
-import 'models/message.pb.dart' as $6;
-import 'models/user_room_meta.pb.dart' as $13;
+import 'models/message.pb.dart' as $8;
+import 'models/user_room_meta.pb.dart' as $15;
 
 import 'query.pbenum.dart';
 
@@ -145,7 +145,7 @@ class FetchMessagesReq extends $pb.GeneratedMessage {
 
 class FetchMessagesRes extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('FetchMessagesRes', package: const $pb.PackageName('proto.pub.v1.api'), createEmptyInstance: create)
-    ..pc<$6.Message>(1, 'messages', $pb.PbFieldType.PM, subBuilder: $6.Message.create)
+    ..pc<$8.Message>(1, 'messages', $pb.PbFieldType.PM, subBuilder: $8.Message.create)
     ..hasRequiredFields = false
   ;
 
@@ -165,7 +165,7 @@ class FetchMessagesRes extends $pb.GeneratedMessage {
   static FetchMessagesRes _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<$6.Message> get messages => $_getList(0);
+  $core.List<$8.Message> get messages => $_getList(0);
 }
 
 class GetAllUserRoomMetaReq extends $pb.GeneratedMessage {
@@ -191,7 +191,7 @@ class GetAllUserRoomMetaReq extends $pb.GeneratedMessage {
 
 class GetAllUserRoomMetaRes extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('GetAllUserRoomMetaRes', package: const $pb.PackageName('proto.pub.v1.api'), createEmptyInstance: create)
-    ..pc<$13.UserRoomMeta>(1, 'roomsMeta', $pb.PbFieldType.PM, protoName: 'roomsMeta', subBuilder: $13.UserRoomMeta.create)
+    ..pc<$15.UserRoomMeta>(1, 'roomsMeta', $pb.PbFieldType.PM, protoName: 'roomsMeta', subBuilder: $15.UserRoomMeta.create)
     ..hasRequiredFields = false
   ;
 
@@ -211,6 +211,6 @@ class GetAllUserRoomMetaRes extends $pb.GeneratedMessage {
   static GetAllUserRoomMetaRes _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<$13.UserRoomMeta> get roomsMeta => $_getList(0);
+  $core.List<$15.UserRoomMeta> get roomsMeta => $_getList(0);
 }
 
