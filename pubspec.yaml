@@ -49,7 +49,10 @@ dependencies:
   # Path for Files
 #  path_provider: ^1.6.9
 #  path: ^1.7.0
-  # sms autofill
+
+  # GRPC
+  grpc: ^2.1.3
+  protobuf: ^1.0.1
 
 dev_dependencies:
   flutter_test:
