@@ -1,8 +1,8 @@
 import 'package:fimber/fimber_base.dart';
 import 'package:fixnum/fixnum.dart';
 
-import 'package:deliver_flutter/generated/pub/v1/models/phone.pb.dart';
-import 'package:deliver_flutter/generated/pub/v1/profile.pbgrpc.dart';
+import 'package:deliver_flutter/generated-protocol/pub/v1/models/phone.pb.dart';
+import 'package:deliver_flutter/generated-protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
