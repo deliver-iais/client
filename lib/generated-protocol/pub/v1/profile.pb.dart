@@ -9,11 +9,11 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'models/phone.pb.dart' as $9;
-import 'models/contact.pb.dart' as $10;
-import 'models/error.pb.dart' as $7;
-import 'models/user.pb.dart' as $11;
-import 'models/session.pb.dart' as $12;
+import 'models/phone.pb.dart' as $11;
+import 'models/contact.pb.dart' as $12;
+import 'models/error.pb.dart' as $9;
+import 'models/user.pb.dart' as $13;
+import 'models/session.pb.dart' as $14;
 
 import 'profile.pbenum.dart';
 
@@ -21,7 +21,7 @@ export 'profile.pbenum.dart';
 
 class GetVerificationCodeReq extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('GetVerificationCodeReq', package: const $pb.PackageName('proto.pub.v1.profile'), createEmptyInstance: create)
-    ..aOM<$9.PhoneNumber>(1, 'phoneNumber', subBuilder: $9.PhoneNumber.create)
+    ..aOM<$11.PhoneNumber>(1, 'phoneNumber', subBuilder: $11.PhoneNumber.create)
     ..e<VerificationType>(2, 'type', $pb.PbFieldType.OE, defaultOrMaker: VerificationType.MESSAGE, valueOf: VerificationType.valueOf, enumValues: VerificationType.values)
     ..hasRequiredFields = false
   ;
@@ -42,15 +42,15 @@ class GetVerificationCodeReq extends $pb.GeneratedMessage {
   static GetVerificationCodeReq _defaultInstance;
 
   @$pb.TagNumber(1)
-  $9.PhoneNumber get phoneNumber => $_getN(0);
+  $11.PhoneNumber get phoneNumber => $_getN(0);
   @$pb.TagNumber(1)
-  set phoneNumber($9.PhoneNumber v) { setField(1, v); }
+  set phoneNumber($11.PhoneNumber v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasPhoneNumber() => $_has(0);
   @$pb.TagNumber(1)
   void clearPhoneNumber() => clearField(1);
   @$pb.TagNumber(1)
-  $9.PhoneNumber ensurePhoneNumber() => $_ensure(0);
+  $11.PhoneNumber ensurePhoneNumber() => $_ensure(0);
 
   @$pb.TagNumber(2)
   VerificationType get type => $_getN(1);
@@ -95,7 +95,7 @@ class GetVerificationCodeRes extends $pb.GeneratedMessage {
 
 class VerifyCodeReq extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('VerifyCodeReq', package: const $pb.PackageName('proto.pub.v1.profile'), createEmptyInstance: create)
-    ..aOM<$9.PhoneNumber>(1, 'phoneNumber', subBuilder: $9.PhoneNumber.create)
+    ..aOM<$11.PhoneNumber>(1, 'phoneNumber', subBuilder: $11.PhoneNumber.create)
     ..aOS(2, 'code')
     ..aOS(3, 'device')
     ..aOS(4, 'password')
@@ -118,15 +118,15 @@ class VerifyCodeReq extends $pb.GeneratedMessage {
   static VerifyCodeReq _defaultInstance;
 
   @$pb.TagNumber(1)
-  $9.PhoneNumber get phoneNumber => $_getN(0);
+  $11.PhoneNumber get phoneNumber => $_getN(0);
   @$pb.TagNumber(1)
-  set phoneNumber($9.PhoneNumber v) { setField(1, v); }
+  set phoneNumber($11.PhoneNumber v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasPhoneNumber() => $_has(0);
   @$pb.TagNumber(1)
   void clearPhoneNumber() => clearField(1);
   @$pb.TagNumber(1)
-  $9.PhoneNumber ensurePhoneNumber() => $_ensure(0);
+  $11.PhoneNumber ensurePhoneNumber() => $_ensure(0);
 
   @$pb.TagNumber(2)
   $core.String get code => $_getSZ(1);
@@ -311,7 +311,7 @@ class RenewAccessTokenRes extends $pb.GeneratedMessage {
 
 class SaveContactsReq extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('SaveContactsReq', package: const $pb.PackageName('proto.pub.v1.profile'), createEmptyInstance: create)
-    ..pc<$10.Contact>(2, 'contactList', $pb.PbFieldType.PM, protoName: 'contactList', subBuilder: $10.Contact.create)
+    ..pc<$12.Contact>(2, 'contactList', $pb.PbFieldType.PM, protoName: 'contactList', subBuilder: $12.Contact.create)
     ..hasRequiredFields = false
   ;
 
@@ -331,12 +331,12 @@ class SaveContactsReq extends $pb.GeneratedMessage {
   static SaveContactsReq _defaultInstance;
 
   @$pb.TagNumber(2)
-  $core.List<$10.Contact> get contactList => $_getList(0);
+  $core.List<$12.Contact> get contactList => $_getList(0);
 }
 
 class SaveContactsRes extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('SaveContactsRes', package: const $pb.PackageName('proto.pub.v1.profile'), createEmptyInstance: create)
-    ..pc<$7.Error>(1, 'errors', $pb.PbFieldType.PM, subBuilder: $7.Error.create)
+    ..pc<$9.Error>(1, 'errors', $pb.PbFieldType.PM, subBuilder: $9.Error.create)
     ..hasRequiredFields = false
   ;
 
@@ -356,7 +356,7 @@ class SaveContactsRes extends $pb.GeneratedMessage {
   static SaveContactsRes _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<$7.Error> get errors => $_getList(0);
+  $core.List<$9.Error> get errors => $_getList(0);
 }
 
 class GetContactListUsersReq extends $pb.GeneratedMessage {
@@ -402,7 +402,7 @@ class GetContactListUsersReq extends $pb.GeneratedMessage {
 
 class GetContactListUsersRes extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('GetContactListUsersRes', package: const $pb.PackageName('proto.pub.v1.profile'), createEmptyInstance: create)
-    ..pc<$11.UserAsContact>(1, 'userList', $pb.PbFieldType.PM, protoName: 'userList', subBuilder: $11.UserAsContact.create)
+    ..pc<$13.UserAsContact>(1, 'userList', $pb.PbFieldType.PM, protoName: 'userList', subBuilder: $13.UserAsContact.create)
     ..a<$core.int>(2, 'nextPageNumber', $pb.PbFieldType.O3)
     ..a<$core.int>(3, 'totalSize', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
@@ -424,7 +424,7 @@ class GetContactListUsersRes extends $pb.GeneratedMessage {
   static GetContactListUsersRes _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<$11.UserAsContact> get userList => $_getList(0);
+  $core.List<$13.UserAsContact> get userList => $_getList(0);
 
   @$pb.TagNumber(2)
   $core.int get nextPageNumber => $_getIZ(1);
@@ -488,7 +488,7 @@ class GetContactListReq extends $pb.GeneratedMessage {
 
 class GetContactListRes extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('GetContactListRes', package: const $pb.PackageName('proto.pub.v1.profile'), createEmptyInstance: create)
-    ..pc<$10.Contact>(1, 'contactList', $pb.PbFieldType.PM, protoName: 'contactList', subBuilder: $10.Contact.create)
+    ..pc<$12.Contact>(1, 'contactList', $pb.PbFieldType.PM, protoName: 'contactList', subBuilder: $12.Contact.create)
     ..a<$core.int>(2, 'nextPageNumber', $pb.PbFieldType.O3)
     ..a<$core.int>(3, 'totalSize', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
@@ -510,7 +510,7 @@ class GetContactListRes extends $pb.GeneratedMessage {
   static GetContactListRes _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<$10.Contact> get contactList => $_getList(0);
+  $core.List<$12.Contact> get contactList => $_getList(0);
 
   @$pb.TagNumber(2)
   $core.int get nextPageNumber => $_getIZ(1);
@@ -554,7 +554,7 @@ class GetUserProfileReq extends $pb.GeneratedMessage {
 
 class GetUserProfileRes extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('GetUserProfileRes', package: const $pb.PackageName('proto.pub.v1.profile'), createEmptyInstance: create)
-    ..aOM<$11.UserPrivateData>(1, 'profile', subBuilder: $11.UserPrivateData.create)
+    ..aOM<$13.UserPrivateData>(1, 'profile', subBuilder: $13.UserPrivateData.create)
     ..hasRequiredFields = false
   ;
 
@@ -574,15 +574,15 @@ class GetUserProfileRes extends $pb.GeneratedMessage {
   static GetUserProfileRes _defaultInstance;
 
   @$pb.TagNumber(1)
-  $11.UserPrivateData get profile => $_getN(0);
+  $13.UserPrivateData get profile => $_getN(0);
   @$pb.TagNumber(1)
-  set profile($11.UserPrivateData v) { setField(1, v); }
+  set profile($13.UserPrivateData v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasProfile() => $_has(0);
   @$pb.TagNumber(1)
   void clearProfile() => clearField(1);
   @$pb.TagNumber(1)
-  $11.UserPrivateData ensureProfile() => $_ensure(0);
+  $13.UserPrivateData ensureProfile() => $_ensure(0);
 }
 
 class SaveUserProfileReq extends $pb.GeneratedMessage {
@@ -668,7 +668,7 @@ class SaveUserProfileReq extends $pb.GeneratedMessage {
 
 class SaveUserProfileRes extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('SaveUserProfileRes', package: const $pb.PackageName('proto.pub.v1.profile'), createEmptyInstance: create)
-    ..pc<$7.Error>(1, 'errors', $pb.PbFieldType.PM, subBuilder: $7.Error.create)
+    ..pc<$9.Error>(1, 'errors', $pb.PbFieldType.PM, subBuilder: $9.Error.create)
     ..hasRequiredFields = false
   ;
 
@@ -688,7 +688,7 @@ class SaveUserProfileRes extends $pb.GeneratedMessage {
   static SaveUserProfileRes _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<$7.Error> get errors => $_getList(0);
+  $core.List<$9.Error> get errors => $_getList(0);
 }
 
 class GetMySessionsReq extends $pb.GeneratedMessage {
@@ -714,7 +714,7 @@ class GetMySessionsReq extends $pb.GeneratedMessage {
 
 class GetMySessionsRes extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('GetMySessionsRes', package: const $pb.PackageName('proto.pub.v1.profile'), createEmptyInstance: create)
-    ..pc<$12.Session>(1, 'sessions', $pb.PbFieldType.PM, subBuilder: $12.Session.create)
+    ..pc<$14.Session>(1, 'sessions', $pb.PbFieldType.PM, subBuilder: $14.Session.create)
     ..hasRequiredFields = false
   ;
 
@@ -734,7 +734,7 @@ class GetMySessionsRes extends $pb.GeneratedMessage {
   static GetMySessionsRes _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<$12.Session> get sessions => $_getList(0);
+  $core.List<$14.Session> get sessions => $_getList(0);
 }
 
 class RevokeSessionReq extends $pb.GeneratedMessage {

@@ -9,13 +9,13 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'uid.pb.dart' as $0;
-import 'phone.pb.dart' as $1;
+import 'uid.pb.dart' as $5;
+import 'phone.pb.dart' as $11;
 
 class UserAsContact extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('UserAsContact', package: const $pb.PackageName('proto.pub.v1.models'), createEmptyInstance: create)
-    ..aOM<$0.Uid>(1, 'node', subBuilder: $0.Uid.create)
-    ..aOM<$1.PhoneNumber>(2, 'phoneNumber', protoName: 'phoneNumber', subBuilder: $1.PhoneNumber.create)
+    ..aOM<$5.Uid>(1, 'node', subBuilder: $5.Uid.create)
+    ..aOM<$11.PhoneNumber>(2, 'phoneNumber', protoName: 'phoneNumber', subBuilder: $11.PhoneNumber.create)
     ..aOS(3, 'username')
     ..aOS(4, 'firstName')
     ..aOS(5, 'lastName')
@@ -40,26 +40,26 @@ class UserAsContact extends $pb.GeneratedMessage {
   static UserAsContact _defaultInstance;
 
   @$pb.TagNumber(1)
-  $0.Uid get node => $_getN(0);
+  $5.Uid get node => $_getN(0);
   @$pb.TagNumber(1)
-  set node($0.Uid v) { setField(1, v); }
+  set node($5.Uid v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasNode() => $_has(0);
   @$pb.TagNumber(1)
   void clearNode() => clearField(1);
   @$pb.TagNumber(1)
-  $0.Uid ensureNode() => $_ensure(0);
+  $5.Uid ensureNode() => $_ensure(0);
 
   @$pb.TagNumber(2)
-  $1.PhoneNumber get phoneNumber => $_getN(1);
+  $11.PhoneNumber get phoneNumber => $_getN(1);
   @$pb.TagNumber(2)
-  set phoneNumber($1.PhoneNumber v) { setField(2, v); }
+  set phoneNumber($11.PhoneNumber v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasPhoneNumber() => $_has(1);
   @$pb.TagNumber(2)
   void clearPhoneNumber() => clearField(2);
   @$pb.TagNumber(2)
-  $1.PhoneNumber ensurePhoneNumber() => $_ensure(1);
+  $11.PhoneNumber ensurePhoneNumber() => $_ensure(1);
 
   @$pb.TagNumber(3)
   $core.String get username => $_getSZ(2);
@@ -109,8 +109,8 @@ class UserAsContact extends $pb.GeneratedMessage {
 
 class UserPrivateData extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('UserPrivateData', package: const $pb.PackageName('proto.pub.v1.models'), createEmptyInstance: create)
-    ..aOM<$0.Uid>(1, 'node', subBuilder: $0.Uid.create)
-    ..aOM<$1.PhoneNumber>(2, 'phoneNumber', subBuilder: $1.PhoneNumber.create)
+    ..aOM<$5.Uid>(1, 'node', subBuilder: $5.Uid.create)
+    ..aOM<$11.PhoneNumber>(2, 'phoneNumber', subBuilder: $11.PhoneNumber.create)
     ..aOS(3, 'username')
     ..aOS(4, 'passwordHash')
     ..aOS(5, 'firstName')
@@ -136,26 +136,26 @@ class UserPrivateData extends $pb.GeneratedMessage {
   static UserPrivateData _defaultInstance;
 
   @$pb.TagNumber(1)
-  $0.Uid get node => $_getN(0);
+  $5.Uid get node => $_getN(0);
   @$pb.TagNumber(1)
-  set node($0.Uid v) { setField(1, v); }
+  set node($5.Uid v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasNode() => $_has(0);
   @$pb.TagNumber(1)
   void clearNode() => clearField(1);
   @$pb.TagNumber(1)
-  $0.Uid ensureNode() => $_ensure(0);
+  $5.Uid ensureNode() => $_ensure(0);
 
   @$pb.TagNumber(2)
-  $1.PhoneNumber get phoneNumber => $_getN(1);
+  $11.PhoneNumber get phoneNumber => $_getN(1);
   @$pb.TagNumber(2)
-  set phoneNumber($1.PhoneNumber v) { setField(2, v); }
+  set phoneNumber($11.PhoneNumber v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasPhoneNumber() => $_has(1);
   @$pb.TagNumber(2)
   void clearPhoneNumber() => clearField(2);
   @$pb.TagNumber(2)
-  $1.PhoneNumber ensurePhoneNumber() => $_ensure(1);
+  $11.PhoneNumber ensurePhoneNumber() => $_ensure(1);
 
   @$pb.TagNumber(3)
   $core.String get username => $_getSZ(2);

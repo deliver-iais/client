@@ -90,7 +90,7 @@ const MessageByClient$json = const {
   '1': 'MessageByClient',
   '2': const [
     const {'1': 'packet_id', '3': 1, '4': 1, '5': 9, '10': 'packetId'},
-    const {'1': 'to', '3': 6, '4': 1, '5': 11, '6': '.proto.pub.v1.models.Uid', '10': 'to'},
+    const {'1': 'to', '3': 6, '4': 1, '5': 11, '6': '.proto.pub.v1.models.Uid', '8': const {}, '10': 'to'},
     const {'1': 'reply_to_id', '3': 7, '4': 1, '5': 3, '10': 'replyToId'},
     const {'1': 'forward_from', '3': 8, '4': 1, '5': 11, '6': '.proto.pub.v1.models.Uid', '10': 'forwardFrom'},
     const {'1': 'encrypted', '3': 10, '4': 1, '5': 8, '10': 'encrypted'},
@@ -102,7 +102,7 @@ const MessageByClient$json = const {
     const {'1': 'poll', '3': 16, '4': 1, '5': 11, '6': '.proto.pub.v1.models.Poll', '9': 0, '10': 'poll'},
   ],
   '8': const [
-    const {'1': 'type'},
+    const {'1': 'type', '2': const {}},
   ],
 };
 
@@ -110,7 +110,7 @@ const MessageByBot$json = const {
   '1': 'MessageByBot',
   '2': const [
     const {'1': 'packet_id', '3': 1, '4': 1, '5': 9, '10': 'packetId'},
-    const {'1': 'to', '3': 6, '4': 1, '5': 11, '6': '.proto.pub.v1.models.Uid', '10': 'to'},
+    const {'1': 'to', '3': 6, '4': 1, '5': 11, '6': '.proto.pub.v1.models.Uid', '8': const {}, '10': 'to'},
     const {'1': 'reply_to_id', '3': 7, '4': 1, '5': 3, '10': 'replyToId'},
     const {'1': 'forward_from', '3': 8, '4': 1, '5': 11, '6': '.proto.pub.v1.models.Uid', '10': 'forwardFrom'},
     const {'1': 'encrypted', '3': 10, '4': 1, '5': 8, '10': 'encrypted'},
@@ -123,7 +123,7 @@ const MessageByBot$json = const {
     const {'1': 'form', '3': 18, '4': 1, '5': 11, '6': '.proto.pub.v1.models.Form', '9': 0, '10': 'form'},
   ],
   '8': const [
-    const {'1': 'type'},
+    const {'1': 'type', '2': const {}},
   ],
 };
 

@@ -10,9 +10,9 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'uid.pb.dart' as $0;
-import 'file.pb.dart' as $2;
-import 'sticker.pb.dart' as $3;
+import 'uid.pb.dart' as $5;
+import 'file.pb.dart' as $6;
+import 'sticker.pb.dart' as $7;
 
 class Text extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('Text', package: const $pb.PackageName('proto.pub.v1.models'), createEmptyInstance: create)
@@ -242,9 +242,9 @@ class LiveLocation extends $pb.GeneratedMessage {
 
 class PersistentEvent extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('PersistentEvent', package: const $pb.PackageName('proto.pub.v1.models'), createEmptyInstance: create)
-    ..aOM<$0.Uid>(1, 'issuer', subBuilder: $0.Uid.create)
+    ..aOM<$5.Uid>(1, 'issuer', subBuilder: $5.Uid.create)
     ..aOS(2, 'issue')
-    ..aOM<$0.Uid>(3, 'assignee', subBuilder: $0.Uid.create)
+    ..aOM<$5.Uid>(3, 'assignee', subBuilder: $5.Uid.create)
     ..hasRequiredFields = false
   ;
 
@@ -264,15 +264,15 @@ class PersistentEvent extends $pb.GeneratedMessage {
   static PersistentEvent _defaultInstance;
 
   @$pb.TagNumber(1)
-  $0.Uid get issuer => $_getN(0);
+  $5.Uid get issuer => $_getN(0);
   @$pb.TagNumber(1)
-  set issuer($0.Uid v) { setField(1, v); }
+  set issuer($5.Uid v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasIssuer() => $_has(0);
   @$pb.TagNumber(1)
   void clearIssuer() => clearField(1);
   @$pb.TagNumber(1)
-  $0.Uid ensureIssuer() => $_ensure(0);
+  $5.Uid ensureIssuer() => $_ensure(0);
 
   @$pb.TagNumber(2)
   $core.String get issue => $_getSZ(1);
@@ -284,15 +284,15 @@ class PersistentEvent extends $pb.GeneratedMessage {
   void clearIssue() => clearField(2);
 
   @$pb.TagNumber(3)
-  $0.Uid get assignee => $_getN(2);
+  $5.Uid get assignee => $_getN(2);
   @$pb.TagNumber(3)
-  set assignee($0.Uid v) { setField(3, v); }
+  set assignee($5.Uid v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasAssignee() => $_has(2);
   @$pb.TagNumber(3)
   void clearAssignee() => clearField(3);
   @$pb.TagNumber(3)
-  $0.Uid ensureAssignee() => $_ensure(2);
+  $5.Uid ensureAssignee() => $_ensure(2);
 }
 
 enum Message_Type {
@@ -324,15 +324,15 @@ class Message extends $pb.GeneratedMessage {
     ..aOS(1, 'packetId')
     ..aInt64(2, 'id')
     ..aInt64(4, 'time')
-    ..aOM<$0.Uid>(5, 'from', subBuilder: $0.Uid.create)
-    ..aOM<$0.Uid>(6, 'to', subBuilder: $0.Uid.create)
+    ..aOM<$5.Uid>(5, 'from', subBuilder: $5.Uid.create)
+    ..aOM<$5.Uid>(6, 'to', subBuilder: $5.Uid.create)
     ..aInt64(7, 'replyToId')
-    ..aOM<$0.Uid>(8, 'forwardFrom', subBuilder: $0.Uid.create)
+    ..aOM<$5.Uid>(8, 'forwardFrom', subBuilder: $5.Uid.create)
     ..aOB(9, 'edited')
     ..aOB(10, 'encrypted')
     ..aOM<Text>(11, 'text', subBuilder: Text.create)
-    ..aOM<$2.File>(12, 'file', subBuilder: $2.File.create)
-    ..aOM<$3.Sticker>(13, 'sticker', subBuilder: $3.Sticker.create)
+    ..aOM<$6.File>(12, 'file', subBuilder: $6.File.create)
+    ..aOM<$7.Sticker>(13, 'sticker', subBuilder: $7.Sticker.create)
     ..aOM<Location>(14, 'location', subBuilder: Location.create)
     ..aOM<LiveLocation>(15, 'liveLocation', subBuilder: LiveLocation.create)
     ..aOM<Poll>(16, 'poll', subBuilder: Poll.create)
@@ -387,26 +387,26 @@ class Message extends $pb.GeneratedMessage {
   void clearTime() => clearField(4);
 
   @$pb.TagNumber(5)
-  $0.Uid get from => $_getN(3);
+  $5.Uid get from => $_getN(3);
   @$pb.TagNumber(5)
-  set from($0.Uid v) { setField(5, v); }
+  set from($5.Uid v) { setField(5, v); }
   @$pb.TagNumber(5)
   $core.bool hasFrom() => $_has(3);
   @$pb.TagNumber(5)
   void clearFrom() => clearField(5);
   @$pb.TagNumber(5)
-  $0.Uid ensureFrom() => $_ensure(3);
+  $5.Uid ensureFrom() => $_ensure(3);
 
   @$pb.TagNumber(6)
-  $0.Uid get to => $_getN(4);
+  $5.Uid get to => $_getN(4);
   @$pb.TagNumber(6)
-  set to($0.Uid v) { setField(6, v); }
+  set to($5.Uid v) { setField(6, v); }
   @$pb.TagNumber(6)
   $core.bool hasTo() => $_has(4);
   @$pb.TagNumber(6)
   void clearTo() => clearField(6);
   @$pb.TagNumber(6)
-  $0.Uid ensureTo() => $_ensure(4);
+  $5.Uid ensureTo() => $_ensure(4);
 
   @$pb.TagNumber(7)
   $fixnum.Int64 get replyToId => $_getI64(5);
@@ -418,15 +418,15 @@ class Message extends $pb.GeneratedMessage {
   void clearReplyToId() => clearField(7);
 
   @$pb.TagNumber(8)
-  $0.Uid get forwardFrom => $_getN(6);
+  $5.Uid get forwardFrom => $_getN(6);
   @$pb.TagNumber(8)
-  set forwardFrom($0.Uid v) { setField(8, v); }
+  set forwardFrom($5.Uid v) { setField(8, v); }
   @$pb.TagNumber(8)
   $core.bool hasForwardFrom() => $_has(6);
   @$pb.TagNumber(8)
   void clearForwardFrom() => clearField(8);
   @$pb.TagNumber(8)
-  $0.Uid ensureForwardFrom() => $_ensure(6);
+  $5.Uid ensureForwardFrom() => $_ensure(6);
 
   @$pb.TagNumber(9)
   $core.bool get edited => $_getBF(7);
@@ -458,26 +458,26 @@ class Message extends $pb.GeneratedMessage {
   Text ensureText() => $_ensure(9);
 
   @$pb.TagNumber(12)
-  $2.File get file => $_getN(10);
+  $6.File get file => $_getN(10);
   @$pb.TagNumber(12)
-  set file($2.File v) { setField(12, v); }
+  set file($6.File v) { setField(12, v); }
   @$pb.TagNumber(12)
   $core.bool hasFile() => $_has(10);
   @$pb.TagNumber(12)
   void clearFile() => clearField(12);
   @$pb.TagNumber(12)
-  $2.File ensureFile() => $_ensure(10);
+  $6.File ensureFile() => $_ensure(10);
 
   @$pb.TagNumber(13)
-  $3.Sticker get sticker => $_getN(11);
+  $7.Sticker get sticker => $_getN(11);
   @$pb.TagNumber(13)
-  set sticker($3.Sticker v) { setField(13, v); }
+  set sticker($7.Sticker v) { setField(13, v); }
   @$pb.TagNumber(13)
   $core.bool hasSticker() => $_has(11);
   @$pb.TagNumber(13)
   void clearSticker() => clearField(13);
   @$pb.TagNumber(13)
-  $3.Sticker ensureSticker() => $_ensure(11);
+  $7.Sticker ensureSticker() => $_ensure(11);
 
   @$pb.TagNumber(14)
   Location get location => $_getN(12);
@@ -558,13 +558,13 @@ class MessageByClient extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('MessageByClient', package: const $pb.PackageName('proto.pub.v1.models'), createEmptyInstance: create)
     ..oo(0, [11, 12, 13, 14, 15, 16])
     ..aOS(1, 'packetId')
-    ..aOM<$0.Uid>(6, 'to', subBuilder: $0.Uid.create)
+    ..aOM<$5.Uid>(6, 'to', subBuilder: $5.Uid.create)
     ..aInt64(7, 'replyToId')
-    ..aOM<$0.Uid>(8, 'forwardFrom', subBuilder: $0.Uid.create)
+    ..aOM<$5.Uid>(8, 'forwardFrom', subBuilder: $5.Uid.create)
     ..aOB(10, 'encrypted')
     ..aOM<Text>(11, 'text', subBuilder: Text.create)
-    ..aOM<$2.File>(12, 'file', subBuilder: $2.File.create)
-    ..aOM<$3.Sticker>(13, 'sticker', subBuilder: $3.Sticker.create)
+    ..aOM<$6.File>(12, 'file', subBuilder: $6.File.create)
+    ..aOM<$7.Sticker>(13, 'sticker', subBuilder: $7.Sticker.create)
     ..aOM<Location>(14, 'location', subBuilder: Location.create)
     ..aOM<LiveLocation>(15, 'liveLocation', subBuilder: LiveLocation.create)
     ..aOM<Poll>(16, 'poll', subBuilder: Poll.create)
@@ -599,15 +599,15 @@ class MessageByClient extends $pb.GeneratedMessage {
   void clearPacketId() => clearField(1);
 
   @$pb.TagNumber(6)
-  $0.Uid get to => $_getN(1);
+  $5.Uid get to => $_getN(1);
   @$pb.TagNumber(6)
-  set to($0.Uid v) { setField(6, v); }
+  set to($5.Uid v) { setField(6, v); }
   @$pb.TagNumber(6)
   $core.bool hasTo() => $_has(1);
   @$pb.TagNumber(6)
   void clearTo() => clearField(6);
   @$pb.TagNumber(6)
-  $0.Uid ensureTo() => $_ensure(1);
+  $5.Uid ensureTo() => $_ensure(1);
 
   @$pb.TagNumber(7)
   $fixnum.Int64 get replyToId => $_getI64(2);
@@ -619,15 +619,15 @@ class MessageByClient extends $pb.GeneratedMessage {
   void clearReplyToId() => clearField(7);
 
   @$pb.TagNumber(8)
-  $0.Uid get forwardFrom => $_getN(3);
+  $5.Uid get forwardFrom => $_getN(3);
   @$pb.TagNumber(8)
-  set forwardFrom($0.Uid v) { setField(8, v); }
+  set forwardFrom($5.Uid v) { setField(8, v); }
   @$pb.TagNumber(8)
   $core.bool hasForwardFrom() => $_has(3);
   @$pb.TagNumber(8)
   void clearForwardFrom() => clearField(8);
   @$pb.TagNumber(8)
-  $0.Uid ensureForwardFrom() => $_ensure(3);
+  $5.Uid ensureForwardFrom() => $_ensure(3);
 
   @$pb.TagNumber(10)
   $core.bool get encrypted => $_getBF(4);
@@ -650,26 +650,26 @@ class MessageByClient extends $pb.GeneratedMessage {
   Text ensureText() => $_ensure(5);
 
   @$pb.TagNumber(12)
-  $2.File get file => $_getN(6);
+  $6.File get file => $_getN(6);
   @$pb.TagNumber(12)
-  set file($2.File v) { setField(12, v); }
+  set file($6.File v) { setField(12, v); }
   @$pb.TagNumber(12)
   $core.bool hasFile() => $_has(6);
   @$pb.TagNumber(12)
   void clearFile() => clearField(12);
   @$pb.TagNumber(12)
-  $2.File ensureFile() => $_ensure(6);
+  $6.File ensureFile() => $_ensure(6);
 
   @$pb.TagNumber(13)
-  $3.Sticker get sticker => $_getN(7);
+  $7.Sticker get sticker => $_getN(7);
   @$pb.TagNumber(13)
-  set sticker($3.Sticker v) { setField(13, v); }
+  set sticker($7.Sticker v) { setField(13, v); }
   @$pb.TagNumber(13)
   $core.bool hasSticker() => $_has(7);
   @$pb.TagNumber(13)
   void clearSticker() => clearField(13);
   @$pb.TagNumber(13)
-  $3.Sticker ensureSticker() => $_ensure(7);
+  $7.Sticker ensureSticker() => $_ensure(7);
 
   @$pb.TagNumber(14)
   Location get location => $_getN(8);
@@ -730,13 +730,13 @@ class MessageByBot extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('MessageByBot', package: const $pb.PackageName('proto.pub.v1.models'), createEmptyInstance: create)
     ..oo(0, [11, 12, 13, 14, 15, 16, 18])
     ..aOS(1, 'packetId')
-    ..aOM<$0.Uid>(6, 'to', subBuilder: $0.Uid.create)
+    ..aOM<$5.Uid>(6, 'to', subBuilder: $5.Uid.create)
     ..aInt64(7, 'replyToId')
-    ..aOM<$0.Uid>(8, 'forwardFrom', subBuilder: $0.Uid.create)
+    ..aOM<$5.Uid>(8, 'forwardFrom', subBuilder: $5.Uid.create)
     ..aOB(10, 'encrypted')
     ..aOM<Text>(11, 'text', subBuilder: Text.create)
-    ..aOM<$2.File>(12, 'file', subBuilder: $2.File.create)
-    ..aOM<$3.Sticker>(13, 'sticker', subBuilder: $3.Sticker.create)
+    ..aOM<$6.File>(12, 'file', subBuilder: $6.File.create)
+    ..aOM<$7.Sticker>(13, 'sticker', subBuilder: $7.Sticker.create)
     ..aOM<Location>(14, 'location', subBuilder: Location.create)
     ..aOM<LiveLocation>(15, 'liveLocation', subBuilder: LiveLocation.create)
     ..aOM<Poll>(16, 'poll', subBuilder: Poll.create)
@@ -772,15 +772,15 @@ class MessageByBot extends $pb.GeneratedMessage {
   void clearPacketId() => clearField(1);
 
   @$pb.TagNumber(6)
-  $0.Uid get to => $_getN(1);
+  $5.Uid get to => $_getN(1);
   @$pb.TagNumber(6)
-  set to($0.Uid v) { setField(6, v); }
+  set to($5.Uid v) { setField(6, v); }
   @$pb.TagNumber(6)
   $core.bool hasTo() => $_has(1);
   @$pb.TagNumber(6)
   void clearTo() => clearField(6);
   @$pb.TagNumber(6)
-  $0.Uid ensureTo() => $_ensure(1);
+  $5.Uid ensureTo() => $_ensure(1);
 
   @$pb.TagNumber(7)
   $fixnum.Int64 get replyToId => $_getI64(2);
@@ -792,15 +792,15 @@ class MessageByBot extends $pb.GeneratedMessage {
   void clearReplyToId() => clearField(7);
 
   @$pb.TagNumber(8)
-  $0.Uid get forwardFrom => $_getN(3);
+  $5.Uid get forwardFrom => $_getN(3);
   @$pb.TagNumber(8)
-  set forwardFrom($0.Uid v) { setField(8, v); }
+  set forwardFrom($5.Uid v) { setField(8, v); }
   @$pb.TagNumber(8)
   $core.bool hasForwardFrom() => $_has(3);
   @$pb.TagNumber(8)
   void clearForwardFrom() => clearField(8);
   @$pb.TagNumber(8)
-  $0.Uid ensureForwardFrom() => $_ensure(3);
+  $5.Uid ensureForwardFrom() => $_ensure(3);
 
   @$pb.TagNumber(10)
   $core.bool get encrypted => $_getBF(4);
@@ -823,26 +823,26 @@ class MessageByBot extends $pb.GeneratedMessage {
   Text ensureText() => $_ensure(5);
 
   @$pb.TagNumber(12)
-  $2.File get file => $_getN(6);
+  $6.File get file => $_getN(6);
   @$pb.TagNumber(12)
-  set file($2.File v) { setField(12, v); }
+  set file($6.File v) { setField(12, v); }
   @$pb.TagNumber(12)
   $core.bool hasFile() => $_has(6);
   @$pb.TagNumber(12)
   void clearFile() => clearField(12);
   @$pb.TagNumber(12)
-  $2.File ensureFile() => $_ensure(6);
+  $6.File ensureFile() => $_ensure(6);
 
   @$pb.TagNumber(13)
-  $3.Sticker get sticker => $_getN(7);
+  $7.Sticker get sticker => $_getN(7);
   @$pb.TagNumber(13)
-  set sticker($3.Sticker v) { setField(13, v); }
+  set sticker($7.Sticker v) { setField(13, v); }
   @$pb.TagNumber(13)
   $core.bool hasSticker() => $_has(7);
   @$pb.TagNumber(13)
   void clearSticker() => clearField(13);
   @$pb.TagNumber(13)
-  $3.Sticker ensureSticker() => $_ensure(7);
+  $7.Sticker ensureSticker() => $_ensure(7);
 
   @$pb.TagNumber(14)
   Location get location => $_getN(8);

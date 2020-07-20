@@ -10,11 +10,11 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'uid.pb.dart' as $0;
+import 'uid.pb.dart' as $5;
 
 class UserRoomMeta extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('UserRoomMeta', package: const $pb.PackageName('proto.pub.v1.models'), createEmptyInstance: create)
-    ..aOM<$0.Uid>(1, 'uid', subBuilder: $0.Uid.create)
+    ..aOM<$5.Uid>(1, 'uid', subBuilder: $5.Uid.create)
     ..aInt64(2, 'lastMessageId', protoName: 'lastMessageId')
     ..aInt64(3, 'lastMessageTime', protoName: 'lastMessageTime')
     ..hasRequiredFields = false
@@ -36,15 +36,15 @@ class UserRoomMeta extends $pb.GeneratedMessage {
   static UserRoomMeta _defaultInstance;
 
   @$pb.TagNumber(1)
-  $0.Uid get uid => $_getN(0);
+  $5.Uid get uid => $_getN(0);
   @$pb.TagNumber(1)
-  set uid($0.Uid v) { setField(1, v); }
+  set uid($5.Uid v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasUid() => $_has(0);
   @$pb.TagNumber(1)
   void clearUid() => clearField(1);
   @$pb.TagNumber(1)
-  $0.Uid ensureUid() => $_ensure(0);
+  $5.Uid ensureUid() => $_ensure(0);
 
   @$pb.TagNumber(2)
   $fixnum.Int64 get lastMessageId => $_getI64(1);

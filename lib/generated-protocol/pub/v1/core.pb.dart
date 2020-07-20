@@ -9,9 +9,9 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'models/message.pb.dart' as $6;
-import 'models/error.pb.dart' as $7;
-import 'models/event.pb.dart' as $8;
+import 'models/message.pb.dart' as $8;
+import 'models/error.pb.dart' as $9;
+import 'models/event.pb.dart' as $10;
 
 enum ServerPacket_Type {
   message, 
@@ -35,12 +35,12 @@ class ServerPacket extends $pb.GeneratedMessage {
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('ServerPacket', package: const $pb.PackageName('proto.pub.v1.core'), createEmptyInstance: create)
     ..oo(0, [1, 2, 3, 4, 6, 7])
-    ..aOM<$6.Message>(1, 'message', subBuilder: $6.Message.create)
-    ..aOM<$7.Error>(2, 'error', subBuilder: $7.Error.create)
-    ..aOM<$8.Seen>(3, 'seen', subBuilder: $8.Seen.create)
-    ..aOM<$8.Activity>(4, 'activity', subBuilder: $8.Activity.create)
-    ..aOM<$8.PollStatusChanged>(6, 'pollStatusChanged', subBuilder: $8.PollStatusChanged.create)
-    ..aOM<$8.LiveLocationStatusChanged>(7, 'liveLocationStatusChanged', subBuilder: $8.LiveLocationStatusChanged.create)
+    ..aOM<$8.Message>(1, 'message', subBuilder: $8.Message.create)
+    ..aOM<$9.Error>(2, 'error', subBuilder: $9.Error.create)
+    ..aOM<$10.Seen>(3, 'seen', subBuilder: $10.Seen.create)
+    ..aOM<$10.Activity>(4, 'activity', subBuilder: $10.Activity.create)
+    ..aOM<$10.PollStatusChanged>(6, 'pollStatusChanged', subBuilder: $10.PollStatusChanged.create)
+    ..aOM<$10.LiveLocationStatusChanged>(7, 'liveLocationStatusChanged', subBuilder: $10.LiveLocationStatusChanged.create)
     ..hasRequiredFields = false
   ;
 
@@ -63,70 +63,70 @@ class ServerPacket extends $pb.GeneratedMessage {
   void clearType() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
-  $6.Message get message => $_getN(0);
+  $8.Message get message => $_getN(0);
   @$pb.TagNumber(1)
-  set message($6.Message v) { setField(1, v); }
+  set message($8.Message v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasMessage() => $_has(0);
   @$pb.TagNumber(1)
   void clearMessage() => clearField(1);
   @$pb.TagNumber(1)
-  $6.Message ensureMessage() => $_ensure(0);
+  $8.Message ensureMessage() => $_ensure(0);
 
   @$pb.TagNumber(2)
-  $7.Error get error => $_getN(1);
+  $9.Error get error => $_getN(1);
   @$pb.TagNumber(2)
-  set error($7.Error v) { setField(2, v); }
+  set error($9.Error v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasError() => $_has(1);
   @$pb.TagNumber(2)
   void clearError() => clearField(2);
   @$pb.TagNumber(2)
-  $7.Error ensureError() => $_ensure(1);
+  $9.Error ensureError() => $_ensure(1);
 
   @$pb.TagNumber(3)
-  $8.Seen get seen => $_getN(2);
+  $10.Seen get seen => $_getN(2);
   @$pb.TagNumber(3)
-  set seen($8.Seen v) { setField(3, v); }
+  set seen($10.Seen v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasSeen() => $_has(2);
   @$pb.TagNumber(3)
   void clearSeen() => clearField(3);
   @$pb.TagNumber(3)
-  $8.Seen ensureSeen() => $_ensure(2);
+  $10.Seen ensureSeen() => $_ensure(2);
 
   @$pb.TagNumber(4)
-  $8.Activity get activity => $_getN(3);
+  $10.Activity get activity => $_getN(3);
   @$pb.TagNumber(4)
-  set activity($8.Activity v) { setField(4, v); }
+  set activity($10.Activity v) { setField(4, v); }
   @$pb.TagNumber(4)
   $core.bool hasActivity() => $_has(3);
   @$pb.TagNumber(4)
   void clearActivity() => clearField(4);
   @$pb.TagNumber(4)
-  $8.Activity ensureActivity() => $_ensure(3);
+  $10.Activity ensureActivity() => $_ensure(3);
 
   @$pb.TagNumber(6)
-  $8.PollStatusChanged get pollStatusChanged => $_getN(4);
+  $10.PollStatusChanged get pollStatusChanged => $_getN(4);
   @$pb.TagNumber(6)
-  set pollStatusChanged($8.PollStatusChanged v) { setField(6, v); }
+  set pollStatusChanged($10.PollStatusChanged v) { setField(6, v); }
   @$pb.TagNumber(6)
   $core.bool hasPollStatusChanged() => $_has(4);
   @$pb.TagNumber(6)
   void clearPollStatusChanged() => clearField(6);
   @$pb.TagNumber(6)
-  $8.PollStatusChanged ensurePollStatusChanged() => $_ensure(4);
+  $10.PollStatusChanged ensurePollStatusChanged() => $_ensure(4);
 
   @$pb.TagNumber(7)
-  $8.LiveLocationStatusChanged get liveLocationStatusChanged => $_getN(5);
+  $10.LiveLocationStatusChanged get liveLocationStatusChanged => $_getN(5);
   @$pb.TagNumber(7)
-  set liveLocationStatusChanged($8.LiveLocationStatusChanged v) { setField(7, v); }
+  set liveLocationStatusChanged($10.LiveLocationStatusChanged v) { setField(7, v); }
   @$pb.TagNumber(7)
   $core.bool hasLiveLocationStatusChanged() => $_has(5);
   @$pb.TagNumber(7)
   void clearLiveLocationStatusChanged() => clearField(7);
   @$pb.TagNumber(7)
-  $8.LiveLocationStatusChanged ensureLiveLocationStatusChanged() => $_ensure(5);
+  $10.LiveLocationStatusChanged ensureLiveLocationStatusChanged() => $_ensure(5);
 }
 
 enum ClientPacket_Type {
@@ -145,9 +145,9 @@ class ClientPacket extends $pb.GeneratedMessage {
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('ClientPacket', package: const $pb.PackageName('proto.pub.v1.core'), createEmptyInstance: create)
     ..oo(0, [1, 2, 3])
-    ..aOM<$6.MessageByClient>(1, 'message', subBuilder: $6.MessageByClient.create)
-    ..aOM<$8.SeenByClient>(2, 'seen', subBuilder: $8.SeenByClient.create)
-    ..aOM<$8.ActivityByClient>(3, 'activity', subBuilder: $8.ActivityByClient.create)
+    ..aOM<$8.MessageByClient>(1, 'message', subBuilder: $8.MessageByClient.create)
+    ..aOM<$10.SeenByClient>(2, 'seen', subBuilder: $10.SeenByClient.create)
+    ..aOM<$10.ActivityByClient>(3, 'activity', subBuilder: $10.ActivityByClient.create)
     ..hasRequiredFields = false
   ;
 
@@ -170,36 +170,36 @@ class ClientPacket extends $pb.GeneratedMessage {
   void clearType() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
-  $6.MessageByClient get message => $_getN(0);
+  $8.MessageByClient get message => $_getN(0);
   @$pb.TagNumber(1)
-  set message($6.MessageByClient v) { setField(1, v); }
+  set message($8.MessageByClient v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasMessage() => $_has(0);
   @$pb.TagNumber(1)
   void clearMessage() => clearField(1);
   @$pb.TagNumber(1)
-  $6.MessageByClient ensureMessage() => $_ensure(0);
+  $8.MessageByClient ensureMessage() => $_ensure(0);
 
   @$pb.TagNumber(2)
-  $8.SeenByClient get seen => $_getN(1);
+  $10.SeenByClient get seen => $_getN(1);
   @$pb.TagNumber(2)
-  set seen($8.SeenByClient v) { setField(2, v); }
+  set seen($10.SeenByClient v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasSeen() => $_has(1);
   @$pb.TagNumber(2)
   void clearSeen() => clearField(2);
   @$pb.TagNumber(2)
-  $8.SeenByClient ensureSeen() => $_ensure(1);
+  $10.SeenByClient ensureSeen() => $_ensure(1);
 
   @$pb.TagNumber(3)
-  $8.ActivityByClient get activity => $_getN(2);
+  $10.ActivityByClient get activity => $_getN(2);
   @$pb.TagNumber(3)
-  set activity($8.ActivityByClient v) { setField(3, v); }
+  set activity($10.ActivityByClient v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasActivity() => $_has(2);
   @$pb.TagNumber(3)
   void clearActivity() => clearField(3);
   @$pb.TagNumber(3)
-  $8.ActivityByClient ensureActivity() => $_ensure(2);
+  $10.ActivityByClient ensureActivity() => $_ensure(2);
 }
 
