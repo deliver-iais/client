@@ -13,7 +13,7 @@ class AvatarRepo {
     var getAvatarReq = GetAvatarReq();
     list.forEach((element) {getAvatarReq.uidList.add(element);});
     var getAvatars = AvatarServices.getAvatar(getAvatarReq);
-    getAvatars.then((list) => {
+    getAvatars.then((res) => {
 
       // todo
     }).
