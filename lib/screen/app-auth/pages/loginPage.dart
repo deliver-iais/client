@@ -25,6 +25,7 @@ class _LoginPageState extends State<LoginPage> {
   String code = "";
   String inputError;
 
+
   _navigateToVerificationPage() async {
     if (code == "" || phoneNum == "") {
       setState(() {
@@ -35,7 +36,8 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       final signCode = await SmsAutoFill().getAppSignature;
       print(signCode);
-      ProfileRepo().getVerificationCode(int.parse(code), phoneNum);
+
+      ProfileRepo().getVerificationCode(int.parse(code), phoneNum );
       SharedPreferences _prefs = await SharedPreferences.getInstance();
       _prefs
           .setString(

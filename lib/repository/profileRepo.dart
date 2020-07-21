@@ -17,7 +17,7 @@ class ProfileRepo {
 
   var AuthServiceStub = AuthServiceClient(clientChannel);
 
-  getVerificationCode(int countryCode, String nationalNumber) {
+  getVerificationCode(int countryCode, String nationalNumber ) {
     PhoneNumber phoneNumber = PhoneNumber()
       ..countryCode = countryCode
       ..nationalNumber = Int64.parseInt(nationalNumber);
@@ -31,7 +31,7 @@ class ProfileRepo {
               Fluttertoast.showToast(
                   msg: " رمز ورود برای شما ارسال شد.",
                   toastLength: Toast.LENGTH_SHORT,
-                  backgroundColor: Colors.red,
+                  backgroundColor: Colors.black,
                   textColor: Colors.white,
                   fontSize: 16.0)
             })
@@ -39,7 +39,7 @@ class ProfileRepo {
               Fluttertoast.showToast(
                   msg: " خطایی رخ داده است.",
                   toastLength: Toast.LENGTH_SHORT,
-                  backgroundColor: Colors.red,
+                  backgroundColor: Colors.black,
                   textColor: Colors.white,
                   fontSize: 16.0)
             });
