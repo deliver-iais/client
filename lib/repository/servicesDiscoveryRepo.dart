@@ -1,0 +1,8 @@
+class ServicesDiscoveryRepo {
+
+
+}
+class ConnectionDetails{
+
+}
+
