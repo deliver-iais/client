@@ -1242,6 +1242,269 @@ class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
   }
 }
 
+class Contact extends DataClass implements Insertable<Contact> {
+  final String uid;
+  final DateTime lastUpdateAvatarTime;
+  final String lastAvatarFileId;
+  Contact(
+      {@required this.uid,
+      @required this.lastUpdateAvatarTime,
+      @required this.lastAvatarFileId});
+  factory Contact.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    final dateTimeType = db.typeSystem.forDartType<DateTime>();
+    return Contact(
+      uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
+      lastUpdateAvatarTime: dateTimeType.mapFromDatabaseResponse(
+          data['${effectivePrefix}last_update_avatar_time']),
+      lastAvatarFileId: stringType.mapFromDatabaseResponse(
+          data['${effectivePrefix}last_avatar_file_id']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
+    if (!nullToAbsent || lastUpdateAvatarTime != null) {
+      map['last_update_avatar_time'] = Variable<DateTime>(lastUpdateAvatarTime);
+    }
+    if (!nullToAbsent || lastAvatarFileId != null) {
+      map['last_avatar_file_id'] = Variable<String>(lastAvatarFileId);
+    }
+    return map;
+  }
+
+  ContactsCompanion toCompanion(bool nullToAbsent) {
+    return ContactsCompanion(
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
+      lastUpdateAvatarTime: lastUpdateAvatarTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastUpdateAvatarTime),
+      lastAvatarFileId: lastAvatarFileId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastAvatarFileId),
+    );
+  }
+
+  factory Contact.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return Contact(
+      uid: serializer.fromJson<String>(json['uid']),
+      lastUpdateAvatarTime:
+          serializer.fromJson<DateTime>(json['lastUpdateAvatarTime']),
+      lastAvatarFileId: serializer.fromJson<String>(json['lastAvatarFileId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'uid': serializer.toJson<String>(uid),
+      'lastUpdateAvatarTime': serializer.toJson<DateTime>(lastUpdateAvatarTime),
+      'lastAvatarFileId': serializer.toJson<String>(lastAvatarFileId),
+    };
+  }
+
+  Contact copyWith(
+          {String uid,
+          DateTime lastUpdateAvatarTime,
+          String lastAvatarFileId}) =>
+      Contact(
+        uid: uid ?? this.uid,
+        lastUpdateAvatarTime: lastUpdateAvatarTime ?? this.lastUpdateAvatarTime,
+        lastAvatarFileId: lastAvatarFileId ?? this.lastAvatarFileId,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Contact(')
+          ..write('uid: $uid, ')
+          ..write('lastUpdateAvatarTime: $lastUpdateAvatarTime, ')
+          ..write('lastAvatarFileId: $lastAvatarFileId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(uid.hashCode,
+      $mrjc(lastUpdateAvatarTime.hashCode, lastAvatarFileId.hashCode)));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is Contact &&
+          other.uid == this.uid &&
+          other.lastUpdateAvatarTime == this.lastUpdateAvatarTime &&
+          other.lastAvatarFileId == this.lastAvatarFileId);
+}
+
+class ContactsCompanion extends UpdateCompanion<Contact> {
+  final Value<String> uid;
+  final Value<DateTime> lastUpdateAvatarTime;
+  final Value<String> lastAvatarFileId;
+  const ContactsCompanion({
+    this.uid = const Value.absent(),
+    this.lastUpdateAvatarTime = const Value.absent(),
+    this.lastAvatarFileId = const Value.absent(),
+  });
+  ContactsCompanion.insert({
+    @required String uid,
+    @required DateTime lastUpdateAvatarTime,
+    @required String lastAvatarFileId,
+  })  : uid = Value(uid),
+        lastUpdateAvatarTime = Value(lastUpdateAvatarTime),
+        lastAvatarFileId = Value(lastAvatarFileId);
+  static Insertable<Contact> custom({
+    Expression<String> uid,
+    Expression<DateTime> lastUpdateAvatarTime,
+    Expression<String> lastAvatarFileId,
+  }) {
+    return RawValuesInsertable({
+      if (uid != null) 'uid': uid,
+      if (lastUpdateAvatarTime != null)
+        'last_update_avatar_time': lastUpdateAvatarTime,
+      if (lastAvatarFileId != null) 'last_avatar_file_id': lastAvatarFileId,
+    });
+  }
+
+  ContactsCompanion copyWith(
+      {Value<String> uid,
+      Value<DateTime> lastUpdateAvatarTime,
+      Value<String> lastAvatarFileId}) {
+    return ContactsCompanion(
+      uid: uid ?? this.uid,
+      lastUpdateAvatarTime: lastUpdateAvatarTime ?? this.lastUpdateAvatarTime,
+      lastAvatarFileId: lastAvatarFileId ?? this.lastAvatarFileId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (lastUpdateAvatarTime.present) {
+      map['last_update_avatar_time'] =
+          Variable<DateTime>(lastUpdateAvatarTime.value);
+    }
+    if (lastAvatarFileId.present) {
+      map['last_avatar_file_id'] = Variable<String>(lastAvatarFileId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ContactsCompanion(')
+          ..write('uid: $uid, ')
+          ..write('lastUpdateAvatarTime: $lastUpdateAvatarTime, ')
+          ..write('lastAvatarFileId: $lastAvatarFileId')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $ContactsTable(this._db, [this._alias]);
+  final VerificationMeta _uidMeta = const VerificationMeta('uid');
+  GeneratedTextColumn _uid;
+  @override
+  GeneratedTextColumn get uid => _uid ??= _constructUid();
+  GeneratedTextColumn _constructUid() {
+    return GeneratedTextColumn(
+      'uid',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _lastUpdateAvatarTimeMeta =
+      const VerificationMeta('lastUpdateAvatarTime');
+  GeneratedDateTimeColumn _lastUpdateAvatarTime;
+  @override
+  GeneratedDateTimeColumn get lastUpdateAvatarTime =>
+      _lastUpdateAvatarTime ??= _constructLastUpdateAvatarTime();
+  GeneratedDateTimeColumn _constructLastUpdateAvatarTime() {
+    return GeneratedDateTimeColumn(
+      'last_update_avatar_time',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _lastAvatarFileIdMeta =
+      const VerificationMeta('lastAvatarFileId');
+  GeneratedTextColumn _lastAvatarFileId;
+  @override
+  GeneratedTextColumn get lastAvatarFileId =>
+      _lastAvatarFileId ??= _constructLastAvatarFileId();
+  GeneratedTextColumn _constructLastAvatarFileId() {
+    return GeneratedTextColumn(
+      'last_avatar_file_id',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns =>
+      [uid, lastUpdateAvatarTime, lastAvatarFileId];
+  @override
+  $ContactsTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'contacts';
+  @override
+  final String actualTableName = 'contacts';
+  @override
+  VerificationContext validateIntegrity(Insertable<Contact> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid'], _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('last_update_avatar_time')) {
+      context.handle(
+          _lastUpdateAvatarTimeMeta,
+          lastUpdateAvatarTime.isAcceptableOrUnknown(
+              data['last_update_avatar_time'], _lastUpdateAvatarTimeMeta));
+    } else if (isInserting) {
+      context.missing(_lastUpdateAvatarTimeMeta);
+    }
+    if (data.containsKey('last_avatar_file_id')) {
+      context.handle(
+          _lastAvatarFileIdMeta,
+          lastAvatarFileId.isAcceptableOrUnknown(
+              data['last_avatar_file_id'], _lastAvatarFileIdMeta));
+    } else if (isInserting) {
+      context.missing(_lastAvatarFileIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  @override
+  Contact map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return Contact.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $ContactsTable createAlias(String alias) {
+    return $ContactsTable(_db, alias);
+  }
+}
+
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $MessagesTable _messages;
@@ -1250,15 +1513,19 @@ abstract class _$Database extends GeneratedDatabase {
   $RoomsTable get rooms => _rooms ??= $RoomsTable(this);
   $AvatarsTable _avatars;
   $AvatarsTable get avatars => _avatars ??= $AvatarsTable(this);
+  $ContactsTable _contacts;
+  $ContactsTable get contacts => _contacts ??= $ContactsTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
   RoomDao get roomDao => _roomDao ??= RoomDao(this as Database);
   AvatarDao _avatarDao;
   AvatarDao get avatarDao => _avatarDao ??= AvatarDao(this as Database);
+  ContactDao _contactDao;
+  ContactDao get contactDao => _contactDao ??= ContactDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [messages, rooms, avatars];
+      [messages, rooms, avatars, contacts];
 }

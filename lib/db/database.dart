@@ -1,16 +1,18 @@
 import 'package:deliver_flutter/db/Avatars.dart';
 import 'package:deliver_flutter/db/Messages.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
+import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:moor_flutter/moor_flutter.dart';
 
+import 'Contacts.dart';
 import 'Rooms.dart';
 import 'dao/RoomDao.dart';
 import 'dao/MessageDao.dart';
 
 part 'database.g.dart';
 
-@UseMoor(tables: [Messages, Rooms,Avatars], daos: [MessageDao, RoomDao,AvatarDao])
+@UseMoor(tables: [Messages, Rooms,Avatars,Contacts], daos: [MessageDao, RoomDao,AvatarDao,ContactDao])
 class Database extends _$Database {
   Database()
       : super(FlutterQueryExecutor.inDatabaseFolder(
