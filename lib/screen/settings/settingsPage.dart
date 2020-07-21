@@ -1,5 +1,6 @@
 
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
+import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -16,6 +17,7 @@ class SettingState extends State<SettingsPage> {
   bool notification = true;
   var uxService = GetIt.I.get<UxService>();
   var avatarDao = GetIt.I.get<AvatarDao>();
+  var contactDao = GetIt.I.get<ContactDao>();
 
 
 
