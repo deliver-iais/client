@@ -1,3 +1,6 @@
+
+import 'package:deliver_flutter/db/dao/AvatarDao.dart';
+import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +15,8 @@ class SettingState extends State<SettingsPage> {
   bool darkMode = true;
   bool notification = true;
   var uxService = GetIt.I.get<UxService>();
+  var avatarDao = GetIt.I.get<AvatarDao>();
+
 
   @override
   Widget build(BuildContext context) {
