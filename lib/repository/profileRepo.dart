@@ -10,38 +10,21 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grpc/grpc.dart';
 
 class ProfileRepo {
-
-  static ClientChannel clientChannel = ClientChannel(ServicesDiscoveryRepo().AuthConnection.host,
-      port:ServicesDiscoveryRepo().AuthConnection.port,
+  static ClientChannel clientChannel = ClientChannel(
+      ServicesDiscoveryRepo().AuthConnection.host,
+      port: ServicesDiscoveryRepo().AuthConnection.port,
       options: ChannelOptions(credentials: ChannelCredentials.insecure()));
 
   var AuthServiceStub = AuthServiceClient(clientChannel);
 
-  getVerificationCode(int countryCode, String nationalNumber ) {
+  Future getVerificationCode(int countryCode, String nationalNumber) async {
     PhoneNumber phoneNumber = PhoneNumber()
       ..countryCode = countryCode
       ..nationalNumber = Int64.parseInt(nationalNumber);
     var verificationCode =
-        AuthServiceStub.getVerificationCode(GetVerificationCodeReq()
+        await AuthServiceStub.getVerificationCode(GetVerificationCodeReq()
           ..phoneNumber = phoneNumber
           ..type = VerificationType.SMS);
-
-    verificationCode
-        .then((res) => {
-              Fluttertoast.showToast(
-                  msg: " رمز ورود برای شما ارسال شد.",
-                  toastLength: Toast.LENGTH_SHORT,
-                  backgroundColor: Colors.black,
-                  textColor: Colors.white,
-                  fontSize: 16.0)
-            })
-        .catchError((e) => {
-              Fluttertoast.showToast(
-                  msg: " خطایی رخ داده است.",
-                  toastLength: Toast.LENGTH_SHORT,
-                  backgroundColor: Colors.black,
-                  textColor: Colors.white,
-                  fontSize: 16.0)
-            });
+    return verificationCode;
   }
 }

@@ -1,9 +1,6 @@
 import 'dart:ffi';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/generated-protocol/pub/v1/models/phone.pb.dart';
-import 'package:deliver_flutter/generated-protocol/pub/v1/profile.pb.dart';
-import 'package:deliver_flutter/generated-protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_flutter/models/loggedinStatus.dart';
 import 'package:deliver_flutter/repository/profileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
@@ -25,6 +22,8 @@ class _LoginPageState extends State<LoginPage> {
   String code = "";
   String inputError;
 
+  // todo change receiveVerificationCode to false then the server send verification code;
+  bool receiveVerificationCode = true;
 
   _navigateToVerificationPage() async {
     if (code == "" || phoneNum == "") {
@@ -37,7 +36,29 @@ class _LoginPageState extends State<LoginPage> {
       final signCode = await SmsAutoFill().getAppSignature;
       print(signCode);
 
-      ProfileRepo().getVerificationCode(int.parse(code), phoneNum );
+      var result = ProfileRepo().getVerificationCode(int.parse(code), phoneNum);
+      result
+          .then((res) => {
+                receiveVerificationCode = true,
+                Fluttertoast.showToast(
+                    msg: " رمز ورود برای شما ارسال شد.",
+                    toastLength: Toast.LENGTH_SHORT,
+                    backgroundColor: Colors.black,
+                    textColor: Colors.white,
+                    fontSize: 16.0),
+              })
+          .catchError((e) => {
+                Fluttertoast.showToast(
+                    msg: " خطایی رخ داده است.",
+                    toastLength: Toast.LENGTH_SHORT,
+                    backgroundColor: Colors.black,
+                    textColor: Colors.white,
+                    fontSize: 16.0)
+              });
+      if (!receiveVerificationCode) {
+        return;
+      }
+
       SharedPreferences _prefs = await SharedPreferences.getInstance();
       _prefs
           .setString(
@@ -120,17 +141,18 @@ class _LoginPageState extends State<LoginPage> {
             child: Align(
               alignment: Alignment.bottomRight,
               child: RaisedButton(
-                child: Text(
-                  "NEXT",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
-                    fontSize: 14.5,
+                  child: Text(
+                    "NEXT",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
+                      fontSize: 14.5,
+                    ),
                   ),
-                ),
-                color: Theme.of(context).backgroundColor,
-                onPressed: _navigateToVerificationPage,
-              ),
+                  color: Theme.of(context).backgroundColor,
+                  onPressed: () {
+                    _navigateToVerificationPage();
+                  }),
             ),
           ),
         ],
