@@ -10,7 +10,7 @@ import 'dao/MessageDao.dart';
 
 part 'database.g.dart';
 
-@UseMoor(tables: [Messages, Rooms,Avatars], daos: [MessageDao, RoomDao ,AvatarDao])
+@UseMoor(tables: [Messages, Rooms,Avatars], daos: [MessageDao, RoomDao,AvatarDao])
 class Database extends _$Database {
   Database()
       : super(FlutterQueryExecutor.inDatabaseFolder(

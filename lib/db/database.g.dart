@@ -996,18 +996,269 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
   }
 }
 
+class Avatar extends DataClass implements Insertable<Avatar> {
+  final String uid;
+  final String fileId;
+  final int avatarIndex;
+  Avatar(
+      {@required this.uid, @required this.fileId, @required this.avatarIndex});
+  factory Avatar.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    final intType = db.typeSystem.forDartType<int>();
+    return Avatar(
+      uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
+      fileId:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}file_id']),
+      avatarIndex: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}avatar_index']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
+    if (!nullToAbsent || fileId != null) {
+      map['file_id'] = Variable<String>(fileId);
+    }
+    if (!nullToAbsent || avatarIndex != null) {
+      map['avatar_index'] = Variable<int>(avatarIndex);
+    }
+    return map;
+  }
+
+  AvatarsCompanion toCompanion(bool nullToAbsent) {
+    return AvatarsCompanion(
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
+      fileId:
+          fileId == null && nullToAbsent ? const Value.absent() : Value(fileId),
+      avatarIndex: avatarIndex == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarIndex),
+    );
+  }
+
+  factory Avatar.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return Avatar(
+      uid: serializer.fromJson<String>(json['uid']),
+      fileId: serializer.fromJson<String>(json['fileId']),
+      avatarIndex: serializer.fromJson<int>(json['avatarIndex']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'uid': serializer.toJson<String>(uid),
+      'fileId': serializer.toJson<String>(fileId),
+      'avatarIndex': serializer.toJson<int>(avatarIndex),
+    };
+  }
+
+  Avatar copyWith({String uid, String fileId, int avatarIndex}) => Avatar(
+        uid: uid ?? this.uid,
+        fileId: fileId ?? this.fileId,
+        avatarIndex: avatarIndex ?? this.avatarIndex,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Avatar(')
+          ..write('uid: $uid, ')
+          ..write('fileId: $fileId, ')
+          ..write('avatarIndex: $avatarIndex')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      $mrjf($mrjc(uid.hashCode, $mrjc(fileId.hashCode, avatarIndex.hashCode)));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is Avatar &&
+          other.uid == this.uid &&
+          other.fileId == this.fileId &&
+          other.avatarIndex == this.avatarIndex);
+}
+
+class AvatarsCompanion extends UpdateCompanion<Avatar> {
+  final Value<String> uid;
+  final Value<String> fileId;
+  final Value<int> avatarIndex;
+  const AvatarsCompanion({
+    this.uid = const Value.absent(),
+    this.fileId = const Value.absent(),
+    this.avatarIndex = const Value.absent(),
+  });
+  AvatarsCompanion.insert({
+    @required String uid,
+    @required String fileId,
+    @required int avatarIndex,
+  })  : uid = Value(uid),
+        fileId = Value(fileId),
+        avatarIndex = Value(avatarIndex);
+  static Insertable<Avatar> custom({
+    Expression<String> uid,
+    Expression<String> fileId,
+    Expression<int> avatarIndex,
+  }) {
+    return RawValuesInsertable({
+      if (uid != null) 'uid': uid,
+      if (fileId != null) 'file_id': fileId,
+      if (avatarIndex != null) 'avatar_index': avatarIndex,
+    });
+  }
+
+  AvatarsCompanion copyWith(
+      {Value<String> uid, Value<String> fileId, Value<int> avatarIndex}) {
+    return AvatarsCompanion(
+      uid: uid ?? this.uid,
+      fileId: fileId ?? this.fileId,
+      avatarIndex: avatarIndex ?? this.avatarIndex,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (fileId.present) {
+      map['file_id'] = Variable<String>(fileId.value);
+    }
+    if (avatarIndex.present) {
+      map['avatar_index'] = Variable<int>(avatarIndex.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AvatarsCompanion(')
+          ..write('uid: $uid, ')
+          ..write('fileId: $fileId, ')
+          ..write('avatarIndex: $avatarIndex')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $AvatarsTable(this._db, [this._alias]);
+  final VerificationMeta _uidMeta = const VerificationMeta('uid');
+  GeneratedTextColumn _uid;
+  @override
+  GeneratedTextColumn get uid => _uid ??= _constructUid();
+  GeneratedTextColumn _constructUid() {
+    return GeneratedTextColumn(
+      'uid',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _fileIdMeta = const VerificationMeta('fileId');
+  GeneratedTextColumn _fileId;
+  @override
+  GeneratedTextColumn get fileId => _fileId ??= _constructFileId();
+  GeneratedTextColumn _constructFileId() {
+    return GeneratedTextColumn(
+      'file_id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _avatarIndexMeta =
+      const VerificationMeta('avatarIndex');
+  GeneratedIntColumn _avatarIndex;
+  @override
+  GeneratedIntColumn get avatarIndex =>
+      _avatarIndex ??= _constructAvatarIndex();
+  GeneratedIntColumn _constructAvatarIndex() {
+    return GeneratedIntColumn(
+      'avatar_index',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [uid, fileId, avatarIndex];
+  @override
+  $AvatarsTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'avatars';
+  @override
+  final String actualTableName = 'avatars';
+  @override
+  VerificationContext validateIntegrity(Insertable<Avatar> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid'], _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('file_id')) {
+      context.handle(_fileIdMeta,
+          fileId.isAcceptableOrUnknown(data['file_id'], _fileIdMeta));
+    } else if (isInserting) {
+      context.missing(_fileIdMeta);
+    }
+    if (data.containsKey('avatar_index')) {
+      context.handle(
+          _avatarIndexMeta,
+          avatarIndex.isAcceptableOrUnknown(
+              data['avatar_index'], _avatarIndexMeta));
+    } else if (isInserting) {
+      context.missing(_avatarIndexMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {uid, avatarIndex};
+  @override
+  Avatar map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return Avatar.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $AvatarsTable createAlias(String alias) {
+    return $AvatarsTable(_db, alias);
+  }
+}
+
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $MessagesTable _messages;
   $MessagesTable get messages => _messages ??= $MessagesTable(this);
   $RoomsTable _rooms;
   $RoomsTable get rooms => _rooms ??= $RoomsTable(this);
+  $AvatarsTable _avatars;
+  $AvatarsTable get avatars => _avatars ??= $AvatarsTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
   RoomDao get roomDao => _roomDao ??= RoomDao(this as Database);
+  AvatarDao _avatarDao;
+  AvatarDao get avatarDao => _avatarDao ??= AvatarDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [messages, rooms];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [messages, rooms, avatars];
 }
