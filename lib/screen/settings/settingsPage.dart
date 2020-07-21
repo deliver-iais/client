@@ -18,6 +18,7 @@ class SettingState extends State<SettingsPage> {
   var avatarDao = GetIt.I.get<AvatarDao>();
 
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

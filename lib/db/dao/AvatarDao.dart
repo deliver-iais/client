@@ -16,8 +16,8 @@ class AvatarDao extends DatabaseAccessor<Database> with _$AvatarDaoMixin{
 
   Future deleteAvatar (Avatar avatar) => delete(avatars).delete(avatar);
 
-  Future<List<Avatar>> getById(String id) {
-    return (select(avatars)..where((avatar) => avatar.uid.equals(id) )).get();
+  Future<List<Avatar>> getByUid(String uid) {
+    return (select(avatars)..where((avatar) => avatar.uid.equals(uid) )).get();
   }
 
 
