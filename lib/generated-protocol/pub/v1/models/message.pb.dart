@@ -14,6 +14,10 @@ import 'uid.pb.dart' as $5;
 import 'file.pb.dart' as $6;
 import 'sticker.pb.dart' as $7;
 
+import 'message.pbenum.dart';
+
+export 'message.pbenum.dart';
+
 class Text extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('Text', package: const $pb.PackageName('proto.pub.v1.models'), createEmptyInstance: create)
     ..aOS(1, 'text')
@@ -243,7 +247,7 @@ class LiveLocation extends $pb.GeneratedMessage {
 class PersistentEvent extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('PersistentEvent', package: const $pb.PackageName('proto.pub.v1.models'), createEmptyInstance: create)
     ..aOM<$5.Uid>(1, 'issuer', subBuilder: $5.Uid.create)
-    ..aOS(2, 'issue')
+    ..e<PersistentEvent_Issue>(2, 'issue', $pb.PbFieldType.OE, defaultOrMaker: PersistentEvent_Issue.Kick, valueOf: PersistentEvent_Issue.valueOf, enumValues: PersistentEvent_Issue.values)
     ..aOM<$5.Uid>(3, 'assignee', subBuilder: $5.Uid.create)
     ..hasRequiredFields = false
   ;
@@ -275,9 +279,9 @@ class PersistentEvent extends $pb.GeneratedMessage {
   $5.Uid ensureIssuer() => $_ensure(0);
 
   @$pb.TagNumber(2)
-  $core.String get issue => $_getSZ(1);
+  PersistentEvent_Issue get issue => $_getN(1);
   @$pb.TagNumber(2)
-  set issue($core.String v) { $_setString(1, v); }
+  set issue(PersistentEvent_Issue v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasIssue() => $_has(1);
   @$pb.TagNumber(2)
