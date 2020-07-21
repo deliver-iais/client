@@ -1246,21 +1246,42 @@ class Contact extends DataClass implements Insertable<Contact> {
   final String uid;
   final DateTime lastUpdateAvatarTime;
   final String lastAvatarFileId;
+  final String phoneNumber;
+  final String displayName;
+  final DateTime lastSeen;
+  final bool notification;
+  final bool isBlock;
   Contact(
       {@required this.uid,
       @required this.lastUpdateAvatarTime,
-      @required this.lastAvatarFileId});
+      @required this.lastAvatarFileId,
+      @required this.phoneNumber,
+      @required this.displayName,
+      @required this.lastSeen,
+      @required this.notification,
+      @required this.isBlock});
   factory Contact.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
     final dateTimeType = db.typeSystem.forDartType<DateTime>();
+    final boolType = db.typeSystem.forDartType<bool>();
     return Contact(
       uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
       lastUpdateAvatarTime: dateTimeType.mapFromDatabaseResponse(
           data['${effectivePrefix}last_update_avatar_time']),
       lastAvatarFileId: stringType.mapFromDatabaseResponse(
           data['${effectivePrefix}last_avatar_file_id']),
+      phoneNumber: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}phone_number']),
+      displayName: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}display_name']),
+      lastSeen: dateTimeType
+          .mapFromDatabaseResponse(data['${effectivePrefix}last_seen']),
+      notification: boolType
+          .mapFromDatabaseResponse(data['${effectivePrefix}notification']),
+      isBlock:
+          boolType.mapFromDatabaseResponse(data['${effectivePrefix}is_block']),
     );
   }
   @override
@@ -1275,6 +1296,21 @@ class Contact extends DataClass implements Insertable<Contact> {
     if (!nullToAbsent || lastAvatarFileId != null) {
       map['last_avatar_file_id'] = Variable<String>(lastAvatarFileId);
     }
+    if (!nullToAbsent || phoneNumber != null) {
+      map['phone_number'] = Variable<String>(phoneNumber);
+    }
+    if (!nullToAbsent || displayName != null) {
+      map['display_name'] = Variable<String>(displayName);
+    }
+    if (!nullToAbsent || lastSeen != null) {
+      map['last_seen'] = Variable<DateTime>(lastSeen);
+    }
+    if (!nullToAbsent || notification != null) {
+      map['notification'] = Variable<bool>(notification);
+    }
+    if (!nullToAbsent || isBlock != null) {
+      map['is_block'] = Variable<bool>(isBlock);
+    }
     return map;
   }
 
@@ -1287,6 +1323,21 @@ class Contact extends DataClass implements Insertable<Contact> {
       lastAvatarFileId: lastAvatarFileId == null && nullToAbsent
           ? const Value.absent()
           : Value(lastAvatarFileId),
+      phoneNumber: phoneNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(phoneNumber),
+      displayName: displayName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(displayName),
+      lastSeen: lastSeen == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSeen),
+      notification: notification == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notification),
+      isBlock: isBlock == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isBlock),
     );
   }
 
@@ -1298,6 +1349,11 @@ class Contact extends DataClass implements Insertable<Contact> {
       lastUpdateAvatarTime:
           serializer.fromJson<DateTime>(json['lastUpdateAvatarTime']),
       lastAvatarFileId: serializer.fromJson<String>(json['lastAvatarFileId']),
+      phoneNumber: serializer.fromJson<String>(json['phoneNumber']),
+      displayName: serializer.fromJson<String>(json['displayName']),
+      lastSeen: serializer.fromJson<DateTime>(json['lastSeen']),
+      notification: serializer.fromJson<bool>(json['notification']),
+      isBlock: serializer.fromJson<bool>(json['isBlock']),
     );
   }
   @override
@@ -1307,77 +1363,152 @@ class Contact extends DataClass implements Insertable<Contact> {
       'uid': serializer.toJson<String>(uid),
       'lastUpdateAvatarTime': serializer.toJson<DateTime>(lastUpdateAvatarTime),
       'lastAvatarFileId': serializer.toJson<String>(lastAvatarFileId),
+      'phoneNumber': serializer.toJson<String>(phoneNumber),
+      'displayName': serializer.toJson<String>(displayName),
+      'lastSeen': serializer.toJson<DateTime>(lastSeen),
+      'notification': serializer.toJson<bool>(notification),
+      'isBlock': serializer.toJson<bool>(isBlock),
     };
   }
 
   Contact copyWith(
           {String uid,
           DateTime lastUpdateAvatarTime,
-          String lastAvatarFileId}) =>
+          String lastAvatarFileId,
+          String phoneNumber,
+          String displayName,
+          DateTime lastSeen,
+          bool notification,
+          bool isBlock}) =>
       Contact(
         uid: uid ?? this.uid,
         lastUpdateAvatarTime: lastUpdateAvatarTime ?? this.lastUpdateAvatarTime,
         lastAvatarFileId: lastAvatarFileId ?? this.lastAvatarFileId,
+        phoneNumber: phoneNumber ?? this.phoneNumber,
+        displayName: displayName ?? this.displayName,
+        lastSeen: lastSeen ?? this.lastSeen,
+        notification: notification ?? this.notification,
+        isBlock: isBlock ?? this.isBlock,
       );
   @override
   String toString() {
     return (StringBuffer('Contact(')
           ..write('uid: $uid, ')
           ..write('lastUpdateAvatarTime: $lastUpdateAvatarTime, ')
-          ..write('lastAvatarFileId: $lastAvatarFileId')
+          ..write('lastAvatarFileId: $lastAvatarFileId, ')
+          ..write('phoneNumber: $phoneNumber, ')
+          ..write('displayName: $displayName, ')
+          ..write('lastSeen: $lastSeen, ')
+          ..write('notification: $notification, ')
+          ..write('isBlock: $isBlock')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(uid.hashCode,
-      $mrjc(lastUpdateAvatarTime.hashCode, lastAvatarFileId.hashCode)));
+  int get hashCode => $mrjf($mrjc(
+      uid.hashCode,
+      $mrjc(
+          lastUpdateAvatarTime.hashCode,
+          $mrjc(
+              lastAvatarFileId.hashCode,
+              $mrjc(
+                  phoneNumber.hashCode,
+                  $mrjc(
+                      displayName.hashCode,
+                      $mrjc(lastSeen.hashCode,
+                          $mrjc(notification.hashCode, isBlock.hashCode))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Contact &&
           other.uid == this.uid &&
           other.lastUpdateAvatarTime == this.lastUpdateAvatarTime &&
-          other.lastAvatarFileId == this.lastAvatarFileId);
+          other.lastAvatarFileId == this.lastAvatarFileId &&
+          other.phoneNumber == this.phoneNumber &&
+          other.displayName == this.displayName &&
+          other.lastSeen == this.lastSeen &&
+          other.notification == this.notification &&
+          other.isBlock == this.isBlock);
 }
 
 class ContactsCompanion extends UpdateCompanion<Contact> {
   final Value<String> uid;
   final Value<DateTime> lastUpdateAvatarTime;
   final Value<String> lastAvatarFileId;
+  final Value<String> phoneNumber;
+  final Value<String> displayName;
+  final Value<DateTime> lastSeen;
+  final Value<bool> notification;
+  final Value<bool> isBlock;
   const ContactsCompanion({
     this.uid = const Value.absent(),
     this.lastUpdateAvatarTime = const Value.absent(),
     this.lastAvatarFileId = const Value.absent(),
+    this.phoneNumber = const Value.absent(),
+    this.displayName = const Value.absent(),
+    this.lastSeen = const Value.absent(),
+    this.notification = const Value.absent(),
+    this.isBlock = const Value.absent(),
   });
   ContactsCompanion.insert({
     @required String uid,
     @required DateTime lastUpdateAvatarTime,
     @required String lastAvatarFileId,
+    @required String phoneNumber,
+    @required String displayName,
+    @required DateTime lastSeen,
+    @required bool notification,
+    @required bool isBlock,
   })  : uid = Value(uid),
         lastUpdateAvatarTime = Value(lastUpdateAvatarTime),
-        lastAvatarFileId = Value(lastAvatarFileId);
+        lastAvatarFileId = Value(lastAvatarFileId),
+        phoneNumber = Value(phoneNumber),
+        displayName = Value(displayName),
+        lastSeen = Value(lastSeen),
+        notification = Value(notification),
+        isBlock = Value(isBlock);
   static Insertable<Contact> custom({
     Expression<String> uid,
     Expression<DateTime> lastUpdateAvatarTime,
     Expression<String> lastAvatarFileId,
+    Expression<String> phoneNumber,
+    Expression<String> displayName,
+    Expression<DateTime> lastSeen,
+    Expression<bool> notification,
+    Expression<bool> isBlock,
   }) {
     return RawValuesInsertable({
       if (uid != null) 'uid': uid,
       if (lastUpdateAvatarTime != null)
         'last_update_avatar_time': lastUpdateAvatarTime,
       if (lastAvatarFileId != null) 'last_avatar_file_id': lastAvatarFileId,
+      if (phoneNumber != null) 'phone_number': phoneNumber,
+      if (displayName != null) 'display_name': displayName,
+      if (lastSeen != null) 'last_seen': lastSeen,
+      if (notification != null) 'notification': notification,
+      if (isBlock != null) 'is_block': isBlock,
     });
   }
 
   ContactsCompanion copyWith(
       {Value<String> uid,
       Value<DateTime> lastUpdateAvatarTime,
-      Value<String> lastAvatarFileId}) {
+      Value<String> lastAvatarFileId,
+      Value<String> phoneNumber,
+      Value<String> displayName,
+      Value<DateTime> lastSeen,
+      Value<bool> notification,
+      Value<bool> isBlock}) {
     return ContactsCompanion(
       uid: uid ?? this.uid,
       lastUpdateAvatarTime: lastUpdateAvatarTime ?? this.lastUpdateAvatarTime,
       lastAvatarFileId: lastAvatarFileId ?? this.lastAvatarFileId,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      displayName: displayName ?? this.displayName,
+      lastSeen: lastSeen ?? this.lastSeen,
+      notification: notification ?? this.notification,
+      isBlock: isBlock ?? this.isBlock,
     );
   }
 
@@ -1394,6 +1525,21 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
     if (lastAvatarFileId.present) {
       map['last_avatar_file_id'] = Variable<String>(lastAvatarFileId.value);
     }
+    if (phoneNumber.present) {
+      map['phone_number'] = Variable<String>(phoneNumber.value);
+    }
+    if (displayName.present) {
+      map['display_name'] = Variable<String>(displayName.value);
+    }
+    if (lastSeen.present) {
+      map['last_seen'] = Variable<DateTime>(lastSeen.value);
+    }
+    if (notification.present) {
+      map['notification'] = Variable<bool>(notification.value);
+    }
+    if (isBlock.present) {
+      map['is_block'] = Variable<bool>(isBlock.value);
+    }
     return map;
   }
 
@@ -1402,7 +1548,12 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
     return (StringBuffer('ContactsCompanion(')
           ..write('uid: $uid, ')
           ..write('lastUpdateAvatarTime: $lastUpdateAvatarTime, ')
-          ..write('lastAvatarFileId: $lastAvatarFileId')
+          ..write('lastAvatarFileId: $lastAvatarFileId, ')
+          ..write('phoneNumber: $phoneNumber, ')
+          ..write('displayName: $displayName, ')
+          ..write('lastSeen: $lastSeen, ')
+          ..write('notification: $notification, ')
+          ..write('isBlock: $isBlock')
           ..write(')'))
         .toString();
   }
@@ -1452,9 +1603,83 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
     );
   }
 
+  final VerificationMeta _phoneNumberMeta =
+      const VerificationMeta('phoneNumber');
+  GeneratedTextColumn _phoneNumber;
   @override
-  List<GeneratedColumn> get $columns =>
-      [uid, lastUpdateAvatarTime, lastAvatarFileId];
+  GeneratedTextColumn get phoneNumber =>
+      _phoneNumber ??= _constructPhoneNumber();
+  GeneratedTextColumn _constructPhoneNumber() {
+    return GeneratedTextColumn(
+      'phone_number',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _displayNameMeta =
+      const VerificationMeta('displayName');
+  GeneratedTextColumn _displayName;
+  @override
+  GeneratedTextColumn get displayName =>
+      _displayName ??= _constructDisplayName();
+  GeneratedTextColumn _constructDisplayName() {
+    return GeneratedTextColumn(
+      'display_name',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _lastSeenMeta = const VerificationMeta('lastSeen');
+  GeneratedDateTimeColumn _lastSeen;
+  @override
+  GeneratedDateTimeColumn get lastSeen => _lastSeen ??= _constructLastSeen();
+  GeneratedDateTimeColumn _constructLastSeen() {
+    return GeneratedDateTimeColumn(
+      'last_seen',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _notificationMeta =
+      const VerificationMeta('notification');
+  GeneratedBoolColumn _notification;
+  @override
+  GeneratedBoolColumn get notification =>
+      _notification ??= _constructNotification();
+  GeneratedBoolColumn _constructNotification() {
+    return GeneratedBoolColumn(
+      'notification',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _isBlockMeta = const VerificationMeta('isBlock');
+  GeneratedBoolColumn _isBlock;
+  @override
+  GeneratedBoolColumn get isBlock => _isBlock ??= _constructIsBlock();
+  GeneratedBoolColumn _constructIsBlock() {
+    return GeneratedBoolColumn(
+      'is_block',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [
+        uid,
+        lastUpdateAvatarTime,
+        lastAvatarFileId,
+        phoneNumber,
+        displayName,
+        lastSeen,
+        notification,
+        isBlock
+      ];
   @override
   $ContactsTable get asDslTable => this;
   @override
@@ -1488,11 +1713,47 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
     } else if (isInserting) {
       context.missing(_lastAvatarFileIdMeta);
     }
+    if (data.containsKey('phone_number')) {
+      context.handle(
+          _phoneNumberMeta,
+          phoneNumber.isAcceptableOrUnknown(
+              data['phone_number'], _phoneNumberMeta));
+    } else if (isInserting) {
+      context.missing(_phoneNumberMeta);
+    }
+    if (data.containsKey('display_name')) {
+      context.handle(
+          _displayNameMeta,
+          displayName.isAcceptableOrUnknown(
+              data['display_name'], _displayNameMeta));
+    } else if (isInserting) {
+      context.missing(_displayNameMeta);
+    }
+    if (data.containsKey('last_seen')) {
+      context.handle(_lastSeenMeta,
+          lastSeen.isAcceptableOrUnknown(data['last_seen'], _lastSeenMeta));
+    } else if (isInserting) {
+      context.missing(_lastSeenMeta);
+    }
+    if (data.containsKey('notification')) {
+      context.handle(
+          _notificationMeta,
+          notification.isAcceptableOrUnknown(
+              data['notification'], _notificationMeta));
+    } else if (isInserting) {
+      context.missing(_notificationMeta);
+    }
+    if (data.containsKey('is_block')) {
+      context.handle(_isBlockMeta,
+          isBlock.isAcceptableOrUnknown(data['is_block'], _isBlockMeta));
+    } else if (isInserting) {
+      context.missing(_isBlockMeta);
+    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  Set<GeneratedColumn> get $primaryKey => {uid};
   @override
   Contact map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -1502,6 +1763,247 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
   @override
   $ContactsTable createAlias(String alias) {
     return $ContactsTable(_db, alias);
+  }
+}
+
+class File extends DataClass implements Insertable<File> {
+  final String id;
+  final String path;
+  final String displayName;
+  File({@required this.id, @required this.path, @required this.displayName});
+  factory File.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    return File(
+      id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      path: stringType.mapFromDatabaseResponse(data['${effectivePrefix}path']),
+      displayName: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}display_name']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<String>(id);
+    }
+    if (!nullToAbsent || path != null) {
+      map['path'] = Variable<String>(path);
+    }
+    if (!nullToAbsent || displayName != null) {
+      map['display_name'] = Variable<String>(displayName);
+    }
+    return map;
+  }
+
+  FilesCompanion toCompanion(bool nullToAbsent) {
+    return FilesCompanion(
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      path: path == null && nullToAbsent ? const Value.absent() : Value(path),
+      displayName: displayName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(displayName),
+    );
+  }
+
+  factory File.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return File(
+      id: serializer.fromJson<String>(json['id']),
+      path: serializer.fromJson<String>(json['path']),
+      displayName: serializer.fromJson<String>(json['displayName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'path': serializer.toJson<String>(path),
+      'displayName': serializer.toJson<String>(displayName),
+    };
+  }
+
+  File copyWith({String id, String path, String displayName}) => File(
+        id: id ?? this.id,
+        path: path ?? this.path,
+        displayName: displayName ?? this.displayName,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('File(')
+          ..write('id: $id, ')
+          ..write('path: $path, ')
+          ..write('displayName: $displayName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      $mrjf($mrjc(id.hashCode, $mrjc(path.hashCode, displayName.hashCode)));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is File &&
+          other.id == this.id &&
+          other.path == this.path &&
+          other.displayName == this.displayName);
+}
+
+class FilesCompanion extends UpdateCompanion<File> {
+  final Value<String> id;
+  final Value<String> path;
+  final Value<String> displayName;
+  const FilesCompanion({
+    this.id = const Value.absent(),
+    this.path = const Value.absent(),
+    this.displayName = const Value.absent(),
+  });
+  FilesCompanion.insert({
+    @required String id,
+    @required String path,
+    @required String displayName,
+  })  : id = Value(id),
+        path = Value(path),
+        displayName = Value(displayName);
+  static Insertable<File> custom({
+    Expression<String> id,
+    Expression<String> path,
+    Expression<String> displayName,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (path != null) 'path': path,
+      if (displayName != null) 'display_name': displayName,
+    });
+  }
+
+  FilesCompanion copyWith(
+      {Value<String> id, Value<String> path, Value<String> displayName}) {
+    return FilesCompanion(
+      id: id ?? this.id,
+      path: path ?? this.path,
+      displayName: displayName ?? this.displayName,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (path.present) {
+      map['path'] = Variable<String>(path.value);
+    }
+    if (displayName.present) {
+      map['display_name'] = Variable<String>(displayName.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FilesCompanion(')
+          ..write('id: $id, ')
+          ..write('path: $path, ')
+          ..write('displayName: $displayName')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FilesTable extends Files with TableInfo<$FilesTable, File> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $FilesTable(this._db, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  GeneratedTextColumn _id;
+  @override
+  GeneratedTextColumn get id => _id ??= _constructId();
+  GeneratedTextColumn _constructId() {
+    return GeneratedTextColumn(
+      'id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _pathMeta = const VerificationMeta('path');
+  GeneratedTextColumn _path;
+  @override
+  GeneratedTextColumn get path => _path ??= _constructPath();
+  GeneratedTextColumn _constructPath() {
+    return GeneratedTextColumn(
+      'path',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _displayNameMeta =
+      const VerificationMeta('displayName');
+  GeneratedTextColumn _displayName;
+  @override
+  GeneratedTextColumn get displayName =>
+      _displayName ??= _constructDisplayName();
+  GeneratedTextColumn _constructDisplayName() {
+    return GeneratedTextColumn(
+      'display_name',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [id, path, displayName];
+  @override
+  $FilesTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'files';
+  @override
+  final String actualTableName = 'files';
+  @override
+  VerificationContext validateIntegrity(Insertable<File> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('path')) {
+      context.handle(
+          _pathMeta, path.isAcceptableOrUnknown(data['path'], _pathMeta));
+    } else if (isInserting) {
+      context.missing(_pathMeta);
+    }
+    if (data.containsKey('display_name')) {
+      context.handle(
+          _displayNameMeta,
+          displayName.isAcceptableOrUnknown(
+              data['display_name'], _displayNameMeta));
+    } else if (isInserting) {
+      context.missing(_displayNameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  @override
+  File map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return File.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $FilesTable createAlias(String alias) {
+    return $FilesTable(_db, alias);
   }
 }
 
@@ -1515,6 +2017,8 @@ abstract class _$Database extends GeneratedDatabase {
   $AvatarsTable get avatars => _avatars ??= $AvatarsTable(this);
   $ContactsTable _contacts;
   $ContactsTable get contacts => _contacts ??= $ContactsTable(this);
+  $FilesTable _files;
+  $FilesTable get files => _files ??= $FilesTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
@@ -1523,9 +2027,11 @@ abstract class _$Database extends GeneratedDatabase {
   AvatarDao get avatarDao => _avatarDao ??= AvatarDao(this as Database);
   ContactDao _contactDao;
   ContactDao get contactDao => _contactDao ??= ContactDao(this as Database);
+  FileDao _fileDao;
+  FileDao get fileDao => _fileDao ??= FileDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [messages, rooms, avatars, contacts];
+      [messages, rooms, avatars, contacts, files];
 }

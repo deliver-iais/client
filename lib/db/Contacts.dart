@@ -6,4 +6,19 @@ class Contacts extends Table{
   DateTimeColumn get lastUpdateAvatarTime => dateTime()();
 
   TextColumn get lastAvatarFileId => text()();
+
+  TextColumn get phoneNumber => text()();
+
+  TextColumn get displayName => text()();
+
+  DateTimeColumn get  lastSeen => dateTime()();
+
+  BoolColumn get notification => boolean()();
+
+  BoolColumn get isBlock => boolean()();
+
+  @override
+  Set<Column> get primaryKey => {
+    uid,
+  };
 }
