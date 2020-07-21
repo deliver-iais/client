@@ -4,24 +4,22 @@ import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:grpc/grpc.dart';
 
 class AvatarRepo {
-  static ClientChannel clientChannel = ClientChannel(ServicesDiscoveryRepo().AvatarConnection.host,
+  static ClientChannel clientChannel = ClientChannel(
+      ServicesDiscoveryRepo().AvatarConnection.host,
       port: ServicesDiscoveryRepo().AvatarConnection.port,
       options: ChannelOptions(credentials: ChannelCredentials.insecure()));
   var AvatarServices = AvatarServiceClient(clientChannel);
 
   getAvatar(List<Uid> list) {
     var getAvatarReq = GetAvatarReq();
-    list.forEach((element) {getAvatarReq.uidList.add(element);});
-    var getAvatars = AvatarServices.getAvatar(getAvatarReq);
-    getAvatars.then((res) => {
-
-      // todo pars result to Avatar.
-    }).
-    catchError((e)=>{
-
+    list.forEach((element) {
+      getAvatarReq.uidList.add(element);
     });
-
-
-
+    var getAvatars = AvatarServices.getAvatar(getAvatarReq);
+    getAvatars
+        .then((res) => {
+              // todo pars result to Avatar.
+            })
+        .catchError((e) => {});
   }
 }
