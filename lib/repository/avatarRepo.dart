@@ -15,7 +15,7 @@ class AvatarRepo {
     var getAvatars = AvatarServices.getAvatar(getAvatarReq);
     getAvatars.then((res) => {
 
-      // todo
+      // todo pars result to Avatar.
     }).
     catchError((e)=>{
 
