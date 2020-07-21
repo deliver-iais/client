@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:fimber/fimber_base.dart';
 import 'package:fixnum/fixnum.dart';
 
@@ -9,8 +10,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grpc/grpc.dart';
 
 class ProfileRepo {
-  static ClientChannel clientChannel = ClientChannel('172.16.111.171',
-      port: 30000,
+
+  static ClientChannel clientChannel = ClientChannel(ServicesDiscoveryRepo().AuthConnection.host,
+      port:ServicesDiscoveryRepo().AuthConnection.port,
       options: ChannelOptions(credentials: ChannelCredentials.insecure()));
 
   var AuthServiceStub = AuthServiceClient(clientChannel);

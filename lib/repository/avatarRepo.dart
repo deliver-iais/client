@@ -1,11 +1,12 @@
 import 'package:deliver_flutter/generated-protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_flutter/generated-protocol/pub/v1/models/avatar.pb.dart';
 import 'package:deliver_flutter/generated-protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:grpc/grpc.dart';
 
 class AvatarRepo {
-  static ClientChannel clientChannel = ClientChannel('172.16.111.171',
-      port: 30000,
+  static ClientChannel clientChannel = ClientChannel(ServicesDiscoveryRepo().AvatarConnectipon.host,
+      port: ServicesDiscoveryRepo().AvatarConnectipon.port,
       options: ChannelOptions(credentials: ChannelCredentials.insecure()));
   var AvatarServices = AvatarServiceClient(clientChannel);
 
