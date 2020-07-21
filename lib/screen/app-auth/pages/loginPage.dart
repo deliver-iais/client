@@ -8,6 +8,7 @@ import 'package:deliver_flutter/screen/app-auth/widgets/inputFeilds.dart';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get_it/get_it.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
@@ -18,9 +19,11 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+
   String phoneNum = "";
   String code = "";
   String inputError;
+  var profileRepo = GetIt.I.get<ProfileRepo>();
 
   // todo change receiveVerificationCode to false then the server send verification code;
   bool receiveVerificationCode = true;
@@ -36,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
       final signCode = await SmsAutoFill().getAppSignature;
       print(signCode);
 
-      var result = ProfileRepo().getVerificationCode(int.parse(code), phoneNum);
+      var result = profileRepo.getVerificationCode(int.parse(code), phoneNum);
       result
           .then((res) => {
                 receiveVerificationCode = true,
