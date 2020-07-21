@@ -55,8 +55,20 @@ const PersistentEvent$json = const {
   '1': 'PersistentEvent',
   '2': const [
     const {'1': 'issuer', '3': 1, '4': 1, '5': 11, '6': '.proto.pub.v1.models.Uid', '10': 'issuer'},
-    const {'1': 'issue', '3': 2, '4': 1, '5': 9, '10': 'issue'},
+    const {'1': 'issue', '3': 2, '4': 1, '5': 14, '6': '.proto.pub.v1.models.PersistentEvent.Issue', '10': 'issue'},
     const {'1': 'assignee', '3': 3, '4': 1, '5': 11, '6': '.proto.pub.v1.models.Uid', '10': 'assignee'},
+  ],
+  '4': const [PersistentEvent_Issue$json],
+};
+
+const PersistentEvent_Issue$json = const {
+  '1': 'Issue',
+  '2': const [
+    const {'1': 'Kick', '2': 0},
+    const {'1': 'ADD_USER', '2': 1},
+    const {'1': 'PIN_MESSAGE', '2': 2},
+    const {'1': 'NAME_CHANGED', '2': 3},
+    const {'1': 'AVATAR_CHANGED', '2': 4},
   ],
 };
 

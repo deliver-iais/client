@@ -30,7 +30,7 @@ const RemoveAvatarRes$json = const {
 const GetAvatarReq$json = const {
   '1': 'GetAvatarReq',
   '2': const [
-    const {'1': 'uid_list', '3': 1, '4': 3, '5': 11, '6': '.proto.pub.v1.models.Uid', '10': 'uidList'},
+    const {'1': 'uid_list', '3': 1, '4': 3, '5': 11, '6': '.proto.pub.v1.models.Uid', '8': const {}, '10': 'uidList'},
   ],
 };
 
