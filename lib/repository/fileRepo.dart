@@ -19,18 +19,19 @@ class FileRepo {
   String generateAvatarFile(String fileId, String fileName) {
     return "/samll/$fileId/$fileName";
   }
-  getFileRequest(String uuid){
+  Future<File> getFileRequest(String uuid){
     // todo get file from server
   }
 
-  File getAvatarFile  (String uuid)  {
+  Future<File> getFile(String uuid) async  {
     FileInfo fileInfo;
-    fileDao.getFile(uuid).listen((files) => fileInfo = files.elementAt(0));
+    fileDao.getFile(uuid).then((files) => fileInfo = files.elementAt(0));
     File file = new File(fileInfo.path);
-    if (file.exists() != null) {
+    var isExist = await file.exists();
+    if (isExist) {
       return file;
     } else {
-     getFileRequest(uuid);
+      return await getFileRequest(uuid);
     }
   }
 }

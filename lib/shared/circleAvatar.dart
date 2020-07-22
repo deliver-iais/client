@@ -24,28 +24,27 @@ class CircleAvatarWidget extends StatelessWidget {
     this.contactUid = contactUid;
   }
 
-  File getAvatarFile() {
-    try {
-      return fileRepo.getAvatarFile(accountRepo.avatar.fileId);
-    }catch(error){
-      return null;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-
     return CircleAvatar(
-        radius: radius,
-        backgroundColor: ExtraTheme.of(context).circleAvatarBackground,
-        child: getAvatarFile() == null
-            ? new Text(contactUid,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: fontSize,
-                ))
-            : new Image.file(
-                getAvatarFile(),
-              ));
+      radius: radius,
+      backgroundColor: ExtraTheme.of(context).circleAvatarBackground,
+      child: FutureBuilder<File>(
+          future: fileRepo.getFile(accountRepo.avatar?.fileId),
+          builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+            if (snapshot.hasData) {
+              return new Image.file(
+                snapshot.data,
+              );
+            } else {
+              return new Text(contactUid,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: radius,
+                    height: 2
+                  ));
+            }
+          }),
+    );
   }
 }
