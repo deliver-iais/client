@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,19 +12,7 @@ class ContactPic extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        CircleAvatar(
-          radius: 25,
-          backgroundColor: ExtraTheme.of(context).circleAvatarBackground,
-          child: FittedBox(
-            child: photoName != ""
-                ? Image.asset(photoName)
-                : Icon(
-                    Icons.person,
-                    color: ExtraTheme.of(context).circleAvatarIcon,
-                    size: 40,
-                  ),
-          ),
-        ),
+        CircleAvatarWidget("JD",25,40),
         Positioned(
           child: Container(
             width: 12.0,

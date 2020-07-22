@@ -1,11 +1,11 @@
 import 'package:moor/moor.dart';
 
-class Files extends Table {
+class FileInfos extends Table {
   TextColumn get id => text()();
 
   TextColumn get path => text()();
 
-  TextColumn get displayName => text()();
+  TextColumn get fileName => text()();
 
   @override
   Set<Column> get primaryKey => {id};

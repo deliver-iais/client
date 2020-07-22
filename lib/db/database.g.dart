@@ -1000,8 +1000,12 @@ class Avatar extends DataClass implements Insertable<Avatar> {
   final String uid;
   final String fileId;
   final int avatarIndex;
+  final String fileName;
   Avatar(
-      {@required this.uid, @required this.fileId, @required this.avatarIndex});
+      {@required this.uid,
+      @required this.fileId,
+      @required this.avatarIndex,
+      @required this.fileName});
   factory Avatar.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -1013,6 +1017,8 @@ class Avatar extends DataClass implements Insertable<Avatar> {
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}file_id']),
       avatarIndex: intType
           .mapFromDatabaseResponse(data['${effectivePrefix}avatar_index']),
+      fileName: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}file_name']),
     );
   }
   @override
@@ -1027,6 +1033,9 @@ class Avatar extends DataClass implements Insertable<Avatar> {
     if (!nullToAbsent || avatarIndex != null) {
       map['avatar_index'] = Variable<int>(avatarIndex);
     }
+    if (!nullToAbsent || fileName != null) {
+      map['file_name'] = Variable<String>(fileName);
+    }
     return map;
   }
 
@@ -1038,6 +1047,9 @@ class Avatar extends DataClass implements Insertable<Avatar> {
       avatarIndex: avatarIndex == null && nullToAbsent
           ? const Value.absent()
           : Value(avatarIndex),
+      fileName: fileName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fileName),
     );
   }
 
@@ -1048,6 +1060,7 @@ class Avatar extends DataClass implements Insertable<Avatar> {
       uid: serializer.fromJson<String>(json['uid']),
       fileId: serializer.fromJson<String>(json['fileId']),
       avatarIndex: serializer.fromJson<int>(json['avatarIndex']),
+      fileName: serializer.fromJson<String>(json['fileName']),
     );
   }
   @override
@@ -1057,70 +1070,86 @@ class Avatar extends DataClass implements Insertable<Avatar> {
       'uid': serializer.toJson<String>(uid),
       'fileId': serializer.toJson<String>(fileId),
       'avatarIndex': serializer.toJson<int>(avatarIndex),
+      'fileName': serializer.toJson<String>(fileName),
     };
   }
 
-  Avatar copyWith({String uid, String fileId, int avatarIndex}) => Avatar(
+  Avatar copyWith(
+          {String uid, String fileId, int avatarIndex, String fileName}) =>
+      Avatar(
         uid: uid ?? this.uid,
         fileId: fileId ?? this.fileId,
         avatarIndex: avatarIndex ?? this.avatarIndex,
+        fileName: fileName ?? this.fileName,
       );
   @override
   String toString() {
     return (StringBuffer('Avatar(')
           ..write('uid: $uid, ')
           ..write('fileId: $fileId, ')
-          ..write('avatarIndex: $avatarIndex')
+          ..write('avatarIndex: $avatarIndex, ')
+          ..write('fileName: $fileName')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      $mrjf($mrjc(uid.hashCode, $mrjc(fileId.hashCode, avatarIndex.hashCode)));
+  int get hashCode => $mrjf($mrjc(uid.hashCode,
+      $mrjc(fileId.hashCode, $mrjc(avatarIndex.hashCode, fileName.hashCode))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Avatar &&
           other.uid == this.uid &&
           other.fileId == this.fileId &&
-          other.avatarIndex == this.avatarIndex);
+          other.avatarIndex == this.avatarIndex &&
+          other.fileName == this.fileName);
 }
 
 class AvatarsCompanion extends UpdateCompanion<Avatar> {
   final Value<String> uid;
   final Value<String> fileId;
   final Value<int> avatarIndex;
+  final Value<String> fileName;
   const AvatarsCompanion({
     this.uid = const Value.absent(),
     this.fileId = const Value.absent(),
     this.avatarIndex = const Value.absent(),
+    this.fileName = const Value.absent(),
   });
   AvatarsCompanion.insert({
     @required String uid,
     @required String fileId,
     @required int avatarIndex,
+    @required String fileName,
   })  : uid = Value(uid),
         fileId = Value(fileId),
-        avatarIndex = Value(avatarIndex);
+        avatarIndex = Value(avatarIndex),
+        fileName = Value(fileName);
   static Insertable<Avatar> custom({
     Expression<String> uid,
     Expression<String> fileId,
     Expression<int> avatarIndex,
+    Expression<String> fileName,
   }) {
     return RawValuesInsertable({
       if (uid != null) 'uid': uid,
       if (fileId != null) 'file_id': fileId,
       if (avatarIndex != null) 'avatar_index': avatarIndex,
+      if (fileName != null) 'file_name': fileName,
     });
   }
 
   AvatarsCompanion copyWith(
-      {Value<String> uid, Value<String> fileId, Value<int> avatarIndex}) {
+      {Value<String> uid,
+      Value<String> fileId,
+      Value<int> avatarIndex,
+      Value<String> fileName}) {
     return AvatarsCompanion(
       uid: uid ?? this.uid,
       fileId: fileId ?? this.fileId,
       avatarIndex: avatarIndex ?? this.avatarIndex,
+      fileName: fileName ?? this.fileName,
     );
   }
 
@@ -1136,6 +1165,9 @@ class AvatarsCompanion extends UpdateCompanion<Avatar> {
     if (avatarIndex.present) {
       map['avatar_index'] = Variable<int>(avatarIndex.value);
     }
+    if (fileName.present) {
+      map['file_name'] = Variable<String>(fileName.value);
+    }
     return map;
   }
 
@@ -1144,7 +1176,8 @@ class AvatarsCompanion extends UpdateCompanion<Avatar> {
     return (StringBuffer('AvatarsCompanion(')
           ..write('uid: $uid, ')
           ..write('fileId: $fileId, ')
-          ..write('avatarIndex: $avatarIndex')
+          ..write('avatarIndex: $avatarIndex, ')
+          ..write('fileName: $fileName')
           ..write(')'))
         .toString();
   }
@@ -1192,8 +1225,20 @@ class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
     );
   }
 
+  final VerificationMeta _fileNameMeta = const VerificationMeta('fileName');
+  GeneratedTextColumn _fileName;
   @override
-  List<GeneratedColumn> get $columns => [uid, fileId, avatarIndex];
+  GeneratedTextColumn get fileName => _fileName ??= _constructFileName();
+  GeneratedTextColumn _constructFileName() {
+    return GeneratedTextColumn(
+      'file_name',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [uid, fileId, avatarIndex, fileName];
   @override
   $AvatarsTable get asDslTable => this;
   @override
@@ -1224,6 +1269,12 @@ class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
               data['avatar_index'], _avatarIndexMeta));
     } else if (isInserting) {
       context.missing(_avatarIndexMeta);
+    }
+    if (data.containsKey('file_name')) {
+      context.handle(_fileNameMeta,
+          fileName.isAcceptableOrUnknown(data['file_name'], _fileNameMeta));
+    } else if (isInserting) {
+      context.missing(_fileNameMeta);
     }
     return context;
   }
@@ -1766,20 +1817,20 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
   }
 }
 
-class File extends DataClass implements Insertable<File> {
+class FileInfo extends DataClass implements Insertable<FileInfo> {
   final String id;
   final String path;
-  final String displayName;
-  File({@required this.id, @required this.path, @required this.displayName});
-  factory File.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+  final String fileName;
+  FileInfo({@required this.id, @required this.path, @required this.fileName});
+  factory FileInfo.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
-    return File(
+    return FileInfo(
       id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       path: stringType.mapFromDatabaseResponse(data['${effectivePrefix}path']),
-      displayName: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}display_name']),
+      fileName: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}file_name']),
     );
   }
   @override
@@ -1791,29 +1842,29 @@ class File extends DataClass implements Insertable<File> {
     if (!nullToAbsent || path != null) {
       map['path'] = Variable<String>(path);
     }
-    if (!nullToAbsent || displayName != null) {
-      map['display_name'] = Variable<String>(displayName);
+    if (!nullToAbsent || fileName != null) {
+      map['file_name'] = Variable<String>(fileName);
     }
     return map;
   }
 
-  FilesCompanion toCompanion(bool nullToAbsent) {
-    return FilesCompanion(
+  FileInfosCompanion toCompanion(bool nullToAbsent) {
+    return FileInfosCompanion(
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       path: path == null && nullToAbsent ? const Value.absent() : Value(path),
-      displayName: displayName == null && nullToAbsent
+      fileName: fileName == null && nullToAbsent
           ? const Value.absent()
-          : Value(displayName),
+          : Value(fileName),
     );
   }
 
-  factory File.fromJson(Map<String, dynamic> json,
+  factory FileInfo.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
-    return File(
+    return FileInfo(
       id: serializer.fromJson<String>(json['id']),
       path: serializer.fromJson<String>(json['path']),
-      displayName: serializer.fromJson<String>(json['displayName']),
+      fileName: serializer.fromJson<String>(json['fileName']),
     );
   }
   @override
@@ -1822,71 +1873,71 @@ class File extends DataClass implements Insertable<File> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'path': serializer.toJson<String>(path),
-      'displayName': serializer.toJson<String>(displayName),
+      'fileName': serializer.toJson<String>(fileName),
     };
   }
 
-  File copyWith({String id, String path, String displayName}) => File(
+  FileInfo copyWith({String id, String path, String fileName}) => FileInfo(
         id: id ?? this.id,
         path: path ?? this.path,
-        displayName: displayName ?? this.displayName,
+        fileName: fileName ?? this.fileName,
       );
   @override
   String toString() {
-    return (StringBuffer('File(')
+    return (StringBuffer('FileInfo(')
           ..write('id: $id, ')
           ..write('path: $path, ')
-          ..write('displayName: $displayName')
+          ..write('fileName: $fileName')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      $mrjf($mrjc(id.hashCode, $mrjc(path.hashCode, displayName.hashCode)));
+      $mrjf($mrjc(id.hashCode, $mrjc(path.hashCode, fileName.hashCode)));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
-      (other is File &&
+      (other is FileInfo &&
           other.id == this.id &&
           other.path == this.path &&
-          other.displayName == this.displayName);
+          other.fileName == this.fileName);
 }
 
-class FilesCompanion extends UpdateCompanion<File> {
+class FileInfosCompanion extends UpdateCompanion<FileInfo> {
   final Value<String> id;
   final Value<String> path;
-  final Value<String> displayName;
-  const FilesCompanion({
+  final Value<String> fileName;
+  const FileInfosCompanion({
     this.id = const Value.absent(),
     this.path = const Value.absent(),
-    this.displayName = const Value.absent(),
+    this.fileName = const Value.absent(),
   });
-  FilesCompanion.insert({
+  FileInfosCompanion.insert({
     @required String id,
     @required String path,
-    @required String displayName,
+    @required String fileName,
   })  : id = Value(id),
         path = Value(path),
-        displayName = Value(displayName);
-  static Insertable<File> custom({
+        fileName = Value(fileName);
+  static Insertable<FileInfo> custom({
     Expression<String> id,
     Expression<String> path,
-    Expression<String> displayName,
+    Expression<String> fileName,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (path != null) 'path': path,
-      if (displayName != null) 'display_name': displayName,
+      if (fileName != null) 'file_name': fileName,
     });
   }
 
-  FilesCompanion copyWith(
-      {Value<String> id, Value<String> path, Value<String> displayName}) {
-    return FilesCompanion(
+  FileInfosCompanion copyWith(
+      {Value<String> id, Value<String> path, Value<String> fileName}) {
+    return FileInfosCompanion(
       id: id ?? this.id,
       path: path ?? this.path,
-      displayName: displayName ?? this.displayName,
+      fileName: fileName ?? this.fileName,
     );
   }
 
@@ -1899,27 +1950,28 @@ class FilesCompanion extends UpdateCompanion<File> {
     if (path.present) {
       map['path'] = Variable<String>(path.value);
     }
-    if (displayName.present) {
-      map['display_name'] = Variable<String>(displayName.value);
+    if (fileName.present) {
+      map['file_name'] = Variable<String>(fileName.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('FilesCompanion(')
+    return (StringBuffer('FileInfosCompanion(')
           ..write('id: $id, ')
           ..write('path: $path, ')
-          ..write('displayName: $displayName')
+          ..write('fileName: $fileName')
           ..write(')'))
         .toString();
   }
 }
 
-class $FilesTable extends Files with TableInfo<$FilesTable, File> {
+class $FileInfosTable extends FileInfos
+    with TableInfo<$FileInfosTable, FileInfo> {
   final GeneratedDatabase _db;
   final String _alias;
-  $FilesTable(this._db, [this._alias]);
+  $FileInfosTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
   GeneratedTextColumn _id;
   @override
@@ -1944,30 +1996,28 @@ class $FilesTable extends Files with TableInfo<$FilesTable, File> {
     );
   }
 
-  final VerificationMeta _displayNameMeta =
-      const VerificationMeta('displayName');
-  GeneratedTextColumn _displayName;
+  final VerificationMeta _fileNameMeta = const VerificationMeta('fileName');
+  GeneratedTextColumn _fileName;
   @override
-  GeneratedTextColumn get displayName =>
-      _displayName ??= _constructDisplayName();
-  GeneratedTextColumn _constructDisplayName() {
+  GeneratedTextColumn get fileName => _fileName ??= _constructFileName();
+  GeneratedTextColumn _constructFileName() {
     return GeneratedTextColumn(
-      'display_name',
+      'file_name',
       $tableName,
       false,
     );
   }
 
   @override
-  List<GeneratedColumn> get $columns => [id, path, displayName];
+  List<GeneratedColumn> get $columns => [id, path, fileName];
   @override
-  $FilesTable get asDslTable => this;
+  $FileInfosTable get asDslTable => this;
   @override
-  String get $tableName => _alias ?? 'files';
+  String get $tableName => _alias ?? 'file_infos';
   @override
-  final String actualTableName = 'files';
+  final String actualTableName = 'file_infos';
   @override
-  VerificationContext validateIntegrity(Insertable<File> instance,
+  VerificationContext validateIntegrity(Insertable<FileInfo> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -1982,28 +2032,26 @@ class $FilesTable extends Files with TableInfo<$FilesTable, File> {
     } else if (isInserting) {
       context.missing(_pathMeta);
     }
-    if (data.containsKey('display_name')) {
-      context.handle(
-          _displayNameMeta,
-          displayName.isAcceptableOrUnknown(
-              data['display_name'], _displayNameMeta));
+    if (data.containsKey('file_name')) {
+      context.handle(_fileNameMeta,
+          fileName.isAcceptableOrUnknown(data['file_name'], _fileNameMeta));
     } else if (isInserting) {
-      context.missing(_displayNameMeta);
+      context.missing(_fileNameMeta);
     }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  File map(Map<String, dynamic> data, {String tablePrefix}) {
+  FileInfo map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return File.fromData(data, _db, prefix: effectivePrefix);
+    return FileInfo.fromData(data, _db, prefix: effectivePrefix);
   }
 
   @override
-  $FilesTable createAlias(String alias) {
-    return $FilesTable(_db, alias);
+  $FileInfosTable createAlias(String alias) {
+    return $FileInfosTable(_db, alias);
   }
 }
 
@@ -2017,8 +2065,8 @@ abstract class _$Database extends GeneratedDatabase {
   $AvatarsTable get avatars => _avatars ??= $AvatarsTable(this);
   $ContactsTable _contacts;
   $ContactsTable get contacts => _contacts ??= $ContactsTable(this);
-  $FilesTable _files;
-  $FilesTable get files => _files ??= $FilesTable(this);
+  $FileInfosTable _fileInfos;
+  $FileInfosTable get fileInfos => _fileInfos ??= $FileInfosTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
@@ -2033,5 +2081,5 @@ abstract class _$Database extends GeneratedDatabase {
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [messages, rooms, avatars, contacts, files];
+      [messages, rooms, avatars, contacts, fileInfos];
 }

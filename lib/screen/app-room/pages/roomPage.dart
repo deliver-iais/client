@@ -29,7 +29,6 @@ class _RoomPageState extends State<RoomPage> {
               child: Appbar(),
             ),
             body: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 ShowingMessagesFeild(roomId: roomId),
                 NewMessageInput(currentRoom: (snapshot.data)[0]),

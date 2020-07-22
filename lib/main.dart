@@ -3,7 +3,9 @@ import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/profileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
@@ -22,6 +24,8 @@ void setupDI() {
   getIt.registerSingleton<CurrentPageService>(CurrentPageService());
   getIt.registerSingleton<ProfileRepo>(ProfileRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
+ // getIt.registerSingleton<FileRepo>(FileRepo());
+  getIt.registerSingleton <AccountRepo>(AccountRepo());
   Database db = Database();
   getIt.registerSingleton<MessageDao>(db.messageDao);
   getIt.registerSingleton<RoomDao>(db.roomDao);

@@ -8,6 +8,8 @@ class Avatars extends Table {
 
   IntColumn get  avatarIndex => integer()();
 
+  TextColumn get fileName => text()();
+
   @override
   Set<Column> get primaryKey => {uid,avatarIndex};
 }
