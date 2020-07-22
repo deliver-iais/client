@@ -1,5 +1,3 @@
-
-
 import 'dart:io';
 
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
@@ -11,36 +9,43 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class CircleAvatarWidget extends StatelessWidget{
+class CircleAvatarWidget extends StatelessWidget {
   String contactUid;
   double radius;
   double fontSize;
   var avatarDao = GetIt.I.get<AvatarDao>();
   var contactDao = GetIt.I.get<ContactDao>();
- // var fileRepo = GetIt.I.get<FileRepo>();
+  var fileRepo = GetIt.I.get<FileRepo>();
   var accountRepo = GetIt.I.get<AccountRepo>();
 
-  CircleAvatarWidget(String contactUid,double radius , double fontSize){
+  CircleAvatarWidget(String contactUid, double radius, double fontSize) {
     this.radius = radius;
     this.fontSize = fontSize;
     this.contactUid = contactUid;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    File file;
-    return  CircleAvatar(
-        radius: radius ,
-        backgroundColor: ExtraTheme.of(context).circleAvatarBackground,
-        child: file == null
-            ? new Text(contactUid ,style: TextStyle(color: Colors.white, fontSize: 48,))
-            : Text("fjbhdj")
-//              new Image.file(
-//                      fileRepo.getAvatarFile(accountRepo.avatar.fileId),
-//                    )
-    );
-
+  File getAvatarFile() {
+    try {
+      return fileRepo.getAvatarFile(accountRepo.avatar.fileId);
+    }catch(error){
+      return null;
+    }
   }
 
+  @override
+  Widget build(BuildContext context) {
 
+    return CircleAvatar(
+        radius: radius,
+        backgroundColor: ExtraTheme.of(context).circleAvatarBackground,
+        child: getAvatarFile() == null
+            ? new Text(contactUid,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: fontSize,
+                ))
+            : new Image.file(
+                getAvatarFile(),
+              ));
+  }
 }

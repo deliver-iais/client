@@ -24,9 +24,9 @@ class FileRepo {
   }
 
   File getAvatarFile  (String uuid)  {
-    FileInfo internalFile;
-    fileDao.getFile(uuid).then((files) => internalFile = files.elementAt(0));
-    File file = new File(internalFile.path);
+    FileInfo fileInfo;
+    fileDao.getFile(uuid).listen((files) => fileInfo = files.elementAt(0));
+    File file = new File(fileInfo.path);
     if (file.exists() != null) {
       return file;
     } else {

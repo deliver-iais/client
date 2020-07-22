@@ -24,7 +24,6 @@ void setupDI() {
   getIt.registerSingleton<CurrentPageService>(CurrentPageService());
   getIt.registerSingleton<ProfileRepo>(ProfileRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
- // getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton <AccountRepo>(AccountRepo());
   Database db = Database();
   getIt.registerSingleton<MessageDao>(db.messageDao);
@@ -32,6 +31,7 @@ void setupDI() {
   getIt.registerSingleton<AvatarDao>(db.avatarDao);
   getIt.registerSingleton<ContactDao>(db.contactDao);
   getIt.registerSingleton<FileDao>(db.fileDao);
+  getIt.registerSingleton<FileRepo>(FileRepo());
 
 }
 

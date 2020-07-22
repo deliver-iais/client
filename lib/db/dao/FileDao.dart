@@ -16,7 +16,7 @@ class FileDao extends DatabaseAccessor<Database>with _$FileDaoMixin{
 
   Future deleteAvatar (FileInfo file) => delete(fileInfos).delete(file);
 
-   Future<List<FileInfo> > getFile(id) {
-     return (select(fileInfos)..where((file) => file.id.equals(id))).get();
+   Stream<List<FileInfo> > getFile(id) {
+     return (select(fileInfos)..where((file) => file.id.equals(id))).watch();
    }
 }

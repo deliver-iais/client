@@ -22,8 +22,7 @@ class SettingState extends State<SettingsPage> {
   var uxService = GetIt.I.get<UxService>();
   var avatarDao = GetIt.I.get<AvatarDao>();
   var contactDao = GetIt.I.get<ContactDao>();
-
-  // var fileRepo = GetIt.I.get<FileRepo>();
+  
   var accountRepo = GetIt.I.get<AccountRepo>();
   File file;
 
