@@ -58,8 +58,7 @@ class Appbar extends StatelessWidget {
                   ),
                 ),
                 onPressed: (){
-                  ExtendedNavigator.of(context)
-                      .pushNamed(Routes.settingsPage);
+
                 },
               ),
             )

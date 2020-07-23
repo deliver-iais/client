@@ -21,44 +21,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    var messagesDao = GetIt.I.get<MessageDao>();
-    var roomDao = GetIt.I.get<RoomDao>();
-    messagesDao
-        .insertMessage(Message(
-            roomId: 4,
-            id: 1,
-            time: DateTime.now().subtract(Duration(hours: 2)),
-            from: '0000000000000000000000',
-            to: '0000000000000000000001',
-            forwardedFrom: null,
-            replyToId: null,
-            edited: false,
-            encrypted: false,
-            type: MessageType.text,
-            content: 'hi how are you\nسلام:)',
-            seen: false))
-        .then((value) => messagesDao
-            .insertMessage(Message(
-                roomId: 4,
-                id: 2,
-                time: DateTime.now(),
-                from: '0000000000000000000001',
-                to: '0000000000000000000000',
-                forwardedFrom: null,
-                replyToId: null,
-                edited: false,
-                encrypted: false,
-                type: MessageType.text,
-                content: 'hi how are you\nسلام:)',
-                seen: false))
-            .then((value) => roomDao.insertRoom(Room(
-                roomId: 4,
-                sender: '0000000000000000000000',
-                reciever: '0000000000000000000001',
-                mentioned: null,
-                lastMessage: 2))));
     _onLoading().then(
-        (value) => value ? _navigateToHomePage() : _navigateToIntroPage());
+        (value) => value ? _navigateToIntroPage() : _navigateToHomePage());
   }
 
   void _getLoggedInStatus() async {
@@ -73,7 +37,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<bool> _onLoading() async {
     _getLoggedInStatus();
-    await Future.delayed(Duration(milliseconds: 3000), () {});
     return loggedInStatus == LoggedinStatus.loggedin ? true : false;
   }
 
