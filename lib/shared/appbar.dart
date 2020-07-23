@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'appbarTitle.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
@@ -41,8 +40,8 @@ class Appbar extends StatelessWidget {
             Container(
               child: IconButton(
                 icon: Container(
-                  width: 60,
-                  height: 60,
+                  width: 120,
+                  height: 120,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: ExtraTheme.of(context).secondColor,
@@ -54,12 +53,13 @@ class Appbar extends StatelessWidget {
                             ? Icons.create
                             : Icons.add,
                     color: Colors.white,
-                    size: 20,
+                    size: 30,
                   ),
                 ),
                 onPressed: (){
 
                 },
+                iconSize: 38,
               ),
             )
           ],

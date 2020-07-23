@@ -9,7 +9,7 @@ class ContactItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 23.5,right: 30 ,top: 5,bottom: 2),
+      padding: const EdgeInsets.only(left: 23.5,right: 30 ,top: 5,bottom: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -17,7 +17,7 @@ class ContactItem extends StatelessWidget {
             children: <Widget>[
               Stack(
                 children: <Widget>[
-                  CircleAvatarWidget("JD",19),
+                  CircleAvatarWidget("JD",23),
                   Positioned(
                     child: Container(
                       width: 12.0,
@@ -45,19 +45,19 @@ class ContactItem extends StatelessWidget {
                 contact.firstName + " " + contact.lastName,
                 style: TextStyle(
                   color: ExtraTheme.of(context).infoChat,
-                  fontSize: 15,
+                  fontSize: 18,
                 ),
               ),
             ],
           ),
           CircleAvatar(
-            radius: 16.5,
+            radius: 20,
             backgroundColor: ExtraTheme.of(context).secondColor,
             child: FittedBox(
               child: Icon(
                 Icons.message,
                 color: ExtraTheme.of(context).circleAvatarIcon,
-                size: 14,
+                size: 25,
               ),
             ),
           ),

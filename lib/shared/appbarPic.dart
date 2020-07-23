@@ -15,7 +15,7 @@ class _AppbarPicState extends State<AppbarPic> {
       onTap: () {
         ExtendedNavigator.of(context).pushNamed(Routes.settingsPage);
       },
-      child: CircleAvatarWidget("JD", 15),
+      child: CircleAvatarWidget("JD", 19),
     );
   }
 }
