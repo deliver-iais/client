@@ -9,7 +9,7 @@ class ContactItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 30),
+      padding: const EdgeInsets.only(left: 23.5,right: 30 ,top: 5,bottom: 2),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -61,6 +61,7 @@ class ContactItem extends StatelessWidget {
               ),
             ),
           ),
+
         ],
       ),
     );
