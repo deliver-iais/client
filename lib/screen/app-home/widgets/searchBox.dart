@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/shared/mainWidget.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -8,39 +9,40 @@ class SearchBox extends StatelessWidget {
       color: ExtraTheme.of(context).details,
       fontSize: 16,
     );
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 22,
-        right: 30,
-        bottom: 10,
-      ),
-      child: Container(
-        height: 40,
-        decoration: BoxDecoration(
-          color: ExtraTheme.of(context).secondColor,
-          borderRadius: BorderRadius.all(
-            Radius.circular(25),
+    return MainWidget(
+        Padding(
+          padding: const EdgeInsets.only(
+            bottom: 10,
           ),
-        ),
-        child: TextField(
-          style: textStyle,
-          textAlignVertical: TextAlignVertical.center,
-          textAlign: TextAlign.start,
-          autofocus: false,
-          maxLines: 1,
-          cursorColor: ExtraTheme.of(context).details,
-          decoration: InputDecoration(
-            focusedBorder: InputBorder.none,
-            border: InputBorder.none,
-            prefixIcon: Icon(
-              Icons.search,
-              color: ExtraTheme.of(context).details,
+          child: Container(
+            height: 40,
+            decoration: BoxDecoration(
+              color: ExtraTheme.of(context).secondColor,
+              borderRadius: BorderRadius.all(
+                Radius.circular(25),
+              ),
             ),
-            hintText: 'Search',
-            hintStyle: textStyle,
+            child: TextField(
+              style: textStyle,
+              textAlignVertical: TextAlignVertical.center,
+              textAlign: TextAlign.start,
+              autofocus: false,
+              maxLines: 1,
+              cursorColor: ExtraTheme.of(context).details,
+              decoration: InputDecoration(
+                focusedBorder: InputBorder.none,
+                border: InputBorder.none,
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: ExtraTheme.of(context).details,
+                ),
+                hintText: 'Search',
+                hintStyle: textStyle,
+              ),
+            ),
           ),
         ),
-      ),
-    );
+        0,
+        1);
   }
 }

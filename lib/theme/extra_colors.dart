@@ -7,6 +7,7 @@ class ExtraThemeData {
   Color circleAvatarIcon = Colors.white;
   Color secondColor = Color(0xFF393939);
   Color active = Colors.white;
+  Color black = Colors.black;
   Color infoChat = Colors.white;
   Color text = Color(0xFFBCE0FD);
 

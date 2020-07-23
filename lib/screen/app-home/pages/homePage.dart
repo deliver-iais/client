@@ -5,6 +5,7 @@ import 'package:deliver_flutter/shared/appbar.dart';
 import 'package:deliver_flutter/screen/app-home/widgets/navigationBar.dart';
 import 'package:deliver_flutter/screen/app-home/widgets/searchBox.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
+import 'package:deliver_flutter/shared/mainWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -20,14 +21,16 @@ class HomePage extends StatelessWidget {
         preferredSize: const Size.fromHeight(60.0),
         child: Appbar(),
       ),
-      body: Column(
-        children: <Widget>[
-          SearchBox(),
-          if (currentPageService.currentPage == 0)
-            Expanded(child: ChatsPage(loggedinUserId: loggedinUserId))
-          else
-            ContactsPage(loggedinUserId: loggedinUserId),
-        ],
+      body: MainWidget(
+        Column(
+          children: <Widget>[
+            SearchBox(),
+            if (currentPageService.currentPage == 0)
+              Expanded(child: ChatsPage(loggedinUserId: loggedinUserId))
+            else
+              ContactsPage(loggedinUserId: loggedinUserId),
+          ],
+        ),20,25
       ),
       bottomNavigationBar: NavigationBar(),
     );

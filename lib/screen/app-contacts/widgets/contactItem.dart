@@ -9,7 +9,7 @@ class ContactItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 23.5,right: 30 ,top: 5,bottom: 5),
+      padding: const EdgeInsets.only(left: 0,right: 0 ,top: 5,bottom: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -57,7 +57,7 @@ class ContactItem extends StatelessWidget {
               child: Icon(
                 Icons.message,
                 color: ExtraTheme.of(context).circleAvatarIcon,
-                size: 25,
+                size: 21,
               ),
             ),
           ),
