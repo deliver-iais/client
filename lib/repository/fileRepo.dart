@@ -16,14 +16,12 @@ class FileRepo {
       port: ServicesDiscoveryRepo().FileConnection.port,
       options: ChannelOptions(credentials: ChannelCredentials.insecure()));
 
-  String generateAvatarFile(String fileId, String fileName) {
-    return "/samll/$fileId/$fileName";
-  }
-  Future<File> getFileRequest(String uuid){
+  Future<File> getFileRequest(String uuid,  String filename){
     // todo get file from server
+    throw Error();
   }
 
-  Future<File> getFile(String uuid) async  {
+  Future<File> getFile(String uuid, String filename) async  {
     FileInfo fileInfo;
     fileDao.getFile(uuid).then((files) => fileInfo = files.elementAt(0));
     File file = new File(fileInfo.path);
@@ -31,7 +29,7 @@ class FileRepo {
     if (isExist) {
       return file;
     } else {
-      return await getFileRequest(uuid);
+      return await getFileRequest(uuid, filename);
     }
   }
 }

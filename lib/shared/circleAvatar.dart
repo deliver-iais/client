@@ -8,19 +8,18 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/shared/extensions/fileRepoExtension.dart';
 
 class CircleAvatarWidget extends StatelessWidget {
   String contactUid;
   double radius;
-  double fontSize;
   var avatarDao = GetIt.I.get<AvatarDao>();
   var contactDao = GetIt.I.get<ContactDao>();
   var fileRepo = GetIt.I.get<FileRepo>();
   var accountRepo = GetIt.I.get<AccountRepo>();
 
-  CircleAvatarWidget(String contactUid, double radius, double fontSize) {
+  CircleAvatarWidget(String contactUid, double radius) {
     this.radius = radius;
-    this.fontSize = fontSize;
     this.contactUid = contactUid;
   }
 
@@ -30,7 +29,7 @@ class CircleAvatarWidget extends StatelessWidget {
       radius: radius,
       backgroundColor: ExtraTheme.of(context).circleAvatarBackground,
       child: FutureBuilder<File>(
-          future: fileRepo.getFile(accountRepo.avatar?.fileId),
+          future: fileRepo.getAvatarFile(accountRepo.avatar ),
           builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
             if (snapshot.hasData) {
               return new Image.file(
@@ -45,6 +44,7 @@ class CircleAvatarWidget extends StatelessWidget {
                   ));
             }
           }),
+
     );
   }
 }

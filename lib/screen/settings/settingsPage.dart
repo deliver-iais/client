@@ -35,7 +35,7 @@ class SettingState extends State<SettingsPage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-        CircleAvatarWidget("JD",65,48),
+        CircleAvatarWidget("JD",65),
         SizedBox(height: 19),
         Text("John Due", style: TextStyle(color: Colors.white, fontSize: 25)),
         Container(

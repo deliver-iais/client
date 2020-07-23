@@ -12,7 +12,7 @@ class ContactPic extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        CircleAvatarWidget("JD",25,25),
+        CircleAvatarWidget("JD",25),
         Positioned(
           child: Container(
             width: 12.0,

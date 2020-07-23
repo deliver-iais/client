@@ -17,7 +17,7 @@ class ContactItem extends StatelessWidget {
             children: <Widget>[
               Stack(
                 children: <Widget>[
-                  CircleAvatarWidget("JD",19,19),
+                  CircleAvatarWidget("JD",19),
                   Positioned(
                     child: Container(
                       width: 12.0,
