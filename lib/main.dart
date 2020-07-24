@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
@@ -16,6 +18,7 @@ import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get_it/get_it.dart';
+import 'package:permissions_plugin/permissions_plugin.dart';
 import 'package:rxdart/rxdart.dart';
 import './db/dao/MessageDao.dart';
 import 'db/dao/RoomDao.dart';
@@ -38,6 +41,13 @@ void setupDI() {
   getIt.registerSingleton<FileDao>(db.fileDao);
   getIt.registerSingleton<FileRepo>(FileRepo());
   FlutterDownloader.initialize();
+
+  PermissionsPlugin
+      .requestPermissions([
+    Permission.WRITE_EXTERNAL_STORAGE,
+    Permission.READ_EXTERNAL_STORAGE
+  ]);
+  // Creates dir/ and dir/subdir/.
 }
 
 void main() {
