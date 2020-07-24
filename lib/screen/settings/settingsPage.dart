@@ -8,6 +8,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/downloadFile.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -22,6 +23,7 @@ class SettingState extends State<SettingsPage> {
   var uxService = GetIt.I.get<UxService>();
   var avatarDao = GetIt.I.get<AvatarDao>();
   var contactDao = GetIt.I.get<ContactDao>();
+  var downloadFile = GetIt.I.get<DownloadFile>();
   
   var accountRepo = GetIt.I.get<AccountRepo>();
   File file;
@@ -130,7 +132,9 @@ class SettingState extends State<SettingsPage> {
                           ),
                           IconButton(
                               icon: Icon(Icons.navigate_next),
-                              onPressed: null),
+                              onPressed: (){
+                                downloadFile.downloadFile("url");
+                              }),
                         ],
                       ),
                     ),

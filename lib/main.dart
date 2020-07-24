@@ -10,9 +10,11 @@ import 'package:deliver_flutter/repository/profileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
+import 'package:deliver_flutter/shared/downloadFile.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import './db/dao/MessageDao.dart';
@@ -27,6 +29,7 @@ void setupDI() {
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<AccountRepo>(AccountRepo());
   getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
+  getIt.registerSingleton<DownloadFile>(DownloadFile());
   Database db = Database();
   getIt.registerSingleton<MessageDao>(db.messageDao);
   getIt.registerSingleton<RoomDao>(db.roomDao);
@@ -34,6 +37,7 @@ void setupDI() {
   getIt.registerSingleton<ContactDao>(db.contactDao);
   getIt.registerSingleton<FileDao>(db.fileDao);
   getIt.registerSingleton<FileRepo>(FileRepo());
+  FlutterDownloader.initialize();
 }
 
 void main() {
