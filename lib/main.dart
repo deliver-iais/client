@@ -17,6 +17,7 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import './db/dao/MessageDao.dart';
 import 'db/dao/RoomDao.dart';
+import 'repository/servicesDiscoveryRepo.dart';
 
 void setupDI() {
   GetIt getIt = GetIt.instance;
@@ -25,6 +26,7 @@ void setupDI() {
   getIt.registerSingleton<ProfileRepo>(ProfileRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<AccountRepo>(AccountRepo());
+  getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
   Database db = Database();
   getIt.registerSingleton<MessageDao>(db.messageDao);
   getIt.registerSingleton<RoomDao>(db.roomDao);
