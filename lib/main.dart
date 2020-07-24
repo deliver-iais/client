@@ -1,4 +1,12 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/db/dao/AvatarDao.dart';
+import 'package:deliver_flutter/db/dao/ContactDao.dart';
+import 'package:deliver_flutter/db/dao/FileDao.dart';
+import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/profileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
@@ -7,11 +15,23 @@ import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
+import './db/dao/MessageDao.dart';
+import 'db/dao/RoomDao.dart';
 
 void setupDI() {
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<UxService>(UxService());
   getIt.registerSingleton<CurrentPageService>(CurrentPageService());
+  getIt.registerSingleton<ProfileRepo>(ProfileRepo());
+  getIt.registerSingleton<AvatarRepo>(AvatarRepo());
+  getIt.registerSingleton<AccountRepo>(AccountRepo());
+  Database db = Database();
+  getIt.registerSingleton<MessageDao>(db.messageDao);
+  getIt.registerSingleton<RoomDao>(db.roomDao);
+  getIt.registerSingleton<AvatarDao>(db.avatarDao);
+  getIt.registerSingleton<ContactDao>(db.contactDao);
+  getIt.registerSingleton<FileDao>(db.fileDao);
+  getIt.registerSingleton<FileRepo>(FileRepo());
 }
 
 void main() {
@@ -28,22 +48,27 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     var uxService = GetIt.I.get<UxService>();
     var currentPageService = GetIt.I.get<CurrentPageService>();
+    var messagesDao = GetIt.I.get<MessageDao>();
+    var roomDao = GetIt.I.get<RoomDao>();
     return StreamBuilder(
       stream: MergeStream([
         uxService.themeStream as Stream,
-        uxService.extraThemeStream as Stream,
-        currentPageService.currentPageStream as Stream
+        currentPageService.currentPageStream as Stream,
+        messagesDao.watchAllMessages(),
+        roomDao.watchAllRooms(),
       ]),
       builder: (context, snapshot) {
         Fimber.d("theme changed ${uxService.theme.toString()}");
         Fimber.d(
             "currentPage changed ${currentPageService.currentPage.toString()}");
+
         return ExtraTheme(
           extraThemeData: uxService.extraTheme,
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Flutter Demo',
             theme: uxService.theme,
+            onGenerateRoute: Router(),
             builder: ExtendedNavigator<Router>(
               router: Router(),
             ),
@@ -53,3 +78,12 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+//TODO
+//ConvertTime To Shared
+//edit details
+//edit ChatItem
+//delete extra models
+//edit address of files
+//userid for chat item
+//message doesnt send in database?

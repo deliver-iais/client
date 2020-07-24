@@ -1,27 +1,36 @@
-import 'package:deliver_flutter/screen/app-home/widgets/appBarHome.dart';
+import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/screen/app-chats/widgets/chatsPage.dart';
+import 'package:deliver_flutter/screen/app-contacts/widgets/contactsPage.dart';
+import 'package:deliver_flutter/shared/appbar.dart';
 import 'package:deliver_flutter/screen/app-home/widgets/navigationBar.dart';
 import 'package:deliver_flutter/screen/app-home/widgets/searchBox.dart';
-import 'package:deliver_flutter/screen/chats/widgets/Chats.dart';
-import 'package:deliver_flutter/screen/contacts/widgets/contacts.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
+import 'package:deliver_flutter/shared/mainWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var routeData = RouteData.of(context);
+    String loggedinUserId = routeData.pathParams['id'].value;
     var currentPageService = GetIt.I.get<CurrentPageService>();
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
-        child: AppBarHome(),
+        child: Appbar(),
       ),
-      body: Column(
-        children: <Widget>[
-          SearchBox(),
-          currentPageService.currentPage == 0 ? Chats() : Contacts(),
-        ],
+      body: MainWidget(
+        Column(
+          children: <Widget>[
+            SearchBox(),
+            if (currentPageService.currentPage == 0)
+              Expanded(child: ChatsPage(loggedinUserId: loggedinUserId))
+            else
+              ContactsPage(loggedinUserId: loggedinUserId),
+          ],
+        ),20,25
       ),
       bottomNavigationBar: NavigationBar(),
     );

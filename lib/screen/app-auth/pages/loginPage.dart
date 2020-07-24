@@ -1,8 +1,15 @@
+import 'dart:ffi';
+
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/models/loggedinStatus.dart';
+import 'package:deliver_flutter/repository/profileRepo.dart';
+import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-auth/widgets/inputFeilds.dart';
+
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get_it/get_it.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
@@ -12,21 +19,14 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+
   String phoneNum = "";
   String code = "";
   String inputError;
+  var profileRepo = GetIt.I.get<ProfileRepo>();
 
-  _sets() async {
-    SharedPreferences _prefs = await SharedPreferences.getInstance();
-    _prefs.setString(
-      "loggedinUserId",
-      code + phoneNum,
-    );
-    _prefs.setString(
-      "loggedinStatus",
-      enumToString(LoggedinStatus.waitForVerify),
-    );
-  }
+  // todo change receiveVerificationCode to false then the server send verification code;
+  bool receiveVerificationCode = true;
 
   _navigateToVerificationPage() async {
     if (code == "" || phoneNum == "") {
@@ -38,8 +38,43 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       final signCode = await SmsAutoFill().getAppSignature;
       print(signCode);
-      _sets();
-      ExtendedNavigator.ofRouter<Router>().pushNamed(Routes.verificationPage);
+
+      var result = profileRepo.getVerificationCode(int.parse(code), phoneNum);
+      result
+          .then((res) => {
+                receiveVerificationCode = true,
+                Fluttertoast.showToast(
+                    msg: " رمز ورود برای شما ارسال شد.",
+                    toastLength: Toast.LENGTH_SHORT,
+                    backgroundColor: Colors.black,
+                    textColor: Colors.white,
+                    fontSize: 16.0),
+              })
+          .catchError((e) => {
+                Fluttertoast.showToast(
+                    msg: " خطایی رخ داده است.",
+                    toastLength: Toast.LENGTH_SHORT,
+                    backgroundColor: Colors.black,
+                    textColor: Colors.white,
+                    fontSize: 16.0)
+              });
+      if (!receiveVerificationCode) {
+        return;
+      }
+
+      SharedPreferences _prefs = await SharedPreferences.getInstance();
+      _prefs
+          .setString(
+              "loggedinUserId",
+              // code + phoneNum,
+              '0000000000000000000000')
+          .then((value) => _prefs
+              .setString(
+                "loggedinStatus",
+                enumToString(LoggedinStatus.waitForVerify),
+              )
+              .then((value) => ExtendedNavigator.of(context)
+                  .pushNamed(Routes.verificationPage)));
     }
   }
 
@@ -109,17 +144,18 @@ class _LoginPageState extends State<LoginPage> {
             child: Align(
               alignment: Alignment.bottomRight,
               child: RaisedButton(
-                child: Text(
-                  "NEXT",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
-                    fontSize: 14.5,
+                  child: Text(
+                    "NEXT",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
+                      fontSize: 14.5,
+                    ),
                   ),
-                ),
-                color: Theme.of(context).backgroundColor,
-                onPressed: _navigateToVerificationPage,
-              ),
+                  color: Theme.of(context).backgroundColor,
+                  onPressed: () {
+                    _navigateToVerificationPage();
+                  }),
             ),
           ),
         ],

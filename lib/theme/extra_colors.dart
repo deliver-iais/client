@@ -7,8 +7,10 @@ class ExtraThemeData {
   Color circleAvatarIcon = Colors.white;
   Color secondColor = Color(0xFF393939);
   Color active = Colors.white;
+  Color black = Colors.black;
   Color infoChat = Colors.white;
-  Color authText = Color(0xFFBCE0FD);
+  Color text = Color(0xFFBCE0FD);
+
 
   ExtraThemeData({this.circleAvatarBackground,
     this.introColor,
@@ -17,7 +19,7 @@ class ExtraThemeData {
     this.secondColor,
     this.active,
     this.infoChat,
-    this.authText});
+    this.text});
 }
 
 class ExtraTheme extends InheritedWidget {

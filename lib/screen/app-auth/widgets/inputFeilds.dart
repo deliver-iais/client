@@ -57,7 +57,7 @@ class InputFeilds extends StatelessWidget {
                               textAlignVertical: TextAlignVertical.center,
                               textAlign: TextAlign.start,
                               autofocus: false,
-                              cursorColor: ExtraTheme.of(context).authText,
+                              cursorColor: ExtraTheme.of(context).text,
                               maxLengthEnforced: true,
                               decoration: InputDecoration(
                                 counterText: "",
@@ -66,7 +66,7 @@ class InputFeilds extends StatelessWidget {
                                 hintText: 'Code',
                                 hintStyle: TextStyle(
                                   fontSize: 14,
-                                  color: ExtraTheme.of(context).authText,
+                                  color: ExtraTheme.of(context).text,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -107,7 +107,7 @@ class InputFeilds extends StatelessWidget {
                         textAlignVertical: TextAlignVertical.center,
                         textAlign: TextAlign.center,
                         autofocus: false,
-                        cursorColor: ExtraTheme.of(context).authText,
+                        cursorColor: ExtraTheme.of(context).text,
                         decoration: InputDecoration(
                           counterText: "",
                           focusedBorder: InputBorder.none,
@@ -116,7 +116,7 @@ class InputFeilds extends StatelessWidget {
                           hintStyle: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
-                            color: ExtraTheme.of(context).authText,
+                            color: ExtraTheme.of(context).text,
                           ),
                         ),
                         maxLength: 10,

@@ -1,8 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/models/loggedinStatus.dart';
+import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
@@ -12,20 +14,26 @@ class VerificationPage extends StatefulWidget {
 }
 
 class _VerificationPageState extends State<VerificationPage> {
+  var loggedinUserId = '';
   void _listenOpt() async {
     await SmsAutoFill().listenForCode;
   }
 
-  _set() async {
+  _getLoggedinUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('loggedinStatus', enumToString(LoggedinStatus.loggedin));
+    loggedinUserId = prefs.getString('loggedinUserId');
   }
 
   _navigationToHome() {
     print("hi");
-    _set();
-    ExtendedNavigator.of(context)
-        .pushNamedAndRemoveUntil(Routes.homePage, (_) => false);
+    var currentPageService = GetIt.I.get<CurrentPageService>();
+    currentPageService.setToHome();
+    _getLoggedinUserId()
+        .then((value) => ExtendedNavigator.of(context).pushNamedAndRemoveUntil(
+              Routes.homePage(id: loggedinUserId),
+              (_) => false,
+            ));
   }
 
   @override
@@ -91,7 +99,7 @@ class _VerificationPageState extends State<VerificationPage> {
                         border: InputBorder.none,
                         hintStyle: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: ExtraTheme.of(context).authText,
+                          color: ExtraTheme.of(context).text,
                           fontSize: 16,
                         ),
                         counterText: "",
