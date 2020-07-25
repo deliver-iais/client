@@ -1,9 +1,11 @@
 import 'package:contacts_service/contacts_service.dart';
 
-class ContactServices {
+class ContactServdices {
   sendMyPhoneContacts() async {
-
     List<Contact> contacts = await ContactsService.getContacts();
+
+
+
 
   }
 }

@@ -21,8 +21,7 @@ class ProfileRepo {
     PhoneNumber phoneNumber = PhoneNumber()
       ..countryCode = countryCode
       ..nationalNumber = Int64.parseInt(nationalNumber);
-    var verificationCode =
-        await AuthServiceStub.getVerificationCode(GetVerificationCodeReq()
+    var verificationCode = await AuthServiceStub.getVerificationCode(GetVerificationCodeReq()
           ..phoneNumber = phoneNumber
           ..type = VerificationType.SMS);
     return verificationCode;
