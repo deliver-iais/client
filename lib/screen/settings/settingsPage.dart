@@ -11,6 +11,7 @@ import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/downloadFile.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get_it/get_it.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -27,6 +28,7 @@ class SettingState extends State<SettingsPage> {
   
   var accountRepo = GetIt.I.get<AccountRepo>();
   File file;
+
 
   @override
   Widget build(BuildContext context) {
