@@ -14,6 +14,7 @@ import 'package:deliver_flutter/screen/app-auth/pages/verificationPage.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 import 'package:deliver_flutter/screen/app-home/pages/homePage.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
+import 'package:deliver_flutter/screen/app-home/widgets/forward.dart';
 
 class Routes {
   static const String splashScreen = '/';
@@ -25,6 +26,7 @@ class Routes {
   static homePage({@required id}) => '/users$id';
   static const String _roomPage = '/room:roomId';
   static roomPage({@required roomId}) => '/room$roomId';
+  static const String forwardMessage = '/forward-message';
   static const all = <String>{
     splashScreen,
     introPage,
@@ -33,6 +35,7 @@ class Routes {
     settingsPage,
     _homePage,
     _roomPage,
+    forwardMessage,
   };
 }
 
@@ -47,6 +50,7 @@ class Router extends RouterBase {
     RouteDef(Routes.settingsPage, page: SettingsPage),
     RouteDef(Routes._homePage, page: HomePage),
     RouteDef(Routes._roomPage, page: RoomPage),
+    RouteDef(Routes.forwardMessage, page: ForwardMessage),
   ];
   @override
   Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
@@ -93,6 +97,12 @@ class Router extends RouterBase {
     RoomPage: (RouteData data) {
       return MaterialPageRoute<dynamic>(
         builder: (context) => RoomPage(),
+        settings: data,
+      );
+    },
+    ForwardMessage: (RouteData data) {
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => ForwardMessage(),
         settings: data,
       );
     },

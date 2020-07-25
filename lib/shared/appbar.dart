@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/shared/mainWidget.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'appbarTitle.dart';
@@ -58,7 +59,9 @@ class Appbar extends StatelessWidget {
                         size: 30,
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      ExtendedNavigator.of(context).pushNamed(Routes.forwardMessage);
+                    },
                     iconSize: 38,
                   ),
                 )

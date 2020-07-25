@@ -1,12 +1,16 @@
 
+
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class ContactItem extends StatelessWidget {
+import '../circleAvatar.dart';
+
+class ContactWidget extends StatelessWidget{
   final Contact contact;
-  const ContactItem({this.contact});
+  final IconData circleIcon ;
+   ContactWidget({this.contact,this.circleIcon} );
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -55,8 +59,7 @@ class ContactItem extends StatelessWidget {
             radius: 20,
             backgroundColor: ExtraTheme.of(context).secondColor,
             child: FittedBox(
-              child: Icon(
-                Icons.message,
+              child: Icon(circleIcon,
                 color: ExtraTheme.of(context).circleAvatarIcon,
                 size: 21,
               ),

@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route_annotations.dart';
 import 'package:deliver_flutter/screen/app-home/pages/homePage.dart';
+import 'package:deliver_flutter/screen/app-home/widgets/forward.dart';
 import 'package:deliver_flutter/screen/app-intro/pages/introPage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/loginPage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/verificationPage.dart';
@@ -17,6 +18,7 @@ import 'package:deliver_flutter/screen/settings/settingsPage.dart';
     MaterialRoute(page: SettingsPage),
     MaterialRoute(path: '/users:id', page: HomePage),
     MaterialRoute(path: '/room:roomId', page: RoomPage),
+    MaterialRoute(page: ForwardMessage),
   ],
 )
 class $Router {}
