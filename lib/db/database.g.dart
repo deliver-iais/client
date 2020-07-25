@@ -1917,7 +1917,14 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
   final String id;
   final String path;
   final String fileName;
-  FileInfo({@required this.id, @required this.path, @required this.fileName});
+  final String downloadTaskId;
+  final String downloadTaskStatus;
+  FileInfo(
+      {@required this.id,
+      @required this.path,
+      @required this.fileName,
+      @required this.downloadTaskId,
+      @required this.downloadTaskStatus});
   factory FileInfo.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -1927,6 +1934,10 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
       path: stringType.mapFromDatabaseResponse(data['${effectivePrefix}path']),
       fileName: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}file_name']),
+      downloadTaskId: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}download_task_id']),
+      downloadTaskStatus: stringType.mapFromDatabaseResponse(
+          data['${effectivePrefix}download_task_status']),
     );
   }
   @override
@@ -1941,6 +1952,12 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
     if (!nullToAbsent || fileName != null) {
       map['file_name'] = Variable<String>(fileName);
     }
+    if (!nullToAbsent || downloadTaskId != null) {
+      map['download_task_id'] = Variable<String>(downloadTaskId);
+    }
+    if (!nullToAbsent || downloadTaskStatus != null) {
+      map['download_task_status'] = Variable<String>(downloadTaskStatus);
+    }
     return map;
   }
 
@@ -1951,6 +1968,12 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
       fileName: fileName == null && nullToAbsent
           ? const Value.absent()
           : Value(fileName),
+      downloadTaskId: downloadTaskId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(downloadTaskId),
+      downloadTaskStatus: downloadTaskStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(downloadTaskStatus),
     );
   }
 
@@ -1961,6 +1984,9 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
       id: serializer.fromJson<String>(json['id']),
       path: serializer.fromJson<String>(json['path']),
       fileName: serializer.fromJson<String>(json['fileName']),
+      downloadTaskId: serializer.fromJson<String>(json['downloadTaskId']),
+      downloadTaskStatus:
+          serializer.fromJson<String>(json['downloadTaskStatus']),
     );
   }
   @override
@@ -1970,70 +1996,107 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
       'id': serializer.toJson<String>(id),
       'path': serializer.toJson<String>(path),
       'fileName': serializer.toJson<String>(fileName),
+      'downloadTaskId': serializer.toJson<String>(downloadTaskId),
+      'downloadTaskStatus': serializer.toJson<String>(downloadTaskStatus),
     };
   }
 
-  FileInfo copyWith({String id, String path, String fileName}) => FileInfo(
+  FileInfo copyWith(
+          {String id,
+          String path,
+          String fileName,
+          String downloadTaskId,
+          String downloadTaskStatus}) =>
+      FileInfo(
         id: id ?? this.id,
         path: path ?? this.path,
         fileName: fileName ?? this.fileName,
+        downloadTaskId: downloadTaskId ?? this.downloadTaskId,
+        downloadTaskStatus: downloadTaskStatus ?? this.downloadTaskStatus,
       );
   @override
   String toString() {
     return (StringBuffer('FileInfo(')
           ..write('id: $id, ')
           ..write('path: $path, ')
-          ..write('fileName: $fileName')
+          ..write('fileName: $fileName, ')
+          ..write('downloadTaskId: $downloadTaskId, ')
+          ..write('downloadTaskStatus: $downloadTaskStatus')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      $mrjf($mrjc(id.hashCode, $mrjc(path.hashCode, fileName.hashCode)));
+  int get hashCode => $mrjf($mrjc(
+      id.hashCode,
+      $mrjc(
+          path.hashCode,
+          $mrjc(fileName.hashCode,
+              $mrjc(downloadTaskId.hashCode, downloadTaskStatus.hashCode)))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is FileInfo &&
           other.id == this.id &&
           other.path == this.path &&
-          other.fileName == this.fileName);
+          other.fileName == this.fileName &&
+          other.downloadTaskId == this.downloadTaskId &&
+          other.downloadTaskStatus == this.downloadTaskStatus);
 }
 
 class FileInfosCompanion extends UpdateCompanion<FileInfo> {
   final Value<String> id;
   final Value<String> path;
   final Value<String> fileName;
+  final Value<String> downloadTaskId;
+  final Value<String> downloadTaskStatus;
   const FileInfosCompanion({
     this.id = const Value.absent(),
     this.path = const Value.absent(),
     this.fileName = const Value.absent(),
+    this.downloadTaskId = const Value.absent(),
+    this.downloadTaskStatus = const Value.absent(),
   });
   FileInfosCompanion.insert({
     @required String id,
     @required String path,
     @required String fileName,
+    @required String downloadTaskId,
+    @required String downloadTaskStatus,
   })  : id = Value(id),
         path = Value(path),
-        fileName = Value(fileName);
+        fileName = Value(fileName),
+        downloadTaskId = Value(downloadTaskId),
+        downloadTaskStatus = Value(downloadTaskStatus);
   static Insertable<FileInfo> custom({
     Expression<String> id,
     Expression<String> path,
     Expression<String> fileName,
+    Expression<String> downloadTaskId,
+    Expression<String> downloadTaskStatus,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (path != null) 'path': path,
       if (fileName != null) 'file_name': fileName,
+      if (downloadTaskId != null) 'download_task_id': downloadTaskId,
+      if (downloadTaskStatus != null)
+        'download_task_status': downloadTaskStatus,
     });
   }
 
   FileInfosCompanion copyWith(
-      {Value<String> id, Value<String> path, Value<String> fileName}) {
+      {Value<String> id,
+      Value<String> path,
+      Value<String> fileName,
+      Value<String> downloadTaskId,
+      Value<String> downloadTaskStatus}) {
     return FileInfosCompanion(
       id: id ?? this.id,
       path: path ?? this.path,
       fileName: fileName ?? this.fileName,
+      downloadTaskId: downloadTaskId ?? this.downloadTaskId,
+      downloadTaskStatus: downloadTaskStatus ?? this.downloadTaskStatus,
     );
   }
 
@@ -2049,6 +2112,12 @@ class FileInfosCompanion extends UpdateCompanion<FileInfo> {
     if (fileName.present) {
       map['file_name'] = Variable<String>(fileName.value);
     }
+    if (downloadTaskId.present) {
+      map['download_task_id'] = Variable<String>(downloadTaskId.value);
+    }
+    if (downloadTaskStatus.present) {
+      map['download_task_status'] = Variable<String>(downloadTaskStatus.value);
+    }
     return map;
   }
 
@@ -2057,7 +2126,9 @@ class FileInfosCompanion extends UpdateCompanion<FileInfo> {
     return (StringBuffer('FileInfosCompanion(')
           ..write('id: $id, ')
           ..write('path: $path, ')
-          ..write('fileName: $fileName')
+          ..write('fileName: $fileName, ')
+          ..write('downloadTaskId: $downloadTaskId, ')
+          ..write('downloadTaskStatus: $downloadTaskStatus')
           ..write(')'))
         .toString();
   }
@@ -2104,8 +2175,37 @@ class $FileInfosTable extends FileInfos
     );
   }
 
+  final VerificationMeta _downloadTaskIdMeta =
+      const VerificationMeta('downloadTaskId');
+  GeneratedTextColumn _downloadTaskId;
   @override
-  List<GeneratedColumn> get $columns => [id, path, fileName];
+  GeneratedTextColumn get downloadTaskId =>
+      _downloadTaskId ??= _constructDownloadTaskId();
+  GeneratedTextColumn _constructDownloadTaskId() {
+    return GeneratedTextColumn(
+      'download_task_id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _downloadTaskStatusMeta =
+      const VerificationMeta('downloadTaskStatus');
+  GeneratedTextColumn _downloadTaskStatus;
+  @override
+  GeneratedTextColumn get downloadTaskStatus =>
+      _downloadTaskStatus ??= _constructDownloadTaskStatus();
+  GeneratedTextColumn _constructDownloadTaskStatus() {
+    return GeneratedTextColumn(
+      'download_task_status',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, path, fileName, downloadTaskId, downloadTaskStatus];
   @override
   $FileInfosTable get asDslTable => this;
   @override
@@ -2133,6 +2233,22 @@ class $FileInfosTable extends FileInfos
           fileName.isAcceptableOrUnknown(data['file_name'], _fileNameMeta));
     } else if (isInserting) {
       context.missing(_fileNameMeta);
+    }
+    if (data.containsKey('download_task_id')) {
+      context.handle(
+          _downloadTaskIdMeta,
+          downloadTaskId.isAcceptableOrUnknown(
+              data['download_task_id'], _downloadTaskIdMeta));
+    } else if (isInserting) {
+      context.missing(_downloadTaskIdMeta);
+    }
+    if (data.containsKey('download_task_status')) {
+      context.handle(
+          _downloadTaskStatusMeta,
+          downloadTaskStatus.isAcceptableOrUnknown(
+              data['download_task_status'], _downloadTaskStatusMeta));
+    } else if (isInserting) {
+      context.missing(_downloadTaskStatusMeta);
     }
     return context;
   }

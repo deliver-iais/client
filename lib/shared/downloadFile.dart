@@ -8,7 +8,6 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 class DownloadFile {
 
 
-
   // todo :  delete :  we call this in function to call downloadFile(). : to show progress in ui  widget
    static Future downloadCallback(String taskId, DownloadTaskStatus status, int progress) async {
     if (status == DownloadTaskStatus.complete) {
