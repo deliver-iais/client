@@ -63,6 +63,8 @@ dependencies:
   http:
   flutter_downloader:
 
+  flutter_uploader:
+
 
 
 dev_dependencies:

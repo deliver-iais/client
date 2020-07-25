@@ -46,7 +46,7 @@ class DownloadFile {
     _createFolder();
 
       var taskId = await FlutterDownloader.enqueue(
-      url: url,
+      url: "https://picsum.photos/200/300",
       fileName: fileName,
       savedDir: await ExtStorage.getExternalStoragePublicDirectory("Deliver"),
       showNotification: false,
@@ -90,14 +90,9 @@ class DownloadFile {
   }
 
 
-   pausedDownload(taskId){
+  pausedDownload(taskId){
      FlutterDownloader.pause(taskId: taskId);
    }
-
-
-
-
-
 
 
 }

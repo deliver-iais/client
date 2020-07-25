@@ -17,6 +17,7 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_uploader/flutter_uploader.dart';
 import 'package:get_it/get_it.dart';
 import 'package:permissions_plugin/permissions_plugin.dart';
 import 'package:rxdart/rxdart.dart';

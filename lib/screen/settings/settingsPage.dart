@@ -27,7 +27,6 @@ class SettingState extends State<SettingsPage> {
   var downloadFile = GetIt.I.get<DownloadFile>();
   
   var accountRepo = GetIt.I.get<AccountRepo>();
-  File file;
 
 
   @override
@@ -135,7 +134,6 @@ class SettingState extends State<SettingsPage> {
                           IconButton(
                               icon: Icon(Icons.navigate_next),
                               onPressed: (){
-                               downloadFile.downloadFile("url","ff.jpge");
                               }),
                         ],
                       ),
