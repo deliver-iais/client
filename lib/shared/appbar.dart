@@ -19,14 +19,16 @@ class Appbar extends StatelessWidget {
       child: AppBar(
         leading: currentPageService.currentPage == -1
             ? new IconButton(
-                icon: new Icon(Icons.arrow_back),
-                onPressed: () {
-                  currentPageService.setToHome();
-                  ExtendedNavigator.of(context).pop();
-                },
-              )
+          icon: new Icon(Icons.arrow_back),
+          onPressed: () {
+            currentPageService.setToHome();
+            ExtendedNavigator.of(context).pop();
+          },
+        )
             : null,
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: Theme
+            .of(context)
+            .backgroundColor,
         title: MainWidget(
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -47,20 +49,65 @@ class Appbar extends StatelessWidget {
                       height: 120,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: ExtraTheme.of(context).secondColor,
+                        color: ExtraTheme
+                            .of(context)
+                            .secondColor,
                       ),
                       child: Icon(
-                        currentPageService.currentPage == -1
-                            ? Icons.settings
-                            : currentPageService.currentPage == 0
-                                ? Icons.create
-                                : Icons.add,
+                         currentPageService.currentPage == 0
+                            ? Icons.create
+                            : Icons.add,
                         color: Colors.white,
                         size: 30,
                       ),
                     ),
                     onPressed: () {
-                      ExtendedNavigator.of(context).pushNamed(Routes.forwardMessage);
+                      {
+                        showMenu(
+                          context: context,
+                          position: RelativeRect.fromLTRB(100, 30, 20, 100),
+                          items: [
+                            PopupMenuItem(
+                                child: GestureDetector(
+                                    onTap: () {
+                                      ExtendedNavigator.of(context).pushNamed(
+                                          Routes.settingsPage);
+                                    },
+                                    child: Row(
+                                      children: <Widget>[
+                                        Text("New Contact")
+                                      ],
+                                    )
+                                )),
+                            PopupMenuItem<String>(
+                                child:GestureDetector(
+                                    onTap: () {
+                                      ExtendedNavigator.of(context).pushNamed(
+                                          Routes.settingsPage);
+                                    },
+                                    child: Row(
+                                      children: <Widget>[
+                                        Text("New Group")
+                                      ],
+                                    )
+                                ) ),
+                            PopupMenuItem<String>(
+                                child: GestureDetector(
+                                    onTap: () {
+                                      ExtendedNavigator.of(context).pushNamed(
+                                          Routes.settingsPage);
+                                    },
+                                    child: Row(
+                                      children: <Widget>[
+                                        Text("New Channel ")
+                                      ],
+                                    )
+                                )),
+
+                          ],
+                          elevation: 8.0,
+                        );
+                      }
                     },
                     iconSize: 38,
                   ),
