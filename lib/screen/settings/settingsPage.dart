@@ -9,6 +9,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/downloadFile.dart';
+import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -27,6 +28,16 @@ class SettingState extends State<SettingsPage> {
   var downloadFile = GetIt.I.get<DownloadFile>();
   
   var accountRepo = GetIt.I.get<AccountRepo>();
+  var theme = false;
+
+
+  bool _getTheme(){
+    if(uxService.theme == DarkTheme){
+      return true;
+    }else{
+      return false;
+    }
+  }
 
 
   @override
@@ -169,7 +180,8 @@ class SettingState extends State<SettingsPage> {
                           ],
                         )),
                     Switch(
-                      value: darkMode,
+
+                      value:_getTheme() ,
                       onChanged: (newThemMode) {
                         setState(() {
                           uxService.toggleTheme();
