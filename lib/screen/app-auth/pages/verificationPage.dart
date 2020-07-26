@@ -27,6 +27,29 @@ class _VerificationPageState extends State<VerificationPage> {
 
   _setVerificationCode(String code) {
     verificationCode = code;
+    if (verificationCode.length == 5) {
+      _sendVerificationCode();
+    }
+  }
+
+  _sendVerificationCode() {
+    var result = profileRepo.sendVerificationCode(verificationCode);
+    result.then((value) {
+      AccessTokenRes accessTokenRequest = value as AccessTokenRes;
+      if (accessTokenRequest.status == AccessTokenRes_Status.OK) {
+        _navigationToHome();
+        _saveTokensInSharedPreferences(
+            accessTokenRequest.accessToken, accessTokenRequest.refreshToken);
+      } else if (accessTokenRequest.status == AccessTokenRes_Status.NOT_VALID) {
+        Fluttertoast.showToast(msg: "Verification Code Not valid");
+      } else if (accessTokenRequest.status ==
+          AccessTokenRes_Status.PASSWORD_PROTECTED) {
+        Fluttertoast.showToast(msg: "PASSWORD_PROTECTED");
+        print("PASSWORD_PROTECTED");
+      }
+    }).catchError((e) {
+      print(e.toString());
+    });
   }
 
   _getLoggedinUserId() async {
@@ -99,31 +122,42 @@ class _VerificationPageState extends State<VerificationPage> {
                     ),
                   ),
                 ),
+                SizedBox(
+                  height: 30,
+                ),
                 Padding(
-                  padding: const EdgeInsets.all(30.0),
+                  padding: const EdgeInsets.only(left: 80, right: 80),
                   child: Container(
-                    height: 60,
+                    height: 50,
                     decoration: BoxDecoration(
                       color: ExtraTheme.of(context).secondColor,
                       borderRadius: BorderRadius.all(
                         Radius.circular(5),
                       ),
                     ),
-                    child: TextFieldPinAutoFill(
-                      // onCodeSubmitted: _navigationToHome(),
-                      codeLength: 5,
-                      onCodeChanged: (val) => _setVerificationCode(val),
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 80),
-                        hintText: "Verification Code",
-                        focusedBorder: InputBorder.none,
-                        border: InputBorder.none,
-                        hintStyle: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: ExtraTheme.of(context).text,
-                          fontSize: 16,
+                    child: Center(
+                      child: TextField(
+                        onChanged: (val) => _setVerificationCode(val),
+                        textAlignVertical: TextAlignVertical.center,
+                        textAlign: TextAlign.center,
+                        autofocus: false,
+                        cursorColor: ExtraTheme.of(context).text,
+                        decoration: InputDecoration(
+                          counterText: "",
+                          focusedBorder: InputBorder.none,
+                          border: InputBorder.none,
+                          hintText: 'Verification Code',
+                          hintStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: ExtraTheme.of(context).text,
+                          ),
                         ),
-                        counterText: "",
+                        maxLength: 5,
+                        maxLengthEnforced: true,
+                        keyboardType: TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                       ),
                     ),
                   ),
@@ -146,27 +180,7 @@ class _VerificationPageState extends State<VerificationPage> {
                 ),
                 color: Theme.of(context).backgroundColor,
                 onPressed: () {
-                  var result =
-                      profileRepo.sendVerificationCode(verificationCode);
-                  result.then((value) {
-                    AccessTokenRes accessTokenRequest = value as AccessTokenRes;
-                    if (accessTokenRequest.status == AccessTokenRes_Status.OK) {
-                      _navigationToHome();
-                      _saveTokensInSharedPreferences(
-                          accessTokenRequest.accessToken,
-                          accessTokenRequest.refreshToken);
-                    } else if (accessTokenRequest.status ==
-                        AccessTokenRes_Status.NOT_VALID) {
-                      Fluttertoast.showToast(
-                          msg: "Verification Code Not valid");
-                    } else if (accessTokenRequest.status ==
-                        AccessTokenRes_Status.PASSWORD_PROTECTED) {
-                      Fluttertoast.showToast(msg: "PASSWORD_PROTECTED");
-                      print("PASSWORD_PROTECTED");
-                    }
-                  }).catchError((e) {
-                    print(e.toString());
-                  });
+                  _sendVerificationCode();
                 },
               ),
             ),
