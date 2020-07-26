@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     _onLoading().then(
-        (value) => value ? _navigateToIntroPage() : _navigateToHomePage());
+        (value) => value ?  _navigateToHomePage() : _navigateToIntroPage());
   }
 
   void _getLoggedInStatus() async {

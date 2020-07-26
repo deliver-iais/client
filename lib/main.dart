@@ -28,9 +28,9 @@ void setupDI() {
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<UxService>(UxService());
   getIt.registerSingleton<CurrentPageService>(CurrentPageService());
+  getIt.registerSingleton<AccountRepo>(AccountRepo());
   getIt.registerSingleton<ProfileRepo>(ProfileRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
-  getIt.registerSingleton<AccountRepo>(AccountRepo());
   getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
   getIt.registerSingleton<DownloadFile>(DownloadFile());
   Database db = Database();
@@ -46,7 +46,7 @@ void setupDI() {
       .requestPermissions([
     Permission.WRITE_EXTERNAL_STORAGE,
     Permission.READ_EXTERNAL_STORAGE,
-    Permission.READ_CONTACTS
+    Permission.READ_CONTACTS,
   ]);
   // Creates dir/ and dir/subdir/.
 }

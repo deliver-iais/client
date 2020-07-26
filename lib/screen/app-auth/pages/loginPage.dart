@@ -1,7 +1,9 @@
 import 'dart:ffi';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/generated-protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_flutter/models/loggedinStatus.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/profileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-auth/widgets/inputFeilds.dart';
@@ -19,14 +21,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   String phoneNum = "";
   String code = "";
   String inputError;
   var profileRepo = GetIt.I.get<ProfileRepo>();
 
   // todo change receiveVerificationCode to false then the server send verification code;
-  bool receiveVerificationCode = true;
+  bool receiveVerificationCode = false;
 
   _navigateToVerificationPage() async {
     if (code == "" || phoneNum == "") {
@@ -40,41 +41,45 @@ class _LoginPageState extends State<LoginPage> {
       print(signCode);
 
       var result = profileRepo.getVerificationCode(int.parse(code), phoneNum);
-      result
-          .then((res) => {
-                receiveVerificationCode = true,
-                Fluttertoast.showToast(
-                    msg: " رمز ورود برای شما ارسال شد.",
-                    toastLength: Toast.LENGTH_SHORT,
-                    backgroundColor: Colors.black,
-                    textColor: Colors.white,
-                    fontSize: 16.0),
-              })
-          .catchError((e) => {
-                Fluttertoast.showToast(
-                    msg: " خطایی رخ داده است.",
-                    toastLength: Toast.LENGTH_SHORT,
-                    backgroundColor: Colors.black,
-                    textColor: Colors.white,
-                    fontSize: 16.0)
-              });
-      if (!receiveVerificationCode) {
-        return;
-      }
+      result.then((res) {
+        print(res.toString());
+        receiveVerificationCode = true;
+        Fluttertoast.showToast(
+            msg: " رمز ورود برای شما ارسال شد.",
+            toastLength: Toast.LENGTH_SHORT,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+        ExtendedNavigator.of(context).pushNamed(Routes.verificationPage);
 
-      SharedPreferences _prefs = await SharedPreferences.getInstance();
-      _prefs
-          .setString(
-              "loggedinUserId",
-              // code + phoneNum,
-              '0000000000000000000000')
-          .then((value) => _prefs
-              .setString(
-                "loggedinStatus",
-                enumToString(LoggedinStatus.waitForVerify),
-              )
-              .then((value) => ExtendedNavigator.of(context)
-                  .pushNamed(Routes.verificationPage)));
+      }).catchError((e) {
+        print(e.toString());
+        Fluttertoast.showToast(
+            msg: " خطایی رخ داده است.",
+            toastLength: Toast.LENGTH_SHORT,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      });
+//      if (!receiveVerificationCode) {
+//        return;
+//      } else {
+//        ExtendedNavigator.of(context).pushNamed(Routes.verificationPage);
+//      }
+
+//      SharedPreferences _prefs = await SharedPreferences.getInstance();
+//      _prefs
+//          .setString(
+//              "loggedinUserId",
+//              // code + phoneNum,
+//              '00000000000000000000')
+//          .then((value) => _prefs
+//              .setString(
+//                "loggedinStatus",
+//                enumToString(LoggedinStatus.waitForVerify),
+//              )
+//              .then((value) => ExtendedNavigator.of(context)
+//                  .pushNamed(Routes.verificationPage)));
     }
   }
 

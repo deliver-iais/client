@@ -1,9 +1,12 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/generated-protocol/pub/v1/profile.pb.dart';
+import 'package:deliver_flutter/repository/profileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/models/loggedinStatus.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
@@ -15,8 +18,15 @@ class VerificationPage extends StatefulWidget {
 
 class _VerificationPageState extends State<VerificationPage> {
   var loggedinUserId = '';
+  String verificationCode;
+  var profileRepo = GetIt.I.get<ProfileRepo>();
+
   void _listenOpt() async {
     await SmsAutoFill().listenForCode;
+  }
+
+  _setVerificationCode(String code) {
+    verificationCode = code;
   }
 
   _getLoggedinUserId() async {
@@ -91,7 +101,7 @@ class _VerificationPageState extends State<VerificationPage> {
                     child: TextFieldPinAutoFill(
                       // onCodeSubmitted: _navigationToHome(),
                       codeLength: 5,
-                      onCodeChanged: (val) => print(val),
+                      onCodeChanged: (val) => _setVerificationCode(val),
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.symmetric(horizontal: 80),
                         hintText: "Verification Code",
@@ -124,7 +134,29 @@ class _VerificationPageState extends State<VerificationPage> {
                   ),
                 ),
                 color: Theme.of(context).backgroundColor,
-                onPressed: _navigationToHome,
+                onPressed: () {
+                  var result =
+                      profileRepo.sendVerificationCode(verificationCode);
+                  result.then((value) {
+                    AccessTokenRes accessTokenRequest = value as AccessTokenRes;
+                    if(accessTokenRequest.status == AccessTokenRes_Status.OK ){
+                      print("a="+accessTokenRequest.accessToken);
+                      print("b="+accessTokenRequest.refreshToken);
+
+                      _navigationToHome();
+                    }
+                    else if (accessTokenRequest.status == AccessTokenRes_Status.NOT_VALID){
+                      Fluttertoast.showToast(
+                          msg: "Verification Code Not valid");
+
+                    }else if (accessTokenRequest.status == AccessTokenRes_Status.PASSWORD_PROTECTED){
+                      print("PASSWORD_PROTECTED");
+                    }
+
+                  }).catchError((e) {
+                    print(e.toString());
+                  });
+                },
               ),
             ),
           ),
