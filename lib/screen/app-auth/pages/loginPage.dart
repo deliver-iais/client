@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
 class LoginPage extends StatefulWidget {
@@ -25,8 +24,6 @@ class _LoginPageState extends State<LoginPage> {
   String code = "";
   String inputError;
   var profileRepo = GetIt.I.get<ProfileRepo>();
-
-  // todo change receiveVerificationCode to false then the server send verification code;
   bool receiveVerificationCode = false;
 
   _navigateToVerificationPage() async {
@@ -42,7 +39,6 @@ class _LoginPageState extends State<LoginPage> {
 
       var result = profileRepo.getVerificationCode(int.parse(code), phoneNum);
       result.then((res) {
-        print(res.toString());
         receiveVerificationCode = true;
         Fluttertoast.showToast(
             msg: " رمز ورود برای شما ارسال شد.",
@@ -61,25 +57,6 @@ class _LoginPageState extends State<LoginPage> {
             textColor: Colors.white,
             fontSize: 16.0);
       });
-//      if (!receiveVerificationCode) {
-//        return;
-//      } else {
-//        ExtendedNavigator.of(context).pushNamed(Routes.verificationPage);
-//      }
-
-//      SharedPreferences _prefs = await SharedPreferences.getInstance();
-//      _prefs
-//          .setString(
-//              "loggedinUserId",
-//              // code + phoneNum,
-//              '00000000000000000000')
-//          .then((value) => _prefs
-//              .setString(
-//                "loggedinStatus",
-//                enumToString(LoggedinStatus.waitForVerify),
-//              )
-//              .then((value) => ExtendedNavigator.of(context)
-//                  .pushNamed(Routes.verificationPage)));
     }
   }
 
