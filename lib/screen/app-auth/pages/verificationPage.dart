@@ -46,16 +46,15 @@ class _VerificationPageState extends State<VerificationPage> {
             ));
   }
 
-  _saveTokensInSharedPreferences(String accessToken , String refreshToken) async {
+  _saveTokensInSharedPreferences(
+      String accessToken, String refreshToken) async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
     _prefs
-        .setString(
-            "accessToken",accessToken)
-        .then((value) => _prefs
-            .setString(
-              "refreshToken",refreshToken ,
+        .setString("accessToken", accessToken)
+        .then((value) => _prefs.setString(
+              "refreshToken",
+              refreshToken,
             ));
-    print("saved");
   }
 
   @override
@@ -152,16 +151,17 @@ class _VerificationPageState extends State<VerificationPage> {
                   result.then((value) {
                     AccessTokenRes accessTokenRequest = value as AccessTokenRes;
                     if (accessTokenRequest.status == AccessTokenRes_Status.OK) {
-                      print("a=" + accessTokenRequest.accessToken);
-                      print("b=" + accessTokenRequest.refreshToken);
                       _navigationToHome();
-                      _saveTokensInSharedPreferences(accessTokenRequest.accessToken,accessTokenRequest.refreshToken);
+                      _saveTokensInSharedPreferences(
+                          accessTokenRequest.accessToken,
+                          accessTokenRequest.refreshToken);
                     } else if (accessTokenRequest.status ==
                         AccessTokenRes_Status.NOT_VALID) {
                       Fluttertoast.showToast(
                           msg: "Verification Code Not valid");
                     } else if (accessTokenRequest.status ==
                         AccessTokenRes_Status.PASSWORD_PROTECTED) {
+                      Fluttertoast.showToast(msg: "PASSWORD_PROTECTED");
                       print("PASSWORD_PROTECTED");
                     }
                   }).catchError((e) {
