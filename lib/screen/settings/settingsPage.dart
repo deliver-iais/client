@@ -11,6 +11,7 @@ import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/downloadFile.dart';
 import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get_it/get_it.dart';
@@ -95,7 +96,9 @@ class SettingState extends State<SettingsPage> {
                           ),
                           IconButton(
                               icon: Icon(Icons.navigate_next),
-                              onPressed: null),
+                              onPressed: () async {
+                                File file = await FilePicker.getFile();
+                              }),
                         ],
                       ),
                     )
