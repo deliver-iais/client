@@ -28,7 +28,7 @@ class UploadFile {
     });
     final taskId = await uploader.enqueue(
         url: servicesDiscoveryRepo.FileConnection.host +
-            ":" +
+            ":"+
             servicesDiscoveryRepo.FileConnection.port.toString(),
         //required: url to upload to
         files: [

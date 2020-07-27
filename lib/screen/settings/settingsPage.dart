@@ -27,6 +27,7 @@ class SettingState extends State<SettingsPage> {
   var avatarDao = GetIt.I.get<AvatarDao>();
   var contactDao = GetIt.I.get<ContactDao>();
   var downloadFile = GetIt.I.get<DownloadFile>();
+  var fileRepo = GetIt.I.get<FileRepo>();
   
   var accountRepo = GetIt.I.get<AccountRepo>();
   var theme = false;
@@ -97,7 +98,14 @@ class SettingState extends State<SettingsPage> {
                           IconButton(
                               icon: Icon(Icons.navigate_next),
                               onPressed: () async {
-                                File file = await FilePicker.getFile();
+                                  File file = await FilePicker.getFile().then((value){
+                                  File f = value as File;
+                                  if(f.existsSync()){
+                                    print("file.exit");
+                                  }
+
+                                });
+
                               }),
                         ],
                       ),

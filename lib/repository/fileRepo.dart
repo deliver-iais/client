@@ -4,6 +4,7 @@ import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/shared/uploadFile.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -19,6 +20,14 @@ class FileRepo {
   Future<File> getFileRequest(String uuid,  String filename){
     // todo get file from server
     throw Error();
+  }
+
+  uploadFile(File file) async {
+    UploadFile().uploadFile(file).then((value){
+    }).catchError((error){
+
+    });
+
   }
 
   Future<File> getFile(String uuid, String filename) async  {
