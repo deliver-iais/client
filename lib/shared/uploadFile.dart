@@ -9,37 +9,41 @@ class UploadFile {
   var servicesDiscoveryRepo = GetIt.I.get<ServicesDiscoveryRepo>();
 
   Future<String> uploadFile(File file) async {
-
     // todo : use upload progress to show progress
 
     uploader.progress.listen((progress) {
-      print(progress.progress.toString() +"%");
-      if(progress.status == UploadTaskStatus.canceled){
+      print(progress.progress.toString() + "%");
+      if (progress.status == UploadTaskStatus.canceled) {
         //todo
       }
-      if(progress.status == UploadTaskStatus.failed){
+      if (progress.status == UploadTaskStatus.failed) {
         // todo
       }
-      if(progress.status == UploadTaskStatus.complete){
+      if (progress.status == UploadTaskStatus.complete) {
         // todo
       }
-
-
     });
-    final taskId = await uploader.enqueue(
-        url: servicesDiscoveryRepo.FileConnection.host +
-            ":"+
-            servicesDiscoveryRepo.FileConnection.port.toString(),
-        //required: url to upload to
-        files: [
-          FileItem(
-              filename: file.path.substring(file.path.lastIndexOf("/")),
-              savedDir: file.path,
-              fieldname: "file")
-        ],
-        method: UploadMethod.POST,
-        showNotification: false,
-        );
+    final taskId = await uploader
+        .enqueue(
+      url: servicesDiscoveryRepo.FileConnection.host +
+          ":" +
+          servicesDiscoveryRepo.FileConnection.port.toString(),
+      //required: url to upload to
+      files: [
+        FileItem(
+            filename: file.path.substring(file.path.lastIndexOf("/")),
+            savedDir: file.path,
+            fieldname: "file")
+      ],
+      method: UploadMethod.POST,
+      showNotification: false,
+    )
+        .then(((value) {
+      print("upload file is down ");
+      print(value.toString());
+    })).catchError((error) {
+      print(" upload file is fail ");
+    });
     return taskId;
   }
 
@@ -47,8 +51,7 @@ class UploadFile {
     uploader.cancel(taskId: taskId);
   }
 
-  cancelAllUpload(){
+  cancelAllUpload() {
     uploader.cancelAll();
   }
-
 }

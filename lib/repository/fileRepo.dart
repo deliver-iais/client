@@ -6,11 +6,13 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/shared/uploadFile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_uploader/flutter_uploader.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 
 class FileRepo {
   var fileDao = GetIt.I.get<FileDao>();
+  final uploader = FlutterUploader();
   var avatarDao = GetIt.I.get<AvatarDao>();
   static ClientChannel clientChannel = ClientChannel(
       ServicesDiscoveryRepo().FileConnection.host,
@@ -24,11 +26,17 @@ class FileRepo {
 
   uploadFile(File file) async {
     UploadFile().uploadFile(file).then((value){
+      FileInfo fileInfo = FileInfo(path: file.path,fileName: file.path.substring(file.path.lastIndexOf("/")));
+      fileDao.insertAvatar(fileInfo);
+
+
+
     }).catchError((error){
 
     });
 
   }
+
 
   Future<File> getFile(String uuid, String filename) async  {
     FileInfo fileInfo;

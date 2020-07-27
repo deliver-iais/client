@@ -12,7 +12,7 @@ class FileDao extends DatabaseAccessor<Database>with _$FileDaoMixin{
   final Database database;
   FileDao(this.database):super(database);
 
-  Future insetAvatar (FileInfo file)=> into(fileInfos).insert(file);
+  Future insertAvatar (FileInfo file)=> into(fileInfos).insert(file);
 
   Future deleteAvatar (FileInfo file) => delete(fileInfos).delete(file);
 
