@@ -156,6 +156,7 @@ class SettingState extends State<SettingsPage> {
                           IconButton(
                               icon: Icon(Icons.navigate_next),
                               onPressed: (){
+                                downloadFile.downloadFile("url", "");
                               }),
                         ],
                       ),

@@ -40,7 +40,7 @@ class UploadFile {
     )
         .then(((value) {
       print("upload file is down ");
-      print(value.toString());
+      print("fileinfo:"+value.toString());
     })).catchError((error) {
       print(" upload file is fail ");
     });

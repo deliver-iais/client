@@ -38,7 +38,7 @@ class DownloadFile {
 
      // todo  start to delete : we call this in function to call downloadFile().
 
-    FlutterDownloader.registerCallback(downloadCallback);
+     FlutterDownloader.registerCallback(downloadCallback);
 
     // todo : end delete
 
@@ -47,7 +47,7 @@ class DownloadFile {
 
       var taskId = await FlutterDownloader.enqueue(
       url: "https://picsum.photos/200/300",
-      fileName: fileName,
+      fileName: "dbgasd",
       savedDir: await ExtStorage.getExternalStoragePublicDirectory("Deliver"),
       showNotification: false,
       openFileFromNotification: false,
