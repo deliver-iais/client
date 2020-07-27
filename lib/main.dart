@@ -52,9 +52,9 @@ void setupDI() {
 }
 
 void main() {
+  runApp(MyApp());
   setupDI();
 
-  runApp(MyApp());
 
   Fimber.plantTree(DebugTree.elapsed());
   Fimber.i("Application has been started");

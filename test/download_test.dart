@@ -15,7 +15,8 @@ void main(){
   FlutterDownloader.initialize();
   var downloadFile = GetIt.I.get<DownloadFile>();
   test('Download file test',(){
-    var download = downloadFile.downloadFile("https://picsum.photos/200/300", Random().nextInt(5).toString());
+    var download =  downloadFile.downloadFile("https://picsum.photos/200/300", Random().nextInt(5).toString());
+
     download.then((value) {
       prints("download result" +value.toString());
 

@@ -47,7 +47,7 @@ class DownloadFile {
 
       var taskId = await FlutterDownloader.enqueue(
       url: "https://picsum.photos/200/300",
-      fileName: "dbgasd",
+      fileName: "dbgasd.jpg",
       savedDir: await ExtStorage.getExternalStoragePublicDirectory("Deliver"),
       showNotification: false,
       openFileFromNotification: false,
