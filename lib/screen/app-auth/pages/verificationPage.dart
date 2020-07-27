@@ -118,15 +118,15 @@ class _VerificationPageState extends State<VerificationPage> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).primaryColor,
-                      fontSize: 14.5,
+                      fontSize: 14,
                     ),
                   ),
                 ),
                 SizedBox(
-                  height: 30,
+                  height: 20,
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 80, right: 80),
+                  padding: const EdgeInsets.only(left: 30, right: 30),
                   child: Container(
                     height: 50,
                     decoration: BoxDecoration(
