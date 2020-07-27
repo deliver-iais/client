@@ -6,9 +6,9 @@ import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/services/downloadFileServices.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
-import 'package:deliver_flutter/shared/downloadFile.dart';
 import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:file_picker/file_picker.dart';
@@ -26,7 +26,7 @@ class SettingState extends State<SettingsPage> {
   var uxService = GetIt.I.get<UxService>();
   var avatarDao = GetIt.I.get<AvatarDao>();
   var contactDao = GetIt.I.get<ContactDao>();
-  var downloadFile = GetIt.I.get<DownloadFile>();
+  var downloadFile = GetIt.I.get<DownloadFileServices>();
   var fileRepo = GetIt.I.get<FileRepo>();
   
   var accountRepo = GetIt.I.get<AccountRepo>();

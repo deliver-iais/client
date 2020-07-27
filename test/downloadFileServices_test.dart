@@ -2,7 +2,8 @@
 
 import 'dart:math';
 
-import 'package:deliver_flutter/shared/downloadFile.dart';
+import 'package:deliver_flutter/services/downloadFileServices.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -11,9 +12,9 @@ import 'package:get_it/get_it.dart';
 void main(){
   TestWidgetsFlutterBinding.ensureInitialized();
   GetIt getIt = GetIt.instance;
-  getIt.registerSingleton<DownloadFile>(DownloadFile());
+  getIt.registerSingleton<DownloadFileServices>(DownloadFileServices());
   FlutterDownloader.initialize();
-  var downloadFile = GetIt.I.get<DownloadFile>();
+  var downloadFile = GetIt.I.get<DownloadFileServices>();
   test('Download file test',(){
     var download =  downloadFile.downloadFile("https://picsum.photos/200/300", Random().nextInt(5).toString());
 

@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 
-class DownloadFile {
+class DownloadFileServices {
 
 
   // todo :  delete :  we call this in function to call downloadFile(). : to show progress in ui  widget

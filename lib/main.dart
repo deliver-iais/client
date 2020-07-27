@@ -11,8 +11,9 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/profileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
+import 'package:deliver_flutter/services/downloadFileServices.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
-import 'package:deliver_flutter/shared/downloadFile.dart';
+
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ void setupDI() {
   getIt.registerSingleton<ProfileRepo>(ProfileRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
-  getIt.registerSingleton<DownloadFile>(DownloadFile());
+  getIt.registerSingleton<DownloadFileServices>(DownloadFileServices());
   Database db = Database();
   getIt.registerSingleton<MessageDao>(db.messageDao);
   getIt.registerSingleton<RoomDao>(db.roomDao);
