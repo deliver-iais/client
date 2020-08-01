@@ -16,9 +16,6 @@ void main(){
   var profileRepo = GetIt.I.get<ProfileRepo>();
   test("get Verification Code", (){
     Future req = profileRepo.getVerificationCode(98, "9114583949");
-
-
-
-
+    
   });
 }
