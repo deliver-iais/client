@@ -3,7 +3,6 @@
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/generated-protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
 
 class AccountRepo {

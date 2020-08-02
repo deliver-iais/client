@@ -1,6 +1,6 @@
-import 'package:deliver_flutter/generated-protocol/pub/v1/avatar.pbgrpc.dart';
-import 'package:deliver_flutter/generated-protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:grpc/grpc.dart';
 
 class AvatarRepo {
