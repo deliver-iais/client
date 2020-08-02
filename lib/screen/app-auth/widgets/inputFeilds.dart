@@ -10,9 +10,11 @@ class InputFeilds extends StatelessWidget {
   final Function onChangeCode;
   final Function onChangePhoneNum;
   final String inputError;
+
   const InputFeilds(
       {Key key, this.onChangeCode, this.onChangePhoneNum, this.inputError})
       : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,7 +33,7 @@ class InputFeilds extends StatelessWidget {
                 child: Container(
                   height: 40,
                   decoration: BoxDecoration(
-                 //   color: ExtraTheme.of(context).secondColor,
+                    //   color: ExtraTheme.of(context).secondColor,
                     borderRadius: BorderRadius.all(
                       Radius.circular(5),
                     ),
@@ -53,7 +55,15 @@ class InputFeilds extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Center(
-                            child:  TextFieldId(widgetkey: "Code",maxLength: 3,hint: "Code",fontSize: 14,onChange: onChangeCode,setColor: true,),
+                            child: TextFieldId(
+                              widgetkey: "Code",
+                              maxLength: 3,
+                              hint: "Code",
+                              fontSize: 14,
+                              onChange: onChangeCode,
+                              setColor: false,
+                              setbacroundColor: false,
+                            ),
                           ),
                         ),
                       ),
@@ -73,7 +83,7 @@ class InputFeilds extends StatelessWidget {
                 child: Container(
                   height: 40,
                   decoration: BoxDecoration(
-                   color: ExtraTheme.of(context).secondColor,
+                    color: ExtraTheme.of(context).secondColor,
                     borderRadius: BorderRadius.all(
                       Radius.circular(5),
                     ),
@@ -81,8 +91,15 @@ class InputFeilds extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Center(
-                      child:TextFieldId(setColor: true,widgetkey:"PhoneNumber",hint: 'Phone Number' ,onChange: this.onChangePhoneNum,fontSize: 14,maxLength: 10,)
-                    ),
+                        child: TextFieldId(
+                      setColor: true,
+                      setbacroundColor: true,
+                      widgetkey: "PhoneNumber",
+                      hint: 'Phone Number',
+                      onChange: this.onChangePhoneNum,
+                      fontSize: 14,
+                      maxLength: 10,
+                    )),
                   ),
                 ),
               ),

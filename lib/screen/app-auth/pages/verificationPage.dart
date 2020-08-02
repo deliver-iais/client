@@ -1,9 +1,12 @@
+
+
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/generated-protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_flutter/repository/profileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/models/loggedinStatus.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
+import 'package:deliver_flutter/shared/Widget/textField.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -136,30 +139,15 @@ class _VerificationPageState extends State<VerificationPage> {
                       ),
                     ),
                     child: Center(
-                      child: TextField(
-                        onChanged: (val) => _setVerificationCode(val),
-                        textAlignVertical: TextAlignVertical.center,
-                        textAlign: TextAlign.center,
-                        autofocus: false,
-                        cursorColor: ExtraTheme.of(context).text,
-                        decoration: InputDecoration(
-                          counterText: "",
-                          focusedBorder: InputBorder.none,
-                          border: InputBorder.none,
-                          hintText: 'Verification Code',
-                          hintStyle: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            color: ExtraTheme.of(context).text,
-                          ),
-                        ),
-                        maxLength: 5,
-                        maxLengthEnforced: true,
-                        keyboardType: TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                      ),
-                    ),
+                        child: TextFieldId(
+                      setColor: true,
+                      setbacroundColor: true,
+                      fontSize: 14,
+                      hint: "Verification Code",
+                      onChange: (val) => _setVerificationCode(val),
+                      maxLength: 5,
+                      widgetkey: "verificationCode",
+                    )),
                   ),
                 ),
               ],
