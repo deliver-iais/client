@@ -8,7 +8,7 @@ class TextFieldId extends StatelessWidget {
    final String widgetkey;
    final int maxLength;
    final double fontSize;
-   final ValueChanged<String> onChange;
+   final Function onChange;
    final bool setColor;
    final bool setbacroundColor;
 
