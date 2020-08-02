@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/shared/Widget/textField.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -30,7 +31,7 @@ class InputFeilds extends StatelessWidget {
                 child: Container(
                   height: 40,
                   decoration: BoxDecoration(
-                    color: ExtraTheme.of(context).secondColor,
+                 //   color: ExtraTheme.of(context).secondColor,
                     borderRadius: BorderRadius.all(
                       Radius.circular(5),
                     ),
@@ -52,29 +53,7 @@ class InputFeilds extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Center(
-                            child: TextField(
-                              onChanged: onChangeCode,
-                              textAlignVertical: TextAlignVertical.center,
-                              textAlign: TextAlign.start,
-                              autofocus: false,
-                              cursorColor: ExtraTheme.of(context).text,
-                              maxLengthEnforced: true,
-                              decoration: InputDecoration(
-                                counterText: "",
-                                focusedBorder: InputBorder.none,
-                                border: InputBorder.none,
-                                hintText: 'Code',
-                                hintStyle: TextStyle(
-                                  fontSize: 14,
-                                  color: ExtraTheme.of(context).text,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              maxLength: 2,
-                              keyboardType: TextInputType.numberWithOptions(
-                                decimal: true,
-                              ),
-                            ),
+                            child:  TextFieldId(widgetkey: "Code",maxLength: 3,hint: "Code",fontSize: 14,onChange: onChangeCode,setColor: true,),
                           ),
                         ),
                       ),
@@ -94,7 +73,7 @@ class InputFeilds extends StatelessWidget {
                 child: Container(
                   height: 40,
                   decoration: BoxDecoration(
-                    color: ExtraTheme.of(context).secondColor,
+                   color: ExtraTheme.of(context).secondColor,
                     borderRadius: BorderRadius.all(
                       Radius.circular(5),
                     ),
@@ -102,29 +81,7 @@ class InputFeilds extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Center(
-                      child: TextField(
-                        onChanged: onChangePhoneNum,
-                        textAlignVertical: TextAlignVertical.center,
-                        textAlign: TextAlign.center,
-                        autofocus: false,
-                        cursorColor: ExtraTheme.of(context).text,
-                        decoration: InputDecoration(
-                          counterText: "",
-                          focusedBorder: InputBorder.none,
-                          border: InputBorder.none,
-                          hintText: 'Phone Number',
-                          hintStyle: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            color: ExtraTheme.of(context).text,
-                          ),
-                        ),
-                        maxLength: 10,
-                        maxLengthEnforced: true,
-                        keyboardType: TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                      ),
+                      child:TextFieldId(setColor: true,widgetkey:"PhoneNumber",hint: 'Phone Number' ,onChange: this.onChangePhoneNum,fontSize: 14,maxLength: 10,)
                     ),
                   ),
                 ),

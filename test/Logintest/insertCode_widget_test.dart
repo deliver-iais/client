@@ -1,35 +1,43 @@
+
+
 import 'package:deliver_flutter/screen/app-auth/widgets/inputFeilds.dart';
+import 'package:deliver_flutter/shared/Widget/textField.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-void main(){
-
+import 'package:mockito/mockito.dart';
 
 
-  String code = "12";
-  String phoneNum = "91234567";
-  String inputError;
+class InnearTestFelIdWidget extends StatelessWidget{
 
-  testWidgets("Input Feilds test", (WidgetTester  tester ) async {
-     await tester.pumpWidget(InputFeilds( onChangeCode: (val) =>
-           () {
-         code = val;
-         inputError = inputError == "code"
-             ? null
-             : inputError == "both" ? "phoneNum" : null;
-         print(val);
-       },
+ final String hint;
+ final String widgetkey;
 
-       onChangePhoneNum: (val) =>(
-             () {
-           phoneNum = val;
-           inputError = inputError == "phoneNum"
-               ? null
-               : inputError == "both" ? "code" : null;
-           print(val);
-         }),
+ InnearTestFelIdWidget({this.widgetkey,this.hint});
 
-       inputError: inputError,));
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home:TextFieldId(hint: this.hint,widgetkey: this.widgetkey,setColor: false,)
+    );
+  }
+
+}
+
+void main() {
+  testWidgets('MyWidget has a title and message', (WidgetTester tester) async {
+    await tester.pumpWidget(InnearTestFelIdWidget(hint: 'g',widgetkey: '123',));
+
+    await find.byKey(Key("123"));
+    await tester.enterText(find.byKey(Key("123")),"456");
+    expect(find.text("456"),findsOneWidget);
+
+
+
+
+
+
 
   });
-
 }
