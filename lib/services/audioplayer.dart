@@ -1,47 +1,123 @@
+import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart' as AudioPlayerLib;
+import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class AudioPlayer extends StatelessWidget{
+class  َAudioPlayer extends StatefulWidget {
+  String url;
 
-  String audioUrl;
-  AudioPlayerLib.AudioPlayer audioPlayer;
+  @override
+  LocalAudio createState() => LocalAudio();
 
-  AudioPlayer({this.audioUrl});
+
+}
+
+class LocalAudio extends State< َAudioPlayer> {
+
+  Duration _duration = new Duration();
+  Duration _position = new Duration();
+  AudioPlayer audioplayer;
+
+  AudioCache audioCache;
+  bool isDownloaded;
+  IconData _iconData = Icons.file_download;
+  int _playState = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    initPlayer();
+  }
+  void initPlayer() {
+    audioplayer = new AudioPlayer();
+    audioCache = new AudioCache(fixedPlayer: audioplayer);
+
+    audioplayer.durationHandler = (d) => setState(() {
+      _duration = d;
+    });
+
+    audioplayer.positionHandler = (p) => setState(() {
+      _position = p;
+    });
+  }
+
+  String localFilePath;
+
+  Widget slider() {
+    return Slider(
+        activeColor: Colors.teal,
+        inactiveColor: Colors.black54,
+        value: _position.inSeconds.toDouble(),
+        min: 0.0,
+        max: _duration.inSeconds.toDouble(),
+        onChanged: (double value) {
+          setState(() {
+            seekToSecond(value.toInt());
+            value = value;
+          });
+        });
+  }
+
+  void seekToSecond(int second) {
+    Duration newDuration = Duration(seconds: second);
+    audioplayer.seek(newDuration);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Row(
-          children: <Widget>[
-            IconButton(icon: Icon(Icons.play_circle_filled),
-                color: Colors.blue, onPressed: (){
+      body: Column(
+        children: <Widget>[
+          //   LocalAudio(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(_iconData),
+                    iconSize: 65,
+                    color: Colors.blue,
+                    onPressed: () {
+                      setState(() {
+                        switch (_playState) {
+                          case 0:
+                            audioCache.play('disco.mp3');
+                            _iconData = Icons.pause;
+                            _playState = 1;
+                            break;
+                          case 1:
+                            audioplayer.pause();
+                            _iconData = Icons.play_circle_filled;
+                            _playState = 2;
+                            break;
 
-                }),
-            Positioned(
-              child: Container(
-                width:16.0,
-                height: 16.0,
-                decoration: new BoxDecoration(
-                  color: Colors.green,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.black,
-                    width: 2,
+                          case 2:
+                            audioplayer.resume();
+                            _iconData = Icons.pause;
+                            _playState = 1;
+                            break;
+                        }
+                      });
+                    },
                   ),
-                ),
+
+                  Text("10 min"),
+                ],
               ),
-              top: 28.0,
-              right: 0.0,
-            ),
-          ],
-        ),
+
+              Column(
+                children: <Widget>[
+                  Text("Music .........."),
+                  _playState == 0 ? Text("Music name") : slider(),
+                ],
+              )
+            ],
+          )
+        ],
       ),
     );
   }
-
-
-
 }

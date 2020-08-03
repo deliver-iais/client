@@ -12,7 +12,6 @@ class _AppbarPicState extends State<AppbarPic> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-
       onTap: () {
         ExtendedNavigator.of(context).pushNamed(Routes.settingsPage);
       },

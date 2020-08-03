@@ -11,6 +11,7 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 
 class FileRepo {
+
   var fileDao = GetIt.I.get<FileDao>();
   final uploader = FlutterUploader();
   var avatarDao = GetIt.I.get<AvatarDao>();
