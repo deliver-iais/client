@@ -5,21 +5,26 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class  َAudioPlayer extends StatefulWidget {
+
+class AudioPlayer extends StatefulWidget {
   String url;
 
-  @override
-  LocalAudio createState() => LocalAudio();
+  AudioPlayer({this.url});
 
+  @override
+  _LocalAudio createState() => _LocalAudio(this.url);
 
 }
 
-class LocalAudio extends State< َAudioPlayer> {
+class _LocalAudio extends State<AudioPlayer> {
+
+  String url;
+
+  _LocalAudio(this.url);
 
   Duration _duration = new Duration();
   Duration _position = new Duration();
-  AudioPlayer audioplayer;
-
+  AudioPlayerLib.AudioPlayer audioplayer;
   AudioCache audioCache;
   bool isDownloaded;
   IconData _iconData = Icons.file_download;
@@ -31,7 +36,7 @@ class LocalAudio extends State< َAudioPlayer> {
     initPlayer();
   }
   void initPlayer() {
-    audioplayer = new AudioPlayer();
+    audioplayer = new AudioPlayerLib.AudioPlayer();
     audioCache = new AudioCache(fixedPlayer: audioplayer);
 
     audioplayer.durationHandler = (d) => setState(() {
