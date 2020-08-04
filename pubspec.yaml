@@ -81,6 +81,7 @@ dependencies:
 
   test:
 
+  step_progress_indicator: ^0.2.3+6
 
 
 

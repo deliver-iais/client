@@ -1,6 +1,7 @@
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:step_progress_indicator/step_progress_indicator.dart';
 
 
 class AudioPlayerServices extends StatefulWidget {
@@ -20,6 +21,7 @@ class _LocalAudio extends State<AudioPlayerServices> {
   bool isDownloaded;
   IconData _iconData = Icons.file_download;
   int _playState = 0;
+  int downloadProgress =  30;
   int playCurrentaudio = 0;
 
   @override
@@ -198,6 +200,9 @@ class _LocalAudio extends State<AudioPlayerServices> {
 
 class AudioListWidget extends StatelessWidget {
   String music;
+  IconData _iconData = Icons.file_download;
+  int _playState = 0;
+  int downloadProgress =  30;
 
   AudioListWidget({this.music});
 
@@ -207,6 +212,27 @@ class AudioListWidget extends StatelessWidget {
       children: <Widget>[
         SizedBox(
           width: 10,
+        ),
+        CircularStepProgressIndicator(
+          totalSteps: 100,
+          currentStep: downloadProgress,
+          stepSize: 15,
+          selectedColor: Colors.red,
+          unselectedColor: Colors.grey[200],
+          padding: 0,
+          width: 150,
+          height: 150,
+          selectedStepSize: 15,
+          child: IconButton(
+            icon: Icon(_iconData),
+            color: Colors.blue,
+            iconSize: 80,
+            onPressed: () {
+              // todo : start download
+//                _iconData = Icons.pause;
+//                downloadProgress = downloadProgress + 10;
+            },
+          ),
         ),
         IconButton(
             icon: Icon(Icons.play_circle_filled),
