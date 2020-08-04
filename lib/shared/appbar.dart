@@ -19,16 +19,14 @@ class Appbar extends StatelessWidget {
       child: AppBar(
         leading: currentPageService.currentPage == -1
             ? new IconButton(
-          icon: new Icon(Icons.arrow_back),
-          onPressed: () {
-            currentPageService.setToHome();
-            ExtendedNavigator.of(context).pop();
-          },
-        )
+                icon: new Icon(Icons.arrow_back),
+                onPressed: () {
+                  currentPageService.setToHome();
+                  ExtendedNavigator.of(context).pop();
+                },
+              )
             : null,
-        backgroundColor: Theme
-            .of(context)
-            .backgroundColor,
+        backgroundColor: Theme.of(context).backgroundColor,
         title: MainWidget(
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -49,74 +47,66 @@ class Appbar extends StatelessWidget {
                       height: 120,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: ExtraTheme
-                            .of(context)
-                            .secondColor,
+                        color: ExtraTheme.of(context).secondColor,
                       ),
-                      child: Icon(
-                         currentPageService.currentPage == 0
-                            ? Icons.create
-                            : Icons.add,
-                        color: Colors.white,
-                        size: 30,
-                      ),
+                      child: currentPageService.currentPage == 0
+                          ? PopupMenuButton(
+                              icon: Icon(
+                                Icons.create,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              itemBuilder: (context) => [
+                                    PopupMenuItem(
+                                        child: GestureDetector(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: <Widget>[
+                                          Text("New Group"),
+                                        ],
+                                      ),
+                                      onTap: () {
+                                        /// todo
+                                      },
+                                    )),
+                                    PopupMenuItem(
+                                        child: GestureDetector(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: <Widget>[
+                                          Text("New Channel"),
+                                        ],
+                                      ),
+                                      onTap: () {
+                                        // todo c
+                                      },
+                                    ))
+                                  ])
+                          : PopupMenuButton(
+                              icon: Icon(
+                                Icons.add,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              itemBuilder: (context) => [
+                                    PopupMenuItem(
+                                        child: GestureDetector(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: <Widget>[
+                                          Text("New Contact"),
+                                        ],
+                                      ),
+                                      onTap: () {
+                                        // todo
+                                      },
+                                    )),
+                                  ]),
                     ),
-                    onPressed: () {
-                      {
-                        PopupMenuButton(
-                            itemBuilder:
-                        (context) => [
-                          PopupMenuItem(
-                              child: GestureDetector(
-                                child: Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment
-                                      .end,
-                                  children: <Widget>[
-                                    Text("New Contact"),
-                                  ],
-                                ),
-                                onTap: (){
-                                  // todo
-
-                                },
-                              )
-                          ),
-                          PopupMenuItem(
-                              child: GestureDetector(
-                                child: Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment
-                                      .end,
-                                  children: <Widget>[
-                                    Text("New Group"),
-                                  ],
-                                ),
-                                onTap: (){
-                                  /// todo
-
-                                },
-                              )
-                          ),
-                          PopupMenuItem(
-                              child: GestureDetector(
-                                child: Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment
-                                      .end,
-                                  children: <Widget>[
-                                    Text("New Channel"),
-                                  ],
-                                ),
-                                onTap: (){
-                                  // todo c
-
-                                },
-                              )
-                          )
-                        ]);
-                      }
-                    },
+                    onPressed: () {},
                     iconSize: 38,
                   ),
                 )
