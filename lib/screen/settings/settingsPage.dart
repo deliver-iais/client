@@ -2,8 +2,7 @@ import 'dart:io';
 
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/services/downloadFileServices.dart';
@@ -97,14 +96,8 @@ class SettingState extends State<SettingsPage> {
                           ),
                           IconButton(
                               icon: Icon(Icons.navigate_next),
-                              onPressed: () async {
-                                  File file = await FilePicker.getFile().then((value){
-                                  File f = value as File;
-                                  if(f.existsSync()){
-                                    print("file.exit");
-                                  }
+                              onPressed: () {
 
-                                });
 
                               }),
                         ],

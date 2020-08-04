@@ -63,50 +63,58 @@ class Appbar extends StatelessWidget {
                     ),
                     onPressed: () {
                       {
-                        showMenu(
-                          context: context,
-                          position: RelativeRect.fromLTRB(100, 30, 20, 100),
-                          items: [
-                            PopupMenuItem(
-                                child: GestureDetector(
-                                    onTap: () {
-                                      ExtendedNavigator.of(context).pushNamed(
-                                          Routes.settingsPage);
-                                    },
-                                    child: Row(
-                                      children: <Widget>[
-                                        Text("New Contact")
-                                      ],
-                                    )
-                                )),
-                            PopupMenuItem<String>(
-                                child:GestureDetector(
-                                    onTap: () {
-                                      ExtendedNavigator.of(context).pushNamed(
-                                          Routes.settingsPage);
-                                    },
-                                    child: Row(
-                                      children: <Widget>[
-                                        Text("New Group")
-                                      ],
-                                    )
-                                ) ),
-                            PopupMenuItem<String>(
-                                child: GestureDetector(
-                                    onTap: () {
-                                      ExtendedNavigator.of(context).pushNamed(
-                                          Routes.settingsPage);
-                                    },
-                                    child: Row(
-                                      children: <Widget>[
-                                        Text("New Channel ")
-                                      ],
-                                    )
-                                )),
+                        PopupMenuButton(
+                            itemBuilder:
+                        (context) => [
+                          PopupMenuItem(
+                              child: GestureDetector(
+                                child: Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment
+                                      .end,
+                                  children: <Widget>[
+                                    Text("New Contact"),
+                                  ],
+                                ),
+                                onTap: (){
+                                  // todo
 
-                          ],
-                          elevation: 8.0,
-                        );
+                                },
+                              )
+                          ),
+                          PopupMenuItem(
+                              child: GestureDetector(
+                                child: Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment
+                                      .end,
+                                  children: <Widget>[
+                                    Text("New Group"),
+                                  ],
+                                ),
+                                onTap: (){
+                                  /// todo
+
+                                },
+                              )
+                          ),
+                          PopupMenuItem(
+                              child: GestureDetector(
+                                child: Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment
+                                      .end,
+                                  children: <Widget>[
+                                    Text("New Channel"),
+                                  ],
+                                ),
+                                onTap: (){
+                                  // todo c
+
+                                },
+                              )
+                          )
+                        ]);
                       }
                     },
                     iconSize: 38,
