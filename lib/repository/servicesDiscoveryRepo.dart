@@ -9,8 +9,8 @@ class ServicesDiscoveryRepo {
     ..port =30000;
 
   ConnectionDetails FileConnection = ConnectionDetails()
-    ..host ="172.16.111.171"
-    ..port =30000;
+    ..host ="172.16.111.189"
+    ..port =30010;
 
   ConnectionDetails ContactServies = ConnectionDetails()
     ..host ="127.16.111.171"
