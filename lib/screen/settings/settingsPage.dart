@@ -99,6 +99,10 @@ class SettingState extends State<SettingsPage> {
                           IconButton(
                               icon: Icon(Icons.navigate_next),
                               onPressed: () async {
+                                File file = await FilePicker.getFile();
+                                if(file.existsSync()){
+                                  UploadFile().uploadFile(file);
+                                }
 
                               }),
                         ],

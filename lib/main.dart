@@ -48,6 +48,7 @@ void setupDI() {
     Permission.WRITE_EXTERNAL_STORAGE,
     Permission.READ_EXTERNAL_STORAGE,
     Permission.READ_CONTACTS,
+
   ]);
   // Creates dir/ and dir/subdir/.
 }
