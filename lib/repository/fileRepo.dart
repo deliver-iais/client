@@ -17,6 +17,7 @@ class FileRepo {
   final uploader = FlutterUploader();
   var avatarDao = GetIt.I.get<AvatarDao>();
 
+
   static ClientChannel clientChannel = ClientChannel(
       ServicesDiscoveryRepo().FileConnection.host,
       port: ServicesDiscoveryRepo().FileConnection.port,
@@ -25,7 +26,7 @@ class FileRepo {
   Future<File> getFileRequest(String uuid,  String filename){
     throw Error();
   }
-  saveFileInfo(String fileId,String fileName,String filePath){
+  saveFileInfo(String fileId,String fileName,String filePath) async{
     FileInfo fileInfo = FileInfo(id: fileId, path: filePath,fileName: fileName,downloadTaskId: "1",downloadTaskStatus: "1");
     fileDao.insertFileInfo(fileInfo);
     print("file save");

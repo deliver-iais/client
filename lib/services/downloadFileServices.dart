@@ -44,11 +44,11 @@ class DownloadFileServices {
     // todo : end delete
 
     // todo : create folder before call this function
-    _createFolder();
 
+    _createFolder();
       var taskId = await FlutterDownloader.enqueue(
       url: "http://172.16.111.189:30010/upload"+"9710b687-242b-45da-9625-5d3722e7e5b5"+"/storage/emulated/0/Download/photo_2020-08-04_08-37-50.jpg",
-      fileName: "dbgasd.jpg",
+      fileName: "34343.jpg",
       savedDir: await ExtStorage.getExternalStoragePublicDirectory("Deliver"),
       showNotification: false,
       openFileFromNotification: false,
