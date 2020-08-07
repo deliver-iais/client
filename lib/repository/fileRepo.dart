@@ -24,14 +24,17 @@ class FileRepo {
     // todo get file from server
     throw Error();
   }
+  saveFileInfo(String fileId,String fileName,String filePath){
+    FileInfo fileInfo = FileInfo(id: fileId, path: filePath,fileName: fileName,downloadTaskId: "1",downloadTaskStatus: "1");
+    fileDao.insertFileInfo(fileInfo);
+    print("file save");
+  }
 
   uploadFile(File file) async {
     UploadFile().uploadFile(file).then((value){
       FileInfo fileInfo = FileInfo(path: file.path,fileName: file.path.substring(file.path.lastIndexOf("/")));
-      fileDao.insertAvatar(fileInfo);
-
-
-
+      fileDao.insertFileInfo(fileInfo);
+      print("file save");
     }).catchError((error){
 
     });
