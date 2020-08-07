@@ -62,7 +62,7 @@ class InputFeilds extends StatelessWidget {
                               fontSize: 14,
                               onChange: onChangeCode,
                               setColor: false,
-                              setbacroundColor: false,
+                              setbacroundColor: true,
                             ),
                           ),
                         ),
