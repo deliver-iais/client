@@ -101,7 +101,7 @@ class SettingState extends State<SettingsPage> {
                               onPressed: () async {
                                 File file = await FilePicker.getFile();
                                 if(file.existsSync()){
-                                  UploadFile().uploadFile(file);
+                                  UploadFile().httpUploadFile(file);
                                 }
 
                               }),

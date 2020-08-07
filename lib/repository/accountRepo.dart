@@ -1,11 +1,16 @@
-
-
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/generated-protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_flutter/generated-protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_flutter/generated-protocol/pub/v1/profile.pb.dart';
+import 'package:deliver_flutter/repository/profileRepo.dart';
+import 'package:fimber/fimber_base.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:protobuf/protobuf.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountRepo {
   static var fileDao = GetIt.I.get<FileDao>();
@@ -13,12 +18,38 @@ class AccountRepo {
   Avatar avatar;
   PhoneNumber phoneNumber;
 
-//  File getAccountAvatar(String id) {
-//
-//      fileDao.getFile(avatarRepo.getByUid(id)).then((files) => files.);
-//
-//
-//
-//
-//  }
+  Future getAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String accessToken = prefs.getString('accessToken');
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+    print("exp=" + decodedToken["exp"].toString());
+    double expTime = double.parse(decodedToken["exp"].toString());
+    double now = new DateTime.now().millisecondsSinceEpoch / 1000;
+    if (now > expTime) {
+      String refreshToken = await prefs.getString('refreshToken');
+      await ProfileRepo().getAccessToken(refreshToken).then((value) {
+        RenewAccessTokenRes renewAccessTokenRes = value as RenewAccessTokenRes;
+        if (renewAccessTokenRes.status == RenewAccessTokenRes_Status.OK) {
+          accessToken = renewAccessTokenRes.accessToken;
+          _saveTokensInSharedPreferences(
+              accessToken, renewAccessTokenRes.refreshToken);
+        } else if (renewAccessTokenRes.status ==
+            RenewAccessTokenRes_Status.NOT_VALID) {
+          Fimber.d("NotValid");
+        }
+      });
+    }
+    return accessToken;
+  }
+
+  _saveTokensInSharedPreferences(
+      String accessToken, String refreshToken) async {
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    _prefs
+        .setString("accessToken", accessToken)
+        .then((value) => _prefs.setString(
+              "refreshToken",
+              refreshToken,
+            ));
+  }
 }

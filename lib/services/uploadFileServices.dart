@@ -13,19 +13,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UploadFile {
 
   Future<String> accessToken() async {
-    return "abbas";
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String accessToken = prefs.getString('accessToken');
+    return accessToken;
   }
 
   httpUploadFile(File file) async {
-    Map headers = new Map<String, String>();
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String accessToken = prefs.getString('accessToken');
-    headers["Authorization"] = accessToken;
+
     Dio dio = new Dio();
     dio.interceptors.add(InterceptorsWrapper(
         onRequest:(RequestOptions options) async {
-          options.headers["Authorization"] = await this.accessToken();
-          // Do something before request is sent
+          options.headers["Authorization"] =  await AccountRepo().getAccessToken();
           return options; //continue
           // If you want to resolve the request with some custom data，
           // you can return a `Response` object or return `dio.resolve(data)`.
@@ -33,11 +31,9 @@ class UploadFile {
           // you can return a `DioError` object or return `dio.reject(errMsg)`
         },
         onResponse:(Response response) async {
-          // Do something with response data
-          return response; // continue
+          return response;
         },
         onError: (DioError e) async {
-          // Do something with response error
           return  e;//continue
         }
     ));
@@ -46,29 +42,12 @@ class UploadFile {
       "file": await MultipartFile.fromFile(file.path),
     });
 
-    var response = await dio.post("http://172.16.111.189:30010/upload", data: formData, options: Options(headers: headers));
+    var response = await dio.post("http://172.16.111.189:30010/upload", data: formData);
 
     Fimber.d(response.statusCode.toString());
-//    var uri = Uri.parse("http://172.16.111.189:30010/upload");
-//    var request = new MultipartRequest("POST", uri);
-//    var multipartFile = await MultipartFile.fromPath("file", file.path);
 
-//    request.headers.map((key, value){
-//      return MapEntry("Authorization",accessToken);
-//    });
+    Fimber.d("data="+response.data.toString());
 
-
-//    request.persistentConnection = true;
-//    request.files.add(multipartFile);
-//     var res =await request.send();
-
-//    if (res.statusCode == 200) print('Uploaded!');
-//    else{
-//      print(res.statusCode.toString());
-//    }
-//    response.stream.transform(utf8.decoder).listen((value) {
-//      print("kdfjjfd");
-//    });
   }
 
 

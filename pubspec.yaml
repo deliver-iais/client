@@ -51,6 +51,7 @@ dependencies:
   shared_preferences: ^0.5.7+3
   moor_flutter: ^3.1.0
   dio: ^3.0.9
+  jwt_decoder: ^1.0.1
 
   # Path for Files
 #  path_provider: ^1.6.9

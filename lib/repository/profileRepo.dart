@@ -4,6 +4,7 @@ import 'package:fixnum/fixnum.dart';
 
 import 'package:deliver_flutter/generated-protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_flutter/generated-protocol/pub/v1/profile.pbgrpc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 
@@ -36,5 +37,11 @@ class ProfileRepo {
     ..password = "");
     return sendVerificationCode;
 
+  }
+
+  Future getAccessToken(String refreshToken) async {
+    var getAccessToken = await AuthServiceStub.renewAccessToken(RenewAccessTokenReq()
+    ..refreshToken =refreshToken);
+    return getAccessToken;
   }
 }
