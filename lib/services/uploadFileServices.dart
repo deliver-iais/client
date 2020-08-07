@@ -19,7 +19,6 @@ class UploadFile {
   }
 
   httpUploadFile(File file) async {
-
     Dio dio = new Dio();
     dio.interceptors.add(InterceptorsWrapper(
         onRequest:(RequestOptions options) async {
