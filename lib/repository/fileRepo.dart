@@ -4,6 +4,7 @@ import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/services/downloadFileServices.dart';
 import 'file:///F:/Messenger/lib/services/uploadFileServices.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_uploader/flutter_uploader.dart';
@@ -15,13 +16,13 @@ class FileRepo {
   var fileDao = GetIt.I.get<FileDao>();
   final uploader = FlutterUploader();
   var avatarDao = GetIt.I.get<AvatarDao>();
+
   static ClientChannel clientChannel = ClientChannel(
       ServicesDiscoveryRepo().FileConnection.host,
       port: ServicesDiscoveryRepo().FileConnection.port,
       options: ChannelOptions(credentials: ChannelCredentials.insecure()));
 
   Future<File> getFileRequest(String uuid,  String filename){
-    // todo get file from server
     throw Error();
   }
   saveFileInfo(String fileId,String fileName,String filePath){
@@ -31,7 +32,7 @@ class FileRepo {
   }
 
   uploadFile(File file) async {
-    UploadFile().uploadFile(file).then((value){
+    UploadFile().httpUploadFile(file).then((value){
       FileInfo fileInfo = FileInfo(path: file.path,fileName: file.path.substring(file.path.lastIndexOf("/")));
       fileDao.insertFileInfo(fileInfo);
       print("file save");

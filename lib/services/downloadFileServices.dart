@@ -32,7 +32,8 @@ class DownloadFileServices {
     print('task ($taskId) is in status ($status) and process ($progress)',);
     print(progress.toString()+"%");
   }
-
+//   9710b687-242b-45da-9625-5d3722e7e5b5
+ //  /storage/emulated/0/Download/photo_2020-08-04_08-37-50.jpg
 
   Future<String>  downloadFile (String url, String fileName) async{
 
@@ -46,15 +47,15 @@ class DownloadFileServices {
     _createFolder();
 
       var taskId = await FlutterDownloader.enqueue(
-      url: "https://picsum.photos/200/300",
+      url: "http://172.16.111.189:30010/upload"+"9710b687-242b-45da-9625-5d3722e7e5b5"+"/storage/emulated/0/Download/photo_2020-08-04_08-37-50.jpg",
       fileName: "dbgasd.jpg",
       savedDir: await ExtStorage.getExternalStoragePublicDirectory("Deliver"),
       showNotification: false,
       openFileFromNotification: false,
     ).then((value)  {
-      print("value="+value);
+      print("value=""ssssssssssss");
     }).catchError((e){
-      print("canceldaownload" + e.toString());
+      print("eeeeeeeeeeeeeeeeeeeeeee" + e.toString());
     });
 
     return taskId;

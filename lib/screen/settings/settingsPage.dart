@@ -15,6 +15,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get_it/get_it.dart';
+import 'package:permissions_plugin/permissions_plugin.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -154,6 +155,13 @@ class SettingState extends State<SettingsPage> {
                           IconButton(
                               icon: Icon(Icons.navigate_next),
                               onPressed: (){
+                                PermissionsPlugin
+                                    .requestPermissions([
+                                  Permission.WRITE_EXTERNAL_STORAGE,
+                                  Permission.READ_EXTERNAL_STORAGE,
+                                  Permission.READ_CONTACTS,
+
+                                ]);
                                 downloadFile.downloadFile("url", "");
                               }),
                         ],
