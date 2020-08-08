@@ -13,18 +13,17 @@ import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UploadFile {
-
   var fileRepo = GetIt.I.get<FileRepo>();
   var accountRepo = GetIt.I.get<AccountRepo>();
-
+  var servicesDiscoveryRepo = GetIt.I.get<ServicesDiscoveryRepo>();
 
   httpUploadFile(File file) async {
     Dio dio = new Dio();
     dio.interceptors
         .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
       options.headers["Authorization"] = await accountRepo.getAccessToken();
-      options.onSendProgress = (int i ,int j){
-        Fimber.d("upload "+((i/j)*100).toString()+"%");
+      options.onSendProgress = (int i, int j) {
+        Fimber.d("upload " + ((i / j) * 100).toString() + "%");
       };
       return options; //continue
       // If you want to resolve the request with some custom data，
@@ -41,8 +40,13 @@ class UploadFile {
       "file": await MultipartFile.fromFile(file.path),
     });
 
-    var response =
-        await dio.post("http://172.16.111.189:30010/upload", data: formData);
+    var response = await dio.post(
+        "http://" +
+            servicesDiscoveryRepo.FileConnection.host +
+            ":" +
+            servicesDiscoveryRepo.FileConnection.port.toString() +
+            "/upload",
+        data: formData);
     Fimber.d(response.statusCode.toString());
     if (response.statusCode == 200) {
       Map<String, dynamic> result = jsonDecode(response.toString());
