@@ -5,17 +5,17 @@ import 'package:grpc/grpc.dart';
 
 class AvatarRepo {
   static ClientChannel clientChannel = ClientChannel(
-      ServicesDiscoveryRepo().AvatarConnection.host,
-      port: ServicesDiscoveryRepo().AvatarConnection.port,
+      ServicesDiscoveryRepo().avatarConnection.host,
+      port: ServicesDiscoveryRepo().avatarConnection.port,
       options: ChannelOptions(credentials: ChannelCredentials.insecure()));
-  var AvatarServices = AvatarServiceClient(clientChannel);
+  var avatarServices = AvatarServiceClient(clientChannel);
 
   getAvatar(List<Uid> list) {
     var getAvatarReq = GetAvatarReq();
     list.forEach((element) {
       getAvatarReq.uidList.add(element);
     });
-    var getAvatars = AvatarServices.getAvatar(getAvatarReq);
+    var getAvatars = avatarServices.getAvatar(getAvatarReq);
     getAvatars
         .then((res) => {
               // todo pars result to Avatar.

@@ -1,16 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:deliver_flutter/db/dao/FileDao.dart';
-import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:dio/dio.dart';
 import 'package:fimber/fimber_base.dart';
-import 'package:flutter_uploader/flutter_uploader.dart';
 import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class UploadFile {
   var fileRepo = GetIt.I.get<FileRepo>();
@@ -42,9 +38,9 @@ class UploadFile {
 
     var response = await dio.post(
         "http://" +
-            servicesDiscoveryRepo.FileConnection.host +
+            servicesDiscoveryRepo.fileConnection.host +
             ":" +
-            servicesDiscoveryRepo.FileConnection.port.toString() +
+            servicesDiscoveryRepo.fileConnection.port.toString() +
             "/upload",
         data: formData);
     Fimber.d(response.statusCode.toString());

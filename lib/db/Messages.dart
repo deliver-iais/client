@@ -3,7 +3,7 @@ import 'package:moor/moor.dart';
 
 class Messages extends Table {
   IntColumn get roomId => integer()();
-  IntColumn get id => integer()();
+  IntColumn get id => integer().autoIncrement()();
   DateTimeColumn get time => dateTime()();
   TextColumn get from => text().withLength(min: 22, max: 22)();
   TextColumn get to => text().withLength(min: 22, max: 22)();
@@ -15,7 +15,4 @@ class Messages extends Table {
   IntColumn get type => intEnum<MessageType>()();
   TextColumn get content => text()();
   BoolColumn get seen => boolean().withDefault(Constant(false))();
-
-  @override
-  Set<Column> get primaryKey => {roomId, id};
 }

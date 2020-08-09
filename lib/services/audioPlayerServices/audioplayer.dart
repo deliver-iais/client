@@ -1,7 +1,5 @@
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart' as AudioPlayerLib;
-import 'package:audioplayers/audioplayers.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

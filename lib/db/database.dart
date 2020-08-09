@@ -1,4 +1,3 @@
-import 'package:deliver_flutter/db/Accounts.dart';
 import 'package:deliver_flutter/db/Avatars.dart';
 import 'package:deliver_flutter/db/Messages.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
@@ -38,6 +37,18 @@ class Database extends _$Database {
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
+          // print('*/*#########*****#########*/');
+
+          // await customInsert(
+          //     'INSERT INTO messages (room_id, id, time, `from`, `to`, edited, encrypted, type, content, seen) VALUES(5, 1, 1595158554, \'0000000000000000000000\', \'0000000000000000000001\', 0,0,0,\'hi\', 0)');
+          // print('*/*##################*/');
+
+          // await customStatement(
+          //     'INSERT INTO messages (room_id, id, time, `from`, `to`, edited, encrypted, type, content, seen) VALUES(5, 2, 1595158564, \'0000000000000000000000\', \'0000000000000000000001\', 0,0,0,\'hiddfff\', 0)');
+          // print('*/*/*/*/*/*/*/');
+          // final int roomId = await customInsert(
+          //     'INSERT INTO rooms (room_id, `sender`, `reciever`, last_message) VALUES(5, \'0000000000000000000000\', \'0000000000000000000001\', 5)');
+          // print(' rid : ' + roomId.toString());
         },
       );
 }

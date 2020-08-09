@@ -13,7 +13,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var routeData = RouteData.of(context);
-    String loggedinUserId = routeData.pathParams['id'].value;
+    String loggedInUserId = routeData.pathParams['id'].value;
     var currentPageService = GetIt.I.get<CurrentPageService>();
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
@@ -26,9 +26,9 @@ class HomePage extends StatelessWidget {
           children: <Widget>[
             SearchBox(),
             if (currentPageService.currentPage == 0)
-              Expanded(child: ChatsPage(loggedinUserId: loggedinUserId))
+              Expanded(child: ChatsPage(loggedInUserId: loggedInUserId))
             else
-              ContactsPage(loggedinUserId: loggedinUserId),
+              ContactsPage(loggedInUserId: loggedInUserId),
           ],
         ),20,25
       ),

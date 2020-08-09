@@ -1,16 +1,9 @@
 import 'package:deliver_flutter/generated-protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_flutter/generated-protocol/pub/v1/profile.pbgrpc.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/profileRepo.dart';
-import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
-import 'package:grpc/grpc.dart';
 import 'package:mockito/mockito.dart';
 
 import 'package:fixnum/fixnum.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // test AuthServiceClient by Mock server
 

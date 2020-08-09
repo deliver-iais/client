@@ -286,7 +286,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   });
   MessagesCompanion.insert({
     @required int roomId,
-    @required int id,
+    this.id = const Value.absent(),
     @required DateTime time,
     @required String from,
     @required String to,
@@ -298,7 +298,6 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     @required String content,
     this.seen = const Value.absent(),
   })  : roomId = Value(roomId),
-        id = Value(id),
         time = Value(time),
         from = Value(from),
         to = Value(to),
@@ -447,11 +446,8 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   @override
   GeneratedIntColumn get id => _id ??= _constructId();
   GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn(
-      'id',
-      $tableName,
-      false,
-    );
+    return GeneratedIntColumn('id', $tableName, false,
+        hasAutoIncrement: true, declaredAsPrimaryKey: true);
   }
 
   final VerificationMeta _timeMeta = const VerificationMeta('time');
@@ -595,8 +591,6 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
     }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
     }
     if (data.containsKey('time')) {
       context.handle(
@@ -648,7 +642,7 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {roomId, id};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Message map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;

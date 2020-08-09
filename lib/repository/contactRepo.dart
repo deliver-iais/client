@@ -13,12 +13,12 @@ class ContactRepo {
   static var servicesDiscoveryRepo = GetIt.I.get<ServicesDiscoveryRepo>();
 
   static ClientChannel clientChannel = ClientChannel(
-      servicesDiscoveryRepo.ContactServies.host,
-      port: servicesDiscoveryRepo.ContactServies.port,
+      servicesDiscoveryRepo.contactServies.host,
+      port: servicesDiscoveryRepo.contactServies.port,
       options: ChannelOptions(credentials: ChannelCredentials.insecure()));
   var contactServices = ContactServiceClient(clientChannel);
 
-  SyncContacts() async {
+  syncContacts() async {
     List<PhoneContact.Contact> phoneContacts =
         await PhoneContact.ContactsService.getContacts();
     List<Contact> contacts = new List(phoneContacts.length);

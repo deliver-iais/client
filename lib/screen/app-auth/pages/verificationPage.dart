@@ -1,10 +1,8 @@
-
-
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/generated-protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_flutter/repository/profileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/models/loggedinStatus.dart';
+import 'package:deliver_flutter/models/loggedInStatus.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/shared/Widget/textField.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -19,8 +17,11 @@ class VerificationPage extends StatefulWidget {
   _VerificationPageState createState() => _VerificationPageState();
 }
 
-class _VerificationPageState extends State<VerificationPage> {
-  var loggedinUserId = '';
+class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
+  String otpCode;
+  String inpCode;
+  bool showError = false;
+  var loggedInUserId = '';
   String verificationCode;
   var profileRepo = GetIt.I.get<ProfileRepo>();
 
@@ -57,8 +58,8 @@ class _VerificationPageState extends State<VerificationPage> {
 
   _getLoggedinUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('loggedinStatus', enumToString(LoggedinStatus.loggedin));
-    loggedinUserId = prefs.getString('loggedinUserId');
+    prefs.setString('loggedInStatus', enumToString(LoggedInStatus.loggedIn));
+    loggedInUserId = prefs.getString('loggedInUserId');
   }
 
   _navigationToHome() {
@@ -67,7 +68,7 @@ class _VerificationPageState extends State<VerificationPage> {
     currentPageService.setToHome();
     _getLoggedinUserId()
         .then((value) => ExtendedNavigator.of(context).pushNamedAndRemoveUntil(
-              Routes.homePage(id: loggedinUserId),
+              Routes.homePage(id: loggedInUserId),
               (_) => false,
             ));
   }
@@ -95,7 +96,8 @@ class _VerificationPageState extends State<VerificationPage> {
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBar(
         backgroundColor: Theme.of(context).backgroundColor,
-        title: Center(
+        title: Padding(
+          padding: const EdgeInsets.only(left: 50.0),
           child: Text(
             "Verification",
             style: TextStyle(
@@ -150,6 +152,7 @@ class _VerificationPageState extends State<VerificationPage> {
                     )),
                   ),
                 ),
+                showError ? Text('Code is wrong') : Container(),
               ],
             ),
           ),
@@ -176,5 +179,10 @@ class _VerificationPageState extends State<VerificationPage> {
         ],
       ),
     );
+  }
+
+  @override
+  void codeUpdated() {
+
   }
 }

@@ -1,11 +1,7 @@
-
-
-import 'package:deliver_flutter/screen/app-auth/widgets/inputFeilds.dart';
 import 'package:deliver_flutter/shared/Widget/textField.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 
 
 class InnearTestFelIdWidget extends StatelessWidget{
@@ -30,10 +26,10 @@ void main() {
     ));
 
     await tester.enterText(find.byKey(Key("123")),"456");
-    await  expect(find.text("456"),findsOneWidget);
+    expect(find.text("456"),findsOneWidget);
     await tester.enterText(find.byKey(Key("123")),"54546");
     await tester.enterText(find.byKey(Key("123")), "");
-    await expect(find.text(""), findsOneWidget);
+    expect(find.text(""), findsOneWidget);
 
 
   });

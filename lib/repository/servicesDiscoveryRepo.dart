@@ -1,18 +1,18 @@
 class ServicesDiscoveryRepo {
   // todo  call services to get host and port for any microServices..
-  ConnectionDetails AvatarConnection = ConnectionDetails()
+  ConnectionDetails avatarConnection = ConnectionDetails()
     ..host ="172.16.111.189"
     ..port =30000;
 
-  ConnectionDetails AuthConnection = ConnectionDetails()
+  ConnectionDetails authConnection = ConnectionDetails()
     ..host ="172.16.111.189"
     ..port =30000;
 
-  ConnectionDetails FileConnection = ConnectionDetails()
+  ConnectionDetails fileConnection = ConnectionDetails()
     ..host ="172.16.111.189"
     ..port =30010;
 
-  ConnectionDetails ContactServies = ConnectionDetails()
+  ConnectionDetails contactServies = ConnectionDetails()
     ..host ="127.16.111.171"
     ..port =30000;
 }

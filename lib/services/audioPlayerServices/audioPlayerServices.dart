@@ -3,9 +3,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 
-
 class AudioPlayerServices extends StatefulWidget {
-  String url;
+  final String url;
 
   @override
   _LocalAudio createState() => _LocalAudio();
@@ -21,7 +20,7 @@ class _LocalAudio extends State<AudioPlayerServices> {
   bool isDownloaded;
   IconData _iconData = Icons.file_download;
   int _playState = 0;
-  int downloadProgress =  30;
+  int downloadProgress = 30;
   int playCurrentaudio = 0;
 
   @override
@@ -35,12 +34,12 @@ class _LocalAudio extends State<AudioPlayerServices> {
     audioCache = new AudioCache(fixedPlayer: audioplayer);
 
     audioplayer.durationHandler = (d) => setState(() {
-      _duration = d;
-    });
+          _duration = d;
+        });
 
     audioplayer.positionHandler = (p) => setState(() {
-      _position = p;
-    });
+          _position = p;
+        });
   }
 
   String localFilePath;
@@ -60,7 +59,7 @@ class _LocalAudio extends State<AudioPlayerServices> {
         });
   }
 
-  Widget showButtonSheep() {
+  void showButtonSheep() {
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -98,7 +97,7 @@ class _LocalAudio extends State<AudioPlayerServices> {
                               slider(),
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceEvenly,
+                                    MainAxisAlignment.spaceEvenly,
                                 children: <Widget>[
                                   IconButton(
                                       icon: Icon(Icons.repeat_one),
@@ -117,21 +116,21 @@ class _LocalAudio extends State<AudioPlayerServices> {
                                     itemBuilder: (context) => [
                                       PopupMenuItem(
                                           child: Row(
-                                            mainAxisAlignment:
+                                        mainAxisAlignment:
                                             MainAxisAlignment.start,
-                                            children: <Widget>[
-                                              IconButton(
-                                                  icon: Icon(Icons.arrow_forward),
-                                                  onPressed: () {
-                                                    //todo froward music...
-                                                  }),
-                                              Text("Forward"),
-                                            ],
-                                          )),
+                                        children: <Widget>[
+                                          IconButton(
+                                              icon: Icon(Icons.arrow_forward),
+                                              onPressed: () {
+                                                //todo froward music...
+                                              }),
+                                          Text("Forward"),
+                                        ],
+                                      )),
                                       PopupMenuItem(
                                         child: Row(
                                           mainAxisAlignment:
-                                          MainAxisAlignment.start,
+                                              MainAxisAlignment.start,
                                           children: <Widget>[
                                             IconButton(
                                                 icon: Icon(Icons.share),
@@ -144,17 +143,17 @@ class _LocalAudio extends State<AudioPlayerServices> {
                                       ),
                                       PopupMenuItem(
                                           child: Row(
-                                            mainAxisAlignment:
+                                        mainAxisAlignment:
                                             MainAxisAlignment.start,
-                                            children: <Widget>[
-                                              IconButton(
-                                                  icon: Icon(Icons.arrow_downward),
-                                                  onPressed: () {
-                                                    //todo save in  music album...
-                                                  }),
-                                              Text("Save to music"),
-                                            ],
-                                          ))
+                                        children: <Widget>[
+                                          IconButton(
+                                              icon: Icon(Icons.arrow_downward),
+                                              onPressed: () {
+                                                //todo save in  music album...
+                                              }),
+                                          Text("Save to music"),
+                                        ],
+                                      ))
                                     ],
                                   ),
                                 ],
@@ -194,7 +193,8 @@ class _LocalAudio extends State<AudioPlayerServices> {
 
   @override
   Widget build(BuildContext context) {
-   return showButtonSheep();
+    showButtonSheep();
+    return Container();
   }
 }
 
@@ -202,7 +202,7 @@ class AudioListWidget extends StatelessWidget {
   String music;
   IconData _iconData = Icons.file_download;
   int _playState = 0;
-  int downloadProgress =  30;
+  int downloadProgress = 30;
 
   AudioListWidget({this.music});
 

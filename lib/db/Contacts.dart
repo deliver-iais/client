@@ -7,7 +7,7 @@ class Contacts extends Table {
 
   DateTimeColumn get lastUpdateAvatarTime => dateTime()();
 
-  TextColumn get lastAvatarFileId => text()();
+  TextColumn get lastAvatarFileId => text().nullable()();
 
   TextColumn get phoneNumber => text()();
 

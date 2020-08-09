@@ -2,15 +2,11 @@ import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/generated-protocol/pub/v1/models/phone.pb.dart';
-import 'package:deliver_flutter/generated-protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_flutter/generated-protocol/pub/v1/profile.pb.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/profileRepo.dart';
 import 'package:fimber/fimber_base.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:protobuf/protobuf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountRepo {
@@ -28,7 +24,7 @@ class AccountRepo {
     double expTime = double.parse(decodedToken["exp"].toString());
     double now = new DateTime.now().millisecondsSinceEpoch /1000;
     if (now > expTime) {
-      String refreshToken = await prefs.getString('refreshToken');
+      String refreshToken = prefs.getString('refreshToken');
       await profileRepo.getAccessToken(refreshToken).then((value) {
         RenewAccessTokenRes renewAccessTokenRes = value as RenewAccessTokenRes;
         if (renewAccessTokenRes.status == RenewAccessTokenRes_Status.OK) {

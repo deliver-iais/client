@@ -8,7 +8,6 @@ import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
 import 'package:deliver_flutter/screen/splashScreen/pages/splashScreen.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 
-
 @MaterialAutoRouter(
   routes: <AutoRoute>[
     MaterialRoute(page: SplashScreen, initial: true),
@@ -17,7 +16,7 @@ import 'package:deliver_flutter/screen/settings/settingsPage.dart';
     MaterialRoute(page: VerificationPage),
     MaterialRoute(page: SettingsPage),
     MaterialRoute(path: '/users:id', page: HomePage),
-    MaterialRoute(path: '/room:roomId', page: RoomPage),
+    MaterialRoute(page: RoomPage),
     MaterialRoute(page: ForwardMessage),
   ],
 )

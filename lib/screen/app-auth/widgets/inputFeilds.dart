@@ -10,11 +10,9 @@ class InputFeilds extends StatelessWidget {
   final Function onChangeCode;
   final Function onChangePhoneNum;
   final String inputError;
-
   const InputFeilds(
       {Key key, this.onChangeCode, this.onChangePhoneNum, this.inputError})
       : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -33,7 +31,7 @@ class InputFeilds extends StatelessWidget {
                 child: Container(
                   height: 40,
                   decoration: BoxDecoration(
-                    //   color: ExtraTheme.of(context).secondColor,
+                    color: ExtraTheme.of(context).secondColor,
                     borderRadius: BorderRadius.all(
                       Radius.circular(5),
                     ),
@@ -113,17 +111,17 @@ class InputFeilds extends StatelessWidget {
           ),
           child: inputError == "both"
               ? Text(
-                  "Fields can't be empty",
+                  "Code of country and phone number can't be empty",
                   style: errorStyle,
                 )
               : inputError == "code"
                   ? Text(
-                      "Feild of code can't be empty",
+                      "Code of country can't be empty",
                       style: errorStyle,
                     )
                   : inputError == "phoneNum"
                       ? Text(
-                          "Feild of phone Number can't be empty",
+                          "Phone Number can't be empty",
                           style: errorStyle,
                         )
                       : Container(),

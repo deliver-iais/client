@@ -1,9 +1,4 @@
-import 'dart:ffi';
-
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/generated-protocol/pub/v1/models/phone.pb.dart';
-import 'package:deliver_flutter/models/loggedinStatus.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/profileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-auth/widgets/inputFeilds.dart';

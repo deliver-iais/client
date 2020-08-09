@@ -4,9 +4,7 @@ import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
-import 'package:deliver_flutter/services/downloadFileServices.dart';
-import 'file:///F:/Messenger/lib/services/uploadFileServices.dart';
-import 'package:flutter/material.dart';
+import 'package:deliver_flutter/services/uploadFileServices.dart';
 import 'package:flutter_uploader/flutter_uploader.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -19,8 +17,8 @@ class FileRepo {
 
 
   static ClientChannel clientChannel = ClientChannel(
-      ServicesDiscoveryRepo().FileConnection.host,
-      port: ServicesDiscoveryRepo().FileConnection.port,
+      ServicesDiscoveryRepo().fileConnection.host,
+      port: ServicesDiscoveryRepo().fileConnection.port,
       options: ChannelOptions(credentials: ChannelCredentials.insecure()));
 
   Future<File> getFileRequest(String uuid,  String filename){
