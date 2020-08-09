@@ -5,6 +5,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/shared/mainWidget.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:fimber/fimber.dart';
 import 'appbarTitle.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/shared/appbarPic.dart';
@@ -68,6 +69,7 @@ class Appbar extends StatelessWidget {
                                         ],
                                       ),
                                       onTap: () {
+                                        initialDataBase();
                                         /// todo
                                       },
                                     )),
@@ -122,12 +124,13 @@ class Appbar extends StatelessWidget {
   }
 
   initialDataBase() {
+    Fimber.e("some");
     var messageDao = GetIt.I.get<MessageDao>();
     var roomDao = GetIt.I.get<RoomDao>();
     messageDao
         .insertMessage(Message(
-          roomId: 26,
-          id: 81,
+          roomId: 29,
+          id: 89,
           time: DateTime.now().subtract(Duration(days: 4)),
           from: '1111111111111111111115',
           to: '1111111111111111111111',
@@ -138,7 +141,7 @@ class Appbar extends StatelessWidget {
           seen: false,
         ))
         .then((value) => roomDao.insertRoom(Room(
-            roomId: 26,
+            roomId: 29,
             sender: '1111111111111111111111',
             reciever: '1111111111111111111115',
             lastMessage: value)));

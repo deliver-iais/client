@@ -1301,7 +1301,7 @@ class Contact extends DataClass implements Insertable<Contact> {
   Contact(
       {@required this.uid,
       @required this.lastUpdateAvatarTime,
-      @required this.lastAvatarFileId,
+      this.lastAvatarFileId,
       @required this.phoneNumber,
       @required this.firstName,
       @required this.lastName,
@@ -1541,7 +1541,7 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
   ContactsCompanion.insert({
     @required String uid,
     @required DateTime lastUpdateAvatarTime,
-    @required String lastAvatarFileId,
+    this.lastAvatarFileId = const Value.absent(),
     @required String phoneNumber,
     @required String firstName,
     @required String lastName,
@@ -1551,7 +1551,6 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
     @required bool isOnline,
   })  : uid = Value(uid),
         lastUpdateAvatarTime = Value(lastUpdateAvatarTime),
-        lastAvatarFileId = Value(lastAvatarFileId),
         phoneNumber = Value(phoneNumber),
         firstName = Value(firstName),
         lastName = Value(lastName),
@@ -1706,7 +1705,7 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
     return GeneratedTextColumn(
       'last_avatar_file_id',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -1841,8 +1840,6 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
           _lastAvatarFileIdMeta,
           lastAvatarFileId.isAcceptableOrUnknown(
               data['last_avatar_file_id'], _lastAvatarFileIdMeta));
-    } else if (isInserting) {
-      context.missing(_lastAvatarFileIdMeta);
     }
     if (data.containsKey('phone_number')) {
       context.handle(
