@@ -4,6 +4,7 @@ import 'package:deliver_flutter/models/roomWithMessage.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/chatItem.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
+import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

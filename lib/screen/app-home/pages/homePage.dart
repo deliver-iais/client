@@ -6,6 +6,7 @@ import 'package:deliver_flutter/screen/app-home/widgets/navigationBar.dart';
 import 'package:deliver_flutter/screen/app-home/widgets/searchBox.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/shared/mainWidget.dart';
+import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -14,6 +15,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     var routeData = RouteData.of(context);
     String loggedInUserId = routeData.pathParams['id'].value;
+    Fimber.d("####################################### $loggedInUserId");
     var currentPageService = GetIt.I.get<CurrentPageService>();
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,

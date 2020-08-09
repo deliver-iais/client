@@ -129,8 +129,8 @@ class Appbar extends StatelessWidget {
     var roomDao = GetIt.I.get<RoomDao>();
     messageDao
         .insertMessage(Message(
-          roomId: 29,
-          id: 89,
+          roomId: 26,
+          id: 81,
           time: DateTime.now().subtract(Duration(days: 4)),
           from: '1111111111111111111115',
           to: '1111111111111111111111',
@@ -140,10 +140,13 @@ class Appbar extends StatelessWidget {
           content: 'https://tiltshiftmaker.com/photos/small/bamboo-small.jpg',
           seen: false,
         ))
-        .then((value) => roomDao.insertRoom(Room(
-            roomId: 29,
-            sender: '1111111111111111111111',
-            reciever: '1111111111111111111115',
-            lastMessage: value)));
+        .then((value) => roomDao
+            .insertRoom(Room(
+                roomId: 26,
+                sender: '1111111111111111111111',
+                reciever: '1111111111111111111115',
+                lastMessage: value))
+            .catchError(null))
+        .catchError(null);
   }
 }

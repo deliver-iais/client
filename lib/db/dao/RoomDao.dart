@@ -22,16 +22,13 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
   Future updateRoom(Room updatedRoom) => update(rooms).replace(updatedRoom);
 
   Stream<List<RoomWithMessage>> getByContactId(String contactId) {
-    return ((select(rooms)
-              ..where((c) =>
-                  c.sender.equals(contactId) | c.reciever.equals(contactId)))
-            .join([
+    return (select(rooms).join([
       innerJoin(
           messages,
           messages.id.equalsExp(rooms.lastMessage) &
               messages.roomId.equalsExp(rooms.roomId))
     ])
-              ..orderBy([OrderingTerm.desc(messages.time)]))
+          ..orderBy([OrderingTerm.desc(messages.time)]))
         .watch()
         .map(
           (rows) => rows.map(
