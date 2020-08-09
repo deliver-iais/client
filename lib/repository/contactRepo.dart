@@ -1,10 +1,10 @@
 import 'dart:wasm';
 
-import 'package:deliver_flutter/generated-protocol/pub/v1/models/contact.pb.dart';
-import 'package:deliver_flutter/generated-protocol/pub/v1/models/phone.pb.dart';
-import 'package:deliver_flutter/generated-protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:contacts_service/contacts_service.dart' as PhoneContact;
+import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:fixnum/fixnum.dart';

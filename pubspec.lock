@@ -239,6 +239,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.6"
+  deliver_public_protocol:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "tags/v1.2.0"
+      resolved-ref: c009df5ba38eac6a0b36675be565f670b79594b8
+      url: "https://gitlab.iais.co/deliver/protocol/pub-dart-artifactory.git"
+    source: git
+    version: "1.2.0"
   dio:
     dependency: "direct main"
     description:

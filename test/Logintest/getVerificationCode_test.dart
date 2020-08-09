@@ -1,5 +1,5 @@
-import 'package:deliver_flutter/generated-protocol/pub/v1/models/phone.pb.dart';
-import 'package:deliver_flutter/generated-protocol/pub/v1/profile.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 

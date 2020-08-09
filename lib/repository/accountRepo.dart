@@ -1,9 +1,9 @@
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/generated-protocol/pub/v1/models/phone.pb.dart';
-import 'package:deliver_flutter/generated-protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_flutter/repository/profileRepo.dart';
+import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:fimber/fimber_base.dart';
 import 'package:get_it/get_it.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
