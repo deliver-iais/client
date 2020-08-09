@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/repository/profileRepo.dart';
+import 'package:deliver_flutter/models/loggedInStatus.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-auth/widgets/inputFeilds.dart';
 

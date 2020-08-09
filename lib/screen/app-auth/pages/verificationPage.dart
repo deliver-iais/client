@@ -3,7 +3,6 @@ import 'package:deliver_flutter/repository/profileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/models/loggedInStatus.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
-import 'package:deliver_flutter/shared/Widget/textField.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +55,7 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
     });
   }
 
-  _getLoggedinUserId() async {
+  _getloggedInUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('loggedInStatus', enumToString(LoggedInStatus.loggedIn));
     loggedInUserId = prefs.getString('loggedInUserId');
@@ -66,7 +65,7 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
     print("hi");
     var currentPageService = GetIt.I.get<CurrentPageService>();
     currentPageService.setToHome();
-    _getLoggedinUserId()
+    _getloggedInUserId()
         .then((value) => ExtendedNavigator.of(context).pushNamedAndRemoveUntil(
               Routes.homePage(id: loggedInUserId),
               (_) => false,
@@ -183,6 +182,10 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
 
   @override
   void codeUpdated() {
-
+    // setState(() {
+    otpCode = code;
+    print('hello');
+    print(code);
+    // });
   }
 }
