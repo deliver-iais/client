@@ -1,10 +1,6 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/dao/MessageDao.dart';
-import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/models/loggedinStatus.dart';
+import 'package:deliver_flutter/models/loggedInStatus.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -21,23 +17,21 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _onLoading().then(
-        (value) => value ? _navigateToIntroPage() : _navigateToHomePage());
-  }
 
-  void _getLoggedInStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    // prefs.clear();
-    loggedInStatus = enumFromString(prefs.getString("loggedInStatus"));
-    if (loggedInStatus == null) loggedInStatus = LoggedinStatus.noLoggeding;
-    if (loggedInStatus == LoggedinStatus.loggedin)
-      loggedInUserId = prefs.get("loggedInUserId");
-    print("loggedInStatus : " + enumToString(loggedInStatus));
+    _onLoading().then(
+        (value) => value ? _navigateToHomePage() : _navigateToIntroPage());
   }
 
   Future<bool> _onLoading() async {
-    _getLoggedInStatus();
-    return loggedInStatus == LoggedinStatus.loggedin ? true : false;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // prefs.clear();
+    loggedInStatus = enumFromString(prefs.getString("loggedInStatus"));
+    if (loggedInStatus == null) loggedInStatus = LoggedInStatus.noLoggedIn;
+    if (loggedInStatus == LoggedInStatus.loggedIn) {
+      loggedInUserId = prefs.get("loggedInUserId");
+    }
+    print("loggedInStatus : " + enumToString(loggedInStatus));
+    return loggedInStatus == LoggedInStatus.loggedIn ? true : false;
   }
 
   void _navigateToIntroPage() {
@@ -46,6 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToHomePage() {
+    print('Ya Ali');
     var currentPageService = GetIt.I.get<CurrentPageService>();
     currentPageService.setToHome();
     ExtendedNavigator.of(context).pushNamedAndRemoveUntil(

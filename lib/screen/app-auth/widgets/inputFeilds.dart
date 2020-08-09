@@ -70,7 +70,7 @@ class InputFeilds extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              maxLength: 2,
+                              maxLength: 3,
                               keyboardType: TextInputType.numberWithOptions(
                                 decimal: true,
                               ),
@@ -119,7 +119,7 @@ class InputFeilds extends StatelessWidget {
                             color: ExtraTheme.of(context).text,
                           ),
                         ),
-                        maxLength: 10,
+                        maxLength: 11,
                         maxLengthEnforced: true,
                         keyboardType: TextInputType.numberWithOptions(
                           decimal: true,
@@ -139,17 +139,17 @@ class InputFeilds extends StatelessWidget {
           ),
           child: inputError == "both"
               ? Text(
-                  "Fields can't be empty",
+                  "Code of country and phone number can't be empty",
                   style: errorStyle,
                 )
               : inputError == "code"
                   ? Text(
-                      "Feild of code can't be empty",
+                      "Code of country can't be empty",
                       style: errorStyle,
                     )
                   : inputError == "phoneNum"
                       ? Text(
-                          "Feild of phone Number can't be empty",
+                          "Phone Number can't be empty",
                           style: errorStyle,
                         )
                       : Container(),

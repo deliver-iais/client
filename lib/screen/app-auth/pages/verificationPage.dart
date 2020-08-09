@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/models/loggedinStatus.dart';
+import 'package:deliver_flutter/models/loggedInStatus.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
@@ -13,27 +13,39 @@ class VerificationPage extends StatefulWidget {
   _VerificationPageState createState() => _VerificationPageState();
 }
 
-class _VerificationPageState extends State<VerificationPage> {
-  var loggedinUserId = '';
+class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
+  String otpCode;
+  String inpCode;
+  bool showError = false;
+  var loggedInUserId = '';
   void _listenOpt() async {
     await SmsAutoFill().listenForCode;
   }
 
-  _getLoggedinUserId() async {
+  _getloggedInUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('loggedinStatus', enumToString(LoggedinStatus.loggedin));
-    loggedinUserId = prefs.getString('loggedinUserId');
+    prefs.setString('loggedInStatus', enumToString(LoggedInStatus.loggedIn));
+    loggedInUserId = prefs.getString('loggedInUserId');
   }
 
   _navigationToHome() {
-    print("hi");
+    // print('otp code = ');
+    // print(otpCode);
+    // print(' inpCode = ');
+    // print(inpCode);
+    // if (inpCode == otpCode) {
     var currentPageService = GetIt.I.get<CurrentPageService>();
     currentPageService.setToHome();
-    _getLoggedinUserId()
+    _getloggedInUserId()
         .then((value) => ExtendedNavigator.of(context).pushNamedAndRemoveUntil(
-              Routes.homePage(id: loggedinUserId),
+              Routes.homePage(id: loggedInUserId),
               (_) => false,
             ));
+    // } else {
+    //   setState(() {
+    //     showError = true;
+    //   });
+    // }
   }
 
   @override
@@ -48,7 +60,8 @@ class _VerificationPageState extends State<VerificationPage> {
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBar(
         backgroundColor: Theme.of(context).backgroundColor,
-        title: Center(
+        title: Padding(
+          padding: const EdgeInsets.only(left: 50.0),
           child: Text(
             "Verification",
             style: TextStyle(
@@ -89,11 +102,11 @@ class _VerificationPageState extends State<VerificationPage> {
                       ),
                     ),
                     child: TextFieldPinAutoFill(
-                      // onCodeSubmitted: _navigationToHome(),
                       codeLength: 5,
-                      onCodeChanged: (val) => print(val),
+                      onCodeChanged: (val) => inpCode = val,
                       decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 80),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 80, vertical: 20),
                         hintText: "Verification Code",
                         focusedBorder: InputBorder.none,
                         border: InputBorder.none,
@@ -107,6 +120,7 @@ class _VerificationPageState extends State<VerificationPage> {
                     ),
                   ),
                 ),
+                showError ? Text('Code is wrong') : Container(),
               ],
             ),
           ),
@@ -131,5 +145,14 @@ class _VerificationPageState extends State<VerificationPage> {
         ],
       ),
     );
+  }
+
+  @override
+  void codeUpdated() {
+    // setState(() {
+    otpCode = code;
+    print('hello');
+    print(code);
+    // });
   }
 }

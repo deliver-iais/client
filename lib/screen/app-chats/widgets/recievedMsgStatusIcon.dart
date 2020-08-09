@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
-class RecievedMsgIcon extends StatelessWidget {
-  final status;
+class ReceivedMsgIcon extends StatelessWidget {
+  final bool status;
 
-  const RecievedMsgIcon(this.status);
+  const ReceivedMsgIcon(this.status);
   @override
   Widget build(BuildContext context) {
-    print('sstatus : ' + status);
-    return status == false
+    return (status == false)
         ? Padding(
             padding: const EdgeInsets.only(
               right: 7.0,

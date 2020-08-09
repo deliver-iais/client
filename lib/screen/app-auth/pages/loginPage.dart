@@ -1,8 +1,6 @@
-import 'dart:ffi';
-
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/models/loggedinStatus.dart';
 import 'package:deliver_flutter/repository/profileRepo.dart';
+import 'package:deliver_flutter/models/loggedInStatus.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-auth/widgets/inputFeilds.dart';
 
@@ -19,7 +17,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   String phoneNum = "";
   String code = "";
   String inputError;
@@ -65,13 +62,13 @@ class _LoginPageState extends State<LoginPage> {
       SharedPreferences _prefs = await SharedPreferences.getInstance();
       _prefs
           .setString(
-              "loggedinUserId",
+              "loggedInUserId",
               // code + phoneNum,
-              '0000000000000000000000')
+              '1111111111111111111111')
           .then((value) => _prefs
               .setString(
-                "loggedinStatus",
-                enumToString(LoggedinStatus.waitForVerify),
+                "loggedInStatus",
+                enumToString(LoggedInStatus.waitForVerify),
               )
               .then((value) => ExtendedNavigator.of(context)
                   .pushNamed(Routes.verificationPage)));

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';

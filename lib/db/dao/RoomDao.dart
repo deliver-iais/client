@@ -11,20 +11,18 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
   final Database db;
   RoomDao(this.db) : super(db);
 
-  Stream watchAllRooms() => select(rooms).watch();
+  Stream<List<Room>> watchAllRooms() => select(rooms).watch();
 
-  Future insertRoom(Room newRoom) => into(rooms).insert(newRoom);
+  Future insertRoom(Room newRoom) {
+    return into(rooms).insert(newRoom);
+  }
 
   Future deleteRoom(Room room) => delete(rooms).delete(room);
 
   Future updateRoom(Room updatedRoom) => update(rooms).replace(updatedRoom);
 
-  Stream getByContactId(String contactId) {
+  Stream<List<RoomWithMessage>> getByContactId(String contactId) {
     return ((select(rooms)
-              ..orderBy([
-                (c) =>
-                    OrderingTerm(expression: c.roomId, mode: OrderingMode.desc)
-              ])
               ..where((c) =>
                   c.sender.equals(contactId) | c.reciever.equals(contactId)))
             .join([
@@ -47,7 +45,7 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
         );
   }
 
-  Stream getById(int id) {
-    return (select(rooms)..where((c) => c.roomId.equals(id))).watch();
+  Stream<Room> getById(int rid) {
+    return (select(rooms)..where((c) => c.roomId.equals(rid))).watchSingle();
   }
 }
