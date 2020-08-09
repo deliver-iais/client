@@ -14,10 +14,10 @@ class IntroPage extends StatefulWidget {
 
 class _IntroPageState extends State<IntroPage> {
   void onDonePress() {
-    navigateToHomePage(context);
+    navigateToLoginPage(context);
   }
 
-  void navigateToHomePage(BuildContext context) {
+  void navigateToLoginPage(BuildContext context) {
     ExtendedNavigator.of(context).pushReplacementNamed(Routes.loginPage);
   }
 
@@ -31,7 +31,7 @@ class _IntroPageState extends State<IntroPage> {
       styleNamePrevBtn: TextStyle(color: Theme.of(context).primaryColor),
       colorDot: Color(0xFFBCE0FD),
       colorActiveDot: Theme.of(context).primaryColor,
-      onSkipPress: () => navigateToHomePage(context),
+      onSkipPress: () => navigateToLoginPage(context),
     );
   }
 }

@@ -46,6 +46,7 @@ dependencies:
   sms_autofill: ^1.2.1
   shared_preferences: ^0.5.7+3
   moor_flutter: ^3.1.0
+  auto_size_text: ^2.1.0
   # Path for Files
 #  path_provider: ^1.6.9
 #  path: ^1.7.0

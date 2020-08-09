@@ -10,22 +10,24 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
 
   Stream watchAllMessages() => select(messages).watch();
 
-  Future insertMessage(Message newMessage) => into(messages).insert(newMessage);
+  Future<int> insertMessage(Message newMessage) =>
+      into(messages).insert(newMessage);
 
   Future deleteMessage(Message message) => delete(messages).delete(message);
 
   Future updateMessage(Message updatedMessage) =>
       update(messages).replace(updatedMessage);
 
-  Stream getByRoomId(int roomId) {
+  Stream<List<Message>> getByRoomId(int roomId) {
     return (select(messages)
           ..orderBy([
             (m) => OrderingTerm(expression: m.time, mode: OrderingMode.desc)
-          ]))
+          ])
+          ..where((message) => message.roomId.equals(roomId)))
         .watch();
   }
 
-  Stream getById(int id) {
+  Stream<List<Message>> getById(int id) {
     return (select(messages)..where((m) => m.id.equals(id))).watch();
   }
 

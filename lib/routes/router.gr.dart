@@ -23,8 +23,7 @@ class Routes {
   static const String settingsPage = '/settings-page';
   static const String _homePage = '/users:id';
   static homePage({@required id}) => '/users$id';
-  static const String _roomPage = '/room:roomId';
-  static roomPage({@required roomId}) => '/room$roomId';
+  static const String roomPage = '/room-page';
   static const all = <String>{
     splashScreen,
     introPage,
@@ -32,7 +31,7 @@ class Routes {
     verificationPage,
     settingsPage,
     _homePage,
-    _roomPage,
+    roomPage,
   };
 }
 
@@ -46,7 +45,7 @@ class Router extends RouterBase {
     RouteDef(Routes.verificationPage, page: VerificationPage),
     RouteDef(Routes.settingsPage, page: SettingsPage),
     RouteDef(Routes._homePage, page: HomePage),
-    RouteDef(Routes._roomPage, page: RoomPage),
+    RouteDef(Routes.roomPage, page: RoomPage),
   ];
   @override
   Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
@@ -91,8 +90,10 @@ class Router extends RouterBase {
       );
     },
     RoomPage: (RouteData data) {
+      var args =
+          data.getArgs<RoomPageArguments>(orElse: () => RoomPageArguments());
       return MaterialPageRoute<dynamic>(
-        builder: (context) => RoomPage(),
+        builder: (context) => RoomPage(key: args.key, roomId: args.roomId),
         settings: data,
       );
     },
@@ -108,4 +109,11 @@ class IntroPageArguments {
   final Key key;
   final dynamic currentPage;
   IntroPageArguments({this.key, this.currentPage});
+}
+
+//RoomPage arguments holder class
+class RoomPageArguments {
+  final Key key;
+  final String roomId;
+  RoomPageArguments({this.key, this.roomId});
 }
