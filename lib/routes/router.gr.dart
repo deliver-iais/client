@@ -11,27 +11,29 @@ import 'package:deliver_flutter/screen/splashScreen/pages/splashScreen.dart';
 import 'package:deliver_flutter/screen/app-intro/pages/introPage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/loginPage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/verificationPage.dart';
-import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 import 'package:deliver_flutter/screen/app-home/pages/homePage.dart';
+import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
+import 'package:deliver_flutter/screen/app-home/widgets/forward.dart';
 
 class Routes {
   static const String splashScreen = '/';
   static const String introPage = '/intro-page';
   static const String loginPage = '/login-page';
   static const String verificationPage = '/verification-page';
+  static const String homePage = '/home-page';
   static const String settingsPage = '/settings-page';
-  static const String _homePage = '/users:id';
-  static homePage({@required id}) => '/users$id';
   static const String roomPage = '/room-page';
+  static const String forwardMessage = '/forward-message';
   static const all = <String>{
     splashScreen,
     introPage,
     loginPage,
     verificationPage,
+    homePage,
     settingsPage,
-    _homePage,
     roomPage,
+    forwardMessage,
   };
 }
 
@@ -43,9 +45,10 @@ class Router extends RouterBase {
     RouteDef(Routes.introPage, page: IntroPage),
     RouteDef(Routes.loginPage, page: LoginPage),
     RouteDef(Routes.verificationPage, page: VerificationPage),
+    RouteDef(Routes.homePage, page: HomePage),
     RouteDef(Routes.settingsPage, page: SettingsPage),
-    RouteDef(Routes._homePage, page: HomePage),
     RouteDef(Routes.roomPage, page: RoomPage),
+    RouteDef(Routes.forwardMessage, page: ForwardMessage),
   ];
   @override
   Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
@@ -77,15 +80,15 @@ class Router extends RouterBase {
         settings: data,
       );
     },
-    SettingsPage: (RouteData data) {
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => SettingsPage(),
-        settings: data,
-      );
-    },
     HomePage: (RouteData data) {
       return MaterialPageRoute<dynamic>(
         builder: (context) => HomePage(),
+        settings: data,
+      );
+    },
+    SettingsPage: (RouteData data) {
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => SettingsPage(),
         settings: data,
       );
     },
@@ -94,6 +97,12 @@ class Router extends RouterBase {
           data.getArgs<RoomPageArguments>(orElse: () => RoomPageArguments());
       return MaterialPageRoute<dynamic>(
         builder: (context) => RoomPage(key: args.key, roomId: args.roomId),
+        settings: data,
+      );
+    },
+    ForwardMessage: (RouteData data) {
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => ForwardMessage(),
         settings: data,
       );
     },

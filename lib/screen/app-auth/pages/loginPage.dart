@@ -1,15 +1,12 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/repository/profileRepo.dart';
-import 'package:deliver_flutter/models/loggedInStatus.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-auth/widgets/inputFeilds.dart';
+import 'package:fimber/fimber.dart';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
-
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sms_autofill/sms_autofill.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -17,61 +14,43 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String phoneNum = "";
-  String code = "";
+  String phoneNumber = "";
+  String countryCode = "";
   String inputError;
-  var profileRepo = GetIt.I.get<ProfileRepo>();
-
-  // todo change receiveVerificationCode to false then the server send verification code;
-  bool receiveVerificationCode = true;
+  AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
+  bool receiveVerificationCode = false;
 
   _navigateToVerificationPage() async {
-    if (code == "" || phoneNum == "") {
+    if (countryCode == "" || phoneNumber == "") {
       setState(() {
-        inputError = code == "" && phoneNum == ""
+        inputError = countryCode == "" && phoneNumber == ""
             ? "both"
-            : code == "" ? "code" : "phoneNum";
+//        TODO use Enums
+            : countryCode == "" ? "code" : "phoneNum";
       });
     } else {
-      final signCode = await SmsAutoFill().getAppSignature;
-      print(signCode);
-
-      var result = profileRepo.getVerificationCode(int.parse(code), phoneNum);
-      result
-          .then((res) => {
-                receiveVerificationCode = true,
-                Fluttertoast.showToast(
-                    msg: " رمز ورود برای شما ارسال شد.",
-                    toastLength: Toast.LENGTH_SHORT,
-                    backgroundColor: Colors.black,
-                    textColor: Colors.white,
-                    fontSize: 16.0),
-              })
-          .catchError((e) => {
-                Fluttertoast.showToast(
-                    msg: " خطایی رخ داده است.",
-                    toastLength: Toast.LENGTH_SHORT,
-                    backgroundColor: Colors.black,
-                    textColor: Colors.white,
-                    fontSize: 16.0)
-              });
-      if (!receiveVerificationCode) {
-        return;
-      }
-
-      SharedPreferences _prefs = await SharedPreferences.getInstance();
-      _prefs
-          .setString(
-              "loggedInUserId",
-              // code + phoneNum,
-              '1111111111111111111111')
-          .then((value) => _prefs
-              .setString(
-                "loggedInStatus",
-                enumToString(LoggedInStatus.waitForVerify),
-              )
-              .then((value) => ExtendedNavigator.of(context)
-                  .pushNamed(Routes.verificationPage)));
+      var result =
+          accountRepo.getVerificationCode(int.parse(countryCode), phoneNumber);
+      result.then((res) {
+        receiveVerificationCode = true;
+        Fluttertoast.showToast(
+//          TODO use i18n in code instead of bare texts.
+            msg: " رمز ورود برای شما ارسال شد.",
+            toastLength: Toast.LENGTH_SHORT,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+        ExtendedNavigator.of(context).pushNamed(Routes.verificationPage);
+      }).catchError((e) {
+        Fimber.d(e.toString());
+        Fluttertoast.showToast(
+//          TODO more detailed error message needed here.
+            msg: " خطایی رخ داده است.",
+            toastLength: Toast.LENGTH_SHORT,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      });
     }
   }
 
@@ -100,14 +79,14 @@ class _LoginPageState extends State<LoginPage> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 30,
+                    horizontal: 16,
                   ),
                   child: Text(
                     "Please confirm your country code and enter your phone number",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).primaryColor,
-                      fontSize: 14.5,
+                      fontSize: 15,
                     ),
                   ),
                 ),
@@ -115,20 +94,18 @@ class _LoginPageState extends State<LoginPage> {
                 InputFeilds(
                   onChangeCode: (val) => setState(
                     () {
-                      code = val;
+                      countryCode = val;
                       inputError = inputError == "code"
                           ? null
                           : inputError == "both" ? "phoneNum" : null;
-                      print(val);
                     },
                   ),
                   onChangePhoneNum: (val) => setState(
                     () {
-                      phoneNum = val;
+                      phoneNumber = val;
                       inputError = inputError == "phoneNum"
                           ? null
                           : inputError == "both" ? "code" : null;
-                      print(val);
                     },
                   ),
                   inputError: inputError,

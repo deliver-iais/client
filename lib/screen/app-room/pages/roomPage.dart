@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/chatTime.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/recievedMessageBox.dart';
@@ -9,7 +10,7 @@ import 'package:deliver_flutter/screen/app-room/widgets/newMessageInput.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class RoomPage extends StatefulWidget {
   final String roomId;
@@ -21,17 +22,12 @@ class RoomPage extends StatefulWidget {
 }
 
 class _RoomPageState extends State<RoomPage> {
-  String loggedInUserId;
   double maxWidth;
+
+  AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
 
   void initState() {
     super.initState();
-    _getloggedInUserId();
-  }
-
-  void _getloggedInUserId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    loggedInUserId = prefs.get("loggedInUserId");
   }
 
   @override
@@ -78,7 +74,9 @@ class _RoomPageState extends State<RoomPage> {
                           newTime
                               ? ChatTime(t: currentRoomMessages[index].time)
                               : Container(),
-                          currentRoomMessages[index].from == loggedInUserId
+                          currentRoomMessages[index]
+                                  .from
+                                  .isSameEntity(accountRepo.currentUserUid)
                               ? Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   crossAxisAlignment: CrossAxisAlignment.end,

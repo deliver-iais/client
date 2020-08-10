@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/shared/Widget/textField.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -9,24 +10,23 @@ class InputFeilds extends StatelessWidget {
   final Function onChangeCode;
   final Function onChangePhoneNum;
   final String inputError;
+
   const InputFeilds(
       {Key key, this.onChangeCode, this.onChangePhoneNum, this.inputError})
       : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Row(
-          textDirection: TextDirection.ltr,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  left: 20.0,
-                  top: 15,
-                ),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            textDirection: TextDirection.ltr,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              Expanded(
                 child: Container(
                   height: 40,
                   decoration: BoxDecoration(
@@ -52,28 +52,14 @@ class InputFeilds extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Center(
-                            child: TextField(
-                              onChanged: onChangeCode,
-                              textAlignVertical: TextAlignVertical.center,
-                              textAlign: TextAlign.start,
-                              autofocus: false,
-                              cursorColor: ExtraTheme.of(context).text,
-                              maxLengthEnforced: true,
-                              decoration: InputDecoration(
-                                counterText: "",
-                                focusedBorder: InputBorder.none,
-                                border: InputBorder.none,
-                                hintText: 'Code',
-                                hintStyle: TextStyle(
-                                  fontSize: 14,
-                                  color: ExtraTheme.of(context).text,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                            child: TextFieldId(
+                              widgetkey: "Code",
                               maxLength: 3,
-                              keyboardType: TextInputType.numberWithOptions(
-                                decimal: true,
-                              ),
+                              hint: "Code",
+                              fontSize: 14,
+                              onChange: onChangeCode,
+                              setColor: false,
+                              setbacroundColor: true,
                             ),
                           ),
                         ),
@@ -82,16 +68,12 @@ class InputFeilds extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              flex: 3,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  right: 20.0,
-                  left: 8,
-                  top: 15,
-                ),
+              Expanded(
+                flex: 3,
                 child: Container(
+                  margin: const EdgeInsets.only(
+                    left: 8,
+                  ),
                   height: 40,
                   decoration: BoxDecoration(
                     color: ExtraTheme.of(context).secondColor,
@@ -102,59 +84,43 @@ class InputFeilds extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Center(
-                      child: TextField(
-                        onChanged: onChangePhoneNum,
-                        textAlignVertical: TextAlignVertical.center,
-                        textAlign: TextAlign.center,
-                        autofocus: false,
-                        cursorColor: ExtraTheme.of(context).text,
-                        decoration: InputDecoration(
-                          counterText: "",
-                          focusedBorder: InputBorder.none,
-                          border: InputBorder.none,
-                          hintText: 'Phone Number',
-                          hintStyle: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            color: ExtraTheme.of(context).text,
-                          ),
-                        ),
-                        maxLength: 11,
-                        maxLengthEnforced: true,
-                        keyboardType: TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                      ),
-                    ),
+                        child: TextFieldId(
+                      setColor: true,
+                      setbacroundColor: true,
+                      widgetkey: "PhoneNumber",
+                      hint: 'Phone Number',
+                      onChange: this.onChangePhoneNum,
+                      fontSize: 14,
+                      maxLength: 10,
+                    )),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.only(
-            left: 20.0,
-            top: 15,
+            ],
           ),
-          child: inputError == "both"
-              ? Text(
-                  "Code of country and phone number can't be empty",
-                  style: errorStyle,
-                )
-              : inputError == "code"
-                  ? Text(
-                      "Code of country can't be empty",
-                      style: errorStyle,
-                    )
-                  : inputError == "phoneNum"
-                      ? Text(
-                          "Phone Number can't be empty",
-                          style: errorStyle,
-                        )
-                      : Container(),
-        ),
-      ],
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 15,
+            ),
+            child: inputError == "both"
+                ? Text(
+                    "Code of country and phone number can't be empty",
+                    style: errorStyle,
+                  )
+                : inputError == "code"
+                    ? Text(
+                        "Code of country can't be empty",
+                        style: errorStyle,
+                      )
+                    : inputError == "phoneNum"
+                        ? Text(
+                            "Phone Number can't be empty",
+                            style: errorStyle,
+                          )
+                        : Container(),
+          ),
+        ],
+      ),
     );
   }
 }

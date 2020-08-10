@@ -7,6 +7,10 @@ class FileInfos extends Table {
 
   TextColumn get fileName => text()();
 
+  TextColumn get downloadTaskId => text()();
+
+  TextColumn get downloadTaskStatus => text()();
+
   @override
   Set<Column> get primaryKey => {id};
 }

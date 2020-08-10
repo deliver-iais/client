@@ -1,11 +1,13 @@
 import 'package:moor/moor.dart';
 import '../Messages.dart';
 import '../database.dart';
+
 part 'MessageDao.g.dart';
 
 @UseDao(tables: [Messages])
 class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
   final Database database;
+
   MessageDao(this.database) : super(database);
 
   Stream watchAllMessages() => select(messages).watch();

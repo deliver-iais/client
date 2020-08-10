@@ -9,17 +9,15 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/fileRepoExtension.dart';
 
 class CircleAvatarWidget extends StatelessWidget {
-  String contactUid;
-  double radius;
-  var avatarDao = GetIt.I.get<AvatarDao>();
-  var contactDao = GetIt.I.get<ContactDao>();
-  var fileRepo = GetIt.I.get<FileRepo>();
-  var accountRepo = GetIt.I.get<AccountRepo>();
+  final String contactUid;
+  final double radius;
 
-  CircleAvatarWidget(String contactUid, double radius) {
-    this.radius = radius;
-    this.contactUid = contactUid;
-  }
+  final avatarDao = GetIt.I.get<AvatarDao>();
+  final contactDao = GetIt.I.get<ContactDao>();
+  final fileRepo = GetIt.I.get<FileRepo>();
+  final accountRepo = GetIt.I.get<AccountRepo>();
+
+  CircleAvatarWidget(this.contactUid, this.radius);
 
   @override
   Widget build(BuildContext context) {

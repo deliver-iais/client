@@ -2,15 +2,19 @@ import 'dart:io';
 
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/services/downloadFileServices.dart';
+import 'package:deliver_flutter/services/uploadFileServices.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:permissions_plugin/permissions_plugin.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingState createState() => SettingState();
@@ -22,9 +26,21 @@ class SettingState extends State<SettingsPage> {
   var uxService = GetIt.I.get<UxService>();
   var avatarDao = GetIt.I.get<AvatarDao>();
   var contactDao = GetIt.I.get<ContactDao>();
+  var downloadFile = GetIt.I.get<DownloadFileServices>();
+  var fileRepo = GetIt.I.get<FileRepo>();
   
   var accountRepo = GetIt.I.get<AccountRepo>();
-  File file;
+  var theme = false;
+
+
+  bool _getTheme(){
+    if(uxService.theme == DarkTheme){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +97,13 @@ class SettingState extends State<SettingsPage> {
                           ),
                           IconButton(
                               icon: Icon(Icons.navigate_next),
-                              onPressed: null),
+                              onPressed: () async {
+                                File file = await FilePicker.getFile();
+                                if(file.existsSync()){
+                                  UploadFile().httpUploadFile(file);
+                                }
+
+                              }),
                         ],
                       ),
                     )
@@ -130,7 +152,16 @@ class SettingState extends State<SettingsPage> {
                           ),
                           IconButton(
                               icon: Icon(Icons.navigate_next),
-                              onPressed: null),
+                              onPressed: (){
+                                PermissionsPlugin
+                                    .requestPermissions([
+                                  Permission.WRITE_EXTERNAL_STORAGE,
+                                  Permission.READ_EXTERNAL_STORAGE,
+                                  Permission.READ_CONTACTS,
+
+                                ]);
+                                downloadFile.downloadFile("url", "");
+                              }),
                         ],
                       ),
                     ),
@@ -165,7 +196,8 @@ class SettingState extends State<SettingsPage> {
                           ],
                         )),
                     Switch(
-                      value: darkMode,
+
+                      value:_getTheme() ,
                       onChanged: (newThemMode) {
                         setState(() {
                           uxService.toggleTheme();

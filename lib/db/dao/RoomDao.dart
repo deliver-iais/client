@@ -4,11 +4,13 @@ import 'package:moor/moor.dart';
 
 import '../Rooms.dart';
 import '../database.dart';
+
 part 'RoomDao.g.dart';
 
 @UseDao(tables: [Rooms, Messages])
 class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
   final Database db;
+
   RoomDao(this.db) : super(db);
 
   Stream<List<Room>> watchAllRooms() => select(rooms).watch();
@@ -21,17 +23,14 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
 
   Future updateRoom(Room updatedRoom) => update(rooms).replace(updatedRoom);
 
-  Stream<List<RoomWithMessage>> getByContactId(String contactId) {
-    return ((select(rooms)
-              ..where((c) =>
-                  c.sender.equals(contactId) | c.reciever.equals(contactId)))
-            .join([
+  Stream<List<RoomWithMessage>> getByContactId() {
+    return (select(rooms).join([
       innerJoin(
           messages,
           messages.id.equalsExp(rooms.lastMessage) &
               messages.roomId.equalsExp(rooms.roomId))
     ])
-              ..orderBy([OrderingTerm.desc(messages.time)]))
+          ..orderBy([OrderingTerm.desc(messages.time)]))
         .watch()
         .map(
           (rows) => rows.map(

@@ -3,9 +3,13 @@ import 'package:moor/moor.dart';
 
 class Rooms extends Table {
   IntColumn get roomId => integer().autoIncrement()();
-  TextColumn get sender => text().withLength(min: 22, max: 22)();
-  TextColumn get reciever => text().withLength(min: 22, max: 22)();
-  TextColumn get mentioned => text().withLength(min: 22, max: 22).nullable()();
+
+  TextColumn get sender => text()();
+
+  TextColumn get reciever => text()();
+
+  TextColumn get mentioned => text().nullable()();
+
   IntColumn get lastMessage =>
       integer().customConstraint('REFERENCES messages(id)')();
 }
