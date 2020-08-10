@@ -23,7 +23,7 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
 
   Future updateRoom(Room updatedRoom) => update(rooms).replace(updatedRoom);
 
-  Stream<List<RoomWithMessage>> getByContactId(String contactId) {
+  Stream<List<RoomWithMessage>> getByContactId() {
     return (select(rooms).join([
       innerJoin(
           messages,

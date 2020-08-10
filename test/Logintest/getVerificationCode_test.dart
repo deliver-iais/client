@@ -40,8 +40,6 @@ void main() {
   test("Send Verification Code", () async {
     final mockClient = MockAuthServiceClient();
 
- //   SharedPreferences _prefs = await SharedPreferences.getInstance();
-
     var request = VerifyCodeReq()
       ..phoneNumber = phoneNumber
       ..device = "android/123"

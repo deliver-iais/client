@@ -17,16 +17,16 @@ class InputFeilds extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Row(
-          textDirection: TextDirection.ltr,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            Container(
-              margin: const EdgeInsets.all(16),
-              child: Expanded(
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            textDirection: TextDirection.ltr,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              Expanded(
                 child: Container(
                   height: 40,
                   decoration: BoxDecoration(
@@ -68,60 +68,59 @@ class InputFeilds extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              flex: 3,
-              child: Container(
-                margin: const EdgeInsets.only(
-                  left: 8,
-                ),
-                height: 40,
-                decoration: BoxDecoration(
-                  color: ExtraTheme.of(context).secondColor,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(5),
+              Expanded(
+                flex: 3,
+                child: Container(
+                  margin: const EdgeInsets.only(
+                    left: 8,
+                  ),
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: ExtraTheme.of(context).secondColor,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(5),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(
+                        child: TextFieldId(
+                      setColor: true,
+                      setbacroundColor: true,
+                      widgetkey: "PhoneNumber",
+                      hint: 'Phone Number',
+                      onChange: this.onChangePhoneNum,
+                      fontSize: 14,
+                      maxLength: 10,
+                    )),
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Center(
-                      child: TextFieldId(
-                    setColor: true,
-                    setbacroundColor: true,
-                    widgetkey: "PhoneNumber",
-                    hint: 'Phone Number',
-                    onChange: this.onChangePhoneNum,
-                    fontSize: 14,
-                    maxLength: 10,
-                  )),
-                ),
               ),
-            ),
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.only(
-            left: 20.0,
-            top: 15,
+            ],
           ),
-          child: inputError == "both"
-              ? Text(
-                  "Code of country and phone number can't be empty",
-                  style: errorStyle,
-                )
-              : inputError == "code"
-                  ? Text(
-                      "Code of country can't be empty",
-                      style: errorStyle,
-                    )
-                  : inputError == "phoneNum"
-                      ? Text(
-                          "Phone Number can't be empty",
-                          style: errorStyle,
-                        )
-                      : Container(),
-        ),
-      ],
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 15,
+            ),
+            child: inputError == "both"
+                ? Text(
+                    "Code of country and phone number can't be empty",
+                    style: errorStyle,
+                  )
+                : inputError == "code"
+                    ? Text(
+                        "Code of country can't be empty",
+                        style: errorStyle,
+                      )
+                    : inputError == "phoneNum"
+                        ? Text(
+                            "Phone Number can't be empty",
+                            style: errorStyle,
+                          )
+                        : Container(),
+          ),
+        ],
+      ),
     );
   }
 }

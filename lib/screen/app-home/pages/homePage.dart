@@ -13,9 +13,6 @@ import 'package:get_it/get_it.dart';
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var routeData = RouteData.of(context);
-    String loggedInUserId = routeData.pathParams['id'].value;
-    Fimber.d("####################################### $loggedInUserId");
     var currentPageService = GetIt.I.get<CurrentPageService>();
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
@@ -28,11 +25,11 @@ class HomePage extends StatelessWidget {
           children: <Widget>[
             SearchBox(),
             if (currentPageService.currentPage == 0)
-              Expanded(child: ChatsPage(loggedInUserId: loggedInUserId))
+              ChatsPage()
             else
-              ContactsPage(loggedInUserId: loggedInUserId),
+              ContactsPage(),
           ],
-        ),20,25
+        ), 20,25
       ),
       bottomNavigationBar: NavigationBar(),
     );

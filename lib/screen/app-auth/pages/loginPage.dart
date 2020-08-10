@@ -8,8 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 
-import 'package:sms_autofill/sms_autofill.dart';
-
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -19,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   String phoneNumber = "";
   String countryCode = "";
   String inputError;
-  var profileRepo = GetIt.I.get<AccountRepo>();
+  AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
   bool receiveVerificationCode = false;
 
   _navigateToVerificationPage() async {
@@ -27,17 +25,16 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         inputError = countryCode == "" && phoneNumber == ""
             ? "both"
+//        TODO use Enums
             : countryCode == "" ? "code" : "phoneNum";
       });
     } else {
-      final signCode = await SmsAutoFill().getAppSignature;
-      Fimber.d("APP_SIGN_CODE: $signCode");
-
       var result =
-          profileRepo.getVerificationCode(int.parse(countryCode), phoneNumber);
+          accountRepo.getVerificationCode(int.parse(countryCode), phoneNumber);
       result.then((res) {
         receiveVerificationCode = true;
         Fluttertoast.showToast(
+//          TODO use i18n in code instead of bare texts.
             msg: " رمز ورود برای شما ارسال شد.",
             toastLength: Toast.LENGTH_SHORT,
             backgroundColor: Colors.black,
@@ -45,8 +42,9 @@ class _LoginPageState extends State<LoginPage> {
             fontSize: 16.0);
         ExtendedNavigator.of(context).pushNamed(Routes.verificationPage);
       }).catchError((e) {
-        print(e.toString());
+        Fimber.d(e.toString());
         Fluttertoast.showToast(
+//          TODO more detailed error message needed here.
             msg: " خطایی رخ داده است.",
             toastLength: Toast.LENGTH_SHORT,
             backgroundColor: Colors.black,
@@ -81,14 +79,14 @@ class _LoginPageState extends State<LoginPage> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 30,
+                    horizontal: 16,
                   ),
                   child: Text(
                     "Please confirm your country code and enter your phone number",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).primaryColor,
-                      fontSize: 14.5,
+                      fontSize: 15,
                     ),
                   ),
                 ),
@@ -100,7 +98,6 @@ class _LoginPageState extends State<LoginPage> {
                       inputError = inputError == "code"
                           ? null
                           : inputError == "both" ? "phoneNum" : null;
-                      print(val);
                     },
                   ),
                   onChangePhoneNum: (val) => setState(
@@ -109,7 +106,6 @@ class _LoginPageState extends State<LoginPage> {
                       inputError = inputError == "phoneNum"
                           ? null
                           : inputError == "both" ? "code" : null;
-                      print(val);
                     },
                   ),
                   inputError: inputError,

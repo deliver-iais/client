@@ -19,6 +19,7 @@ import 'package:get_it/get_it.dart';
 import 'package:permissions_plugin/permissions_plugin.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 import './db/dao/MessageDao.dart';
 import 'db/dao/RoomDao.dart';
 import 'repository/servicesDiscoveryRepo.dart';
@@ -48,7 +49,7 @@ void setupDIAndRunApp() {
   GetIt getIt = GetIt.instance;
   getIt.registerSingletonAsync<SharedPreferences>(
       () async => await SharedPreferences.getInstance());
-  getIt.isReady<SharedPreferences>().then((ins) {
+  getIt.allReady().then((_) {
     setupDB();
     setupRepositories();
 
@@ -59,14 +60,18 @@ void setupDIAndRunApp() {
       Permission.READ_EXTERNAL_STORAGE,
       Permission.READ_CONTACTS,
     ]);
-    
+
     runApp(MyApp());
   });
 }
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   Fimber.plantTree(DebugTree.elapsed());
   Fimber.i("Application has been started");
+  SmsAutoFill()
+      .getAppSignature
+      .then((signCode) => Fimber.d("APP_SIGN_CODE for SMS: $signCode"));
 
   setupDIAndRunApp();
 }

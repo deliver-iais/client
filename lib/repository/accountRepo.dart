@@ -16,7 +16,7 @@ const REFRESH_TOKEN_KEY = "refreshToken";
 
 class AccountRepo {
   // TODO add account name protocol to server
-  String currentUserName = "John";
+  String currentUserName = "John Doe";
   Uid currentUserUid;
   Avatar avatar;
   PhoneNumber phoneNumber;
@@ -82,12 +82,23 @@ class AccountRepo {
     }
   }
 
+  bool isLoggedIn() {
+    return _refreshToken != null && !_isExpired(_refreshToken);
+  }
+
   bool _isExpired(accessToken) {
     Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
     Fimber.d("exp=${decodedToken["exp"]}");
     double expTime = double.parse(decodedToken["exp"].toString());
     double now = new DateTime.now().millisecondsSinceEpoch / 1000;
     return now > expTime;
+  }
+
+  void saveTokens(AccessTokenRes res) {
+    _accessToken = res.accessToken;
+    _refreshToken = res.refreshToken;
+    _prefs.setString(REFRESH_TOKEN_KEY, _refreshToken);
+    _prefs.setString(ACCESS_TOKEN_KEY, _accessToken);
   }
 
   void _saveTokens(RenewAccessTokenRes res) {

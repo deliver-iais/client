@@ -1,11 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/models/loggedInStatus.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/shared/Widget/textField.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
+import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
@@ -19,17 +19,15 @@ class VerificationPage extends StatefulWidget {
 
 class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
   String otpCode;
-  String inpCode;
   bool showError = false;
-  var loggedInUserId = '';
   String verificationCode;
-  var profileRepo = GetIt.I.get<AccountRepo>();
+  AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
 
   void _listenOpt() async {
     await SmsAutoFill().listenForCode;
   }
 
-  _setVerificationCode(String code) {
+  _onVerificationCodeChange(String code) {
     verificationCode = code;
     if (verificationCode.length == 5) {
       _sendVerificationCode();
@@ -37,50 +35,31 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
   }
 
   _sendVerificationCode() {
-    var result = profileRepo.sendVerificationCode(verificationCode);
-    result.then((value) {
-      AccessTokenRes accessTokenRequest = value as AccessTokenRes;
-      if (accessTokenRequest.status == AccessTokenRes_Status.OK) {
+    var result = accountRepo.sendVerificationCode(verificationCode);
+    result.then((accessTokenResponse) {
+      if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
+        accountRepo.saveTokens(accessTokenResponse);
         _navigationToHome();
-        _saveTokensInSharedPreferences(
-            accessTokenRequest.accessToken, accessTokenRequest.refreshToken);
-      } else if (accessTokenRequest.status == AccessTokenRes_Status.NOT_VALID) {
+      } else if (accessTokenResponse.status ==
+          AccessTokenRes_Status.NOT_VALID) {
         Fluttertoast.showToast(msg: "Verification Code Not valid");
-      } else if (accessTokenRequest.status ==
+      } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {
         Fluttertoast.showToast(msg: "PASSWORD_PROTECTED");
-        print("PASSWORD_PROTECTED");
+        Fimber.d("PASSWORD_PROTECTED");
       }
     }).catchError((e) {
-      print(e.toString());
+      Fimber.d(e.toString());
     });
-  }
-
-  _getLoggedInUserId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('loggedInStatus', enumToString(LoggedInStatus.loggedIn));
-    loggedInUserId = prefs.getString('loggedInUserId');
   }
 
   _navigationToHome() {
     var currentPageService = GetIt.I.get<CurrentPageService>();
     currentPageService.setToHome();
-    _getLoggedInUserId()
-        .then((value) => ExtendedNavigator.of(context).pushNamedAndRemoveUntil(
-              Routes.homePage(id: loggedInUserId),
-              (_) => false,
-            ));
-  }
-
-  _saveTokensInSharedPreferences(
-      String accessToken, String refreshToken) async {
-    SharedPreferences _prefs = await SharedPreferences.getInstance();
-    _prefs
-        .setString("accessToken", accessToken)
-        .then((value) => _prefs.setString(
-              "refreshToken",
-              refreshToken,
-            ));
+    ExtendedNavigator.of(context).pushNamedAndRemoveUntil(
+      Routes.homePage,
+      (_) => false,
+    );
   }
 
   @override
@@ -145,7 +124,7 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
                       setbacroundColor: true,
                       fontSize: 14,
                       hint: "Verification Code",
-                      onChange: (val) => _setVerificationCode(val),
+                      onChange: (val) => _onVerificationCodeChange(val),
                       maxLength: 5,
                       widgetkey: "verificationCode",
                     )),
