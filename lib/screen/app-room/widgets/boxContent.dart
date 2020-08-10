@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:deliver_flutter/models/loggedinStatus.dart';
 import 'package:deliver_flutter/models/messageType.dart';
-import 'package:deliver_flutter/shared/functions.dart';
+import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -18,13 +19,10 @@ class BoxContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // print(totalContent);
     return msgType == MessageType.text
         ? Container(child: Column(children: textMessages()))
         : msgType == MessageType.photo
             ? Container(
-                // width: 100,
-                // height: 150,
                 constraints:
                     BoxConstraints.loose(Size(maxWidth, maxWidth * 1.5)),
                 decoration: BoxDecoration(

@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/shared/functions.dart';
+import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
