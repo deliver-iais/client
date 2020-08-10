@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import '../contactsData.dart';
 
 class ContactsPage extends StatelessWidget {
-  final String loggedInUserId;
-
-  const ContactsPage({Key key, @required this.loggedInUserId})
-      : super(key: key);
+  const ContactsPage({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

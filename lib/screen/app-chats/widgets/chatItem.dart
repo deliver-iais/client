@@ -1,23 +1,30 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/models/roomWithMessage.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/recievedMsgStatusIcon.dart';
 import 'package:deliver_flutter/shared/methods/dateTimeFormat.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 import 'contactPic.dart';
 import 'lastMessage.dart';
 
 class ChatItem extends StatelessWidget {
   final RoomWithMessage roomWithMessage;
-  const ChatItem({this.roomWithMessage});
+
+  final AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
+
+  ChatItem({this.roomWithMessage});
+
   @override
   Widget build(BuildContext context) {
-    var routeData = RouteData.of(context);
-    String loggedInUserId = routeData.pathParams['id'].value;
-    var messageType =
-        roomWithMessage.lastMessage.from == loggedInUserId ? "send" : "recieve";
+    var messageType = roomWithMessage.lastMessage.from
+            .isSameEntity(accountRepo.currentUserUid)
+        ? "send"
+        : "recieve";
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 30),
       child: Row(

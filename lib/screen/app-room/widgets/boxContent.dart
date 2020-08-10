@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:ui';
 
-import 'package:deliver_flutter/models/loggedinStatus.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:flutter/cupertino.dart';

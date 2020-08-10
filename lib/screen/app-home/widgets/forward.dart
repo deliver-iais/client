@@ -9,7 +9,6 @@ class ForwardMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var routeData = RouteData.of(context);
-    String loggedinUserId = routeData.pathParams['id'].value;
     return MainWidget(
         Scaffold(
           appBar: AppBar(
@@ -18,7 +17,7 @@ class ForwardMessage extends StatelessWidget {
           body: Column(
             children: <Widget>[
               MainWidget(SearchBox(), 16, 16),
-              ForwardMessagePage(loggedinUserId: loggedinUserId),
+              ForwardMessagePage(),
             ],
           ),
         ),
