@@ -1,5 +1,5 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/repository/profileRepo.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/models/loggedInStatus.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
@@ -23,7 +23,7 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
   bool showError = false;
   var loggedInUserId = '';
   String verificationCode;
-  var profileRepo = GetIt.I.get<ProfileRepo>();
+  var profileRepo = GetIt.I.get<AccountRepo>();
 
   void _listenOpt() async {
     await SmsAutoFill().listenForCode;
@@ -56,17 +56,16 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
     });
   }
 
-  _getloggedInUserId() async {
+  _getLoggedInUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('loggedInStatus', enumToString(LoggedInStatus.loggedIn));
     loggedInUserId = prefs.getString('loggedInUserId');
   }
 
   _navigationToHome() {
-    print("hi");
     var currentPageService = GetIt.I.get<CurrentPageService>();
     currentPageService.setToHome();
-    _getloggedInUserId()
+    _getLoggedInUserId()
         .then((value) => ExtendedNavigator.of(context).pushNamedAndRemoveUntil(
               Routes.homePage(id: loggedInUserId),
               (_) => false,

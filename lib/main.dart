@@ -6,7 +6,6 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/profileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/services/downloadFileServices.dart';
@@ -19,45 +18,57 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get_it/get_it.dart';
 import 'package:permissions_plugin/permissions_plugin.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import './db/dao/MessageDao.dart';
 import 'db/dao/RoomDao.dart';
 import 'repository/servicesDiscoveryRepo.dart';
 
-void setupDI() {
+void setupDB() {
   GetIt getIt = GetIt.instance;
-  getIt.registerSingleton<UxService>(UxService());
-  getIt.registerSingleton<CurrentPageService>(CurrentPageService());
-  getIt.registerSingleton<AccountRepo>(AccountRepo());
-  getIt.registerSingleton<ProfileRepo>(ProfileRepo());
-  getIt.registerSingleton<AvatarRepo>(AvatarRepo());
-  getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
-  getIt.registerSingleton<DownloadFileServices>(DownloadFileServices());
   Database db = Database();
   getIt.registerSingleton<MessageDao>(db.messageDao);
   getIt.registerSingleton<RoomDao>(db.roomDao);
   getIt.registerSingleton<AvatarDao>(db.avatarDao);
   getIt.registerSingleton<ContactDao>(db.contactDao);
   getIt.registerSingleton<FileDao>(db.fileDao);
+}
+
+void setupRepositories() {
+  GetIt getIt = GetIt.instance;
+  getIt.registerSingleton<UxService>(UxService());
+  getIt.registerSingleton<CurrentPageService>(CurrentPageService());
+  getIt.registerSingleton<AccountRepo>(AccountRepo());
+  getIt.registerSingleton<AvatarRepo>(AvatarRepo());
+  getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
+  getIt.registerSingleton<DownloadFileServices>(DownloadFileServices());
   getIt.registerSingleton<FileRepo>(FileRepo());
-  FlutterDownloader.initialize();
+}
 
-  PermissionsPlugin
-      .requestPermissions([
-    Permission.WRITE_EXTERNAL_STORAGE,
-    Permission.READ_EXTERNAL_STORAGE,
-    Permission.READ_CONTACTS,
+void setupDIAndRunApp() {
+  GetIt getIt = GetIt.instance;
+  getIt.registerSingletonAsync<SharedPreferences>(
+      () async => await SharedPreferences.getInstance());
+  getIt.isReady<SharedPreferences>().then((ins) {
+    setupDB();
+    setupRepositories();
 
-  ]);
-  // Creates dir/ and dir/subdir/.
+    FlutterDownloader.initialize();
+
+    PermissionsPlugin.requestPermissions([
+      Permission.WRITE_EXTERNAL_STORAGE,
+      Permission.READ_EXTERNAL_STORAGE,
+      Permission.READ_CONTACTS,
+    ]);
+    
+    runApp(MyApp());
+  });
 }
 
 void main() {
-  runApp(MyApp());
-  setupDI();
-
-
   Fimber.plantTree(DebugTree.elapsed());
   Fimber.i("Application has been started");
+
+  setupDIAndRunApp();
 }
 
 class MyApp extends StatelessWidget {

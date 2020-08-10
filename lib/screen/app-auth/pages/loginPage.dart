@@ -1,8 +1,8 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/repository/profileRepo.dart';
-import 'package:deliver_flutter/models/loggedInStatus.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-auth/widgets/inputFeilds.dart';
+import 'package:fimber/fimber.dart';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,24 +16,25 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String phoneNum = "";
-  String code = "";
+  String phoneNumber = "";
+  String countryCode = "";
   String inputError;
-  var profileRepo = GetIt.I.get<ProfileRepo>();
+  var profileRepo = GetIt.I.get<AccountRepo>();
   bool receiveVerificationCode = false;
 
   _navigateToVerificationPage() async {
-    if (code == "" || phoneNum == "") {
+    if (countryCode == "" || phoneNumber == "") {
       setState(() {
-        inputError = code == "" && phoneNum == ""
+        inputError = countryCode == "" && phoneNumber == ""
             ? "both"
-            : code == "" ? "code" : "phoneNum";
+            : countryCode == "" ? "code" : "phoneNum";
       });
     } else {
       final signCode = await SmsAutoFill().getAppSignature;
-      print(signCode);
+      Fimber.d("APP_SIGN_CODE: $signCode");
 
-      var result = profileRepo.getVerificationCode(int.parse(code), phoneNum);
+      var result =
+          profileRepo.getVerificationCode(int.parse(countryCode), phoneNumber);
       result.then((res) {
         receiveVerificationCode = true;
         Fluttertoast.showToast(
@@ -43,7 +44,6 @@ class _LoginPageState extends State<LoginPage> {
             textColor: Colors.white,
             fontSize: 16.0);
         ExtendedNavigator.of(context).pushNamed(Routes.verificationPage);
-
       }).catchError((e) {
         print(e.toString());
         Fluttertoast.showToast(
@@ -96,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                 InputFeilds(
                   onChangeCode: (val) => setState(
                     () {
-                      code = val;
+                      countryCode = val;
                       inputError = inputError == "code"
                           ? null
                           : inputError == "both" ? "phoneNum" : null;
@@ -105,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   onChangePhoneNum: (val) => setState(
                     () {
-                      phoneNum = val;
+                      phoneNumber = val;
                       inputError = inputError == "phoneNum"
                           ? null
                           : inputError == "both" ? "code" : null;

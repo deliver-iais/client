@@ -6,7 +6,7 @@ class ChatsData {
   static List<Conversation> chatsList = [
     Conversation(
       0,
-      SendedMessage(
+      SentMessage(
         "hi1",
         DateTime(2020, 2, 21),
         0,
@@ -15,7 +15,7 @@ class ChatsData {
     ),
     Conversation(
       1,
-      SendedMessage(
+      SentMessage(
         "hi2",
         DateTime(2020, 5, 21),
         1,
@@ -24,7 +24,7 @@ class ChatsData {
     ),
     Conversation(
       2,
-      SendedMessage(
+      SentMessage(
         "hi3",
         DateTime(2020, 5, 27),
         2,
@@ -33,7 +33,7 @@ class ChatsData {
     ),
     Conversation(
       3,
-      RecievedMessage(
+      ReceivedMessage(
         "hi4",
         DateTime(2020, 3, 25),
         false,
@@ -42,7 +42,7 @@ class ChatsData {
     ),
     Conversation(
       4,
-      RecievedMessage(
+      ReceivedMessage(
         "hi5",
         DateTime(2020, 6, 27, 11, 8),
         true,

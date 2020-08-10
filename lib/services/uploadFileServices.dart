@@ -5,7 +5,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:dio/dio.dart';
-import 'package:fimber/fimber_base.dart';
+import 'package:fimber/fimber.dart';
 import 'package:get_it/get_it.dart';
 
 class UploadFile {
