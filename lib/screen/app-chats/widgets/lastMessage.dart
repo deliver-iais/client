@@ -1,6 +1,6 @@
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
-import 'package:deliver_flutter/shared/functions.dart';
+import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 

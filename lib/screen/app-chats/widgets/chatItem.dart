@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/models/roomWithMessage.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/recievedMsgStatusIcon.dart';
-import 'package:deliver_flutter/shared/functions.dart';
+import 'package:deliver_flutter/shared/methods/dateTimeFormat.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +67,7 @@ class ChatItem extends StatelessWidget {
                   bottom: 4.0,
                 ),
                 child: Text(
-                  findSendingTime(roomWithMessage.lastMessage.time),
+                  roomWithMessage.lastMessage.time.dateTimeFormat(),
                   maxLines: 1,
                   style: TextStyle(
                     color: ExtraTheme.of(context).details,

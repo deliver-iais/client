@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/shared/functions.dart';
+import 'package:deliver_flutter/shared/methods/dateTimeFormat.dart';
 import 'package:flutter/material.dart';
 
 class ChatTime extends StatelessWidget {
@@ -18,7 +18,7 @@ class ChatTime extends StatelessWidget {
         if (currentDay == t.day && currentMonth == t.month) {
           outT = 'Today';
         } else
-          outT = findSendingTime(t);
+          outT = t.dateTimeFormat();
         return Text(
           outT,
           style: TextStyle(
