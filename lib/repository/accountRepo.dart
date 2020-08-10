@@ -17,7 +17,9 @@ const REFRESH_TOKEN_KEY = "refreshToken";
 class AccountRepo {
   // TODO add account name protocol to server
   String currentUserName = "John Doe";
-  Uid currentUserUid;
+  Uid currentUserUid = Uid.create()
+    ..category = "users"
+    ..node = "john";
   Avatar avatar;
   PhoneNumber phoneNumber;
   SharedPreferences _prefs = GetIt.I.get<SharedPreferences>();

@@ -467,8 +467,11 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   @override
   GeneratedTextColumn get from => _from ??= _constructFrom();
   GeneratedTextColumn _constructFrom() {
-    return GeneratedTextColumn('from', $tableName, false,
-        minTextLength: 22, maxTextLength: 22);
+    return GeneratedTextColumn(
+      'from',
+      $tableName,
+      false,
+    );
   }
 
   final VerificationMeta _toMeta = const VerificationMeta('to');
@@ -476,8 +479,11 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   @override
   GeneratedTextColumn get to => _to ??= _constructTo();
   GeneratedTextColumn _constructTo() {
-    return GeneratedTextColumn('to', $tableName, false,
-        minTextLength: 22, maxTextLength: 22);
+    return GeneratedTextColumn(
+      'to',
+      $tableName,
+      false,
+    );
   }
 
   final VerificationMeta _forwardedFromMeta =
@@ -898,8 +904,11 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
   @override
   GeneratedTextColumn get sender => _sender ??= _constructSender();
   GeneratedTextColumn _constructSender() {
-    return GeneratedTextColumn('sender', $tableName, false,
-        minTextLength: 22, maxTextLength: 22);
+    return GeneratedTextColumn(
+      'sender',
+      $tableName,
+      false,
+    );
   }
 
   final VerificationMeta _recieverMeta = const VerificationMeta('reciever');
@@ -907,8 +916,11 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
   @override
   GeneratedTextColumn get reciever => _reciever ??= _constructReciever();
   GeneratedTextColumn _constructReciever() {
-    return GeneratedTextColumn('reciever', $tableName, false,
-        minTextLength: 22, maxTextLength: 22);
+    return GeneratedTextColumn(
+      'reciever',
+      $tableName,
+      false,
+    );
   }
 
   final VerificationMeta _mentionedMeta = const VerificationMeta('mentioned');
@@ -916,8 +928,11 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
   @override
   GeneratedTextColumn get mentioned => _mentioned ??= _constructMentioned();
   GeneratedTextColumn _constructMentioned() {
-    return GeneratedTextColumn('mentioned', $tableName, true,
-        minTextLength: 22, maxTextLength: 22);
+    return GeneratedTextColumn(
+      'mentioned',
+      $tableName,
+      true,
+    );
   }
 
   final VerificationMeta _lastMessageMeta =

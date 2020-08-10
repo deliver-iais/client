@@ -8,9 +8,9 @@ class Messages extends Table {
 
   DateTimeColumn get time => dateTime()();
 
-  TextColumn get from => text().withLength(min: 22, max: 22)();
+  TextColumn get from => text()();
 
-  TextColumn get to => text().withLength(min: 22, max: 22)();
+  TextColumn get to => text()();
 
   TextColumn get forwardedFrom =>
       text().nullable()(); //.withLength(min: 22, max: 22)();

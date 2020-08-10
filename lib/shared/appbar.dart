@@ -132,8 +132,8 @@ class Appbar extends StatelessWidget {
           roomId: 26,
           id: 81,
           time: DateTime.now().subtract(Duration(days: 4)),
-          from: '1111111111111111111115',
-          to: '1111111111111111111111',
+          from: 'users:jain',
+          to: 'users:john',
           edited: false,
           encrypted: false,
           type: MessageType.photo,
@@ -143,8 +143,8 @@ class Appbar extends StatelessWidget {
         .then((value) => roomDao
             .insertRoom(Room(
                 roomId: 26,
-                sender: '1111111111111111111111',
-                reciever: '1111111111111111111115',
+                sender: 'users:jhon',
+                reciever: 'users:jain',
                 lastMessage: value))
             .catchError(null))
         .catchError(null);

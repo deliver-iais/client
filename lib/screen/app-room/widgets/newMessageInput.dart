@@ -1,6 +1,7 @@
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -17,18 +18,13 @@ class NewMessageInput extends StatefulWidget {
 
 class _NewMessageInputState extends State<NewMessageInput> {
   TextEditingController controller;
-  String loggedInUserId;
+
+  AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
 
   @override
   void initState() {
     controller = TextEditingController();
     super.initState();
-    _getloggedInUserId();
-  }
-
-  void _getloggedInUserId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    loggedInUserId = prefs.get("loggedInUserId");
   }
 
   @override
@@ -70,10 +66,8 @@ class _NewMessageInputState extends State<NewMessageInput> {
                           roomId: currentRoom.roomId,
                           id: currentRoom.lastMessage + 1,
                           time: DateTime.now(),
-                          from: loggedInUserId,
-                          to: currentRoom.sender == loggedInUserId
-                              ? currentRoom.reciever
-                              : currentRoom.sender,
+                          from: "users:john",
+                          to: "users:jain",
                           edited: false,
                           encrypted: false,
                           type: MessageType.text,
