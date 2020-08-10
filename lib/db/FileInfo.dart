@@ -7,7 +7,7 @@ class FileInfos extends Table {
 
   TextColumn get fileName => text()();
 
-  TextColumn get downloadTaskId =>text()();
+  TextColumn get downloadTaskId => text()();
 
   TextColumn get downloadTaskStatus => text()();
 

@@ -4,11 +4,13 @@ import 'package:moor/moor.dart';
 
 import '../Rooms.dart';
 import '../database.dart';
+
 part 'RoomDao.g.dart';
 
 @UseDao(tables: [Rooms, Messages])
 class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
   final Database db;
+
   RoomDao(this.db) : super(db);
 
   Stream<List<Room>> watchAllRooms() => select(rooms).watch();

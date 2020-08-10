@@ -1,8 +1,6 @@
 import 'package:moor/moor.dart';
 
 class Contacts extends Table {
-
-
   TextColumn get uid => text()();
 
   DateTimeColumn get lastUpdateAvatarTime => dateTime()();
@@ -21,9 +19,8 @@ class Contacts extends Table {
 
   BoolColumn get isBlock => boolean()();
 
-  BoolColumn get isOnline =>boolean()();
+  BoolColumn get isOnline => boolean()();
 
   @override
   Set<Column> get primaryKey => {uid};
-
 }

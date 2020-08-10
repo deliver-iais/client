@@ -1,4 +1,4 @@
-class SliderContent{
+class SliderContent {
   final String title;
   final String imgAddr;
   final String description;

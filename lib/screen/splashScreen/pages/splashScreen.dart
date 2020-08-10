@@ -24,7 +24,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<bool> _onLoading() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // prefs.clear();
     loggedInStatus = enumFromString(prefs.getString("loggedInStatus"));
     if (loggedInStatus == null) loggedInStatus = LoggedInStatus.noLoggedIn;
     if (loggedInStatus == LoggedInStatus.loggedIn) {

@@ -40,8 +40,7 @@ class ContactRepo {
     print("contacts send");
   }
 
-
- getContacts () async {
-      return contactServices.getContactList(GetContactListReq());
+  getContacts() async {
+    return contactServices.getContactList(GetContactListReq());
   }
 }

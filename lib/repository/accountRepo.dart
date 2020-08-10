@@ -10,8 +10,6 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountRepo {
-  static var fileDao = GetIt.I.get<FileDao>();
-  static var avatarRepo = GetIt.I.get<AvatarDao>();
   static var profileRepo = GetIt.I.get<ProfileRepo>();
   Avatar avatar;
   PhoneNumber phoneNumber;
@@ -22,7 +20,7 @@ class AccountRepo {
     Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
     print("exp=" + decodedToken["exp"].toString());
     double expTime = double.parse(decodedToken["exp"].toString());
-    double now = new DateTime.now().millisecondsSinceEpoch /1000;
+    double now = new DateTime.now().millisecondsSinceEpoch / 1000;
     if (now > expTime) {
       String refreshToken = prefs.getString('refreshToken');
       await profileRepo.getAccessToken(refreshToken).then((value) {

@@ -21,26 +21,26 @@ class ProfileRepo {
       ..countryCode = countryCode
       ..nationalNumber = Int64.parseInt(nationalNumber);
     accountRepo.phoneNumber = phoneNumber;
-    var verificationCode = await authServiceStub.getVerificationCode(GetVerificationCodeReq()
+    var verificationCode =
+        await authServiceStub.getVerificationCode(GetVerificationCodeReq()
           ..phoneNumber = phoneNumber
           ..type = VerificationType.SMS);
     return verificationCode;
-
   }
 
   Future sendVerificationCode(String code) async {
-    var sendVerificationCode = await authServiceStub.verifyAndGetToken(VerifyCodeReq()
-    ..phoneNumber= accountRepo.phoneNumber
-    ..code = code
-    ..device = "android/124"
-    ..password = "");
+    var sendVerificationCode =
+        await authServiceStub.verifyAndGetToken(VerifyCodeReq()
+          ..phoneNumber = accountRepo.phoneNumber
+          ..code = code
+          ..device = "android/124"
+          ..password = "");
     return sendVerificationCode;
-
   }
 
   Future getAccessToken(String refreshToken) async {
-    var getAccessToken = await authServiceStub.renewAccessToken(RenewAccessTokenReq()
-    ..refreshToken =refreshToken);
+    var getAccessToken = await authServiceStub
+        .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
     return getAccessToken;
   }
 }

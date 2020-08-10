@@ -37,11 +37,7 @@ class UploadFile {
     });
 
     var response = await dio.post(
-        "http://" +
-            servicesDiscoveryRepo.fileConnection.host +
-            ":" +
-            servicesDiscoveryRepo.fileConnection.port.toString() +
-            "/upload",
+        "http://${servicesDiscoveryRepo.fileConnection.host}:${servicesDiscoveryRepo.fileConnection.port}/upload",
         data: formData);
     Fimber.d(response.statusCode.toString());
     if (response.statusCode == 200) {

@@ -10,9 +10,9 @@ class ContactDao extends DatabaseAccessor<Database> with _$ContactDaoMixin {
 
   ContactDao(this.database) : super(database);
 
-  Future insetContact (Contact contact)=> into(contacts).insert(contact);
+  Future insetContact(Contact contact) => into(contacts).insert(contact);
 
-  Future deleteAvatar (Contact contact) => delete(contacts).delete(contact);
+  Future deleteAvatar(Contact contact) => delete(contacts).delete(contact);
 
   getContact(String uid) {
     return (select(contacts)..where((tbl) => tbl.uid.equals(uid))).get();
