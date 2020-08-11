@@ -5,6 +5,7 @@ import 'package:deliver_flutter/screen/app-intro/pages/introPage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/loginPage.dart';
 import 'package:deliver_flutter/screen/app-auth/pages/verificationPage.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/showImage_Widget.dart';
 import 'package:deliver_flutter/screen/splashScreen/pages/splashScreen.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 
@@ -18,6 +19,7 @@ import 'package:deliver_flutter/screen/settings/settingsPage.dart';
     MaterialRoute(page: SettingsPage),
     MaterialRoute(page: RoomPage),
     MaterialRoute(page: ForwardMessage),
+    MaterialRoute(page: ShowImagePage),
   ],
 )
 class $Router {}

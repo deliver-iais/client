@@ -28,7 +28,7 @@ class ChatsPage extends StatelessWidget {
                   child: ChatItem(roomWithMessage: roomsWithMessages[index]),
                   onTap: () {
                     currentPageService.resetPage();
-                    ExtendedNavigator.of(context).pushNamed(
+                    ExtendedNavigator.of(context).push(
                       Routes.roomPage,
                       arguments: RoomPageArguments(
                         roomId: roomsWithMessages[index].room.roomId.toString(),
