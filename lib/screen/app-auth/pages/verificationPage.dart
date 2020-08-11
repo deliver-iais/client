@@ -56,7 +56,7 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
   _navigationToHome() {
     var currentPageService = GetIt.I.get<CurrentPageService>();
     currentPageService.setToHome();
-    ExtendedNavigator.of(context).pushNamedAndRemoveUntil(
+    ExtendedNavigator.of(context).pushAndRemoveUntil(
       Routes.homePage,
       (_) => false,
     );

@@ -40,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
             backgroundColor: Colors.black,
             textColor: Colors.white,
             fontSize: 16.0);
-        ExtendedNavigator.of(context).pushNamed(Routes.verificationPage);
+        ExtendedNavigator.of(context).push(Routes.verificationPage);
       }).catchError((e) {
         Fimber.d(e.toString());
         Fluttertoast.showToast(

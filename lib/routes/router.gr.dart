@@ -4,17 +4,21 @@
 // AutoRouteGenerator
 // **************************************************************************
 
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+// ignore_for_file: public_member_api_docs
+import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/screen/splashScreen/pages/splashScreen.dart';
-import 'package:deliver_flutter/screen/app-intro/pages/introPage.dart';
-import 'package:deliver_flutter/screen/app-auth/pages/loginPage.dart';
-import 'package:deliver_flutter/screen/app-auth/pages/verificationPage.dart';
-import 'package:deliver_flutter/screen/app-home/pages/homePage.dart';
-import 'package:deliver_flutter/screen/settings/settingsPage.dart';
-import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
-import 'package:deliver_flutter/screen/app-home/widgets/forward.dart';
+import 'package:flutter/material.dart';
+
+import '../screen/app-auth/pages/loginPage.dart';
+import '../screen/app-auth/pages/verificationPage.dart';
+import '../screen/app-home/pages/homePage.dart';
+import '../screen/app-home/widgets/forward.dart';
+import '../screen/app-intro/pages/introPage.dart';
+import '../screen/app-room/pages/roomPage.dart';
+import '../screen/app-room/widgets/showImage_Widget.dart';
+import '../screen/settings/settingsPage.dart';
+import '../screen/splashScreen/pages/splashScreen.dart';
 
 class Routes {
   static const String splashScreen = '/';
@@ -25,6 +29,7 @@ class Routes {
   static const String settingsPage = '/settings-page';
   static const String roomPage = '/room-page';
   static const String forwardMessage = '/forward-message';
+  static const String showImagePage = '/show-image-page';
   static const all = <String>{
     splashScreen,
     introPage,
@@ -34,6 +39,7 @@ class Routes {
     settingsPage,
     roomPage,
     forwardMessage,
+    showImagePage,
   };
 }
 
@@ -49,80 +55,109 @@ class Router extends RouterBase {
     RouteDef(Routes.settingsPage, page: SettingsPage),
     RouteDef(Routes.roomPage, page: RoomPage),
     RouteDef(Routes.forwardMessage, page: ForwardMessage),
+    RouteDef(Routes.showImagePage, page: ShowImagePage),
   ];
   @override
   Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
   final _pagesMap = <Type, AutoRouteFactory>{
-    SplashScreen: (RouteData data) {
+    SplashScreen: (data) {
       return MaterialPageRoute<dynamic>(
         builder: (context) => SplashScreen(),
         settings: data,
       );
     },
-    IntroPage: (RouteData data) {
-      var args =
-          data.getArgs<IntroPageArguments>(orElse: () => IntroPageArguments());
+    IntroPage: (data) {
+      final args = data.getArgs<IntroPageArguments>(
+        orElse: () => IntroPageArguments(),
+      );
       return MaterialPageRoute<dynamic>(
-        builder: (context) =>
-            IntroPage(key: args.key, currentPage: args.currentPage),
+        builder: (context) => IntroPage(
+          key: args.key,
+          currentPage: args.currentPage,
+        ),
         settings: data,
       );
     },
-    LoginPage: (RouteData data) {
+    LoginPage: (data) {
       return MaterialPageRoute<dynamic>(
         builder: (context) => LoginPage(),
         settings: data,
       );
     },
-    VerificationPage: (RouteData data) {
+    VerificationPage: (data) {
       return MaterialPageRoute<dynamic>(
         builder: (context) => VerificationPage(),
         settings: data,
       );
     },
-    HomePage: (RouteData data) {
+    HomePage: (data) {
       return MaterialPageRoute<dynamic>(
         builder: (context) => HomePage(),
         settings: data,
       );
     },
-    SettingsPage: (RouteData data) {
+    SettingsPage: (data) {
       return MaterialPageRoute<dynamic>(
         builder: (context) => SettingsPage(),
         settings: data,
       );
     },
-    RoomPage: (RouteData data) {
-      var args =
-          data.getArgs<RoomPageArguments>(orElse: () => RoomPageArguments());
+    RoomPage: (data) {
+      final args = data.getArgs<RoomPageArguments>(
+        orElse: () => RoomPageArguments(),
+      );
       return MaterialPageRoute<dynamic>(
-        builder: (context) => RoomPage(key: args.key, roomId: args.roomId),
+        builder: (context) => RoomPage(
+          key: args.key,
+          roomId: args.roomId,
+        ),
         settings: data,
       );
     },
-    ForwardMessage: (RouteData data) {
+    ForwardMessage: (data) {
       return MaterialPageRoute<dynamic>(
         builder: (context) => ForwardMessage(),
+        settings: data,
+      );
+    },
+    ShowImagePage: (data) {
+      final args = data.getArgs<ShowImagePageArguments>(
+        orElse: () => ShowImagePageArguments(),
+      );
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => ShowImagePage(
+          key: args.key,
+          imageFile: args.imageFile,
+          contactUid: args.contactUid,
+        ),
         settings: data,
       );
     },
   };
 }
 
-// *************************************************************************
-// Arguments holder classes
-// **************************************************************************
+/// ************************************************************************
+/// Arguments holder classes
+/// *************************************************************************
 
-//IntroPage arguments holder class
+/// IntroPage arguments holder class
 class IntroPageArguments {
   final Key key;
   final dynamic currentPage;
   IntroPageArguments({this.key, this.currentPage});
 }
 
-//RoomPage arguments holder class
+/// RoomPage arguments holder class
 class RoomPageArguments {
   final Key key;
   final String roomId;
   RoomPageArguments({this.key, this.roomId});
+}
+
+/// ShowImagePage arguments holder class
+class ShowImagePageArguments {
+  final Key key;
+  final File imageFile;
+  final String contactUid;
+  ShowImagePageArguments({this.key, this.imageFile, this.contactUid});
 }

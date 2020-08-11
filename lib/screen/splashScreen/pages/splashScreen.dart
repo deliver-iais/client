@@ -26,15 +26,15 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToIntroPage() {
-    ExtendedNavigator.ofRouter<Router>()
-        .pushNamedAndRemoveUntil(Routes.introPage, (_) => false);
+    ExtendedNavigator.of(context)
+        .pushAndRemoveUntil(Routes.introPage, (_) => false);
   }
 
   void _navigateToHomePage() {
     // TODO i think CurrentPageService should change or should fill automatically!!!
     var currentPageService = GetIt.I.get<CurrentPageService>();
     currentPageService.setToHome();
-    ExtendedNavigator.of(context).pushNamedAndRemoveUntil(
+    ExtendedNavigator.of(context).pushAndRemoveUntil(
       Routes.homePage,
       (_) => false,
     );
@@ -45,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
       ..accessToken = TESTING_ENVIRONMENT_ACCESS_TOKEN
       ..refreshToken = TESTING_ENVIRONMENT_REFRESH_TOKEN);
     ExtendedNavigator.of(context)
-        .pushNamedAndRemoveUntil(Routes.homePage, (_) => false);
+        .pushAndRemoveUntil(Routes.homePage, (_) => false);
   }
 
   @override

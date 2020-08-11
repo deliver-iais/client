@@ -18,7 +18,7 @@ class _IntroPageState extends State<IntroPage> {
   }
 
   void navigateToLoginPage(BuildContext context) {
-    ExtendedNavigator.of(context).pushReplacementNamed(Routes.loginPage);
+    ExtendedNavigator.of(context).popAndPush(Routes.loginPage);
   }
 
   @override

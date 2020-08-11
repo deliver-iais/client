@@ -13,7 +13,7 @@ class _AppbarPicState extends State<AppbarPic> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        ExtendedNavigator.of(context).pushNamed(Routes.settingsPage);
+        ExtendedNavigator.of(context).push(Routes.settingsPage);
       },
       child: CircleAvatarWidget("JD", 19),
     );
