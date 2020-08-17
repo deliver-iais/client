@@ -4,17 +4,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 
-class AudioPlayer extends StatefulWidget {
+class AudioPlayerWidget extends StatefulWidget {
   String url;
 
-  AudioPlayer({this.url});
+  AudioPlayerWidget({this.url});
 
   @override
   _LocalAudio createState() => _LocalAudio(this.url);
 
 }
 
-class _LocalAudio extends State<AudioPlayer> {
+class _LocalAudio extends State<AudioPlayerWidget> {
 
   String url;
 
