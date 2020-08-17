@@ -35,7 +35,7 @@ class FileRepo {
   }
 
   uploadFile(File file) async {
-    UploadFile().httpUploadFile(file).then((value) {
+    UploadFileServices().uploadFile(file.path).then((value) {
       FileInfo fileInfo = FileInfo(
           path: file.path,
           fileName: file.path.substring(file.path.lastIndexOf("/")));

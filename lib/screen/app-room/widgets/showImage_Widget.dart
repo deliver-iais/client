@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:deliver_flutter/services/uploadFileServices.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class ShowImagePage extends StatefulWidget {
   final File imageFile;
@@ -19,6 +21,8 @@ class _ImageWidget extends State<ShowImagePage> {
 
   File image;
 
+  var uploadFile = GetIt.I.get<UploadFileServices>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +31,9 @@ class _ImageWidget extends State<ShowImagePage> {
             Icons.send,
             color: Colors.blueAccent,
           ),
-          onPressed: null,
+          onPressed: (){
+            uploadFile.uploadFile(widget.imageFile.path);
+          },
           splashColor: Colors.blue,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

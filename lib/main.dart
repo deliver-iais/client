@@ -9,6 +9,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/services/downloadFileServices.dart';
+import 'package:deliver_flutter/services/uploadFileServices.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -43,6 +44,7 @@ void setupRepositories() {
   getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
   getIt.registerSingleton<DownloadFileServices>(DownloadFileServices());
   getIt.registerSingleton<FileRepo>(FileRepo());
+  getIt.registerSingleton<UploadFileServices>(UploadFileServices());
 }
 
 void setupDIAndRunApp() {
