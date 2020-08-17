@@ -1,4 +1,3 @@
-import 'package:deliver_flutter/models/messageType.dart';
 import 'package:moor/moor.dart';
 
 class PendingMessages extends Table {

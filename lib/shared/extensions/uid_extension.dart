@@ -10,7 +10,7 @@ extension UidExtension on Uid {
     }
   }
 
-  String toEntity() => "${this.category}:${this.node}";
+  String toStr() => "${this.category}:${this.node}";
 }
 
 extension StringUidExtension on String {

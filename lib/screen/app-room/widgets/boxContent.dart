@@ -3,10 +3,12 @@ import 'dart:ui';
 
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
+import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
 class BoxContent extends StatelessWidget {
   final String totalContent;
@@ -18,24 +20,40 @@ class BoxContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var content;
+    String caption;
+    if (msgType == MessageType.text) {
+      content = totalContent.toText().text;
+    } else if (msgType == MessageType.file) {
+      File f = totalContent.toFile();
+      content = f.name;
+      caption = f.caption;
+    }
     return msgType == MessageType.text
-        ? Container(child: Column(children: textMessages()))
-        : msgType == MessageType.photo
+        ? Container(child: Column(children: textMessages(content)))
+        : msgType == MessageType.file
             ? Container(
-                constraints:
-                    BoxConstraints.loose(Size(maxWidth, maxWidth * 1.5)),
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(totalContent),
-                    fit: BoxFit.fill,
-                  ),
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      constraints:
+                          BoxConstraints.loose(Size(maxWidth, maxWidth * 1.5)),
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(content),
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                    ),
+                    Column(children: textMessages(caption)),
+                  ],
                 ),
               )
             : Container();
   }
 
-  List<Widget> textMessages() {
-    List<String> lines = LineSplitter().convert(totalContent);
+  List<Widget> textMessages(String content) {
+    List<String> lines = LineSplitter().convert(content);
     List<Widget> texts = [];
     texts.add(disjointThenJoin(preProcess(lines)));
     return texts;

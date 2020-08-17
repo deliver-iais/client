@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:audio_recorder/audio_recorder.dart';
@@ -7,6 +6,7 @@ import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/emojiKeybord.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box.dart';
+import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/services/uploadFileServices.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +15,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:flutter_timer/flutter_timer.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moor/moor.dart' as Moor;
 import 'package:permissions_plugin/permissions_plugin.dart';
 import 'package:random_string/random_string.dart';
 import 'package:vibration/vibration.dart';
@@ -32,8 +33,7 @@ class InputMessage extends StatefulWidget {
 }
 
 class _InputMessageWidget extends State<InputMessage> {
-  var messageDao = GetIt.I.get<MessageDao>();
-  var roomDao = GetIt.I.get<RoomDao>();
+  var messageService = GetIt.I.get<MessageService>();
 
   var uploadFile = GetIt.I.get<UploadFileServices>();
   TextEditingController controller;
@@ -174,29 +174,11 @@ class _InputMessageWidget extends State<InputMessage> {
                                             : () {
                                                 if (controller
                                                     .text.isNotEmpty) {
-                                                  final newMessage = Message(
-                                                      roomId:
-                                                          currentRoom.roomId,
-                                                      id: currentRoom
-                                                              .lastMessage +
-                                                          1,
-                                                      time: DateTime.now(),
-                                                      from: "users:john",
-                                                      to: "users:jain",
-                                                      edited: false,
-                                                      encrypted: false,
-                                                      type: MessageType.text,
-                                                      content: controller.text,
-                                                      seen: false);
-                                                  messageDao.insertMessage(
-                                                      newMessage);
-                                                  currentRoom =
-                                                      currentRoom.copyWith(
-                                                          lastMessage: currentRoom
-                                                                  .lastMessage +
-                                                              1);
-                                                  roomDao
-                                                      .updateRoom(currentRoom);
+                                                  messageService
+                                                      .sendTextMessage(
+                                                          'users:Judi',
+                                                          controller.text);
+
                                                   controller.clear();
                                                   messageText = "";
                                                 }
@@ -319,8 +301,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   height: 50,
                                 ),
                               ),
-                            )
-                    )
+                            ))
                         : SizedBox.shrink()
                   ],
                 ),

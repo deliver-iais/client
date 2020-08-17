@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
+import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
@@ -9,6 +10,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/services/downloadFileServices.dart';
+import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/services/uploadFileServices.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 
@@ -33,11 +35,13 @@ void setupDB() {
   getIt.registerSingleton<AvatarDao>(db.avatarDao);
   getIt.registerSingleton<ContactDao>(db.contactDao);
   getIt.registerSingleton<FileDao>(db.fileDao);
+  getIt.registerSingleton<SeenDao>(db.seenDao);
 }
 
 void setupRepositories() {
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<UxService>(UxService());
+  getIt.registerSingleton<MessageService>(MessageService());
   getIt.registerSingleton<CurrentPageService>(CurrentPageService());
   getIt.registerSingleton<AccountRepo>(AccountRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());

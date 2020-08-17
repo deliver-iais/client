@@ -35,7 +35,7 @@ class _RoomPageState extends State<RoomPage> {
     var messageDao = GetIt.I.get<MessageDao>();
     maxWidth = MediaQuery.of(context).size.width * 0.7;
     return StreamBuilder<List<Message>>(
-      stream: messageDao.getByRoomId(int.parse(widget.roomId)),
+      stream: messageDao.getByRoomId(widget.roomId),
       builder: (context, snapshot) {
         var currentRoomMessages = snapshot.data ?? [];
         int month;
@@ -85,9 +85,7 @@ class _RoomPageState extends State<RoomPage> {
                                       padding:
                                           const EdgeInsets.only(bottom: 8.0),
                                       child: SeenStatus(
-                                          currentRoomMessages[index].seen
-                                              ? 1
-                                              : 0),
+                                          currentRoomMessages[index]),
                                     ),
                                     Padding(
                                       padding:
@@ -123,7 +121,7 @@ class _RoomPageState extends State<RoomPage> {
                       );
                     }),
               ),
-              NewMessageInput(currentRoomId: int.parse(widget.roomId))
+              NewMessageInput(currentRoomId: widget.roomId)
             ],
           ),
           backgroundColor: Theme.of(context).backgroundColor,

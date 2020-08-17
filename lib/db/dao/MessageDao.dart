@@ -20,7 +20,7 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
   Future updateMessage(Message updatedMessage) =>
       update(messages).replace(updatedMessage);
 
-  Stream<List<Message>> getByRoomId(int roomId) {
+  Stream<List<Message>> getByRoomId(String roomId) {
     return (select(messages)
           ..orderBy([
             (m) => OrderingTerm(expression: m.time, mode: OrderingMode.desc)
@@ -31,6 +31,10 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
 
   Stream<List<Message>> getById(int id) {
     return (select(messages)..where((m) => m.id.equals(id))).watch();
+  }
+
+  Stream<Message> getByDBId(int dbId) {
+    return (select(messages)..where((m) => m.dbId.equals(dbId))).watchSingle();
   }
 
   Stream getMessagesInCurrentWeek() {
