@@ -7,5 +7,4 @@ enum MessageType {
   poll,
   form,
   persistentEvent,
-  photo,
 }

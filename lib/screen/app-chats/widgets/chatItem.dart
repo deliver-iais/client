@@ -51,8 +51,7 @@ class ChatItem extends StatelessWidget {
                   Row(
                     children: <Widget>[
                       messageType == "send"
-                          ? SeenStatus(
-                              (roomWithMessage.lastMessage.seen) ? 1 : 0)
+                          ? SeenStatus(roomWithMessage.lastMessage)
                           : Container(),
                       Padding(
                           padding: const EdgeInsets.only(
@@ -82,7 +81,7 @@ class ChatItem extends StatelessWidget {
                   ),
                 ),
               ),
-              roomWithMessage.room.mentioned != null
+              roomWithMessage.room.mentioned != false
                   ? Padding(
                       padding: const EdgeInsets.only(
                         right: 3.0,
@@ -124,9 +123,8 @@ class ChatItem extends StatelessWidget {
                         ],
                       ),
                     )
-                  : messageType == "recieve" &&
-                          !roomWithMessage.lastMessage.seen
-                      ? ReceivedMsgIcon(roomWithMessage.lastMessage.seen)
+                  : messageType == "recieve"
+                      ? ReceivedMsgIcon(roomWithMessage.lastMessage)
                       : Container()
             ],
           )

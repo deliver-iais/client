@@ -1,11 +1,7 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/db/dao/MessageDao.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/shared/mainWidget.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:fimber/fimber.dart';
 import 'appbarTitle.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/shared/appbarPic.dart';
@@ -70,6 +66,7 @@ class Appbar extends StatelessWidget {
                                       ),
                                       onTap: () {
                                         initialDataBase();
+
                                         /// todo
                                       },
                                     )),
@@ -124,29 +121,20 @@ class Appbar extends StatelessWidget {
   }
 
   initialDataBase() {
-    Fimber.e("some");
-    var messageDao = GetIt.I.get<MessageDao>();
-    var roomDao = GetIt.I.get<RoomDao>();
-    messageDao
-        .insertMessage(Message(
-          roomId: 26,
-          id: 81,
-          time: DateTime.now().subtract(Duration(days: 4)),
-          from: 'users:jain',
-          to: 'users:john',
-          edited: false,
-          encrypted: false,
-          type: MessageType.photo,
-          content: 'https://tiltshiftmaker.com/photos/small/bamboo-small.jpg',
-          seen: false,
-        ))
-        .then((value) => roomDao
-            .insertRoom(Room(
-                roomId: 26,
-                sender: 'users:jhon',
-                reciever: 'users:jain',
-                lastMessage: value))
-            .catchError(null))
-        .catchError(null);
+    GetIt.I.get<MessageService>().sendTextMessage('users:Judi', 'test');
+    // messageDao
+    //     .insertMessage(MessagesCompanion(
+    //       roomId: Value('users:Judi'),
+    //       packetId: Value(2),
+    //       time: Value(DateTime.now().subtract(Duration(days: 2))),
+    //       from: Value('users:john'),
+    //       to: Value('users:jain'),
+    //       type: Value(MessageType.file),
+    //       json: Value('{\"uuid\":\"File:a.png\",\"size\":' +
+    //           Int64.parseInt('5000000').toString() +
+    //           ',\"type\":\"image\",\"name\":\"a.png\",\"caption\":\"hi a\",\"width\":100,\"height\":100,\"duration\":0}'),
+    //     ))
   }
 }
+
+//TODO 3 tay akhar ؟؟

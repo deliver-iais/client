@@ -1,5 +1,5 @@
 import 'package:deliver_flutter/db/Avatars.dart';
-import 'package:moor_flutter/moor_flutter.dart';
+import 'package:moor/moor.dart';
 import '../database.dart';
 
 part 'AvatarDao.g.dart';

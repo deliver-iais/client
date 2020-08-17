@@ -8,66 +8,75 @@ part of 'database.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
 class Message extends DataClass implements Insertable<Message> {
-  final int roomId;
+  final int dbId;
+  final String roomId;
+  final int packetId;
   final int id;
   final DateTime time;
   final String from;
   final String to;
-  final String forwardedFrom;
   final int replyToId;
+  final String forwardedFrom;
   final bool edited;
   final bool encrypted;
   final MessageType type;
-  final String content;
-  final bool seen;
+  final String json;
   Message(
-      {@required this.roomId,
-      @required this.id,
+      {@required this.dbId,
+      @required this.roomId,
+      @required this.packetId,
+      this.id,
       @required this.time,
       @required this.from,
       @required this.to,
-      this.forwardedFrom,
       this.replyToId,
+      this.forwardedFrom,
       @required this.edited,
       @required this.encrypted,
       @required this.type,
-      @required this.content,
-      @required this.seen});
+      @required this.json});
   factory Message.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
-    final dateTimeType = db.typeSystem.forDartType<DateTime>();
     final stringType = db.typeSystem.forDartType<String>();
+    final dateTimeType = db.typeSystem.forDartType<DateTime>();
     final boolType = db.typeSystem.forDartType<bool>();
     return Message(
+      dbId: intType.mapFromDatabaseResponse(data['${effectivePrefix}db_id']),
       roomId:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
+      packetId:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}packet_id']),
       id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       time:
           dateTimeType.mapFromDatabaseResponse(data['${effectivePrefix}time']),
       from: stringType.mapFromDatabaseResponse(data['${effectivePrefix}from']),
       to: stringType.mapFromDatabaseResponse(data['${effectivePrefix}to']),
-      forwardedFrom: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}forwarded_from']),
       replyToId: intType
           .mapFromDatabaseResponse(data['${effectivePrefix}reply_to_id']),
+      forwardedFrom: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}forwarded_from']),
       edited:
           boolType.mapFromDatabaseResponse(data['${effectivePrefix}edited']),
       encrypted:
           boolType.mapFromDatabaseResponse(data['${effectivePrefix}encrypted']),
       type: $MessagesTable.$converter0.mapToDart(
           intType.mapFromDatabaseResponse(data['${effectivePrefix}type'])),
-      content:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}content']),
-      seen: boolType.mapFromDatabaseResponse(data['${effectivePrefix}seen']),
+      json: stringType.mapFromDatabaseResponse(data['${effectivePrefix}json']),
     );
   }
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || dbId != null) {
+      map['db_id'] = Variable<int>(dbId);
+    }
     if (!nullToAbsent || roomId != null) {
-      map['room_id'] = Variable<int>(roomId);
+      map['room_id'] = Variable<String>(roomId);
+    }
+    if (!nullToAbsent || packetId != null) {
+      map['packet_id'] = Variable<int>(packetId);
     }
     if (!nullToAbsent || id != null) {
       map['id'] = Variable<int>(id);
@@ -81,11 +90,11 @@ class Message extends DataClass implements Insertable<Message> {
     if (!nullToAbsent || to != null) {
       map['to'] = Variable<String>(to);
     }
-    if (!nullToAbsent || forwardedFrom != null) {
-      map['forwarded_from'] = Variable<String>(forwardedFrom);
-    }
     if (!nullToAbsent || replyToId != null) {
       map['reply_to_id'] = Variable<int>(replyToId);
+    }
+    if (!nullToAbsent || forwardedFrom != null) {
+      map['forwarded_from'] = Variable<String>(forwardedFrom);
     }
     if (!nullToAbsent || edited != null) {
       map['edited'] = Variable<bool>(edited);
@@ -97,39 +106,37 @@ class Message extends DataClass implements Insertable<Message> {
       final converter = $MessagesTable.$converter0;
       map['type'] = Variable<int>(converter.mapToSql(type));
     }
-    if (!nullToAbsent || content != null) {
-      map['content'] = Variable<String>(content);
-    }
-    if (!nullToAbsent || seen != null) {
-      map['seen'] = Variable<bool>(seen);
+    if (!nullToAbsent || json != null) {
+      map['json'] = Variable<String>(json);
     }
     return map;
   }
 
   MessagesCompanion toCompanion(bool nullToAbsent) {
     return MessagesCompanion(
+      dbId: dbId == null && nullToAbsent ? const Value.absent() : Value(dbId),
       roomId:
           roomId == null && nullToAbsent ? const Value.absent() : Value(roomId),
+      packetId: packetId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(packetId),
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       time: time == null && nullToAbsent ? const Value.absent() : Value(time),
       from: from == null && nullToAbsent ? const Value.absent() : Value(from),
       to: to == null && nullToAbsent ? const Value.absent() : Value(to),
-      forwardedFrom: forwardedFrom == null && nullToAbsent
-          ? const Value.absent()
-          : Value(forwardedFrom),
       replyToId: replyToId == null && nullToAbsent
           ? const Value.absent()
           : Value(replyToId),
+      forwardedFrom: forwardedFrom == null && nullToAbsent
+          ? const Value.absent()
+          : Value(forwardedFrom),
       edited:
           edited == null && nullToAbsent ? const Value.absent() : Value(edited),
       encrypted: encrypted == null && nullToAbsent
           ? const Value.absent()
           : Value(encrypted),
       type: type == null && nullToAbsent ? const Value.absent() : Value(type),
-      content: content == null && nullToAbsent
-          ? const Value.absent()
-          : Value(content),
-      seen: seen == null && nullToAbsent ? const Value.absent() : Value(seen),
+      json: json == null && nullToAbsent ? const Value.absent() : Value(json),
     );
   }
 
@@ -137,236 +144,258 @@ class Message extends DataClass implements Insertable<Message> {
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Message(
-      roomId: serializer.fromJson<int>(json['roomId']),
+      dbId: serializer.fromJson<int>(json['dbId']),
+      roomId: serializer.fromJson<String>(json['roomId']),
+      packetId: serializer.fromJson<int>(json['packetId']),
       id: serializer.fromJson<int>(json['id']),
       time: serializer.fromJson<DateTime>(json['time']),
       from: serializer.fromJson<String>(json['from']),
       to: serializer.fromJson<String>(json['to']),
-      forwardedFrom: serializer.fromJson<String>(json['forwardedFrom']),
       replyToId: serializer.fromJson<int>(json['replyToId']),
+      forwardedFrom: serializer.fromJson<String>(json['forwardedFrom']),
       edited: serializer.fromJson<bool>(json['edited']),
       encrypted: serializer.fromJson<bool>(json['encrypted']),
       type: serializer.fromJson<MessageType>(json['type']),
-      content: serializer.fromJson<String>(json['content']),
-      seen: serializer.fromJson<bool>(json['seen']),
+      json: serializer.fromJson<String>(json['json']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'roomId': serializer.toJson<int>(roomId),
+      'dbId': serializer.toJson<int>(dbId),
+      'roomId': serializer.toJson<String>(roomId),
+      'packetId': serializer.toJson<int>(packetId),
       'id': serializer.toJson<int>(id),
       'time': serializer.toJson<DateTime>(time),
       'from': serializer.toJson<String>(from),
       'to': serializer.toJson<String>(to),
-      'forwardedFrom': serializer.toJson<String>(forwardedFrom),
       'replyToId': serializer.toJson<int>(replyToId),
+      'forwardedFrom': serializer.toJson<String>(forwardedFrom),
       'edited': serializer.toJson<bool>(edited),
       'encrypted': serializer.toJson<bool>(encrypted),
       'type': serializer.toJson<MessageType>(type),
-      'content': serializer.toJson<String>(content),
-      'seen': serializer.toJson<bool>(seen),
+      'json': serializer.toJson<String>(json),
     };
   }
 
   Message copyWith(
-          {int roomId,
+          {int dbId,
+          String roomId,
+          int packetId,
           int id,
           DateTime time,
           String from,
           String to,
-          String forwardedFrom,
           int replyToId,
+          String forwardedFrom,
           bool edited,
           bool encrypted,
           MessageType type,
-          String content,
-          bool seen}) =>
+          String json}) =>
       Message(
+        dbId: dbId ?? this.dbId,
         roomId: roomId ?? this.roomId,
+        packetId: packetId ?? this.packetId,
         id: id ?? this.id,
         time: time ?? this.time,
         from: from ?? this.from,
         to: to ?? this.to,
-        forwardedFrom: forwardedFrom ?? this.forwardedFrom,
         replyToId: replyToId ?? this.replyToId,
+        forwardedFrom: forwardedFrom ?? this.forwardedFrom,
         edited: edited ?? this.edited,
         encrypted: encrypted ?? this.encrypted,
         type: type ?? this.type,
-        content: content ?? this.content,
-        seen: seen ?? this.seen,
+        json: json ?? this.json,
       );
   @override
   String toString() {
     return (StringBuffer('Message(')
+          ..write('dbId: $dbId, ')
           ..write('roomId: $roomId, ')
+          ..write('packetId: $packetId, ')
           ..write('id: $id, ')
           ..write('time: $time, ')
           ..write('from: $from, ')
           ..write('to: $to, ')
-          ..write('forwardedFrom: $forwardedFrom, ')
           ..write('replyToId: $replyToId, ')
+          ..write('forwardedFrom: $forwardedFrom, ')
           ..write('edited: $edited, ')
           ..write('encrypted: $encrypted, ')
           ..write('type: $type, ')
-          ..write('content: $content, ')
-          ..write('seen: $seen')
+          ..write('json: $json')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => $mrjf($mrjc(
-      roomId.hashCode,
+      dbId.hashCode,
       $mrjc(
-          id.hashCode,
+          roomId.hashCode,
           $mrjc(
-              time.hashCode,
+              packetId.hashCode,
               $mrjc(
-                  from.hashCode,
+                  id.hashCode,
                   $mrjc(
-                      to.hashCode,
+                      time.hashCode,
                       $mrjc(
-                          forwardedFrom.hashCode,
+                          from.hashCode,
                           $mrjc(
-                              replyToId.hashCode,
+                              to.hashCode,
                               $mrjc(
-                                  edited.hashCode,
+                                  replyToId.hashCode,
                                   $mrjc(
-                                      encrypted.hashCode,
+                                      forwardedFrom.hashCode,
                                       $mrjc(
-                                          type.hashCode,
-                                          $mrjc(content.hashCode,
-                                              seen.hashCode))))))))))));
+                                          edited.hashCode,
+                                          $mrjc(
+                                              encrypted.hashCode,
+                                              $mrjc(type.hashCode,
+                                                  json.hashCode)))))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Message &&
+          other.dbId == this.dbId &&
           other.roomId == this.roomId &&
+          other.packetId == this.packetId &&
           other.id == this.id &&
           other.time == this.time &&
           other.from == this.from &&
           other.to == this.to &&
-          other.forwardedFrom == this.forwardedFrom &&
           other.replyToId == this.replyToId &&
+          other.forwardedFrom == this.forwardedFrom &&
           other.edited == this.edited &&
           other.encrypted == this.encrypted &&
           other.type == this.type &&
-          other.content == this.content &&
-          other.seen == this.seen);
+          other.json == this.json);
 }
 
 class MessagesCompanion extends UpdateCompanion<Message> {
-  final Value<int> roomId;
+  final Value<int> dbId;
+  final Value<String> roomId;
+  final Value<int> packetId;
   final Value<int> id;
   final Value<DateTime> time;
   final Value<String> from;
   final Value<String> to;
-  final Value<String> forwardedFrom;
   final Value<int> replyToId;
+  final Value<String> forwardedFrom;
   final Value<bool> edited;
   final Value<bool> encrypted;
   final Value<MessageType> type;
-  final Value<String> content;
-  final Value<bool> seen;
+  final Value<String> json;
   const MessagesCompanion({
+    this.dbId = const Value.absent(),
     this.roomId = const Value.absent(),
+    this.packetId = const Value.absent(),
     this.id = const Value.absent(),
     this.time = const Value.absent(),
     this.from = const Value.absent(),
     this.to = const Value.absent(),
-    this.forwardedFrom = const Value.absent(),
     this.replyToId = const Value.absent(),
+    this.forwardedFrom = const Value.absent(),
     this.edited = const Value.absent(),
     this.encrypted = const Value.absent(),
     this.type = const Value.absent(),
-    this.content = const Value.absent(),
-    this.seen = const Value.absent(),
+    this.json = const Value.absent(),
   });
   MessagesCompanion.insert({
-    @required int roomId,
+    this.dbId = const Value.absent(),
+    @required String roomId,
+    @required int packetId,
     this.id = const Value.absent(),
     @required DateTime time,
     @required String from,
     @required String to,
-    this.forwardedFrom = const Value.absent(),
     this.replyToId = const Value.absent(),
+    this.forwardedFrom = const Value.absent(),
     this.edited = const Value.absent(),
     this.encrypted = const Value.absent(),
     @required MessageType type,
-    @required String content,
-    this.seen = const Value.absent(),
+    @required String json,
   })  : roomId = Value(roomId),
+        packetId = Value(packetId),
         time = Value(time),
         from = Value(from),
         to = Value(to),
         type = Value(type),
-        content = Value(content);
+        json = Value(json);
   static Insertable<Message> custom({
-    Expression<int> roomId,
+    Expression<int> dbId,
+    Expression<String> roomId,
+    Expression<int> packetId,
     Expression<int> id,
     Expression<DateTime> time,
     Expression<String> from,
     Expression<String> to,
-    Expression<String> forwardedFrom,
     Expression<int> replyToId,
+    Expression<String> forwardedFrom,
     Expression<bool> edited,
     Expression<bool> encrypted,
     Expression<int> type,
-    Expression<String> content,
-    Expression<bool> seen,
+    Expression<String> json,
   }) {
     return RawValuesInsertable({
+      if (dbId != null) 'db_id': dbId,
       if (roomId != null) 'room_id': roomId,
+      if (packetId != null) 'packet_id': packetId,
       if (id != null) 'id': id,
       if (time != null) 'time': time,
       if (from != null) 'from': from,
       if (to != null) 'to': to,
-      if (forwardedFrom != null) 'forwarded_from': forwardedFrom,
       if (replyToId != null) 'reply_to_id': replyToId,
+      if (forwardedFrom != null) 'forwarded_from': forwardedFrom,
       if (edited != null) 'edited': edited,
       if (encrypted != null) 'encrypted': encrypted,
       if (type != null) 'type': type,
-      if (content != null) 'content': content,
-      if (seen != null) 'seen': seen,
+      if (json != null) 'json': json,
     });
   }
 
   MessagesCompanion copyWith(
-      {Value<int> roomId,
+      {Value<int> dbId,
+      Value<String> roomId,
+      Value<int> packetId,
       Value<int> id,
       Value<DateTime> time,
       Value<String> from,
       Value<String> to,
-      Value<String> forwardedFrom,
       Value<int> replyToId,
+      Value<String> forwardedFrom,
       Value<bool> edited,
       Value<bool> encrypted,
       Value<MessageType> type,
-      Value<String> content,
-      Value<bool> seen}) {
+      Value<String> json}) {
     return MessagesCompanion(
+      dbId: dbId ?? this.dbId,
       roomId: roomId ?? this.roomId,
+      packetId: packetId ?? this.packetId,
       id: id ?? this.id,
       time: time ?? this.time,
       from: from ?? this.from,
       to: to ?? this.to,
-      forwardedFrom: forwardedFrom ?? this.forwardedFrom,
       replyToId: replyToId ?? this.replyToId,
+      forwardedFrom: forwardedFrom ?? this.forwardedFrom,
       edited: edited ?? this.edited,
       encrypted: encrypted ?? this.encrypted,
       type: type ?? this.type,
-      content: content ?? this.content,
-      seen: seen ?? this.seen,
+      json: json ?? this.json,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (dbId.present) {
+      map['db_id'] = Variable<int>(dbId.value);
+    }
     if (roomId.present) {
-      map['room_id'] = Variable<int>(roomId.value);
+      map['room_id'] = Variable<String>(roomId.value);
+    }
+    if (packetId.present) {
+      map['packet_id'] = Variable<int>(packetId.value);
     }
     if (id.present) {
       map['id'] = Variable<int>(id.value);
@@ -380,11 +409,11 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     if (to.present) {
       map['to'] = Variable<String>(to.value);
     }
-    if (forwardedFrom.present) {
-      map['forwarded_from'] = Variable<String>(forwardedFrom.value);
-    }
     if (replyToId.present) {
       map['reply_to_id'] = Variable<int>(replyToId.value);
+    }
+    if (forwardedFrom.present) {
+      map['forwarded_from'] = Variable<String>(forwardedFrom.value);
     }
     if (edited.present) {
       map['edited'] = Variable<bool>(edited.value);
@@ -396,11 +425,8 @@ class MessagesCompanion extends UpdateCompanion<Message> {
       final converter = $MessagesTable.$converter0;
       map['type'] = Variable<int>(converter.mapToSql(type.value));
     }
-    if (content.present) {
-      map['content'] = Variable<String>(content.value);
-    }
-    if (seen.present) {
-      map['seen'] = Variable<bool>(seen.value);
+    if (json.present) {
+      map['json'] = Variable<String>(json.value);
     }
     return map;
   }
@@ -408,18 +434,19 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   @override
   String toString() {
     return (StringBuffer('MessagesCompanion(')
+          ..write('dbId: $dbId, ')
           ..write('roomId: $roomId, ')
+          ..write('packetId: $packetId, ')
           ..write('id: $id, ')
           ..write('time: $time, ')
           ..write('from: $from, ')
           ..write('to: $to, ')
-          ..write('forwardedFrom: $forwardedFrom, ')
           ..write('replyToId: $replyToId, ')
+          ..write('forwardedFrom: $forwardedFrom, ')
           ..write('edited: $edited, ')
           ..write('encrypted: $encrypted, ')
           ..write('type: $type, ')
-          ..write('content: $content, ')
-          ..write('seen: $seen')
+          ..write('json: $json')
           ..write(')'))
         .toString();
   }
@@ -429,13 +456,34 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   final GeneratedDatabase _db;
   final String _alias;
   $MessagesTable(this._db, [this._alias]);
-  final VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
-  GeneratedIntColumn _roomId;
+  final VerificationMeta _dbIdMeta = const VerificationMeta('dbId');
+  GeneratedIntColumn _dbId;
   @override
-  GeneratedIntColumn get roomId => _roomId ??= _constructRoomId();
-  GeneratedIntColumn _constructRoomId() {
-    return GeneratedIntColumn(
+  GeneratedIntColumn get dbId => _dbId ??= _constructDbId();
+  GeneratedIntColumn _constructDbId() {
+    return GeneratedIntColumn('db_id', $tableName, false,
+        hasAutoIncrement: true, declaredAsPrimaryKey: true);
+  }
+
+  final VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
+  GeneratedTextColumn _roomId;
+  @override
+  GeneratedTextColumn get roomId => _roomId ??= _constructRoomId();
+  GeneratedTextColumn _constructRoomId() {
+    return GeneratedTextColumn(
       'room_id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _packetIdMeta = const VerificationMeta('packetId');
+  GeneratedIntColumn _packetId;
+  @override
+  GeneratedIntColumn get packetId => _packetId ??= _constructPacketId();
+  GeneratedIntColumn _constructPacketId() {
+    return GeneratedIntColumn(
+      'packet_id',
       $tableName,
       false,
     );
@@ -446,8 +494,11 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   @override
   GeneratedIntColumn get id => _id ??= _constructId();
   GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        hasAutoIncrement: true, declaredAsPrimaryKey: true);
+    return GeneratedIntColumn(
+      'id',
+      $tableName,
+      true,
+    );
   }
 
   final VerificationMeta _timeMeta = const VerificationMeta('time');
@@ -486,6 +537,18 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
     );
   }
 
+  final VerificationMeta _replyToIdMeta = const VerificationMeta('replyToId');
+  GeneratedIntColumn _replyToId;
+  @override
+  GeneratedIntColumn get replyToId => _replyToId ??= _constructReplyToId();
+  GeneratedIntColumn _constructReplyToId() {
+    return GeneratedIntColumn(
+      'reply_to_id',
+      $tableName,
+      true,
+    );
+  }
+
   final VerificationMeta _forwardedFromMeta =
       const VerificationMeta('forwardedFrom');
   GeneratedTextColumn _forwardedFrom;
@@ -495,18 +558,6 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   GeneratedTextColumn _constructForwardedFrom() {
     return GeneratedTextColumn(
       'forwarded_from',
-      $tableName,
-      true,
-    );
-  }
-
-  final VerificationMeta _replyToIdMeta = const VerificationMeta('replyToId');
-  GeneratedIntColumn _replyToId;
-  @override
-  GeneratedIntColumn get replyToId => _replyToId ??= _constructReplyToId();
-  GeneratedIntColumn _constructReplyToId() {
-    return GeneratedIntColumn(
-      'reply_to_id',
       $tableName,
       true,
     );
@@ -542,41 +593,33 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
     );
   }
 
-  final VerificationMeta _contentMeta = const VerificationMeta('content');
-  GeneratedTextColumn _content;
+  final VerificationMeta _jsonMeta = const VerificationMeta('json');
+  GeneratedTextColumn _json;
   @override
-  GeneratedTextColumn get content => _content ??= _constructContent();
-  GeneratedTextColumn _constructContent() {
+  GeneratedTextColumn get json => _json ??= _constructJson();
+  GeneratedTextColumn _constructJson() {
     return GeneratedTextColumn(
-      'content',
+      'json',
       $tableName,
       false,
     );
   }
 
-  final VerificationMeta _seenMeta = const VerificationMeta('seen');
-  GeneratedBoolColumn _seen;
-  @override
-  GeneratedBoolColumn get seen => _seen ??= _constructSeen();
-  GeneratedBoolColumn _constructSeen() {
-    return GeneratedBoolColumn('seen', $tableName, false,
-        defaultValue: Constant(false));
-  }
-
   @override
   List<GeneratedColumn> get $columns => [
+        dbId,
         roomId,
+        packetId,
         id,
         time,
         from,
         to,
-        forwardedFrom,
         replyToId,
+        forwardedFrom,
         edited,
         encrypted,
         type,
-        content,
-        seen
+        json
       ];
   @override
   $MessagesTable get asDslTable => this;
@@ -589,11 +632,21 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('db_id')) {
+      context.handle(
+          _dbIdMeta, dbId.isAcceptableOrUnknown(data['db_id'], _dbIdMeta));
+    }
     if (data.containsKey('room_id')) {
       context.handle(_roomIdMeta,
           roomId.isAcceptableOrUnknown(data['room_id'], _roomIdMeta));
     } else if (isInserting) {
       context.missing(_roomIdMeta);
+    }
+    if (data.containsKey('packet_id')) {
+      context.handle(_packetIdMeta,
+          packetId.isAcceptableOrUnknown(data['packet_id'], _packetIdMeta));
+    } else if (isInserting) {
+      context.missing(_packetIdMeta);
     }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
@@ -615,15 +668,15 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
     } else if (isInserting) {
       context.missing(_toMeta);
     }
+    if (data.containsKey('reply_to_id')) {
+      context.handle(_replyToIdMeta,
+          replyToId.isAcceptableOrUnknown(data['reply_to_id'], _replyToIdMeta));
+    }
     if (data.containsKey('forwarded_from')) {
       context.handle(
           _forwardedFromMeta,
           forwardedFrom.isAcceptableOrUnknown(
               data['forwarded_from'], _forwardedFromMeta));
-    }
-    if (data.containsKey('reply_to_id')) {
-      context.handle(_replyToIdMeta,
-          replyToId.isAcceptableOrUnknown(data['reply_to_id'], _replyToIdMeta));
     }
     if (data.containsKey('edited')) {
       context.handle(_editedMeta,
@@ -634,21 +687,17 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
           encrypted.isAcceptableOrUnknown(data['encrypted'], _encryptedMeta));
     }
     context.handle(_typeMeta, const VerificationResult.success());
-    if (data.containsKey('content')) {
-      context.handle(_contentMeta,
-          content.isAcceptableOrUnknown(data['content'], _contentMeta));
-    } else if (isInserting) {
-      context.missing(_contentMeta);
-    }
-    if (data.containsKey('seen')) {
+    if (data.containsKey('json')) {
       context.handle(
-          _seenMeta, seen.isAcceptableOrUnknown(data['seen'], _seenMeta));
+          _jsonMeta, json.isAcceptableOrUnknown(data['json'], _jsonMeta));
+    } else if (isInserting) {
+      context.missing(_jsonMeta);
     }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {dbId};
   @override
   Message map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -665,31 +714,21 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
 }
 
 class Room extends DataClass implements Insertable<Room> {
-  final int roomId;
-  final String sender;
-  final String reciever;
-  final String mentioned;
+  final String roomId;
+  final bool mentioned;
   final int lastMessage;
-  Room(
-      {@required this.roomId,
-      @required this.sender,
-      @required this.reciever,
-      this.mentioned,
-      @required this.lastMessage});
+  Room({@required this.roomId, this.mentioned, @required this.lastMessage});
   factory Room.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
+    final boolType = db.typeSystem.forDartType<bool>();
+    final intType = db.typeSystem.forDartType<int>();
     return Room(
       roomId:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
-      sender:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}sender']),
-      reciever: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}reciever']),
-      mentioned: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}mentioned']),
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
+      mentioned:
+          boolType.mapFromDatabaseResponse(data['${effectivePrefix}mentioned']),
       lastMessage: intType
           .mapFromDatabaseResponse(data['${effectivePrefix}last_message']),
     );
@@ -698,16 +737,10 @@ class Room extends DataClass implements Insertable<Room> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (!nullToAbsent || roomId != null) {
-      map['room_id'] = Variable<int>(roomId);
-    }
-    if (!nullToAbsent || sender != null) {
-      map['sender'] = Variable<String>(sender);
-    }
-    if (!nullToAbsent || reciever != null) {
-      map['reciever'] = Variable<String>(reciever);
+      map['room_id'] = Variable<String>(roomId);
     }
     if (!nullToAbsent || mentioned != null) {
-      map['mentioned'] = Variable<String>(mentioned);
+      map['mentioned'] = Variable<bool>(mentioned);
     }
     if (!nullToAbsent || lastMessage != null) {
       map['last_message'] = Variable<int>(lastMessage);
@@ -719,11 +752,6 @@ class Room extends DataClass implements Insertable<Room> {
     return RoomsCompanion(
       roomId:
           roomId == null && nullToAbsent ? const Value.absent() : Value(roomId),
-      sender:
-          sender == null && nullToAbsent ? const Value.absent() : Value(sender),
-      reciever: reciever == null && nullToAbsent
-          ? const Value.absent()
-          : Value(reciever),
       mentioned: mentioned == null && nullToAbsent
           ? const Value.absent()
           : Value(mentioned),
@@ -737,10 +765,8 @@ class Room extends DataClass implements Insertable<Room> {
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Room(
-      roomId: serializer.fromJson<int>(json['roomId']),
-      sender: serializer.fromJson<String>(json['sender']),
-      reciever: serializer.fromJson<String>(json['reciever']),
-      mentioned: serializer.fromJson<String>(json['mentioned']),
+      roomId: serializer.fromJson<String>(json['roomId']),
+      mentioned: serializer.fromJson<bool>(json['mentioned']),
       lastMessage: serializer.fromJson<int>(json['lastMessage']),
     );
   }
@@ -748,24 +774,14 @@ class Room extends DataClass implements Insertable<Room> {
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'roomId': serializer.toJson<int>(roomId),
-      'sender': serializer.toJson<String>(sender),
-      'reciever': serializer.toJson<String>(reciever),
-      'mentioned': serializer.toJson<String>(mentioned),
+      'roomId': serializer.toJson<String>(roomId),
+      'mentioned': serializer.toJson<bool>(mentioned),
       'lastMessage': serializer.toJson<int>(lastMessage),
     };
   }
 
-  Room copyWith(
-          {int roomId,
-          String sender,
-          String reciever,
-          String mentioned,
-          int lastMessage}) =>
-      Room(
+  Room copyWith({String roomId, bool mentioned, int lastMessage}) => Room(
         roomId: roomId ?? this.roomId,
-        sender: sender ?? this.sender,
-        reciever: reciever ?? this.reciever,
         mentioned: mentioned ?? this.mentioned,
         lastMessage: lastMessage ?? this.lastMessage,
       );
@@ -773,8 +789,6 @@ class Room extends DataClass implements Insertable<Room> {
   String toString() {
     return (StringBuffer('Room(')
           ..write('roomId: $roomId, ')
-          ..write('sender: $sender, ')
-          ..write('reciever: $reciever, ')
           ..write('mentioned: $mentioned, ')
           ..write('lastMessage: $lastMessage')
           ..write(')'))
@@ -782,71 +796,48 @@ class Room extends DataClass implements Insertable<Room> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(
-      roomId.hashCode,
-      $mrjc(
-          sender.hashCode,
-          $mrjc(reciever.hashCode,
-              $mrjc(mentioned.hashCode, lastMessage.hashCode)))));
+  int get hashCode => $mrjf(
+      $mrjc(roomId.hashCode, $mrjc(mentioned.hashCode, lastMessage.hashCode)));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Room &&
           other.roomId == this.roomId &&
-          other.sender == this.sender &&
-          other.reciever == this.reciever &&
           other.mentioned == this.mentioned &&
           other.lastMessage == this.lastMessage);
 }
 
 class RoomsCompanion extends UpdateCompanion<Room> {
-  final Value<int> roomId;
-  final Value<String> sender;
-  final Value<String> reciever;
-  final Value<String> mentioned;
+  final Value<String> roomId;
+  final Value<bool> mentioned;
   final Value<int> lastMessage;
   const RoomsCompanion({
     this.roomId = const Value.absent(),
-    this.sender = const Value.absent(),
-    this.reciever = const Value.absent(),
     this.mentioned = const Value.absent(),
     this.lastMessage = const Value.absent(),
   });
   RoomsCompanion.insert({
-    this.roomId = const Value.absent(),
-    @required String sender,
-    @required String reciever,
+    @required String roomId,
     this.mentioned = const Value.absent(),
     @required int lastMessage,
-  })  : sender = Value(sender),
-        reciever = Value(reciever),
+  })  : roomId = Value(roomId),
         lastMessage = Value(lastMessage);
   static Insertable<Room> custom({
-    Expression<int> roomId,
-    Expression<String> sender,
-    Expression<String> reciever,
-    Expression<String> mentioned,
+    Expression<String> roomId,
+    Expression<bool> mentioned,
     Expression<int> lastMessage,
   }) {
     return RawValuesInsertable({
       if (roomId != null) 'room_id': roomId,
-      if (sender != null) 'sender': sender,
-      if (reciever != null) 'reciever': reciever,
       if (mentioned != null) 'mentioned': mentioned,
       if (lastMessage != null) 'last_message': lastMessage,
     });
   }
 
   RoomsCompanion copyWith(
-      {Value<int> roomId,
-      Value<String> sender,
-      Value<String> reciever,
-      Value<String> mentioned,
-      Value<int> lastMessage}) {
+      {Value<String> roomId, Value<bool> mentioned, Value<int> lastMessage}) {
     return RoomsCompanion(
       roomId: roomId ?? this.roomId,
-      sender: sender ?? this.sender,
-      reciever: reciever ?? this.reciever,
       mentioned: mentioned ?? this.mentioned,
       lastMessage: lastMessage ?? this.lastMessage,
     );
@@ -856,16 +847,10 @@ class RoomsCompanion extends UpdateCompanion<Room> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (roomId.present) {
-      map['room_id'] = Variable<int>(roomId.value);
-    }
-    if (sender.present) {
-      map['sender'] = Variable<String>(sender.value);
-    }
-    if (reciever.present) {
-      map['reciever'] = Variable<String>(reciever.value);
+      map['room_id'] = Variable<String>(roomId.value);
     }
     if (mentioned.present) {
-      map['mentioned'] = Variable<String>(mentioned.value);
+      map['mentioned'] = Variable<bool>(mentioned.value);
     }
     if (lastMessage.present) {
       map['last_message'] = Variable<int>(lastMessage.value);
@@ -877,8 +862,6 @@ class RoomsCompanion extends UpdateCompanion<Room> {
   String toString() {
     return (StringBuffer('RoomsCompanion(')
           ..write('roomId: $roomId, ')
-          ..write('sender: $sender, ')
-          ..write('reciever: $reciever, ')
           ..write('mentioned: $mentioned, ')
           ..write('lastMessage: $lastMessage')
           ..write(')'))
@@ -891,48 +874,24 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
   final String _alias;
   $RoomsTable(this._db, [this._alias]);
   final VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
-  GeneratedIntColumn _roomId;
+  GeneratedTextColumn _roomId;
   @override
-  GeneratedIntColumn get roomId => _roomId ??= _constructRoomId();
-  GeneratedIntColumn _constructRoomId() {
-    return GeneratedIntColumn('room_id', $tableName, false,
-        hasAutoIncrement: true, declaredAsPrimaryKey: true);
-  }
-
-  final VerificationMeta _senderMeta = const VerificationMeta('sender');
-  GeneratedTextColumn _sender;
-  @override
-  GeneratedTextColumn get sender => _sender ??= _constructSender();
-  GeneratedTextColumn _constructSender() {
+  GeneratedTextColumn get roomId => _roomId ??= _constructRoomId();
+  GeneratedTextColumn _constructRoomId() {
     return GeneratedTextColumn(
-      'sender',
-      $tableName,
-      false,
-    );
-  }
-
-  final VerificationMeta _recieverMeta = const VerificationMeta('reciever');
-  GeneratedTextColumn _reciever;
-  @override
-  GeneratedTextColumn get reciever => _reciever ??= _constructReciever();
-  GeneratedTextColumn _constructReciever() {
-    return GeneratedTextColumn(
-      'reciever',
+      'room_id',
       $tableName,
       false,
     );
   }
 
   final VerificationMeta _mentionedMeta = const VerificationMeta('mentioned');
-  GeneratedTextColumn _mentioned;
+  GeneratedBoolColumn _mentioned;
   @override
-  GeneratedTextColumn get mentioned => _mentioned ??= _constructMentioned();
-  GeneratedTextColumn _constructMentioned() {
-    return GeneratedTextColumn(
-      'mentioned',
-      $tableName,
-      true,
-    );
+  GeneratedBoolColumn get mentioned => _mentioned ??= _constructMentioned();
+  GeneratedBoolColumn _constructMentioned() {
+    return GeneratedBoolColumn('mentioned', $tableName, true,
+        defaultValue: Constant(false));
   }
 
   final VerificationMeta _lastMessageMeta =
@@ -943,12 +902,11 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
       _lastMessage ??= _constructLastMessage();
   GeneratedIntColumn _constructLastMessage() {
     return GeneratedIntColumn('last_message', $tableName, false,
-        $customConstraints: 'REFERENCES messages(id)');
+        $customConstraints: 'REFERENCES messages(db_id)');
   }
 
   @override
-  List<GeneratedColumn> get $columns =>
-      [roomId, sender, reciever, mentioned, lastMessage];
+  List<GeneratedColumn> get $columns => [roomId, mentioned, lastMessage];
   @override
   $RoomsTable get asDslTable => this;
   @override
@@ -963,18 +921,8 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
     if (data.containsKey('room_id')) {
       context.handle(_roomIdMeta,
           roomId.isAcceptableOrUnknown(data['room_id'], _roomIdMeta));
-    }
-    if (data.containsKey('sender')) {
-      context.handle(_senderMeta,
-          sender.isAcceptableOrUnknown(data['sender'], _senderMeta));
     } else if (isInserting) {
-      context.missing(_senderMeta);
-    }
-    if (data.containsKey('reciever')) {
-      context.handle(_recieverMeta,
-          reciever.isAcceptableOrUnknown(data['reciever'], _recieverMeta));
-    } else if (isInserting) {
-      context.missing(_recieverMeta);
+      context.missing(_roomIdMeta);
     }
     if (data.containsKey('mentioned')) {
       context.handle(_mentionedMeta,
@@ -2273,6 +2221,288 @@ class $FileInfosTable extends FileInfos
   }
 }
 
+class Seen extends DataClass implements Insertable<Seen> {
+  final int dbId;
+  final String roomId;
+  final int messageId;
+  final String user;
+  Seen(
+      {@required this.dbId,
+      @required this.roomId,
+      @required this.messageId,
+      @required this.user});
+  factory Seen.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final intType = db.typeSystem.forDartType<int>();
+    final stringType = db.typeSystem.forDartType<String>();
+    return Seen(
+      dbId: intType.mapFromDatabaseResponse(data['${effectivePrefix}db_id']),
+      roomId:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
+      messageId:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}message_id']),
+      user: stringType.mapFromDatabaseResponse(data['${effectivePrefix}user']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || dbId != null) {
+      map['db_id'] = Variable<int>(dbId);
+    }
+    if (!nullToAbsent || roomId != null) {
+      map['room_id'] = Variable<String>(roomId);
+    }
+    if (!nullToAbsent || messageId != null) {
+      map['message_id'] = Variable<int>(messageId);
+    }
+    if (!nullToAbsent || user != null) {
+      map['user'] = Variable<String>(user);
+    }
+    return map;
+  }
+
+  SeensCompanion toCompanion(bool nullToAbsent) {
+    return SeensCompanion(
+      dbId: dbId == null && nullToAbsent ? const Value.absent() : Value(dbId),
+      roomId:
+          roomId == null && nullToAbsent ? const Value.absent() : Value(roomId),
+      messageId: messageId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(messageId),
+      user: user == null && nullToAbsent ? const Value.absent() : Value(user),
+    );
+  }
+
+  factory Seen.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return Seen(
+      dbId: serializer.fromJson<int>(json['dbId']),
+      roomId: serializer.fromJson<String>(json['roomId']),
+      messageId: serializer.fromJson<int>(json['messageId']),
+      user: serializer.fromJson<String>(json['user']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'dbId': serializer.toJson<int>(dbId),
+      'roomId': serializer.toJson<String>(roomId),
+      'messageId': serializer.toJson<int>(messageId),
+      'user': serializer.toJson<String>(user),
+    };
+  }
+
+  Seen copyWith({int dbId, String roomId, int messageId, String user}) => Seen(
+        dbId: dbId ?? this.dbId,
+        roomId: roomId ?? this.roomId,
+        messageId: messageId ?? this.messageId,
+        user: user ?? this.user,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Seen(')
+          ..write('dbId: $dbId, ')
+          ..write('roomId: $roomId, ')
+          ..write('messageId: $messageId, ')
+          ..write('user: $user')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(dbId.hashCode,
+      $mrjc(roomId.hashCode, $mrjc(messageId.hashCode, user.hashCode))));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is Seen &&
+          other.dbId == this.dbId &&
+          other.roomId == this.roomId &&
+          other.messageId == this.messageId &&
+          other.user == this.user);
+}
+
+class SeensCompanion extends UpdateCompanion<Seen> {
+  final Value<int> dbId;
+  final Value<String> roomId;
+  final Value<int> messageId;
+  final Value<String> user;
+  const SeensCompanion({
+    this.dbId = const Value.absent(),
+    this.roomId = const Value.absent(),
+    this.messageId = const Value.absent(),
+    this.user = const Value.absent(),
+  });
+  SeensCompanion.insert({
+    this.dbId = const Value.absent(),
+    @required String roomId,
+    @required int messageId,
+    @required String user,
+  })  : roomId = Value(roomId),
+        messageId = Value(messageId),
+        user = Value(user);
+  static Insertable<Seen> custom({
+    Expression<int> dbId,
+    Expression<String> roomId,
+    Expression<int> messageId,
+    Expression<String> user,
+  }) {
+    return RawValuesInsertable({
+      if (dbId != null) 'db_id': dbId,
+      if (roomId != null) 'room_id': roomId,
+      if (messageId != null) 'message_id': messageId,
+      if (user != null) 'user': user,
+    });
+  }
+
+  SeensCompanion copyWith(
+      {Value<int> dbId,
+      Value<String> roomId,
+      Value<int> messageId,
+      Value<String> user}) {
+    return SeensCompanion(
+      dbId: dbId ?? this.dbId,
+      roomId: roomId ?? this.roomId,
+      messageId: messageId ?? this.messageId,
+      user: user ?? this.user,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (dbId.present) {
+      map['db_id'] = Variable<int>(dbId.value);
+    }
+    if (roomId.present) {
+      map['room_id'] = Variable<String>(roomId.value);
+    }
+    if (messageId.present) {
+      map['message_id'] = Variable<int>(messageId.value);
+    }
+    if (user.present) {
+      map['user'] = Variable<String>(user.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SeensCompanion(')
+          ..write('dbId: $dbId, ')
+          ..write('roomId: $roomId, ')
+          ..write('messageId: $messageId, ')
+          ..write('user: $user')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SeensTable extends Seens with TableInfo<$SeensTable, Seen> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $SeensTable(this._db, [this._alias]);
+  final VerificationMeta _dbIdMeta = const VerificationMeta('dbId');
+  GeneratedIntColumn _dbId;
+  @override
+  GeneratedIntColumn get dbId => _dbId ??= _constructDbId();
+  GeneratedIntColumn _constructDbId() {
+    return GeneratedIntColumn('db_id', $tableName, false,
+        hasAutoIncrement: true, declaredAsPrimaryKey: true);
+  }
+
+  final VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
+  GeneratedTextColumn _roomId;
+  @override
+  GeneratedTextColumn get roomId => _roomId ??= _constructRoomId();
+  GeneratedTextColumn _constructRoomId() {
+    return GeneratedTextColumn(
+      'room_id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _messageIdMeta = const VerificationMeta('messageId');
+  GeneratedIntColumn _messageId;
+  @override
+  GeneratedIntColumn get messageId => _messageId ??= _constructMessageId();
+  GeneratedIntColumn _constructMessageId() {
+    return GeneratedIntColumn(
+      'message_id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _userMeta = const VerificationMeta('user');
+  GeneratedTextColumn _user;
+  @override
+  GeneratedTextColumn get user => _user ??= _constructUser();
+  GeneratedTextColumn _constructUser() {
+    return GeneratedTextColumn(
+      'user',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [dbId, roomId, messageId, user];
+  @override
+  $SeensTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'seens';
+  @override
+  final String actualTableName = 'seens';
+  @override
+  VerificationContext validateIntegrity(Insertable<Seen> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('db_id')) {
+      context.handle(
+          _dbIdMeta, dbId.isAcceptableOrUnknown(data['db_id'], _dbIdMeta));
+    }
+    if (data.containsKey('room_id')) {
+      context.handle(_roomIdMeta,
+          roomId.isAcceptableOrUnknown(data['room_id'], _roomIdMeta));
+    } else if (isInserting) {
+      context.missing(_roomIdMeta);
+    }
+    if (data.containsKey('message_id')) {
+      context.handle(_messageIdMeta,
+          messageId.isAcceptableOrUnknown(data['message_id'], _messageIdMeta));
+    } else if (isInserting) {
+      context.missing(_messageIdMeta);
+    }
+    if (data.containsKey('user')) {
+      context.handle(
+          _userMeta, user.isAcceptableOrUnknown(data['user'], _userMeta));
+    } else if (isInserting) {
+      context.missing(_userMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {dbId};
+  @override
+  Seen map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return Seen.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $SeensTable createAlias(String alias) {
+    return $SeensTable(_db, alias);
+  }
+}
+
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $MessagesTable _messages;
@@ -2285,6 +2515,8 @@ abstract class _$Database extends GeneratedDatabase {
   $ContactsTable get contacts => _contacts ??= $ContactsTable(this);
   $FileInfosTable _fileInfos;
   $FileInfosTable get fileInfos => _fileInfos ??= $FileInfosTable(this);
+  $SeensTable _seens;
+  $SeensTable get seens => _seens ??= $SeensTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
@@ -2295,9 +2527,11 @@ abstract class _$Database extends GeneratedDatabase {
   ContactDao get contactDao => _contactDao ??= ContactDao(this as Database);
   FileDao _fileDao;
   FileDao get fileDao => _fileDao ??= FileDao(this as Database);
+  SeenDao _seenDao;
+  SeenDao get seenDao => _seenDao ??= SeenDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [messages, rooms, avatars, contacts, fileInfos];
+      [messages, rooms, avatars, contacts, fileInfos, seens];
 }

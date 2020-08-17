@@ -2,9 +2,13 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:moor/moor.dart';
 
 class Messages extends Table {
-  IntColumn get roomId => integer()();
+  IntColumn get dbId => integer().autoIncrement()();
 
-  IntColumn get id => integer().autoIncrement()();
+  TextColumn get roomId => text()();
+
+  IntColumn get packetId => integer()();
+
+  IntColumn get id => integer().nullable()();
 
   DateTimeColumn get time => dateTime()();
 
@@ -12,9 +16,9 @@ class Messages extends Table {
 
   TextColumn get to => text()();
 
-  TextColumn get forwardedFrom =>
-      text().nullable()(); //.withLength(min: 22, max: 22)();
   IntColumn get replyToId => integer().nullable()();
+
+  TextColumn get forwardedFrom => text().nullable()();
 
   BoolColumn get edited => boolean().withDefault(Constant(false))();
 
@@ -22,7 +26,5 @@ class Messages extends Table {
 
   IntColumn get type => intEnum<MessageType>()();
 
-  TextColumn get content => text()();
-
-  BoolColumn get seen => boolean().withDefault(Constant(false))();
+  TextColumn get json => text()();
 }

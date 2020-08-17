@@ -16,19 +16,20 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
   Stream<List<Room>> watchAllRooms() => select(rooms).watch();
 
   Future insertRoom(Room newRoom) {
-    return into(rooms).insert(newRoom);
+    return into(rooms).insertOnConflictUpdate(newRoom);
   }
 
   Future deleteRoom(Room room) => delete(rooms).delete(room);
 
   Future updateRoom(Room updatedRoom) => update(rooms).replace(updatedRoom);
 
+//TODO need to edit
   Stream<List<RoomWithMessage>> getByContactId() {
     return (select(rooms).join([
       innerJoin(
           messages,
-          messages.id.equalsExp(rooms.lastMessage) &
-              messages.roomId.equalsExp(rooms.roomId))
+          messages.dbId.equalsExp(rooms.lastMessage) &
+              messages.roomId.equalsExp(rooms.roomId)),
     ])
           ..orderBy([OrderingTerm.desc(messages.time)]))
         .watch()
@@ -44,7 +45,7 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
         );
   }
 
-  Stream<Room> getById(int rid) {
+  Stream<Room> getByRoomId(String rid) {
     return (select(rooms)..where((c) => c.roomId.equals(rid))).watchSingle();
   }
 }

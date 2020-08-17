@@ -1,15 +1,14 @@
-import 'package:moor_flutter/moor_flutter.dart';
 import 'package:moor/moor.dart';
 
 class Rooms extends Table {
-  IntColumn get roomId => integer().autoIncrement()();
+  TextColumn get roomId => text()();
 
-  TextColumn get sender => text()();
-
-  TextColumn get reciever => text()();
-
-  TextColumn get mentioned => text().nullable()();
+  BoolColumn get mentioned =>
+      boolean().nullable().withDefault(Constant(false))();
 
   IntColumn get lastMessage =>
-      integer().customConstraint('REFERENCES messages(id)')();
+      integer().customConstraint('REFERENCES messages(db_id)')();
+
+  @override
+  Set<Column> get primaryKey => {roomId};
 }

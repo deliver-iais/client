@@ -1,4 +1,5 @@
-import 'package:moor_flutter/moor_flutter.dart';
+
+import 'package:moor/moor.dart';
 
 class Accounts extends Table {
   TextColumn get uid => text()();
