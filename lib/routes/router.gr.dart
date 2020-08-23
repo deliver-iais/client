@@ -17,6 +17,7 @@ import '../screen/app-home/widgets/forward.dart';
 import '../screen/app-intro/pages/introPage.dart';
 import '../screen/app-room/pages/roomPage.dart';
 import '../screen/app-room/widgets/showImage_Widget.dart';
+import '../screen/app_profile/pages/profile_page.dart';
 import '../screen/settings/settingsPage.dart';
 import '../screen/splashScreen/pages/splashScreen.dart';
 
@@ -29,6 +30,7 @@ class Routes {
   static const String settingsPage = '/settings-page';
   static const String roomPage = '/room-page';
   static const String forwardMessage = '/forward-message';
+  static const String profilePage = '/profile-page';
   static const String showImagePage = '/show-image-page';
   static const all = <String>{
     splashScreen,
@@ -39,6 +41,7 @@ class Routes {
     settingsPage,
     roomPage,
     forwardMessage,
+    profilePage,
     showImagePage,
   };
 }
@@ -55,6 +58,7 @@ class Router extends RouterBase {
     RouteDef(Routes.settingsPage, page: SettingsPage),
     RouteDef(Routes.roomPage, page: RoomPage),
     RouteDef(Routes.forwardMessage, page: ForwardMessage),
+    RouteDef(Routes.profilePage, page: ProfilePage),
     RouteDef(Routes.showImagePage, page: ShowImagePage),
   ];
   @override
@@ -117,6 +121,12 @@ class Router extends RouterBase {
     ForwardMessage: (data) {
       return MaterialPageRoute<dynamic>(
         builder: (context) => ForwardMessage(),
+        settings: data,
+      );
+    },
+    ProfilePage: (data) {
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => ProfilePage(),
         settings: data,
       );
     },
