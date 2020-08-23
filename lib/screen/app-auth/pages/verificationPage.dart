@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/shared/Widget/textField.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -23,6 +24,8 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
   String verificationCode;
   AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
 
+  var checkPermission = GetIt.I.get< CheckPermissionsService>();
+
   void _listenOpt() async {
     await SmsAutoFill().listenForCode;
   }
@@ -33,12 +36,17 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
       _sendVerificationCode();
     }
   }
+  _requestPermissions(){
+    checkPermission.checkContactPermission(context);
+    checkPermission.checkStoragePermission();
+  }
 
   _sendVerificationCode() {
     var result = accountRepo.sendVerificationCode(verificationCode);
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
         accountRepo.saveTokens(accessTokenResponse);
+        _requestPermissions();
         _navigationToHome();
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.NOT_VALID) {

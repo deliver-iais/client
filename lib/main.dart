@@ -8,6 +8,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/services/downloadFileServices.dart';
 import 'package:deliver_flutter/services/message_service.dart';
@@ -45,6 +46,7 @@ void setupRepositories() {
   getIt.registerSingleton<AccountRepo>(AccountRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
+  getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   getIt.registerSingleton<DownloadFileServices>(DownloadFileServices());
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<UploadFileServices>(UploadFileServices());
@@ -60,12 +62,6 @@ void setupDIAndRunApp() {
     setupRepositories();
 
     FlutterDownloader.initialize();
-
-    PermissionsPlugin.requestPermissions([
-      Permission.WRITE_EXTERNAL_STORAGE,
-      Permission.READ_EXTERNAL_STORAGE,
-      Permission.READ_CONTACTS,
-    ]);
 
     runApp(MyApp());
   });
