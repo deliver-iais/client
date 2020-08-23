@@ -1,12 +1,10 @@
 import 'dart:math';
 
 import 'package:audio_recorder/audio_recorder.dart';
-import 'package:date_time_format/date_time_format.dart';
-import 'package:deliver_flutter/db/dao/MessageDao.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/emojiKeybord.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box.dart';
 import 'package:deliver_flutter/services/message_service.dart';
+import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/uploadFileServices.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,7 +13,6 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:flutter_timer/flutter_timer.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moor/moor.dart' as Moor;
 import 'package:permissions_plugin/permissions_plugin.dart';
 import 'package:random_string/random_string.dart';
 import 'package:vibration/vibration.dart';
@@ -36,6 +33,7 @@ class _InputMessageWidget extends State<InputMessage> {
   var messageService = GetIt.I.get<MessageService>();
 
   var uploadFile = GetIt.I.get<UploadFileServices>();
+  var checkPermission = GetIt.I.get<CheckPermissionsService>();
   TextEditingController controller;
   Room currentRoom;
   bool showEmoji = false;
@@ -46,6 +44,7 @@ class _InputMessageWidget extends State<InputMessage> {
   bool started = false;
   DateTime time = DateTime.now();
   double DX = 150.0;
+  bool recordAudioPermission = false;
 
   bool startAudioRecorder = false;
 
@@ -241,6 +240,10 @@ class _InputMessageWidget extends State<InputMessage> {
                           ),
                     controller.text.isEmpty
                         ? GestureDetector(
+                            onTapDown: (_) async {
+                              recordAudioPermission = await checkPermission
+                                  .checkAudioRecorderPermission();
+                            },
                             onLongPressMoveUpdate: (tg) {
                               if (tg.offsetFromOrigin.dx > -DX && started) {
                                 setState(() {
@@ -260,8 +263,7 @@ class _InputMessageWidget extends State<InputMessage> {
                               }
                             },
                             onLongPressStart: (dw) async {
-                              bool per = await checkPermission();
-                              if (per) {
+                              if (recordAudioPermission) {
                                 Vibration.vibrate(duration: 200);
                                 setState(() {
                                   startAudioRecorder = true;
@@ -274,8 +276,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                         .getExternalStoragePublicDirectory(
                                             "${ExtStorage.DIRECTORY_MUSIC}/${randomString(10)}"),
                                     audioOutputFormat: AudioOutputFormat.AAC);
-                              } else {
-                                grantPermission();
                               }
                             },
                             onLongPressEnd: (s) async {
@@ -330,21 +330,6 @@ class _InputMessageWidget extends State<InputMessage> {
             : SizedBox(),
       ],
     );
-  }
-
-  Future checkPermission() async {
-    try {
-      return (await PermissionsPlugin.checkPermissions([
-            Permission.RECORD_AUDIO,
-          ]))[Permission.RECORD_AUDIO] ==
-          PermissionState.GRANTED;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  grantPermission() {
-    PermissionsPlugin.requestPermissions([Permission.RECORD_AUDIO]);
   }
 
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;
