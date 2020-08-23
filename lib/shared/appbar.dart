@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/shared/mainWidget.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -57,31 +58,27 @@ class Appbar extends StatelessWidget {
                               itemBuilder: (context) => [
                                     PopupMenuItem(
                                         child: GestureDetector(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Text("New Group"),
-                                        ],
-                                      ),
+                                      child: Text("Add New Chat"),
                                       onTap: () {
                                         initialDataBase();
-
-                                        /// todo
                                       },
                                     )),
                                     PopupMenuItem(
                                         child: GestureDetector(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Text("New Channel"),
-                                        ],
-                                      ),
+                                      child: Text("Go To Profile"),
                                       onTap: () {
-                                        // todo c
+                                        ExtendedNavigator.of(context).push(Routes.profilePage);
                                       },
+                                    )),
+                                    PopupMenuItem(
+                                        child: GestureDetector(
+                                      child: Text("New Group"),
+                                      onTap: () {},
+                                    )),
+                                    PopupMenuItem(
+                                        child: GestureDetector(
+                                      child: Text("New Channel"),
+                                      onTap: () {},
                                     ))
                                   ])
                           : PopupMenuButton(
@@ -106,9 +103,6 @@ class Appbar extends StatelessWidget {
                                     )),
                                   ]),
                     ),
-                    onPressed: currentPageService.currentPage == 0
-                        ? initialDataBase
-                        : null,
                     iconSize: 38,
                   ),
                 )

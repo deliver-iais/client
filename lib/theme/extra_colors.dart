@@ -9,7 +9,10 @@ class ExtraThemeData {
   Color active = Colors.white;
   Color infoChat = Colors.white;
   Color text = Color(0xFFBCE0FD);
-
+  Color blueOfProfilePage = Color(0xFF2699FB);
+  Color backgroundOfProfilePage =  Color(0xFF424242);
+  Color borderOfProfilePage = Color(0xFF9D9D9D);
+  Color tabsColor = Colors.white;
 
   ExtraThemeData({this.circleAvatarBackground,
     this.introColor,
