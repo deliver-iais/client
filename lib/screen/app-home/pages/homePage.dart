@@ -21,16 +21,17 @@ class HomePage extends StatelessWidget {
         child: Appbar(),
       ),
       body: MainWidget(
-        Column(
-          children: <Widget>[
-            SearchBox(),
-            if (currentPageService.currentPage == 0)
-              ChatsPage()
-            else
-              ContactsPage(),
-          ],
-        ), 20,25
-      ),
+          Column(
+            children: <Widget>[
+              SearchBox(),
+              if (currentPageService.currentPage == 0)
+                ChatsPage()
+              else
+                ContactsPage(),
+            ],
+          ),
+          16,
+          16),
       bottomNavigationBar: NavigationBar(),
     );
   }

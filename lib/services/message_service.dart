@@ -7,6 +7,7 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as MessageProto;
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
@@ -15,22 +16,22 @@ class MessageService {
   var roomDao = GetIt.I.get<RoomDao>();
   var accountRepo = GetIt.I.get<AccountRepo>();
 
-  sendTextMessage(String to, String text) {
+  sendTextMessage(Uid to, String text) {
     var textMessage = MessageProto.Text()..text = text;
     // TODO should send message...
     var textMessageJson = {"text": text};
     messageDao
         .insertMessage(Message(
-          roomId: '0:Judi',
+          roomId: to.string,
           packetId: 2,
           time: DateTime.now(),
           from: accountRepo.currentUserUid.string,
-          to: to,
+          to: to.string,
           type: MessageType.text,
           json: jsonEncode(textMessageJson),
         ))
         .then((dbId) => roomDao.insertRoom(Room(
-              roomId: to,
+              roomId: to.string,
               lastMessage: dbId,
             )));
   }

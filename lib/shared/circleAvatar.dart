@@ -32,7 +32,7 @@ class CircleAvatarWidget extends StatelessWidget {
                 snapshot.data,
               );
             } else {
-              return new Text(contactUid,
+              return new Text(contactUid.substring(0, 2),
                   style: TextStyle(
                       color: Colors.white, fontSize: radius, height: 2));
             }

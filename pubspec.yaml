@@ -30,8 +30,6 @@ dependencies:
   date_time_format: ^1.0.0+4
 
   emojis: 0.9.3
-
-
   permissions_plugin: ^1.1.4
 
   ext_storage:
@@ -58,8 +56,6 @@ dependencies:
   jwt_decoder: ^1.0.1
   storage_path: 0.2.0
   image_picker: ^0.6.7+4
-
-
   emoji_picker: 0.1.0
   vibration: 1.4.0
 
@@ -99,10 +95,9 @@ dependencies:
   mockito: 4.1.1
 
   flutter_timer: 0.0.6
+  uuid: 2.2.0
 
   audio_recorder: 1.0.2
-
-
 
   test:
 

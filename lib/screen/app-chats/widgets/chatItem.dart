@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/models/roomWithMessage.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/recievedMsgStatusIcon.dart';
+import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/methods/dateTimeFormat.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -19,47 +20,58 @@ class ChatItem extends StatelessWidget {
 
   ChatItem({this.roomWithMessage});
 
+
+
   @override
   Widget build(BuildContext context) {
     var messageType = roomWithMessage.lastMessage.from
             .isSameEntity(accountRepo.currentUserUid)
         ? "send"
         : "recieve";
+
+    var maxWidth = MediaQuery.of(context).size.width - 38 - 8 - 32;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 30),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Row(
             children: <Widget>[
-              ContactPic(true,
-                  'https://brandyourself.com/blog/wp-content/uploads/linkedin-profile-picture-too-close.png'),
+              ContactPic(true, roomWithMessage.room.roomId.uid),
               SizedBox(
-                width: 20,
+                width: 8,
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(
-                    // contact.firstName + " " + contact.lastName,
-                    'Judi',
-                    style: TextStyle(
-                      color: ExtraTheme.of(context).infoChat,
-                      fontSize: 17,
+                  Container(
+                    width: maxWidth,
+                    child: Text(
+                      roomWithMessage.room.roomId + roomWithMessage.room.roomId,
+                      style: TextStyle(
+                        color: ExtraTheme.of(context).infoChat,
+                        fontSize: 16,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Row(
-                    children: <Widget>[
-                      messageType == "send"
-                          ? SeenStatus(roomWithMessage.lastMessage)
-                          : Container(),
-                      Padding(
-                          padding: const EdgeInsets.only(
-                            top: 3.0,
-                          ),
-                          child: LastMessage(
-                              message: roomWithMessage.lastMessage)),
-                    ],
+                   Container(
+                    width: maxWidth,
+                    child: Row(
+                      children: <Widget>[
+                        messageType == "send"
+                            ? SeenStatus(roomWithMessage.lastMessage)
+                            : Container(),
+                        Padding(
+                            padding: const EdgeInsets.only(
+                              top: 3.0,
+                            ),
+                            child: LastMessage(
+                                message: roomWithMessage.lastMessage)),
+                      ],
+                    ),
                   ),
                 ],
               ),

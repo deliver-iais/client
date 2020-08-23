@@ -10,10 +10,9 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/messageType.dart';
 import 'package:flutter_timer/flutter_timer.dart';
 import 'package:get_it/get_it.dart';
-import 'package:permissions_plugin/permissions_plugin.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:random_string/random_string.dart';
 import 'package:vibration/vibration.dart';
 import 'package:ext_storage/ext_storage.dart';
@@ -175,7 +174,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                                     .text.isNotEmpty) {
                                                   messageService
                                                       .sendTextMessage(
-                                                          '0:Judi',
+                                                          currentRoom.roomId.uid,
                                                           controller.text);
 
                                                   controller.clear();

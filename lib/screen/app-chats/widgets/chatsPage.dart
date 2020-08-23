@@ -27,7 +27,6 @@ class ChatsPage extends StatelessWidget {
                 return GestureDetector(
                   child: ChatItem(roomWithMessage: roomsWithMessages[index]),
                   onTap: () {
-                    currentPageService.resetPage();
                     ExtendedNavigator.of(context).push(
                       Routes.roomPage,
                       arguments: RoomPageArguments(

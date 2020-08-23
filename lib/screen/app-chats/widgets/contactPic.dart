@@ -1,18 +1,20 @@
 import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ContactPic extends StatelessWidget {
   final bool isOnline;
-  final String photoName;
+  final Uid uid;
 
-  const ContactPic(this.isOnline, this.photoName);
+  const ContactPic(this.isOnline, this.uid);
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        CircleAvatarWidget('JU', 17),
+        CircleAvatarWidget(this.uid.string, 18),
         // CircleAvatar(
         //   radius: 25,
         //   backgroundColor: ExtraTheme.of(context).circleAvatarBackground,
