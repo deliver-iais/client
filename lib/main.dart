@@ -41,7 +41,6 @@ void setupDB() {
 void setupRepositories() {
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<UxService>(UxService());
-  getIt.registerSingleton<MessageService>(MessageService());
   getIt.registerSingleton<CurrentPageService>(CurrentPageService());
   getIt.registerSingleton<AccountRepo>(AccountRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
@@ -49,6 +48,7 @@ void setupRepositories() {
   getIt.registerSingleton<DownloadFileServices>(DownloadFileServices());
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<UploadFileServices>(UploadFileServices());
+  getIt.registerSingleton<MessageService>(MessageService());
 }
 
 void setupDIAndRunApp() {

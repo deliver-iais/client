@@ -176,7 +176,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                                     .text.isNotEmpty) {
                                                   messageService
                                                       .sendTextMessage(
-                                                          'users:Judi',
+                                                          '0:Judi',
                                                           controller.text);
 
                                                   controller.clear();

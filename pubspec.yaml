@@ -71,7 +71,7 @@ dependencies:
   deliver_public_protocol:
     git:
       url: https://gitlab.iais.co/deliver/protocol/pub-dart-artifactory.git
-      ref: tags/v1.2.1
+      ref: tags/v1.3.0
   grpc: ^2.1.3
   protobuf: ^1.0.1
 

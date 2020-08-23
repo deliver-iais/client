@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
@@ -18,7 +19,7 @@ class AccountRepo {
   // TODO add account name protocol to server
   String currentUserName = "John Doe";
   Uid currentUserUid = Uid.create()
-    ..category = "users"
+    ..category = Categories.User
     ..node = "john";
   Avatar avatar;
   PhoneNumber phoneNumber;
@@ -34,8 +35,8 @@ class AccountRepo {
   var authServiceStub = AuthServiceClient(_clientChannel);
 
   AccountRepo() {
-    _accessToken = _prefs.getString(ACCESS_TOKEN_KEY);
-    _refreshToken = _prefs.getString(REFRESH_TOKEN_KEY);
+    _setTokensAndCurrentUserUid(_prefs.getString(ACCESS_TOKEN_KEY),
+        _prefs.getString(REFRESH_TOKEN_KEY));
   }
 
   Future getVerificationCode(int countryCode, String nationalNumber) async {
@@ -89,24 +90,37 @@ class AccountRepo {
   }
 
   bool _isExpired(accessToken) {
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
-    Fimber.d("exp=${decodedToken["exp"]}");
-    double expTime = double.parse(decodedToken["exp"].toString());
-    double now = new DateTime.now().millisecondsSinceEpoch / 1000;
-    return now > expTime;
+    return JwtDecoder.isExpired(accessToken);
   }
 
   void saveTokens(AccessTokenRes res) {
-    _accessToken = res.accessToken;
-    _refreshToken = res.refreshToken;
-    _prefs.setString(REFRESH_TOKEN_KEY, _refreshToken);
-    _prefs.setString(ACCESS_TOKEN_KEY, _accessToken);
+    _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
   }
 
   void _saveTokens(RenewAccessTokenRes res) {
-    _accessToken = res.accessToken;
-    _refreshToken = res.refreshToken;
-    _prefs.setString(REFRESH_TOKEN_KEY, _refreshToken);
-    _prefs.setString(ACCESS_TOKEN_KEY, _accessToken);
+    _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
+  }
+
+  void _setTokensAndCurrentUserUid(String accessToken, String refreshToken) {
+    if (accessToken == null ||
+        accessToken.isEmpty ||
+        refreshToken == null ||
+        refreshToken.isEmpty) {
+      return;
+    }
+    _accessToken = accessToken;
+    _refreshToken = refreshToken;
+    _prefs.setString(REFRESH_TOKEN_KEY, refreshToken);
+    _prefs.setString(ACCESS_TOKEN_KEY, accessToken);
+    setCurrentUid(accessToken);
+  }
+
+  setCurrentUid(String accessToken) {
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+    if (decodedToken != null) {
+      currentUserUid = Uid()
+        ..category = Categories.User
+        ..node = decodedToken["sub"];
+    }
   }
 }

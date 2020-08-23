@@ -26,5 +26,5 @@ me, iais -> roomid = iais
 toStr() -> category:node
 
 Rooms
-(roomId = "groups:10982737891524")
-(roomId = "users:jain")
+(roomId = "1:10982737891524")
+(roomId = "0:jain")
