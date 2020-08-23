@@ -1,4 +1,6 @@
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:fimber/fimber.dart';
 
 extension UidExtension on Uid {
   bool isSameEntity(String entityString) {
@@ -6,12 +8,18 @@ extension UidExtension on Uid {
     if (list.length != 2) {
       return false;
     } else {
-      return this.category == list[0] && this.node == list[1];
+      return this.category.value == int.parse(list[0]) && this.node == list[1];
     }
   }
 
-  String toStr() => "${this.category}:${this.node}";
+  bool equals(Uid uid) {
+    return this.category.value == uid.category.value && this.node == uid.node;
+  }
+
+  get string => "${this.category.value}:${this.node}";
 }
+
+const _ALL_SESSIONS = "*";
 
 extension StringUidExtension on String {
   bool isSameEntity(Uid uid) {
@@ -19,12 +27,21 @@ extension StringUidExtension on String {
     if (list.length != 2) {
       return false;
     } else {
-      return uid.category == list[0] && uid.node == list[1];
+      Fimber.d(list[0]);
+      Fimber.d(list[1]);
+      return uid.category.value == int.parse(list[0]) && uid.node == list[1];
     }
   }
 
-  String toUid() {
-    // TODO need to be implemented.
-    return null;
+  get uid {
+    var list = this.split(":");
+    if (list.length != 2) {
+      throw AssertionError("Uid is incorrect");
+    } else {
+      return Uid()
+        ..category = Categories.valueOf(int.parse(list[0]))
+        ..node = list[1]
+        ..sessionId = _ALL_SESSIONS;
+    }
   }
 }

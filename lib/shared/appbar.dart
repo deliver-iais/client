@@ -121,19 +121,7 @@ class Appbar extends StatelessWidget {
   }
 
   initialDataBase() {
-    GetIt.I.get<MessageService>().sendTextMessage('users:Judi', 'test');
-    // messageDao
-    //     .insertMessage(MessagesCompanion(
-    //       roomId: Value('users:Judi'),
-    //       packetId: Value(2),
-    //       time: Value(DateTime.now().subtract(Duration(days: 2))),
-    //       from: Value('users:john'),
-    //       to: Value('users:jain'),
-    //       type: Value(MessageType.file),
-    //       json: Value('{\"uuid\":\"File:a.png\",\"size\":' +
-    //           Int64.parseInt('5000000').toString() +
-    //           ',\"type\":\"image\",\"name\":\"a.png\",\"caption\":\"hi a\",\"width\":100,\"height\":100,\"duration\":0}'),
-    //     ))
+    GetIt.I.get<MessageService>().sendTextMessage('0:Judi', 'test');
   }
 }
 
