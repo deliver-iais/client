@@ -10,15 +10,11 @@ class FileDao extends DatabaseAccessor<Database> with _$FileDaoMixin {
 
   FileDao(this.database) : super(database);
 
-  Future insertFileInfo(FileInfo file) => into(fileInfos).insert(file);
+  Future upsert(FileInfo file) => into(fileInfos).insertOnConflictUpdate(file);
 
   Future deleteAvatar(FileInfo file) => delete(fileInfos).delete(file);
 
-  Future<List<FileInfo>> getFile(id) {
-    return (select(fileInfos)..where((file) => file.id.equals(id))).get();
-  }
-
-  Stream<List<FileInfo>> getFileLive(id) {
-    return (select(fileInfos)..where((file) => file.id.equals(id))).watch();
+  Future<List<FileInfo>> getFileInfo(id, size) {
+    return (select(fileInfos)..where((file) => file.uuid.equals(id) & file.size.equals(size))).get();
   }
 }

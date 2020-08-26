@@ -27,6 +27,7 @@ class Routes {
   static const String loginPage = '/login-page';
   static const String verificationPage = '/verification-page';
   static const String homePage = '/home-page';
+  static const String contactsPage = '/contacts-page';
   static const String settingsPage = '/settings-page';
   static const String roomPage = '/room-page';
   static const String forwardMessage = '/forward-message';
@@ -38,6 +39,7 @@ class Routes {
     loginPage,
     verificationPage,
     homePage,
+    contactsPage,
     settingsPage,
     roomPage,
     forwardMessage,
@@ -55,6 +57,7 @@ class Router extends RouterBase {
     RouteDef(Routes.loginPage, page: LoginPage),
     RouteDef(Routes.verificationPage, page: VerificationPage),
     RouteDef(Routes.homePage, page: HomePage),
+    RouteDef(Routes.contactsPage, page: HomePage),
     RouteDef(Routes.settingsPage, page: SettingsPage),
     RouteDef(Routes.roomPage, page: RoomPage),
     RouteDef(Routes.forwardMessage, page: ForwardMessage),

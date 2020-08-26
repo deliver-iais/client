@@ -17,10 +17,7 @@ class SentMessageBox extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(8),
           color: Theme.of(context).primaryColor,
-          child: BoxContent(
-              totalContent: message.json,
-              msgType: message.type,
-              maxWidth: maxWidth),
+          child: BoxContent(message: message, maxWidth: maxWidth),
         ),
       ),
     );

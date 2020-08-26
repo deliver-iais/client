@@ -11,7 +11,7 @@ extension JsonMapper on String {
     // return File.fromJson(this);
     File f = File.create();
     f.uuid = (jsonDecode(this))['uuid'];
-    f.size = Int64.parseInt((jsonDecode(this))['size']);
+    f.size = Int64.parseInt((jsonDecode(this))['size'].toString());
     f.type = (jsonDecode(this))['type'];
     f.name = (jsonDecode(this))['name'];
     f.caption = (jsonDecode(this))['caption'];

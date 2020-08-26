@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
-import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/shared/Widget/textField.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
@@ -62,8 +61,6 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
   }
 
   _navigationToHome() {
-    var currentPageService = GetIt.I.get<CurrentPageService>();
-    currentPageService.setToHome();
     ExtendedNavigator.of(context).pushAndRemoveUntil(
       Routes.homePage,
       (_) => false,

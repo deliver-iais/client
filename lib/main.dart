@@ -8,11 +8,11 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
-import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_flutter/services/downloadFileServices.dart';
+import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/message_service.dart';
-import 'package:deliver_flutter/services/uploadFileServices.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -20,7 +20,6 @@ import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get_it/get_it.dart';
-import 'package:permissions_plugin/permissions_plugin.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
@@ -42,19 +41,20 @@ void setupDB() {
 void setupRepositories() {
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<UxService>(UxService());
-  getIt.registerSingleton<CurrentPageService>(CurrentPageService());
   getIt.registerSingleton<AccountRepo>(AccountRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   getIt.registerSingleton<DownloadFileServices>(DownloadFileServices());
-  getIt.registerSingleton<FileRepo>(FileRepo());
-  getIt.registerSingleton<UploadFileServices>(UploadFileServices());
   getIt.registerSingleton<MessageService>(MessageService());
+  getIt.registerSingleton<FileService>(FileService());
+  getIt.registerSingleton<FileRepo>(FileRepo());
+  getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
 }
 
 void setupDIAndRunApp() {
   GetIt getIt = GetIt.instance;
+
   getIt.registerSingletonAsync<SharedPreferences>(
       () async => await SharedPreferences.getInstance());
   getIt.allReady().then((_) {
@@ -82,20 +82,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var uxService = GetIt.I.get<UxService>();
-    var currentPageService = GetIt.I.get<CurrentPageService>();
     var messagesDao = GetIt.I.get<MessageDao>();
     var roomDao = GetIt.I.get<RoomDao>();
     return StreamBuilder(
       stream: MergeStream([
         uxService.themeStream as Stream,
-        currentPageService.currentPageStream as Stream,
         messagesDao.watchAllMessages(),
         roomDao.watchAllRooms(),
       ]),
       builder: (context, snapshot) {
         Fimber.d("theme changed ${uxService.theme.toString()}");
-        Fimber.d(
-            "currentPage changed ${currentPageService.currentPage.toString()}");
 
         return ExtraTheme(
           extraThemeData: uxService.extraTheme,
