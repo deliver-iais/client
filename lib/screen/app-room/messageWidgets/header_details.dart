@@ -36,6 +36,8 @@ class HeaderDetails extends StatelessWidget {
                   style: TextStyle(fontSize: 10),
                 ),
               )
-            : AudioPlayProgress();
+            : AudioPlayProgress(
+                audioUuid: file.uuid,
+              );
   }
 }
