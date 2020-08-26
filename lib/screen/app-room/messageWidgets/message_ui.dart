@@ -3,7 +3,6 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/image_message/ima
 import 'package:deliver_flutter/screen/app-room/messageWidgets/message_header.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/text_message/text_ui.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_ui.dart';
-import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 

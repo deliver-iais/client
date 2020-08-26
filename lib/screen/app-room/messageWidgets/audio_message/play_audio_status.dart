@@ -1,4 +1,3 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
@@ -15,42 +14,47 @@ class PlayAudioStatus extends StatefulWidget {
 
 class _PlayAudioStatusState extends State<PlayAudioStatus> {
   AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
+
   @override
   void initState() {
+    super.initState();
     audioPlayerService.audioPlayer.onPlayerCompletion.listen((event) {
       setState(() {
-        audioPlayerService.setAudioPlayerState(AudioPlayerState.COMPLETED);
+        audioPlayerService.onCompletion();
       });
     });
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isPlaying =
-        audioPlayerService.audioPlayerState == AudioPlayerState.PLAYING;
     return Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: ExtraTheme.of(context).text,
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: ExtraTheme.of(context).text,
+      ),
+      child: IconButton(
+        padding: EdgeInsets.all(0),
+        alignment: Alignment.center,
+        icon: Icon(
+          audioPlayerService.isPlaying ? Icons.pause : Icons.play_arrow,
+          color: Theme.of(context).primaryColor,
+          size: 40,
         ),
-        child: IconButton(
-          padding: EdgeInsets.all(0),
-          alignment: Alignment.center,
-          icon: Icon(
-            isPlaying ? Icons.pause : Icons.play_arrow,
-            color: Theme.of(context).primaryColor,
-            size: 40,
-          ),
-          onPressed: () {
+        onPressed: () {
+          if (audioPlayerService.isPlaying) {
             setState(() {
-              isPlaying
-                  ? audioPlayerService.pauseAudio()
-                  : audioPlayerService.playAudio();
+              audioPlayerService.onPause();
             });
-          },
-        ));
+          } else {
+            audioPlayerService.audioUuid = widget.file.uuid;
+            setState(() {
+              audioPlayerService.onPlay();
+            });
+          }
+        },
+      ),
+    );
   }
 }

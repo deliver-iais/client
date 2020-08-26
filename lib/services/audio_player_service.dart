@@ -4,20 +4,20 @@ import 'package:audioplayers/audioplayers.dart';
 class AudioPlayerService {
   AudioPlayer audioPlayer;
   AudioCache audioCache;
-  String audioName;
+  String audioUuid;
   String description;
-  AudioPlayerState state;
+  AudioPlayerState _audioPlayerState;
+  Duration lastDur;
+  Duration lastPos;
 
   AudioPlayerService() {
-    print('constructor of audioPlayerService');
     audioPlayer = AudioPlayer();
     audioCache = AudioCache(fixedPlayer: audioPlayer);
     AudioPlayer.logEnabled = true;
-    state = AudioPlayerState.COMPLETED;
+    _audioPlayerState = AudioPlayerState.COMPLETED;
   }
 
-  setAudioDetails(String audioName, String description) {
-    this.audioName = audioName;
+  setAudioDetails(String description) {
     this.description = description;
   }
 
@@ -26,27 +26,41 @@ class AudioPlayerService {
     this.audioPlayer.seek(newDuration);
   }
 
-  Stream<Duration> audioCurrentPosition() {
-    return this.audioPlayer.onAudioPositionChanged;
+  Stream<Duration> get audioCurrentPosition =>
+      this.audioPlayer.onAudioPositionChanged;
+
+  Stream<Duration> get audioDuration => this.audioPlayer.onDurationChanged;
+
+  void onCompletion() {
+    this._audioPlayerState = AudioPlayerState.COMPLETED;
+    audioUuid = '';
   }
 
-  Stream<Duration> audioDuration() {
-    return this.audioPlayer.onDurationChanged;
+  AudioPlayerState get audioPlayerState => this._audioPlayerState;
+
+  void onPlay() {
+    this._audioPlayerState = AudioPlayerState.PLAYING;
+    this.audioCache.play('audios/r.mp3');
   }
 
-  AudioPlayerState get audioPlayerState => this.state;
-
-  void setAudioPlayerState(AudioPlayerState newState) {
-    this.state = newState;
+  void onPause() {
+    print("say hi");
+    this._audioPlayerState = AudioPlayerState.PAUSED;
+    this.audioPlayer.pause();
   }
 
-  void playAudio() {
-    this.state = AudioPlayerState.PLAYING;
-    this.audioCache.play("audios/r.mp3");
+  void onStop() {
+    this._audioPlayerState = AudioPlayerState.STOPPED;
+    this.audioPlayer.stop();
   }
 
-  void pauseAudio() {
-    audioPlayer.pause();
-    this.state = AudioPlayerState.PAUSED;
+  void onCmpletion() {
+    this._audioPlayerState = AudioPlayerState.COMPLETED;
   }
+
+  bool get isPlaying => _audioPlayerState == AudioPlayerState.PLAYING;
+
+  bool get isPaused => _audioPlayerState == AudioPlayerState.PAUSED;
+
+  bool get isCompleted => _audioPlayerState == AudioPlayerState.COMPLETED;
 }
