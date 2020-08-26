@@ -33,6 +33,7 @@ dependencies:
   permissions_plugin: ^1.1.4
 
   ext_storage:
+  path_provider:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -59,6 +60,7 @@ dependencies:
   emoji_picker: 0.1.0
   vibration: 1.4.0
 
+  video_player: ^0.10.11+2
   # Path for Files
 #  path_provider: ^1.6.9
 #  path: ^1.7.0
@@ -72,7 +74,6 @@ dependencies:
   protobuf: ^1.0.1
 
   fluttertoast: ^3.1.3
-
   photo_manager: 0.5.7
 
   flutter_native_image: ^0.0.5
@@ -130,6 +131,7 @@ flutter:
     - assets/images/messenger.flr
     - assets/images/secure.flr
     - assets/images/fast.flr
+    - assets/audios/r.mp3
     
     
 

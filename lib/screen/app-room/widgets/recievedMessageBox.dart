@@ -28,11 +28,7 @@ class RecievedMessageBox extends StatelessWidget {
                 color: ExtraTheme.of(context).secondColor,
                 child: Padding(
                   padding: const EdgeInsets.all(8),
-                  child: BoxContent(
-                    totalContent: message.json,
-                    msgType: message.type,
-                    maxWidth: maxWidth,
-                  ),
+                  child: BoxContent(message: message, maxWidth: maxWidth),
                 ),
               ),
             ),

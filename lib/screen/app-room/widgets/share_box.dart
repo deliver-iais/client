@@ -3,11 +3,9 @@ import 'package:deliver_flutter/screen/app-room/widgets/share_box/file.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/music.dart';
 
-import 'package:deliver_flutter/services/uploadFileServices.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:get_it/get_it.dart';
 
 class ShareBox extends StatefulWidget {
   @override
@@ -28,8 +26,6 @@ class _ShareBoxState extends State<ShareBox> {
   final finalSelected = Map<int, String>();
 
   int playAudioIndex;
-
-  var uploadFile = GetIt.I.get<UploadFileServices>();
 
   bool selected = false;
 
@@ -147,8 +143,9 @@ class _ShareBoxState extends State<ShareBox> {
                                   Container(
                                     child: CircleButton(
                                       () {
-                                        uploadFile.uploadFileList(
-                                            finalSelected.values.toList());
+                                        // TODO add file sending function
+//                                        uploadFile.uploadFileList(
+//                                            finalSelected.values.toList());
                                         setState(() {
                                           finalSelected.clear();
                                           selectedAudio.clear();

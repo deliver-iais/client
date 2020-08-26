@@ -29,118 +29,116 @@ class ChatItem extends StatelessWidget {
         ? "send"
         : "recieve";
 
-    var maxWidth = MediaQuery.of(context).size.width - 38 - 8 - 32;
+    var maxWidth = MediaQuery.of(context).size.width - 36 - 16 - 32;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              ContactPic(true, roomWithMessage.room.roomId.uid),
-              SizedBox(
-                width: 8,
-              ),
-              Column(
+      child: Container(
+        height: 40,
+        child: Row(
+          children: <Widget>[
+            ContactPic(true, roomWithMessage.room.roomId.uid),
+            SizedBox(
+              width: 8,
+            ),
+            Expanded(
+              flex: 90,
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Container(
-                    width: maxWidth,
-                    child: Text(
-                      roomWithMessage.room.roomId + roomWithMessage.room.roomId,
-                      style: TextStyle(
-                        color: ExtraTheme.of(context).infoChat,
-                        fontSize: 16,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  Text(
+                    roomWithMessage.room.roomId,
+                    style: TextStyle(
+                      color: ExtraTheme.of(context).infoChat,
+                      fontSize: 16,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                   Container(
-                    width: maxWidth,
-                    child: Row(
-                      children: <Widget>[
-                        messageType == "send"
-                            ? SeenStatus(roomWithMessage.lastMessage)
-                            : Container(),
-                        Padding(
-                            padding: const EdgeInsets.only(
-                              top: 3.0,
-                            ),
-                            child: LastMessage(
-                                message: roomWithMessage.lastMessage)),
-                      ],
-                    ),
-                  ),
+                   Row(
+                     children: <Widget>[
+                       messageType == "send"
+                           ? SeenStatus(roomWithMessage.lastMessage)
+                           : Container(),
+                       Padding(
+                           padding: const EdgeInsets.only(
+                             top: 3.0,
+                           ),
+                           child: LastMessage(
+                               message: roomWithMessage.lastMessage)),
+                     ],
+                   ),
                 ],
               ),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(
-                  bottom: 4.0,
-                ),
-                child: Text(
-                  roomWithMessage.lastMessage.time.dateTimeFormat(),
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: ExtraTheme.of(context).details,
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-              roomWithMessage.room.mentioned != false
-                  ? Padding(
-                      padding: const EdgeInsets.only(
-                        right: 3.0,
+            ),
+            Expanded(
+              flex: 10,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 4.0,
+                    ),
+                    child: Text(
+                      roomWithMessage.lastMessage.time.dateTimeFormat(),
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: ExtraTheme.of(context).details,
+                        fontSize: 11,
                       ),
-                      child: Stack(
-                        children: <Widget>[
-                          Container(
-                            width: 15,
-                            height: 15,
+                    ),
+                  ),
+                  roomWithMessage.room.mentioned != false
+                      ? Padding(
+                    padding: const EdgeInsets.only(
+                      right: 3.0,
+                    ),
+                    child: Stack(
+                      children: <Widget>[
+                        Container(
+                          width: 15,
+                          height: 15,
+                          decoration: new BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        Positioned(
+                          top: 2.25,
+                          right: 2.25,
+                          child: Container(
+                            width: 11,
+                            height: 11,
+                            decoration: new BoxDecoration(
+                              color: Theme.of(context).backgroundColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 4,
+                          left: 4,
+                          child: Container(
+                            width: 6.5,
+                            height: 6.5,
                             decoration: new BoxDecoration(
                               color: Theme.of(context).primaryColor,
                               shape: BoxShape.circle,
                             ),
                           ),
-                          Positioned(
-                            top: 2.25,
-                            right: 2.25,
-                            child: Container(
-                              width: 11,
-                              height: 11,
-                              decoration: new BoxDecoration(
-                                color: Theme.of(context).backgroundColor,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            top: 4,
-                            left: 4,
-                            child: Container(
-                              width: 6.5,
-                              height: 6.5,
-                              decoration: new BoxDecoration(
-                                color: Theme.of(context).primaryColor,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : messageType == "recieve"
+                        ),
+                      ],
+                    ),
+                  )
+                      : messageType == "recieve"
                       ? ReceivedMsgIcon(roomWithMessage.lastMessage)
                       : Container()
-            ],
-          )
-        ],
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

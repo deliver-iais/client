@@ -5,7 +5,6 @@ import 'package:deliver_flutter/screen/app-room/widgets/emojiKeybord.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box.dart';
 import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
-import 'package:deliver_flutter/services/uploadFileServices.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +30,6 @@ class InputMessage extends StatefulWidget {
 class _InputMessageWidget extends State<InputMessage> {
   var messageService = GetIt.I.get<MessageService>();
 
-  var uploadFile = GetIt.I.get<UploadFileServices>();
   var checkPermission = GetIt.I.get<CheckPermissionsService>();
   TextEditingController controller;
   Room currentRoom;
@@ -287,7 +285,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                 try {
                                   Recording recording =
                                       await AudioRecorder.stop();
-                                  uploadFile.uploadFile(recording.path);
+                                  // TODO add file sending function
+//                                  uploadFile.uploadFile(recording.path);
                                 } catch (e) {}
                               }
                             },

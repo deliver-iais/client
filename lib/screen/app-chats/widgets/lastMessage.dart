@@ -12,10 +12,8 @@ class LastMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String data;
-    // print('hello');
     TextDirection td;
     if (message.type.index == MessageType.text.index) {
-      // print(message.json);
       String oneLine = (message.json.toText().text.split('\n'))[0];
       if (oneLine.isPersian()) {
         td = TextDirection.rtl;
@@ -24,8 +22,9 @@ class LastMessage extends StatelessWidget {
       // data = oneLine + ' ...';
       data = oneLine;
     } else {
+      //TODO type
       td = TextDirection.ltr;
-      data = 'Photo';
+      data = 'File';
     }
 
     return Text(

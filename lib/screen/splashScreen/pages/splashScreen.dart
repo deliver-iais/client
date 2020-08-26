@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/splashScreen/testing_environment_tokens.dart';
-import 'package:deliver_flutter/services/currentPage_service.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -31,9 +30,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToHomePage() {
-    // TODO i think CurrentPageService should change or should fill automatically!!!
-    var currentPageService = GetIt.I.get<CurrentPageService>();
-    currentPageService.setToHome();
     ExtendedNavigator.of(context).pushAndRemoveUntil(
       Routes.homePage,
       (_) => false,

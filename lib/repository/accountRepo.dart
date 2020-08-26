@@ -23,9 +23,11 @@ class AccountRepo {
     ..node = "john";
   Avatar avatar;
   PhoneNumber phoneNumber;
-  SharedPreferences _prefs = GetIt.I.get<SharedPreferences>();
   String _accessToken;
   String _refreshToken;
+
+  // Dependencies
+  SharedPreferences _prefs = GetIt.I.get<SharedPreferences>();
 
   static ClientChannel _clientChannel = ClientChannel(
       ServicesDiscoveryRepo().authConnection.host,
