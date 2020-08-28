@@ -17,7 +17,8 @@ class FileService {
 
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
-    await new Directory('${directory.path}/.thumbnails').create(recursive: true);
+    if (!await Directory('${directory.path}/.thumbnails').exists())
+      await Directory('${directory.path}/.thumbnails').create(recursive: true);
     return directory.path;
   }
 
@@ -41,7 +42,6 @@ class FileService {
   }
 
   Future<File> getFile(String uuid, String filename) async {
-    Fimber.d("####################################################################");
     var res = await _dio.get("/$uuid/$filename",
         options: Options(responseType: ResponseType.bytes));
     final file = await _localFile(uuid);
@@ -51,7 +51,6 @@ class FileService {
 
   Future<File> getFileThumbnail(
       String uuid, String filename, ThumbnailSize size) async {
-    Fimber.d("####################################################################");
     var res = await _dio.get("/${enumToString(size)}/$uuid/$filename",
         options: Options(responseType: ResponseType.bytes));
     final file = await _localThumbnailFile("${enumToString(size)}-$uuid");
