@@ -26,7 +26,7 @@ class FileRepo {
         .data;
   }
 
-  saveFileInfo(String fileId, String fileName, String path, String size) async {
+  saveFileInfo(String fileId, String path, String fileName, String size) async {
     FileInfo fileInfo =
         FileInfo(uuid: fileId, path: path, fileName: fileName, size: size);
     _fileDao.upsert(fileInfo);
