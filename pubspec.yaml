@@ -23,6 +23,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  flutter_localizations:
+    sdk: flutter
+
   carousel_slider: ^2.0.0
   intro_slider: ^2.3.1
 
@@ -102,6 +106,7 @@ dependencies:
 
   test:
 
+
   step_progress_indicator: ^0.2.3+6
 
 
@@ -132,6 +137,8 @@ flutter:
     - assets/images/secure.flr
     - assets/images/fast.flr
     - assets/audios/r.mp3
+    - lib/lang/fa.json
+    - lib/lang/en.json
     
     
 

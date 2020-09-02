@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
@@ -19,6 +20,7 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -87,21 +89,39 @@ class MyApp extends StatelessWidget {
     return StreamBuilder(
       stream: MergeStream([
         uxService.themeStream as Stream,
-        messagesDao.watchAllMessages(),
-        roomDao.watchAllRooms(),
+        uxService.localeStream as Stream,
       ]),
       builder: (context, snapshot) {
         Fimber.d("theme changed ${uxService.theme.toString()}");
-
         return ExtraTheme(
           extraThemeData: uxService.extraTheme,
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Flutter Demo',
+            locale: uxService.locale,
             theme: uxService.theme,
+            supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],
+            localizationsDelegates: [
+              AppLocalization.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate
+            ],
+            localeResolutionCallback: (deviceLocale, supportedLocale) {
+              for (var locale in supportedLocale) {
+                if (locale.languageCode == deviceLocale.languageCode &&
+                    locale.countryCode == deviceLocale.countryCode) {
+                  return deviceLocale;
+                }
+              }
+              return supportedLocale.first;
+            },
             onGenerateRoute: Router(),
-            builder: ExtendedNavigator<Router>(
-              router: Router(),
+            builder: (x, c) => Directionality(
+              textDirection: TextDirection.ltr,
+              child: ExtendedNavigator<Router>(
+                router: Router(),
+              ),
             ),
           ),
         );

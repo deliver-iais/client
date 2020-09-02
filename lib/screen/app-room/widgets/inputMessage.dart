@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:audio_recorder/audio_recorder.dart';
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/emojiKeybord.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box.dart';
 import 'package:deliver_flutter/services/message_service.dart';
@@ -67,6 +68,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalization appLocalization = AppLocalization.of(context);
     DX = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
       children: <Widget>[
@@ -143,7 +145,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       });
                                     },
                                     decoration: InputDecoration.collapsed(
-                                        hintText: " message"),
+                                        hintText: appLocalization.getTraslateValue("message")),
                                   ),
                                 ),
                                 controller.text?.isEmpty
@@ -227,7 +229,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 child: Row(
                                   children: <Widget>[
                                     Icon(Icons.chevron_left),
-                                    Text("Slide to cancel",
+                                    Text(appLocalization.getTraslateValue("slideToCancel"),
                                         style: TextStyle(
                                             fontSize: 12, color: Colors.white)),
                                   ],

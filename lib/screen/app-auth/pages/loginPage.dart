@@ -1,7 +1,10 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-auth/widgets/inputFeilds.dart';
+import 'package:deliver_flutter/services/ux_service.dart';
+import 'package:deliver_flutter/shared/language.dart';
 import 'package:fimber/fimber.dart';
 
 import 'package:flutter/material.dart';
@@ -19,6 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   String inputError;
   AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
   bool receiveVerificationCode = false;
+  AppLocalization appLocalization;
 
   _navigateToVerificationPage() async {
     if (countryCode == "" || phoneNumber == "") {
@@ -35,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
         receiveVerificationCode = true;
         Fluttertoast.showToast(
 //          TODO use i18n in code instead of bare texts.
-            msg: " رمز ورود برای شما ارسال شد.",
+            msg: appLocalization.getTraslateValue("sendCode"),
             toastLength: Toast.LENGTH_SHORT,
             backgroundColor: Colors.black,
             textColor: Colors.white,
@@ -45,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
         Fimber.d(e.toString());
         Fluttertoast.showToast(
 //          TODO more detailed error message needed here.
-            msg: " خطایی رخ داده است.",
+            msg: appLocalization.getTraslateValue("error_occurred"),
             toastLength: Toast.LENGTH_SHORT,
             backgroundColor: Colors.black,
             textColor: Colors.white,
@@ -54,14 +58,19 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  void _changeLanguage(Language language) {
+    GetIt.I.get<UxService>().changeLanguage(language);
+  }
+
   @override
   Widget build(BuildContext context) {
+    appLocalization = AppLocalization.of(context);
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBar(
         title: Center(
           child: Text(
-            "Login",
+            appLocalization.getTraslateValue("login"),
             style: TextStyle(
               color: Theme.of(context).primaryColor,
               fontWeight: FontWeight.bold,
@@ -72,6 +81,36 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: Column(
         children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              SizedBox(width: 20,),
+              DropdownButton(
+                icon: Icon(Icons.language,color: Colors.white,),
+                  hint: Text(appLocalization.getTraslateValue("changeLanguage")),
+                  onChanged: (Language language) {
+                    _changeLanguage(language);
+                  },
+
+                  items: Language.languageList()
+                      .map<DropdownMenuItem<Language>>(
+                          (lang) => DropdownMenuItem(
+                        value: lang,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            Text(lang.languageCode),
+
+                            Text(lang.name),
+
+
+                          ],
+                        ),
+                      ))
+                      .toList()),
+            ],
+          ),
+
           Expanded(child: Container()),
           Expanded(
             flex: 3,
@@ -82,7 +121,7 @@ class _LoginPageState extends State<LoginPage> {
                     horizontal: 16,
                   ),
                   child: Text(
-                    "Please confirm your country code and enter your phone number",
+                   appLocalization.getTraslateValue("insertPhoneAndCode"),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).primaryColor,
@@ -119,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
               alignment: Alignment.bottomRight,
               child: RaisedButton(
                   child: Text(
-                    "NEXT",
+                    appLocalization.getTraslateValue("next"),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).primaryColor,

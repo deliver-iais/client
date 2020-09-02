@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/file.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/music.dart';
@@ -57,6 +58,7 @@ class _ShareBoxState extends State<ShareBox> {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalization appLocalization = AppLocalization.of(context);
     return DraggableScrollableSheet(
       initialChildSize: 0.3,
       minChildSize: 0.2,
@@ -220,21 +222,21 @@ class _ShareBoxState extends State<ShareBox> {
 
                                       currentPage = Page.Gallery;
                                     });
-                                  }, Icons.insert_drive_file, "Gallery", 40),
+                                  }, Icons.insert_drive_file, appLocalization.getTraslateValue("gallery"), 40),
                                   CircleButton(() {
                                     setState(() {
                                       audioPlayer.stop();
                                       currentPage = Page.Files;
                                     });
-                                  }, Icons.file_upload, "File", 40),
+                                  }, Icons.file_upload, appLocalization.getTraslateValue("file"), 40),
                                   CircleButton(() async {
                                     audioPlayer.stop();
-                                  }, Icons.location_on, "Location", 40),
+                                  }, Icons.location_on, appLocalization.getTraslateValue("location"), 40),
                                   CircleButton(() {
                                     setState(() {
                                       currentPage = Page.Music;
                                     });
-                                  }, Icons.music_note, "Music", 40),
+                                  }, Icons.music_note, appLocalization.getTraslateValue("music"), 40),
                                 ],
                               ),
                             ],

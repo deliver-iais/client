@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -22,6 +23,7 @@ class _ImageWidget extends State<ShowImagePage> {
 
   @override
   Widget build(BuildContext context) {
+   AppLocalization appLocalization = AppLocalization.of(context);
     return Scaffold(
         floatingActionButton: new FloatingActionButton(
           child: Icon(
@@ -71,7 +73,7 @@ class _ImageWidget extends State<ShowImagePage> {
                       setState(() {});
                     },
                     decoration:
-                    InputDecoration.collapsed(hintText: " type something"),
+                    InputDecoration.collapsed(hintText: appLocalization.getTraslateValue("typeSomeThing")),
                   ),
                 ],
               )

@@ -1,3 +1,6 @@
+
+
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalization appLocalization = AppLocalization.of(context);
     return Scaffold(
         body: DefaultTabController(
             length: 4,
@@ -105,7 +109,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               Padding(
                                 padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                                 child: Text(
-                                  "info",
+                                  appLocalization.getTraslateValue("info"),
                                   style: TextStyle(
                                     color: ExtraTheme.of(context)
                                         .blueOfProfilePage,
@@ -149,7 +153,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   size: 30,
                 ),*/
                             //  SizedBox(width: 10),
-                            Text('Send Message'),
+                            Text(appLocalization.getTraslateValue("sendMessage")),
                           ],
                         )),
                     Container(
@@ -173,7 +177,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       size: 30,
                                     ),
                                     SizedBox(width: 10),
-                                    Text('Notification'),
+                                    Text(appLocalization.getTraslateValue("notification")),
                                   ],
                                 ),
                               ),
@@ -213,7 +217,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         size: 30,
                       ),*/
                           //SizedBox(width:10),
-                          Text('Phone'),
+                          Text(appLocalization.getTraslateValue("phone")),
                         ])),
                     SizedBox(
                       height: 40,
@@ -240,16 +244,16 @@ class _ProfilePageState extends State<ProfilePage> {
                               ExtraTheme.of(context).tabsColor,
                           tabs: [
                             Tab(
-                              text: "Media",
+                              text: appLocalization.getTraslateValue("media"),
                             ),
                             Tab(
-                              text: "File",
+                              text: appLocalization.getTraslateValue("file"),
                             ),
                             Tab(
-                              text: "Links",
+                              text: appLocalization.getTraslateValue("links"),
                             ),
                             Tab(
-                              text: "Groups",
+                              text: appLocalization.getTraslateValue("groups"),
                             ),
                           ],
                         ),
