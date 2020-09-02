@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/shared/Widget/textField.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ class InputFeilds extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalization appLocalization = AppLocalization.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -55,7 +57,7 @@ class InputFeilds extends StatelessWidget {
                             child: TextFieldId(
                               widgetkey: "Code",
                               maxLength: 3,
-                              hint: "Code",
+                              hint: appLocalization.getTraslateValue("code"),
                               fontSize: 14,
                               onChange: onChangeCode,
                               setColor: false,
@@ -88,7 +90,7 @@ class InputFeilds extends StatelessWidget {
                       setColor: true,
                       setbacroundColor: true,
                       widgetkey: "PhoneNumber",
-                      hint: 'Phone Number',
+                      hint: appLocalization.getTraslateValue("phoneNumber"),
                       onChange: this.onChangePhoneNum,
                       fontSize: 14,
                       maxLength: 10,
@@ -104,17 +106,17 @@ class InputFeilds extends StatelessWidget {
             ),
             child: inputError == "both"
                 ? Text(
-                    "Code of country and phone number can't be empty",
+                   appLocalization.getTraslateValue("phoneNumberAndCodeNull"),
                     style: errorStyle,
                   )
                 : inputError == "code"
                     ? Text(
-                        "Code of country can't be empty",
+                       appLocalization.getTraslateValue("codeNull"),
                         style: errorStyle,
                       )
                     : inputError == "phoneNum"
                         ? Text(
-                            "Phone Number can't be empty",
+                         appLocalization.getTraslateValue("phoneNumberNull"),
                             style: errorStyle,
                           )
                         : Container(),

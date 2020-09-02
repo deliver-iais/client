@@ -82,6 +82,8 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                 arguments: ShowImagePageArguments(
                                     imageFile: File(image.path),
                                     contactUid: "Judi"));
+                          }else{
+                            widget.onClick(index, image.path);
                           }
                         },
                         child: AnimatedPadding(

@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/shared/mainWidget.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 class SearchBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    AppLocalization appLocalization = AppLocalization.of(context);
     TextStyle textStyle = TextStyle(
       color: ExtraTheme.of(context).details,
       fontSize: 16,
@@ -33,7 +35,7 @@ class SearchBox extends StatelessWidget {
               Icons.search,
               color: ExtraTheme.of(context).details,
             ),
-            hintText: 'Search',
+            hintText: appLocalization.getTraslateValue("search"),
             hintStyle: textStyle,
           ),
         ),

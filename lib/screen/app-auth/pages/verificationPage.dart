@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
@@ -21,6 +22,7 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
   String otpCode;
   bool showError = false;
   String verificationCode;
+  AppLocalization appLocalization;
   AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
 
   var checkPermission = GetIt.I.get< CheckPermissionsService>();
@@ -49,7 +51,7 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
         _navigationToHome();
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.NOT_VALID) {
-        Fluttertoast.showToast(msg: "Verification Code Not valid");
+        Fluttertoast.showToast(msg:appLocalization.getTraslateValue("verification_Code_Not_Valid") );
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {
         Fluttertoast.showToast(msg: "PASSWORD_PROTECTED");
@@ -75,6 +77,7 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
 
   @override
   Widget build(BuildContext context) {
+   appLocalization = AppLocalization.of(context);
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBar(
@@ -82,7 +85,7 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
         title: Padding(
           padding: const EdgeInsets.only(left: 50.0),
           child: Text(
-            "Verification",
+          appLocalization.getTraslateValue("verification"),
             style: TextStyle(
               color: Theme.of(context).primaryColor,
               fontWeight: FontWeight.bold,
@@ -102,7 +105,7 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
                     horizontal: 30,
                   ),
                   child: Text(
-                    "We’ve sent an SMS with an activation code to your phone",
+                    appLocalization.getTraslateValue("sendCode"),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).primaryColor,
@@ -128,14 +131,14 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
                       setColor: true,
                       setbacroundColor: true,
                       fontSize: 14,
-                      hint: "Verification Code",
+                      hint:appLocalization.getTraslateValue("verificationCode"),
                       onChange: (val) => _onVerificationCodeChange(val),
                       maxLength: 5,
                       widgetkey: "verificationCode",
                     )),
                   ),
                 ),
-                showError ? Text('Code is wrong') : Container(),
+                showError ? Text(appLocalization.getTraslateValue("wrongCode")) : Container(),
               ],
             ),
           ),
@@ -145,7 +148,7 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
               alignment: Alignment.bottomRight,
               child: RaisedButton(
                 child: Text(
-                  "NEXT",
+                  appLocalization.getTraslateValue("next"),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).primaryColor,
@@ -168,7 +171,6 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
   void codeUpdated() {
     // setState(() {
     otpCode = code;
-    print('hello');
     print(code);
     // });
   }

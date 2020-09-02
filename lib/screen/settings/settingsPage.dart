@@ -1,7 +1,7 @@
-import 'dart:io';
-
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
+import 'package:deliver_flutter/main.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
@@ -9,8 +9,10 @@ import 'package:deliver_flutter/services/downloadFileServices.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/language.dart';
 import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -39,20 +41,25 @@ class SettingState extends State<SettingsPage> {
     }
   }
 
+  void _changeLanguage(Language language) {
+    GetIt.I.get<UxService>().changeLanguage(language);
+  }
+
   @override
   Widget build(BuildContext context) {
+    AppLocalization appLocalization = AppLocalization.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Setting'),
+        title: Text(appLocalization.getTraslateValue("setting")),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           CircleAvatarWidget("JD", 65),
-          SizedBox(height: 19),
+          SizedBox(height: 8),
           Text("John Due", style: TextStyle(color: Colors.white, fontSize: 25)),
           Container(
-            margin: const EdgeInsets.only(top: 70),
+            margin: const EdgeInsets.only(top: 40),
             child: Column(
               children: <Widget>[
                 Container(
@@ -70,7 +77,7 @@ class SettingState extends State<SettingsPage> {
                           ),
                           SizedBox(width: 5),
                           Text(
-                            'User Name',
+                            appLocalization.getTraslateValue("username"),
                             style: TextStyle(
                                 color: ExtraTheme.of(context).text,
                                 fontSize: 13),
@@ -113,7 +120,7 @@ class SettingState extends State<SettingsPage> {
                           ),
                           SizedBox(width: 5),
                           Text(
-                            'Phone',
+                            appLocalization.getTraslateValue("phone"),
                             style: TextStyle(
                                 color: ExtraTheme.of(context).text,
                                 fontSize: 13),
@@ -138,7 +145,7 @@ class SettingState extends State<SettingsPage> {
                     ],
                   ),
                 ),
-                SizedBox(height: 25),
+                SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsetsDirectional.only(start: 20, end: 15),
                   color: Theme.of(context).bottomAppBarColor,
@@ -154,7 +161,7 @@ class SettingState extends State<SettingsPage> {
                           ),
                           SizedBox(width: 5),
                           Text(
-                            'Dark Mode',
+                            appLocalization.getTraslateValue("darkMode"),
                             style: TextStyle(
                                 color: ExtraTheme.of(context).text,
                                 fontSize: 13),
@@ -173,9 +180,6 @@ class SettingState extends State<SettingsPage> {
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: .8,
-                ),
                 Container(
                     padding:
                         const EdgeInsetsDirectional.only(start: 20, end: 15),
@@ -191,7 +195,7 @@ class SettingState extends State<SettingsPage> {
                           ),
                           SizedBox(width: 5),
                           Text(
-                            'Notification',
+                            appLocalization.getTraslateValue("notification"),
                             style: TextStyle(
                                 color: ExtraTheme.of(context).text,
                                 fontSize: 13),
@@ -207,6 +211,58 @@ class SettingState extends State<SettingsPage> {
                         ),
                       ],
                     )),
+                Container(
+                  padding: const EdgeInsetsDirectional.only(start: 20, end: 15),
+                  color: Theme.of(context).bottomAppBarColor,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Container(
+                        child: Row(
+                          children: <Widget>[
+                            Icon(
+
+                              Icons.language,
+                              size: 15,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              appLocalization
+                                  .getTraslateValue("changeLanguage"),
+                              style: TextStyle(
+                                  color: ExtraTheme.of(context).text,
+                                  fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ),
+                      DropdownButton(
+                          hint: Text(
+                            (uxService.locale as Locale).language().name,
+                            style:
+                                TextStyle(color: ExtraTheme.of(context).text),
+                          ),
+                          onChanged: (Language language) {
+                            _changeLanguage(language);
+                          },
+                          items: Language.languageList()
+                              .map<DropdownMenuItem<Language>>(
+                                  (lang) => DropdownMenuItem(
+                                        value: lang,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: <Widget>[
+                                            Text(lang.flag),
+                                            Text(lang.name),
+                                          ],
+                                        ),
+                                      ))
+                              .toList())
+                    ],
+                  ),
+                ),
               ],
             ),
           )

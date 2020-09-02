@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
@@ -11,6 +12,7 @@ import 'package:get_it/get_it.dart';
 class Appbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    AppLocalization appLocalization = AppLocalization.of(context);
     return AppBar(
       leading: new IconButton(
         icon: new Icon(Icons.arrow_back),
@@ -51,14 +53,14 @@ class Appbar extends StatelessWidget {
                       itemBuilder: (context) => [
                             PopupMenuItem(
                                 child: GestureDetector(
-                              child: Text("Add New Chat"),
+                              child: Text(appLocalization.getTraslateValue("newChat")),
                               onTap: () {
                                 initialDataBase();
                               },
                             )),
                             PopupMenuItem(
                                 child: GestureDetector(
-                              child: Text("Go To Profile"),
+                              child: Text(appLocalization.getTraslateValue("gotoProfile")),
                               onTap: () {
                                 ExtendedNavigator.of(context)
                                     .push(Routes.profilePage);
@@ -66,12 +68,14 @@ class Appbar extends StatelessWidget {
                             )),
                             PopupMenuItem(
                                 child: GestureDetector(
-                              child: Text("New Group"),
-                              onTap: () {},
+                              child: Text(appLocalization.getTraslateValue("newGroup")),
+                              onTap: () {
+                                initialDataBase();
+                              },
                             )),
                             PopupMenuItem(
                                 child: GestureDetector(
-                              child: Text("New Channel"),
+                              child: Text(appLocalization.getTraslateValue("newChannel")),
                               onTap: () {},
                             ))
                           ])
@@ -87,7 +91,7 @@ class Appbar extends StatelessWidget {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: <Widget>[
-                                  Text("New Contact"),
+                                  Text(appLocalization.getTraslateValue("newContact")),
                                 ],
                               ),
                               onTap: () {},

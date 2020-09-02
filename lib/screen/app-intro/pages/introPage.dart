@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:intro_slider/intro_slider.dart';
@@ -23,8 +24,12 @@ class _IntroPageState extends State<IntroPage> {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalization appLocalization = AppLocalization.of(context);
     return new IntroSlider(
       slides: slidesList,
+      nameDoneBtn:appLocalization.getTraslateValue("done"),
+      nameSkipBtn: appLocalization.getTraslateValue("skip"),
+      nameNextBtn: appLocalization.getTraslateValue("next"),
       onDonePress: this.onDonePress,
       styleNameSkipBtn: TextStyle(color: Theme.of(context).primaryColor),
       styleNameDoneBtn: TextStyle(color: Theme.of(context).primaryColor),
