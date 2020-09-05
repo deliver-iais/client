@@ -44,13 +44,13 @@ void setupRepositories() {
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<UxService>(UxService());
   getIt.registerSingleton<AccountRepo>(AccountRepo());
-  getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   getIt.registerSingleton<DownloadFileServices>(DownloadFileServices());
   getIt.registerSingleton<MessageService>(MessageService());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
+  getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
 }
 
@@ -84,8 +84,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var uxService = GetIt.I.get<UxService>();
-    var messagesDao = GetIt.I.get<MessageDao>();
-    var roomDao = GetIt.I.get<RoomDao>();
     return StreamBuilder(
       stream: MergeStream([
         uxService.themeStream as Stream,

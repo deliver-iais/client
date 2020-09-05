@@ -42,7 +42,11 @@
   "verification": "Verification",
   "verification_Code_Not_Valid": "Verification Code Not valid",
   "error_occurred": "Error has occurred.",
-  "done": "Done"
+  "done": "Done",
+  "avatar":"Avatar",
+  "select": "Select",
+  "setProfile": "Set Profile",
+  "delete": "delete "
 
 
 

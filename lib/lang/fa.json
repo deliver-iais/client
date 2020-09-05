@@ -42,5 +42,9 @@
   "verification": "کد اعتبار",
   "verification_Code_Not_Valid": "کد اعتباری معتبر نیست.",
   "error_occurred": "خطای رخ داه است.",
-  "done": "انجام"
+  "done": "انجام",
+  "avatar":"عکس پروفایل",
+  "select": "انتخاب",
+  "setProfile": "انتخاب عکس",
+  "delete": "حذف "
 }

@@ -1,42 +1,35 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
-import 'package:dio/dio.dart';
+
 import 'package:get_it/get_it.dart';
-import 'package:grpc/grpc.dart';
 
 class FileRepo {
   var _fileDao = GetIt.I.get<FileDao>();
   var _fileService = GetIt.I.get<FileService>();
 
-  static ClientChannel clientChannel = ClientChannel(
-      ServicesDiscoveryRepo().fileConnection.host,
-      port: ServicesDiscoveryRepo().fileConnection.port,
-      options: ChannelOptions(credentials: ChannelCredentials.insecure()));
-
-  Future<File> getFileThumbnailRequest(
-      String size, String uuid, String filename) async {
-    var dio = Dio();
-    print(size);
-    return (await dio.get<File>("172.16.111.189:30010/$size/$uuid/$filename"))
-        .data;
-  }
-
-  saveFileInfo(String fileId, String path, String fileName, String size) async {
+  Future<FileInfo> saveFileInfo(
+      String fileId, String path, String fileName, String size) async {
     FileInfo fileInfo =
         FileInfo(uuid: fileId, path: path, fileName: fileName, size: size);
-    _fileDao.upsert(fileInfo);
+    await _fileDao.upsert(fileInfo);
+    return fileInfo;
   }
 
-  uploadFile(File file) async {
-    _fileService.uploadFile(file.path).then((value) {
-      saveFileInfo(value.uuid, file.path.substring(file.path.lastIndexOf("/")),
-          file.path, "real");
-    }).catchError((error) {});
+  uploadFileList(List<String> filesPath) {
+    for (String filePath in filesPath) {
+      uploadFile(File(filePath));
+    }
+  }
+
+  Future<FileInfo> uploadFile(File file) async {
+    var value = await _fileService.uploadFile(file.path);
+    return saveFileInfo(jsonDecode(value.toString())["uuid"],
+        jsonDecode(value.toString())["name"], file.path, "real");
   }
 
   Future<File> getFile(String uuid, String filename) async {
@@ -87,4 +80,6 @@ class FileRepo {
     else
       return null;
   }
+
+
 }

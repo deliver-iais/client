@@ -956,24 +956,24 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
 class Avatar extends DataClass implements Insertable<Avatar> {
   final String uid;
   final String fileId;
-  final int avatarIndex;
+  final DateTime insertionDate;
   final String fileName;
   Avatar(
       {@required this.uid,
       @required this.fileId,
-      @required this.avatarIndex,
+      @required this.insertionDate,
       @required this.fileName});
   factory Avatar.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
-    final intType = db.typeSystem.forDartType<int>();
+    final dateTimeType = db.typeSystem.forDartType<DateTime>();
     return Avatar(
       uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
       fileId:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}file_id']),
-      avatarIndex: intType
-          .mapFromDatabaseResponse(data['${effectivePrefix}avatar_index']),
+      insertionDate: dateTimeType
+          .mapFromDatabaseResponse(data['${effectivePrefix}insertion_date']),
       fileName: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}file_name']),
     );
@@ -987,8 +987,8 @@ class Avatar extends DataClass implements Insertable<Avatar> {
     if (!nullToAbsent || fileId != null) {
       map['file_id'] = Variable<String>(fileId);
     }
-    if (!nullToAbsent || avatarIndex != null) {
-      map['avatar_index'] = Variable<int>(avatarIndex);
+    if (!nullToAbsent || insertionDate != null) {
+      map['insertion_date'] = Variable<DateTime>(insertionDate);
     }
     if (!nullToAbsent || fileName != null) {
       map['file_name'] = Variable<String>(fileName);
@@ -1001,9 +1001,9 @@ class Avatar extends DataClass implements Insertable<Avatar> {
       uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       fileId:
           fileId == null && nullToAbsent ? const Value.absent() : Value(fileId),
-      avatarIndex: avatarIndex == null && nullToAbsent
+      insertionDate: insertionDate == null && nullToAbsent
           ? const Value.absent()
-          : Value(avatarIndex),
+          : Value(insertionDate),
       fileName: fileName == null && nullToAbsent
           ? const Value.absent()
           : Value(fileName),
@@ -1016,7 +1016,7 @@ class Avatar extends DataClass implements Insertable<Avatar> {
     return Avatar(
       uid: serializer.fromJson<String>(json['uid']),
       fileId: serializer.fromJson<String>(json['fileId']),
-      avatarIndex: serializer.fromJson<int>(json['avatarIndex']),
+      insertionDate: serializer.fromJson<DateTime>(json['insertionDate']),
       fileName: serializer.fromJson<String>(json['fileName']),
     );
   }
@@ -1026,17 +1026,20 @@ class Avatar extends DataClass implements Insertable<Avatar> {
     return <String, dynamic>{
       'uid': serializer.toJson<String>(uid),
       'fileId': serializer.toJson<String>(fileId),
-      'avatarIndex': serializer.toJson<int>(avatarIndex),
+      'insertionDate': serializer.toJson<DateTime>(insertionDate),
       'fileName': serializer.toJson<String>(fileName),
     };
   }
 
   Avatar copyWith(
-          {String uid, String fileId, int avatarIndex, String fileName}) =>
+          {String uid,
+          String fileId,
+          DateTime insertionDate,
+          String fileName}) =>
       Avatar(
         uid: uid ?? this.uid,
         fileId: fileId ?? this.fileId,
-        avatarIndex: avatarIndex ?? this.avatarIndex,
+        insertionDate: insertionDate ?? this.insertionDate,
         fileName: fileName ?? this.fileName,
       );
   @override
@@ -1044,55 +1047,57 @@ class Avatar extends DataClass implements Insertable<Avatar> {
     return (StringBuffer('Avatar(')
           ..write('uid: $uid, ')
           ..write('fileId: $fileId, ')
-          ..write('avatarIndex: $avatarIndex, ')
+          ..write('insertionDate: $insertionDate, ')
           ..write('fileName: $fileName')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(uid.hashCode,
-      $mrjc(fileId.hashCode, $mrjc(avatarIndex.hashCode, fileName.hashCode))));
+  int get hashCode => $mrjf($mrjc(
+      uid.hashCode,
+      $mrjc(
+          fileId.hashCode, $mrjc(insertionDate.hashCode, fileName.hashCode))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Avatar &&
           other.uid == this.uid &&
           other.fileId == this.fileId &&
-          other.avatarIndex == this.avatarIndex &&
+          other.insertionDate == this.insertionDate &&
           other.fileName == this.fileName);
 }
 
 class AvatarsCompanion extends UpdateCompanion<Avatar> {
   final Value<String> uid;
   final Value<String> fileId;
-  final Value<int> avatarIndex;
+  final Value<DateTime> insertionDate;
   final Value<String> fileName;
   const AvatarsCompanion({
     this.uid = const Value.absent(),
     this.fileId = const Value.absent(),
-    this.avatarIndex = const Value.absent(),
+    this.insertionDate = const Value.absent(),
     this.fileName = const Value.absent(),
   });
   AvatarsCompanion.insert({
     @required String uid,
     @required String fileId,
-    @required int avatarIndex,
+    @required DateTime insertionDate,
     @required String fileName,
   })  : uid = Value(uid),
         fileId = Value(fileId),
-        avatarIndex = Value(avatarIndex),
+        insertionDate = Value(insertionDate),
         fileName = Value(fileName);
   static Insertable<Avatar> custom({
     Expression<String> uid,
     Expression<String> fileId,
-    Expression<int> avatarIndex,
+    Expression<DateTime> insertionDate,
     Expression<String> fileName,
   }) {
     return RawValuesInsertable({
       if (uid != null) 'uid': uid,
       if (fileId != null) 'file_id': fileId,
-      if (avatarIndex != null) 'avatar_index': avatarIndex,
+      if (insertionDate != null) 'insertion_date': insertionDate,
       if (fileName != null) 'file_name': fileName,
     });
   }
@@ -1100,12 +1105,12 @@ class AvatarsCompanion extends UpdateCompanion<Avatar> {
   AvatarsCompanion copyWith(
       {Value<String> uid,
       Value<String> fileId,
-      Value<int> avatarIndex,
+      Value<DateTime> insertionDate,
       Value<String> fileName}) {
     return AvatarsCompanion(
       uid: uid ?? this.uid,
       fileId: fileId ?? this.fileId,
-      avatarIndex: avatarIndex ?? this.avatarIndex,
+      insertionDate: insertionDate ?? this.insertionDate,
       fileName: fileName ?? this.fileName,
     );
   }
@@ -1119,8 +1124,8 @@ class AvatarsCompanion extends UpdateCompanion<Avatar> {
     if (fileId.present) {
       map['file_id'] = Variable<String>(fileId.value);
     }
-    if (avatarIndex.present) {
-      map['avatar_index'] = Variable<int>(avatarIndex.value);
+    if (insertionDate.present) {
+      map['insertion_date'] = Variable<DateTime>(insertionDate.value);
     }
     if (fileName.present) {
       map['file_name'] = Variable<String>(fileName.value);
@@ -1133,7 +1138,7 @@ class AvatarsCompanion extends UpdateCompanion<Avatar> {
     return (StringBuffer('AvatarsCompanion(')
           ..write('uid: $uid, ')
           ..write('fileId: $fileId, ')
-          ..write('avatarIndex: $avatarIndex, ')
+          ..write('insertionDate: $insertionDate, ')
           ..write('fileName: $fileName')
           ..write(')'))
         .toString();
@@ -1168,15 +1173,15 @@ class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
     );
   }
 
-  final VerificationMeta _avatarIndexMeta =
-      const VerificationMeta('avatarIndex');
-  GeneratedIntColumn _avatarIndex;
+  final VerificationMeta _insertionDateMeta =
+      const VerificationMeta('insertionDate');
+  GeneratedDateTimeColumn _insertionDate;
   @override
-  GeneratedIntColumn get avatarIndex =>
-      _avatarIndex ??= _constructAvatarIndex();
-  GeneratedIntColumn _constructAvatarIndex() {
-    return GeneratedIntColumn(
-      'avatar_index',
+  GeneratedDateTimeColumn get insertionDate =>
+      _insertionDate ??= _constructInsertionDate();
+  GeneratedDateTimeColumn _constructInsertionDate() {
+    return GeneratedDateTimeColumn(
+      'insertion_date',
       $tableName,
       false,
     );
@@ -1195,7 +1200,7 @@ class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
   }
 
   @override
-  List<GeneratedColumn> get $columns => [uid, fileId, avatarIndex, fileName];
+  List<GeneratedColumn> get $columns => [uid, fileId, insertionDate, fileName];
   @override
   $AvatarsTable get asDslTable => this;
   @override
@@ -1219,13 +1224,13 @@ class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
     } else if (isInserting) {
       context.missing(_fileIdMeta);
     }
-    if (data.containsKey('avatar_index')) {
+    if (data.containsKey('insertion_date')) {
       context.handle(
-          _avatarIndexMeta,
-          avatarIndex.isAcceptableOrUnknown(
-              data['avatar_index'], _avatarIndexMeta));
+          _insertionDateMeta,
+          insertionDate.isAcceptableOrUnknown(
+              data['insertion_date'], _insertionDateMeta));
     } else if (isInserting) {
-      context.missing(_avatarIndexMeta);
+      context.missing(_insertionDateMeta);
     }
     if (data.containsKey('file_name')) {
       context.handle(_fileNameMeta,
@@ -1237,7 +1242,7 @@ class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {uid, avatarIndex};
+  Set<GeneratedColumn> get $primaryKey => {uid, fileId};
   @override
   Avatar map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;

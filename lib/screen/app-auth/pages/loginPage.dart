@@ -87,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(width: 20,),
               DropdownButton(
                 icon: Icon(Icons.language,color: Colors.white,),
-                  hint: Text(appLocalization.getTraslateValue("changeLanguage")),
+                  hint: Text(appLocalization.getTraslateValue("changeLanguage"),style: TextStyle(color: Colors.white),),
                   onChanged: (Language language) {
                     _changeLanguage(language);
                   },
@@ -100,10 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
                             Text(lang.languageCode),
-
                             Text(lang.name),
-
-
                           ],
                         ),
                       ))

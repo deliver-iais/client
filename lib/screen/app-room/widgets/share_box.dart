@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/file.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/music.dart';
@@ -7,6 +8,7 @@ import 'package:deliver_flutter/screen/app-room/widgets/share_box/music.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:get_it/get_it.dart';
 
 class ShareBox extends StatefulWidget {
   @override
@@ -29,6 +31,8 @@ class _ShareBoxState extends State<ShareBox> {
   int playAudioIndex;
 
   bool selected = false;
+
+  var fileRepo = GetIt.I.get<FileRepo>();
 
   var currentPage = Page.Gallery;
 
@@ -129,6 +133,7 @@ class _ShareBoxState extends State<ShareBox> {
                                     });
                                   },
                                   selectedImages: selectedImages,
+                                  selectGallery: true,
                                 )
                               : SizedBox.shrink()),
               Column(
@@ -146,8 +151,8 @@ class _ShareBoxState extends State<ShareBox> {
                                     child: CircleButton(
                                       () {
                                         // TODO add file sending function
-//                                        uploadFile.uploadFileList(
-//                                            finalSelected.values.toList());
+                                        fileRepo.uploadFileList(
+                                            finalSelected.values.toList());
                                         setState(() {
                                           finalSelected.clear();
                                           selectedAudio.clear();
@@ -222,21 +227,35 @@ class _ShareBoxState extends State<ShareBox> {
 
                                       currentPage = Page.Gallery;
                                     });
-                                  }, Icons.insert_drive_file, appLocalization.getTraslateValue("gallery"), 40),
+                                  },
+                                      Icons.insert_drive_file,
+                                      appLocalization
+                                          .getTraslateValue("gallery"),
+                                      40),
                                   CircleButton(() {
                                     setState(() {
                                       audioPlayer.stop();
                                       currentPage = Page.Files;
                                     });
-                                  }, Icons.file_upload, appLocalization.getTraslateValue("file"), 40),
+                                  },
+                                      Icons.file_upload,
+                                      appLocalization.getTraslateValue("file"),
+                                      40),
                                   CircleButton(() async {
                                     audioPlayer.stop();
-                                  }, Icons.location_on, appLocalization.getTraslateValue("location"), 40),
+                                  },
+                                      Icons.location_on,
+                                      appLocalization
+                                          .getTraslateValue("location"),
+                                      40),
                                   CircleButton(() {
                                     setState(() {
                                       currentPage = Page.Music;
                                     });
-                                  }, Icons.music_note, appLocalization.getTraslateValue("music"), 40),
+                                  },
+                                      Icons.music_note,
+                                      appLocalization.getTraslateValue("music"),
+                                      40),
                                 ],
                               ),
                             ],

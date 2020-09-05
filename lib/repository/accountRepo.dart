@@ -6,6 +6,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:fimber/fimber.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -71,7 +72,7 @@ class AccountRepo {
     return getAccessToken;
   }
 
-  Future getAccessToken() async {
+  Future<String> getAccessToken() async {
     if (_isExpired(_accessToken)) {
       RenewAccessTokenRes renewAccessTokenRes =
           await _getAccessToken(_refreshToken);
@@ -123,6 +124,7 @@ class AccountRepo {
       currentUserUid = Uid()
         ..category = Categories.User
         ..node = decodedToken["sub"];
+      print("UserId " + currentUserUid.getString());
     }
   }
 }
