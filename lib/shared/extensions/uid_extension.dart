@@ -17,6 +17,8 @@ extension UidExtension on Uid {
   }
 
   get string => "${this.category.value}:${this.node}";
+
+  String getString() => this.string;
 }
 
 const _ALL_SESSIONS = "*";
@@ -44,4 +46,6 @@ extension StringUidExtension on String {
         ..sessionId = _ALL_SESSIONS;
     }
   }
+
+  String getUid() => this.uid;
 }

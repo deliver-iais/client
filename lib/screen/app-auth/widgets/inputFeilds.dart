@@ -30,44 +30,41 @@ class InputFeilds extends StatelessWidget {
             children: <Widget>[
               Expanded(
                 child: Container(
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: ExtraTheme.of(context).secondColor,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(5),
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: ExtraTheme.of(context).secondColor,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(5),
+                      ),
                     ),
-                  ),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Icon(
-                            Icons.add,
-                            size: 12,
-                            color: Theme.of(context).primaryColor,
-                          ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        SizedBox(
+                          width: 10,
                         ),
-                      ),
-                      Expanded(
-                        flex: 4,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(
-                            child: TextFieldId(
-                              widgetkey: "Code",
-                              maxLength: 3,
-                              hint: appLocalization.getTraslateValue("code"),
-                              fontSize: 14,
-                              onChange: onChangeCode,
-                              setColor: false,
-                              setbacroundColor: true,
-                            ),
-                          ),
+                        Icon(
+                          Icons.add,
+                          size: 12,
+                          color: Theme.of(context).primaryColor,
                         ),
-                      ),
-                    ],
-                  ),
+                        Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 15, bottom: 10),
+                              child: Flexible(
+                                child: TextFieldId(
+                                  widgetkey: "Code",
+                                  maxLength: 3,
+                                  hint: appLocalization.getTraslateValue("code"),
+                                  fontSize: 14,
+                                  onChange: onChangeCode,
+                                  setColor: false,
+                                  setbacroundColor: true,
+                                ),
+                              ),
+                            ))
+                      ],
+                    )
                 ),
               ),
               Expanded(
@@ -80,11 +77,11 @@ class InputFeilds extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: ExtraTheme.of(context).secondColor,
                     borderRadius: BorderRadius.all(
-                      Radius.circular(5),
+                      Radius.circular(7),
                     ),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.only(top: 15,bottom: 7),
                     child: Center(
                         child: TextFieldId(
                       setColor: true,
@@ -106,17 +103,17 @@ class InputFeilds extends StatelessWidget {
             ),
             child: inputError == "both"
                 ? Text(
-                   appLocalization.getTraslateValue("phoneNumberAndCodeNull"),
+                    appLocalization.getTraslateValue("phoneNumberAndCodeNull"),
                     style: errorStyle,
                   )
                 : inputError == "code"
                     ? Text(
-                       appLocalization.getTraslateValue("codeNull"),
+                        appLocalization.getTraslateValue("codeNull"),
                         style: errorStyle,
                       )
                     : inputError == "phoneNum"
                         ? Text(
-                         appLocalization.getTraslateValue("phoneNumberNull"),
+                            appLocalization.getTraslateValue("phoneNumberNull"),
                             style: errorStyle,
                           )
                         : Container(),

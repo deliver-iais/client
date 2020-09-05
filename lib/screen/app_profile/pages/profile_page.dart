@@ -1,7 +1,8 @@
-
-
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +13,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool notification = true;
+
   List<String> imageList = [
     "https://picsum.photos/250?image=9",
     "https://picsum.photos/seed/picsum/200/300",
@@ -51,47 +53,11 @@ class _ProfilePageState extends State<ProfilePage> {
               headerSliverBuilder:
                   (BuildContext context, bool innerBoxIsScrolled) {
                 return <Widget>[
-                  SliverAppBar(
-                      forceElevated: innerBoxIsScrolled,
-                      leading: BackButton(
-                        color: ExtraTheme.of(context).infoChat,
-                      ),
-                      expandedHeight: 200.0,
-                      floating: false,
-                      pinned: true,
-                      flexibleSpace: FlexibleSpaceBar(
-                        centerTitle: true,
-                        collapseMode: CollapseMode.pin,
-                        titlePadding: const EdgeInsets.all(0),
-                        title: Container(
-                          child: Text("Jain",
-                              //textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: ExtraTheme.of(context).infoChat,
-                                fontSize: 28.0,
-                                shadows: <Shadow>[
-                                  Shadow(
-                                    blurRadius: 30.0,
-                                    color: Color.fromARGB(255, 0, 0, 0),
-                                  ),
-                                ],
-                              )),
-                        ),
-                        background: Container(
-                          child: Image.network(
-                            'https://picsum.photos/250?image=9',
-                            fit: BoxFit.cover,
-                          ),
-                          foregroundDecoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Colors.transparent, Color.fromARGB(150, 0, 0, 0)],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              stops: [0.6, 1],
-                            ),
-                          ),
-                        ),
-                      )),
+                  ProfileAvatar(
+                    innerBoxIsScrolled: innerBoxIsScrolled,
+                    uuid: "Jain Doe",
+                    settingProfile: false,
+                  ),
                   SliverList(
                       delegate: SliverChildListDelegate([
                     Container(
@@ -153,7 +119,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   size: 30,
                 ),*/
                             //  SizedBox(width: 10),
-                            Text(appLocalization.getTraslateValue("sendMessage")),
+                            Text(appLocalization
+                                .getTraslateValue("sendMessage")),
                           ],
                         )),
                     Container(
@@ -177,7 +144,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                       size: 30,
                                     ),
                                     SizedBox(width: 10),
-                                    Text(appLocalization.getTraslateValue("notification")),
+                                    Text(appLocalization
+                                        .getTraslateValue("notification")),
                                   ],
                                 ),
                               ),

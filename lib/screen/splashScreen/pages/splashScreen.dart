@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     // Comment this line if you want to login in application
     _navigateToApplicationInDevelopment();
-    accountRepo.isLoggedIn() ? _navigateToHomePage() : _navigateToIntroPage();
+    accountRepo.isLoggedIn() ? _navigateToHomePage(): _navigateToIntroPage() ;
   }
 
   void _navigateToIntroPage() {

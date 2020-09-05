@@ -5,10 +5,10 @@ class Avatars extends Table {
 
   TextColumn get fileId => text()();
 
-  IntColumn get avatarIndex => integer()();
+  DateTimeColumn get insertionDate => dateTime()();
 
   TextColumn get fileName => text()();
 
   @override
-  Set<Column> get primaryKey => {uid, avatarIndex};
+  Set<Column> get primaryKey => {uid,fileId};
 }
