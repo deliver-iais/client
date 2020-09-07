@@ -956,24 +956,23 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
 class Avatar extends DataClass implements Insertable<Avatar> {
   final String uid;
   final String fileId;
-  final DateTime insertionDate;
+  final int date;
   final String fileName;
   Avatar(
       {@required this.uid,
       @required this.fileId,
-      @required this.insertionDate,
+      @required this.date,
       @required this.fileName});
   factory Avatar.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
-    final dateTimeType = db.typeSystem.forDartType<DateTime>();
+    final intType = db.typeSystem.forDartType<int>();
     return Avatar(
       uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
       fileId:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}file_id']),
-      insertionDate: dateTimeType
-          .mapFromDatabaseResponse(data['${effectivePrefix}insertion_date']),
+      date: intType.mapFromDatabaseResponse(data['${effectivePrefix}date']),
       fileName: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}file_name']),
     );
@@ -987,8 +986,8 @@ class Avatar extends DataClass implements Insertable<Avatar> {
     if (!nullToAbsent || fileId != null) {
       map['file_id'] = Variable<String>(fileId);
     }
-    if (!nullToAbsent || insertionDate != null) {
-      map['insertion_date'] = Variable<DateTime>(insertionDate);
+    if (!nullToAbsent || date != null) {
+      map['date'] = Variable<int>(date);
     }
     if (!nullToAbsent || fileName != null) {
       map['file_name'] = Variable<String>(fileName);
@@ -1001,9 +1000,7 @@ class Avatar extends DataClass implements Insertable<Avatar> {
       uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       fileId:
           fileId == null && nullToAbsent ? const Value.absent() : Value(fileId),
-      insertionDate: insertionDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(insertionDate),
+      date: date == null && nullToAbsent ? const Value.absent() : Value(date),
       fileName: fileName == null && nullToAbsent
           ? const Value.absent()
           : Value(fileName),
@@ -1016,7 +1013,7 @@ class Avatar extends DataClass implements Insertable<Avatar> {
     return Avatar(
       uid: serializer.fromJson<String>(json['uid']),
       fileId: serializer.fromJson<String>(json['fileId']),
-      insertionDate: serializer.fromJson<DateTime>(json['insertionDate']),
+      date: serializer.fromJson<int>(json['date']),
       fileName: serializer.fromJson<String>(json['fileName']),
     );
   }
@@ -1026,20 +1023,16 @@ class Avatar extends DataClass implements Insertable<Avatar> {
     return <String, dynamic>{
       'uid': serializer.toJson<String>(uid),
       'fileId': serializer.toJson<String>(fileId),
-      'insertionDate': serializer.toJson<DateTime>(insertionDate),
+      'date': serializer.toJson<int>(date),
       'fileName': serializer.toJson<String>(fileName),
     };
   }
 
-  Avatar copyWith(
-          {String uid,
-          String fileId,
-          DateTime insertionDate,
-          String fileName}) =>
+  Avatar copyWith({String uid, String fileId, int date, String fileName}) =>
       Avatar(
         uid: uid ?? this.uid,
         fileId: fileId ?? this.fileId,
-        insertionDate: insertionDate ?? this.insertionDate,
+        date: date ?? this.date,
         fileName: fileName ?? this.fileName,
       );
   @override
@@ -1047,57 +1040,55 @@ class Avatar extends DataClass implements Insertable<Avatar> {
     return (StringBuffer('Avatar(')
           ..write('uid: $uid, ')
           ..write('fileId: $fileId, ')
-          ..write('insertionDate: $insertionDate, ')
+          ..write('date: $date, ')
           ..write('fileName: $fileName')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(
-      uid.hashCode,
-      $mrjc(
-          fileId.hashCode, $mrjc(insertionDate.hashCode, fileName.hashCode))));
+  int get hashCode => $mrjf($mrjc(uid.hashCode,
+      $mrjc(fileId.hashCode, $mrjc(date.hashCode, fileName.hashCode))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Avatar &&
           other.uid == this.uid &&
           other.fileId == this.fileId &&
-          other.insertionDate == this.insertionDate &&
+          other.date == this.date &&
           other.fileName == this.fileName);
 }
 
 class AvatarsCompanion extends UpdateCompanion<Avatar> {
   final Value<String> uid;
   final Value<String> fileId;
-  final Value<DateTime> insertionDate;
+  final Value<int> date;
   final Value<String> fileName;
   const AvatarsCompanion({
     this.uid = const Value.absent(),
     this.fileId = const Value.absent(),
-    this.insertionDate = const Value.absent(),
+    this.date = const Value.absent(),
     this.fileName = const Value.absent(),
   });
   AvatarsCompanion.insert({
     @required String uid,
     @required String fileId,
-    @required DateTime insertionDate,
+    @required int date,
     @required String fileName,
   })  : uid = Value(uid),
         fileId = Value(fileId),
-        insertionDate = Value(insertionDate),
+        date = Value(date),
         fileName = Value(fileName);
   static Insertable<Avatar> custom({
     Expression<String> uid,
     Expression<String> fileId,
-    Expression<DateTime> insertionDate,
+    Expression<int> date,
     Expression<String> fileName,
   }) {
     return RawValuesInsertable({
       if (uid != null) 'uid': uid,
       if (fileId != null) 'file_id': fileId,
-      if (insertionDate != null) 'insertion_date': insertionDate,
+      if (date != null) 'date': date,
       if (fileName != null) 'file_name': fileName,
     });
   }
@@ -1105,12 +1096,12 @@ class AvatarsCompanion extends UpdateCompanion<Avatar> {
   AvatarsCompanion copyWith(
       {Value<String> uid,
       Value<String> fileId,
-      Value<DateTime> insertionDate,
+      Value<int> date,
       Value<String> fileName}) {
     return AvatarsCompanion(
       uid: uid ?? this.uid,
       fileId: fileId ?? this.fileId,
-      insertionDate: insertionDate ?? this.insertionDate,
+      date: date ?? this.date,
       fileName: fileName ?? this.fileName,
     );
   }
@@ -1124,8 +1115,8 @@ class AvatarsCompanion extends UpdateCompanion<Avatar> {
     if (fileId.present) {
       map['file_id'] = Variable<String>(fileId.value);
     }
-    if (insertionDate.present) {
-      map['insertion_date'] = Variable<DateTime>(insertionDate.value);
+    if (date.present) {
+      map['date'] = Variable<int>(date.value);
     }
     if (fileName.present) {
       map['file_name'] = Variable<String>(fileName.value);
@@ -1138,7 +1129,7 @@ class AvatarsCompanion extends UpdateCompanion<Avatar> {
     return (StringBuffer('AvatarsCompanion(')
           ..write('uid: $uid, ')
           ..write('fileId: $fileId, ')
-          ..write('insertionDate: $insertionDate, ')
+          ..write('date: $date, ')
           ..write('fileName: $fileName')
           ..write(')'))
         .toString();
@@ -1173,15 +1164,13 @@ class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
     );
   }
 
-  final VerificationMeta _insertionDateMeta =
-      const VerificationMeta('insertionDate');
-  GeneratedDateTimeColumn _insertionDate;
+  final VerificationMeta _dateMeta = const VerificationMeta('date');
+  GeneratedIntColumn _date;
   @override
-  GeneratedDateTimeColumn get insertionDate =>
-      _insertionDate ??= _constructInsertionDate();
-  GeneratedDateTimeColumn _constructInsertionDate() {
-    return GeneratedDateTimeColumn(
-      'insertion_date',
+  GeneratedIntColumn get date => _date ??= _constructDate();
+  GeneratedIntColumn _constructDate() {
+    return GeneratedIntColumn(
+      'date',
       $tableName,
       false,
     );
@@ -1200,7 +1189,7 @@ class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
   }
 
   @override
-  List<GeneratedColumn> get $columns => [uid, fileId, insertionDate, fileName];
+  List<GeneratedColumn> get $columns => [uid, fileId, date, fileName];
   @override
   $AvatarsTable get asDslTable => this;
   @override
@@ -1224,13 +1213,11 @@ class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
     } else if (isInserting) {
       context.missing(_fileIdMeta);
     }
-    if (data.containsKey('insertion_date')) {
+    if (data.containsKey('date')) {
       context.handle(
-          _insertionDateMeta,
-          insertionDate.isAcceptableOrUnknown(
-              data['insertion_date'], _insertionDateMeta));
+          _dateMeta, date.isAcceptableOrUnknown(data['date'], _dateMeta));
     } else if (isInserting) {
-      context.missing(_insertionDateMeta);
+      context.missing(_dateMeta);
     }
     if (data.containsKey('file_name')) {
       context.handle(_fileNameMeta,
@@ -1242,7 +1229,7 @@ class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {uid, fileId};
+  Set<GeneratedColumn> get $primaryKey => {fileId};
   @override
   Avatar map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -2441,6 +2428,206 @@ class $SeensTable extends Seens with TableInfo<$SeensTable, Seen> {
   }
 }
 
+class LastAvatar extends DataClass implements Insertable<LastAvatar> {
+  final String uid;
+  final int lastUpdate;
+  LastAvatar({@required this.uid, @required this.lastUpdate});
+  factory LastAvatar.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    final intType = db.typeSystem.forDartType<int>();
+    return LastAvatar(
+      uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
+      lastUpdate: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}last_update']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
+    if (!nullToAbsent || lastUpdate != null) {
+      map['last_update'] = Variable<int>(lastUpdate);
+    }
+    return map;
+  }
+
+  LastAvatarsCompanion toCompanion(bool nullToAbsent) {
+    return LastAvatarsCompanion(
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
+      lastUpdate: lastUpdate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastUpdate),
+    );
+  }
+
+  factory LastAvatar.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return LastAvatar(
+      uid: serializer.fromJson<String>(json['uid']),
+      lastUpdate: serializer.fromJson<int>(json['lastUpdate']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'uid': serializer.toJson<String>(uid),
+      'lastUpdate': serializer.toJson<int>(lastUpdate),
+    };
+  }
+
+  LastAvatar copyWith({String uid, int lastUpdate}) => LastAvatar(
+        uid: uid ?? this.uid,
+        lastUpdate: lastUpdate ?? this.lastUpdate,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('LastAvatar(')
+          ..write('uid: $uid, ')
+          ..write('lastUpdate: $lastUpdate')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(uid.hashCode, lastUpdate.hashCode));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is LastAvatar &&
+          other.uid == this.uid &&
+          other.lastUpdate == this.lastUpdate);
+}
+
+class LastAvatarsCompanion extends UpdateCompanion<LastAvatar> {
+  final Value<String> uid;
+  final Value<int> lastUpdate;
+  const LastAvatarsCompanion({
+    this.uid = const Value.absent(),
+    this.lastUpdate = const Value.absent(),
+  });
+  LastAvatarsCompanion.insert({
+    @required String uid,
+    @required int lastUpdate,
+  })  : uid = Value(uid),
+        lastUpdate = Value(lastUpdate);
+  static Insertable<LastAvatar> custom({
+    Expression<String> uid,
+    Expression<int> lastUpdate,
+  }) {
+    return RawValuesInsertable({
+      if (uid != null) 'uid': uid,
+      if (lastUpdate != null) 'last_update': lastUpdate,
+    });
+  }
+
+  LastAvatarsCompanion copyWith({Value<String> uid, Value<int> lastUpdate}) {
+    return LastAvatarsCompanion(
+      uid: uid ?? this.uid,
+      lastUpdate: lastUpdate ?? this.lastUpdate,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (lastUpdate.present) {
+      map['last_update'] = Variable<int>(lastUpdate.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LastAvatarsCompanion(')
+          ..write('uid: $uid, ')
+          ..write('lastUpdate: $lastUpdate')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LastAvatarsTable extends LastAvatars
+    with TableInfo<$LastAvatarsTable, LastAvatar> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $LastAvatarsTable(this._db, [this._alias]);
+  final VerificationMeta _uidMeta = const VerificationMeta('uid');
+  GeneratedTextColumn _uid;
+  @override
+  GeneratedTextColumn get uid => _uid ??= _constructUid();
+  GeneratedTextColumn _constructUid() {
+    return GeneratedTextColumn(
+      'uid',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _lastUpdateMeta = const VerificationMeta('lastUpdate');
+  GeneratedIntColumn _lastUpdate;
+  @override
+  GeneratedIntColumn get lastUpdate => _lastUpdate ??= _constructLastUpdate();
+  GeneratedIntColumn _constructLastUpdate() {
+    return GeneratedIntColumn(
+      'last_update',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [uid, lastUpdate];
+  @override
+  $LastAvatarsTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'last_avatars';
+  @override
+  final String actualTableName = 'last_avatars';
+  @override
+  VerificationContext validateIntegrity(Insertable<LastAvatar> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid'], _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('last_update')) {
+      context.handle(
+          _lastUpdateMeta,
+          lastUpdate.isAcceptableOrUnknown(
+              data['last_update'], _lastUpdateMeta));
+    } else if (isInserting) {
+      context.missing(_lastUpdateMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {uid};
+  @override
+  LastAvatar map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return LastAvatar.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $LastAvatarsTable createAlias(String alias) {
+    return $LastAvatarsTable(_db, alias);
+  }
+}
+
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $MessagesTable _messages;
@@ -2455,6 +2642,8 @@ abstract class _$Database extends GeneratedDatabase {
   $FileInfosTable get fileInfos => _fileInfos ??= $FileInfosTable(this);
   $SeensTable _seens;
   $SeensTable get seens => _seens ??= $SeensTable(this);
+  $LastAvatarsTable _lastAvatars;
+  $LastAvatarsTable get lastAvatars => _lastAvatars ??= $LastAvatarsTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
@@ -2467,9 +2656,12 @@ abstract class _$Database extends GeneratedDatabase {
   FileDao get fileDao => _fileDao ??= FileDao(this as Database);
   SeenDao _seenDao;
   SeenDao get seenDao => _seenDao ??= SeenDao(this as Database);
+  LastAvatarDao _lastAvatarDao;
+  LastAvatarDao get lastAvatarDao =>
+      _lastAvatarDao ??= LastAvatarDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [messages, rooms, avatars, contacts, fileInfos, seens];
+      [messages, rooms, avatars, contacts, fileInfos, seens, lastAvatars];
 }

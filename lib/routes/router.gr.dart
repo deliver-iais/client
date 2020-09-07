@@ -8,6 +8,7 @@
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 import '../screen/app-auth/pages/loginPage.dart';
@@ -128,8 +129,9 @@ class Router extends RouterBase {
       );
     },
     ProfilePage: (data) {
+      final args = data.getArgs<ProfilePageArguments>(nullOk: false);
       return MaterialPageRoute<dynamic>(
-        builder: (context) => ProfilePage(),
+        builder: (context) => ProfilePage(args.userUid),
         settings: data,
       );
     },
@@ -165,6 +167,12 @@ class RoomPageArguments {
   final Key key;
   final String roomId;
   RoomPageArguments({this.key, this.roomId});
+}
+
+/// ProfilePage arguments holder class
+class ProfilePageArguments {
+  final Uid userUid;
+  ProfilePageArguments({@required this.userUid});
 }
 
 /// ShowImagePage arguments holder class

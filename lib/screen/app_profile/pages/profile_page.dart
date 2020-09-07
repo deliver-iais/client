@@ -1,46 +1,32 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class ProfilePage extends StatefulWidget {
+
+  Uid userUid;
+  ProfilePage(this.userUid);
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
   bool notification = true;
+  var accountRepo = GetIt.I.get<AccountRepo>();
 
   List<String> imageList = [
     "https://picsum.photos/250?image=9",
     "https://picsum.photos/seed/picsum/200/300",
     "https://picsum.photos/200/300?grayscale",
     "https://picsum.photos/250?image=9",
-    /* "https://picsum.photos/250?image=9",
-   "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/seed/picsum/200/300",
-    "https://picsum.photos/250?image=9",
-    "https://picsum.photos/250?image=9",
-    "https://picsum.photos/250?image=9",*/
   ];
 
   @override
@@ -55,7 +41,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 return <Widget>[
                   ProfileAvatar(
                     innerBoxIsScrolled: innerBoxIsScrolled,
-                    uuid: "Jain Doe",
+                    userUid:accountRepo.currentUserUid ,
                     settingProfile: false,
                   ),
                   SliverList(

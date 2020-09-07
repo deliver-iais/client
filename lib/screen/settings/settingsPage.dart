@@ -52,7 +52,6 @@ class SettingState extends State<SettingsPage> {
     GetIt.I.get<UxService>().changeLanguage(language);
   }
 
-
   Widget CircleButton(Function onTap, IconData icon, double size) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -88,9 +87,8 @@ class SettingState extends State<SettingsPage> {
                   return <Widget>[
                     ProfileAvatar(
                       innerBoxIsScrolled: innerBoxIsScrolled,
-                      uuid: "Jain Doe",
+                      userUid: accountRepo.currentUserUid,
                       settingProfile: true,
-
                     ),
                     SliverList(
                         delegate: SliverChildListDelegate([

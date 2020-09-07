@@ -81,5 +81,13 @@ class FileRepo {
       return null;
   }
 
-
+  Future<List<FileInfo>> getAvatarsFile(List<Avatar> Avatars) async {
+    List<FileInfo> files = new List();
+    for (Avatar avatar in Avatars) {
+      File file = await getFile(avatar.fileId, avatar.fileName);
+      FileInfo fileInfo = FileInfo(uuid: avatar.fileId, path: file.path, fileName: "avatar", size: "real");
+      files.add(fileInfo);
+    }
+    return files;
+  }
 }

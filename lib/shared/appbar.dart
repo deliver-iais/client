@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
@@ -10,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class Appbar extends StatelessWidget {
+  var accountRepo =  GetIt.I.get<AccountRepo>();
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
@@ -63,7 +65,7 @@ class Appbar extends StatelessWidget {
                               child: Text(appLocalization.getTraslateValue("gotoProfile")),
                               onTap: () {
                                 ExtendedNavigator.of(context)
-                                    .push(Routes.profilePage);
+                                    .push(Routes.profilePage,arguments:ProfilePageArguments(userUid: accountRepo.currentUserUid));
                               },
                             )),
                             PopupMenuItem(

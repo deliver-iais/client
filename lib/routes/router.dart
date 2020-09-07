@@ -21,7 +21,7 @@ import 'package:deliver_flutter/screen/settings/settingsPage.dart';
     MaterialRoute(page: SettingsPage),
     MaterialRoute(page: RoomPage),
     MaterialRoute(page: ForwardMessage),
-    MaterialRoute(page: ProfilePage),
+    MaterialRoute(page: ProfilePage,),
     MaterialRoute(page: ShowImagePage),
   ],
 )

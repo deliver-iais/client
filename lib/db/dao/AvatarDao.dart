@@ -10,11 +10,12 @@ class AvatarDao extends DatabaseAccessor<Database> with _$AvatarDaoMixin {
 
   AvatarDao(this.database) : super(database);
 
-  Future insetAvatar(Avatar avatar) => into(avatars).insertOnConflictUpdate(avatar);
+  Future insetAvatar(Avatar avatar) =>
+      into(avatars).insertOnConflictUpdate(avatar);
 
   Future deleteAvatar(Avatar avatar) => delete(avatars).delete(avatar);
 
-  Future<List<Avatar>> getByUid(String uid) {
-    return (select(avatars)..where((avatar) => avatar.uid.equals(uid))).get();
+  Stream<List<Avatar>> getByUid(String uid) {
+    return (select(avatars)..orderBy([(avatar)=>OrderingTerm(expression:avatar.date,mode: OrderingMode.desc)])..where((avatar) => avatar.uid.equals(uid))).watch();
   }
 }
