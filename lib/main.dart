@@ -3,6 +3,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
+import 'package:deliver_flutter/db/dao/LastAvatarDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -38,6 +39,7 @@ void setupDB() {
   getIt.registerSingleton<ContactDao>(db.contactDao);
   getIt.registerSingleton<FileDao>(db.fileDao);
   getIt.registerSingleton<SeenDao>(db.seenDao);
+  getIt.registerSingleton<LastAvatarDao>(db.lastAvatarDao);
 }
 
 void setupRepositories() {

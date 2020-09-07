@@ -33,7 +33,6 @@ class ShareBoxGallery extends StatefulWidget {
 class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   AppLocalization appLocalization;
   var _future;
-  var avatarRepo = GetIt.I.get<AvatarRepo>();
 
   @override
   void initState() {
@@ -63,7 +62,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
           title: appLocalization.getTraslateValue("avatar"),
         ));
     if (croppedFile != null) {
-      avatarRepo.uploadAvatar(croppedFile);
+      widget.onClick(croppedFile);
     }
   }
 
@@ -126,6 +125,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                               }
                             : () {
                                 cropAvatar(image.path);
+                                Navigator.pop(context);
                               },
                         child: AnimatedPadding(
                           duration: Duration(milliseconds: 200),

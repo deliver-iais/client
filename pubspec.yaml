@@ -133,10 +133,6 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/infinity.flr
-    - assets/images/messenger.flr
-    - assets/images/secure.flr
-    - assets/images/fast.flr
     - assets/images/a.flr
     - assets/audios/r.mp3
     - lib/lang/fa.json
