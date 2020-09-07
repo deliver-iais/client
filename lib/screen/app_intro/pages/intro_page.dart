@@ -1,0 +1,227 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_flutter/screen/app_intro/custum_library/intro_slider.dart';
+import 'package:deliver_flutter/screen/app_intro/custum_library/dot_animation_enum.dart';
+import 'package:deliver_flutter/screen/app_intro/custum_library/slide_object.dart';
+import 'package:flare_flutter/flare_actor.dart';
+import 'package:flare_flutter/flare_controls.dart';
+import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
+
+import '../animation.dart';
+
+class IntroPage extends StatefulWidget {
+  final currentPage;
+
+  IntroPage({Key key, this.currentPage}) : super(key: key);
+
+  @override
+  _IntroPageState createState() => _IntroPageState();
+}
+
+class _IntroPageState extends State<IntroPage> {
+  IntroAnimationController introAnimationController =
+      IntroAnimationController();
+
+  final subject = ReplaySubject<double>();
+
+  @override
+  void initState() {
+    subject
+        .map((d) => double.parse((d).toStringAsFixed(2)))
+        .map((d) => (d.round() - d).abs() < 0.1 ? d.round().toDouble() : d)
+        .distinct()
+        .listen((d) {
+      setState(() {
+        introAnimationController.play(pauseTime: d - 0.01);
+      });
+    });
+  }
+
+  void onDonePress() {
+    navigateToLoginPage(context);
+  }
+
+  void navigateToLoginPage(BuildContext context) {
+    ExtendedNavigator.of(context).popAndPush(Routes.loginPage);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    AppLocalization appLocalization = AppLocalization.of(context);
+    double animationSize = MediaQuery.of(context).size.width * .7;
+    double paddingTop = 80;
+    return Stack(
+      children: [
+        Align(
+          alignment: Alignment.topCenter,
+          child: Container(
+            width: animationSize,
+            height: animationSize + paddingTop,
+            padding: EdgeInsets.only(top: paddingTop),
+            child: FlareActor(
+              "assets/images/a.flr",
+              alignment: Alignment.center,
+              fit: BoxFit.contain,
+              antialias: false,
+              controller: introAnimationController,
+            ),
+          ),
+        ),
+        Container(
+          child: IntroSlider(
+            paddingTop: animationSize + paddingTop,
+            slides: [
+              Slide(
+                widgetTitle: Column(
+                  children: <Widget>[
+                    Container(
+                      child: Text(
+                        'WeWork',
+                        style: TextStyle(
+                          color: Color(0xFF2699FB),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        width: 200,
+                        child: Text(
+                          'The world`s fastest messaging app. It is free and secure.',
+                          style: TextStyle(
+                            color: Color(0xFF2699FB),
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Slide(
+                widgetTitle: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Container(
+                        child: Text(
+                          'Fast',
+                          style: TextStyle(
+                            color: Color(0xFF2699FB),
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        width: 200,
+                        child: Text(
+                          'WeWork delivers messages fastest than any other application.',
+                          style: TextStyle(
+                            color: Color(0xFF2699FB),
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Slide(
+                widgetTitle: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Container(
+                        child: Text(
+                          'Powerful',
+                          style: TextStyle(
+                            color: Color(0xFF2699FB),
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        width: 200,
+                        child: Text(
+                          'Messenger has no limits on the size of your media and chats.',
+                          style: TextStyle(
+                            color: Color(0xFF2699FB),
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Slide(
+                widgetTitle: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Container(
+                        child: Text(
+                          'Secure',
+                          style: TextStyle(
+                            color: Color(0xFF2699FB),
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        width: 200,
+                        child: Text(
+                          'Messenger keeps your messages safe from hacker attacks.',
+                          style: TextStyle(
+                            color: Color(0xFF2699FB),
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+            nameDoneBtn: appLocalization.getTraslateValue("done"),
+            nameSkipBtn: appLocalization.getTraslateValue("skip"),
+            nameNextBtn: appLocalization.getTraslateValue("next"),
+            onDonePress: this.onDonePress,
+            styleNameSkipBtn: TextStyle(color: Theme.of(context).primaryColor),
+            styleNameDoneBtn: TextStyle(color: Theme.of(context).primaryColor),
+            styleNamePrevBtn: TextStyle(color: Theme.of(context).primaryColor),
+            colorDot: Color(0xFFBCE0FD),
+            colorActiveDot: Theme.of(context).primaryColor,
+            onSkipPress: () => navigateToLoginPage(context),
+            onAnimationChange: (d) {
+              subject.add(d);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
