@@ -1,10 +1,13 @@
+import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/circular_file_status_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/header_details.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/load-file-status.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
+import 'package:get_it/get_it.dart';
 
 class MessageHeader extends StatefulWidget {
   final Message message;
@@ -16,102 +19,104 @@ class MessageHeader extends StatefulWidget {
 }
 
 class _MessageHeaderState extends State<MessageHeader> {
-  File file;
-  String loadStatus = 'loaded';
+  filePb.File file;
+  bool isDownloaded = false;
   double loadProgress = 0.0;
   @override
   void initState() {
     super.initState();
-    // loadData();
     file = widget.message.json.toFile();
   }
 
-  loadData() {
-    Future.delayed(Duration(seconds: 3)).whenComplete(() {
-      setState(() {
-        loadStatus = 'loading';
-        loadProgress = 0.1;
-      });
-    }).then((value) =>
-        Future.delayed(Duration(milliseconds: 1000)).whenComplete(() {
-          setState(() {
-            loadProgress = 0.3;
-          });
-        }).then((value) => Future.delayed(Duration(milliseconds: 1000))
-            .whenComplete(() {
-              setState(() {
-                loadProgress = 0.6;
-              });
-            })
-            .then((value) =>
-                Future.delayed(Duration(milliseconds: 1000)).whenComplete(() {
-                  setState(() {
-                    loadProgress = 0.9;
-                  });
-                }))
-            .then((value) =>
-                Future.delayed(Duration(milliseconds: 1000)).whenComplete(() {
-                  setState(() {
-                    loadProgress = 1;
-                    loadStatus = 'loaded';
-                  });
-                }))));
-  }
-
-  changeStatus(String newStatus) {
-    setState(() {
-      loadStatus = newStatus;
-    });
+  download(String uuid, String name) async {
+    await GetIt.I.get<FileRepo>().getFile(uuid, name);
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: file.name.isPersian()
-          ? CrossAxisAlignment.end
-          : CrossAxisAlignment.start,
-      children: <Widget>[
-        LoadFileStatus(
-          file: file,
-          dbId: widget.message.dbId,
-          changeStatus: changeStatus,
-          loadStatus: loadStatus,
-          loadProgress: loadProgress,
-        ),
-        Stack(
-          // crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(left: 20.0),
-              child: Container(
-                width: 160,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
-                      child: Text(
-                        file.name,
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.ellipsis,
-                      ),
+    PendingMessageDao pendingMessageDao = GetIt.I.get<PendingMessageDao>();
+    var fileRepo = GetIt.I.get<FileRepo>();
+    return StreamBuilder<List<PendingMessage>>(
+      stream: pendingMessageDao.getByMessageId(widget.message.dbId),
+      builder: (context, pendingMessage) {
+        if (pendingMessage.hasData) {
+          return FutureBuilder<bool>(
+              future: fileRepo.isExist(file.uuid, file.name),
+              builder: (context, isExist) {
+                if (isExist.hasData) {
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 8.0, top: 6),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: file.name.isPersian()
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                      children: <Widget>[
+                        CircularFileStatusIndicator(
+                          isExist: isExist.data | isDownloaded == true,
+                          sendingStatus: pendingMessage.data.length != 0
+                              ? (pendingMessage.data[0]).status
+                              : null,
+                          file: file,
+                          messageDbId: widget.message.dbId,
+                          onPressed: download,
+                        ),
+                        //TODO width
+                        Stack(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20.0),
+                              child: Container(
+                                width: 175,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      width: 155,
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 10.0),
+                                        child: Text(
+                                          file.name,
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold),
+                                          overflow: TextOverflow.ellipsis,
+                                          softWrap: false,
+                                          maxLines: 1,
+                                        ),
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.more_vert,
+                                      size: 18,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            //TODO handle download progress
+                            HeaderDetails(
+                                loadStatus: 'loaded',
+                                loadProgress: loadProgress,
+                                file: file),
+                          ],
+                        ),
+                      ],
                     ),
-                    Icon(
-                      Icons.more_vert,
-                      size: 18,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            HeaderDetails(
-                loadStatus: loadStatus, loadProgress: loadProgress, file: file),
-          ],
-        ),
-      ],
+                  );
+                } else {
+                  return CircularProgressIndicator(
+                      backgroundColor: Colors.purple);
+                }
+              });
+        } else {
+          return CircularProgressIndicator(backgroundColor: Colors.red);
+        }
+      },
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -5,6 +6,7 @@ import 'package:deliver_flutter/screen/app-room/widgets/chatTime.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/recievedMessageBox.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/sendedMessageBox.dart';
+import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/shared/appbar.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/newMessageInput.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
@@ -46,86 +48,103 @@ class _RoomPageState extends State<RoomPage> {
           day = currentRoomMessages[0].time.day;
         }
         bool newTime;
-        return Scaffold(
-          appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(60.0),
-            child: Appbar(),
-          ),
-          body: Column(
-            children: <Widget>[
-              Flexible(
-                fit: FlexFit.loose,
-                child: ListView.builder(
-                    reverse: true,
-                    padding: const EdgeInsets.all(5),
-                    itemCount: currentRoomMessages.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      newTime = false;
-                      if (index == currentRoomMessages.length - 1)
-                        newTime = true;
-                      else if (currentRoomMessages[index + 1].time.day != day ||
-                          currentRoomMessages[index + 1].time.month != month) {
-                        newTime = true;
-                        day = currentRoomMessages[index + 1].time.day;
-                        month = currentRoomMessages[index + 1].time.month;
-                      }
-                      return Column(
-                        children: <Widget>[
-                          newTime
-                              ? ChatTime(t: currentRoomMessages[index].time)
-                              : Container(),
-                          currentRoomMessages[index]
-                                  .from
-                                  .isSameEntity(accountRepo.currentUserUid)
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: <Widget>[
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 8.0),
-                                      child: SeenStatus(
-                                          currentRoomMessages[index]),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 8.0),
-                                      child: MsgTime(
-                                        time: currentRoomMessages[index].time,
+        AudioPlayerService audioPlayerService =
+            GetIt.I.get<AudioPlayerService>();
+        return StreamBuilder<bool>(
+            stream: audioPlayerService.isOn,
+            builder: (context, snapshot) {
+              return Scaffold(
+                appBar: PreferredSize(
+                  preferredSize: Size.fromHeight(snapshot.data == true ||
+                          audioPlayerService.lastDur != null
+                      ? 100
+                      : 60),
+                  child: Appbar(),
+                ),
+                body: Column(
+                  children: <Widget>[
+                    Flexible(
+                      fit: FlexFit.loose,
+                      child: ListView.builder(
+                          reverse: true,
+                          padding: const EdgeInsets.all(5),
+                          itemCount: currentRoomMessages.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            newTime = false;
+                            if (index == currentRoomMessages.length - 1)
+                              newTime = true;
+                            else if (currentRoomMessages[index + 1].time.day !=
+                                    day ||
+                                currentRoomMessages[index + 1].time.month !=
+                                    month) {
+                              newTime = true;
+                              day = currentRoomMessages[index + 1].time.day;
+                              month = currentRoomMessages[index + 1].time.month;
+                            }
+                            return Column(
+                              children: <Widget>[
+                                newTime
+                                    ? ChatTime(
+                                        t: currentRoomMessages[index].time)
+                                    : Container(),
+                                currentRoomMessages[index].from.isSameEntity(
+                                        accountRepo.currentUserUid)
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: <Widget>[
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 8.0),
+                                            child: SeenStatus(
+                                                currentRoomMessages[index]),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 8.0),
+                                            child: MsgTime(
+                                              time: currentRoomMessages[index]
+                                                  .time,
+                                            ),
+                                          ),
+                                          SentMessageBox(
+                                            message: currentRoomMessages[index],
+                                            maxWidth: maxWidth,
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: <Widget>[
+                                          RecievedMessageBox(
+                                            message: currentRoomMessages[index],
+                                            maxWidth: maxWidth,
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 8.0),
+                                            child: MsgTime(
+                                              time: currentRoomMessages[index]
+                                                  .time,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                    SentMessageBox(
-                                      message: currentRoomMessages[index],
-                                      maxWidth: maxWidth,
-                                    ),
-                                  ],
-                                )
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: <Widget>[
-                                    RecievedMessageBox(
-                                      message: currentRoomMessages[index],
-                                      maxWidth: maxWidth,
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 8.0),
-                                      child: MsgTime(
-                                        time: currentRoomMessages[index].time,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                        ],
-                      );
-                    }),
-              ),
-              NewMessageInput(currentRoomId: widget.roomId)
-            ],
-          ),
-          backgroundColor: Theme.of(context).backgroundColor,
-        );
+                              ],
+                            );
+                          }),
+                    ),
+                    NewMessageInput(currentRoomId: widget.roomId)
+                  ],
+                ),
+                backgroundColor: Theme.of(context).backgroundColor,
+              );
+            });
       },
     );
   }

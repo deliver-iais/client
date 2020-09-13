@@ -1,10 +1,10 @@
 enum MessageType {
-  text,
-  file,
-  sticker,
-  location,
-  liveLocation,
-  poll,
-  form,
-  persistentEvent,
+  TEXT,
+  FILE,
+  STICKER,
+  LOCATION,
+  LIVE_LOCATION,
+  POLL,
+  FORM,
+  PERSISTENT_EVENT,
 }

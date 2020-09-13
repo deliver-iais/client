@@ -41,7 +41,15 @@ class FileService {
     }));
   }
 
-  Future<File> getFile(String uuid, String filename) async {
+  Future<File> getFile(String uuid, String filename,
+      {ThumbnailSize size}) async {
+    if (size != null) {
+      return _getFileThumbnail(uuid, filename, size);
+    }
+    return _getFile(uuid, filename);
+  }
+
+  Future<File> _getFile(String uuid, String filename) async {
     var res = await _dio.get("/$uuid/$filename",
         options: Options(responseType: ResponseType.bytes));
     final file = await _localFile(uuid);
@@ -49,7 +57,7 @@ class FileService {
     return file;
   }
 
-  Future<File> getFileThumbnail(
+  Future<File> _getFileThumbnail(
       String uuid, String filename, ThumbnailSize size) async {
     var res = await _dio.get("/${enumToString(size)}/$uuid/$filename",
         options: Options(responseType: ResponseType.bytes));
@@ -72,11 +80,5 @@ class FileService {
     });
 
     return _dio.post("/upload", data: formData);
-  }
-
-  uploadFileList(List<String> filesPath) {
-    for (String filePath in filesPath) {
-      uploadFile(filePath);
-    }
   }
 }

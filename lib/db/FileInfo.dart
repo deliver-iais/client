@@ -3,12 +3,12 @@ import 'package:moor/moor.dart';
 class FileInfos extends Table {
   TextColumn get uuid => text()();
 
+  TextColumn get compressionSize => text()();
+
   TextColumn get path => text()();
 
-  TextColumn get fileName => text()();
-
-  TextColumn get size => text()();
+  TextColumn get name => text()();
 
   @override
-  Set<Column> get primaryKey => {uuid, size};
+  Set<Column> get primaryKey => {uuid, compressionSize};
 }

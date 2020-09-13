@@ -1,9 +1,11 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/file.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/music.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +13,9 @@ import 'package:flutter/rendering.dart';
 import 'package:get_it/get_it.dart';
 
 class ShareBox extends StatefulWidget {
+  final Uid currentRoomId;
+
+  const ShareBox({Key key, this.currentRoomId}) : super(key: key);
   @override
   _ShareBoxState createState() => _ShareBoxState();
 }
@@ -33,6 +38,7 @@ class _ShareBoxState extends State<ShareBox> {
   bool selected = false;
 
   var fileRepo = GetIt.I.get<FileRepo>();
+  var messageRepo = GetIt.I.get<MessageRepo>();
 
   var currentPage = Page.Gallery;
 
@@ -150,16 +156,16 @@ class _ShareBoxState extends State<ShareBox> {
                                   Container(
                                     child: CircleButton(
                                       () {
-                                        // TODO add file sending function
-                                        fileRepo.uploadFileList(
-                                            finalSelected.values.toList());
+                                        finalSelected.forEach((key, value) {
+                                          messageRepo.sendFileMessage(
+                                              widget.currentRoomId, value);
+                                        });
                                         setState(() {
                                           finalSelected.clear();
                                           selectedAudio.clear();
                                           selectedImages.clear();
                                           selectedFiles.clear();
                                         });
-                                        // todo send Message
                                       },
                                       Icons.send,
                                       "",

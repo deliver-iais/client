@@ -17,8 +17,7 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
   Duration dur;
   @override
   void initState() {
-    if (!audioPlayerService.isCompleted &&
-        audioPlayerService.audioUuid == widget.audioUuid) {
+    if (audioPlayerService.audioUuid == widget.audioUuid) {
       currentPos = audioPlayerService.lastPos;
       dur = audioPlayerService.lastDur;
     }

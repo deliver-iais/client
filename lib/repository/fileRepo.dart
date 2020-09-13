@@ -5,6 +5,7 @@ import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
+import 'package:fimber/fimber.dart';
 
 import 'package:get_it/get_it.dart';
 
@@ -13,9 +14,13 @@ class FileRepo {
   var _fileService = GetIt.I.get<FileService>();
 
   Future<FileInfo> saveFileInfo(
-      String fileId, String path, String fileName, String size) async {
-    FileInfo fileInfo =
-        FileInfo(uuid: fileId, path: path, fileName: fileName, size: size);
+      String fileId, File file, String name, String compressionSize) async {
+    FileInfo fileInfo = FileInfo(
+      uuid: fileId,
+      path: file.path,
+      name: name,
+      compressionSize: compressionSize,
+    );
     await _fileDao.upsert(fileInfo);
     return fileInfo;
   }
@@ -28,52 +33,55 @@ class FileRepo {
 
   Future<FileInfo> uploadFile(File file) async {
     var value = await _fileService.uploadFile(file.path);
-    return saveFileInfo(jsonDecode(value.toString())["uuid"],
-        jsonDecode(value.toString())["name"], file.path, "real");
+    FileInfo savedFile = await saveFileInfo(
+        jsonDecode(value.toString())["uuid"],
+        file,
+        jsonDecode(value.toString())["name"],
+        "real");
+    return savedFile;
   }
 
-  Future<File> getFile(String uuid, String filename) async {
-    FileInfo fileInfo = await getFileInDB("real", uuid);
+  Future<bool> isExist(String uuid, String filename,
+      {ThumbnailSize thumbnailSize}) async {
+    FileInfo fileInfo = await _getFileInDB(
+        (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
       File file = new File(fileInfo.path);
-      var isExist = await file.exists();
-      if (isExist) {
-        return file;
-      } else {
-        var downloadedFile = await _fileService.getFile(uuid, filename);
-        saveFileInfo(uuid, downloadedFile.path, filename, "real");
-        return downloadedFile;
-      }
-    } else {
-      var downloadedFile = await _fileService.getFile(uuid, filename);
-      saveFileInfo(uuid, downloadedFile.path, filename, "real");
-      return downloadedFile;
+      return await file.exists();
     }
+    return false;
   }
 
-  Future<File> getFileThumbnail(
-      ThumbnailSize size, String uuid, String filename) async {
-    FileInfo fileInfo = await getFileInDB(enumToString(size), uuid);
+  Future<File> getFileIfExist(String uuid, String filename,
+      {ThumbnailSize thumbnailSize}) async {
+    FileInfo fileInfo = await _getFileInDB(
+        (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
       File file = new File(fileInfo.path);
-      var isExist = await file.exists();
-      if (isExist) {
+      if (await file.exists()) {
         return file;
-      } else {
-        var downloadedFile =
-            await _fileService.getFileThumbnail(uuid, filename, size);
-        saveFileInfo(uuid, downloadedFile.path, filename, enumToString(size));
-        return downloadedFile;
       }
-    } else {
-      var downloadedFile =
-          await _fileService.getFileThumbnail(uuid, filename, size);
-      saveFileInfo(uuid, downloadedFile.path, filename, enumToString(size));
-      return downloadedFile;
     }
+    return null;
   }
 
-  Future<FileInfo> getFileInDB(String size, String uuid) async {
+  Future<File> getFile(String uuid, String filename,
+      {ThumbnailSize thumbnailSize}) async {
+    File file =
+        await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
+
+    if (file != null) {
+      return file;
+    }
+
+    var downloadedFile =
+        await _fileService.getFile(uuid, filename, size: thumbnailSize);
+    await saveFileInfo(uuid, downloadedFile, filename,
+        thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
+    return downloadedFile;
+  }
+
+  Future<FileInfo> _getFileInDB(String size, String uuid) async {
     var infoList = await _fileDao.getFileInfo(uuid, enumToString(size));
     if (infoList.isNotEmpty)
       return infoList.elementAt(0);
@@ -85,7 +93,11 @@ class FileRepo {
     List<FileInfo> files = new List();
     for (Avatar avatar in Avatars) {
       File file = await getFile(avatar.fileId, avatar.fileName);
-      FileInfo fileInfo = FileInfo(uuid: avatar.fileId, path: file.path, fileName: "avatar", size: "real");
+      FileInfo fileInfo = FileInfo(
+          uuid: avatar.fileId,
+          path: file.path,
+          name: "avatar",
+          compressionSize: "real");
       files.add(fileInfo);
     }
     return files;

@@ -4,7 +4,6 @@ import 'package:audio_recorder/audio_recorder.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/emojiKeybord.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box.dart';
-import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,6 +15,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:random_string/random_string.dart';
 import 'package:vibration/vibration.dart';
 import 'package:ext_storage/ext_storage.dart';
+import 'package:deliver_flutter/repository/messageRepo.dart';
 
 const ANIMATION_DURATION = const Duration(milliseconds: 100);
 
@@ -29,7 +29,7 @@ class InputMessage extends StatefulWidget {
 }
 
 class _InputMessageWidget extends State<InputMessage> {
-  var messageService = GetIt.I.get<MessageService>();
+  MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
 
   var checkPermission = GetIt.I.get<CheckPermissionsService>();
   TextEditingController controller;
@@ -55,7 +55,9 @@ class _InputMessageWidget extends State<InputMessage> {
         isDismissible: true,
         backgroundColor: Colors.transparent,
         builder: (context) {
-          return ShareBox();
+          return ShareBox(
+            currentRoomId: currentRoom.roomId.uid,
+          );
         });
   }
 
@@ -145,7 +147,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                       });
                                     },
                                     decoration: InputDecoration.collapsed(
-                                        hintText: appLocalization.getTraslateValue("message")),
+                                        hintText: appLocalization
+                                            .getTraslateValue("message")),
                                   ),
                                 ),
                                 controller.text?.isEmpty
@@ -172,10 +175,10 @@ class _InputMessageWidget extends State<InputMessage> {
                                             : () {
                                                 if (controller
                                                     .text.isNotEmpty) {
-                                                  messageService
-                                                      .sendTextMessage(
-                                                          currentRoom.roomId.uid,
-                                                          controller.text);
+                                                  messageRepo.sendTextMessage(
+                                                    currentRoom.roomId.uid,
+                                                    controller.text,
+                                                  );
 
                                                   controller.clear();
                                                   messageText = "";
@@ -229,7 +232,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                 child: Row(
                                   children: <Widget>[
                                     Icon(Icons.chevron_left),
-                                    Text(appLocalization.getTraslateValue("slideToCancel"),
+                                    Text(
+                                        appLocalization
+                                            .getTraslateValue("slideToCancel"),
                                         style: TextStyle(
                                             fontSize: 12, color: Colors.white)),
                                   ],

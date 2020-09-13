@@ -1861,24 +1861,24 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
 
 class FileInfo extends DataClass implements Insertable<FileInfo> {
   final String uuid;
+  final String compressionSize;
   final String path;
-  final String fileName;
-  final String size;
+  final String name;
   FileInfo(
       {@required this.uuid,
+      @required this.compressionSize,
       @required this.path,
-      @required this.fileName,
-      @required this.size});
+      @required this.name});
   factory FileInfo.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
     return FileInfo(
       uuid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uuid']),
+      compressionSize: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}compression_size']),
       path: stringType.mapFromDatabaseResponse(data['${effectivePrefix}path']),
-      fileName: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}file_name']),
-      size: stringType.mapFromDatabaseResponse(data['${effectivePrefix}size']),
+      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
     );
   }
   @override
@@ -1887,14 +1887,14 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
     if (!nullToAbsent || uuid != null) {
       map['uuid'] = Variable<String>(uuid);
     }
+    if (!nullToAbsent || compressionSize != null) {
+      map['compression_size'] = Variable<String>(compressionSize);
+    }
     if (!nullToAbsent || path != null) {
       map['path'] = Variable<String>(path);
     }
-    if (!nullToAbsent || fileName != null) {
-      map['file_name'] = Variable<String>(fileName);
-    }
-    if (!nullToAbsent || size != null) {
-      map['size'] = Variable<String>(size);
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
     }
     return map;
   }
@@ -1902,11 +1902,11 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
   FileInfosCompanion toCompanion(bool nullToAbsent) {
     return FileInfosCompanion(
       uuid: uuid == null && nullToAbsent ? const Value.absent() : Value(uuid),
-      path: path == null && nullToAbsent ? const Value.absent() : Value(path),
-      fileName: fileName == null && nullToAbsent
+      compressionSize: compressionSize == null && nullToAbsent
           ? const Value.absent()
-          : Value(fileName),
-      size: size == null && nullToAbsent ? const Value.absent() : Value(size),
+          : Value(compressionSize),
+      path: path == null && nullToAbsent ? const Value.absent() : Value(path),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
     );
   }
 
@@ -1915,9 +1915,9 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return FileInfo(
       uuid: serializer.fromJson<String>(json['uuid']),
+      compressionSize: serializer.fromJson<String>(json['compressionSize']),
       path: serializer.fromJson<String>(json['path']),
-      fileName: serializer.fromJson<String>(json['fileName']),
-      size: serializer.fromJson<String>(json['size']),
+      name: serializer.fromJson<String>(json['name']),
     );
   }
   @override
@@ -1925,87 +1925,88 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'uuid': serializer.toJson<String>(uuid),
+      'compressionSize': serializer.toJson<String>(compressionSize),
       'path': serializer.toJson<String>(path),
-      'fileName': serializer.toJson<String>(fileName),
-      'size': serializer.toJson<String>(size),
+      'name': serializer.toJson<String>(name),
     };
   }
 
-  FileInfo copyWith({String uuid, String path, String fileName, String size}) =>
+  FileInfo copyWith(
+          {String uuid, String compressionSize, String path, String name}) =>
       FileInfo(
         uuid: uuid ?? this.uuid,
+        compressionSize: compressionSize ?? this.compressionSize,
         path: path ?? this.path,
-        fileName: fileName ?? this.fileName,
-        size: size ?? this.size,
+        name: name ?? this.name,
       );
   @override
   String toString() {
     return (StringBuffer('FileInfo(')
           ..write('uuid: $uuid, ')
+          ..write('compressionSize: $compressionSize, ')
           ..write('path: $path, ')
-          ..write('fileName: $fileName, ')
-          ..write('size: $size')
+          ..write('name: $name')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => $mrjf($mrjc(uuid.hashCode,
-      $mrjc(path.hashCode, $mrjc(fileName.hashCode, size.hashCode))));
+      $mrjc(compressionSize.hashCode, $mrjc(path.hashCode, name.hashCode))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is FileInfo &&
           other.uuid == this.uuid &&
+          other.compressionSize == this.compressionSize &&
           other.path == this.path &&
-          other.fileName == this.fileName &&
-          other.size == this.size);
+          other.name == this.name);
 }
 
 class FileInfosCompanion extends UpdateCompanion<FileInfo> {
   final Value<String> uuid;
+  final Value<String> compressionSize;
   final Value<String> path;
-  final Value<String> fileName;
-  final Value<String> size;
+  final Value<String> name;
   const FileInfosCompanion({
     this.uuid = const Value.absent(),
+    this.compressionSize = const Value.absent(),
     this.path = const Value.absent(),
-    this.fileName = const Value.absent(),
-    this.size = const Value.absent(),
+    this.name = const Value.absent(),
   });
   FileInfosCompanion.insert({
     @required String uuid,
+    @required String compressionSize,
     @required String path,
-    @required String fileName,
-    @required String size,
+    @required String name,
   })  : uuid = Value(uuid),
+        compressionSize = Value(compressionSize),
         path = Value(path),
-        fileName = Value(fileName),
-        size = Value(size);
+        name = Value(name);
   static Insertable<FileInfo> custom({
     Expression<String> uuid,
+    Expression<String> compressionSize,
     Expression<String> path,
-    Expression<String> fileName,
-    Expression<String> size,
+    Expression<String> name,
   }) {
     return RawValuesInsertable({
       if (uuid != null) 'uuid': uuid,
+      if (compressionSize != null) 'compression_size': compressionSize,
       if (path != null) 'path': path,
-      if (fileName != null) 'file_name': fileName,
-      if (size != null) 'size': size,
+      if (name != null) 'name': name,
     });
   }
 
   FileInfosCompanion copyWith(
       {Value<String> uuid,
+      Value<String> compressionSize,
       Value<String> path,
-      Value<String> fileName,
-      Value<String> size}) {
+      Value<String> name}) {
     return FileInfosCompanion(
       uuid: uuid ?? this.uuid,
+      compressionSize: compressionSize ?? this.compressionSize,
       path: path ?? this.path,
-      fileName: fileName ?? this.fileName,
-      size: size ?? this.size,
+      name: name ?? this.name,
     );
   }
 
@@ -2015,14 +2016,14 @@ class FileInfosCompanion extends UpdateCompanion<FileInfo> {
     if (uuid.present) {
       map['uuid'] = Variable<String>(uuid.value);
     }
+    if (compressionSize.present) {
+      map['compression_size'] = Variable<String>(compressionSize.value);
+    }
     if (path.present) {
       map['path'] = Variable<String>(path.value);
     }
-    if (fileName.present) {
-      map['file_name'] = Variable<String>(fileName.value);
-    }
-    if (size.present) {
-      map['size'] = Variable<String>(size.value);
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
     }
     return map;
   }
@@ -2031,9 +2032,9 @@ class FileInfosCompanion extends UpdateCompanion<FileInfo> {
   String toString() {
     return (StringBuffer('FileInfosCompanion(')
           ..write('uuid: $uuid, ')
+          ..write('compressionSize: $compressionSize, ')
           ..write('path: $path, ')
-          ..write('fileName: $fileName, ')
-          ..write('size: $size')
+          ..write('name: $name')
           ..write(')'))
         .toString();
   }
@@ -2056,6 +2057,20 @@ class $FileInfosTable extends FileInfos
     );
   }
 
+  final VerificationMeta _compressionSizeMeta =
+      const VerificationMeta('compressionSize');
+  GeneratedTextColumn _compressionSize;
+  @override
+  GeneratedTextColumn get compressionSize =>
+      _compressionSize ??= _constructCompressionSize();
+  GeneratedTextColumn _constructCompressionSize() {
+    return GeneratedTextColumn(
+      'compression_size',
+      $tableName,
+      false,
+    );
+  }
+
   final VerificationMeta _pathMeta = const VerificationMeta('path');
   GeneratedTextColumn _path;
   @override
@@ -2068,32 +2083,20 @@ class $FileInfosTable extends FileInfos
     );
   }
 
-  final VerificationMeta _fileNameMeta = const VerificationMeta('fileName');
-  GeneratedTextColumn _fileName;
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  GeneratedTextColumn _name;
   @override
-  GeneratedTextColumn get fileName => _fileName ??= _constructFileName();
-  GeneratedTextColumn _constructFileName() {
+  GeneratedTextColumn get name => _name ??= _constructName();
+  GeneratedTextColumn _constructName() {
     return GeneratedTextColumn(
-      'file_name',
-      $tableName,
-      false,
-    );
-  }
-
-  final VerificationMeta _sizeMeta = const VerificationMeta('size');
-  GeneratedTextColumn _size;
-  @override
-  GeneratedTextColumn get size => _size ??= _constructSize();
-  GeneratedTextColumn _constructSize() {
-    return GeneratedTextColumn(
-      'size',
+      'name',
       $tableName,
       false,
     );
   }
 
   @override
-  List<GeneratedColumn> get $columns => [uuid, path, fileName, size];
+  List<GeneratedColumn> get $columns => [uuid, compressionSize, path, name];
   @override
   $FileInfosTable get asDslTable => this;
   @override
@@ -2111,29 +2114,31 @@ class $FileInfosTable extends FileInfos
     } else if (isInserting) {
       context.missing(_uuidMeta);
     }
+    if (data.containsKey('compression_size')) {
+      context.handle(
+          _compressionSizeMeta,
+          compressionSize.isAcceptableOrUnknown(
+              data['compression_size'], _compressionSizeMeta));
+    } else if (isInserting) {
+      context.missing(_compressionSizeMeta);
+    }
     if (data.containsKey('path')) {
       context.handle(
           _pathMeta, path.isAcceptableOrUnknown(data['path'], _pathMeta));
     } else if (isInserting) {
       context.missing(_pathMeta);
     }
-    if (data.containsKey('file_name')) {
-      context.handle(_fileNameMeta,
-          fileName.isAcceptableOrUnknown(data['file_name'], _fileNameMeta));
-    } else if (isInserting) {
-      context.missing(_fileNameMeta);
-    }
-    if (data.containsKey('size')) {
+    if (data.containsKey('name')) {
       context.handle(
-          _sizeMeta, size.isAcceptableOrUnknown(data['size'], _sizeMeta));
+          _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
     } else if (isInserting) {
-      context.missing(_sizeMeta);
+      context.missing(_nameMeta);
     }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {uuid, size};
+  Set<GeneratedColumn> get $primaryKey => {uuid, compressionSize};
   @override
   FileInfo map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -2628,6 +2633,388 @@ class $LastAvatarsTable extends LastAvatars
   }
 }
 
+class PendingMessage extends DataClass implements Insertable<PendingMessage> {
+  final int dbId;
+  final int messageId;
+  final int retry;
+  final DateTime time;
+  final SendingStatus status;
+  final String details;
+  PendingMessage(
+      {@required this.dbId,
+      @required this.messageId,
+      @required this.retry,
+      @required this.time,
+      @required this.status,
+      this.details});
+  factory PendingMessage.fromData(
+      Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final intType = db.typeSystem.forDartType<int>();
+    final dateTimeType = db.typeSystem.forDartType<DateTime>();
+    final stringType = db.typeSystem.forDartType<String>();
+    return PendingMessage(
+      dbId: intType.mapFromDatabaseResponse(data['${effectivePrefix}db_id']),
+      messageId:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}message_id']),
+      retry: intType.mapFromDatabaseResponse(data['${effectivePrefix}retry']),
+      time:
+          dateTimeType.mapFromDatabaseResponse(data['${effectivePrefix}time']),
+      status: $PendingMessagesTable.$converter0.mapToDart(
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}status'])),
+      details:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}details']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || dbId != null) {
+      map['db_id'] = Variable<int>(dbId);
+    }
+    if (!nullToAbsent || messageId != null) {
+      map['message_id'] = Variable<int>(messageId);
+    }
+    if (!nullToAbsent || retry != null) {
+      map['retry'] = Variable<int>(retry);
+    }
+    if (!nullToAbsent || time != null) {
+      map['time'] = Variable<DateTime>(time);
+    }
+    if (!nullToAbsent || status != null) {
+      final converter = $PendingMessagesTable.$converter0;
+      map['status'] = Variable<int>(converter.mapToSql(status));
+    }
+    if (!nullToAbsent || details != null) {
+      map['details'] = Variable<String>(details);
+    }
+    return map;
+  }
+
+  PendingMessagesCompanion toCompanion(bool nullToAbsent) {
+    return PendingMessagesCompanion(
+      dbId: dbId == null && nullToAbsent ? const Value.absent() : Value(dbId),
+      messageId: messageId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(messageId),
+      retry:
+          retry == null && nullToAbsent ? const Value.absent() : Value(retry),
+      time: time == null && nullToAbsent ? const Value.absent() : Value(time),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      details: details == null && nullToAbsent
+          ? const Value.absent()
+          : Value(details),
+    );
+  }
+
+  factory PendingMessage.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return PendingMessage(
+      dbId: serializer.fromJson<int>(json['dbId']),
+      messageId: serializer.fromJson<int>(json['messageId']),
+      retry: serializer.fromJson<int>(json['retry']),
+      time: serializer.fromJson<DateTime>(json['time']),
+      status: serializer.fromJson<SendingStatus>(json['status']),
+      details: serializer.fromJson<String>(json['details']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'dbId': serializer.toJson<int>(dbId),
+      'messageId': serializer.toJson<int>(messageId),
+      'retry': serializer.toJson<int>(retry),
+      'time': serializer.toJson<DateTime>(time),
+      'status': serializer.toJson<SendingStatus>(status),
+      'details': serializer.toJson<String>(details),
+    };
+  }
+
+  PendingMessage copyWith(
+          {int dbId,
+          int messageId,
+          int retry,
+          DateTime time,
+          SendingStatus status,
+          String details}) =>
+      PendingMessage(
+        dbId: dbId ?? this.dbId,
+        messageId: messageId ?? this.messageId,
+        retry: retry ?? this.retry,
+        time: time ?? this.time,
+        status: status ?? this.status,
+        details: details ?? this.details,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('PendingMessage(')
+          ..write('dbId: $dbId, ')
+          ..write('messageId: $messageId, ')
+          ..write('retry: $retry, ')
+          ..write('time: $time, ')
+          ..write('status: $status, ')
+          ..write('details: $details')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(
+      dbId.hashCode,
+      $mrjc(
+          messageId.hashCode,
+          $mrjc(
+              retry.hashCode,
+              $mrjc(
+                  time.hashCode, $mrjc(status.hashCode, details.hashCode))))));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is PendingMessage &&
+          other.dbId == this.dbId &&
+          other.messageId == this.messageId &&
+          other.retry == this.retry &&
+          other.time == this.time &&
+          other.status == this.status &&
+          other.details == this.details);
+}
+
+class PendingMessagesCompanion extends UpdateCompanion<PendingMessage> {
+  final Value<int> dbId;
+  final Value<int> messageId;
+  final Value<int> retry;
+  final Value<DateTime> time;
+  final Value<SendingStatus> status;
+  final Value<String> details;
+  const PendingMessagesCompanion({
+    this.dbId = const Value.absent(),
+    this.messageId = const Value.absent(),
+    this.retry = const Value.absent(),
+    this.time = const Value.absent(),
+    this.status = const Value.absent(),
+    this.details = const Value.absent(),
+  });
+  PendingMessagesCompanion.insert({
+    this.dbId = const Value.absent(),
+    @required int messageId,
+    @required int retry,
+    @required DateTime time,
+    @required SendingStatus status,
+    this.details = const Value.absent(),
+  })  : messageId = Value(messageId),
+        retry = Value(retry),
+        time = Value(time),
+        status = Value(status);
+  static Insertable<PendingMessage> custom({
+    Expression<int> dbId,
+    Expression<int> messageId,
+    Expression<int> retry,
+    Expression<DateTime> time,
+    Expression<int> status,
+    Expression<String> details,
+  }) {
+    return RawValuesInsertable({
+      if (dbId != null) 'db_id': dbId,
+      if (messageId != null) 'message_id': messageId,
+      if (retry != null) 'retry': retry,
+      if (time != null) 'time': time,
+      if (status != null) 'status': status,
+      if (details != null) 'details': details,
+    });
+  }
+
+  PendingMessagesCompanion copyWith(
+      {Value<int> dbId,
+      Value<int> messageId,
+      Value<int> retry,
+      Value<DateTime> time,
+      Value<SendingStatus> status,
+      Value<String> details}) {
+    return PendingMessagesCompanion(
+      dbId: dbId ?? this.dbId,
+      messageId: messageId ?? this.messageId,
+      retry: retry ?? this.retry,
+      time: time ?? this.time,
+      status: status ?? this.status,
+      details: details ?? this.details,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (dbId.present) {
+      map['db_id'] = Variable<int>(dbId.value);
+    }
+    if (messageId.present) {
+      map['message_id'] = Variable<int>(messageId.value);
+    }
+    if (retry.present) {
+      map['retry'] = Variable<int>(retry.value);
+    }
+    if (time.present) {
+      map['time'] = Variable<DateTime>(time.value);
+    }
+    if (status.present) {
+      final converter = $PendingMessagesTable.$converter0;
+      map['status'] = Variable<int>(converter.mapToSql(status.value));
+    }
+    if (details.present) {
+      map['details'] = Variable<String>(details.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PendingMessagesCompanion(')
+          ..write('dbId: $dbId, ')
+          ..write('messageId: $messageId, ')
+          ..write('retry: $retry, ')
+          ..write('time: $time, ')
+          ..write('status: $status, ')
+          ..write('details: $details')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PendingMessagesTable extends PendingMessages
+    with TableInfo<$PendingMessagesTable, PendingMessage> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $PendingMessagesTable(this._db, [this._alias]);
+  final VerificationMeta _dbIdMeta = const VerificationMeta('dbId');
+  GeneratedIntColumn _dbId;
+  @override
+  GeneratedIntColumn get dbId => _dbId ??= _constructDbId();
+  GeneratedIntColumn _constructDbId() {
+    return GeneratedIntColumn('db_id', $tableName, false,
+        hasAutoIncrement: true, declaredAsPrimaryKey: true);
+  }
+
+  final VerificationMeta _messageIdMeta = const VerificationMeta('messageId');
+  GeneratedIntColumn _messageId;
+  @override
+  GeneratedIntColumn get messageId => _messageId ??= _constructMessageId();
+  GeneratedIntColumn _constructMessageId() {
+    return GeneratedIntColumn('message_id', $tableName, false,
+        $customConstraints: 'REFERENCES messages(db_id)');
+  }
+
+  final VerificationMeta _retryMeta = const VerificationMeta('retry');
+  GeneratedIntColumn _retry;
+  @override
+  GeneratedIntColumn get retry => _retry ??= _constructRetry();
+  GeneratedIntColumn _constructRetry() {
+    return GeneratedIntColumn(
+      'retry',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _timeMeta = const VerificationMeta('time');
+  GeneratedDateTimeColumn _time;
+  @override
+  GeneratedDateTimeColumn get time => _time ??= _constructTime();
+  GeneratedDateTimeColumn _constructTime() {
+    return GeneratedDateTimeColumn(
+      'time',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _statusMeta = const VerificationMeta('status');
+  GeneratedIntColumn _status;
+  @override
+  GeneratedIntColumn get status => _status ??= _constructStatus();
+  GeneratedIntColumn _constructStatus() {
+    return GeneratedIntColumn(
+      'status',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _detailsMeta = const VerificationMeta('details');
+  GeneratedTextColumn _details;
+  @override
+  GeneratedTextColumn get details => _details ??= _constructDetails();
+  GeneratedTextColumn _constructDetails() {
+    return GeneratedTextColumn(
+      'details',
+      $tableName,
+      true,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns =>
+      [dbId, messageId, retry, time, status, details];
+  @override
+  $PendingMessagesTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'pending_messages';
+  @override
+  final String actualTableName = 'pending_messages';
+  @override
+  VerificationContext validateIntegrity(Insertable<PendingMessage> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('db_id')) {
+      context.handle(
+          _dbIdMeta, dbId.isAcceptableOrUnknown(data['db_id'], _dbIdMeta));
+    }
+    if (data.containsKey('message_id')) {
+      context.handle(_messageIdMeta,
+          messageId.isAcceptableOrUnknown(data['message_id'], _messageIdMeta));
+    } else if (isInserting) {
+      context.missing(_messageIdMeta);
+    }
+    if (data.containsKey('retry')) {
+      context.handle(
+          _retryMeta, retry.isAcceptableOrUnknown(data['retry'], _retryMeta));
+    } else if (isInserting) {
+      context.missing(_retryMeta);
+    }
+    if (data.containsKey('time')) {
+      context.handle(
+          _timeMeta, time.isAcceptableOrUnknown(data['time'], _timeMeta));
+    } else if (isInserting) {
+      context.missing(_timeMeta);
+    }
+    context.handle(_statusMeta, const VerificationResult.success());
+    if (data.containsKey('details')) {
+      context.handle(_detailsMeta,
+          details.isAcceptableOrUnknown(data['details'], _detailsMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {dbId};
+  @override
+  PendingMessage map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return PendingMessage.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $PendingMessagesTable createAlias(String alias) {
+    return $PendingMessagesTable(_db, alias);
+  }
+
+  static TypeConverter<SendingStatus, int> $converter0 =
+      const EnumIndexConverter<SendingStatus>(SendingStatus.values);
+}
+
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $MessagesTable _messages;
@@ -2644,6 +3031,9 @@ abstract class _$Database extends GeneratedDatabase {
   $SeensTable get seens => _seens ??= $SeensTable(this);
   $LastAvatarsTable _lastAvatars;
   $LastAvatarsTable get lastAvatars => _lastAvatars ??= $LastAvatarsTable(this);
+  $PendingMessagesTable _pendingMessages;
+  $PendingMessagesTable get pendingMessages =>
+      _pendingMessages ??= $PendingMessagesTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
@@ -2659,9 +3049,20 @@ abstract class _$Database extends GeneratedDatabase {
   LastAvatarDao _lastAvatarDao;
   LastAvatarDao get lastAvatarDao =>
       _lastAvatarDao ??= LastAvatarDao(this as Database);
+  PendingMessageDao _pendingMessageDao;
+  PendingMessageDao get pendingMessageDao =>
+      _pendingMessageDao ??= PendingMessageDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [messages, rooms, avatars, contacts, fileInfos, seens, lastAvatars];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        messages,
+        rooms,
+        avatars,
+        contacts,
+        fileInfos,
+        seens,
+        lastAvatars,
+        pendingMessages
+      ];
 }

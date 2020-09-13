@@ -56,8 +56,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
             showCropGrid: false,
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false
-        ),
+            lockAspectRatio: false),
         iosUiSettings: IOSUiSettings(
           title: appLocalization.getTraslateValue("avatar"),
         ));
@@ -157,7 +156,6 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                             ),
                           ),
                         ));
-                    ;
                   }
                 });
           }

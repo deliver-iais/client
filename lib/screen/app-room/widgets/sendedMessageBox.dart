@@ -15,7 +15,7 @@ class SentMessageBox extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(5)),
         child: Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(2),
           color: Theme.of(context).primaryColor,
           child: BoxContent(message: message, maxWidth: maxWidth),
         ),
