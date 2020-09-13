@@ -13,6 +13,7 @@ class ExtraThemeData {
   Color backgroundOfProfilePage =  Color(0xFF424242);
   Color borderOfProfilePage = Color(0xFF9D9D9D);
   Color tabsColor = Colors.white;
+  Color black = Colors.black;
 
   ExtraThemeData({this.circleAvatarBackground,
     this.introColor,

@@ -3,6 +3,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
+import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/LastAvatarDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
@@ -11,6 +12,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
+import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
@@ -42,6 +44,7 @@ void setupDB() {
   getIt.registerSingleton<ContactDao>(db.contactDao);
   getIt.registerSingleton<FileDao>(db.fileDao);
   getIt.registerSingleton<SeenDao>(db.seenDao);
+  getIt.registerSingleton<MediaDao>(db.mediaDao);
   getIt.registerSingleton<PendingMessageDao>(db.pendingMessageDao);
   getIt.registerSingleton<LastAvatarDao>(db.lastAvatarDao);
 }
@@ -61,6 +64,7 @@ void setupRepositories() {
   getIt.registerSingleton<MessageRepo>(MessageRepo());
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
   getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());
+  getIt.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
 }
 
 void setupDIAndRunApp() {

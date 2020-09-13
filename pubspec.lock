@@ -141,6 +141,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "7.1.0"
+  cached_network_image:
+    dependency: "direct main"
+    description:
+      name: cached_network_image
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.3.2+1"
   carousel_slider:
     dependency: "direct main"
     description:
@@ -365,6 +372,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_blurhash:
+    dependency: transitive
+    description:
+      name: flutter_blurhash
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.0"
   flutter_cache_manager:
     dependency: transitive
     description:
@@ -412,6 +426,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.5+2"
+  flutter_page_indicator:
+    dependency: transitive
+    description:
+      name: flutter_page_indicator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.3"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -419,6 +440,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.8"
+  flutter_swiper:
+    dependency: "direct main"
+    description:
+      name: flutter_swiper
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.6"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -653,6 +681,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.4.12"
+  octo_image:
+    dependency: transitive
+    description:
+      name: octo_image
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.0"
   open_file:
     dependency: "direct main"
     description:
@@ -1001,6 +1036,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
+  swipedetector:
+    dependency: "direct main"
+    description:
+      name: swipedetector
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.2.0"
   synchronized:
     dependency: transitive
     description:
@@ -1043,6 +1085,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.1+2"
+  transformer_page_view:
+    dependency: transitive
+    description:
+      name: transformer_page_view
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.6"
   typed_data:
     dependency: transitive
     description:
@@ -1135,5 +1184,5 @@ packages:
     source: hosted
     version: "2.2.1"
 sdks:
-  dart: ">=2.9.0-14.0.dev <3.0.0"
-  flutter: ">=1.16.0 <2.0.0"
+  dart: ">=2.9.0 <3.0.0"
+  flutter: ">=1.20.0 <2.0.0"

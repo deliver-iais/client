@@ -3015,6 +3015,503 @@ class $PendingMessagesTable extends PendingMessages
       const EnumIndexConverter<SendingStatus>(SendingStatus.values);
 }
 
+class Media extends DataClass implements Insertable<Media> {
+  final int messageId;
+  final String mediaUrl;
+  final String mediaSender;
+  final String mediaName;
+  final String mediaType;
+  final String time;
+  final String roomId;
+  final String mediaUuid;
+  Media(
+      {@required this.messageId,
+      @required this.mediaUrl,
+      @required this.mediaSender,
+      @required this.mediaName,
+      @required this.mediaType,
+      @required this.time,
+      @required this.roomId,
+      @required this.mediaUuid});
+  factory Media.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final intType = db.typeSystem.forDartType<int>();
+    final stringType = db.typeSystem.forDartType<String>();
+    return Media(
+      messageId:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}message_id']),
+      mediaUrl: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}media_url']),
+      mediaSender: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}media_sender']),
+      mediaName: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}media_name']),
+      mediaType: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}media_type']),
+      time: stringType.mapFromDatabaseResponse(data['${effectivePrefix}time']),
+      roomId:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
+      mediaUuid: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}media_uuid']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || messageId != null) {
+      map['message_id'] = Variable<int>(messageId);
+    }
+    if (!nullToAbsent || mediaUrl != null) {
+      map['media_url'] = Variable<String>(mediaUrl);
+    }
+    if (!nullToAbsent || mediaSender != null) {
+      map['media_sender'] = Variable<String>(mediaSender);
+    }
+    if (!nullToAbsent || mediaName != null) {
+      map['media_name'] = Variable<String>(mediaName);
+    }
+    if (!nullToAbsent || mediaType != null) {
+      map['media_type'] = Variable<String>(mediaType);
+    }
+    if (!nullToAbsent || time != null) {
+      map['time'] = Variable<String>(time);
+    }
+    if (!nullToAbsent || roomId != null) {
+      map['room_id'] = Variable<String>(roomId);
+    }
+    if (!nullToAbsent || mediaUuid != null) {
+      map['media_uuid'] = Variable<String>(mediaUuid);
+    }
+    return map;
+  }
+
+  MediasCompanion toCompanion(bool nullToAbsent) {
+    return MediasCompanion(
+      messageId: messageId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(messageId),
+      mediaUrl: mediaUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mediaUrl),
+      mediaSender: mediaSender == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mediaSender),
+      mediaName: mediaName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mediaName),
+      mediaType: mediaType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mediaType),
+      time: time == null && nullToAbsent ? const Value.absent() : Value(time),
+      roomId:
+          roomId == null && nullToAbsent ? const Value.absent() : Value(roomId),
+      mediaUuid: mediaUuid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mediaUuid),
+    );
+  }
+
+  factory Media.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return Media(
+      messageId: serializer.fromJson<int>(json['messageId']),
+      mediaUrl: serializer.fromJson<String>(json['mediaUrl']),
+      mediaSender: serializer.fromJson<String>(json['mediaSender']),
+      mediaName: serializer.fromJson<String>(json['mediaName']),
+      mediaType: serializer.fromJson<String>(json['mediaType']),
+      time: serializer.fromJson<String>(json['time']),
+      roomId: serializer.fromJson<String>(json['roomId']),
+      mediaUuid: serializer.fromJson<String>(json['mediaUuid']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'messageId': serializer.toJson<int>(messageId),
+      'mediaUrl': serializer.toJson<String>(mediaUrl),
+      'mediaSender': serializer.toJson<String>(mediaSender),
+      'mediaName': serializer.toJson<String>(mediaName),
+      'mediaType': serializer.toJson<String>(mediaType),
+      'time': serializer.toJson<String>(time),
+      'roomId': serializer.toJson<String>(roomId),
+      'mediaUuid': serializer.toJson<String>(mediaUuid),
+    };
+  }
+
+  Media copyWith(
+          {int messageId,
+          String mediaUrl,
+          String mediaSender,
+          String mediaName,
+          String mediaType,
+          String time,
+          String roomId,
+          String mediaUuid}) =>
+      Media(
+        messageId: messageId ?? this.messageId,
+        mediaUrl: mediaUrl ?? this.mediaUrl,
+        mediaSender: mediaSender ?? this.mediaSender,
+        mediaName: mediaName ?? this.mediaName,
+        mediaType: mediaType ?? this.mediaType,
+        time: time ?? this.time,
+        roomId: roomId ?? this.roomId,
+        mediaUuid: mediaUuid ?? this.mediaUuid,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Media(')
+          ..write('messageId: $messageId, ')
+          ..write('mediaUrl: $mediaUrl, ')
+          ..write('mediaSender: $mediaSender, ')
+          ..write('mediaName: $mediaName, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('time: $time, ')
+          ..write('roomId: $roomId, ')
+          ..write('mediaUuid: $mediaUuid')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(
+      messageId.hashCode,
+      $mrjc(
+          mediaUrl.hashCode,
+          $mrjc(
+              mediaSender.hashCode,
+              $mrjc(
+                  mediaName.hashCode,
+                  $mrjc(
+                      mediaType.hashCode,
+                      $mrjc(time.hashCode,
+                          $mrjc(roomId.hashCode, mediaUuid.hashCode))))))));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is Media &&
+          other.messageId == this.messageId &&
+          other.mediaUrl == this.mediaUrl &&
+          other.mediaSender == this.mediaSender &&
+          other.mediaName == this.mediaName &&
+          other.mediaType == this.mediaType &&
+          other.time == this.time &&
+          other.roomId == this.roomId &&
+          other.mediaUuid == this.mediaUuid);
+}
+
+class MediasCompanion extends UpdateCompanion<Media> {
+  final Value<int> messageId;
+  final Value<String> mediaUrl;
+  final Value<String> mediaSender;
+  final Value<String> mediaName;
+  final Value<String> mediaType;
+  final Value<String> time;
+  final Value<String> roomId;
+  final Value<String> mediaUuid;
+  const MediasCompanion({
+    this.messageId = const Value.absent(),
+    this.mediaUrl = const Value.absent(),
+    this.mediaSender = const Value.absent(),
+    this.mediaName = const Value.absent(),
+    this.mediaType = const Value.absent(),
+    this.time = const Value.absent(),
+    this.roomId = const Value.absent(),
+    this.mediaUuid = const Value.absent(),
+  });
+  MediasCompanion.insert({
+    this.messageId = const Value.absent(),
+    @required String mediaUrl,
+    @required String mediaSender,
+    @required String mediaName,
+    @required String mediaType,
+    @required String time,
+    @required String roomId,
+    @required String mediaUuid,
+  })  : mediaUrl = Value(mediaUrl),
+        mediaSender = Value(mediaSender),
+        mediaName = Value(mediaName),
+        mediaType = Value(mediaType),
+        time = Value(time),
+        roomId = Value(roomId),
+        mediaUuid = Value(mediaUuid);
+  static Insertable<Media> custom({
+    Expression<int> messageId,
+    Expression<String> mediaUrl,
+    Expression<String> mediaSender,
+    Expression<String> mediaName,
+    Expression<String> mediaType,
+    Expression<String> time,
+    Expression<String> roomId,
+    Expression<String> mediaUuid,
+  }) {
+    return RawValuesInsertable({
+      if (messageId != null) 'message_id': messageId,
+      if (mediaUrl != null) 'media_url': mediaUrl,
+      if (mediaSender != null) 'media_sender': mediaSender,
+      if (mediaName != null) 'media_name': mediaName,
+      if (mediaType != null) 'media_type': mediaType,
+      if (time != null) 'time': time,
+      if (roomId != null) 'room_id': roomId,
+      if (mediaUuid != null) 'media_uuid': mediaUuid,
+    });
+  }
+
+  MediasCompanion copyWith(
+      {Value<int> messageId,
+      Value<String> mediaUrl,
+      Value<String> mediaSender,
+      Value<String> mediaName,
+      Value<String> mediaType,
+      Value<String> time,
+      Value<String> roomId,
+      Value<String> mediaUuid}) {
+    return MediasCompanion(
+      messageId: messageId ?? this.messageId,
+      mediaUrl: mediaUrl ?? this.mediaUrl,
+      mediaSender: mediaSender ?? this.mediaSender,
+      mediaName: mediaName ?? this.mediaName,
+      mediaType: mediaType ?? this.mediaType,
+      time: time ?? this.time,
+      roomId: roomId ?? this.roomId,
+      mediaUuid: mediaUuid ?? this.mediaUuid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (messageId.present) {
+      map['message_id'] = Variable<int>(messageId.value);
+    }
+    if (mediaUrl.present) {
+      map['media_url'] = Variable<String>(mediaUrl.value);
+    }
+    if (mediaSender.present) {
+      map['media_sender'] = Variable<String>(mediaSender.value);
+    }
+    if (mediaName.present) {
+      map['media_name'] = Variable<String>(mediaName.value);
+    }
+    if (mediaType.present) {
+      map['media_type'] = Variable<String>(mediaType.value);
+    }
+    if (time.present) {
+      map['time'] = Variable<String>(time.value);
+    }
+    if (roomId.present) {
+      map['room_id'] = Variable<String>(roomId.value);
+    }
+    if (mediaUuid.present) {
+      map['media_uuid'] = Variable<String>(mediaUuid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MediasCompanion(')
+          ..write('messageId: $messageId, ')
+          ..write('mediaUrl: $mediaUrl, ')
+          ..write('mediaSender: $mediaSender, ')
+          ..write('mediaName: $mediaName, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('time: $time, ')
+          ..write('roomId: $roomId, ')
+          ..write('mediaUuid: $mediaUuid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MediasTable extends Medias with TableInfo<$MediasTable, Media> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $MediasTable(this._db, [this._alias]);
+  final VerificationMeta _messageIdMeta = const VerificationMeta('messageId');
+  GeneratedIntColumn _messageId;
+  @override
+  GeneratedIntColumn get messageId => _messageId ??= _constructMessageId();
+  GeneratedIntColumn _constructMessageId() {
+    return GeneratedIntColumn('message_id', $tableName, false,
+        hasAutoIncrement: true, declaredAsPrimaryKey: true);
+  }
+
+  final VerificationMeta _mediaUrlMeta = const VerificationMeta('mediaUrl');
+  GeneratedTextColumn _mediaUrl;
+  @override
+  GeneratedTextColumn get mediaUrl => _mediaUrl ??= _constructMediaUrl();
+  GeneratedTextColumn _constructMediaUrl() {
+    return GeneratedTextColumn(
+      'media_url',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _mediaSenderMeta =
+      const VerificationMeta('mediaSender');
+  GeneratedTextColumn _mediaSender;
+  @override
+  GeneratedTextColumn get mediaSender =>
+      _mediaSender ??= _constructMediaSender();
+  GeneratedTextColumn _constructMediaSender() {
+    return GeneratedTextColumn(
+      'media_sender',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _mediaNameMeta = const VerificationMeta('mediaName');
+  GeneratedTextColumn _mediaName;
+  @override
+  GeneratedTextColumn get mediaName => _mediaName ??= _constructMediaName();
+  GeneratedTextColumn _constructMediaName() {
+    return GeneratedTextColumn(
+      'media_name',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _mediaTypeMeta = const VerificationMeta('mediaType');
+  GeneratedTextColumn _mediaType;
+  @override
+  GeneratedTextColumn get mediaType => _mediaType ??= _constructMediaType();
+  GeneratedTextColumn _constructMediaType() {
+    return GeneratedTextColumn(
+      'media_type',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _timeMeta = const VerificationMeta('time');
+  GeneratedTextColumn _time;
+  @override
+  GeneratedTextColumn get time => _time ??= _constructTime();
+  GeneratedTextColumn _constructTime() {
+    return GeneratedTextColumn(
+      'time',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
+  GeneratedTextColumn _roomId;
+  @override
+  GeneratedTextColumn get roomId => _roomId ??= _constructRoomId();
+  GeneratedTextColumn _constructRoomId() {
+    return GeneratedTextColumn(
+      'room_id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _mediaUuidMeta = const VerificationMeta('mediaUuid');
+  GeneratedTextColumn _mediaUuid;
+  @override
+  GeneratedTextColumn get mediaUuid => _mediaUuid ??= _constructMediaUuid();
+  GeneratedTextColumn _constructMediaUuid() {
+    return GeneratedTextColumn(
+      'media_uuid',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [
+        messageId,
+        mediaUrl,
+        mediaSender,
+        mediaName,
+        mediaType,
+        time,
+        roomId,
+        mediaUuid
+      ];
+  @override
+  $MediasTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'medias';
+  @override
+  final String actualTableName = 'medias';
+  @override
+  VerificationContext validateIntegrity(Insertable<Media> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('message_id')) {
+      context.handle(_messageIdMeta,
+          messageId.isAcceptableOrUnknown(data['message_id'], _messageIdMeta));
+    }
+    if (data.containsKey('media_url')) {
+      context.handle(_mediaUrlMeta,
+          mediaUrl.isAcceptableOrUnknown(data['media_url'], _mediaUrlMeta));
+    } else if (isInserting) {
+      context.missing(_mediaUrlMeta);
+    }
+    if (data.containsKey('media_sender')) {
+      context.handle(
+          _mediaSenderMeta,
+          mediaSender.isAcceptableOrUnknown(
+              data['media_sender'], _mediaSenderMeta));
+    } else if (isInserting) {
+      context.missing(_mediaSenderMeta);
+    }
+    if (data.containsKey('media_name')) {
+      context.handle(_mediaNameMeta,
+          mediaName.isAcceptableOrUnknown(data['media_name'], _mediaNameMeta));
+    } else if (isInserting) {
+      context.missing(_mediaNameMeta);
+    }
+    if (data.containsKey('media_type')) {
+      context.handle(_mediaTypeMeta,
+          mediaType.isAcceptableOrUnknown(data['media_type'], _mediaTypeMeta));
+    } else if (isInserting) {
+      context.missing(_mediaTypeMeta);
+    }
+    if (data.containsKey('time')) {
+      context.handle(
+          _timeMeta, time.isAcceptableOrUnknown(data['time'], _timeMeta));
+    } else if (isInserting) {
+      context.missing(_timeMeta);
+    }
+    if (data.containsKey('room_id')) {
+      context.handle(_roomIdMeta,
+          roomId.isAcceptableOrUnknown(data['room_id'], _roomIdMeta));
+    } else if (isInserting) {
+      context.missing(_roomIdMeta);
+    }
+    if (data.containsKey('media_uuid')) {
+      context.handle(_mediaUuidMeta,
+          mediaUuid.isAcceptableOrUnknown(data['media_uuid'], _mediaUuidMeta));
+    } else if (isInserting) {
+      context.missing(_mediaUuidMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {messageId};
+  @override
+  Media map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return Media.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $MediasTable createAlias(String alias) {
+    return $MediasTable(_db, alias);
+  }
+}
+
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $MessagesTable _messages;
@@ -3034,6 +3531,8 @@ abstract class _$Database extends GeneratedDatabase {
   $PendingMessagesTable _pendingMessages;
   $PendingMessagesTable get pendingMessages =>
       _pendingMessages ??= $PendingMessagesTable(this);
+  $MediasTable _medias;
+  $MediasTable get medias => _medias ??= $MediasTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
@@ -3052,6 +3551,8 @@ abstract class _$Database extends GeneratedDatabase {
   PendingMessageDao _pendingMessageDao;
   PendingMessageDao get pendingMessageDao =>
       _pendingMessageDao ??= PendingMessageDao(this as Database);
+  MediaDao _mediaDao;
+  MediaDao get mediaDao => _mediaDao ??= MediaDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
@@ -3063,6 +3564,7 @@ abstract class _$Database extends GeneratedDatabase {
         fileInfos,
         seens,
         lastAvatars,
-        pendingMessages
+        pendingMessages,
+        medias
       ];
 }
