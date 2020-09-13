@@ -110,6 +110,9 @@ dependencies:
 
 
   step_progress_indicator: ^0.2.3+6
+  cached_network_image: ^2.0.0
+  flutter_swiper: ^1.0.0
+  swipedetector: ^1.2.0
 
 
 dev_dependencies:
@@ -119,6 +122,8 @@ dev_dependencies:
   moor_generator: ^3.3.1
   build_runner:
   auto_route_generator: ^0.6.7
+
+
 
 
 # For information on the generic Dart part of this file, see the

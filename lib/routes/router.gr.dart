@@ -18,6 +18,7 @@ import '../screen/app-home/widgets/forward.dart';
 import '../screen/app-room/pages/roomPage.dart';
 import '../screen/app-room/widgets/showImage_Widget.dart';
 import '../screen/app_intro/pages/intro_page.dart';
+import '../screen/app_profile/pages/media_details_page.dart';
 import '../screen/app_profile/pages/profile_page.dart';
 import '../screen/settings/settingsPage.dart';
 import '../screen/splashScreen/pages/splashScreen.dart';
@@ -33,6 +34,7 @@ class Routes {
   static const String roomPage = '/room-page';
   static const String forwardMessage = '/forward-message';
   static const String profilePage = '/profile-page';
+  static const String mediaDetailsPage = '/media-details-page';
   static const String showImagePage = '/show-image-page';
   static const all = <String>{
     splashScreen,
@@ -45,6 +47,7 @@ class Routes {
     roomPage,
     forwardMessage,
     profilePage,
+    mediaDetailsPage,
     showImagePage,
   };
 }
@@ -63,6 +66,7 @@ class Router extends RouterBase {
     RouteDef(Routes.roomPage, page: RoomPage),
     RouteDef(Routes.forwardMessage, page: ForwardMessage),
     RouteDef(Routes.profilePage, page: ProfilePage),
+    RouteDef(Routes.mediaDetailsPage, page: MediaDetailsPage),
     RouteDef(Routes.showImagePage, page: ShowImagePage),
   ];
   @override
@@ -135,6 +139,24 @@ class Router extends RouterBase {
         settings: data,
       );
     },
+    MediaDetailsPage: (data) {
+      final args = data.getArgs<MediaDetailsPageArguments>(
+        orElse: () => MediaDetailsPageArguments(),
+      );
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => MediaDetailsPage(
+          key: args.key,
+          mediaUrl: args.mediaUrl,
+          mediaListLenght: args.mediaListLenght,
+          mediaPosition: args.mediaPosition,
+          heroTag: args.heroTag,
+          mediaList: args.mediaList,
+          mediaSender: args.mediaSender,
+          mediaTime: args.mediaTime,
+        ),
+        settings: data,
+      );
+    },
     ShowImagePage: (data) {
       final args = data.getArgs<ShowImagePageArguments>(
         orElse: () => ShowImagePageArguments(),
@@ -173,6 +195,27 @@ class RoomPageArguments {
 class ProfilePageArguments {
   final Uid userUid;
   ProfilePageArguments({@required this.userUid});
+}
+
+/// MediaDetailsPage arguments holder class
+class MediaDetailsPageArguments {
+  final Key key;
+  final String mediaUrl;
+  final int mediaListLenght;
+  final int mediaPosition;
+  final String heroTag;
+  final List<String> mediaList;
+  final String mediaSender;
+  final String mediaTime;
+  MediaDetailsPageArguments(
+      {this.key,
+      this.mediaUrl,
+      this.mediaListLenght,
+      this.mediaPosition,
+      this.heroTag,
+      this.mediaList,
+      this.mediaSender,
+      this.mediaTime});
 }
 
 /// ShowImagePage arguments holder class

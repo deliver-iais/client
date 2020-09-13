@@ -1,10 +1,12 @@
 import 'package:deliver_flutter/db/Avatars.dart';
+import 'package:deliver_flutter/db/Media.dart';
 import 'package:deliver_flutter/db/LastAvatar.dart';
 import 'package:deliver_flutter/db/Messages.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/dao/LastAvatarDao.dart';
+import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/models/messageType.dart';
@@ -33,7 +35,8 @@ part 'database.g.dart';
   FileInfos,
   Seens,
   LastAvatars,
-  PendingMessages
+  PendingMessages,
+  Medias
 ], daos: [
   MessageDao,
   RoomDao,
@@ -42,7 +45,8 @@ part 'database.g.dart';
   FileDao,
   SeenDao,
   LastAvatarDao,
-  PendingMessageDao
+  PendingMessageDao,
+  MediaDao
 ])
 class Database extends _$Database {
   Database()
