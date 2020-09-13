@@ -13,12 +13,13 @@ import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_flutter/routes/router.gr.dart' as R;
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/downloadFileServices.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/message_service.dart';
+import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/services/video_player_service.dart';
 
@@ -63,6 +64,7 @@ void setupRepositories() {
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<MessageRepo>(MessageRepo());
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
+  getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());
   getIt.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
 }
@@ -127,11 +129,11 @@ class MyApp extends StatelessWidget {
               }
               return supportedLocale.first;
             },
-            onGenerateRoute: Router(),
+            onGenerateRoute: R.Router(),
             builder: (x, c) => Directionality(
               textDirection: TextDirection.ltr,
-              child: ExtendedNavigator<Router>(
-                router: Router(),
+              child: ExtendedNavigator<R.Router>(
+                router: R.Router(),
               ),
             ),
           ),

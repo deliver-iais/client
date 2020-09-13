@@ -8,12 +8,13 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 import 'package:deliver_flutter/services/downloadFileServices.dart';
+import 'package:deliver_flutter/services/notification_services.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/language.dart';
 import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -34,6 +35,7 @@ class SettingState extends State<SettingsPage> {
   var contactDao = GetIt.I.get<ContactDao>();
   var downloadFile = GetIt.I.get<DownloadFileServices>();
   var fileRepo = GetIt.I.get<FileRepo>();
+  var notificationServices = GetIt.I.get<NotificationServices>();
 
   var accountRepo = GetIt.I.get<AccountRepo>();
   var theme = false;
@@ -133,7 +135,14 @@ class SettingState extends State<SettingsPage> {
                                   ),
                                   IconButton(
                                       icon: Icon(Icons.navigate_next),
-                                      onPressed: () {}),
+                                      onPressed: () {
+//                                        notificationServices.showTextNotification(
+//                                            accountRepo.currentUserUid.hashcode,
+//                                            "rr",
+//                                            context,
+//                                            "df",
+//                                            "dxd");
+                                      }),
                                 ],
                               ),
                             )
@@ -180,7 +189,20 @@ class SettingState extends State<SettingsPage> {
                                   ),
                                   IconButton(
                                       icon: Icon(Icons.navigate_next),
-                                      onPressed: () {}),
+                                      onPressed: () async {
+//                                        final file = await ImagePicker()
+//                                            .getImage(
+//                                                source: ImageSource.gallery);
+//                                        notificationServices
+//                                            .showImageNotification(
+//                                                accountRepo
+//                                                    .currentUserUid.hashcode,
+//                                                "d",
+//                                                context,
+//                                                "dd",
+//                                                "ffffffffffff",
+//                                                file.path);
+                                      }),
                                 ],
                               ),
                             ),
