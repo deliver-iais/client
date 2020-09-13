@@ -20,8 +20,6 @@ class ChatItem extends StatelessWidget {
 
   ChatItem({this.roomWithMessage});
 
-
-
   @override
   Widget build(BuildContext context) {
     var messageType = roomWithMessage.lastMessage.from
@@ -37,7 +35,7 @@ class ChatItem extends StatelessWidget {
         height: 40,
         child: Row(
           children: <Widget>[
-            ContactPic(true, roomWithMessage.room.roomId.uid),
+            // ContactPic(true, roomWithMessage.room.roomId.uid),
             SizedBox(
               width: 8,
             ),
@@ -55,19 +53,19 @@ class ChatItem extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                   Row(
-                     children: <Widget>[
-                       messageType == "send"
-                           ? SeenStatus(roomWithMessage.lastMessage)
-                           : Container(),
-                       Padding(
-                           padding: const EdgeInsets.only(
-                             top: 3.0,
-                           ),
-                           child: LastMessage(
-                               message: roomWithMessage.lastMessage)),
-                     ],
-                   ),
+                  Row(
+                    children: <Widget>[
+                      messageType == "send"
+                          ? SeenStatus(roomWithMessage.lastMessage)
+                          : Container(),
+                      Padding(
+                          padding: const EdgeInsets.only(
+                            top: 3.0,
+                          ),
+                          child: LastMessage(
+                              message: roomWithMessage.lastMessage)),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -91,49 +89,49 @@ class ChatItem extends StatelessWidget {
                   ),
                   roomWithMessage.room.mentioned != false
                       ? Padding(
-                    padding: const EdgeInsets.only(
-                      right: 3.0,
-                    ),
-                    child: Stack(
-                      children: <Widget>[
-                        Container(
-                          width: 15,
-                          height: 15,
-                          decoration: new BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            shape: BoxShape.circle,
+                          padding: const EdgeInsets.only(
+                            right: 3.0,
                           ),
-                        ),
-                        Positioned(
-                          top: 2.25,
-                          right: 2.25,
-                          child: Container(
-                            width: 11,
-                            height: 11,
-                            decoration: new BoxDecoration(
-                              color: Theme.of(context).backgroundColor,
-                              shape: BoxShape.circle,
-                            ),
+                          child: Stack(
+                            children: <Widget>[
+                              Container(
+                                width: 15,
+                                height: 15,
+                                decoration: new BoxDecoration(
+                                  color: Theme.of(context).primaryColor,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              Positioned(
+                                top: 2.25,
+                                right: 2.25,
+                                child: Container(
+                                  width: 11,
+                                  height: 11,
+                                  decoration: new BoxDecoration(
+                                    color: Theme.of(context).backgroundColor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 4,
+                                left: 4,
+                                child: Container(
+                                  width: 6.5,
+                                  height: 6.5,
+                                  decoration: new BoxDecoration(
+                                    color: Theme.of(context).primaryColor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        Positioned(
-                          top: 4,
-                          left: 4,
-                          child: Container(
-                            width: 6.5,
-                            height: 6.5,
-                            decoration: new BoxDecoration(
-                              color: Theme.of(context).primaryColor,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
+                        )
                       : messageType == "recieve"
-                      ? ReceivedMsgIcon(roomWithMessage.lastMessage)
-                      : Container()
+                          ? ReceivedMsgIcon(roomWithMessage.lastMessage)
+                          : Container()
                 ],
               ),
             )

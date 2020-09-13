@@ -44,8 +44,8 @@ class AvatarRepo {
     for (AvatarObject.Avatar avatar in getAvatars.avatar) {
       FileInfo fileInfo = FileInfo(
         uuid: avatar.fileUuid,
-        fileName: avatar.fileUuid,
-        size: "real",
+        name: avatar.fileUuid,
+        compressionSize: "real",
       );
       updateLastUpdateAvatarTime(userUid);
       saveAvatarInfo(fileInfo, userUid, int.parse(avatar.avatarUuid));
@@ -86,7 +86,7 @@ class AvatarRepo {
           uid: accountRepo.currentUserUid.toString(),
           date: avatarUuid,
           fileId: fileInfo.uuid,
-          fileName: fileInfo.fileName);
+          fileName: fileInfo.name);
     } else {
       return null;
     }
@@ -97,7 +97,7 @@ class AvatarRepo {
         uid: userUid.toString(),
         fileId: fileInfo.uuid,
         date: avatarUuid,
-        fileName: fileInfo.fileName);
+        fileName: fileInfo.name);
     _avatarDao.insetAvatar(avatar);
   }
 

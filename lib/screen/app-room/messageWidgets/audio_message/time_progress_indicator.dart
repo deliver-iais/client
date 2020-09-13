@@ -17,8 +17,7 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
   Duration dur;
   @override
   void initState() {
-    if (!audioPlayerService.isCompleted &&
-        audioPlayerService.audioUuid == widget.audioUuid) {
+    if (audioPlayerService.audioUuid == widget.audioUuid) {
       currentPos = audioPlayerService.lastPos;
       dur = audioPlayerService.lastDur;
     }
@@ -34,7 +33,9 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
           return StreamBuilder<Duration>(
               stream: audioPlayerService.audioCurrentPosition,
               builder: (context, snapshot2) {
-                currentPos = snapshot2.data ?? currentPos ?? Duration.zero;
+                currentPos = audioPlayerService.audioName == null
+                    ? Duration.zero
+                    : snapshot2.data ?? currentPos ?? Duration.zero;
                 if (dur.inHours > 0)
                   return Container(
                     child: Text(currentPos.toString().split('.')[0] +

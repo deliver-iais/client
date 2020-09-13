@@ -7,11 +7,15 @@ class TextUi extends StatelessWidget {
   final String content;
   final double maxWidth;
   final Function lastCross;
-  const TextUi({Key key, this.content, this.maxWidth, this.lastCross})
+  final bool isCaption;
+  const TextUi(
+      {Key key, this.content, this.maxWidth, this.lastCross, this.isCaption})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Container(child: Column(children: textMessages(this.content)));
+    return Container(
+        margin: EdgeInsets.only(left: 8),
+        child: Column(children: textMessages(this.content)));
   }
 
   List<Widget> textMessages(String content) {
@@ -31,8 +35,11 @@ class TextUi extends StatelessWidget {
         idx = i;
       }
     }
-    lastCross(
-        blocks[idx].isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start);
+
+    if (isCaption)
+      lastCross(blocks[idx].isRtl
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start);
     //max lenght
     var joint = blocks[idx].build(this.maxWidth);
 

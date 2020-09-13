@@ -3,12 +3,14 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
+import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/LastAvatarDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
@@ -16,6 +18,7 @@ import 'package:deliver_flutter/services/downloadFileServices.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
+import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:fimber/fimber.dart';
@@ -39,10 +42,12 @@ void setupDB() {
   getIt.registerSingleton<ContactDao>(db.contactDao);
   getIt.registerSingleton<FileDao>(db.fileDao);
   getIt.registerSingleton<SeenDao>(db.seenDao);
+  getIt.registerSingleton<PendingMessageDao>(db.pendingMessageDao);
   getIt.registerSingleton<LastAvatarDao>(db.lastAvatarDao);
 }
 
 void setupRepositories() {
+  // Order is important, don't change it!
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<UxService>(UxService());
   getIt.registerSingleton<AccountRepo>(AccountRepo());
@@ -53,7 +58,9 @@ void setupRepositories() {
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
+  getIt.registerSingleton<MessageRepo>(MessageRepo());
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
+  getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());
 }
 
 void setupDIAndRunApp() {

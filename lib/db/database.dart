@@ -6,7 +6,9 @@ import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/dao/LastAvatarDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
+import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,14 +19,31 @@ import 'Contacts.dart';
 import 'FileInfo.dart';
 import 'Rooms.dart';
 import 'Seens.dart';
+import 'PendingMessages.dart';
 import 'dao/RoomDao.dart';
 import 'dao/MessageDao.dart';
 
 part 'database.g.dart';
 
-@UseMoor(
-    tables: [Messages, Rooms, Avatars, Contacts, FileInfos, Seens,LastAvatars],
-    daos: [MessageDao, RoomDao, AvatarDao, ContactDao, FileDao, SeenDao,LastAvatarDao])
+@UseMoor(tables: [
+  Messages,
+  Rooms,
+  Avatars,
+  Contacts,
+  FileInfos,
+  Seens,
+  LastAvatars,
+  PendingMessages
+], daos: [
+  MessageDao,
+  RoomDao,
+  AvatarDao,
+  ContactDao,
+  FileDao,
+  SeenDao,
+  LastAvatarDao,
+  PendingMessageDao
+])
 class Database extends _$Database {
   Database()
       : super(LazyDatabase(() async {

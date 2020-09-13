@@ -2,13 +2,13 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'appbarTitle.dart';
 import 'package:deliver_flutter/shared/appbarPic.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/repository/messageRepo.dart';
 
 class Appbar extends StatelessWidget {
   var accountRepo =  GetIt.I.get<AccountRepo>();
@@ -55,14 +55,16 @@ class Appbar extends StatelessWidget {
                       itemBuilder: (context) => [
                             PopupMenuItem(
                                 child: GestureDetector(
-                              child: Text(appLocalization.getTraslateValue("newChat")),
+                              child: Text(
+                                  appLocalization.getTraslateValue("newChat")),
                               onTap: () {
                                 initialDataBase();
                               },
                             )),
                             PopupMenuItem(
                                 child: GestureDetector(
-                              child: Text(appLocalization.getTraslateValue("gotoProfile")),
+                              child: Text(appLocalization
+                                  .getTraslateValue("gotoProfile")),
                               onTap: () {
                                 ExtendedNavigator.of(context)
                                     .push(Routes.profilePage,arguments:ProfilePageArguments(userUid: accountRepo.currentUserUid));
@@ -70,14 +72,16 @@ class Appbar extends StatelessWidget {
                             )),
                             PopupMenuItem(
                                 child: GestureDetector(
-                              child: Text(appLocalization.getTraslateValue("newGroup")),
+                              child: Text(
+                                  appLocalization.getTraslateValue("newGroup")),
                               onTap: () {
                                 initialDataBase();
                               },
                             )),
                             PopupMenuItem(
                                 child: GestureDetector(
-                              child: Text(appLocalization.getTraslateValue("newChannel")),
+                              child: Text(appLocalization
+                                  .getTraslateValue("newChannel")),
                               onTap: () {},
                             ))
                           ])
@@ -93,13 +97,15 @@ class Appbar extends StatelessWidget {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: <Widget>[
-                                  Text(appLocalization.getTraslateValue("newContact")),
+                                  Text(appLocalization
+                                      .getTraslateValue("newContact")),
                                 ],
                               ),
                               onTap: () {},
                             )),
                           ]),
             ),
+            onPressed: null,
           )
         ],
       ),
@@ -109,11 +115,8 @@ class Appbar extends StatelessWidget {
   isHomePage(context) => RouteData.of(context).path == Routes.homePage;
 
   initialDataBase() {
-    GetIt.I.get<MessageService>().sendFileMessage(randomUid(), 'test');
-//    GetIt.I
-//        .get<MessageService>()
-//        .sendFileMessage('users:Judi', 'C:\\Users\\Fatemeh\\Desktop\\r.mp3');
+    GetIt.I
+        .get<MessageRepo>()
+        .sendTextMessage(randomUid(), 'hello welcome to our app');
   }
 }
-
-//TODO 3 tay akhar ؟؟
