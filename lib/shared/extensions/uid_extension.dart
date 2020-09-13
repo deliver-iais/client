@@ -18,6 +18,9 @@ extension UidExtension on Uid {
 
   get string => "${this.category.value}:${this.node}";
 
+  get hashcode => int.parse(this.category.value.toString()+hashCode.toString());
+
+
   String getString() => this.string;
 }
 
