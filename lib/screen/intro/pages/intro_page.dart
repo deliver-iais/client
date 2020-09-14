@@ -1,11 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/screen/app_intro/custum_library/intro_slider.dart';
-import 'package:deliver_flutter/screen/app_intro/custum_library/dot_animation_enum.dart';
-import 'package:deliver_flutter/screen/app_intro/custum_library/slide_object.dart';
+import 'package:deliver_flutter/screen/intro/custom_library/intro_slider.dart';
+import 'package:deliver_flutter/screen/intro/custom_library/slide_object.dart';
 import 'package:flare_flutter/flare_actor.dart';
-import 'package:flare_flutter/flare_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -28,22 +26,14 @@ class _IntroPageState extends State<IntroPage> {
 
   @override
   void initState() {
-    subject
-        .map((d) => double.parse((d).toStringAsFixed(2)))
-        .map((d) => (d.round() - d).abs() < 0.1 ? d.round().toDouble() : d)
-        .distinct()
-        .listen((d) {
+    subject.map((d) => d.round()).distinct().listen((d) {
       setState(() {
-        introAnimationController.play(pauseTime: d - 0.01);
+        introAnimationController.play(pauseTime: d - 0.05);
       });
     });
   }
 
-  void onDonePress() {
-    navigateToLoginPage(context);
-  }
-
-  void navigateToLoginPage(BuildContext context) {
+  void navigateToLoginPage() {
     ExtendedNavigator.of(context).popAndPush(Routes.loginPage);
   }
 
@@ -78,7 +68,7 @@ class _IntroPageState extends State<IntroPage> {
                   children: <Widget>[
                     Container(
                       child: Text(
-                        'WeWork',
+                        'Deliver',
                         style: TextStyle(
                           color: Color(0xFF2699FB),
                           fontSize: 22,
@@ -209,13 +199,13 @@ class _IntroPageState extends State<IntroPage> {
             nameDoneBtn: appLocalization.getTraslateValue("done"),
             nameSkipBtn: appLocalization.getTraslateValue("skip"),
             nameNextBtn: appLocalization.getTraslateValue("next"),
-            onDonePress: this.onDonePress,
+            onDonePress: navigateToLoginPage,
             styleNameSkipBtn: TextStyle(color: Theme.of(context).primaryColor),
             styleNameDoneBtn: TextStyle(color: Theme.of(context).primaryColor),
             styleNamePrevBtn: TextStyle(color: Theme.of(context).primaryColor),
             colorDot: Color(0xFFBCE0FD),
             colorActiveDot: Theme.of(context).primaryColor,
-            onSkipPress: () => navigateToLoginPage(context),
+            onSkipPress: navigateToLoginPage,
             onAnimationChange: (d) {
               subject.add(d);
             },

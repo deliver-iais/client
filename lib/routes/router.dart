@@ -1,14 +1,14 @@
 import 'package:auto_route/auto_route_annotations.dart';
 import 'package:deliver_flutter/screen/app-home/pages/homePage.dart';
 import 'package:deliver_flutter/screen/app-home/widgets/forward.dart';
-import 'package:deliver_flutter/screen/app_intro/pages/intro_page.dart';
-import 'package:deliver_flutter/screen/app-auth/pages/loginPage.dart';
-import 'package:deliver_flutter/screen/app-auth/pages/verificationPage.dart';
+import 'package:deliver_flutter/screen/register/pages/login_page.dart';
+import 'package:deliver_flutter/screen/register/pages/verification_page.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/showImage_Widget.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/profile_page.dart';
-import 'package:deliver_flutter/screen/splashScreen/pages/splashScreen.dart';
+import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
+import 'package:deliver_flutter/screen/splash/pages/splash_screen.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 
 @MaterialAutoRouter(

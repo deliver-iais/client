@@ -17,7 +17,7 @@
 
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="deliver_flutter"
+        android:label="Deliver"
         android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">
         <activity
