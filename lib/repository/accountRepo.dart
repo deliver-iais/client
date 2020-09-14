@@ -42,9 +42,9 @@ class AccountRepo {
         _prefs.getString(REFRESH_TOKEN_KEY));
   }
 
-  Future getVerificationCode(int countryCode, String nationalNumber) async {
+  Future getVerificationCode(String countryCode, String nationalNumber) async {
     PhoneNumber phone = PhoneNumber()
-      ..countryCode = countryCode
+      ..countryCode = int.parse(countryCode)
       ..nationalNumber = Int64.parseInt(nationalNumber);
     this.phoneNumber = phone;
     var verificationCode =

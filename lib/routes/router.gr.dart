@@ -11,17 +11,17 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
-import '../screen/app-auth/pages/loginPage.dart';
-import '../screen/app-auth/pages/verificationPage.dart';
 import '../screen/app-home/pages/homePage.dart';
 import '../screen/app-home/widgets/forward.dart';
 import '../screen/app-room/pages/roomPage.dart';
 import '../screen/app-room/widgets/showImage_Widget.dart';
-import '../screen/app_intro/pages/intro_page.dart';
 import '../screen/app_profile/pages/media_details_page.dart';
 import '../screen/app_profile/pages/profile_page.dart';
+import '../screen/intro/pages/intro_page.dart';
+import '../screen/register/pages/login_page.dart';
+import '../screen/register/pages/verification_page.dart';
 import '../screen/settings/settingsPage.dart';
-import '../screen/splashScreen/pages/splashScreen.dart';
+import '../screen/splash/pages/splash_screen.dart';
 
 class Routes {
   static const String splashScreen = '/';

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-import 'dot_animation_enum.dart';
 import 'list_rtl_language.dart';
 import 'slide_object.dart';
 
@@ -662,7 +660,8 @@ class IntroSliderState extends State<IntroSlider>
   }
 
   bool isRTLLanguage(language) {
-    return rtlLanguages.contains(language);
+    return false;
+//    return rtlLanguages.contains(language);
   }
 
   @override

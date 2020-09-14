@@ -46,5 +46,8 @@
   "avatar":"عکس پروفایل",
   "select": "انتخاب",
   "setProfile": "انتخاب عکس",
-  "delete": "حذف "
+  "delete": "حذف ",
+  "search_by_country_name": "جستجو با اسم کشورها",
+  "invalid_mobile_number": "شماره تلفن معتبر نمی‌باشد",
+  "enter_code": "کد را وارد کنید"
 }

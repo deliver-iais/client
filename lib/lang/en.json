@@ -46,9 +46,8 @@
   "avatar":"Avatar",
   "select": "Select",
   "setProfile": "Set Profile",
-  "delete": "delete "
-
-
-
-
+  "delete": "delete ",
+  "search_by_country_name": "Search by Country Name",
+  "invalid_mobile_number": "Invalid Phone Number",
+  "enter_code": "Enter Code"
 }

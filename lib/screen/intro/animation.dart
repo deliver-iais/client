@@ -68,7 +68,7 @@ class IntroAnimationController extends FlareController {
     FlareAnimationLayer layer = _animationLayers;
 
 //    layer.mix += direction * elapsed;
-    var speed = direction > 0 ? elapsed * 1.5 : elapsed * 2.5;
+    var speed = direction > 0 ? elapsed * 1.75 : elapsed * 2.5;
     layer.time += direction * speed;
 
     double mix = (_mixSeconds == null || _mixSeconds == 0.0)
