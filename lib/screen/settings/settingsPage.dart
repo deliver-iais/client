@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
@@ -18,6 +17,7 @@ import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
 import 'package:deliver_flutter/shared/language.dart';
 import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
@@ -27,6 +27,9 @@ import 'package:image_picker/image_picker.dart';
 class SettingsPage extends StatefulWidget {
   SettingState createState() => SettingState();
 }
+
+
+
 
 class SettingState extends State<SettingsPage> {
   bool darkMode = true;
@@ -76,6 +79,7 @@ class SettingState extends State<SettingsPage> {
       ],
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -135,13 +139,7 @@ class SettingState extends State<SettingsPage> {
                                   ),
                                   IconButton(
                                       icon: Icon(Icons.navigate_next),
-                                      onPressed: () {
-//                                        notificationServices.showTextNotification(
-//                                            accountRepo.currentUserUid.hashcode,
-//                                            "rr",
-//                                            context,
-//                                            "df",
-//                                            "dxd");
+                                      onPressed: () async{
                                       }),
                                 ],
                               ),

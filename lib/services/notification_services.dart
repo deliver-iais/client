@@ -6,7 +6,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
-  BuildContext _context;
   NotificationDetails _notificationDetails;
 
   Map<int, String> notificationMessage = Map();
@@ -29,38 +28,10 @@ class NotificationServices {
   }
 
   Future onDidReceiveLocalNotification(
-      int id, String title, String body, String payload) async {
-    await showDialog(
-        context: _context,
-        builder: (context) {
-          return AlertDialog(
-            titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-            actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
-            backgroundColor: Colors.white,
-            title:
-                Container(height: 80, color: Colors.blue, child: Text(title)),
-            content:
-                Text(body, style: TextStyle(color: Colors.black, fontSize: 18)),
-            actions: <Widget>[
-              GestureDetector(
-                child: Text(
-                  "Go",
-                  style: TextStyle(fontSize: 16, color: Colors.blue),
-                ),
-                onTap: () {
-                  gotoRoomPage("roomId");
-                },
-              )
-            ],
-          );
-        });
-  }
+      int id, String title, String body, String payload) async {}
 
   gotoRoomPage(String roomId) {
-    if (_context == null) {
-      return;
-    }
-    ExtendedNavigator.of(_context).push(
+    ExtendedNavigator.root.push(
       Routes.roomPage,
       arguments: RoomPageArguments(
         roomId: roomId,
@@ -77,9 +48,8 @@ class NotificationServices {
     flutterLocalNotificationsPlugin.cancelAll();
   }
 
-  showTextNotification(int notificationId, String roomId, BuildContext context,
-      String roomName, String messageBody) async {
-    _context = context;
+  showTextNotification(int notificationId, String roomId, String roomName,
+      String messageBody) async {
     if (notificationMessage[notificationId] == null) {
       notificationMessage[notificationId] = "";
     }
@@ -100,10 +70,8 @@ class NotificationServices {
         payload: roomId);
   }
 
-  showImageNotification(int notificationId, String roomId, BuildContext context,
-      String roomName, String caption, String imagePath) async {
-    _context = context;
-
+  showImageNotification(int notificationId, String roomId, String roomName,
+      String caption, String imagePath) async {
     var bigPictureStyleInformation = BigPictureStyleInformation(
       FilePathAndroidBitmap(imagePath),
       contentTitle: roomName,

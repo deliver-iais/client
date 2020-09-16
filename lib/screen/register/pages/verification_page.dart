@@ -3,6 +3,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
+import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
   AppLocalization appLocalization;
   final FocusNode focusNode = FocusNode();
   AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
+  var fireBaseServices = GetIt.I.get<FireBaseServices>();
 
   var checkPermission = GetIt.I.get<CheckPermissionsService>();
 
@@ -56,6 +58,7 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
         accountRepo.saveTokens(accessTokenResponse);
         _requestPermissions();
+        fireBaseServices.sendFireBaseToken(context);
         _navigationToHome();
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.NOT_VALID) {
