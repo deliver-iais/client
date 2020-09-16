@@ -18,6 +18,7 @@ import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/downloadFileServices.dart';
 import 'package:deliver_flutter/services/file_service.dart';
+import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
@@ -25,6 +26,7 @@ import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:fimber/fimber.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -67,6 +69,11 @@ void setupRepositories() {
   getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());
   getIt.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
+  getIt.registerSingleton<FireBaseServices>(FireBaseServices());
+}
+
+setupFlutterNotification()async {
+  await Firebase.initializeApp();
 }
 
 void setupDIAndRunApp() {
@@ -77,6 +84,8 @@ void setupDIAndRunApp() {
   getIt.allReady().then((_) {
     setupDB();
     setupRepositories();
+
+    setupFlutterNotification();
 
     FlutterDownloader.initialize();
 

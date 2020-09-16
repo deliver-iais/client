@@ -79,7 +79,7 @@ class _InputMessageWidget extends State<InputMessage> {
           child: Container(
             color: ExtraTheme.of(context).secondColor,
             child: Stack(
-              overflow: Overflow.visible,
+              // overflow: Overflow.visible,
               children: <Widget>[
                 controller.text.isEmpty
                     ? AnimatedPositioned(

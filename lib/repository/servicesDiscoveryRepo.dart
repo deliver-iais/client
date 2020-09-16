@@ -15,6 +15,11 @@ class ServicesDiscoveryRepo {
   ConnectionDetails contactServies = ConnectionDetails()
     ..host = "127.16.111.171"
     ..port = 30000;
+
+  ConnectionDetails fireBaseServies = ConnectionDetails()
+    ..host = "127.16.111.171"
+    ..port = 30000;
+
 }
 
 class ConnectionDetails {

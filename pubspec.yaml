@@ -105,6 +105,9 @@ dependencies:
   flutter_timer: 0.0.6
   uuid: 2.2.0
 
+  firebase_messaging: 7.0.0
+  firebase_core: ^0.5.0
+
   audio_recorder: 1.0.2
 
   test:
