@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -5,12 +6,10 @@ import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
-import 'package:fimber/fimber.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fixnum/fixnum.dart';
 
 const ACCESS_TOKEN_KEY = "accessToken";
@@ -28,7 +27,7 @@ class AccountRepo {
   String _refreshToken;
 
   // Dependencies
-  SharedPreferences _prefs = GetIt.I.get<SharedPreferences>();
+  SharedPreferencesDao _prefs = GetIt.I.get<SharedPreferencesDao>();
 
   static ClientChannel _clientChannel = ClientChannel(
       ServicesDiscoveryRepo().authConnection.host,
@@ -37,9 +36,10 @@ class AccountRepo {
 
   var authServiceStub = AuthServiceClient(_clientChannel);
 
-  AccountRepo() {
-    _setTokensAndCurrentUserUid(_prefs.getString(ACCESS_TOKEN_KEY),
-        _prefs.getString(REFRESH_TOKEN_KEY));
+  Future<void> init() async {
+    var accessToken = await _prefs.get(ACCESS_TOKEN_KEY);
+    var refreshToken = await _prefs.get(REFRESH_TOKEN_KEY);
+    _setTokensAndCurrentUserUid(accessToken, refreshToken);
   }
 
   Future getVerificationCode(String countryCode, String nationalNumber) async {
@@ -113,8 +113,8 @@ class AccountRepo {
     }
     _accessToken = accessToken;
     _refreshToken = refreshToken;
-    _prefs.setString(REFRESH_TOKEN_KEY, refreshToken);
-    _prefs.setString(ACCESS_TOKEN_KEY, accessToken);
+    _prefs.set(REFRESH_TOKEN_KEY, refreshToken);
+    _prefs.set(ACCESS_TOKEN_KEY, accessToken);
     setCurrentUid(accessToken);
   }
 

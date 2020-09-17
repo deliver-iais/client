@@ -3,6 +3,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
+import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:fimber/fimber.dart';
@@ -16,31 +17,18 @@ class VerificationPage extends StatefulWidget {
   _VerificationPageState createState() => _VerificationPageState();
 }
 
-class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
-  String otpCode;
+class _VerificationPageState extends State<VerificationPage> {
   bool showError = false;
   String verificationCode;
   AppLocalization appLocalization;
+
   final FocusNode focusNode = FocusNode();
+
   AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
+  CheckPermissionsService checkPermission =
+      GetIt.I.get<CheckPermissionsService>();
+
   var fireBaseServices = GetIt.I.get<FireBaseServices>();
-
-  var checkPermission = GetIt.I.get<CheckPermissionsService>();
-
-  @override
-  void initState() {
-    super.initState();
-    _listenOpt();
-  }
-
-  void _listenOpt() async {
-    await SmsAutoFill().listenForCode;
-  }
-
-  @override
-  void codeUpdated() {
-    otpCode = code;
-  }
 
   _sendVerificationCode() {
     if ((verificationCode?.length ?? 0) < 5) {
@@ -101,99 +89,103 @@ class _VerificationPageState extends State<VerificationPage> with CodeAutoFill {
   @override
   Widget build(BuildContext context) {
     appLocalization = AppLocalization.of(context);
-    return Scaffold(
-      primary: true,
-      backgroundColor: Theme.of(context).backgroundColor,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).buttonColor,
-        foregroundColor: Theme.of(context).buttonTheme.colorScheme.onPrimary,
-        child: Icon(Icons.arrow_forward),
-        onPressed: () {
-          _sendVerificationCode();
-        },
-      ),
-      appBar: AppBar(
+    return FluidWidget(
+      child: Scaffold(
+        primary: true,
         backgroundColor: Theme.of(context).backgroundColor,
-        title: Text(
-          appLocalization.getTraslateValue("verification"),
-          style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).primaryColor),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Theme.of(context).buttonColor,
+          foregroundColor: Theme.of(context).buttonTheme.colorScheme.onPrimary,
+          child: Icon(Icons.arrow_forward),
+          onPressed: () {
+            _sendVerificationCode();
+          },
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).backgroundColor,
+          title: Text(
+            appLocalization.getTraslateValue("verification"),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).primaryColor),
+          ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Column(
-              children: <Widget>[
-                SizedBox(
-                  height: 30,
-                ),
-                Icon(
-                  Icons.message,
-                  size: 50,
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  appLocalization.getTraslateValue("enter_code"),
-                  style: Theme.of(context).primaryTextTheme.headline5,
-                ),
-                SizedBox(
-                  height: 30,
-                ),
-                Text(
-                  appLocalization.getTraslateValue("sendCode"),
-                  style: Theme.of(context).primaryTextTheme.bodyText2,
-                ),
-                SizedBox(
-                  height: 30,
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.only(left: 30, right: 30, bottom: 30),
-                  child: PinFieldAutoFill(
-                    autofocus: true,
-                    focusNode: focusNode,
-                    codeLength: 5,
-                    decoration: UnderlineDecoration(
-                        enteredColor: Theme.of(context).primaryColor,
-                        color: Theme.of(context).accentColor,
-                        textStyle: Theme.of(context)
-                            .primaryTextTheme
-                            .headline4
-                            .copyWith(color: Theme.of(context).primaryColor)),
-                    currentCode: verificationCode,
-                    onCodeSubmitted: (code) {
-                      verificationCode = code;
-                      _sendVerificationCode();
-                    },
-                    onCodeChanged: (code) {
-                      Fimber.d(verificationCode);
-                      verificationCode = code;
-                      if (code.length == 5) {
-                        _sendVerificationCode();
-                      }
-                    },
+        body: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: 30,
                   ),
-                ),
-                showError
-                    ? Text(
-                        appLocalization.getTraslateValue("wrongCode"),
-                        style: Theme.of(context)
-                            .primaryTextTheme
-                            .subtitle1
-                            .copyWith(color: Theme.of(context).errorColor),
-                      )
-                    : Container(),
-              ],
-            ),
-          ],
+                  Icon(
+                    Icons.message,
+                    size: 50,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    appLocalization.getTraslateValue("enter_code"),
+                    style: Theme.of(context).primaryTextTheme.headline5,
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Text(
+                    appLocalization.getTraslateValue("sendCode"),
+                    style: Theme.of(context).primaryTextTheme.bodyText2,
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(left: 30, right: 30, bottom: 30),
+                    child: PinFieldAutoFill(
+                      autofocus: true,
+                      focusNode: focusNode,
+                      codeLength: 5,
+                      decoration: UnderlineDecoration(
+                          colorBuilder: PinListenColorBuilder(
+                              Theme.of(context).primaryColor,
+                              Theme.of(context).accentColor),
+                          textStyle: Theme.of(context)
+                              .primaryTextTheme
+                              .headline4
+                              .copyWith(color: Theme.of(context).primaryColor)),
+                      currentCode: verificationCode,
+                      onCodeSubmitted: (code) {
+                        verificationCode = code;
+                        Fimber.d(verificationCode);
+                        _sendVerificationCode();
+                      },
+                      onCodeChanged: (code) {
+                        Fimber.d(verificationCode);
+                        verificationCode = code;
+                        if (code.length == 5) {
+                          _sendVerificationCode();
+                        }
+                      },
+                    ),
+                  ),
+                  showError
+                      ? Text(
+                          appLocalization.getTraslateValue("wrongCode"),
+                          style: Theme.of(context)
+                              .primaryTextTheme
+                              .subtitle1
+                              .copyWith(color: Theme.of(context).errorColor),
+                        )
+                      : Container(),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

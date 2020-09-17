@@ -7,6 +7,7 @@ import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/LastAvatarDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
+import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
@@ -16,7 +17,6 @@ import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart' as R;
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
-import 'package:deliver_flutter/services/downloadFileServices.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/services/message_service.dart';
@@ -25,16 +25,16 @@ import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/sizing.dart';
 import 'package:fimber/fimber.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
-import './db/dao/MessageDao.dart';
+import 'package:window_size/window_size.dart';
+import 'db/dao/MessageDao.dart';
 import 'db/dao/RoomDao.dart';
 import 'repository/servicesDiscoveryRepo.dart';
 
@@ -50,6 +50,7 @@ void setupDB() {
   getIt.registerSingleton<MediaDao>(db.mediaDao);
   getIt.registerSingleton<PendingMessageDao>(db.pendingMessageDao);
   getIt.registerSingleton<LastAvatarDao>(db.lastAvatarDao);
+  getIt.registerSingleton<SharedPreferencesDao>(db.sharedPreferencesDao);
 }
 
 void setupRepositories() {
@@ -59,7 +60,6 @@ void setupRepositories() {
   getIt.registerSingleton<AccountRepo>(AccountRepo());
   getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
-  getIt.registerSingleton<DownloadFileServices>(DownloadFileServices());
   getIt.registerSingleton<MessageService>(MessageService());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
@@ -77,32 +77,44 @@ setupFlutterNotification()async {
 }
 
 void setupDIAndRunApp() {
-  GetIt getIt = GetIt.instance;
-
-  getIt.registerSingletonAsync<SharedPreferences>(
-      () async => await SharedPreferences.getInstance());
-  getIt.allReady().then((_) {
-    setupDB();
-    setupRepositories();
-
-    setupFlutterNotification();
-
-    FlutterDownloader.initialize();
-
-    runApp(MyApp());
-  });
+  setupDB();
+  setupRepositories();
+  setupFlutterNotification();
+  runApp(MyApp());
 }
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   Fimber.plantTree(DebugTree.elapsed());
   Fimber.i("Application has been started");
-  SmsAutoFill()
-      .getAppSignature
-      .then((signCode) => Fimber.d("APP_SIGN_CODE for SMS: $signCode"));
+
+  if (isDesktop()) {
+    _setWindowSize();
+
+    setWindowTitle("Deliver");
+  }
+
+  if (isAndroid()) {
+    SmsAutoFill()
+        .getAppSignature
+        .then((signCode) => Fimber.d("APP_SIGN_CODE for SMS: $signCode"));
+  }
 
   setupDIAndRunApp();
 }
+
+_setWindowSize() async {
+  var platformWindow = await getWindowInfo();
+  setWindowMinSize(Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
+  setWindowMaxSize(Size(
+      platformWindow.screen.frame.width, platformWindow.screen.frame.height));
+}
+
+// DynamicLibrary _openOnLinux() {
+//   final script = File(Platform.script.toFilePath());
+//   final libraryNextToScript = File('${script.path}/sqlite3');
+//   return DynamicLibrary.open(libraryNextToScript.path);
+// }
 
 class MyApp extends StatelessWidget {
   @override
@@ -151,12 +163,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-//TODO
-//ConvertTime To Shared
-//edit details
-//edit ChatItem
-//delete extra models
-//edit address of files
-//userid for chat item
-//message doesnt send in database?

@@ -7,14 +7,14 @@ packages:
       name: _fe_analyzer_shared
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.0.0"
+    version: "7.0.0"
   analyzer:
     dependency: transitive
     description:
       name: analyzer
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.39.14"
+    version: "0.39.17"
   analyzer_plugin:
     dependency: transitive
     description:
@@ -71,13 +71,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.8"
-  auto_size_text:
-    dependency: "direct main"
-    description:
-      name: auto_size_text
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.1.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -119,7 +112,7 @@ packages:
       name: build_runner
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.10.1"
+    version: "1.10.2"
   build_runner_core:
     dependency: transitive
     description:
@@ -224,14 +217,14 @@ packages:
       name: coverage
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.11"
+    version: "0.14.1"
   crypto:
     dependency: transitive
     description:
       name: crypto
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.4"
+    version: "2.1.5"
   csslib:
     dependency: transitive
     description:
@@ -245,7 +238,7 @@ packages:
       name: cupertino_icons
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.3"
+    version: "1.0.0"
   dart_style:
     dependency: transitive
     description:
@@ -264,11 +257,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.3.0"
-      resolved-ref: "023f39afea376874f898769190ddb3aa5d628c84"
+      ref: "tags/v1.3.1"
+      resolved-ref: "8aedff993dda69be4dd24139241b87d145e6724c"
       url: "https://gitlab.iais.co/deliver/protocol/pub-dart-artifactory.git"
     source: git
-    version: "1.3.0"
+    version: "1.3.1"
   dio:
     dependency: "direct main"
     description:
@@ -283,13 +276,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0"
-  emoji_picker:
-    dependency: "direct main"
-    description:
-      name: emoji_picker
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.0"
   emojis:
     dependency: "direct main"
     description:
@@ -325,20 +311,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.2.1"
-  file_picker:
-    dependency: "direct main"
-    description:
-      name: file_picker
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.13.3"
-  file_picker_platform_interface:
-    dependency: transitive
-    description:
-      name: file_picker_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.3.1"
   fimber:
     dependency: "direct main"
     description:
@@ -420,14 +392,7 @@ packages:
       name: flutter_cache_manager
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.1"
-  flutter_downloader:
-    dependency: "direct main"
-    description:
-      name: flutter_downloader
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.5.0"
+    version: "1.4.2"
   flutter_isolate:
     dependency: transitive
     description:
@@ -474,7 +439,7 @@ packages:
       name: flutter_plugin_android_lifecycle
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.8"
+    version: "1.0.9"
   flutter_swiper:
     dependency: "direct main"
     description:
@@ -547,7 +512,7 @@ packages:
       name: grpc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.3"
+    version: "2.2.0"
   html:
     dependency: transitive
     description:
@@ -738,7 +703,7 @@ packages:
     source: hosted
     version: "1.9.3"
   path:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path
       url: "https://pub.dartlang.org"
@@ -764,7 +729,7 @@ packages:
       name: path_provider_macos
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.4+3"
+    version: "0.0.4+4"
   path_provider_platform_interface:
     dependency: transitive
     description:
@@ -786,20 +751,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.4"
-  photo_manager:
-    dependency: "direct main"
-    description:
-      name: photo_manager
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.5.7"
   pin_input_text_field:
     dependency: transitive
     description:
       name: pin_input_text_field
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.7"
+    version: "3.1.1"
   platform:
     dependency: transitive
     description:
@@ -841,7 +799,7 @@ packages:
       name: provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.3.2+1"
+    version: "4.3.2+2"
   pub_semver:
     dependency: transitive
     description:
@@ -884,41 +842,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.24.1"
-  shared_preferences:
-    dependency: "direct main"
-    description:
-      name: shared_preferences
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.5.10"
-  shared_preferences_linux:
-    dependency: transitive
-    description:
-      name: shared_preferences_linux
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.2+2"
-  shared_preferences_macos:
-    dependency: transitive
-    description:
-      name: shared_preferences_macos
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.1+10"
-  shared_preferences_platform_interface:
-    dependency: transitive
-    description:
-      name: shared_preferences_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.4"
-  shared_preferences_web:
-    dependency: transitive
-    description:
-      name: shared_preferences_web
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.2+7"
   shelf:
     dependency: transitive
     description:
@@ -958,7 +881,7 @@ packages:
       name: sms_autofill
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.4"
+    version: "1.2.5"
   source_gen:
     dependency: transitive
     description:
@@ -1036,13 +959,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.4+7"
-  sticky_headers:
-    dependency: "direct main"
-    description:
-      name: sticky_headers
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.8+1"
   storage_path:
     dependency: "direct main"
     description:
@@ -1182,7 +1098,7 @@ packages:
       name: vm_service
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.2.0"
+    version: "5.0.0+1"
   watcher:
     dependency: transitive
     description:
@@ -1204,13 +1120,22 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.7.3"
+  window_size:
+    dependency: "direct main"
+    description:
+      path: "plugins/window_size"
+      ref: "0efb6b14a802a01b5432b2a2ee97c7f4821f2ab2"
+      resolved-ref: "0efb6b14a802a01b5432b2a2ee97c7f4821f2ab2"
+      url: "git://github.com/google/flutter-desktop-embedding.git"
+    source: git
+    version: "0.1.0"
   xdg_directories:
     dependency: transitive
     description:
       name: xdg_directories
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.0"
+    version: "0.1.2"
   yaml:
     dependency: transitive
     description:
