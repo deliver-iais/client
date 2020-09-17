@@ -49,5 +49,6 @@
   "delete": "حذف ",
   "search_by_country_name": "جستجو با اسم کشورها",
   "invalid_mobile_number": "شماره تلفن معتبر نمی‌باشد",
-  "enter_code": "کد را وارد کنید"
+  "enter_code": "کد را وارد کنید",
+  "Log_out": "خروج از حساب کاربری"
 }
