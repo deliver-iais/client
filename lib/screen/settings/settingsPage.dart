@@ -1,23 +1,19 @@
-
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
+import 'package:deliver_flutter/db/database.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
 
 import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 
 import 'package:deliver_flutter/services/downloadFileServices.dart';
-import 'package:deliver_flutter/services/notification_services.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
 import 'package:deliver_flutter/shared/language.dart';
 import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
@@ -28,9 +24,6 @@ class SettingsPage extends StatefulWidget {
   SettingState createState() => SettingState();
 }
 
-
-
-
 class SettingState extends State<SettingsPage> {
   bool darkMode = true;
   bool notification = true;
@@ -38,7 +31,6 @@ class SettingState extends State<SettingsPage> {
   var contactDao = GetIt.I.get<ContactDao>();
   var downloadFile = GetIt.I.get<DownloadFileServices>();
   var fileRepo = GetIt.I.get<FileRepo>();
-  var notificationServices = GetIt.I.get<NotificationServices>();
 
   var accountRepo = GetIt.I.get<AccountRepo>();
   var theme = false;
@@ -79,7 +71,6 @@ class SettingState extends State<SettingsPage> {
       ],
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -139,8 +130,7 @@ class SettingState extends State<SettingsPage> {
                                   ),
                                   IconButton(
                                       icon: Icon(Icons.navigate_next),
-                                      onPressed: () async{
-                                      }),
+                                      onPressed: () {}),
                                 ],
                               ),
                             )
@@ -187,20 +177,7 @@ class SettingState extends State<SettingsPage> {
                                   ),
                                   IconButton(
                                       icon: Icon(Icons.navigate_next),
-                                      onPressed: () async {
-//                                        final file = await ImagePicker()
-//                                            .getImage(
-//                                                source: ImageSource.gallery);
-//                                        notificationServices
-//                                            .showImageNotification(
-//                                                accountRepo
-//                                                    .currentUserUid.hashcode,
-//                                                "d",
-//                                                context,
-//                                                "dd",
-//                                                "ffffffffffff",
-//                                                file.path);
-                                      }),
+                                      onPressed: () {}),
                                 ],
                               ),
                             ),
@@ -345,14 +322,53 @@ class SettingState extends State<SettingsPage> {
                           ],
                         ),
                       ),
-                      SizedBox(
-                        height: 40,
-                      )
+                      Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color:
+                                    ExtraTheme.of(context).borderOfProfilePage),
+                            color:
+                                ExtraTheme.of(context).backgroundOfProfilePage,
+                          ),
+                          height: 60,
+                          padding: const EdgeInsetsDirectional.only(
+                              start: 5, end: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                  child: Row(children: [
+                                IconButton(
+                                  icon: Icon(Icons.exit_to_app),
+                                  iconSize: 15,
+                                  onPressed: () {
+                                    deleteDb();
+                                    Navigator.of(context).pushAndRemoveUntil(
+                                        new MaterialPageRoute(
+                                            builder: (context) => IntroPage()),
+                                        (Route<dynamic> route) => false);
+                                  },
+                                ),
+                                SizedBox(width: 5),
+                                Text(
+                                  "Log out",
+                                  style: TextStyle(
+                                      color: ExtraTheme.of(context).text,
+                                      fontSize: 13),
+                                ),
+                              ])),
+                            ],
+                          )),
                     ])),
                   ];
                 },
                 body: SizedBox(
                   height: 10,
                 ))));
+  }
+
+  Future<void> deleteDb() async {
+    Database db = Database();
+    await db.deleteAllData();
   }
 }
