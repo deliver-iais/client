@@ -61,6 +61,15 @@ class Database extends _$Database {
   @override
   int get schemaVersion => 7;
 
+  Future<void> deleteAllData() async {
+    return transaction(() async {
+      for (var table in allTables) {
+        await delete(table).go();
+      }
+    });
+  }
+
+
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onUpgrade: (migrator, from, to) async {
