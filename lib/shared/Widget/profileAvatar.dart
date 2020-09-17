@@ -6,6 +6,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
+import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:dots_indicator/dots_indicator.dart';
@@ -28,15 +29,13 @@ class ProfileAvatar extends StatefulWidget {
 }
 
 class _ProfileAvatarState extends State<ProfileAvatar> {
-  bool uploadAvatar = false;
   double currentAvatarIndex = 0;
   bool showProgressBar = false;
   final selectedImages = Map<int, bool>();
   var avatarRepo = GetIt.I.get<AvatarRepo>();
   var fileRepo = GetIt.I.get<FileRepo>();
   List<Avatar> _avatars = new List();
-  List<FileInfo> localAvatars = new List();
-  int dotsCount = 0;
+  String uploadAvatarPath;
 
   showBottomSheet() {
     showModalBottomSheet(
@@ -59,13 +58,11 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                       child: ShareBoxGallery(
                         scrollController: scrollController,
                         onClick: (File croppedFile) async {
-                          localAvatars = localAvatars.reversed.toList();
-                          localAvatars.add(FileInfo(path: croppedFile.path));
-                          localAvatars = localAvatars.reversed.toList();
                           setState(() {
-                            this.uploadAvatar = true;
                             showProgressBar = true;
+                            uploadAvatarPath = croppedFile.path;
                           });
+
                           Avatar uploadeadAvatar =
                               await avatarRepo.uploadAvatar(croppedFile);
                           if (uploadeadAvatar != null) {
@@ -102,16 +99,14 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     avatarRepo.deleteAvatar(_avatars.elementAt(currentAvatarIndex.round()));
     _avatars.removeAt(currentAvatarIndex.round());
     setState(() {
-      localAvatars.removeAt(currentAvatarIndex.round());
-      dotsCount > 0 ? dotsCount = dotsCount - 1 : dotsCount = 0;
       currentAvatarIndex > 0
           ? currentAvatarIndex = currentAvatarIndex - 1
           : currentAvatarIndex = 0;
     });
   }
 
-  Widget backgroundImage(List<FileInfo> files) {
-    dotsCount = files.length;
+  Widget backgroundImage(List<Avatar> _avatars) {
+    this._avatars = _avatars;
     return Container(
       child: Stack(
         children: <Widget>[
@@ -125,44 +120,43 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                 });
               },
             ),
-            items: files.map((file) {
+            items: _avatars.map((avatar) {
               return Builder(
                 builder: (BuildContext context) {
                   return Stack(
                     children: <Widget>[
                       Container(
-                        child: Image.file(
-                          File(file.path),
-                          fit: BoxFit.cover,
-                          height: MediaQuery.of(context).size.width,
-                          width: MediaQuery.of(context).size.width,
+                        child: FutureBuilder<File>(
+                          future: fileRepo.getFile(avatar.fileId, avatar.fileName),
+                          builder:
+                              (BuildContext c, AsyncSnapshot<File> snaps) {
+                            if (snaps.hasData && snaps.data != null) {
+                              return Image.file(
+                                File(snaps.data.path),
+                                fit: BoxFit.cover,
+                                height: MediaQuery.of(context).size.width,
+                                width: MediaQuery.of(context).size.width,
+                              );
+                            } else {
+                              return Container(
+                                child: SizedBox.shrink(),
+                                color: Colors.blueAccent,
+                              );
+                            }
+                          },
                         ),
                         foregroundDecoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              showProgressBar
-                                  ? Color.fromARGB(200, 0, 0, 0)
-                                  : Colors.transparent,
+                              Colors.transparent,
                               Color.fromARGB(150, 0, 0, 0)
                             ],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            stops: [showProgressBar ? 0.6 : 0, 1],
+                            stops: [0, 1],
                           ),
                         ),
                       ),
-                      showProgressBar
-                          ? Center(
-                              child: SizedBox(
-                                  height: 100.0,
-                                  width: 100.0,
-                                  child: CircularProgressIndicator(
-                                    valueColor:
-                                        AlwaysStoppedAnimation(Colors.blue),
-                                    strokeWidth: 6.0,
-                                  )),
-                            )
-                          : SizedBox.shrink(),
                     ],
                   );
                 },
@@ -173,7 +167,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               ? Align(
                   alignment: Alignment.bottomCenter,
                   child: DotsIndicator(
-                    dotsCount: dotsCount,
+                    dotsCount: _avatars.length,
                     position: currentAvatarIndex,
                     decorator: DotsDecorator(
                       size: const Size(5.0, 5.0),
@@ -239,33 +233,44 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                   ],
                 )),
           ),
-          background: uploadAvatar
-              ? backgroundImage(localAvatars)
+          background: showProgressBar
+              ? Stack(
+                  children: [
+                    Container(
+                      child: Image.file(
+                        File(uploadAvatarPath),
+                        fit: BoxFit.cover,
+                        height: MediaQuery.of(context).size.width,
+                        width: MediaQuery.of(context).size.width,
+                      ),
+                      foregroundDecoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color.fromARGB(200, 0, 0, 0)],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          stops: [showProgressBar ? 0.6 : 0, 1],
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: SizedBox(
+                          height: 100.0,
+                          width: 100.0,
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation(Colors.blue),
+                            strokeWidth: 6.0,
+                          )),
+                    )
+                  ],
+                )
               : StreamBuilder<List<Avatar>>(
-                  stream: avatarRepo.getAvatar(widget.userUid,true),
+                  stream: avatarRepo.getAvatar(widget.userUid, true),
                   builder: (BuildContext context,
                       AsyncSnapshot<List<Avatar>> snapshot) {
                     if (snapshot.hasData &&
                         snapshot.data != null &&
                         snapshot.data.length > 0) {
-                      return FutureBuilder<List<FileInfo>>(
-                        future: fileRepo.getAvatarsFile(snapshot.data),
-                        builder: (BuildContext c,
-                            AsyncSnapshot<List<FileInfo>> snaps) {
-                          if (snaps.hasData &&
-                              snaps.data != null &&
-                              snaps.data.length > 0) {
-                            _avatars = snapshot.data;
-                            localAvatars = snaps.data;
-                            return backgroundImage(snaps.data);
-                          } else {
-                            return Container(
-                              child: SizedBox.shrink(),
-                              color: Colors.blueAccent,
-                            );
-                          }
-                        },
-                      );
+                      return backgroundImage(snapshot.data);
                     } else {
                       return Container(
                         child: SizedBox.shrink(),
