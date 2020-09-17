@@ -273,7 +273,7 @@ class SettingState extends State<SettingsPage> {
                         ),
                         height: 60,
                         padding: const EdgeInsetsDirectional.only(
-                            start: 13, end: 15),
+                            start: 5, end: 15),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
@@ -334,24 +334,24 @@ class SettingState extends State<SettingsPage> {
                           padding: const EdgeInsetsDirectional.only(
                               start: 5, end: 15),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Container(
                                   child: Row(children: [
-                                IconButton(
-                                  icon: Icon(Icons.exit_to_app),
-                                  iconSize: 15,
-                                  onPressed: () {
-                                    deleteDb();
-                                    Navigator.of(context).pushAndRemoveUntil(
-                                        new MaterialPageRoute(
-                                            builder: (context) => IntroPage()),
-                                        (Route<dynamic> route) => false);
-                                  },
-                                ),
-                                SizedBox(width: 5),
+                                    GestureDetector(
+                                      child:Icon(Icons.exit_to_app,size: 15,) ,
+                                      onTap: (){
+                                        deleteDb();
+                                        Navigator.of(context).pushAndRemoveUntil(
+                                            new MaterialPageRoute(
+                                                builder: (context) => IntroPage()),
+                                                (Route<dynamic> route) => false);
+                                      },
+                                    ),
+                                SizedBox(width: 5,),
+                              
                                 Text(
-                                  "Log out",
+                                  appLocalization.getTraslateValue("Log_out"),
                                   style: TextStyle(
                                       color: ExtraTheme.of(context).text,
                                       fontSize: 13),
