@@ -3,6 +3,8 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/intro/custom_library/intro_slider.dart';
 import 'package:deliver_flutter/screen/intro/custom_library/slide_object.dart';
+import 'package:deliver_flutter/shared/fluid.dart';
+import 'package:deliver_flutter/theme/sizing.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
@@ -40,67 +42,35 @@ class _IntroPageState extends State<IntroPage> {
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    double animationSize = MediaQuery.of(context).size.width * .7;
-    double paddingTop = 80;
-    return Stack(
-      children: [
-        Align(
-          alignment: Alignment.topCenter,
-          child: Container(
-            width: animationSize,
-            height: animationSize + paddingTop,
-            padding: EdgeInsets.only(top: paddingTop),
-            child: FlareActor(
-              "assets/images/a.flr",
-              alignment: Alignment.center,
-              fit: BoxFit.contain,
-              antialias: false,
-              controller: introAnimationController,
+    double animationSize = ANIMATION_SQUARE_SIZE(context);
+    double paddingTop = ANIMATION_TOP_PADDING(context);
+    return FluidWidget(
+      child: Stack(
+        children: [
+          Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+              width: animationSize,
+              height: animationSize + paddingTop,
+              padding: EdgeInsets.only(top: paddingTop),
+              child: FlareActor(
+                "assets/images/a.flr",
+                alignment: Alignment.center,
+                fit: BoxFit.contain,
+                antialias: false,
+                controller: introAnimationController,
+              ),
             ),
           ),
-        ),
-        Container(
-          child: IntroSlider(
-            paddingTop: animationSize + paddingTop,
-            slides: [
-              Slide(
-                widgetTitle: Column(
-                  children: <Widget>[
-                    Container(
-                      child: Text(
-                        'Deliver',
-                        style: TextStyle(
-                          color: Color(0xFF2699FB),
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        width: 200,
+          Container(
+            child: IntroSlider(
+              slides: [
+                Slide(
+                  widgetTitle: Column(
+                    children: <Widget>[
+                      Container(
                         child: Text(
-                          'The world`s fastest messaging app. It is free and secure.',
-                          style: TextStyle(
-                            color: Color(0xFF2699FB),
-                            fontSize: 14,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              Slide(
-                widgetTitle: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Container(
-                        child: Text(
-                          'Fast',
+                          'Deliver',
                           style: TextStyle(
                             color: Color(0xFF2699FB),
                             fontSize: 22,
@@ -108,110 +78,147 @@ class _IntroPageState extends State<IntroPage> {
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        width: 200,
-                        child: Text(
-                          'WeWork delivers messages fastest than any other application.',
-                          style: TextStyle(
-                            color: Color(0xFF2699FB),
-                            fontSize: 14,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          width: animationSize,
+                          child: Text(
+                            'The world`s fastest messaging app. It is free and secure.',
+                            style: TextStyle(
+                              color: Color(0xFF2699FB),
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                      ),
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 ),
-              ),
-              Slide(
-                widgetTitle: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Container(
-                        child: Text(
-                          'Powerful',
-                          style: TextStyle(
-                            color: Color(0xFF2699FB),
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
+                Slide(
+                  widgetTitle: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Container(
+                          child: Text(
+                            'Fast',
+                            style: TextStyle(
+                              color: Color(0xFF2699FB),
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        width: 200,
-                        child: Text(
-                          'Messenger has no limits on the size of your media and chats.',
-                          style: TextStyle(
-                            color: Color(0xFF2699FB),
-                            fontSize: 14,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          width: animationSize,
+                          child: Text(
+                            'WeWork delivers messages fastest than any other application.',
+                            style: TextStyle(
+                              color: Color(0xFF2699FB),
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                      ),
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 ),
-              ),
-              Slide(
-                widgetTitle: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Container(
-                        child: Text(
-                          'Secure',
-                          style: TextStyle(
-                            color: Color(0xFF2699FB),
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
+                Slide(
+                  widgetTitle: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Container(
+                          child: Text(
+                            'Powerful',
+                            style: TextStyle(
+                              color: Color(0xFF2699FB),
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        width: 200,
-                        child: Text(
-                          'Messenger keeps your messages safe from hacker attacks.',
-                          style: TextStyle(
-                            color: Color(0xFF2699FB),
-                            fontSize: 14,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          width: animationSize,
+                          child: Text(
+                            'Messenger has no limits on the size of your media and chats.',
+                            style: TextStyle(
+                              color: Color(0xFF2699FB),
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                      ),
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 ),
-              ),
-            ],
-            nameDoneBtn: appLocalization.getTraslateValue("done"),
-            nameSkipBtn: appLocalization.getTraslateValue("skip"),
-            nameNextBtn: appLocalization.getTraslateValue("next"),
-            onDonePress: navigateToLoginPage,
-            styleNameSkipBtn: TextStyle(color: Theme.of(context).primaryColor),
-            styleNameDoneBtn: TextStyle(color: Theme.of(context).primaryColor),
-            styleNamePrevBtn: TextStyle(color: Theme.of(context).primaryColor),
-            colorDot: Color(0xFFBCE0FD),
-            colorActiveDot: Theme.of(context).primaryColor,
-            onSkipPress: navigateToLoginPage,
-            onAnimationChange: (d) {
-              subject.add(d);
-            },
+                Slide(
+                  widgetTitle: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Container(
+                          child: Text(
+                            'Secure',
+                            style: TextStyle(
+                              color: Color(0xFF2699FB),
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          width: animationSize,
+                          child: Text(
+                            'Messenger keeps your messages safe from hacker attacks.',
+                            style: TextStyle(
+                              color: Color(0xFF2699FB),
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ],
+              widthDoneBtn: 300,
+              nameDoneBtn: appLocalization.getTraslateValue("done"),
+              nameSkipBtn: appLocalization.getTraslateValue("skip"),
+              nameNextBtn: appLocalization.getTraslateValue("next"),
+              onDonePress: navigateToLoginPage,
+              styleNameSkipBtn:
+                  TextStyle(color: Theme.of(context).primaryColor),
+              styleNameDoneBtn:
+                  TextStyle(color: Theme.of(context).primaryColor),
+              styleNamePrevBtn:
+                  TextStyle(color: Theme.of(context).primaryColor),
+              colorDot: Color(0xFFBCE0FD),
+              colorActiveDot: Theme.of(context).primaryColor,
+              onSkipPress: navigateToLoginPage,
+              onAnimationChange: (d) {
+                subject.add(d);
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

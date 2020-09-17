@@ -4,6 +4,8 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'appbarTitle.dart';
 import 'package:deliver_flutter/shared/appbarPic.dart';
 import 'package:flutter/material.dart';
@@ -11,17 +13,18 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 
 class Appbar extends StatelessWidget {
-  var accountRepo =  GetIt.I.get<AccountRepo>();
+  var accountRepo = GetIt.I.get<AccountRepo>();
+
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
     return AppBar(
-      leading: new IconButton(
+      leading: ExtendedNavigator.of(context).canPop() ? new IconButton(
         icon: new Icon(Icons.arrow_back),
         onPressed: () {
           ExtendedNavigator.of(context).pop();
         },
-      ),
+      ): null,
       backgroundColor: Theme.of(context).backgroundColor,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -66,8 +69,20 @@ class Appbar extends StatelessWidget {
                               child: Text(appLocalization
                                   .getTraslateValue("gotoProfile")),
                               onTap: () {
-                                ExtendedNavigator.of(context)
-                                    .push(Routes.profilePage,arguments:ProfilePageArguments(userUid: accountRepo.currentUserUid));
+                                ExtendedNavigator.of(context).push(
+                                    Routes.profilePage,
+                                    arguments: ProfilePageArguments(
+                                        userUid: accountRepo.currentUserUid));
+                              },
+                            )),
+                        PopupMenuItem(
+                            child: GestureDetector(
+                              child: Text("Go to Group"),
+                              onTap: () {
+                                ExtendedNavigator.of(context).push(
+                                    Routes.profilePage,
+                                    arguments: ProfilePageArguments(
+                                        userUid: Uid()..category = Categories.Group..node = "123123"));
                               },
                             )),
                             PopupMenuItem(

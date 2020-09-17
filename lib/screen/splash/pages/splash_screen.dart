@@ -17,7 +17,10 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    accountRepo.isLoggedIn() ? _navigateToHomePage() : _navigateToIntroPage();
+    accountRepo.init().then((_) {
+//      _navigateToIntroPage();
+      accountRepo.isLoggedIn() ? _navigateToHomePage() : _navigateToIntroPage();
+    });
   }
 
   void _navigateToIntroPage() {
@@ -25,15 +28,10 @@ class _SplashScreenState extends State<SplashScreen> {
         .pushAndRemoveUntil(Routes.introPage, (_) => false);
   }
 
-  void _navigateToLoginPage() {
-    ExtendedNavigator.of(context)
-        .pushAndRemoveUntil(Routes.loginPage, (_) => false);
-  }
-
   void _navigateToHomePage() {
     ExtendedNavigator.of(context).pushAndRemoveUntil(
       Routes.homePage,
-      (_) => false,
+          (_) => false,
     );
   }
 

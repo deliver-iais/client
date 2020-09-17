@@ -7,8 +7,6 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 
-import 'package:deliver_flutter/services/downloadFileServices.dart';
-
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
 import 'package:deliver_flutter/shared/language.dart';
@@ -29,7 +27,6 @@ class SettingState extends State<SettingsPage> {
   bool notification = true;
   var uxService = GetIt.I.get<UxService>();
   var contactDao = GetIt.I.get<ContactDao>();
-  var downloadFile = GetIt.I.get<DownloadFileServices>();
   var fileRepo = GetIt.I.get<FileRepo>();
 
   var accountRepo = GetIt.I.get<AccountRepo>();

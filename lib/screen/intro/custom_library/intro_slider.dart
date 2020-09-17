@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/theme/sizing.dart';
 import 'package:flutter/material.dart';
 
 import 'list_rtl_language.dart';
@@ -121,8 +122,6 @@ class IntroSlider extends StatefulWidget {
 
   final Function onAnimationChange;
 
-  final double paddingTop;
-
   // Constructor
   IntroSlider({
     // Slides
@@ -177,12 +176,12 @@ class IntroSlider extends StatefulWidget {
 
     // Behavior
     this.onAnimationChange,
-    this.paddingTop});
+  });
 
   @override
   IntroSliderState createState() {
     return new IntroSliderState(
-      // Slides
+        // Slides
         slides: this.slides,
         backgroundColorAllSlides: this.backgroundColorAllSlides,
 
@@ -233,8 +232,7 @@ class IntroSlider extends StatefulWidget {
         listCustomTabs: this.listCustomTabs,
 
         // Behavior
-        onAnimationChange: this.onAnimationChange,
-        paddingTop: this.paddingTop);
+        onAnimationChange: this.onAnimationChange);
   }
 }
 
@@ -366,8 +364,6 @@ class IntroSliderState extends State<IntroSlider>
 
   Function onAnimationChange;
 
-  double paddingTop;
-
   // Constructor
   IntroSliderState({
     // List slides
@@ -420,7 +416,6 @@ class IntroSliderState extends State<IntroSlider>
     // Tabs
     @required this.listCustomTabs,
     @required this.onAnimationChange,
-    @required this.paddingTop
   });
 
   TabController tabController;
@@ -476,7 +471,7 @@ class IntroSliderState extends State<IntroSlider>
         }
 
         double diffValueAnimation =
-        (tabController.animation.value - currentAnimationValue).abs();
+            (tabController.animation.value - currentAnimationValue).abs();
         int diffValueIndex = (currentTabIndex - tabController.index).abs();
 
         // When press skip button
@@ -527,12 +522,6 @@ class IntroSliderState extends State<IntroSlider>
     }
 
     setupButtonDefaultValues();
-
-    if (this.listCustomTabs == null) {
-      renderListTabs();
-    } else {
-      tabs = this.listCustomTabs;
-    }
   }
 
   void setupButtonDefaultValues() {
@@ -655,7 +644,7 @@ class IntroSliderState extends State<IntroSlider>
   // Checking if tab is animating
   bool isAnimating(value) {
     return tabController.animation.value -
-        tabController.animation.value.truncate() !=
+            tabController.animation.value.truncate() !=
         0;
   }
 
@@ -666,6 +655,11 @@ class IntroSliderState extends State<IntroSlider>
 
   @override
   Widget build(BuildContext context) {
+    if (this.listCustomTabs == null) {
+      tabs = renderListTabs();
+    } else {
+      tabs = this.listCustomTabs;
+    }
     return Scaffold(
       body: DefaultTabController(
         length: slides.length,
@@ -686,10 +680,7 @@ class IntroSliderState extends State<IntroSlider>
 
   Widget buildSkipButton() {
     if (tabController.index + 1 == slides.length) {
-      return Container(width: MediaQuery
-          .of(context)
-          .size
-          .width / 4);
+      return Container();
     } else {
       return FlatButton(
         onPressed: onSkipPress,
@@ -715,10 +706,7 @@ class IntroSliderState extends State<IntroSlider>
 
   Widget buildPrevButton() {
     if (tabController.index == 0) {
-      return Container(width: MediaQuery
-          .of(context)
-          .size
-          .width / 4);
+      return Container();
     } else {
       return FlatButton(
         onPressed: () {
@@ -760,33 +748,24 @@ class IntroSliderState extends State<IntroSlider>
             child: isShowSkipBtn
                 ? buildSkipButton()
                 : (isShowPrevBtn ? buildPrevButton() : Container()),
-            width: isShowSkipBtn
-                ? widthSkipBtn ?? MediaQuery
-                .of(context)
-                .size
-                .width / 4
-                : (isShowPrevBtn
-                ? widthPrevBtn
-                : MediaQuery
-                .of(context)
-                .size
-                .width / 4),
           ),
 
           // Dot indicator
           Flexible(
             child: isShowDotIndicator
                 ? Container(
-              child: Stack(
-                children: <Widget>[
-                  Row(
-                    children: this.renderListDots(),
-                    mainAxisAlignment: MainAxisAlignment.center,
-                  ),
-                  Container()
-                ],
-              ),
-            )
+                    child: Stack(
+                      children: <Widget>[
+                        Row(
+                          children: (tabController.index + 1 == slides.length)
+                              ? [Container()]
+                              : this.renderListDots(),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                        ),
+                        Container()
+                      ],
+                    ),
+                  )
                 : Container(),
           ),
 
@@ -794,12 +773,12 @@ class IntroSliderState extends State<IntroSlider>
           Container(
             alignment: Alignment.center,
             child: tabController.index + 1 == slides.length
-                ? isShowDoneBtn ? buildDoneButton() : Container()
-                : isShowNextBtn ? buildNextButton() : Container(),
-            width: widthDoneBtn ?? MediaQuery
-                .of(context)
-                .size
-                .width / 4,
+                ? isShowDoneBtn
+                    ? buildDoneButton()
+                    : Container()
+                : isShowNextBtn
+                    ? buildNextButton()
+                    : Container(),
             height: 50,
           ),
         ],
@@ -811,8 +790,9 @@ class IntroSliderState extends State<IntroSlider>
   }
 
   List<Widget> renderListTabs() {
+    List<Widget> t = [];
     for (int i = 0; i < slides.length; i++) {
-      tabs.add(
+      t.add(
         renderTab(
           slides[i].widgetTitle,
           slides[i].title,
@@ -843,76 +823,80 @@ class IntroSliderState extends State<IntroSlider>
         ),
       );
     }
-    return tabs;
+    return t;
   }
 
-  Widget renderTab(// Title
-      Widget widgetTitle,
-      String title,
-      int maxLineTitle,
-      TextStyle styleTitle,
-      EdgeInsets marginTitle,
+  Widget renderTab(
+    // Title
+    Widget widgetTitle,
+    String title,
+    int maxLineTitle,
+    TextStyle styleTitle,
+    EdgeInsets marginTitle,
 
-      // Description
-      Widget widgetDescription,
-      String description,
-      int maxLineTextDescription,
-      TextStyle styleDescription,
-      EdgeInsets marginDescription,
+    // Description
+    Widget widgetDescription,
+    String description,
+    int maxLineTextDescription,
+    TextStyle styleDescription,
+    EdgeInsets marginDescription,
 
-      // Image
-      String pathImage,
-      double widthImage,
-      double heightImage,
-      BoxFit foregroundImageFit,
+    // Image
+    String pathImage,
+    double widthImage,
+    double heightImage,
+    BoxFit foregroundImageFit,
 
-      // Center Widget
-      Widget centerWidget,
-      Function onCenterItemPress,
+    // Center Widget
+    Widget centerWidget,
+    Function onCenterItemPress,
 
-      // Background color
-      Color backgroundColor,
-      Color colorBegin,
-      Color colorEnd,
-      AlignmentGeometry directionColorBegin,
-      AlignmentGeometry directionColorEnd,
+    // Background color
+    Color backgroundColor,
+    Color colorBegin,
+    Color colorEnd,
+    AlignmentGeometry directionColorBegin,
+    AlignmentGeometry directionColorEnd,
 
-      // Background image
-      String backgroundImage,
-      BoxFit backgroundImageFit,
-      double backgroundOpacity,
-      Color backgroundOpacityColor,
-      BlendMode backgroundBlendMode,) {
+    // Background image
+    String backgroundImage,
+    BoxFit backgroundImageFit,
+    double backgroundOpacity,
+    Color backgroundOpacityColor,
+    BlendMode backgroundBlendMode,
+  ) {
+    double animationSize = ANIMATION_SQUARE_SIZE(context);
+    double paddingTop = ANIMATION_TOP_PADDING(context);
     return Container(
-      padding: EdgeInsets.only(top: paddingTop),
+      padding: EdgeInsets.only(top: animationSize + paddingTop),
       width: double.infinity,
       height: double.infinity,
       decoration: backgroundImage != null
           ? BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(backgroundImage),
-          fit: backgroundImageFit ?? BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            backgroundOpacityColor != null
-                ? backgroundOpacityColor
-                .withOpacity(backgroundOpacity ?? 0.5)
-                : Colors.black.withOpacity(backgroundOpacity ?? 0.5),
-            backgroundBlendMode ?? BlendMode.darken,
-          ),
-        ),
-      )
+              image: DecorationImage(
+                image: AssetImage(backgroundImage),
+                fit: backgroundImageFit ?? BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  backgroundOpacityColor != null
+                      ? backgroundOpacityColor
+                          .withOpacity(backgroundOpacity ?? 0.5)
+                      : Colors.black.withOpacity(backgroundOpacity ?? 0.5),
+                  backgroundBlendMode ?? BlendMode.darken,
+                ),
+              ),
+            )
           : BoxDecoration(
-        gradient: LinearGradient(
-          colors: backgroundColor != null
-              ? [backgroundColor, backgroundColor]
-              : [
-            colorBegin ?? Colors.amberAccent,
-            colorEnd ?? Colors.amberAccent
-          ],
-          begin: directionColorBegin ?? Alignment.topLeft,
-          end: directionColorEnd ?? Alignment.bottomRight,
-        ),
-      ),
+              gradient: LinearGradient(
+                colors: backgroundColor != null
+                    ? [backgroundColor, backgroundColor]
+                    : [
+                        colorBegin ?? Colors.amberAccent,
+                        colorEnd ?? Colors.amberAccent
+                      ],
+                begin: directionColorBegin ?? Alignment.topLeft,
+                end: directionColorEnd ?? Alignment.bottomRight,
+              ),
+            ),
       child: Container(
         // Title
         child: widgetTitle ??

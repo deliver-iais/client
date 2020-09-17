@@ -7,6 +7,7 @@ import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/register/pages/testing_environment_tokens.dart';
 import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver_flutter/screen/register/widgets/phone_number.dart';
+import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:fimber/fimber.dart';
@@ -58,108 +59,110 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    return Form(
-      key: _formKey,
-      child: Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
-        appBar: AppBar(
-          title: Text(
-            appLocalization.getTraslateValue("login"),
-            style: TextStyle(
-              color: Theme.of(context).primaryColor,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+    return FluidWidget(
+      child: Form(
+        key: _formKey,
+        child: Scaffold(
           backgroundColor: Theme.of(context).backgroundColor,
-        ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
+          appBar: AppBar(
+            title: Text(
+              appLocalization.getTraslateValue("login"),
+              style: TextStyle(
+                color: Theme.of(context).primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            backgroundColor: Theme.of(context).backgroundColor,
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Expanded(
-                child: Column(
-                  children: <Widget>[
-                    // PhoneFieldHint(),
-                    IntlPhoneField(
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.phone, color: Theme.of(context).primaryTextTheme.button.color,),
-                        fillColor: ExtraTheme.of(context).secondColor,
-                        labelText:
-                            appLocalization.getTraslateValue("phoneNumber"),
+          body: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    children: <Widget>[
+                      // PhoneFieldHint(),
+                      IntlPhoneField(
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.phone, color: Theme.of(context).primaryTextTheme.button.color,),
+                          fillColor: ExtraTheme.of(context).secondColor,
+                          labelText:
+                              appLocalization.getTraslateValue("phoneNumber"),
 //                        filled: true,
-                        labelStyle: TextStyle(color: Theme.of(context).primaryTextTheme.button.color),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5.0),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).primaryColor,
-                            width: 2.0,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5.0),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).primaryColor.withOpacity(0.5),
-                            width: 2.0,
-                          ),
-                        ),
-                      ),
-                      validator: (value) => value.length != 10 ||
-                              (value.length > 0 && value[0] == '0')
-                          ? appLocalization
-                              .getTraslateValue("invalid_mobile_number")
-                          : null,
-                      onChanged: (p) {
-                        phoneNumber = p;
-                      },
-                      onSubmitted: (p) {
-                        phoneNumber = p;
-                        checkAndGoNext();
-                      },
-                    ),
-                    SizedBox(height: 15),
-                    Text(
-                      appLocalization.getTraslateValue("insertPhoneAndCode"),
-                      style: TextStyle(
-                        fontWeight: FontWeight.normal,
-                        color: Theme.of(context).primaryColor,
-                        fontSize: 15,
-                      ),
-                    ),
-                    kDebugMode
-                        ? MaterialButton(
-                            color: Colors.yellow,
-                            onPressed: _navigateToApplicationInDevelopment,
-                            child: Text(
-                              "Login In Debug Mode",
-                              style: TextStyle(color: Colors.black),
+                          labelStyle: TextStyle(color: Theme.of(context).primaryTextTheme.button.color),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5.0),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).primaryColor,
+                              width: 2.0,
                             ),
-                          )
-                        : SizedBox.shrink(),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: RaisedButton(
-                      child: Text(
-                        appLocalization.getTraslateValue("next"),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5.0),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).primaryColor.withOpacity(0.5),
+                              width: 2.0,
+                            ),
+                          ),
+                        ),
+                        validator: (value) => value.length != 10 ||
+                                (value.length > 0 && value[0] == '0')
+                            ? appLocalization
+                                .getTraslateValue("invalid_mobile_number")
+                            : null,
+                        onChanged: (p) {
+                          phoneNumber = p;
+                        },
+                        onSubmitted: (p) {
+                          phoneNumber = p;
+                          checkAndGoNext();
+                        },
+                      ),
+                      SizedBox(height: 15),
+                      Text(
+                        appLocalization.getTraslateValue("insertPhoneAndCode"),
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.normal,
                           color: Theme.of(context).primaryColor,
-                          fontSize: 14.5,
+                          fontSize: 15,
                         ),
                       ),
-                      color: Theme.of(context).backgroundColor,
-                      disabledColor: Theme.of(context).backgroundColor,
-                      onPressed: checkAndGoNext),
+                      kDebugMode
+                          ? MaterialButton(
+                              color: Colors.yellow,
+                              onPressed: _navigateToApplicationInDevelopment,
+                              child: Text(
+                                "Login In Debug Mode",
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            )
+                          : SizedBox.shrink(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: RaisedButton(
+                        child: Text(
+                          appLocalization.getTraslateValue("next"),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 14.5,
+                          ),
+                        ),
+                        color: Theme.of(context).backgroundColor,
+                        disabledColor: Theme.of(context).backgroundColor,
+                        onPressed: checkAndGoNext),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
