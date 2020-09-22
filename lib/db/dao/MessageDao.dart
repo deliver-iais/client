@@ -29,8 +29,10 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
         .watch();
   }
 
-  Stream<List<Message>> getById(int id) {
-    return (select(messages)..where((m) => m.id.equals(id))).watch();
+  Stream<Message> getById(int id, String roomId) {
+    return (select(messages)
+          ..where((m) => m.roomId.equals(roomId) & m.id.equals(id)))
+        .watchSingle();
   }
 
   Stream<Message> getByDBId(int dbId) {

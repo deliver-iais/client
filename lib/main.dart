@@ -3,8 +3,9 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
-import 'package:deliver_flutter/db/dao/MediaDao.dart';
+import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
+import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/LastAvatarDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
@@ -35,7 +36,9 @@ import 'package:rxdart/rxdart.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:window_size/window_size.dart';
 import 'db/dao/MessageDao.dart';
+import 'db/dao/GroupDao.dart';
 import 'db/dao/RoomDao.dart';
+import 'repository/mucRepo.dart';
 import 'repository/servicesDiscoveryRepo.dart';
 
 void setupDB() {
@@ -51,6 +54,8 @@ void setupDB() {
   getIt.registerSingleton<PendingMessageDao>(db.pendingMessageDao);
   getIt.registerSingleton<LastAvatarDao>(db.lastAvatarDao);
   getIt.registerSingleton<SharedPreferencesDao>(db.sharedPreferencesDao);
+  getIt.registerSingleton<GroupDao>(db.groupDao);
+  getIt.registerSingleton<MemberDao>(db.memberDao);
 }
 
 void setupRepositories() {
@@ -65,9 +70,10 @@ void setupRepositories() {
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<MessageRepo>(MessageRepo());
+  getIt.registerSingleton<MucRepo>(MucRepo());
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
-  getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());
+  getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
 }

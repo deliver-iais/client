@@ -31,7 +31,8 @@ class ContactWidget extends StatelessWidget {
                       accountRepo.currentUserUid,
                       contact.firstName.substring(0, 1) +
                           contact.lastName.substring(0, 1),
-                      23,false),
+                      23,
+                      false),
                   Positioned(
                     child: Container(
                       width: 12.0,
@@ -64,17 +65,19 @@ class ContactWidget extends StatelessWidget {
               ),
             ],
           ),
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: ExtraTheme.of(context).secondColor,
-            child: FittedBox(
-              child: Icon(
-                circleIcon,
-                color: ExtraTheme.of(context).circleAvatarIcon,
-                size: 21,
-              ),
-            ),
-          ),
+          circleIcon != null
+              ? CircleAvatar(
+                  radius: 20,
+                  backgroundColor: ExtraTheme.of(context).secondColor,
+                  child: FittedBox(
+                    child: Icon(
+                      circleIcon,
+                      color: ExtraTheme.of(context).circleAvatarIcon,
+                      size: 21,
+                    ),
+                  ),
+                )
+              : Container(),
         ],
       ),
     );

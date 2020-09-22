@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
+import 'package:deliver_flutter/shared/extensions/uid_Extension.dart';
 
 class LastMessage extends StatelessWidget {
   final Message message;
@@ -13,28 +17,57 @@ class LastMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     String data;
     TextDirection td;
-    if (message.type.index == MessageType.TEXT.index) {
-      String oneLine = (message.json.toText().text.split('\n'))[0];
-      if (oneLine.isPersian()) {
-        td = TextDirection.rtl;
-      } else
-        td = TextDirection.ltr;
-      // data = oneLine + ' ...';
-      data = oneLine;
-    } else {
-      //TODO type
+    String oneLine = message.type == MessageType.TEXT
+        ? (message.json.toText().text.split('\n'))[0]
+        : message.type == MessageType.PERSISTENT_EVENT
+            ? jsonDecode(message.json)["text"]
+            : 'File';
+    if (oneLine.isPersian()) {
+      td = TextDirection.rtl;
+    } else
       td = TextDirection.ltr;
-      data = 'File';
+    data = oneLine;
+    if (message.roomId.uid.category == Categories.Group &&
+        message.type != MessageType.PERSISTENT_EVENT) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            message.from.substring(0, 5) + ':',
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
+              fontSize: 13,
+            ),
+          ),
+          Text(
+            oneLine,
+            maxLines: 1,
+            textDirection: td,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              // color:
+              //     : ExtraTheme.of(context).infoChat,
+              fontSize: 13,
+            ),
+          ),
+        ],
+      );
     }
 
-    return Text(
-      data,
-      maxLines: 1,
-      textDirection: td,
-      overflow: TextOverflow.ellipsis,
-      style: TextStyle(
-        color: ExtraTheme.of(context).infoChat,
-        fontSize: 13,
+    return Container(
+      width: 230,
+      child: Text(
+        data,
+        maxLines: 1,
+        textDirection: td,
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
+        style: TextStyle(
+          color: message.type == MessageType.PERSISTENT_EVENT
+              ? Theme.of(context).primaryColor
+              : ExtraTheme.of(context).infoChat,
+          fontSize: 13,
+        ),
       ),
     );
   }

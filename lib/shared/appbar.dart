@@ -14,7 +14,6 @@ import 'package:deliver_flutter/repository/messageRepo.dart';
 
 class Appbar extends StatelessWidget {
   var accountRepo = GetIt.I.get<AccountRepo>();
-
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
@@ -90,7 +89,8 @@ class Appbar extends StatelessWidget {
                               child: Text(
                                   appLocalization.getTraslateValue("newGroup")),
                               onTap: () {
-                                initialDataBase();
+                                ExtendedNavigator.of(context)
+                                    .push(Routes.memberSelectionPage);
                               },
                             )),
                             PopupMenuItem(

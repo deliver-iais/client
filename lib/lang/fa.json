@@ -47,8 +47,21 @@
   "select": "انتخاب",
   "setProfile": "انتخاب عکس",
   "delete": "حذف ",
+  "ofMaxMember": "از 200000 انتخاب شده",
+  "maxMember": "تا 200000 عضو",
+  "EnterGroupName": "نام گروه را وارد کنید",
+  "members": "عضو",
+  "NoResults": "نتیجه‌ای یافت نشد",
   "search_by_country_name": "جستجو با اسم کشورها",
   "invalid_mobile_number": "شماره تلفن معتبر نمی‌باشد",
   "enter_code": "کد را وارد کنید",
+  "Reply": "پاسخ",
+  "Forward": "باز‌ارسال",
+  "Edit": "اصلاح",
+  "Copy": "رونوشت",
+  "Delete": "حذف",
+  "ForwardTo": "باز‌ارسال به...",
+  "ForwardedMessages": "پیام باز‌ارسال شده",
   "Log_out": "خروج از حساب کاربری"
+
 }

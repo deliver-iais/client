@@ -1,12 +1,11 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/models/roomWithMessage.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/recievedMsgStatusIcon.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/methods/dateTimeFormat.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:fimber/fimber_base.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -28,14 +27,13 @@ class ChatItem extends StatelessWidget {
         : "recieve";
 
     var maxWidth = MediaQuery.of(context).size.width - 36 - 16 - 32;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
       child: Container(
         height: 40,
         child: Row(
           children: <Widget>[
-            // ContactPic(true, roomWithMessage.room.roomId.uid),
+            ContactPic(true, roomWithMessage.room.roomId.uid),
             SizedBox(
               width: 8,
             ),
@@ -44,14 +42,18 @@ class ChatItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(
-                    roomWithMessage.room.roomId,
-                    style: TextStyle(
-                      color: ExtraTheme.of(context).infoChat,
-                      fontSize: 16,
+                  Container(
+                    width: 250,
+                    child: Text(
+                      roomWithMessage.room.roomId,
+                      style: TextStyle(
+                        color: ExtraTheme.of(context).infoChat,
+                        fontSize: 16,
+                      ),
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                   Row(
                     children: <Widget>[
@@ -87,7 +89,7 @@ class ChatItem extends StatelessWidget {
                       ),
                     ),
                   ),
-                  roomWithMessage.room.mentioned != false
+                  roomWithMessage.room.mentioned == true
                       ? Padding(
                           padding: const EdgeInsets.only(
                             right: 3.0,

@@ -1,0 +1,10 @@
+enum OperationOnMessage {
+  REPLY,
+  COPY,
+  FORWARD,
+  DELETE,
+  EDIT,
+  SHARE,
+  SAVE_TO_GALLERY,
+  SAVE_TO_DOWNLOADS,
+}

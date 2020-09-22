@@ -24,7 +24,8 @@ class MessageRepo {
   MessageService messageService = GetIt.I.get<MessageService>();
   FileRepo fileRepo = GetIt.I.get<FileRepo>();
 
-  sendTextMessage(Uid roomId, String text) async {
+  sendTextMessage(Uid roomId, String text,
+      {int replyId, String forwardedFrom}) async {
     Message message = Message(
       roomId: roomId.string,
       packetId: 1000,
@@ -33,6 +34,8 @@ class MessageRepo {
       to: roomId.string,
       edited: false,
       encrypted: false,
+      replyToId: replyId != null ? replyId : -1,
+      forwardedFrom: forwardedFrom,
       type: MessageType.TEXT,
       json: jsonEncode({"text": text}),
     );
@@ -68,7 +71,8 @@ class MessageRepo {
       return 'file';
   }
 
-  sendFileMessage(Uid roomId, String path) async {
+  sendFileMessage(Uid roomId, String path,
+      {int replyId, String forwardedFrom, String caption}) async {
     String type;
     type = findType(path);
 
@@ -80,19 +84,22 @@ class MessageRepo {
         to: roomId.string,
         edited: false,
         encrypted: false,
+        replyToId: replyId != null ? replyId : -1,
         type: MessageType.FILE,
         json: jsonEncode({
           "uuid": "0",
           "size": 0,
           "type": type,
           "name": path.split('/').last,
-          "caption": "caption",
+          "caption": caption,
           "width": type == 'image' || type == 'video' ? 200 : 0,
           "height": type == 'image' || type == 'video' ? 100 : 0,
           "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
         }));
     var messageId = await messageDao.insertMessage(message);
-
+    RoomDao roomDao = GetIt.I.get<RoomDao>();
+    roomDao.getByRoomId(roomId.string).first.then(
+        (value) => roomDao.updateRoom(value.copyWith(lastMessage: messageId)));
     PendingMessage pendingMessage = PendingMessage(
       messageId: messageId,
       retry: 0,
@@ -115,7 +122,6 @@ class MessageRepo {
         "size": fileInfo.compressionSize,
         "name": fileInfo.name,
         "type": type,
-        "caption": "caption",
         "width": type == 'image' || type == 'video' ? 250 : 0,
         "height": type == 'image' || type == 'video' ? 300 : 0,
         "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
@@ -136,5 +142,17 @@ class MessageRepo {
 
     messageDao.updateMessage(message.copyWith(time: DateTime.now()));
     pendingMessageDao.deletePendingMessage(pendingMessage);
+  }
+
+  sendForwardedMessage(Uid roomId, List<Message> forwardedMessage) async {
+    // print('hi hi ');
+    for (var i = 0; i < forwardedMessage.length; i++) {
+      if (forwardedMessage[i].type == MessageType.TEXT) {
+        sendTextMessage(roomId, (jsonDecode(forwardedMessage[i].json))["text"],
+            forwardedFrom: forwardedMessage[i].from);
+      } else if (forwardedMessage[i].type == MessageType.FILE) {
+        //TODO sendFileMessage(roomId)
+      }
+    }
   }
 }

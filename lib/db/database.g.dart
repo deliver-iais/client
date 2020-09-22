@@ -717,7 +717,7 @@ class Room extends DataClass implements Insertable<Room> {
   final String roomId;
   final bool mentioned;
   final int lastMessage;
-  Room({@required this.roomId, this.mentioned, @required this.lastMessage});
+  Room({@required this.roomId, this.mentioned, this.lastMessage});
   factory Room.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -819,9 +819,8 @@ class RoomsCompanion extends UpdateCompanion<Room> {
   RoomsCompanion.insert({
     @required String roomId,
     this.mentioned = const Value.absent(),
-    @required int lastMessage,
-  })  : roomId = Value(roomId),
-        lastMessage = Value(lastMessage);
+    this.lastMessage = const Value.absent(),
+  }) : roomId = Value(roomId);
   static Insertable<Room> custom({
     Expression<String> roomId,
     Expression<bool> mentioned,
@@ -901,7 +900,7 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
   GeneratedIntColumn get lastMessage =>
       _lastMessage ??= _constructLastMessage();
   GeneratedIntColumn _constructLastMessage() {
-    return GeneratedIntColumn('last_message', $tableName, false,
+    return GeneratedIntColumn('last_message', $tableName, true,
         $customConstraints: 'REFERENCES messages(db_id)');
   }
 
@@ -933,8 +932,6 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
           _lastMessageMeta,
           lastMessage.isAcceptableOrUnknown(
               data['last_message'], _lastMessageMeta));
-    } else if (isInserting) {
-      context.missing(_lastMessageMeta);
     }
     return context;
   }
@@ -3711,6 +3708,610 @@ class $SharedPreferencesTable extends SharedPreferences
   }
 }
 
+class Member extends DataClass implements Insertable<Member> {
+  final int dbId;
+  final String memberUid;
+  final String mucUid;
+  final Role role;
+  Member(
+      {@required this.dbId,
+      @required this.memberUid,
+      @required this.mucUid,
+      @required this.role});
+  factory Member.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final intType = db.typeSystem.forDartType<int>();
+    final stringType = db.typeSystem.forDartType<String>();
+    return Member(
+      dbId: intType.mapFromDatabaseResponse(data['${effectivePrefix}db_id']),
+      memberUid: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}member_uid']),
+      mucUid:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}muc_uid']),
+      role: $MembersTable.$converter0.mapToDart(
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}role'])),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || dbId != null) {
+      map['db_id'] = Variable<int>(dbId);
+    }
+    if (!nullToAbsent || memberUid != null) {
+      map['member_uid'] = Variable<String>(memberUid);
+    }
+    if (!nullToAbsent || mucUid != null) {
+      map['muc_uid'] = Variable<String>(mucUid);
+    }
+    if (!nullToAbsent || role != null) {
+      final converter = $MembersTable.$converter0;
+      map['role'] = Variable<int>(converter.mapToSql(role));
+    }
+    return map;
+  }
+
+  MembersCompanion toCompanion(bool nullToAbsent) {
+    return MembersCompanion(
+      dbId: dbId == null && nullToAbsent ? const Value.absent() : Value(dbId),
+      memberUid: memberUid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(memberUid),
+      mucUid:
+          mucUid == null && nullToAbsent ? const Value.absent() : Value(mucUid),
+      role: role == null && nullToAbsent ? const Value.absent() : Value(role),
+    );
+  }
+
+  factory Member.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return Member(
+      dbId: serializer.fromJson<int>(json['dbId']),
+      memberUid: serializer.fromJson<String>(json['memberUid']),
+      mucUid: serializer.fromJson<String>(json['mucUid']),
+      role: serializer.fromJson<Role>(json['role']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'dbId': serializer.toJson<int>(dbId),
+      'memberUid': serializer.toJson<String>(memberUid),
+      'mucUid': serializer.toJson<String>(mucUid),
+      'role': serializer.toJson<Role>(role),
+    };
+  }
+
+  Member copyWith({int dbId, String memberUid, String mucUid, Role role}) =>
+      Member(
+        dbId: dbId ?? this.dbId,
+        memberUid: memberUid ?? this.memberUid,
+        mucUid: mucUid ?? this.mucUid,
+        role: role ?? this.role,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Member(')
+          ..write('dbId: $dbId, ')
+          ..write('memberUid: $memberUid, ')
+          ..write('mucUid: $mucUid, ')
+          ..write('role: $role')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(dbId.hashCode,
+      $mrjc(memberUid.hashCode, $mrjc(mucUid.hashCode, role.hashCode))));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is Member &&
+          other.dbId == this.dbId &&
+          other.memberUid == this.memberUid &&
+          other.mucUid == this.mucUid &&
+          other.role == this.role);
+}
+
+class MembersCompanion extends UpdateCompanion<Member> {
+  final Value<int> dbId;
+  final Value<String> memberUid;
+  final Value<String> mucUid;
+  final Value<Role> role;
+  const MembersCompanion({
+    this.dbId = const Value.absent(),
+    this.memberUid = const Value.absent(),
+    this.mucUid = const Value.absent(),
+    this.role = const Value.absent(),
+  });
+  MembersCompanion.insert({
+    this.dbId = const Value.absent(),
+    @required String memberUid,
+    @required String mucUid,
+    @required Role role,
+  })  : memberUid = Value(memberUid),
+        mucUid = Value(mucUid),
+        role = Value(role);
+  static Insertable<Member> custom({
+    Expression<int> dbId,
+    Expression<String> memberUid,
+    Expression<String> mucUid,
+    Expression<int> role,
+  }) {
+    return RawValuesInsertable({
+      if (dbId != null) 'db_id': dbId,
+      if (memberUid != null) 'member_uid': memberUid,
+      if (mucUid != null) 'muc_uid': mucUid,
+      if (role != null) 'role': role,
+    });
+  }
+
+  MembersCompanion copyWith(
+      {Value<int> dbId,
+      Value<String> memberUid,
+      Value<String> mucUid,
+      Value<Role> role}) {
+    return MembersCompanion(
+      dbId: dbId ?? this.dbId,
+      memberUid: memberUid ?? this.memberUid,
+      mucUid: mucUid ?? this.mucUid,
+      role: role ?? this.role,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (dbId.present) {
+      map['db_id'] = Variable<int>(dbId.value);
+    }
+    if (memberUid.present) {
+      map['member_uid'] = Variable<String>(memberUid.value);
+    }
+    if (mucUid.present) {
+      map['muc_uid'] = Variable<String>(mucUid.value);
+    }
+    if (role.present) {
+      final converter = $MembersTable.$converter0;
+      map['role'] = Variable<int>(converter.mapToSql(role.value));
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MembersCompanion(')
+          ..write('dbId: $dbId, ')
+          ..write('memberUid: $memberUid, ')
+          ..write('mucUid: $mucUid, ')
+          ..write('role: $role')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MembersTable extends Members with TableInfo<$MembersTable, Member> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $MembersTable(this._db, [this._alias]);
+  final VerificationMeta _dbIdMeta = const VerificationMeta('dbId');
+  GeneratedIntColumn _dbId;
+  @override
+  GeneratedIntColumn get dbId => _dbId ??= _constructDbId();
+  GeneratedIntColumn _constructDbId() {
+    return GeneratedIntColumn('db_id', $tableName, false,
+        hasAutoIncrement: true, declaredAsPrimaryKey: true);
+  }
+
+  final VerificationMeta _memberUidMeta = const VerificationMeta('memberUid');
+  GeneratedTextColumn _memberUid;
+  @override
+  GeneratedTextColumn get memberUid => _memberUid ??= _constructMemberUid();
+  GeneratedTextColumn _constructMemberUid() {
+    return GeneratedTextColumn(
+      'member_uid',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _mucUidMeta = const VerificationMeta('mucUid');
+  GeneratedTextColumn _mucUid;
+  @override
+  GeneratedTextColumn get mucUid => _mucUid ??= _constructMucUid();
+  GeneratedTextColumn _constructMucUid() {
+    return GeneratedTextColumn(
+      'muc_uid',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _roleMeta = const VerificationMeta('role');
+  GeneratedIntColumn _role;
+  @override
+  GeneratedIntColumn get role => _role ??= _constructRole();
+  GeneratedIntColumn _constructRole() {
+    return GeneratedIntColumn(
+      'role',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [dbId, memberUid, mucUid, role];
+  @override
+  $MembersTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'members';
+  @override
+  final String actualTableName = 'members';
+  @override
+  VerificationContext validateIntegrity(Insertable<Member> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('db_id')) {
+      context.handle(
+          _dbIdMeta, dbId.isAcceptableOrUnknown(data['db_id'], _dbIdMeta));
+    }
+    if (data.containsKey('member_uid')) {
+      context.handle(_memberUidMeta,
+          memberUid.isAcceptableOrUnknown(data['member_uid'], _memberUidMeta));
+    } else if (isInserting) {
+      context.missing(_memberUidMeta);
+    }
+    if (data.containsKey('muc_uid')) {
+      context.handle(_mucUidMeta,
+          mucUid.isAcceptableOrUnknown(data['muc_uid'], _mucUidMeta));
+    } else if (isInserting) {
+      context.missing(_mucUidMeta);
+    }
+    context.handle(_roleMeta, const VerificationResult.success());
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {dbId};
+  @override
+  Member map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return Member.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $MembersTable createAlias(String alias) {
+    return $MembersTable(_db, alias);
+  }
+
+  static TypeConverter<Role, int> $converter0 =
+      const EnumIndexConverter<Role>(Role.values);
+}
+
+class Group extends DataClass implements Insertable<Group> {
+  final int dbId;
+  final String uid;
+  final String name;
+  final String info;
+  final int members;
+  Group(
+      {@required this.dbId,
+      this.uid,
+      @required this.name,
+      this.info,
+      @required this.members});
+  factory Group.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final intType = db.typeSystem.forDartType<int>();
+    final stringType = db.typeSystem.forDartType<String>();
+    return Group(
+      dbId: intType.mapFromDatabaseResponse(data['${effectivePrefix}db_id']),
+      uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
+      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      info: stringType.mapFromDatabaseResponse(data['${effectivePrefix}info']),
+      members:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}members']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || dbId != null) {
+      map['db_id'] = Variable<int>(dbId);
+    }
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    if (!nullToAbsent || info != null) {
+      map['info'] = Variable<String>(info);
+    }
+    if (!nullToAbsent || members != null) {
+      map['members'] = Variable<int>(members);
+    }
+    return map;
+  }
+
+  GroupsCompanion toCompanion(bool nullToAbsent) {
+    return GroupsCompanion(
+      dbId: dbId == null && nullToAbsent ? const Value.absent() : Value(dbId),
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      info: info == null && nullToAbsent ? const Value.absent() : Value(info),
+      members: members == null && nullToAbsent
+          ? const Value.absent()
+          : Value(members),
+    );
+  }
+
+  factory Group.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return Group(
+      dbId: serializer.fromJson<int>(json['dbId']),
+      uid: serializer.fromJson<String>(json['uid']),
+      name: serializer.fromJson<String>(json['name']),
+      info: serializer.fromJson<String>(json['info']),
+      members: serializer.fromJson<int>(json['members']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'dbId': serializer.toJson<int>(dbId),
+      'uid': serializer.toJson<String>(uid),
+      'name': serializer.toJson<String>(name),
+      'info': serializer.toJson<String>(info),
+      'members': serializer.toJson<int>(members),
+    };
+  }
+
+  Group copyWith(
+          {int dbId, String uid, String name, String info, int members}) =>
+      Group(
+        dbId: dbId ?? this.dbId,
+        uid: uid ?? this.uid,
+        name: name ?? this.name,
+        info: info ?? this.info,
+        members: members ?? this.members,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Group(')
+          ..write('dbId: $dbId, ')
+          ..write('uid: $uid, ')
+          ..write('name: $name, ')
+          ..write('info: $info, ')
+          ..write('members: $members')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(
+      dbId.hashCode,
+      $mrjc(uid.hashCode,
+          $mrjc(name.hashCode, $mrjc(info.hashCode, members.hashCode)))));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is Group &&
+          other.dbId == this.dbId &&
+          other.uid == this.uid &&
+          other.name == this.name &&
+          other.info == this.info &&
+          other.members == this.members);
+}
+
+class GroupsCompanion extends UpdateCompanion<Group> {
+  final Value<int> dbId;
+  final Value<String> uid;
+  final Value<String> name;
+  final Value<String> info;
+  final Value<int> members;
+  const GroupsCompanion({
+    this.dbId = const Value.absent(),
+    this.uid = const Value.absent(),
+    this.name = const Value.absent(),
+    this.info = const Value.absent(),
+    this.members = const Value.absent(),
+  });
+  GroupsCompanion.insert({
+    this.dbId = const Value.absent(),
+    this.uid = const Value.absent(),
+    @required String name,
+    this.info = const Value.absent(),
+    @required int members,
+  })  : name = Value(name),
+        members = Value(members);
+  static Insertable<Group> custom({
+    Expression<int> dbId,
+    Expression<String> uid,
+    Expression<String> name,
+    Expression<String> info,
+    Expression<int> members,
+  }) {
+    return RawValuesInsertable({
+      if (dbId != null) 'db_id': dbId,
+      if (uid != null) 'uid': uid,
+      if (name != null) 'name': name,
+      if (info != null) 'info': info,
+      if (members != null) 'members': members,
+    });
+  }
+
+  GroupsCompanion copyWith(
+      {Value<int> dbId,
+      Value<String> uid,
+      Value<String> name,
+      Value<String> info,
+      Value<int> members}) {
+    return GroupsCompanion(
+      dbId: dbId ?? this.dbId,
+      uid: uid ?? this.uid,
+      name: name ?? this.name,
+      info: info ?? this.info,
+      members: members ?? this.members,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (dbId.present) {
+      map['db_id'] = Variable<int>(dbId.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (info.present) {
+      map['info'] = Variable<String>(info.value);
+    }
+    if (members.present) {
+      map['members'] = Variable<int>(members.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GroupsCompanion(')
+          ..write('dbId: $dbId, ')
+          ..write('uid: $uid, ')
+          ..write('name: $name, ')
+          ..write('info: $info, ')
+          ..write('members: $members')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GroupsTable extends Groups with TableInfo<$GroupsTable, Group> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $GroupsTable(this._db, [this._alias]);
+  final VerificationMeta _dbIdMeta = const VerificationMeta('dbId');
+  GeneratedIntColumn _dbId;
+  @override
+  GeneratedIntColumn get dbId => _dbId ??= _constructDbId();
+  GeneratedIntColumn _constructDbId() {
+    return GeneratedIntColumn('db_id', $tableName, false,
+        hasAutoIncrement: true, declaredAsPrimaryKey: true);
+  }
+
+  final VerificationMeta _uidMeta = const VerificationMeta('uid');
+  GeneratedTextColumn _uid;
+  @override
+  GeneratedTextColumn get uid => _uid ??= _constructUid();
+  GeneratedTextColumn _constructUid() {
+    return GeneratedTextColumn(
+      'uid',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  GeneratedTextColumn _name;
+  @override
+  GeneratedTextColumn get name => _name ??= _constructName();
+  GeneratedTextColumn _constructName() {
+    return GeneratedTextColumn(
+      'name',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _infoMeta = const VerificationMeta('info');
+  GeneratedTextColumn _info;
+  @override
+  GeneratedTextColumn get info => _info ??= _constructInfo();
+  GeneratedTextColumn _constructInfo() {
+    return GeneratedTextColumn(
+      'info',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _membersMeta = const VerificationMeta('members');
+  GeneratedIntColumn _members;
+  @override
+  GeneratedIntColumn get members => _members ??= _constructMembers();
+  GeneratedIntColumn _constructMembers() {
+    return GeneratedIntColumn(
+      'members',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [dbId, uid, name, info, members];
+  @override
+  $GroupsTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'groups';
+  @override
+  final String actualTableName = 'groups';
+  @override
+  VerificationContext validateIntegrity(Insertable<Group> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('db_id')) {
+      context.handle(
+          _dbIdMeta, dbId.isAcceptableOrUnknown(data['db_id'], _dbIdMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid'], _uidMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('info')) {
+      context.handle(
+          _infoMeta, info.isAcceptableOrUnknown(data['info'], _infoMeta));
+    }
+    if (data.containsKey('members')) {
+      context.handle(_membersMeta,
+          members.isAcceptableOrUnknown(data['members'], _membersMeta));
+    } else if (isInserting) {
+      context.missing(_membersMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {dbId};
+  @override
+  Group map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return Group.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $GroupsTable createAlias(String alias) {
+    return $GroupsTable(_db, alias);
+  }
+}
+
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $MessagesTable _messages;
@@ -3735,6 +4336,10 @@ abstract class _$Database extends GeneratedDatabase {
   $SharedPreferencesTable _sharedPreferences;
   $SharedPreferencesTable get sharedPreferences =>
       _sharedPreferences ??= $SharedPreferencesTable(this);
+  $MembersTable _members;
+  $MembersTable get members => _members ??= $MembersTable(this);
+  $GroupsTable _groups;
+  $GroupsTable get groups => _groups ??= $GroupsTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
@@ -3758,6 +4363,10 @@ abstract class _$Database extends GeneratedDatabase {
   SharedPreferencesDao _sharedPreferencesDao;
   SharedPreferencesDao get sharedPreferencesDao =>
       _sharedPreferencesDao ??= SharedPreferencesDao(this as Database);
+  MemberDao _memberDao;
+  MemberDao get memberDao => _memberDao ??= MemberDao(this as Database);
+  GroupDao _groupDao;
+  GroupDao get groupDao => _groupDao ??= GroupDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
@@ -3771,6 +4380,8 @@ abstract class _$Database extends GeneratedDatabase {
         lastAvatars,
         pendingMessages,
         medias,
-        sharedPreferences
+        sharedPreferences,
+        members,
+        groups
       ];
 }

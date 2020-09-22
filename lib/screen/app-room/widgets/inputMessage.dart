@@ -21,11 +21,20 @@ const ANIMATION_DURATION = const Duration(milliseconds: 100);
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
+  final int replyMessageId;
+  final Function resetRoomPageDetails;
+  final bool waitingForForward;
+  final Function sendForwardMessage;
 
   @override
   _InputMessageWidget createState() => _InputMessageWidget();
 
-  InputMessage({@required this.currentRoom});
+  InputMessage(
+      {@required this.currentRoom,
+      this.replyMessageId,
+      this.resetRoomPageDetails,
+      this.waitingForForward,
+      this.sendForwardMessage});
 }
 
 class _InputMessageWidget extends State<InputMessage> {
@@ -57,6 +66,8 @@ class _InputMessageWidget extends State<InputMessage> {
         builder: (context) {
           return ShareBox(
             currentRoomId: currentRoom.roomId.uid,
+            replyMessageId: widget.replyMessageId,
+            resetRoomPageDetails: widget.resetRoomPageDetails,
           );
         });
   }
@@ -81,7 +92,9 @@ class _InputMessageWidget extends State<InputMessage> {
             child: Stack(
               // overflow: Overflow.visible,
               children: <Widget>[
-                controller.text.isEmpty
+                controller.text.isEmpty &&
+                        (widget.waitingForForward == null ||
+                            widget.waitingForForward == false)
                     ? AnimatedPositioned(
                         duration: ANIMATION_DURATION,
                         bottom: (1 - size) * 25,
@@ -151,7 +164,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                             .getTraslateValue("message")),
                                   ),
                                 ),
-                                controller.text?.isEmpty
+                                controller.text?.isEmpty &&
+                                        (widget.waitingForForward == null ||
+                                            widget.waitingForForward == false)
                                     ? IconButton(
                                         icon: Icon(
                                           Icons.attach_file,
@@ -162,7 +177,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                           showButtonSheet();
                                         })
                                     : SizedBox(),
-                                controller.text.isEmpty
+                                controller.text.isEmpty &&
+                                        (widget.waitingForForward == null ||
+                                            widget.waitingForForward == false)
                                     ? SizedBox.shrink()
                                     : IconButton(
                                         icon: Icon(
@@ -170,15 +187,37 @@ class _InputMessageWidget extends State<InputMessage> {
                                           color: Theme.of(context).primaryColor,
                                         ),
                                         color: Colors.white,
-                                        onPressed: controller.text?.isEmpty
+                                        onPressed: controller.text?.isEmpty &&
+                                                (widget.waitingForForward ==
+                                                        null ||
+                                                    widget.waitingForForward ==
+                                                        false)
                                             ? () async {}
                                             : () {
+                                                if (widget.waitingForForward ==
+                                                    true) {
+                                                  widget.sendForwardMessage();
+                                                }
                                                 if (controller
                                                     .text.isNotEmpty) {
-                                                  messageRepo.sendTextMessage(
-                                                    currentRoom.roomId.uid,
-                                                    controller.text,
-                                                  );
+                                                  if (controller.text
+                                                      .isNotEmpty) if (widget
+                                                          .replyMessageId !=
+                                                      null) {
+                                                    messageRepo.sendTextMessage(
+                                                      currentRoom.roomId.uid,
+                                                      controller.text,
+                                                      replyId:
+                                                          widget.replyMessageId,
+                                                    );
+                                                    widget
+                                                        .resetRoomPageDetails();
+                                                  } else {
+                                                    messageRepo.sendTextMessage(
+                                                      currentRoom.roomId.uid,
+                                                      controller.text,
+                                                    );
+                                                  }
 
                                                   controller.clear();
                                                   messageText = "";
@@ -242,7 +281,9 @@ class _InputMessageWidget extends State<InputMessage> {
                               ),
                             ],
                           ),
-                    controller.text.isEmpty
+                    controller.text.isEmpty &&
+                            (widget.waitingForForward == null ||
+                                widget.waitingForForward == false)
                         ? GestureDetector(
                             onTapDown: (_) async {
                               recordAudioPermission = await checkPermission

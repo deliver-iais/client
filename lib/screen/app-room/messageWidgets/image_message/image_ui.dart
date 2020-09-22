@@ -16,7 +16,7 @@ import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/shared/extensions/uid_Extension.dart';
 
 class ImageUi extends StatefulWidget {
   final Message message;
@@ -191,7 +191,3 @@ class _ImageUiState extends State<ImageUi> {
       );
   }
 }
-
-// اول ی پس میدی و فایلو میفرستی
-// بعدش اون شروع به اپلود میکنه
-// بعد از اپلود تا جواب دادن سرور تو حالت پندینگه
