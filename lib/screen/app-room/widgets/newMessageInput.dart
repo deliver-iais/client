@@ -2,35 +2,42 @@ import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/inputMessage.dart';
+import 'package:fimber/fimber.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 //TODO empty text click on arrow
-class NewMessageInput extends StatefulWidget {
+class NewMessageInput extends StatelessWidget {
   final String currentRoomId;
+  final int replyMessageId;
+  final Function resetRoomPageDetails;
+  final bool waitingForForward;
+  final Function sendForwardMessage;
 
-  const NewMessageInput({Key key, this.currentRoomId}) : super(key: key);
-
-  @override
-  _NewMessageInputState createState() => _NewMessageInputState();
-}
-
-class _NewMessageInputState extends State<NewMessageInput> {
-  TextEditingController controller;
-
-  AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
+  NewMessageInput(
+      {Key key,
+      this.currentRoomId,
+      this.replyMessageId,
+      this.resetRoomPageDetails,
+      this.waitingForForward,
+      this.sendForwardMessage})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     var roomDao = GetIt.I.get<RoomDao>();
     return StreamBuilder<Room>(
-        stream: roomDao.getByRoomId(widget.currentRoomId),
+        stream: roomDao.getByRoomId(currentRoomId),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             Room currentRoom = snapshot.data;
             return InputMessage(
               currentRoom: currentRoom,
+              replyMessageId: replyMessageId,
+              resetRoomPageDetails: resetRoomPageDetails,
+              waitingForForward: waitingForForward,
+              sendForwardMessage: sendForwardMessage,
             );
           } else {
             return Text("No Such a Room");

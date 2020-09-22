@@ -59,7 +59,7 @@ class _SendingFileCircularIndicatorState
                 : Theme.of(context).primaryColor,
             size: 35,
           ),
-          onPressed: () {},
+          onPressed: null,
         ),
       ],
     );

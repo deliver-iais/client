@@ -6,12 +6,15 @@ import 'package:deliver_flutter/db/SharedPreferences.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
+import 'package:deliver_flutter/db/dao/GroupDao.dart';
 import 'package:deliver_flutter/db/dao/LastAvatarDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/models/sending_status.dart';
+import 'package:deliver_flutter/models/role.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
@@ -21,9 +24,12 @@ import 'dart:io';
 
 import 'Contacts.dart';
 import 'FileInfo.dart';
+import 'Group.dart';
+import 'Member.dart';
 import 'Rooms.dart';
 import 'Seens.dart';
 import 'PendingMessages.dart';
+import 'dao/MemberDao.dart';
 import 'dao/RoomDao.dart';
 import 'dao/MessageDao.dart';
 
@@ -39,7 +45,9 @@ part 'database.g.dart';
   LastAvatars,
   PendingMessages,
   Medias,
-  SharedPreferences
+  SharedPreferences,
+  Members,
+  Groups,
 ], daos: [
   MessageDao,
   RoomDao,
@@ -50,7 +58,9 @@ part 'database.g.dart';
   LastAvatarDao,
   PendingMessageDao,
   MediaDao,
-  SharedPreferencesDao
+  SharedPreferencesDao,
+  MemberDao,
+  GroupDao,
 ])
 class Database extends _$Database {
   Database()

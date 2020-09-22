@@ -7,7 +7,7 @@ class Rooms extends Table {
       boolean().nullable().withDefault(Constant(false))();
 
   IntColumn get lastMessage =>
-      integer().customConstraint('REFERENCES messages(db_id)')();
+      integer().customConstraint('REFERENCES messages(db_id)').nullable()();
 
   @override
   Set<Column> get primaryKey => {roomId};

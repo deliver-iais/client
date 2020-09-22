@@ -29,10 +29,14 @@ class AudioPlayProgress extends StatelessWidget {
                       )
                     : Padding(
                         padding: const EdgeInsets.only(top: 19.0, left: 20),
-                        child: Text(
-                          'description',
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: ExtraTheme.of(context).text),
+                        child: Container(
+                          child: Text(
+                            'description',
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
+                            style:
+                                TextStyle(color: ExtraTheme.of(context).text),
+                          ),
                         ),
                       ),
               ),

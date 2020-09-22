@@ -62,7 +62,16 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                     widget.file.uuid, widget.file.name);
                               },
                             )
-                          : Container(),
+                          : IconButton(
+                        padding: EdgeInsets.all(0),
+                        alignment: Alignment.center,
+                        icon: Icon(
+                          Icons.close,
+                          color: Theme.of(context).primaryColor,
+                          size: 35,
+                        ),
+                        onPressed: () {},
+                      ),
                     ),
                   ],
                 ),

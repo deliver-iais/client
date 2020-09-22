@@ -8,27 +8,23 @@ import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
 class MessageUi extends StatefulWidget {
   final Message message;
-
   final double maxWidth;
-
-  const MessageUi({Key key, this.message, this.maxWidth}) : super(key: key);
+  final Function lastCross;
+  final CrossAxisAlignment last;
+  const MessageUi(
+      {Key key, this.message, this.maxWidth, this.lastCross, this.last})
+      : super(key: key);
 
   @override
   _MessageUiState createState() => _MessageUiState();
 }
 
 class _MessageUiState extends State<MessageUi> {
-  CrossAxisAlignment last = CrossAxisAlignment.start;
-
-  void initiaLastCross(CrossAxisAlignment c) {
-    last = c;
-  }
-
   @override
   Widget build(BuildContext context) {
     String type = widget.message.json.toFile().type;
     return Column(
-      crossAxisAlignment: last,
+      crossAxisAlignment: widget.last,
       children: <Widget>[
         type == 'image'
             ? ImageUi(message: widget.message, maxWidth: widget.maxWidth)
@@ -44,7 +40,7 @@ class _MessageUiState extends State<MessageUi> {
           child: TextUi(
             content: widget.message.json.toFile().caption,
             maxWidth: widget.maxWidth,
-            lastCross: this.initiaLastCross,
+            lastCross: widget.lastCross,
             isCaption: true,
           ),
         )

@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
+import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/roomWithMessage.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/chatItem.dart';
@@ -28,6 +29,7 @@ class ChatsPage extends StatelessWidget {
                       Routes.roomPage,
                       arguments: RoomPageArguments(
                         roomId: roomsWithMessages[index].room.roomId.toString(),
+                        forwardedMessages: List<Message>(),
                       ),
                     );
                   },

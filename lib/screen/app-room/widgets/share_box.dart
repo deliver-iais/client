@@ -14,8 +14,14 @@ import 'package:get_it/get_it.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
-
-  const ShareBox({Key key, this.currentRoomId}) : super(key: key);
+  final int replyMessageId;
+  final Function resetRoomPageDetails;
+  const ShareBox(
+      {Key key,
+      this.currentRoomId,
+      this.replyMessageId,
+      this.resetRoomPageDetails})
+      : super(key: key);
   @override
   _ShareBoxState createState() => _ShareBoxState();
 }
@@ -157,8 +163,17 @@ class _ShareBoxState extends State<ShareBox> {
                                     child: CircleButton(
                                       () {
                                         finalSelected.forEach((key, value) {
-                                          messageRepo.sendFileMessage(
-                                              widget.currentRoomId, value);
+                                          if (widget.replyMessageId != null) {
+                                            messageRepo.sendFileMessage(
+                                                widget.currentRoomId, value,
+                                                replyId: widget.replyMessageId);
+                                            widget.resetRoomPageDetails();
+                                          } else {
+                                            messageRepo.sendFileMessage(
+                                              widget.currentRoomId,
+                                              value,
+                                            );
+                                          }
                                         });
                                         setState(() {
                                           finalSelected.clear();

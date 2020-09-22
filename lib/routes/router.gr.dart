@@ -13,8 +13,11 @@ import 'package:flutter/material.dart';
 
 import '../screen/app-home/pages/homePage.dart';
 import '../screen/app-home/widgets/forward.dart';
+import '../screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import '../screen/app-room/pages/roomPage.dart';
 import '../screen/app-room/widgets/showImage_Widget.dart';
+import '../screen/app_group/pages/group_info_determination_page.dart';
+import '../screen/app_group/pages/member_selection_page.dart';
 import '../screen/app_profile/pages/media_details_page.dart';
 import '../screen/app_profile/pages/profile_page.dart';
 import '../screen/intro/pages/intro_page.dart';
@@ -36,6 +39,10 @@ class Routes {
   static const String profilePage = '/profile-page';
   static const String mediaDetailsPage = '/media-details-page';
   static const String showImagePage = '/show-image-page';
+  static const String memberSelectionPage = '/member-selection-page';
+  static const String groupInfoDeterminationPage =
+      '/group-info-determination-page';
+  static const String selectionToForwardPage = '/selection-to-forward-page';
   static const all = <String>{
     splashScreen,
     introPage,
@@ -49,6 +56,9 @@ class Routes {
     profilePage,
     mediaDetailsPage,
     showImagePage,
+    memberSelectionPage,
+    groupInfoDeterminationPage,
+    selectionToForwardPage,
   };
 }
 
@@ -68,6 +78,10 @@ class Router extends RouterBase {
     RouteDef(Routes.profilePage, page: ProfilePage),
     RouteDef(Routes.mediaDetailsPage, page: MediaDetailsPage),
     RouteDef(Routes.showImagePage, page: ShowImagePage),
+    RouteDef(Routes.memberSelectionPage, page: MemberSelectionPage),
+    RouteDef(Routes.groupInfoDeterminationPage,
+        page: GroupInfoDeterminationPage),
+    RouteDef(Routes.selectionToForwardPage, page: SelectionToForwardPage),
   ];
   @override
   Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
@@ -122,6 +136,7 @@ class Router extends RouterBase {
         builder: (context) => RoomPage(
           key: args.key,
           roomId: args.roomId,
+          forwardedMessages: args.forwardedMessages,
         ),
         settings: data,
       );
@@ -170,6 +185,36 @@ class Router extends RouterBase {
         settings: data,
       );
     },
+    MemberSelectionPage: (data) {
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => MemberSelectionPage(),
+        settings: data,
+      );
+    },
+    GroupInfoDeterminationPage: (data) {
+      final args = data.getArgs<GroupInfoDeterminationPageArguments>(
+        orElse: () => GroupInfoDeterminationPageArguments(),
+      );
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => GroupInfoDeterminationPage(
+          key: args.key,
+          members: args.members,
+        ),
+        settings: data,
+      );
+    },
+    SelectionToForwardPage: (data) {
+      final args = data.getArgs<SelectionToForwardPageArguments>(
+        orElse: () => SelectionToForwardPageArguments(),
+      );
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => SelectionToForwardPage(
+          key: args.key,
+          forwardedMessages: args.forwardedMessages,
+        ),
+        settings: data,
+      );
+    },
   };
 }
 
@@ -188,7 +233,8 @@ class IntroPageArguments {
 class RoomPageArguments {
   final Key key;
   final String roomId;
-  RoomPageArguments({this.key, this.roomId});
+  final List<dynamic> forwardedMessages;
+  RoomPageArguments({this.key, this.roomId, this.forwardedMessages});
 }
 
 /// ProfilePage arguments holder class
@@ -224,4 +270,18 @@ class ShowImagePageArguments {
   final File imageFile;
   final String contactUid;
   ShowImagePageArguments({this.key, this.imageFile, this.contactUid});
+}
+
+/// GroupInfoDeterminationPage arguments holder class
+class GroupInfoDeterminationPageArguments {
+  final Key key;
+  final List<dynamic> members;
+  GroupInfoDeterminationPageArguments({this.key, this.members});
+}
+
+/// SelectionToForwardPage arguments holder class
+class SelectionToForwardPageArguments {
+  final Key key;
+  final List<dynamic> forwardedMessages;
+  SelectionToForwardPageArguments({this.key, this.forwardedMessages});
 }
