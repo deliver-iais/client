@@ -19,34 +19,34 @@ class ModeChecker {
   CoreServiceClient _coreServiceClient = CoreServiceClient(_clientChannel);
 
   checkServerConnectivity() async {
-    AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
-    try {
-      var resStream = _coreServiceClient.establishStream(null,
-          options: CallOptions(
-              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      checkInterval = 1;
-      mode.add(AppMode.UPDATING);
-    } catch (e) {
-      if (await mode.stream.last == AppMode.STABLE) {
-        await Future.delayed(Duration(seconds: 4));
-        try {
-          var resStream = _coreServiceClient.establishStream(null,
-              options: CallOptions(metadata: {
-                'accessToken': await _accountRepo.getAccessToken()
-              }));
-          checkInterval = 1;
-          mode.add(AppMode.UPDATING);
-        } catch (e) {
-          checkInterval = checkInterval + 1; //??????
-          mode.add(AppMode.CONNECTING);
-        }
-      }
-      if (checkInterval == 8)
-        checkInterval = 1;
-      else
-        checkInterval = checkInterval + 1;
-      mode.add(AppMode.CONNECTING);
-    }
+    // AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
+    // try {
+    //   var resStream = _coreServiceClient.establishStream(null,
+    //       options: CallOptions(
+    //           metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+    //   checkInterval = 1;
+    //   mode.add(AppMode.UPDATING);
+    // } catch (e) {
+    //   if (await mode.stream.last == AppMode.STABLE) {
+    //     await Future.delayed(Duration(seconds: 4));
+    //     try {
+    //       var resStream = _coreServiceClient.establishStream(null,
+    //           options: CallOptions(metadata: {
+    //             'accessToken': await _accountRepo.getAccessToken()
+    //           }));
+    //       checkInterval = 1;
+    //       mode.add(AppMode.UPDATING);
+    //     } catch (e) {
+    //       checkInterval = checkInterval + 1; //??????
+    //       mode.add(AppMode.CONNECTING);
+    //     }
+    //   }
+    //   if (checkInterval == 8)
+    //     checkInterval = 1;
+    //   else
+    //     checkInterval = checkInterval + 1;
+    mode.add(AppMode.CONNECTING);
+    // }
   }
 
   ModeChecker() {

@@ -18,12 +18,14 @@ class Appbar extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
     return AppBar(
-      leading: ExtendedNavigator.of(context).canPop() ? new IconButton(
-        icon: new Icon(Icons.arrow_back),
-        onPressed: () {
-          ExtendedNavigator.of(context).pop();
-        },
-      ): null,
+      leading: ExtendedNavigator.of(context).canPop()
+          ? new IconButton(
+              icon: new Icon(Icons.arrow_back),
+              onPressed: () {
+                ExtendedNavigator.of(context).pop();
+              },
+            )
+          : null,
       backgroundColor: Theme.of(context).backgroundColor,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -74,14 +76,16 @@ class Appbar extends StatelessWidget {
                                         userUid: accountRepo.currentUserUid));
                               },
                             )),
-                        PopupMenuItem(
-                            child: GestureDetector(
+                            PopupMenuItem(
+                                child: GestureDetector(
                               child: Text("Go to Group"),
                               onTap: () {
-                                ExtendedNavigator.of(context).push(
-                                    Routes.profilePage,
-                                    arguments: ProfilePageArguments(
-                                        userUid: Uid()..category = Categories.Group..node = "123123"));
+                                ExtendedNavigator.of(context)
+                                    .push(Routes.profilePage,
+                                        arguments: ProfilePageArguments(
+                                            userUid: Uid()
+                                              ..category = Categories.Group
+                                              ..node = "123123"));
                               },
                             )),
                             PopupMenuItem(
