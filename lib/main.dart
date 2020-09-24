@@ -21,6 +21,7 @@ import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/services/message_service.dart';
+import 'package:deliver_flutter/services/mode_checker.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/services/video_player_service.dart';
@@ -76,9 +77,10 @@ void setupRepositories() {
   getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
+  getIt.registerSingleton<ModeChecker>(ModeChecker());
 }
 
-setupFlutterNotification()async {
+setupFlutterNotification() async {
   await Firebase.initializeApp();
 }
 

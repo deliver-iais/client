@@ -27,9 +27,8 @@ class AudioPlayerService {
     audioCache = AudioCache(fixedPlayer: audioPlayer);
     audioPlayer.setVolume(1);
     AudioPlayer.logEnabled = true;
-    _audioPlayerController =
-        _audioPlayerController = StreamController<bool>.broadcast();
-    _audioPlayerStateController = _audioPlayerStateController =
+    _audioPlayerController = StreamController<bool>.broadcast();
+    _audioPlayerStateController =
         StreamController<AudioPlayerState>.broadcast();
     _audioPlayerController.add(false);
     isPlaying = false;
