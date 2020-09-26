@@ -269,8 +269,8 @@ class SettingState extends State<SettingsPage> {
                           color: ExtraTheme.of(context).backgroundOfProfilePage,
                         ),
                         height: 60,
-                        padding: const EdgeInsetsDirectional.only(
-                            start: 5, end: 15),
+                        padding:
+                            const EdgeInsetsDirectional.only(start: 5, end: 15),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
@@ -334,26 +334,30 @@ class SettingState extends State<SettingsPage> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Container(
-                                  child: Row(children: [
-                                    GestureDetector(
-                                      child:Icon(Icons.exit_to_app,size: 15,) ,
-                                      onTap: (){
-                                        deleteDb();
-                                        Navigator.of(context).pushAndRemoveUntil(
-                                            new MaterialPageRoute(
-                                                builder: (context) => IntroPage()),
-                                                (Route<dynamic> route) => false);
-                                      },
-                                    ),
-                                SizedBox(width: 5,),
-                              
-                                Text(
-                                  appLocalization.getTraslateValue("Log_out"),
-                                  style: TextStyle(
-                                      color: ExtraTheme.of(context).text,
-                                      fontSize: 13),
-                                ),
-                              ])),
+                                  child: GestureDetector(
+                                child: Row(children: [
+                                  Icon(
+                                    Icons.exit_to_app,
+                                    size: 15,
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    appLocalization.getTraslateValue("Log_out"),
+                                    style: TextStyle(
+                                        color: ExtraTheme.of(context).text,
+                                        fontSize: 13),
+                                  ),
+                                ]),
+                                onTap: () {
+                                  deleteDb();
+                                  Navigator.of(context).pushAndRemoveUntil(
+                                      new MaterialPageRoute(
+                                          builder: (context) => IntroPage()),
+                                      (Route<dynamic> route) => false);
+                                },
+                              )),
                             ],
                           )),
                     ])),

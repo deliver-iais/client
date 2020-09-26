@@ -12,11 +12,10 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/image_message/fil
 import 'package:deliver_flutter/screen/app-room/messageWidgets/sending_file_circular_indicator.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
-import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
-import 'package:deliver_flutter/shared/extensions/uid_Extension.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class ImageUi extends StatefulWidget {
   final Message message;
