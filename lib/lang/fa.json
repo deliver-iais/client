@@ -63,6 +63,9 @@
   "Delete": "حذف",
   "ForwardTo": "باز‌ارسال به...",
   "ForwardedMessages": "پیام باز‌ارسال شده",
-  "Log_out": "خروج از حساب کاربری"
+  "Log_out": "خروج از حساب کاربری",
+  "new_Contact": "مخاطب جدید",
+  "firstName": "نام",
+  "lastName": "نام خانوادگی"
 
 }

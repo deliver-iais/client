@@ -10,13 +10,14 @@ class ContactDao extends DatabaseAccessor<Database> with _$ContactDaoMixin {
 
   ContactDao(this.database) : super(database);
 
-  Future insetContact(Contact contact) => into(contacts).insert(contact);
+  Future insetContact(Contact contact) => into(contacts).insertOnConflictUpdate(contact);
 
   Future deleteAvatar(Contact contact) => delete(contacts).delete(contact);
 
-  getContact(String uid) {
-    return (select(contacts)..where((tbl) => tbl.uid.equals(uid))).get();
+  Future<Contact>getContact(String phoneNumber
+      ) {
+    return (select(contacts)..where((tbl) => tbl.phoneNumber.equals(phoneNumber))).getSingle();
   }
 
-  Stream getAllContacts() => select(contacts).watch();
+  Stream<List<Contact>> getAllContacts() => select(contacts).watch();
 }

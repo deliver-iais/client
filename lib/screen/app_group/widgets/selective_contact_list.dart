@@ -1,15 +1,15 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/listItem.dart';
+
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/screen/app-contacts/contactsData.dart';
+
 import 'package:deliver_flutter/screen/app_group/widgets/selective_contact.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+
 import 'package:get_it/get_it.dart';
 
 class SelectiveContactsList extends StatefulWidget {
@@ -19,28 +19,29 @@ class SelectiveContactsList extends StatefulWidget {
   const SelectiveContactsList(
       {Key key, this.increaseMember, this.decreaseMember})
       : super(key: key);
+
   @override
   _SelectiveContactsListState createState() => _SelectiveContactsListState();
 }
 
 class _SelectiveContactsListState extends State<SelectiveContactsList> {
   TextEditingController editingController;
-  var selectedList = [];
-  var items = [];
+  List<Contact> selectedList = [];
+  var items;
   var accountRepo = GetIt.I.get<AccountRepo>();
+  var contactDao = GetIt.I.get<ContactDao>();
+  List<Contact> contacts = [];
+
   @override
   void initState() {
-    items.addAll(contactsList);
     editingController = TextEditingController();
     super.initState();
   }
 
   void filterSearchResults(String query) {
-    List<Contact> dummySearchList = List<Contact>();
-    dummySearchList.addAll(contactsList);
     if (query.isNotEmpty) {
       List<Contact> dummyListData = List<Contact>();
-      dummySearchList.forEach((item) {
+      contacts.forEach((item) {
         if (item.firstName.toLowerCase().contains(query) ||
             item.lastName.toLowerCase().contains(query)) {
           dummyListData.add(item);
@@ -50,11 +51,10 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
         items.clear();
         items.addAll(dummyListData);
       });
-      return;
     } else {
       setState(() {
         items.clear();
-        items.addAll(contactsList);
+        items.addAll(contacts);
       });
     }
   }
@@ -70,71 +70,41 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
             children: [
               Flexible(
                 child: TextField(
-                  onChanged: (value) {
-                    filterSearchResults(value);
-                  },
-                  controller: editingController,
-                  decoration: InputDecoration(
-                    prefixIcon: Wrap(
-                        direction: Axis.horizontal,
-                        children: List.generate(
-                            selectedList.length,
-                            (index) => Padding(
-                                  padding: const EdgeInsets.all(1.0),
-                                  child: Stack(
-                                    alignment: Alignment.centerLeft,
-                                    children: [
-                                      Container(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              top: 5.0,
-                                              bottom: 5,
-                                              left: 30,
-                                              right: 5),
-                                          child: Text(
-                                            selectedList[index].firstName,
-                                            style: TextStyle(fontSize: 12),
-                                          ),
-                                        ),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(12)),
-                                          color: Theme.of(context).accentColor,
-                                        ),
-                                      ),
-                                      Positioned(
-                                        child: CircleAvatarWidget(
-                                            accountRepo.currentUserUid,
-                                            selectedList[index]
-                                                    .firstName
-                                                    .substring(0, 1) +
-                                                selectedList[index]
-                                                    .lastName
-                                                    .substring(0, 1),
-                                            14),
-                                      )
-                                    ],
-                                  ),
-                                ))),
-                  ),
-                ),
+                    onChanged: (value) {
+                      filterSearchResults(value);
+                    },
+                    controller: editingController),
               ),
               Expanded(
                   child: Stack(
                 children: [
-                  items.length != 0
-                      ? Container(
-                          child: ListView.builder(
-                            itemCount: items.length,
-                            itemBuilder: _getListItemTile,
-                          ),
-                        )
-                      : Center(
-                          child: Text(
-                            appLocalization.getTraslateValue("NoResults"),
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ),
+                  StreamBuilder(
+                      stream: contactDao.getAllContacts(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<List<Contact>> snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data.length > 0) {
+                          contacts = snapshot.data;
+                          if (items == null) {
+                            items = contacts.map((e) => e.copyWith()).toList();
+                          }
+
+                          return Container(
+                            child: ListView.builder(
+                              itemCount: items.length,
+                              itemBuilder: _getListItemTile,
+                            ),
+                          );
+                        } else {
+                          return Center(
+                            child: Text(
+                              appLocalization.getTraslateValue("NoResults"),
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          );
+                        }
+                      }),
                 ],
               )),
             ],
@@ -177,25 +147,25 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
     return GestureDetector(
       onTap: () {
         if (selectedList.contains(items[index])) {
-          selectedList.remove(items[index]);
+          setState(() {
+            selectedList.remove(items[index]);
+          });
           editingController.clear();
-          items.clear();
-          items.addAll(contactsList);
           widget.decreaseMember();
         } else {
-          selectedList.add(items[index]);
+          setState(() {
+            selectedList.add(items[index]);
+          });
           editingController.clear();
-          items.clear();
-          items.addAll(contactsList);
           widget.increaseMember();
         }
       },
       onLongPress: () {
         if (!selectedList.contains(items[index])) {
-          selectedList.add(items[index]);
+          setState(() {
+            selectedList.add(items[index]);
+          });
           editingController.clear();
-          items.clear();
-          items.addAll(contactsList);
           widget.increaseMember();
         }
       },

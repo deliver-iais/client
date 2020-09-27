@@ -13,7 +13,7 @@ class ServicesDiscoveryRepo {
     ..port = 30010;
 
   ConnectionDetails contactServices = ConnectionDetails()
-    ..host = "127.16.111.171"
+    ..host = "172.16.111.189"
     ..port = 30000;
 
 
