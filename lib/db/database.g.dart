@@ -3712,7 +3712,7 @@ class Member extends DataClass implements Insertable<Member> {
   final int dbId;
   final String memberUid;
   final String mucUid;
-  final Role role;
+  final MucRole role;
   Member(
       {@required this.dbId,
       @required this.memberUid,
@@ -3771,7 +3771,7 @@ class Member extends DataClass implements Insertable<Member> {
       dbId: serializer.fromJson<int>(json['dbId']),
       memberUid: serializer.fromJson<String>(json['memberUid']),
       mucUid: serializer.fromJson<String>(json['mucUid']),
-      role: serializer.fromJson<Role>(json['role']),
+      role: serializer.fromJson<MucRole>(json['role']),
     );
   }
   @override
@@ -3781,11 +3781,11 @@ class Member extends DataClass implements Insertable<Member> {
       'dbId': serializer.toJson<int>(dbId),
       'memberUid': serializer.toJson<String>(memberUid),
       'mucUid': serializer.toJson<String>(mucUid),
-      'role': serializer.toJson<Role>(role),
+      'role': serializer.toJson<MucRole>(role),
     };
   }
 
-  Member copyWith({int dbId, String memberUid, String mucUid, Role role}) =>
+  Member copyWith({int dbId, String memberUid, String mucUid, MucRole role}) =>
       Member(
         dbId: dbId ?? this.dbId,
         memberUid: memberUid ?? this.memberUid,
@@ -3820,7 +3820,7 @@ class MembersCompanion extends UpdateCompanion<Member> {
   final Value<int> dbId;
   final Value<String> memberUid;
   final Value<String> mucUid;
-  final Value<Role> role;
+  final Value<MucRole> role;
   const MembersCompanion({
     this.dbId = const Value.absent(),
     this.memberUid = const Value.absent(),
@@ -3831,7 +3831,7 @@ class MembersCompanion extends UpdateCompanion<Member> {
     this.dbId = const Value.absent(),
     @required String memberUid,
     @required String mucUid,
-    @required Role role,
+    @required MucRole role,
   })  : memberUid = Value(memberUid),
         mucUid = Value(mucUid),
         role = Value(role);
@@ -3853,7 +3853,7 @@ class MembersCompanion extends UpdateCompanion<Member> {
       {Value<int> dbId,
       Value<String> memberUid,
       Value<String> mucUid,
-      Value<Role> role}) {
+      Value<MucRole> role}) {
     return MembersCompanion(
       dbId: dbId ?? this.dbId,
       memberUid: memberUid ?? this.memberUid,
@@ -3988,8 +3988,8 @@ class $MembersTable extends Members with TableInfo<$MembersTable, Member> {
     return $MembersTable(_db, alias);
   }
 
-  static TypeConverter<Role, int> $converter0 =
-      const EnumIndexConverter<Role>(Role.values);
+  static TypeConverter<MucRole, int> $converter0 =
+      const EnumIndexConverter<MucRole>(MucRole.values);
 }
 
 class Group extends DataClass implements Insertable<Group> {

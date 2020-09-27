@@ -186,15 +186,12 @@ class _GroupInfoDeterminationPageState
                 alignment: Alignment.center,
                 padding: EdgeInsets.all(0),
                 icon: Icon(Icons.check),
-                onPressed: () {
-                  Uid groupUid = Uid.create()
-                    ..category = Categories.Group
-                    ..node = controller.text;
-                  List<String> memberUids = [];
+                onPressed: ()  async {
+                  List<Uid> memberUids = [];
                   for (var i = 0; i < widget.members.length; i++) {
-                    memberUids.add(widget.members[i].uid);
+                    memberUids.add(widget.members[i].uid.uid);
                   }
-                  groupRepo.makeNewGroup(groupUid, memberUids, controller.text);
+                  Uid groupUid = await groupRepo.makeNewGroup( memberUids, controller.text);
                   groupName = '';
                   controller.clear();
                   ExtendedNavigator.of(context).push(Routes.roomPage,

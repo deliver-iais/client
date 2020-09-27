@@ -5,5 +5,5 @@ class Members extends Table {
   IntColumn get dbId => integer().autoIncrement()();
   TextColumn get memberUid => text()();
   TextColumn get mucUid => text()();
-  IntColumn get role => intEnum<Role>()();
+  IntColumn get role => intEnum<MucRole>()();
 }

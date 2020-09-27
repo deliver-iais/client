@@ -15,8 +15,8 @@ class FireBaseServices {
   var accountRepo = GetIt.I.get<AccountRepo>();
 
   static ClientChannel _clientChannel = ClientChannel(
-      ServicesDiscoveryRepo().fireBaseServies.host,
-      port: ServicesDiscoveryRepo().fireBaseServies.port,
+      ServicesDiscoveryRepo().fireBaseServices.host,
+      port: ServicesDiscoveryRepo().fireBaseServices.port,
       options: ChannelOptions(credentials: ChannelCredentials.insecure()));
 
   var fireBaseServices = FirebaseServiceClient(_clientChannel);
