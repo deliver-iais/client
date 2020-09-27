@@ -12,6 +12,7 @@ class MediaDetailsPage extends StatefulWidget {
   List<String> mediaList;
   String mediaSender;
   String mediaTime;
+
   MediaDetailsPage(
       {Key key,
       this.mediaUrl,
@@ -98,36 +99,35 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       ),
       bottomNavigationBar: _showAppBar
           ? BottomAppBar(
-              color: ExtraTheme.of(context).black,
               child: GestureDetector(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                        padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
-                        child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.mediaSender,
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                      padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                      child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.mediaSender,
+                              style: TextStyle(
+                                fontSize: 16.0,
                               ),
-                              Text(widget.mediaTime.split(" ")[0] +
-                                  " at " +
-                                  widget.mediaTime.split(" ")[1]),
-                            ])),
-                    SizedBox(width: 10),
-                    IconButton(
-                      icon: Icon(Icons.share),
-                      onPressed: () {},
-                    ),
-                  ],
-                ),
-              ))
+                            ),
+                            Text(widget.mediaTime.split(" ")[0] +
+                                " at " +
+                                widget.mediaTime.split(" ")[1]),
+                          ])),
+                  SizedBox(width: 10),
+                  IconButton(
+                    icon: Icon(Icons.share),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ))
           : null,
     );
   }

@@ -15,31 +15,32 @@ class CircleAvatarWidget extends StatelessWidget {
   final Uid contactUid;
   final double radius;
   final String displayName;
-  final bool updateAvatar;
+  final bool forceToUpdate;
 
   final avatarRepo = GetIt.I.get<AvatarRepo>();
   final contactDao = GetIt.I.get<ContactDao>();
   final fileRepo = GetIt.I.get<FileRepo>();
   final accountRepo = GetIt.I.get<AccountRepo>();
 
-
-  CircleAvatarWidget(this.contactUid,this.displayName, this.radius,this.updateAvatar);
-
+  CircleAvatarWidget(this.contactUid, this.displayName, this.radius,
+      {this.forceToUpdate = false});
 
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: radius,
       backgroundColor: ExtraTheme.of(context).circleAvatarBackground,
-      child: StreamBuilder<List<Avatar>>(
-          stream: avatarRepo.getAvatar(contactUid,this.updateAvatar),
-          builder: (BuildContext context, AsyncSnapshot<List<Avatar>> snapshot) {
+      child: FutureBuilder<LastAvatar>(
+          future:
+              avatarRepo.getLastAvatar(contactUid, this.forceToUpdate),
+          builder: (BuildContext context, AsyncSnapshot<LastAvatar> snapshot) {
             if (snapshot.hasData &&
                 snapshot.data != null &&
-                snapshot.data.length > 0) {
+                snapshot.data.fileId != null &&
+                snapshot.data.fileName != null) {
               return FutureBuilder(
-                future: fileRepo.getFile(snapshot.data.elementAt(0).fileId,
-                    snapshot.data.elementAt(0).fileName),
+                future: fileRepo.getFile(
+                    snapshot.data.fileId, snapshot.data.fileName),
                 builder: (BuildContext c, AsyncSnapshot snaps) {
                   if (snaps.hasData) {
                     return CircleAvatar(

@@ -21,7 +21,6 @@ ThemeData LightTheme =
 
 ExtraThemeData LightExtraTheme = ExtraThemeData(
   circleAvatarBackground: Color(0xFF5F5F5F),
-  introColor: Color(0xFF5F5F5F),
   details: Color(0xFF9D9D9D),
   circleAvatarIcon: Colors.white,
   secondColor: Color(0xFF393939),

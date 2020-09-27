@@ -16,6 +16,12 @@ class AvatarDao extends DatabaseAccessor<Database> with _$AvatarDaoMixin {
   Future deleteAvatar(Avatar avatar) => delete(avatars).delete(avatar);
 
   Stream<List<Avatar>> getByUid(String uid) {
-    return (select(avatars)..orderBy([(avatar)=>OrderingTerm(expression:avatar.date,mode: OrderingMode.desc)])..where((avatar) => avatar.uid.equals(uid))).watch();
+    return (select(avatars)
+          ..orderBy([
+            (avatar) => OrderingTerm(
+                expression: avatar.createdOn, mode: OrderingMode.desc)
+          ])
+          ..where((avatar) => avatar.uid.equals(uid)))
+        .watch();
   }
 }

@@ -206,8 +206,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                     // contact.firstName.substring(0, 1) +
                                                     //     contact.lastName.substring(0, 1),
                                                     'JD',
-                                                    23,
-                                                    false)
+                                                    23)
                                                 : Container(),
                                             RecievedMessageBox(
                                               message:

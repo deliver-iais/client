@@ -23,11 +23,12 @@ import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_flutter/theme/sizing.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:fimber/fimber.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -78,6 +79,7 @@ void setupRepositories() {
   getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
+  getIt.registerSingleton<RoutingService>(RoutingService());
 }
 
 setupFlutterNotification()async {

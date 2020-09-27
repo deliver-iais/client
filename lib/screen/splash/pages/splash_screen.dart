@@ -31,15 +31,22 @@ class _SplashScreenState extends State<SplashScreen> {
   void _navigateToHomePage() {
     ExtendedNavigator.of(context).pushAndRemoveUntil(
       Routes.homePage,
-          (_) => false,
+      (_) => false,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        child: CircularProgressIndicator(),
+    return Container(
+      child: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: Image.asset(
+                  "assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png"),
+            ),
+          ),
+        ],
       ),
     );
   }

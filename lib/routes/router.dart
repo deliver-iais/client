@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route_annotations.dart';
-import 'package:deliver_flutter/screen/app-home/pages/homePage.dart';
-import 'package:deliver_flutter/screen/app-home/widgets/forward.dart';
+import 'package:deliver_flutter/screen/home/pages/home_page.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver_flutter/screen/register/pages/login_page.dart';
 import 'package:deliver_flutter/screen/register/pages/verification_page.dart';
@@ -20,12 +19,7 @@ import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dar
     MaterialRoute(page: IntroPage),
     MaterialRoute(page: LoginPage),
     MaterialRoute(page: VerificationPage),
-    MaterialRoute(path: "/home-page", name: "homePage", page: HomePage),
-    MaterialRoute(path: "/contacts-page", name: "contactsPage", page: HomePage),
-    MaterialRoute(page: SettingsPage),
-    MaterialRoute(page: RoomPage),
-    MaterialRoute(page: ForwardMessage),
-    MaterialRoute(page: ProfilePage),
+    MaterialRoute(page: HomePage),
     MaterialRoute(page: MediaDetailsPage),
     MaterialRoute(page: ShowImagePage),
     MaterialRoute(page: MemberSelectionPage),

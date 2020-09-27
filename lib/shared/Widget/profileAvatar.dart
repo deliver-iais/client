@@ -7,6 +7,7 @@ import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/services/file_service.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:dots_indicator/dots_indicator.dart';
@@ -34,6 +35,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   final selectedImages = Map<int, bool>();
   var avatarRepo = GetIt.I.get<AvatarRepo>();
   var fileRepo = GetIt.I.get<FileRepo>();
+  var routingService = GetIt.I.get<RoutingService>();
   List<Avatar> _avatars = new List();
   String uploadAvatarPath;
 
@@ -112,8 +114,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         children: <Widget>[
           CarouselSlider(
             options: CarouselOptions(
-              height: MediaQuery.of(context).size.width,
+              height: 300,
               viewportFraction: 1,
+              aspectRatio: 1,
               onPageChanged: (index, reason) {
                 setState(() {
                   currentAvatarIndex = index.ceilToDouble();
@@ -127,9 +130,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     children: <Widget>[
                       Container(
                         child: FutureBuilder<File>(
-                          future: fileRepo.getFile(avatar.fileId, avatar.fileName),
-                          builder:
-                              (BuildContext c, AsyncSnapshot<File> snaps) {
+                          future:
+                              fileRepo.getFile(avatar.fileId, avatar.fileName),
+                          builder: (BuildContext c, AsyncSnapshot<File> snaps) {
                             if (snaps.hasData && snaps.data != null) {
                               return Image.file(
                                 File(snaps.data.path),
@@ -196,23 +199,26 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         child: Text(
                             appLocalization.getTraslateValue("setProfile")),
                         value: "select"),
-                    _avatars.length > 0
-                        ? new PopupMenuItem<String>(
-                            child: Text(
-                                appLocalization.getTraslateValue("delete")),
-                            value: "delete")
-                        : new PopupMenuItem<String>(
-                            child: SizedBox.shrink(), value: "w"),
+                    if (_avatars.length > 0)
+                      new PopupMenuItem<String>(
+                          child:
+                              Text(appLocalization.getTraslateValue("delete")),
+                          value: "delete"),
                   ],
                   onSelected: onSelected,
                 )
               : SizedBox.shrink()
         ],
         forceElevated: widget.innerBoxIsScrolled,
-        leading: BackButton(
-          color: ExtraTheme.of(context).infoChat,
-        ),
-        expandedHeight: MediaQuery.of(context).size.width - 40,
+        leading: routingService.canPop()
+            ? BackButton(
+                color: ExtraTheme.of(context).infoChat,
+                onPressed: () {
+                  routingService.pop();
+                },
+              )
+            : null,
+        expandedHeight: 300,
         floating: false,
         pinned: true,
         flexibleSpace: FlexibleSpaceBar(
@@ -240,8 +246,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                       child: Image.file(
                         File(uploadAvatarPath),
                         fit: BoxFit.cover,
-                        height: MediaQuery.of(context).size.width,
-                        width: MediaQuery.of(context).size.width,
+                        height: 300,
+                        width: 300,
                       ),
                       foregroundDecoration: BoxDecoration(
                         gradient: LinearGradient(

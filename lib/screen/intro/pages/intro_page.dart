@@ -4,7 +4,7 @@ import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/intro/custom_library/intro_slider.dart';
 import 'package:deliver_flutter/screen/intro/custom_library/slide_object.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
-import 'package:deliver_flutter/theme/sizing.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
@@ -46,10 +46,12 @@ class _IntroPageState extends State<IntroPage> {
     double paddingTop = ANIMATION_TOP_PADDING(context);
     return FluidWidget(
       child: Stack(
+        key: Key("INTRO_ANIMATION_PAGE1"),
         children: [
           Align(
             alignment: Alignment.topCenter,
             child: Container(
+              key: Key("INTRO_ANIMATION_PAGE"),
               width: animationSize,
               height: animationSize + paddingTop,
               padding: EdgeInsets.only(top: paddingTop),

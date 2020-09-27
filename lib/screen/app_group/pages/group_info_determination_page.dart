@@ -194,14 +194,14 @@ class _GroupInfoDeterminationPageState
                   Uid groupUid = await groupRepo.makeNewGroup( memberUids, controller.text);
                   groupName = '';
                   controller.clear();
-                  ExtendedNavigator.of(context).push(Routes.roomPage,
-                      arguments: RoomPageArguments(roomId: groupUid.string));
-                  ExtendedNavigator.of(context).pushAndRemoveUntilPath(
-                      Routes.roomPage, Routes.homePage,
-                      arguments: RoomPageArguments(
-                          roomId: groupUid.string,
-                          forwardedMessages:
-                              List<Message>.generate(0, (index) => null)));
+                  // ExtendedNavigator.of(context).push(Routes.roomPage,
+                  //     arguments: RoomPageArguments(roomId: groupUid.string));
+                  // ExtendedNavigator.of(context).pushAndRemoveUntilPath(
+                  //     Routes.roomPage, Routes.homePage,
+                  //     arguments: RoomPageArguments(
+                  //         roomId: groupUid.string,
+                  //         forwardedMessages:
+                  //             List<Message>.generate(0, (index) => null)));
                 },
               ),
             ),

@@ -1,6 +1,5 @@
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:fimber/fimber.dart';
 
 extension UidExtension on Uid {
   bool isSameEntity(String entityString) {
@@ -32,8 +31,6 @@ extension StringUidExtension on String {
     if (list.length != 2) {
       return false;
     } else {
-      Fimber.d(list[0]);
-      Fimber.d(list[1]);
       return uid.category.value == int.parse(list[0]) && uid.node == list[1];
     }
   }

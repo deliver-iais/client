@@ -22,4 +22,10 @@ class LastAvatarDao extends DatabaseAccessor<Database>
           ..where((lastAvatar) => lastAvatar.uid.equals(uid)))
         .getSingle();
   }
+
+  Stream<LastAvatar> getLastAvatarStream(String uid) {
+    return (select(lastAvatars)
+          ..where((lastAvatar) => lastAvatar.uid.equals(uid)))
+        .watchSingle();
+  }
 }

@@ -31,8 +31,7 @@ class ContactWidget extends StatelessWidget {
                       accountRepo.currentUserUid,
                       contact.firstName.substring(0, 1) +
                           contact.lastName.substring(0, 1),
-                      23,
-                      false),
+                      23),
                   Positioned(
                     child: Container(
                       width: 12.0,
