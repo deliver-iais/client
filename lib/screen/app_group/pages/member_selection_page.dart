@@ -3,7 +3,7 @@ import 'package:deliver_flutter/screen/app_group/widgets/selective_contact_list.
 import 'package:flutter/material.dart';
 
 class MemberSelectionPage extends StatefulWidget {
-  int members = 1;
+  int members = 0;
   @override
   _MemberSelectionPageState createState() => _MemberSelectionPageState();
 }
@@ -34,7 +34,7 @@ class _MemberSelectionPageState extends State<MemberSelectionPage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Text(
-              widget.members > 1
+              widget.members >= 1
                   ? '${widget.members}' +
                       appLocalization.getTraslateValue("ofMaxMember")
                   : appLocalization.getTraslateValue("maxMember"),

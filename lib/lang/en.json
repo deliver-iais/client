@@ -63,5 +63,8 @@
   "Delete": "Delete",
   "ForwardTo": "Forward to...",
   "ForwardedMessages": "forwarded messages",
-  "Log_out": "Log out"
+  "Log_out": "Log out",
+  "new_Contact": "new Contact",
+  "firstName": "name",
+  "lastName": "last name"
 }

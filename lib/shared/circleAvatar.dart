@@ -50,14 +50,14 @@ class CircleAvatarWidget extends StatelessWidget {
                       ).image,
                     );
                   } else {
-                    return new Text("JD",
+                    return new Text(displayName,
                         style: TextStyle(
                             color: Colors.white, fontSize: radius, height: 2));
                   }
                 },
               );
             } else {
-              return new Text("JD",
+              return new Text(displayName,
                   style: TextStyle(
                       color: Colors.white, fontSize: radius, height: 2));
             }

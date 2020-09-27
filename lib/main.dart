@@ -12,6 +12,7 @@ import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
@@ -73,6 +74,7 @@ void setupRepositories() {
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<MessageRepo>(MessageRepo());
   getIt.registerSingleton<MucServices>(MucServices());
+  getIt.registerSingleton<ContactRepo>(ContactRepo());
   getIt.registerSingleton<MucRepo>(MucRepo());
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
   getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());

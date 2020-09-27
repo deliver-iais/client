@@ -1245,52 +1245,35 @@ class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
 
 class Contact extends DataClass implements Insertable<Contact> {
   final String uid;
-  final DateTime lastUpdateAvatarTime;
-  final String lastAvatarFileId;
   final String phoneNumber;
   final String firstName;
   final String lastName;
-  final DateTime lastSeen;
-  final bool notification;
+  final bool isMute;
   final bool isBlock;
-  final bool isOnline;
   Contact(
-      {@required this.uid,
-      @required this.lastUpdateAvatarTime,
-      this.lastAvatarFileId,
+      {this.uid,
       @required this.phoneNumber,
-      @required this.firstName,
-      @required this.lastName,
-      @required this.lastSeen,
-      @required this.notification,
-      @required this.isBlock,
-      @required this.isOnline});
+      this.firstName,
+      this.lastName,
+      @required this.isMute,
+      @required this.isBlock});
   factory Contact.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
-    final dateTimeType = db.typeSystem.forDartType<DateTime>();
     final boolType = db.typeSystem.forDartType<bool>();
     return Contact(
       uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
-      lastUpdateAvatarTime: dateTimeType.mapFromDatabaseResponse(
-          data['${effectivePrefix}last_update_avatar_time']),
-      lastAvatarFileId: stringType.mapFromDatabaseResponse(
-          data['${effectivePrefix}last_avatar_file_id']),
       phoneNumber: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}phone_number']),
       firstName: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}first_name']),
       lastName: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}last_name']),
-      lastSeen: dateTimeType
-          .mapFromDatabaseResponse(data['${effectivePrefix}last_seen']),
-      notification: boolType
-          .mapFromDatabaseResponse(data['${effectivePrefix}notification']),
+      isMute:
+          boolType.mapFromDatabaseResponse(data['${effectivePrefix}is_mute']),
       isBlock:
           boolType.mapFromDatabaseResponse(data['${effectivePrefix}is_block']),
-      isOnline:
-          boolType.mapFromDatabaseResponse(data['${effectivePrefix}is_online']),
     );
   }
   @override
@@ -1298,12 +1281,6 @@ class Contact extends DataClass implements Insertable<Contact> {
     final map = <String, Expression>{};
     if (!nullToAbsent || uid != null) {
       map['uid'] = Variable<String>(uid);
-    }
-    if (!nullToAbsent || lastUpdateAvatarTime != null) {
-      map['last_update_avatar_time'] = Variable<DateTime>(lastUpdateAvatarTime);
-    }
-    if (!nullToAbsent || lastAvatarFileId != null) {
-      map['last_avatar_file_id'] = Variable<String>(lastAvatarFileId);
     }
     if (!nullToAbsent || phoneNumber != null) {
       map['phone_number'] = Variable<String>(phoneNumber);
@@ -1314,17 +1291,11 @@ class Contact extends DataClass implements Insertable<Contact> {
     if (!nullToAbsent || lastName != null) {
       map['last_name'] = Variable<String>(lastName);
     }
-    if (!nullToAbsent || lastSeen != null) {
-      map['last_seen'] = Variable<DateTime>(lastSeen);
-    }
-    if (!nullToAbsent || notification != null) {
-      map['notification'] = Variable<bool>(notification);
+    if (!nullToAbsent || isMute != null) {
+      map['is_mute'] = Variable<bool>(isMute);
     }
     if (!nullToAbsent || isBlock != null) {
       map['is_block'] = Variable<bool>(isBlock);
-    }
-    if (!nullToAbsent || isOnline != null) {
-      map['is_online'] = Variable<bool>(isOnline);
     }
     return map;
   }
@@ -1332,12 +1303,6 @@ class Contact extends DataClass implements Insertable<Contact> {
   ContactsCompanion toCompanion(bool nullToAbsent) {
     return ContactsCompanion(
       uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
-      lastUpdateAvatarTime: lastUpdateAvatarTime == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastUpdateAvatarTime),
-      lastAvatarFileId: lastAvatarFileId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastAvatarFileId),
       phoneNumber: phoneNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(phoneNumber),
@@ -1347,18 +1312,11 @@ class Contact extends DataClass implements Insertable<Contact> {
       lastName: lastName == null && nullToAbsent
           ? const Value.absent()
           : Value(lastName),
-      lastSeen: lastSeen == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastSeen),
-      notification: notification == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notification),
+      isMute:
+          isMute == null && nullToAbsent ? const Value.absent() : Value(isMute),
       isBlock: isBlock == null && nullToAbsent
           ? const Value.absent()
           : Value(isBlock),
-      isOnline: isOnline == null && nullToAbsent
-          ? const Value.absent()
-          : Value(isOnline),
     );
   }
 
@@ -1367,16 +1325,11 @@ class Contact extends DataClass implements Insertable<Contact> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Contact(
       uid: serializer.fromJson<String>(json['uid']),
-      lastUpdateAvatarTime:
-          serializer.fromJson<DateTime>(json['lastUpdateAvatarTime']),
-      lastAvatarFileId: serializer.fromJson<String>(json['lastAvatarFileId']),
       phoneNumber: serializer.fromJson<String>(json['phoneNumber']),
       firstName: serializer.fromJson<String>(json['firstName']),
       lastName: serializer.fromJson<String>(json['lastName']),
-      lastSeen: serializer.fromJson<DateTime>(json['lastSeen']),
-      notification: serializer.fromJson<bool>(json['notification']),
+      isMute: serializer.fromJson<bool>(json['isMute']),
       isBlock: serializer.fromJson<bool>(json['isBlock']),
-      isOnline: serializer.fromJson<bool>(json['isOnline']),
     );
   }
   @override
@@ -1384,54 +1337,38 @@ class Contact extends DataClass implements Insertable<Contact> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'uid': serializer.toJson<String>(uid),
-      'lastUpdateAvatarTime': serializer.toJson<DateTime>(lastUpdateAvatarTime),
-      'lastAvatarFileId': serializer.toJson<String>(lastAvatarFileId),
       'phoneNumber': serializer.toJson<String>(phoneNumber),
       'firstName': serializer.toJson<String>(firstName),
       'lastName': serializer.toJson<String>(lastName),
-      'lastSeen': serializer.toJson<DateTime>(lastSeen),
-      'notification': serializer.toJson<bool>(notification),
+      'isMute': serializer.toJson<bool>(isMute),
       'isBlock': serializer.toJson<bool>(isBlock),
-      'isOnline': serializer.toJson<bool>(isOnline),
     };
   }
 
   Contact copyWith(
           {String uid,
-          DateTime lastUpdateAvatarTime,
-          String lastAvatarFileId,
           String phoneNumber,
           String firstName,
           String lastName,
-          DateTime lastSeen,
-          bool notification,
-          bool isBlock,
-          bool isOnline}) =>
+          bool isMute,
+          bool isBlock}) =>
       Contact(
         uid: uid ?? this.uid,
-        lastUpdateAvatarTime: lastUpdateAvatarTime ?? this.lastUpdateAvatarTime,
-        lastAvatarFileId: lastAvatarFileId ?? this.lastAvatarFileId,
         phoneNumber: phoneNumber ?? this.phoneNumber,
         firstName: firstName ?? this.firstName,
         lastName: lastName ?? this.lastName,
-        lastSeen: lastSeen ?? this.lastSeen,
-        notification: notification ?? this.notification,
+        isMute: isMute ?? this.isMute,
         isBlock: isBlock ?? this.isBlock,
-        isOnline: isOnline ?? this.isOnline,
       );
   @override
   String toString() {
     return (StringBuffer('Contact(')
           ..write('uid: $uid, ')
-          ..write('lastUpdateAvatarTime: $lastUpdateAvatarTime, ')
-          ..write('lastAvatarFileId: $lastAvatarFileId, ')
           ..write('phoneNumber: $phoneNumber, ')
           ..write('firstName: $firstName, ')
           ..write('lastName: $lastName, ')
-          ..write('lastSeen: $lastSeen, ')
-          ..write('notification: $notification, ')
-          ..write('isBlock: $isBlock, ')
-          ..write('isOnline: $isOnline')
+          ..write('isMute: $isMute, ')
+          ..write('isBlock: $isBlock')
           ..write(')'))
         .toString();
   }
@@ -1440,129 +1377,80 @@ class Contact extends DataClass implements Insertable<Contact> {
   int get hashCode => $mrjf($mrjc(
       uid.hashCode,
       $mrjc(
-          lastUpdateAvatarTime.hashCode,
+          phoneNumber.hashCode,
           $mrjc(
-              lastAvatarFileId.hashCode,
-              $mrjc(
-                  phoneNumber.hashCode,
-                  $mrjc(
-                      firstName.hashCode,
-                      $mrjc(
-                          lastName.hashCode,
-                          $mrjc(
-                              lastSeen.hashCode,
-                              $mrjc(
-                                  notification.hashCode,
-                                  $mrjc(isBlock.hashCode,
-                                      isOnline.hashCode))))))))));
+              firstName.hashCode,
+              $mrjc(lastName.hashCode,
+                  $mrjc(isMute.hashCode, isBlock.hashCode))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Contact &&
           other.uid == this.uid &&
-          other.lastUpdateAvatarTime == this.lastUpdateAvatarTime &&
-          other.lastAvatarFileId == this.lastAvatarFileId &&
           other.phoneNumber == this.phoneNumber &&
           other.firstName == this.firstName &&
           other.lastName == this.lastName &&
-          other.lastSeen == this.lastSeen &&
-          other.notification == this.notification &&
-          other.isBlock == this.isBlock &&
-          other.isOnline == this.isOnline);
+          other.isMute == this.isMute &&
+          other.isBlock == this.isBlock);
 }
 
 class ContactsCompanion extends UpdateCompanion<Contact> {
   final Value<String> uid;
-  final Value<DateTime> lastUpdateAvatarTime;
-  final Value<String> lastAvatarFileId;
   final Value<String> phoneNumber;
   final Value<String> firstName;
   final Value<String> lastName;
-  final Value<DateTime> lastSeen;
-  final Value<bool> notification;
+  final Value<bool> isMute;
   final Value<bool> isBlock;
-  final Value<bool> isOnline;
   const ContactsCompanion({
     this.uid = const Value.absent(),
-    this.lastUpdateAvatarTime = const Value.absent(),
-    this.lastAvatarFileId = const Value.absent(),
     this.phoneNumber = const Value.absent(),
     this.firstName = const Value.absent(),
     this.lastName = const Value.absent(),
-    this.lastSeen = const Value.absent(),
-    this.notification = const Value.absent(),
+    this.isMute = const Value.absent(),
     this.isBlock = const Value.absent(),
-    this.isOnline = const Value.absent(),
   });
   ContactsCompanion.insert({
-    @required String uid,
-    @required DateTime lastUpdateAvatarTime,
-    this.lastAvatarFileId = const Value.absent(),
+    this.uid = const Value.absent(),
     @required String phoneNumber,
-    @required String firstName,
-    @required String lastName,
-    @required DateTime lastSeen,
-    @required bool notification,
+    this.firstName = const Value.absent(),
+    this.lastName = const Value.absent(),
+    @required bool isMute,
     @required bool isBlock,
-    @required bool isOnline,
-  })  : uid = Value(uid),
-        lastUpdateAvatarTime = Value(lastUpdateAvatarTime),
-        phoneNumber = Value(phoneNumber),
-        firstName = Value(firstName),
-        lastName = Value(lastName),
-        lastSeen = Value(lastSeen),
-        notification = Value(notification),
-        isBlock = Value(isBlock),
-        isOnline = Value(isOnline);
+  })  : phoneNumber = Value(phoneNumber),
+        isMute = Value(isMute),
+        isBlock = Value(isBlock);
   static Insertable<Contact> custom({
     Expression<String> uid,
-    Expression<DateTime> lastUpdateAvatarTime,
-    Expression<String> lastAvatarFileId,
     Expression<String> phoneNumber,
     Expression<String> firstName,
     Expression<String> lastName,
-    Expression<DateTime> lastSeen,
-    Expression<bool> notification,
+    Expression<bool> isMute,
     Expression<bool> isBlock,
-    Expression<bool> isOnline,
   }) {
     return RawValuesInsertable({
       if (uid != null) 'uid': uid,
-      if (lastUpdateAvatarTime != null)
-        'last_update_avatar_time': lastUpdateAvatarTime,
-      if (lastAvatarFileId != null) 'last_avatar_file_id': lastAvatarFileId,
       if (phoneNumber != null) 'phone_number': phoneNumber,
       if (firstName != null) 'first_name': firstName,
       if (lastName != null) 'last_name': lastName,
-      if (lastSeen != null) 'last_seen': lastSeen,
-      if (notification != null) 'notification': notification,
+      if (isMute != null) 'is_mute': isMute,
       if (isBlock != null) 'is_block': isBlock,
-      if (isOnline != null) 'is_online': isOnline,
     });
   }
 
   ContactsCompanion copyWith(
       {Value<String> uid,
-      Value<DateTime> lastUpdateAvatarTime,
-      Value<String> lastAvatarFileId,
       Value<String> phoneNumber,
       Value<String> firstName,
       Value<String> lastName,
-      Value<DateTime> lastSeen,
-      Value<bool> notification,
-      Value<bool> isBlock,
-      Value<bool> isOnline}) {
+      Value<bool> isMute,
+      Value<bool> isBlock}) {
     return ContactsCompanion(
       uid: uid ?? this.uid,
-      lastUpdateAvatarTime: lastUpdateAvatarTime ?? this.lastUpdateAvatarTime,
-      lastAvatarFileId: lastAvatarFileId ?? this.lastAvatarFileId,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
-      lastSeen: lastSeen ?? this.lastSeen,
-      notification: notification ?? this.notification,
+      isMute: isMute ?? this.isMute,
       isBlock: isBlock ?? this.isBlock,
-      isOnline: isOnline ?? this.isOnline,
     );
   }
 
@@ -1571,13 +1459,6 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
     final map = <String, Expression>{};
     if (uid.present) {
       map['uid'] = Variable<String>(uid.value);
-    }
-    if (lastUpdateAvatarTime.present) {
-      map['last_update_avatar_time'] =
-          Variable<DateTime>(lastUpdateAvatarTime.value);
-    }
-    if (lastAvatarFileId.present) {
-      map['last_avatar_file_id'] = Variable<String>(lastAvatarFileId.value);
     }
     if (phoneNumber.present) {
       map['phone_number'] = Variable<String>(phoneNumber.value);
@@ -1588,17 +1469,11 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
     if (lastName.present) {
       map['last_name'] = Variable<String>(lastName.value);
     }
-    if (lastSeen.present) {
-      map['last_seen'] = Variable<DateTime>(lastSeen.value);
-    }
-    if (notification.present) {
-      map['notification'] = Variable<bool>(notification.value);
+    if (isMute.present) {
+      map['is_mute'] = Variable<bool>(isMute.value);
     }
     if (isBlock.present) {
       map['is_block'] = Variable<bool>(isBlock.value);
-    }
-    if (isOnline.present) {
-      map['is_online'] = Variable<bool>(isOnline.value);
     }
     return map;
   }
@@ -1607,15 +1482,11 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
   String toString() {
     return (StringBuffer('ContactsCompanion(')
           ..write('uid: $uid, ')
-          ..write('lastUpdateAvatarTime: $lastUpdateAvatarTime, ')
-          ..write('lastAvatarFileId: $lastAvatarFileId, ')
           ..write('phoneNumber: $phoneNumber, ')
           ..write('firstName: $firstName, ')
           ..write('lastName: $lastName, ')
-          ..write('lastSeen: $lastSeen, ')
-          ..write('notification: $notification, ')
-          ..write('isBlock: $isBlock, ')
-          ..write('isOnline: $isOnline')
+          ..write('isMute: $isMute, ')
+          ..write('isBlock: $isBlock')
           ..write(')'))
         .toString();
   }
@@ -1632,34 +1503,6 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
   GeneratedTextColumn _constructUid() {
     return GeneratedTextColumn(
       'uid',
-      $tableName,
-      false,
-    );
-  }
-
-  final VerificationMeta _lastUpdateAvatarTimeMeta =
-      const VerificationMeta('lastUpdateAvatarTime');
-  GeneratedDateTimeColumn _lastUpdateAvatarTime;
-  @override
-  GeneratedDateTimeColumn get lastUpdateAvatarTime =>
-      _lastUpdateAvatarTime ??= _constructLastUpdateAvatarTime();
-  GeneratedDateTimeColumn _constructLastUpdateAvatarTime() {
-    return GeneratedDateTimeColumn(
-      'last_update_avatar_time',
-      $tableName,
-      false,
-    );
-  }
-
-  final VerificationMeta _lastAvatarFileIdMeta =
-      const VerificationMeta('lastAvatarFileId');
-  GeneratedTextColumn _lastAvatarFileId;
-  @override
-  GeneratedTextColumn get lastAvatarFileId =>
-      _lastAvatarFileId ??= _constructLastAvatarFileId();
-  GeneratedTextColumn _constructLastAvatarFileId() {
-    return GeneratedTextColumn(
-      'last_avatar_file_id',
       $tableName,
       true,
     );
@@ -1687,7 +1530,7 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
     return GeneratedTextColumn(
       'first_name',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -1699,31 +1542,17 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
     return GeneratedTextColumn(
       'last_name',
       $tableName,
-      false,
+      true,
     );
   }
 
-  final VerificationMeta _lastSeenMeta = const VerificationMeta('lastSeen');
-  GeneratedDateTimeColumn _lastSeen;
+  final VerificationMeta _isMuteMeta = const VerificationMeta('isMute');
+  GeneratedBoolColumn _isMute;
   @override
-  GeneratedDateTimeColumn get lastSeen => _lastSeen ??= _constructLastSeen();
-  GeneratedDateTimeColumn _constructLastSeen() {
-    return GeneratedDateTimeColumn(
-      'last_seen',
-      $tableName,
-      false,
-    );
-  }
-
-  final VerificationMeta _notificationMeta =
-      const VerificationMeta('notification');
-  GeneratedBoolColumn _notification;
-  @override
-  GeneratedBoolColumn get notification =>
-      _notification ??= _constructNotification();
-  GeneratedBoolColumn _constructNotification() {
+  GeneratedBoolColumn get isMute => _isMute ??= _constructIsMute();
+  GeneratedBoolColumn _constructIsMute() {
     return GeneratedBoolColumn(
-      'notification',
+      'is_mute',
       $tableName,
       false,
     );
@@ -1741,31 +1570,9 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
     );
   }
 
-  final VerificationMeta _isOnlineMeta = const VerificationMeta('isOnline');
-  GeneratedBoolColumn _isOnline;
   @override
-  GeneratedBoolColumn get isOnline => _isOnline ??= _constructIsOnline();
-  GeneratedBoolColumn _constructIsOnline() {
-    return GeneratedBoolColumn(
-      'is_online',
-      $tableName,
-      false,
-    );
-  }
-
-  @override
-  List<GeneratedColumn> get $columns => [
-        uid,
-        lastUpdateAvatarTime,
-        lastAvatarFileId,
-        phoneNumber,
-        firstName,
-        lastName,
-        lastSeen,
-        notification,
-        isBlock,
-        isOnline
-      ];
+  List<GeneratedColumn> get $columns =>
+      [uid, phoneNumber, firstName, lastName, isMute, isBlock];
   @override
   $ContactsTable get asDslTable => this;
   @override
@@ -1780,22 +1587,6 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
     if (data.containsKey('uid')) {
       context.handle(
           _uidMeta, uid.isAcceptableOrUnknown(data['uid'], _uidMeta));
-    } else if (isInserting) {
-      context.missing(_uidMeta);
-    }
-    if (data.containsKey('last_update_avatar_time')) {
-      context.handle(
-          _lastUpdateAvatarTimeMeta,
-          lastUpdateAvatarTime.isAcceptableOrUnknown(
-              data['last_update_avatar_time'], _lastUpdateAvatarTimeMeta));
-    } else if (isInserting) {
-      context.missing(_lastUpdateAvatarTimeMeta);
-    }
-    if (data.containsKey('last_avatar_file_id')) {
-      context.handle(
-          _lastAvatarFileIdMeta,
-          lastAvatarFileId.isAcceptableOrUnknown(
-              data['last_avatar_file_id'], _lastAvatarFileIdMeta));
     }
     if (data.containsKey('phone_number')) {
       context.handle(
@@ -1808,28 +1599,16 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
     if (data.containsKey('first_name')) {
       context.handle(_firstNameMeta,
           firstName.isAcceptableOrUnknown(data['first_name'], _firstNameMeta));
-    } else if (isInserting) {
-      context.missing(_firstNameMeta);
     }
     if (data.containsKey('last_name')) {
       context.handle(_lastNameMeta,
           lastName.isAcceptableOrUnknown(data['last_name'], _lastNameMeta));
-    } else if (isInserting) {
-      context.missing(_lastNameMeta);
     }
-    if (data.containsKey('last_seen')) {
-      context.handle(_lastSeenMeta,
-          lastSeen.isAcceptableOrUnknown(data['last_seen'], _lastSeenMeta));
+    if (data.containsKey('is_mute')) {
+      context.handle(_isMuteMeta,
+          isMute.isAcceptableOrUnknown(data['is_mute'], _isMuteMeta));
     } else if (isInserting) {
-      context.missing(_lastSeenMeta);
-    }
-    if (data.containsKey('notification')) {
-      context.handle(
-          _notificationMeta,
-          notification.isAcceptableOrUnknown(
-              data['notification'], _notificationMeta));
-    } else if (isInserting) {
-      context.missing(_notificationMeta);
+      context.missing(_isMuteMeta);
     }
     if (data.containsKey('is_block')) {
       context.handle(_isBlockMeta,
@@ -1837,17 +1616,11 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
     } else if (isInserting) {
       context.missing(_isBlockMeta);
     }
-    if (data.containsKey('is_online')) {
-      context.handle(_isOnlineMeta,
-          isOnline.isAcceptableOrUnknown(data['is_online'], _isOnlineMeta));
-    } else if (isInserting) {
-      context.missing(_isOnlineMeta);
-    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {uid};
+  Set<GeneratedColumn> get $primaryKey => {phoneNumber};
   @override
   Contact map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;

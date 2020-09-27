@@ -10,6 +10,7 @@ import 'dart:io';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
+import '../screen/app-contacts/widgets/new_Contact.dart';
 import '../screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import '../screen/app-room/widgets/showImage_Widget.dart';
 import '../screen/app_group/pages/group_info_determination_page.dart';
@@ -33,6 +34,7 @@ class Routes {
   static const String groupInfoDeterminationPage =
       '/group-info-determination-page';
   static const String selectionToForwardPage = '/selection-to-forward-page';
+  static const String newContact = '/new-contact';
   static const all = <String>{
     splashScreen,
     introPage,
@@ -44,6 +46,7 @@ class Routes {
     memberSelectionPage,
     groupInfoDeterminationPage,
     selectionToForwardPage,
+    newContact,
   };
 }
 
@@ -62,6 +65,7 @@ class Router extends RouterBase {
     RouteDef(Routes.groupInfoDeterminationPage,
         page: GroupInfoDeterminationPage),
     RouteDef(Routes.selectionToForwardPage, page: SelectionToForwardPage),
+    RouteDef(Routes.newContact, page: NewContact),
   ];
   @override
   Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
@@ -160,6 +164,12 @@ class Router extends RouterBase {
           key: args.key,
           forwardedMessages: args.forwardedMessages,
         ),
+        settings: data,
+      );
+    },
+    NewContact: (data) {
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => NewContact(),
         settings: data,
       );
     },

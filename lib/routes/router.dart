@@ -1,5 +1,7 @@
 import 'package:auto_route/auto_route_annotations.dart';
 import 'package:deliver_flutter/screen/home/pages/home_page.dart';
+import 'package:deliver_flutter/screen/app-contacts/widgets/new_Contact.dart';
+
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver_flutter/screen/register/pages/login_page.dart';
 import 'package:deliver_flutter/screen/register/pages/verification_page.dart';
@@ -25,6 +27,7 @@ import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dar
     MaterialRoute(page: MemberSelectionPage),
     MaterialRoute(page: GroupInfoDeterminationPage),
     MaterialRoute(page: SelectionToForwardPage),
+    MaterialRoute(page:  NewContact)
   ],
 )
 class $Router {}
