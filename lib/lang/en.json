@@ -1,6 +1,6 @@
 {
-  "title": "Dliver",
-  "changeLanguage": " Change Language",
+  "title": "Deliver",
+  "changeLanguage": "Change Language",
   "setting": "Setting",
   "username": "UserName",
   "phoneNumber": "PhoneNumber",
@@ -12,6 +12,7 @@
   "newGroup": "New Group",
   "newChannel": "New Channel",
   "newChat": "add New Chat",
+  "newContact": "Add New Contact",
   "gotoProfile": "Go TO Profile",
   "info": "info",
   "sendMessage": "SendMessage",

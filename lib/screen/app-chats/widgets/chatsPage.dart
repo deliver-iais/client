@@ -4,41 +4,50 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/roomWithMessage.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/chatItem.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ChatsPage extends StatelessWidget {
-  const ChatsPage({Key key}) : super(key: key);
+  final RoutingService routingService = GetIt.I.get<RoutingService>();
+
+  ChatsPage({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     var roomDao = GetIt.I.get<RoomDao>();
     return Expanded(
-      child: StreamBuilder<List<RoomWithMessage>>(
-        stream: roomDao.getByContactId(),
-        builder: (context, snapshot) {
-          final roomsWithMessages = snapshot.data ?? [];
-          return Container(
-            child: ListView.builder(
-              itemCount: roomsWithMessages.length,
-              itemBuilder: (BuildContext ctx, int index) {
-                return GestureDetector(
-                  child: ChatItem(roomWithMessage: roomsWithMessages[index]),
-                  onTap: () {
-                    ExtendedNavigator.of(context).push(
-                      Routes.roomPage,
-                      arguments: RoomPageArguments(
-                        roomId: roomsWithMessages[index].room.roomId.toString(),
-                        forwardedMessages: List<Message>(),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          );
-        },
-      ),
-    );
+        child: StreamBuilder<List<RoomWithMessage>>(
+            stream: roomDao.getByContactId(),
+            builder: (context, snapshot) {
+              return StreamBuilder(
+                stream: routingService.currentRouteStream,
+                builder: (BuildContext c, AsyncSnapshot<Object> s) {
+                  final roomsWithMessages = snapshot.data ?? [];
+                  return Container(
+                    child: ListView.builder(
+                      itemCount: roomsWithMessages.length,
+                      itemBuilder: (BuildContext ctx, int index) {
+                        return GestureDetector(
+                          child: ChatItem(
+                            key: ValueKey(
+                                "chatItem/$roomsWithMessages[index].room.roomId"),
+                            roomWithMessage: roomsWithMessages[index],
+                            isSelected: routingService
+                                .isInRoom(roomsWithMessages[index].room.roomId),
+                          ),
+                          onTap: () {
+                            routingService.openRoom(roomsWithMessages[index]
+                                .room
+                                .roomId
+                                .toString());
+                          },
+                        );
+                      },
+                    ),
+                  );
+                },
+              );
+            }));
   }
 }

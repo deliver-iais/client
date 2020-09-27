@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/shared/appbarPic.dart';
 import 'package:deliver_flutter/shared/mucAppbarTitle.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
@@ -23,10 +22,6 @@ class MucAppbar extends StatelessWidget {
         children: <Widget>[
           Row(
             children: <Widget>[
-              AppbarPic(),
-              SizedBox(
-                width: 10,
-              ),
               MucAppbarTitle(mucUid: roomId),
             ],
           ),

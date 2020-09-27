@@ -111,8 +111,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                                                 selectedList[index]
                                                     .lastName
                                                     .substring(0, 1),
-                                            14,
-                                            false),
+                                            14),
                                       )
                                     ],
                                   ),

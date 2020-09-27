@@ -9,16 +9,18 @@ import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
+import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/shared/language.dart';
 import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 
 class SettingsPage extends StatefulWidget {
+  SettingsPage({Key key}) : super(key: key);
+
   SettingState createState() => SettingState();
 }
 
