@@ -21,6 +21,7 @@ import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/services/message_service.dart';
+import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/services/video_player_service.dart';
@@ -70,6 +71,7 @@ void setupRepositories() {
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<MessageRepo>(MessageRepo());
+  getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<MucRepo>(MucRepo());
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
   getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());

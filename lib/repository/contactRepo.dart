@@ -9,12 +9,18 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:fixnum/fixnum.dart';
 
+import 'accountRepo.dart';
+
 class ContactRepo {
   static var servicesDiscoveryRepo = GetIt.I.get<ServicesDiscoveryRepo>();
 
+
+
+  var accountRepo = GetIt.I.get<AccountRepo>();
+
   static ClientChannel clientChannel = ClientChannel(
-      servicesDiscoveryRepo.contactServies.host,
-      port: servicesDiscoveryRepo.contactServies.port,
+      servicesDiscoveryRepo.contactServices.host,
+      port: servicesDiscoveryRepo.contactServices.port,
       options: ChannelOptions(credentials: ChannelCredentials.insecure()));
   var contactServices = ContactServiceClient(clientChannel);
 
@@ -36,7 +42,8 @@ class ContactRepo {
     contacts.forEach((element) {
       sendContacts.contactList.add(element);
     });
-    contactServices.saveContacts(sendContacts);
+    contactServices.saveContacts(sendContacts,options: CallOptions(
+        metadata: {'accessToken': await accountRepo.getAccessToken()}));
     print("contacts send");
   }
 

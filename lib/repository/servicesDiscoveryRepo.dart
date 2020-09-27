@@ -12,11 +12,17 @@ class ServicesDiscoveryRepo {
     ..host = "172.16.111.189"
     ..port = 30010;
 
-  ConnectionDetails contactServies = ConnectionDetails()
+  ConnectionDetails contactServices = ConnectionDetails()
     ..host = "127.16.111.171"
     ..port = 30000;
 
-  ConnectionDetails fireBaseServies = ConnectionDetails()
+
+  ConnectionDetails fireBaseServices = ConnectionDetails()
+    ..host = "127.16.111.171"
+    ..port = 30000;
+
+
+  ConnectionDetails mucServices = ConnectionDetails()
     ..host = "127.16.111.171"
     ..port = 30000;
 
