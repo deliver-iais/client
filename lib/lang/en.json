@@ -76,6 +76,7 @@
   "change_role_to_member": "Set as Member",
   "change_role_to_admin": "Set as Admin",
   "ban": "ban",
-  "kick": "kick"
-
+  "kick": "kick",
+  "lastName": "last name",
+  "settings": "Settings"
 }

@@ -134,11 +134,15 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                               fileRepo.getFile(avatar.fileId, avatar.fileName),
                           builder: (BuildContext c, AsyncSnapshot<File> snaps) {
                             if (snaps.hasData && snaps.data != null) {
-                              return Image.file(
-                                File(snaps.data.path),
-                                fit: BoxFit.cover,
-                                height: MediaQuery.of(context).size.width,
-                                width: MediaQuery.of(context).size.width,
+                              return Container(
+                                height: 400,
+                                width: 400,
+                                child: Image.file(
+                                  File(snaps.data.path),
+                                  fit: BoxFit.cover,
+                                  height: MediaQuery.of(context).size.width,
+                                  width: MediaQuery.of(context).size.width,
+                                ),
                               );
                             } else {
                               return Container(
@@ -239,51 +243,54 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                   ],
                 )),
           ),
-          background: showProgressBar
-              ? Stack(
-                  children: [
-                    Container(
-                      child: Image.file(
-                        File(uploadAvatarPath),
-                        fit: BoxFit.cover,
-                        height: 300,
-                        width: 300,
-                      ),
-                      foregroundDecoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color.fromARGB(200, 0, 0, 0)],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          stops: [showProgressBar ? 0.6 : 0, 1],
+          background: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: showProgressBar
+                ? Stack(
+                    children: [
+                      Container(
+                        child: Image.file(
+                          File(uploadAvatarPath),
+                          fit: BoxFit.cover,
+                          height: 300,
+                          width: 300,
+                        ),
+                        foregroundDecoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color.fromARGB(200, 0, 0, 0)],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            stops: [showProgressBar ? 0.6 : 0, 1],
+                          ),
                         ),
                       ),
-                    ),
-                    Center(
-                      child: SizedBox(
-                          height: 100.0,
-                          width: 100.0,
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation(Colors.blue),
-                            strokeWidth: 6.0,
-                          )),
-                    )
-                  ],
-                )
-              : StreamBuilder<List<Avatar>>(
-                  stream: avatarRepo.getAvatar(widget.userUid, true),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<List<Avatar>> snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data != null &&
-                        snapshot.data.length > 0) {
-                      return backgroundImage(snapshot.data);
-                    } else {
-                      return Container(
-                        child: SizedBox.shrink(),
-                        color: Colors.blueAccent,
-                      );
-                    }
-                  }),
+                      Center(
+                        child: SizedBox(
+                            height: 100.0,
+                            width: 100.0,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation(Colors.blue),
+                              strokeWidth: 6.0,
+                            )),
+                      )
+                    ],
+                  )
+                : StreamBuilder<List<Avatar>>(
+                    stream: avatarRepo.getAvatar(widget.userUid, false),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<List<Avatar>> snapshot) {
+                      if (snapshot.hasData &&
+                          snapshot.data != null &&
+                          snapshot.data.length > 0) {
+                        return backgroundImage(snapshot.data);
+                      } else {
+                        return Container(
+                          child: SizedBox.shrink(),
+                          color: Colors.blueAccent,
+                        );
+                      }
+                    }),
+          ),
         ));
   }
 }

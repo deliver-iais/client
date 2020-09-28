@@ -92,11 +92,11 @@ class AvatarRepo {
         await _lastAvatarDao.getLastAvatar(userUid.getString());
 
     if (lastAvatar == null) {
-      print ("last avatar is null");
+      print("last avatar is null");
       return true;
     } else if ((nowTime - lastAvatar.lastUpdate) > 86400000) {
       // 24 hours
-      print ("exceeded from 24 hours");
+      print("exceeded from 24 hours");
       return true;
     } else {
       avatarCache.set(key, lastAvatar);
@@ -107,7 +107,7 @@ class AvatarRepo {
   Stream<List<Avatar>> getAvatar(Uid userUid, bool forceToUpdate) {
     fetchAvatar(userUid, forceToUpdate);
 
-    return _avatarDao.getByUid(userUid.toString());
+    return _avatarDao.getByUid(userUid.getString());
   }
 
   Future<LastAvatar> getLastAvatar(Uid userUid, bool forceToUpdate) async {
@@ -124,16 +124,29 @@ class AvatarRepo {
     return ac;
   }
 
+  Stream<LastAvatar> getLastAvatarStream(Uid userUid, bool forceToUpdate) {
+    fetchAvatar(userUid, forceToUpdate);
+    var key = "${userUid.category}-${userUid.node}";
+
+    return _lastAvatarDao.getLastAvatarStream(userUid.getString()).map((la) {
+      avatarCache.set(key, la);
+      return la;
+    });
+  }
+
   Future<Avatar> uploadAvatar(File file) async {
     FileInfo fileInfo = await _fileRepo.uploadFile(file);
     if (fileInfo != null) {
       int avatarUuid = DateTime.now().millisecondsSinceEpoch;
-      _setAvatar(fileInfo, avatarUuid);
-      return Avatar(
-          uid: _accountRepo.currentUserUid.toString(),
+      _setAvatarAtServer(fileInfo, avatarUuid);
+      Avatar avatar = Avatar(
+          uid: _accountRepo.currentUserUid.getString(),
           createdOn: DateTime.fromMillisecondsSinceEpoch(avatarUuid),
           fileId: fileInfo.uuid,
           fileName: fileInfo.name);
+      updateLastUpdateAvatarTime(
+          _accountRepo.currentUserUid.getString(), avatar);
+      return avatar;
     } else {
       return null;
     }
@@ -150,7 +163,7 @@ class AvatarRepo {
     return avatar;
   }
 
-  _setAvatar(FileInfo fileInfo, int avatarUuid) async {
+  _setAvatarAtServer(FileInfo fileInfo, int avatarUuid) async {
     var avatar = AvatarObject.Avatar()
       ..avatarUuid = avatarUuid.toString()
       ..category = _accountRepo.currentUserUid.category
@@ -158,11 +171,16 @@ class AvatarRepo {
       ..fileUuid = fileInfo.uuid;
     var addAvatarReq = AddAvatarReq()..avatar = avatar;
     // TODO add try catch for exceptions
-    await avatarServices.addAvatar(addAvatarReq,
-        options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-
-    saveAvatarInfo(fileInfo, _accountRepo.currentUserUid, avatarUuid);
+    try {
+      await avatarServices.addAvatar(addAvatarReq,
+          options: CallOptions(
+              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+      saveAvatarInfo(fileInfo, _accountRepo.currentUserUid, avatarUuid);
+    } catch (e) {
+      print("#####################################");
+      print(e.toString());
+    }
   }
 
   void deleteAvatar(Avatar avatar) async {
