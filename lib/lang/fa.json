@@ -56,6 +56,12 @@
   "search_by_country_name": "جستجو با اسم کشورها",
   "invalid_mobile_number": "شماره تلفن معتبر نمی‌باشد",
   "enter_code": "کد را وارد کنید",
+  "gotoprofilegroup": "رفتن به پروفایل گروه",
+  "AddMember": "افزودن عضو",
+  "Owner": "مالک",
+  "Admin": "ادمین",
+  "Member": "عضو",
+  "Description": "اطلاعاتی موجود نیست",
   "Reply": "پاسخ",
   "Forward": "باز‌ارسال",
   "Edit": "اصلاح",
@@ -66,6 +72,10 @@
   "Log_out": "خروج از حساب کاربری",
   "new_Contact": "مخاطب جدید",
   "firstName": "نام",
-  "lastName": "نام خانوادگی"
+  "lastName": "نام خانوادگی",
+  "change_role_to_member": "تغییر به عضو",
+  "change_role_to_admin": "انتخاب به عنوان مدیر",
+  "ban": "اخراج",
+  "kick": "حذف"
 
 }

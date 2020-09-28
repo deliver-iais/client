@@ -3628,22 +3628,17 @@ class $SharedPreferencesTable extends SharedPreferences
 }
 
 class Member extends DataClass implements Insertable<Member> {
-  final int dbId;
   final String memberUid;
   final String mucUid;
   final MucRole role;
   Member(
-      {@required this.dbId,
-      @required this.memberUid,
-      @required this.mucUid,
-      @required this.role});
+      {@required this.memberUid, @required this.mucUid, @required this.role});
   factory Member.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
+    final intType = db.typeSystem.forDartType<int>();
     return Member(
-      dbId: intType.mapFromDatabaseResponse(data['${effectivePrefix}db_id']),
       memberUid: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}member_uid']),
       mucUid:
@@ -3655,9 +3650,6 @@ class Member extends DataClass implements Insertable<Member> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || dbId != null) {
-      map['db_id'] = Variable<int>(dbId);
-    }
     if (!nullToAbsent || memberUid != null) {
       map['member_uid'] = Variable<String>(memberUid);
     }
@@ -3673,7 +3665,6 @@ class Member extends DataClass implements Insertable<Member> {
 
   MembersCompanion toCompanion(bool nullToAbsent) {
     return MembersCompanion(
-      dbId: dbId == null && nullToAbsent ? const Value.absent() : Value(dbId),
       memberUid: memberUid == null && nullToAbsent
           ? const Value.absent()
           : Value(memberUid),
@@ -3687,7 +3678,6 @@ class Member extends DataClass implements Insertable<Member> {
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Member(
-      dbId: serializer.fromJson<int>(json['dbId']),
       memberUid: serializer.fromJson<String>(json['memberUid']),
       mucUid: serializer.fromJson<String>(json['mucUid']),
       role: serializer.fromJson<MucRole>(json['role']),
@@ -3697,16 +3687,13 @@ class Member extends DataClass implements Insertable<Member> {
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'dbId': serializer.toJson<int>(dbId),
       'memberUid': serializer.toJson<String>(memberUid),
       'mucUid': serializer.toJson<String>(mucUid),
       'role': serializer.toJson<MucRole>(role),
     };
   }
 
-  Member copyWith({int dbId, String memberUid, String mucUid, MucRole role}) =>
-      Member(
-        dbId: dbId ?? this.dbId,
+  Member copyWith({String memberUid, String mucUid, MucRole role}) => Member(
         memberUid: memberUid ?? this.memberUid,
         mucUid: mucUid ?? this.mucUid,
         role: role ?? this.role,
@@ -3714,7 +3701,6 @@ class Member extends DataClass implements Insertable<Member> {
   @override
   String toString() {
     return (StringBuffer('Member(')
-          ..write('dbId: $dbId, ')
           ..write('memberUid: $memberUid, ')
           ..write('mucUid: $mucUid, ')
           ..write('role: $role')
@@ -3723,31 +3709,27 @@ class Member extends DataClass implements Insertable<Member> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(dbId.hashCode,
-      $mrjc(memberUid.hashCode, $mrjc(mucUid.hashCode, role.hashCode))));
+  int get hashCode =>
+      $mrjf($mrjc(memberUid.hashCode, $mrjc(mucUid.hashCode, role.hashCode)));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Member &&
-          other.dbId == this.dbId &&
           other.memberUid == this.memberUid &&
           other.mucUid == this.mucUid &&
           other.role == this.role);
 }
 
 class MembersCompanion extends UpdateCompanion<Member> {
-  final Value<int> dbId;
   final Value<String> memberUid;
   final Value<String> mucUid;
   final Value<MucRole> role;
   const MembersCompanion({
-    this.dbId = const Value.absent(),
     this.memberUid = const Value.absent(),
     this.mucUid = const Value.absent(),
     this.role = const Value.absent(),
   });
   MembersCompanion.insert({
-    this.dbId = const Value.absent(),
     @required String memberUid,
     @required String mucUid,
     @required MucRole role,
@@ -3755,13 +3737,11 @@ class MembersCompanion extends UpdateCompanion<Member> {
         mucUid = Value(mucUid),
         role = Value(role);
   static Insertable<Member> custom({
-    Expression<int> dbId,
     Expression<String> memberUid,
     Expression<String> mucUid,
     Expression<int> role,
   }) {
     return RawValuesInsertable({
-      if (dbId != null) 'db_id': dbId,
       if (memberUid != null) 'member_uid': memberUid,
       if (mucUid != null) 'muc_uid': mucUid,
       if (role != null) 'role': role,
@@ -3769,12 +3749,8 @@ class MembersCompanion extends UpdateCompanion<Member> {
   }
 
   MembersCompanion copyWith(
-      {Value<int> dbId,
-      Value<String> memberUid,
-      Value<String> mucUid,
-      Value<MucRole> role}) {
+      {Value<String> memberUid, Value<String> mucUid, Value<MucRole> role}) {
     return MembersCompanion(
-      dbId: dbId ?? this.dbId,
       memberUid: memberUid ?? this.memberUid,
       mucUid: mucUid ?? this.mucUid,
       role: role ?? this.role,
@@ -3784,9 +3760,6 @@ class MembersCompanion extends UpdateCompanion<Member> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (dbId.present) {
-      map['db_id'] = Variable<int>(dbId.value);
-    }
     if (memberUid.present) {
       map['member_uid'] = Variable<String>(memberUid.value);
     }
@@ -3803,7 +3776,6 @@ class MembersCompanion extends UpdateCompanion<Member> {
   @override
   String toString() {
     return (StringBuffer('MembersCompanion(')
-          ..write('dbId: $dbId, ')
           ..write('memberUid: $memberUid, ')
           ..write('mucUid: $mucUid, ')
           ..write('role: $role')
@@ -3816,15 +3788,6 @@ class $MembersTable extends Members with TableInfo<$MembersTable, Member> {
   final GeneratedDatabase _db;
   final String _alias;
   $MembersTable(this._db, [this._alias]);
-  final VerificationMeta _dbIdMeta = const VerificationMeta('dbId');
-  GeneratedIntColumn _dbId;
-  @override
-  GeneratedIntColumn get dbId => _dbId ??= _constructDbId();
-  GeneratedIntColumn _constructDbId() {
-    return GeneratedIntColumn('db_id', $tableName, false,
-        hasAutoIncrement: true, declaredAsPrimaryKey: true);
-  }
-
   final VerificationMeta _memberUidMeta = const VerificationMeta('memberUid');
   GeneratedTextColumn _memberUid;
   @override
@@ -3862,7 +3825,7 @@ class $MembersTable extends Members with TableInfo<$MembersTable, Member> {
   }
 
   @override
-  List<GeneratedColumn> get $columns => [dbId, memberUid, mucUid, role];
+  List<GeneratedColumn> get $columns => [memberUid, mucUid, role];
   @override
   $MembersTable get asDslTable => this;
   @override
@@ -3874,10 +3837,6 @@ class $MembersTable extends Members with TableInfo<$MembersTable, Member> {
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('db_id')) {
-      context.handle(
-          _dbIdMeta, dbId.isAcceptableOrUnknown(data['db_id'], _dbIdMeta));
-    }
     if (data.containsKey('member_uid')) {
       context.handle(_memberUidMeta,
           memberUid.isAcceptableOrUnknown(data['member_uid'], _memberUidMeta));
@@ -3895,7 +3854,7 @@ class $MembersTable extends Members with TableInfo<$MembersTable, Member> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {dbId};
+  Set<GeneratedColumn> get $primaryKey => {memberUid, mucUid};
   @override
   Member map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;

@@ -13,6 +13,7 @@ import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/models/memberType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/models/role.dart';
 import 'package:deliver_flutter/models/sending_status.dart';

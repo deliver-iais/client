@@ -56,6 +56,12 @@
   "search_by_country_name": "Search by Country Name",
   "invalid_mobile_number": "Invalid Phone Number",
   "enter_code": "Enter Code",
+  "gotoprofilegroup" : "Go To Group",
+  "AddMember": "Add Member",
+  "Owner" : "Owner",
+  "Admin" : "Admin",
+  "Member": "Member",
+  "Description":"No Description",
   "Reply": "Reply",
   "Forward": "Forward",
   "Edit": "Edit",
@@ -66,5 +72,10 @@
   "Log_out": "Log out",
   "new_Contact": "new Contact",
   "firstName": "name",
-  "lastName": "last name"
+  "lastName": "last name",
+  "change_role_to_member": "Set as Member",
+  "change_role_to_admin": "Set as Admin",
+  "ban": "ban",
+  "kick": "kick"
+
 }
