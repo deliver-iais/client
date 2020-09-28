@@ -26,7 +26,7 @@ class MucRepo {
   var accountRepo = GetIt.I.get<AccountRepo>();
   var messageDao = GetIt.I.get<MessageDao>();
 
- Future<Uid> makeNewGroup(List<Uid> memberUids, String groupName) async {
+  Future<Uid> makeNewGroup(List<Uid> memberUids, String groupName) async {
     Uid groupUid = await mucServices.createNewGroup(groupName);
     if (groupUid != null) {
       addMember(groupUid, memberUids);
@@ -55,7 +55,7 @@ class MucRepo {
       members.add(Member(
           memberUid: member.memberUid.string,
           mucUid: member.memberUid.string,
-          role:getLocalRole( member.role)));
+          role: getLocalRole(member.role)));
     }
     insertUserInDb(groupUid, members);
   }
@@ -67,7 +67,7 @@ class MucRepo {
       members.add(Member(
           memberUid: member.memberUid.string,
           mucUid: member.memberUid.string,
-          role:getLocalRole(member.role)));
+          role: getLocalRole(member.role)));
     }
     insertUserInDb(channelUid, members);
   }
@@ -95,11 +95,12 @@ class MucRepo {
   }
 
   changeGroupMemberRole(Member groupMember) async {
+
     Muc.Member member = Muc.Member()
       ..mucUid = groupMember.mucUid.uid
       ..memberUid = groupMember.memberUid.uid
       ..role = getRole(groupMember.role);
-    var result = await mucServices.changeGroupRole(member);
+    bool result = await mucServices.changeGroupRole(member);
     if (result) {
       _memberDao.insertMember(groupMember);
     }
@@ -111,6 +112,7 @@ class MucRepo {
       ..memberUid = channelMember.memberUid.uid
       ..role = getRole(channelMember.role);
     var result = await mucServices.changeGroupRole(member);
+
     if (result) {
       _memberDao.insertMember(channelMember);
     }
@@ -138,7 +140,9 @@ class MucRepo {
         ..memberUid = member.memberUid.uid
         ..role = getRole(member.role));
     }
-    var result = await mucServices.kickGroupMembers(members);
+
+    bool result = await mucServices.kickGroupMembers(members);
+
     if (result) {
       for (Member member in groupMember) _memberDao.deleteMember(member);
     }
@@ -279,7 +283,7 @@ class MucRepo {
     }
   }
 
-  Muc.Role getRole( MucRole role ) {
+  Muc.Role getRole(MucRole role) {
     switch (role) {
       case MucRole.MEMBER:
         return Muc.Role.MEMBER;
@@ -292,7 +296,7 @@ class MucRepo {
     }
   }
 
-  MucRole getLocalRole( Role role ) {
+  MucRole getLocalRole(Role role) {
     switch (role) {
       case Role.MEMBER:
         return MucRole.MEMBER;
