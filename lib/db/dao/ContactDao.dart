@@ -14,6 +14,13 @@ class ContactDao extends DatabaseAccessor<Database> with _$ContactDaoMixin {
 
   Future deleteAvatar(Contact contact) => delete(contacts).delete(contact);
 
+
+  Future<Contact>getContactByUid(String uid
+      ) {
+    return (select(contacts)..where((tbl) => tbl.uid.equals(uid))).getSingle();
+  }
+
+
   Future<Contact>getContact(String phoneNumber
       ) {
     return (select(contacts)..where((tbl) => tbl.phoneNumber.equals(phoneNumber))).getSingle();

@@ -71,7 +71,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     ),
                     onTap: tapOnCurrentUserAvatar,
                   ),
-                  leadingWidth: 40,
+                  //leadingWidth: 40,
                   title: Text(
                     tab == NavigationTabs.Chats
                         ? appLocalization.getTraslateValue("chats")
