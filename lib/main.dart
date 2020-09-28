@@ -16,6 +16,7 @@ import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart' as R;
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
@@ -82,6 +83,7 @@ void setupRepositories() {
   getIt.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
   getIt.registerSingleton<RoutingService>(RoutingService());
+  getIt.registerSingleton<RoomRepo>(RoomRepo());
 }
 
 setupFlutterNotification()async {
