@@ -54,6 +54,12 @@ dependencies:
       url: git://github.com/google/flutter-desktop-embedding.git
       path: plugins/window_size
       ref: 0efb6b14a802a01b5432b2a2ee97c7f4821f2ab2
+
+  file_chooser:
+    git:
+      url: git://github.com/google/flutter-desktop-embedding.git
+      path: plugins/file_chooser
+      ref: 0efb6b14a802a01b5432b2a2ee97c7f4821f2ab2
   dio: 3.0.10 # HTTP Invoker Library
   jwt_decoder: 1.0.1
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL

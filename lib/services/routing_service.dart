@@ -27,12 +27,12 @@ class Page {
 }
 
 class RoutingService {
-  BehaviorSubject<String> _route = BehaviorSubject.seeded("/home");
+  BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
 
   Widget _navigationCenter;
   static Widget _empty = const Empty();
 
-  ListQueue<Page> stack;
+  ListQueue<Page> _stack;
 
   RoutingService() {
     this._navigationCenter = NavigationCenter(
@@ -42,13 +42,7 @@ class RoutingService {
       },
     );
 
-    this.stack = ListQueue.from([
-      Page(
-          largePageNavigator: _navigationCenter,
-          smallPageMain: _navigationCenter,
-          largePageMain: _empty,
-          uniqueKey: "/home")
-    ]);
+    reset();
   }
 
   openRoom(String roomId, {List<Message> forwardedMessages = const []}) {
@@ -87,50 +81,65 @@ class RoutingService {
   }
 
   _push(Page p) {
-    if (p.uniqueKey == stack.last.uniqueKey) return;
-    stack.add(p);
-    _route.add(stack.last.uniqueKey);
+    if (p.uniqueKey == _stack.last.uniqueKey) return;
+    _stack.add(p);
+    _route.add(_stack.last.uniqueKey);
   }
 
   _popAndPush(Page p) {
-    if (p.uniqueKey == stack.last.uniqueKey) return;
-    if (stack.length > 1) stack.removeLast();
-    stack.add(p);
-    _route.add(stack.last.uniqueKey);
+    if (p.uniqueKey == _stack.last.uniqueKey) return;
+    if (_stack.length > 1) _stack.removeLast();
+    _stack.add(p);
+    _route.add(_stack.last.uniqueKey);
   }
 
   pop() {
-    if (stack.length > 1) {
-      stack.removeLast();
-      _route.add(stack.last.uniqueKey);
+    if (_stack.length > 1) {
+      _stack.removeLast();
+      _route.add(_stack.last.uniqueKey);
     }
   }
 
+  reset() {
+    if (_stack != null) {
+      _stack.clear();
+      _route.add("/");
+    }
+    _stack = ListQueue.from([
+      Page(
+          largePageNavigator: _navigationCenter,
+          smallPageMain: _navigationCenter,
+          largePageMain: _empty,
+          uniqueKey: "/")
+    ]);
+  }
+
   Stream<String> get currentRouteStream => _route.stream;
+
   String get currentRoute => _route.value;
 
   bool canPop() {
-    return stack.last.canPop;
+    return _stack.last.canPop;
   }
 
   bool canPerformBackButton() {
-    return this.stack.length < 2;
+    return _stack.length < 2;
   }
 
   bool isInRoom(String roomId) =>
-      this.stack.last.uniqueKey == "/room/$roomId" ||
-      this.stack.last.uniqueKey == "/profile/$roomId";
+      _stack.last.uniqueKey == "/room/$roomId" ||
+      _stack.last.uniqueKey == "/profile/$roomId";
 
   largePageNavigator(BuildContext context) {
-    return stack.last.largePageNavigator;
+    return _stack.last.largePageNavigator;
   }
 
   largePageMain(BuildContext context) {
-    return stack.last.largePageMain;
+    return _stack.last.largePageMain;
   }
 
   smallPageMain(BuildContext context) {
-    return stack.last.smallPageMain;
+    return _stack.last.smallPageMain;
   }
 }
 

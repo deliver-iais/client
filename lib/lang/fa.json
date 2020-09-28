@@ -76,6 +76,6 @@
   "change_role_to_member": "تغییر به عضو",
   "change_role_to_admin": "انتخاب به عنوان مدیر",
   "ban": "اخراج",
-  "kick": "حذف"
-
+  "kick": "حذف",
+  "settings": "تنظیمات"
 }

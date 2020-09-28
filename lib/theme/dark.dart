@@ -5,10 +5,11 @@ ThemeData DarkTheme =
     ThemeData(brightness: Brightness.dark, fontFamily: "Vazir").copyWith(
         visualDensity: VisualDensity.adaptivePlatformDensity,
         primaryColor: Color(0xFF2699FB),
-        accentColor: Color(0xFF5F5F5F),
+        accentColor: Color(0x8bc1e0FF),
         scaffoldBackgroundColor: Colors.black,
         bottomAppBarColor: Color.fromRGBO(255, 255, 255, 0.2),
         backgroundColor: Colors.black,
+        buttonColor: Color(0xFF2699FB),
         focusColor: Color(0xFF2699FB).withOpacity(0.5),
         textTheme: TextTheme(
           headline1: TextStyle(color: Colors.white, fontSize: 40),
@@ -22,7 +23,11 @@ ThemeData DarkTheme =
           elevation: 0,
         ),
         tabBarTheme: TabBarTheme(
-            labelColor: Color(0xFF2699FB), unselectedLabelColor: Colors.white));
+            indicator: UnderlineTabIndicator(
+                borderSide: BorderSide(width: 2.0, color: Colors.blue),
+                insets: EdgeInsets.zero),
+            labelColor: Color(0xFF2699FB),
+            unselectedLabelColor: Colors.white));
 
 ExtraThemeData DarkExtraTheme = ExtraThemeData(
   circleAvatarBackground: Color(0xFF2699FB),

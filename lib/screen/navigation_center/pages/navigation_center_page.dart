@@ -55,33 +55,51 @@ class _NavigationCenterState extends State<NavigationCenter> {
     return StreamBuilder<bool>(
         stream: audioPlayerService.isOn,
         builder: (context, snapshot) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: MAIN_PADDING),
-            child: Scaffold(
-              appBar: PreferredSize(
-                preferredSize:
-                    Size.fromHeight(snapshot.data == true ? 100 : 60),
+          return Scaffold(
+            appBar: PreferredSize(
+              preferredSize: Size.fromHeight(snapshot.data == true ? 100 : 56),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0.0),
                 child: AppBar(
-                  leading: GestureDetector(
-                    child: Container(
-                      child: Center(
-                        child: CircleAvatarWidget(
-                            accountRepo.currentUserUid, "JD", 18),
+                  elevation: 0,
+                  leading: Row(
+                    children: [
+                      SizedBox(
+                        width: 16,
                       ),
-                    ),
-                    onTap: tapOnCurrentUserAvatar,
+                      GestureDetector(
+                        child: Container(
+                          child: Center(
+                            child: CircleAvatarWidget(
+                              accountRepo.currentUserUid,
+                              accountRepo.currentUsername,
+                              18,
+                              showAsStreamOfAvatar: true,
+                            ),
+                          ),
+                        ),
+                        onTap: tapOnCurrentUserAvatar,
+                      ),
+                    ],
                   ),
-                  //leadingWidth: 40,
                   title: Text(
                     tab == NavigationTabs.Chats
                         ? appLocalization.getTraslateValue("chats")
                         : appLocalization.getTraslateValue("contacts"),
                     style: Theme.of(context).textTheme.headline2,
                   ),
-                  actions: [buildMenu(context)],
+                  actions: [
+                    buildMenu(context),
+                    SizedBox(
+                      width: 16,
+                    )
+                  ],
                 ),
               ),
-              body: Column(
+            ),
+            body: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
                 children: <Widget>[
                   SearchBox(),
                   Expanded(
@@ -94,21 +112,21 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   )
                 ],
               ),
-              bottomNavigationBar: BottomAppBar(
-                color: Theme.of(context).backgroundColor,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    buildIconButton(
-                        context, Icons.question_answer, NavigationTabs.Chats),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    buildIconButton(
-                        context, Icons.people, NavigationTabs.Contacts),
-                  ],
-                ),
+            ),
+            bottomNavigationBar: BottomAppBar(
+              color: Theme.of(context).backgroundColor,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  buildIconButton(
+                      context, Icons.question_answer, NavigationTabs.Chats),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  buildIconButton(
+                      context, Icons.people, NavigationTabs.Contacts),
+                ],
               ),
             ),
           );
