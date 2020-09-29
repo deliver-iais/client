@@ -17,6 +17,7 @@ import 'package:grpc/grpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 import 'package:dcache/dcache.dart';
+import 'package:fixnum/fixnum.dart';
 
 class AvatarRepo {
   var _fileRepo = GetIt.I.get<FileRepo>();
@@ -57,7 +58,7 @@ class AvatarRepo {
         path: '',
       );
       Avatar a = await saveAvatarInfo(
-          fakeFileInfo, userUid, int.parse(avatar.avatarUuid));
+          fakeFileInfo, userUid, avatar.createdOn);
       lastAvatar = lastAvatar != null
           ? (a.createdOn.isAfter(lastAvatar.createdOn) ? a : lastAvatar)
           : a;
@@ -153,7 +154,7 @@ class AvatarRepo {
   }
 
   Future<Avatar> saveAvatarInfo(
-      FileInfo fileInfo, Uid userUid, int avatarUuid) async {
+      FileInfo fileInfo, Uid userUid,  avatarUuid) async {
     Avatar avatar = Avatar(
         uid: userUid.getString(),
         createdOn: DateTime.fromMillisecondsSinceEpoch(avatarUuid),
@@ -163,9 +164,10 @@ class AvatarRepo {
     return avatar;
   }
 
-  _setAvatarAtServer(FileInfo fileInfo, int avatarUuid) async {
+
+  _setAvatarAtServer(FileInfo fileInfo, int createOn) async {
     var avatar = AvatarObject.Avatar()
-      ..avatarUuid = avatarUuid.toString()
+      ..createdOn =  Int64.parseInt(createOn.toString())
       ..category = _accountRepo.currentUserUid.category
       ..node = _accountRepo.currentUserUid.node
       ..fileUuid = fileInfo.uuid;
@@ -176,7 +178,7 @@ class AvatarRepo {
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-      saveAvatarInfo(fileInfo, _accountRepo.currentUserUid, avatarUuid);
+      saveAvatarInfo(fileInfo, _accountRepo.currentUserUid, createOn);
     } catch (e) {
       print("#####################################");
       print(e.toString());
@@ -188,7 +190,7 @@ class AvatarRepo {
     deleteAvatar..fileUuid = avatar.fileId;
     deleteAvatar..node = _accountRepo.currentUserUid.node;
     deleteAvatar
-      ..avatarUuid = avatar.createdOn.millisecondsSinceEpoch.toString();
+      ..createdOn = Int64.parseInt(avatar.createdOn.toString());
     deleteAvatar..category = _accountRepo.currentUserUid.category;
 
     var removeAvatarReq = RemoveAvatarReq()..avatar = deleteAvatar;

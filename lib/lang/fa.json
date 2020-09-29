@@ -77,5 +77,17 @@
   "change_role_to_admin": "انتخاب به عنوان مدیر",
   "ban": "اخراج",
   "kick": "حذف",
+  "password": "رمز ورود",
+  "email": "نشانی اینترنتی",
+  "description": "توضیحات",
+  "save": "ذخیره",
+  "username_not_empty": "شناسه نباید خای باشد.",
+  "firstname_not_empty": "نام نباید خالی باشد.",
+  "username_length": "شناسه یکتا معتبر نیست.",
+  "account_info": "مشخصات حساب کاربری",
+  "usernameExit": "شناسه کاربری از قبل وجود دارد.",
+  "email_not_valid" : "نشانی اینترنی معتبر نیست.",
+  "usernameHelper": "حداقل 5 وحداکثر 20 حرف باشد. وشامل . نباشد و با عدد شروع نشود.",
+  "kick": "حذف",
   "settings": "تنظیمات"
 }

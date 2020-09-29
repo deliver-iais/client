@@ -20,6 +20,7 @@ import '../screen/home/pages/home_page.dart';
 import '../screen/intro/pages/intro_page.dart';
 import '../screen/register/pages/login_page.dart';
 import '../screen/register/pages/verification_page.dart';
+import '../screen/settings/accountSetting.dart';
 import '../screen/splash/pages/splash_screen.dart';
 
 class Routes {
@@ -35,6 +36,7 @@ class Routes {
       '/group-info-determination-page';
   static const String selectionToForwardPage = '/selection-to-forward-page';
   static const String newContact = '/new-contact';
+  static const String accountInfo = '/account-info';
   static const all = <String>{
     splashScreen,
     introPage,
@@ -47,6 +49,7 @@ class Routes {
     groupInfoDeterminationPage,
     selectionToForwardPage,
     newContact,
+    accountInfo,
   };
 }
 
@@ -66,6 +69,7 @@ class Router extends RouterBase {
         page: GroupInfoDeterminationPage),
     RouteDef(Routes.selectionToForwardPage, page: SelectionToForwardPage),
     RouteDef(Routes.newContact, page: NewContact),
+    RouteDef(Routes.accountInfo, page: AccountInfo),
   ];
   @override
   Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
@@ -101,8 +105,11 @@ class Router extends RouterBase {
       );
     },
     HomePage: (data) {
+      final args = data.getArgs<HomePageArguments>(
+        orElse: () => HomePageArguments(),
+      );
       return MaterialPageRoute<dynamic>(
-        builder: (context) => HomePage(),
+        builder: (context) => HomePage(key: args.key),
         settings: data,
       );
     },
@@ -173,6 +180,12 @@ class Router extends RouterBase {
         settings: data,
       );
     },
+    AccountInfo: (data) {
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => AccountInfo(),
+        settings: data,
+      );
+    },
   };
 }
 
@@ -185,6 +198,12 @@ class IntroPageArguments {
   final Key key;
   final dynamic currentPage;
   IntroPageArguments({this.key, this.currentPage});
+}
+
+/// HomePage arguments holder class
+class HomePageArguments {
+  final Key key;
+  HomePageArguments({this.key});
 }
 
 /// MediaDetailsPage arguments holder class

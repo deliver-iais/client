@@ -11,12 +11,12 @@ class RoomRepo {
 
   Future<String > getRoomDisplayName(Uid uid) async{
     switch(uid.category){
-      case Categories.User:
+      case Categories.USER:
          var contact = await cantactDao.getContactByUid(uid.string);
         return contact.firstName+contact.lastName;
-      case Categories.Group:
-      case Categories.PrivateChannel:
-      case Categories.PublicChannel:
+      case Categories.GROUP:
+      case Categories.PRIVATE_CHANNEL:
+      case Categories.PUBLIC_CHANNEL:
         var muc  =  await mucRepo.getGroupByUid(uid.string);
         return muc.name;
         break;

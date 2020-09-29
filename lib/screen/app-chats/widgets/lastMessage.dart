@@ -27,7 +27,7 @@ class LastMessage extends StatelessWidget {
     } else
       td = TextDirection.ltr;
     data = oneLine;
-    if (message.roomId.uid.category == Categories.Group &&
+    if (message.roomId.uid.category == Categories.GROUP &&
         message.type != MessageType.PERSISTENT_EVENT) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,

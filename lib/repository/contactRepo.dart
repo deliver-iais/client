@@ -110,7 +110,7 @@ class ContactRepo {
             metadata: {'accessToken': await accountRepo.getAccessToken()}));
     for (var contact in result.userList) {
       contactDao.insetContact(myContact.Contact(
-          uid: (contact.node).string,
+          uid: contact.uid.string,
 
           phoneNumber: contact.phoneNumber.nationalNumber.toString(),
           firstName: contact.firstName,
@@ -120,7 +120,7 @@ class ContactRepo {
           ));
 
       await roomDao.insertRoom(myContact.Room(
-          roomId: (contact.node).string, lastMessage: null, mentioned: false));
+          roomId: contact.uid.string, lastMessage: null, mentioned: false));
     }
 
     _getContactsDetails();

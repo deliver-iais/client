@@ -86,7 +86,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void initState() {
-    isMuc = widget.roomId.uid.category == Categories.Group ? true : false;
+    isMuc = widget.roomId.uid.category == Categories.GROUP ? true : false;
     waitingForForwardedMessage = widget.forwardedMessages != null
         ? widget.forwardedMessages.length > 0
         : false;

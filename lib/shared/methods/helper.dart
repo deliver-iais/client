@@ -11,7 +11,7 @@ T getRandomElement<T>(List<T> list) {
 }
 
 Uid randomUid() {
-  var randomCategory = getRandomElement([Categories.User]);
+  var randomCategory = getRandomElement([Categories.USER]);
   var uuid = Uuid();
   return Uid()
     ..category = randomCategory

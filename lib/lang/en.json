@@ -77,6 +77,16 @@
   "change_role_to_admin": "Set as Admin",
   "ban": "ban",
   "kick": "kick",
-  "lastName": "last name",
+  "password": "password",
+  "email": "email",
+  "description": "description",
+  "save": "Save",
+  "username_not_empty": "username dont null",
+  "firstname_not_empty" :"firstname not empty",
+  "username_length": "username not valid",
+  "account_info": "Account Information",
+  "usernameExit": "This username already exist",
+  "email_not_valid": "email not valid",
+  "usernameHelper": "Minimum 5 and maximum 20 letters.$\n And does not include '.'.And do not start with a number",
   "settings": "Settings"
 }

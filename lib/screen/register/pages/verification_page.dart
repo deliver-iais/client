@@ -49,17 +49,17 @@ class _VerificationPageState extends State<VerificationPage> {
         _requestPermissions();
         fireBaseServices.sendFireBaseToken(context);
         _navigationToHome();
-      } else if (accessTokenResponse.status ==
-          AccessTokenRes_Status.NOT_VALID) {
-        Fluttertoast.showToast(
-            msg: appLocalization
-                .getTraslateValue("verification_Code_Not_Valid"));
-        _setErrorAndResetCode();
-      } else if (accessTokenResponse.status ==
+      }
+      else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {
         Fluttertoast.showToast(msg: "PASSWORD_PROTECTED");
         Fimber.d("PASSWORD_PROTECTED");
         // TODO navigate to password validation page
+      }else {
+        Fluttertoast.showToast(
+            msg: appLocalization
+                .getTraslateValue("verification_Code_Not_Valid"));
+        _setErrorAndResetCode();
       }
     }).catchError((e) {
       Fimber.d(e.toString());
