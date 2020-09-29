@@ -108,7 +108,7 @@ class MucServices {
   Future<bool> kickGroupMembers(List<Member> members) async {
     var kickMembersReq = GroupServices.KickMembersReq();
     for (Member member in members) {
-      kickMembersReq.members.add(member);
+      kickMembersReq.members.add(member.memberUid);
     }
     try {
       await groupServices.kickMembers(kickMembersReq,
@@ -123,7 +123,7 @@ class MucServices {
   Future<bool> banGroupMember(Member member) async {
     try {
       await groupServices.banMember(
-          GroupServices.BanMemberReq()..member = member,
+          GroupServices.BanMemberReq()..memberUid = member.memberUid,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;
@@ -134,8 +134,8 @@ class MucServices {
 
   Future<bool> unbanGroupMember(Member member) async {
     try {
-      await groupServices.unbanMember(
-          GroupServices.UnbanMemberReq()..member = member,
+      await groupServices.unBanMember(
+          GroupServices.UnBanMemberReq()..memberUid = member.memberUid,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;
@@ -247,7 +247,7 @@ class MucServices {
   Future<bool> kickChannelMembers(List<Member> members) async {
     var kickMembersReq = ChannelServices.KickMembersReq();
     for (Member member in members) {
-      kickMembersReq.members.add(member);
+      kickMembersReq.members.add(member.memberUid);
     }
     try {
       await channelServices.kickMembers(kickMembersReq,
@@ -262,7 +262,7 @@ class MucServices {
   Future<bool> banChannelMember(Member member) async {
     try {
       await channelServices.banMember(
-          ChannelServices.BanMemberReq()..member = member,
+          ChannelServices.BanMemberReq()..memberUid = member.memberUid,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;
@@ -273,8 +273,8 @@ class MucServices {
 
   Future<bool> unbanChannelMember(Member member) async {
     try {
-      await channelServices.unbanMember(
-          ChannelServices.UnbanMemberReq()..member = member,
+      await channelServices.unBanMember(
+          ChannelServices.UnBanMemberReq()..memberUid = member.memberUid,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;

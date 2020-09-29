@@ -36,14 +36,14 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   @override
   void initState() {
     mucUid = widget.mucUid;
-    mucUid.category == Categories.Group?mucRepo.getGroupMembers(mucUid): mucRepo.getChannelMembers(mucUid);
+    mucUid.category == Categories.GROUP?mucRepo.getGroupMembers(mucUid): mucRepo.getChannelMembers(mucUid);
   }
 
   @override
   Widget build(BuildContext context) {
     appLocalization = AppLocalization.of(context);
 
-    return       StreamBuilder<List<Member>>(
+    return StreamBuilder<List<Member>>(
         stream: _memberRepo.getMembers(mucUid.string),
         builder:
             (BuildContext context, AsyncSnapshot<List<Member>> snapshot) {
@@ -156,17 +156,17 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
              );
         }
 
-        mucUid.category == Categories.Group
+        mucUid.category == Categories.GROUP
             ? mucRepo.changeGroupMemberRole(m)
             : mucRepo.changeChannelMemberRole(m);
         break;
       case DELETE:
-        mucUid.category == Categories.Group
+        mucUid.category == Categories.GROUP
             ? mucRepo.kickGroupMembers([member])
             : mucRepo.kickChannelMembers([member]);
         break;
       case BAN:
-        mucUid.category == Categories.Group
+        mucUid.category == Categories.GROUP
             ? mucRepo.banGroupMember(member)
             : mucRepo.banChannelMember(member);
         break;

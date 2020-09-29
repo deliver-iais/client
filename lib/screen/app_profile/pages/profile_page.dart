@@ -52,7 +52,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       userUid: accountRepo.currentUserUid,
                       settingProfile: false,
                     ),
-                    widget.userUid.category == Categories.User
+                    widget.userUid.category == Categories.USER
                         ? SliverList(
                             delegate: SliverChildListDelegate([
                             Container(
@@ -253,7 +253,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           color: Theme.of(context).backgroundColor,
                           child: TabBar(
                             tabs: [
-                              widget.userUid.category == Categories.User
+                              widget.userUid.category == Categories.USER
                                   ? SizedBox.shrink()
                                   : Tab(
                                       text: appLocalization
@@ -285,7 +285,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       }
                       return Container(
                           child: TabBarView(children: [
-                        widget.userUid.category == Categories.User? SizedBox.shrink():SingleChildScrollView(
+                        widget.userUid.category == Categories.USER? SizedBox.shrink():SingleChildScrollView(
                           child: Column(children: [
                             MucMemberWidget(
                               mucUid: widget.userUid,

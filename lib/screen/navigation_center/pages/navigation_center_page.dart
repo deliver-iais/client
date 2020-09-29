@@ -195,7 +195,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           child: Text("Go to Group"),
                           onTap: () {
                             var fakeGroupUid = Uid()
-                              ..category = Categories.Group
+                              ..category = Categories.GROUP
                               ..node = "123123";
                             routingService
                                 .openProfile(fakeGroupUid.getString());

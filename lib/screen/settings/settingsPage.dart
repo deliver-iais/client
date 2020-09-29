@@ -1,14 +1,17 @@
 import 'dart:io';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
 
 import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/screen/settings/accountSetting.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profile_avatar_card.dart';
@@ -145,7 +148,10 @@ class SettingsPage extends StatelessWidget {
                             color: ExtraTheme.of(context).text, fontSize: 13),
                       ),
                       IconButton(
-                          icon: Icon(Icons.navigate_next), onPressed: () {}),
+                          icon: Icon(Icons.navigate_next), onPressed: () {
+                        ExtendedNavigator.of(context).popAndPush(Routes.accountInfo);
+
+                      }),
                     ],
                   )),
               settingsRow(
