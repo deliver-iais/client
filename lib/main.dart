@@ -21,6 +21,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart' as R;
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
+import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/services/message_service.dart';
@@ -85,6 +86,7 @@ void setupRepositories() {
   getIt.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
   getIt.registerSingleton<MemberRepo>(MemberRepo());
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
+  getIt.registerSingleton<CreateMucService>(CreateMucService());
   getIt.registerSingleton<RoutingService>(RoutingService());
 }
 

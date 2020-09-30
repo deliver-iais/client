@@ -40,19 +40,7 @@ class ContactRepo {
   var contactServices = ContactServiceClient(clientChannel);
 
   syncContacts() async {
-    Iterable<OsContact.Contact> phoneContacts =
-        await OsContact.ContactsService.getContacts();
     List<Contact> contacts = new List();
-    for (OsContact.Contact phoneContact in phoneContacts) {
-      PhoneNumber phoneNumber = PhoneNumber()
-        ..nationalNumber =
-            Int64.parseInt(phoneContact.phones.elementAt(0).toString());
-      Contact contact = Contact()
-        ..lastName = phoneContact.displayName
-        ..phoneNumber = phoneNumber;
-
-      contacts.add(contact);
-    }
 
     if (kDebugMode) {
       PhoneNumber p1 = PhoneNumber()
@@ -90,7 +78,29 @@ class ContactRepo {
         ..phoneNumber = p5
         ..firstName = "Contact"
         ..lastName = "5");
+      for (var contact in contacts) {
+        contactDao.insetContact(myContact.Contact(
+            phoneNumber: contact.phoneNumber.nationalNumber.toString(),
+            firstName: contact.firstName,
+            lastName: contact.lastName,
+            isMute: true,
+            isBlock: false));
+      }
     }
+
+    Iterable<OsContact.Contact> phoneContacts =
+    await OsContact.ContactsService.getContacts();
+    for (OsContact.Contact phoneContact in phoneContacts) {
+      PhoneNumber phoneNumber = PhoneNumber()
+        ..nationalNumber =
+        Int64.parseInt(phoneContact.phones.elementAt(0).toString());
+      Contact contact = Contact()
+        ..lastName = phoneContact.displayName
+        ..phoneNumber = phoneNumber;
+
+      contacts.add(contact);
+    }
+
     sendContacts(contacts);
   }
 

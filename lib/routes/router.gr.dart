@@ -13,8 +13,6 @@ import 'package:flutter/material.dart';
 import '../screen/app-contacts/widgets/new_Contact.dart';
 import '../screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import '../screen/app-room/widgets/showImage_Widget.dart';
-import '../screen/app_group/pages/group_info_determination_page.dart';
-import '../screen/app_group/pages/member_selection_page.dart';
 import '../screen/app_profile/pages/media_details_page.dart';
 import '../screen/home/pages/home_page.dart';
 import '../screen/intro/pages/intro_page.dart';
@@ -31,9 +29,6 @@ class Routes {
   static const String homePage = '/home-page';
   static const String mediaDetailsPage = '/media-details-page';
   static const String showImagePage = '/show-image-page';
-  static const String memberSelectionPage = '/member-selection-page';
-  static const String groupInfoDeterminationPage =
-      '/group-info-determination-page';
   static const String selectionToForwardPage = '/selection-to-forward-page';
   static const String newContact = '/new-contact';
   static const String accountInfo = '/account-info';
@@ -45,8 +40,6 @@ class Routes {
     homePage,
     mediaDetailsPage,
     showImagePage,
-    memberSelectionPage,
-    groupInfoDeterminationPage,
     selectionToForwardPage,
     newContact,
     accountInfo,
@@ -64,9 +57,6 @@ class Router extends RouterBase {
     RouteDef(Routes.homePage, page: HomePage),
     RouteDef(Routes.mediaDetailsPage, page: MediaDetailsPage),
     RouteDef(Routes.showImagePage, page: ShowImagePage),
-    RouteDef(Routes.memberSelectionPage, page: MemberSelectionPage),
-    RouteDef(Routes.groupInfoDeterminationPage,
-        page: GroupInfoDeterminationPage),
     RouteDef(Routes.selectionToForwardPage, page: SelectionToForwardPage),
     RouteDef(Routes.newContact, page: NewContact),
     RouteDef(Routes.accountInfo, page: AccountInfo),
@@ -140,24 +130,6 @@ class Router extends RouterBase {
           key: args.key,
           imageFile: args.imageFile,
           contactUid: args.contactUid,
-        ),
-        settings: data,
-      );
-    },
-    MemberSelectionPage: (data) {
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => MemberSelectionPage(),
-        settings: data,
-      );
-    },
-    GroupInfoDeterminationPage: (data) {
-      final args = data.getArgs<GroupInfoDeterminationPageArguments>(
-        orElse: () => GroupInfoDeterminationPageArguments(),
-      );
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => GroupInfoDeterminationPage(
-          key: args.key,
-          members: args.members,
         ),
         settings: data,
       );
@@ -236,13 +208,6 @@ class ShowImagePageArguments {
   final File imageFile;
   final String contactUid;
   ShowImagePageArguments({this.key, this.imageFile, this.contactUid});
-}
-
-/// GroupInfoDeterminationPage arguments holder class
-class GroupInfoDeterminationPageArguments {
-  final Key key;
-  final List<dynamic> members;
-  GroupInfoDeterminationPageArguments({this.key, this.members});
 }
 
 /// SelectionToForwardPage arguments holder class

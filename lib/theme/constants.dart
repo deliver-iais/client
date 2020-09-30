@@ -11,7 +11,7 @@ const double MAIN_PADDING = 16;
 const double FLUID_MAX_WIDTH = 400;
 const double FLUID_MAX_HEIGHT = 540;
 
-const MAIN_BORDER_RADIUS = 5.0;
+const MAIN_BORDER_RADIUS = 10.0;
 
 const ANIMATION_DURATION = const Duration(milliseconds: 100);
 

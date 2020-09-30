@@ -214,14 +214,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               : SizedBox.shrink()
         ],
         forceElevated: widget.innerBoxIsScrolled,
-        leading: routingService.canPop()
-            ? BackButton(
-                color: ExtraTheme.of(context).infoChat,
-                onPressed: () {
-                  routingService.pop();
-                },
-              )
-            : null,
+        leading: routingService.backButtonLeading(),
         expandedHeight: 300,
         floating: false,
         pinned: true,
