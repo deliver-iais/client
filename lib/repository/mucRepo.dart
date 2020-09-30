@@ -8,6 +8,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/role.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pb.dart' as Muc;
@@ -25,6 +26,7 @@ class MucRepo {
   var mucServices = GetIt.I.get<MucServices>();
   var accountRepo = GetIt.I.get<AccountRepo>();
   var messageDao = GetIt.I.get<MessageDao>();
+  var roomRepo = GetIt.I.get<RoomRepo>();
 
   Future<Uid> makeNewGroup(List<Uid> memberUids, String groupName) async {
     Uid groupUid = await mucServices.createNewGroup(groupName);
@@ -233,6 +235,7 @@ class MucRepo {
   _insetTodb(Uid groupUid, String groupName, List<Uid> memberUids) async {
     await _mucDao.insertGroup(Group(
         uid: groupUid.string, name: groupName, members: memberUids.length + 1));
+    roomRepo.updateRoomName(groupUid.string,groupName);
     Room room = Room(roomId: groupUid.string, lastMessage: null);
     await _roomDao.insertRoom(room);
     sendFirstMessage(groupUid, room);

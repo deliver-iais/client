@@ -76,6 +76,7 @@ void setupRepositories() {
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<MessageRepo>(MessageRepo());
   getIt.registerSingleton<MucServices>(MucServices());
+  getIt.registerSingleton<RoomRepo>(RoomRepo());
   getIt.registerSingleton<ContactRepo>(ContactRepo());
   getIt.registerSingleton<MucRepo>(MucRepo());
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
@@ -85,7 +86,6 @@ void setupRepositories() {
   getIt.registerSingleton<MemberRepo>(MemberRepo());
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
   getIt.registerSingleton<RoutingService>(RoutingService());
-  getIt.registerSingleton<RoomRepo>(RoomRepo());
 }
 
 setupFlutterNotification()async {
