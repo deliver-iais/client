@@ -1,19 +1,19 @@
 import 'dart:ui';
 
-
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AccountSettings extends StatefulWidget {
-
   AccountSettings({Key key}) : super(key: key);
+
   @override
   _AccountSettingsState createState() => _AccountSettingsState();
 }
@@ -28,7 +28,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   String _lastName;
   String _firstName;
   String _lastUserName;
-   Account _account;
+  Account _account;
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
   bool _userNameNotValid = false;
@@ -63,34 +63,19 @@ class _AccountSettingsState extends State<AccountSettings> {
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
     return Scaffold(
-
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blue,
-        child: IconButton(
-          icon: Icon(
-            Icons.check,
-            color: Colors.white,
-          ),
-          iconSize: 30,
-          onPressed: () {
-            checkAndSend();
-          },
-        ),
-      ),
       appBar: AppBar(
-        leading: IconButton(icon:Icon( Icons.arrow_back,),onPressed: (){
-          _routingService.pop();
-        },),
+        leading: _routingService.backButtonLeading(),
         title: Text(_appLocalization.getTraslateValue("account_info")),
       ),
-      body: Container(
-          padding: const EdgeInsets.only(top: 80),
-          color: Theme.of(context).backgroundColor,
-          child: FutureBuilder<Account>(
-            future: _accountRepo.getAccount(),
-            builder: (BuildContext c, AsyncSnapshot<Account> snapshot) {
-
-              if(snapshot.hasData && snapshot.data!=null){
+      body: FluidContainerWidget(
+        child: Stack(
+          children: [
+            FutureBuilder<Account>(
+              future: _accountRepo.getAccount(),
+              builder: (BuildContext c, AsyncSnapshot<Account> snapshot) {
+                if (!snapshot.hasData || snapshot.data == null) {
+                  return SizedBox.shrink();
+                }
                 _account = snapshot.data;
                 _lastUserName = snapshot.data.userName;
                 return ListView(
@@ -124,26 +109,26 @@ class _AccountSettingsState extends State<AccountSettings> {
                             ),
                             _newUsername.isEmpty
                                 ? Row(
-                              children: [
-                                Text(
-                                  _appLocalization
-                                      .getTraslateValue("usernameHelper"),
-                                  style: TextStyle(fontSize: 10),
-                                ),
-                              ],
-                            )
+                                    children: [
+                                      Text(
+                                        _appLocalization
+                                            .getTraslateValue("usernameHelper"),
+                                        style: TextStyle(fontSize: 10),
+                                      ),
+                                    ],
+                                  )
                                 : SizedBox.shrink(),
                             _userNameNotValid
                                 ? Row(
-                              children: [
-                                Text(
-                                  _appLocalization
-                                      .getTraslateValue("usernameExit"),
-                                  style: TextStyle(
-                                      fontSize: 10, color: Colors.red),
-                                ),
-                              ],
-                            )
+                                    children: [
+                                      Text(
+                                        _appLocalization
+                                            .getTraslateValue("usernameExit"),
+                                        style: TextStyle(
+                                            fontSize: 10, color: Colors.red),
+                                      ),
+                                    ],
+                                  )
                                 : SizedBox.shrink(),
                             SizedBox(
                               height: 20,
@@ -203,12 +188,31 @@ class _AccountSettingsState extends State<AccountSettings> {
                         )),
                   ],
                 );
-              }else{
-                return SizedBox.shrink();
-              }
-
-            },
-          )),
+              },
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Theme.of(context).primaryColor,
+                ),
+                child: IconButton(
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.all(0),
+                  icon: Icon(Icons.done),
+                  onPressed: () async {
+                    checkAndSend();
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -256,7 +260,11 @@ class _AccountSettingsState extends State<AccountSettings> {
   checkAndSend() {
     bool isValidated = _formKey?.currentState?.validate() ?? false;
     if (isValidated) {
-      _accountRepo.setAccountDetails(_username??_account.userName, _firstName??_account.firstName, _lastName??_account.lastName, _email??_account.email);
+      _accountRepo.setAccountDetails(
+          _username ?? _account.userName,
+          _firstName ?? _account.firstName,
+          _lastName ?? _account.lastName,
+          _email ?? _account.email);
     }
   }
 }
