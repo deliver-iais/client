@@ -11,14 +11,14 @@ import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-class AccountInfo extends StatefulWidget {
+class AccountSettings extends StatefulWidget {
 
-  AccountInfo({Key key}) : super(key: key);
+  AccountSettings({Key key}) : super(key: key);
   @override
-  _AccountInfoState createState() => _AccountInfoState();
+  _AccountSettingsState createState() => _AccountSettingsState();
 }
 
-class _AccountInfoState extends State<AccountInfo> {
+class _AccountSettingsState extends State<AccountSettings> {
   AppLocalization _appLocalization;
   BehaviorSubject<String> subject = new BehaviorSubject<String>();
   var _accountRepo = GetIt.I.get<AccountRepo>();

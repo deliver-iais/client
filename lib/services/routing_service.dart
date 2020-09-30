@@ -6,7 +6,7 @@ import 'package:deliver_flutter/screen/app_group/pages/group_info_determination_
 import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/profile_page.dart';
 import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
-import 'package:deliver_flutter/screen/settings/accountSetting.dart';
+import 'package:deliver_flutter/screen/settings/account_settings.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -81,7 +81,7 @@ class RoutingService {
   }
 
   openAccountSettings() {
-    var accountSettingsWidget = AccountInfo(key: ValueKey("/account-settings"));
+    var accountSettingsWidget = AccountSettings(key: ValueKey("/account-settings"));
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: accountSettingsWidget,
