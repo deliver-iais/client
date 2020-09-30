@@ -4,6 +4,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/profile_page.dart';
 import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
+import 'package:deliver_flutter/screen/settings/accountSetting.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +59,18 @@ class RoutingService {
         canPop: false,
         uniqueKey: "/room/$roomId"));
   }
+
+
+  openAccountSettings() {
+    var accountSettingsWidget = AccountInfo(key: ValueKey("/accountSettings"));
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: accountSettingsWidget,
+        smallPageMain: accountSettingsWidget,
+        canPop: true,
+        uniqueKey: "/accountSettings"));
+  }
+
 
   openSettings() {
     var settingsWidget = SettingsPage(key: ValueKey("/settings"));

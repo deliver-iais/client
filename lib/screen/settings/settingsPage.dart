@@ -7,7 +7,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
+
 
 import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -149,7 +149,7 @@ class SettingsPage extends StatelessWidget {
                       ),
                       IconButton(
                           icon: Icon(Icons.navigate_next), onPressed: () {
-                        ExtendedNavigator.of(context).popAndPush(Routes.accountInfo);
+                        _routingService.openAccountSettings();
 
                       }),
                     ],
