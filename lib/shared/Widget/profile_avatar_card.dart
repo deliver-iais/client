@@ -32,7 +32,7 @@ class ProfileAvatarCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              CircleAvatarWidget(userUid, "John", 70, showAsStreamOfAvatar: true,),
+              CircleAvatarWidget(userUid, "John", 80, showAsStreamOfAvatar: true,),
               SizedBox(
                 height: 10,
               ),
@@ -46,7 +46,7 @@ class ProfileAvatarCard extends StatelessWidget {
               )
             ],
           ),
-          color: Theme.of(context).accentColor,
+          color: Theme.of(context).accentColor.withAlpha(50),
         ));
   }
 }
