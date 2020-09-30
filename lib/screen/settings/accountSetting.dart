@@ -1,14 +1,19 @@
 import 'dart:ui';
 
+
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AccountInfo extends StatefulWidget {
+
+  AccountInfo({Key key}) : super(key: key);
   @override
   _AccountInfoState createState() => _AccountInfoState();
 }
@@ -23,10 +28,12 @@ class _AccountInfoState extends State<AccountInfo> {
   String _lastName;
   String _firstName;
   String _lastUserName;
+   Account _account;
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
   bool _userNameNotValid = false;
   bool _userNameCorrect = false;
+  final _routingService = GetIt.I.get<RoutingService>();
 
   @override
   void initState() {
@@ -56,6 +63,7 @@ class _AccountInfoState extends State<AccountInfo> {
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
     return Scaffold(
+
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue,
         child: IconButton(
@@ -70,6 +78,9 @@ class _AccountInfoState extends State<AccountInfo> {
         ),
       ),
       appBar: AppBar(
+        leading: IconButton(icon:Icon( Icons.arrow_back,),onPressed: (){
+          _routingService.pop();
+        },),
         title: Text(_appLocalization.getTraslateValue("account_info")),
       ),
       body: Container(
@@ -78,117 +89,124 @@ class _AccountInfoState extends State<AccountInfo> {
           child: FutureBuilder<Account>(
             future: _accountRepo.getAccount(),
             builder: (BuildContext c, AsyncSnapshot<Account> snapshot) {
-              _lastUserName = snapshot.data.userName;
-              return ListView(
-                children: [
-                  Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          Form(
-                            key: _usernameFormKey,
-                            child: TextFormField(
-                              minLines: 1,
-                              initialValue: snapshot.data.userName,
-                              textInputAction: TextInputAction.send,
-                              onChanged: (str) {
-                                setState(() {
-                                  _newUsername = str;
-                                  _username = str;
-                                  subject.add(str);
-                                });
-                              },
-                              validator: validateUsername,
-                              decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  hintText: _appLocalization
-                                      .getTraslateValue("username")),
+
+              if(snapshot.hasData && snapshot.data!=null){
+                _account = snapshot.data;
+                _lastUserName = snapshot.data.userName;
+                return ListView(
+                  children: [
+                    Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            Form(
+                              key: _usernameFormKey,
+                              child: TextFormField(
+                                minLines: 1,
+                                initialValue: snapshot.data.userName,
+                                textInputAction: TextInputAction.send,
+                                onChanged: (str) {
+                                  setState(() {
+                                    _newUsername = str;
+                                    _username = str;
+                                    subject.add(str);
+                                  });
+                                },
+                                validator: validateUsername,
+                                decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    hintText: _appLocalization
+                                        .getTraslateValue("username")),
+                              ),
                             ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          _newUsername.isEmpty
-                              ? Row(
-                                  children: [
-                                    Text(
-                                      _appLocalization
-                                          .getTraslateValue("usernameHelper"),
-                                      style: TextStyle(fontSize: 10),
-                                    ),
-                                  ],
-                                )
-                              : SizedBox.shrink(),
-                          _userNameNotValid
-                              ? Row(
-                                  children: [
-                                    Text(
-                                      _appLocalization
-                                          .getTraslateValue("usernameExit"),
-                                      style: TextStyle(
-                                          fontSize: 10, color: Colors.red),
-                                    ),
-                                  ],
-                                )
-                              : SizedBox.shrink(),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          TextFormField(
-                            initialValue: snapshot.data.firstName ?? "",
-                            minLines: 1,
-                            textInputAction: TextInputAction.send,
-                            onChanged: (str) {
-                              setState(() {
-                                _firstName = str;
-                              });
-                            },
-                            validator: validateFirstName,
-                            decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: _appLocalization
-                                    .getTraslateValue("firstName")),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          TextFormField(
-                              initialValue: snapshot.data.lastName ?? "",
+                            SizedBox(
+                              height: 5,
+                            ),
+                            _newUsername.isEmpty
+                                ? Row(
+                              children: [
+                                Text(
+                                  _appLocalization
+                                      .getTraslateValue("usernameHelper"),
+                                  style: TextStyle(fontSize: 10),
+                                ),
+                              ],
+                            )
+                                : SizedBox.shrink(),
+                            _userNameNotValid
+                                ? Row(
+                              children: [
+                                Text(
+                                  _appLocalization
+                                      .getTraslateValue("usernameExit"),
+                                  style: TextStyle(
+                                      fontSize: 10, color: Colors.red),
+                                ),
+                              ],
+                            )
+                                : SizedBox.shrink(),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            TextFormField(
+                              initialValue: snapshot.data.firstName ?? "",
                               minLines: 1,
                               textInputAction: TextInputAction.send,
                               onChanged: (str) {
                                 setState(() {
-                                  _lastName = str;
+                                  _firstName = str;
                                 });
                               },
+                              validator: validateFirstName,
                               decoration: InputDecoration(
                                   border: OutlineInputBorder(),
                                   hintText: _appLocalization
-                                      .getTraslateValue("lastName"))),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          TextFormField(
-                              initialValue: snapshot.data.email ?? "",
-                              minLines: 1,
-                              textInputAction: TextInputAction.send,
-                              onChanged: (str) {
-                                setState(() {
-                                  _email = str;
-                                });
-                              },
-                              validator: validateEmail,
-                              decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  hintText: _appLocalization
-                                      .getTraslateValue("email"))),
-                          SizedBox(
-                            height: 40,
-                          ),
-                        ],
-                      )),
-                ],
-              );
+                                      .getTraslateValue("firstName")),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            TextFormField(
+                                initialValue: snapshot.data.lastName ?? "",
+                                minLines: 1,
+                                textInputAction: TextInputAction.send,
+                                onChanged: (str) {
+                                  setState(() {
+                                    _lastName = str;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    hintText: _appLocalization
+                                        .getTraslateValue("lastName"))),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            TextFormField(
+                                initialValue: snapshot.data.email ?? "",
+                                minLines: 1,
+                                textInputAction: TextInputAction.send,
+                                onChanged: (str) {
+                                  setState(() {
+                                    _email = str;
+                                  });
+                                },
+                                validator: validateEmail,
+                                decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    hintText: _appLocalization
+                                        .getTraslateValue("email"))),
+                            SizedBox(
+                              height: 40,
+                            ),
+                          ],
+                        )),
+                  ],
+                );
+              }else{
+                return SizedBox.shrink();
+              }
+
             },
           )),
     );
@@ -238,7 +256,7 @@ class _AccountInfoState extends State<AccountInfo> {
   checkAndSend() {
     bool isValidated = _formKey?.currentState?.validate() ?? false;
     if (isValidated) {
-      _accountRepo.setAccountDetails(_username, _firstName, _lastName, _email);
+      _accountRepo.setAccountDetails(_username??_account.userName, _firstName??_account.firstName, _lastName??_account.lastName, _email??_account.email);
     }
   }
 }
