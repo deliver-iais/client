@@ -11,7 +11,7 @@ import 'package:deliver_flutter/routes/router.gr.dart';
 
 import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/screen/settings/accountSetting.dart';
+import 'package:deliver_flutter/screen/settings/account_settings.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profile_avatar_card.dart';

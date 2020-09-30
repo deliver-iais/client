@@ -18,7 +18,6 @@ import '../screen/home/pages/home_page.dart';
 import '../screen/intro/pages/intro_page.dart';
 import '../screen/register/pages/login_page.dart';
 import '../screen/register/pages/verification_page.dart';
-import '../screen/settings/accountSetting.dart';
 import '../screen/splash/pages/splash_screen.dart';
 
 class Routes {
@@ -31,7 +30,6 @@ class Routes {
   static const String showImagePage = '/show-image-page';
   static const String selectionToForwardPage = '/selection-to-forward-page';
   static const String newContact = '/new-contact';
-  static const String accountInfo = '/account-info';
   static const all = <String>{
     splashScreen,
     introPage,
@@ -42,7 +40,6 @@ class Routes {
     showImagePage,
     selectionToForwardPage,
     newContact,
-    accountInfo,
   };
 }
 
@@ -59,7 +56,6 @@ class Router extends RouterBase {
     RouteDef(Routes.showImagePage, page: ShowImagePage),
     RouteDef(Routes.selectionToForwardPage, page: SelectionToForwardPage),
     RouteDef(Routes.newContact, page: NewContact),
-    RouteDef(Routes.accountInfo, page: AccountInfo),
   ];
   @override
   Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
@@ -152,12 +148,6 @@ class Router extends RouterBase {
       );
       return MaterialPageRoute<dynamic>(
         builder: (context) => NewContact(key: args.key),
-        settings: data,
-      );
-    },
-    AccountInfo: (data) {
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => AccountInfo(),
         settings: data,
       );
     },
