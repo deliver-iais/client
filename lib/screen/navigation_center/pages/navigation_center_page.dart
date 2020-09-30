@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
+import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/chatsPage.dart';
 import 'package:deliver_flutter/screen/app-contacts/widgets/contactsPage.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
@@ -228,7 +229,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           child: GestureDetector(
                         child: Text(
                             appLocalization.getTraslateValue("newContact")),
-                        onTap: () {},
+                        onTap: () {
+                           ExtendedNavigator.of(context)
+                               .push(Routes.newContact);
+                        },
                       )),
                     ]),
       ),

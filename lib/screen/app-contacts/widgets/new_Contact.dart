@@ -1,6 +1,9 @@
 import 'dart:ffi';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -16,30 +19,38 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 
 class NewContact extends StatefulWidget {
+
+  NewContact({Key key}) : super(key: key);
+
   @override
   _NewContactState createState() => _NewContactState();
+
+
+
 }
 
 class _NewContactState extends State<NewContact> {
   p.PhoneNumber _phoneNumber;
 
-  AppLocalization appLocalization;
+  AppLocalization _appLocalization;
 
-  var contctRepo = GetIt.I.get<ContactRepo>();
+  var _contactRepo = GetIt.I.get<ContactRepo>();
 
-  String first_Name;
-  String last_Name;
-  bool userExit = false;
+  String _firstName;
+  String _lastName;
+  bool _userExit = false;
 
   @override
   Widget build(BuildContext context) {
-    appLocalization = AppLocalization.of(context);
+
+    _appLocalization = AppLocalization.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            ExtendedNavigator.of(context)
+                .push(Routes.homePage);
           },
         ),
         actions: [
@@ -51,17 +62,17 @@ class _NewContactState extends State<NewContact> {
                 PhoneNumber phoneNumber = PhoneNumber()
                   ..nationalNumber = Int64.parseInt(_phoneNumber.number)
                   ..countryCode = int.parse(_phoneNumber.countryCode);
-                var result = await contctRepo.sendContacts([
+                var result = await _contactRepo.sendContacts([
                   Contact()
                     ..phoneNumber = phoneNumber
-                    ..firstName = first_Name
-                    ..lastName = last_Name
+                    ..firstName = _firstName
+                    ..lastName = _lastName
                 ]);
 
                 for (UserAsContact contact in result) {
                   if (contact.phoneNumber.nationalNumber ==
                       phoneNumber.nationalNumber) {
-                    userExit = true;
+                    _userExit = true;
                   }
                 }
                 showResult();
@@ -78,11 +89,11 @@ class _NewContactState extends State<NewContact> {
             padding: EdgeInsets.only(left: 12),
             child: TextField(
               onChanged: (firstName) {
-                first_Name = firstName;
+                _firstName = firstName;
               },
               decoration: InputDecoration(
                   border: InputBorder.none,
-                  hintText: appLocalization.getTraslateValue("firstName")),
+                  hintText: _appLocalization.getTraslateValue("firstName")),
             ),
           ),
           SizedBox(
@@ -92,11 +103,11 @@ class _NewContactState extends State<NewContact> {
             padding: EdgeInsets.only(left: 12),
             child: TextField(
               onChanged: (lastName) {
-                last_Name = lastName;
+                _lastName = lastName;
               },
               decoration: InputDecoration(
                   border: InputBorder.none,
-                  hintText: appLocalization.getTraslateValue("lastName")),
+                  hintText: _appLocalization.getTraslateValue("lastName")),
             ),
           ),
           SizedBox(
@@ -109,8 +120,7 @@ class _NewContactState extends State<NewContact> {
                 color: Theme.of(context).primaryTextTheme.button.color,
               ),
               fillColor: ExtraTheme.of(context).secondColor,
-              labelText: appLocalization.getTraslateValue("phoneNumber"),
-//                        filled: true,
+              labelText: _appLocalization.getTraslateValue("phoneNumber"),
               labelStyle: TextStyle(
                   color: Theme.of(context).primaryTextTheme.button.color),
               focusedBorder: OutlineInputBorder(
@@ -130,7 +140,7 @@ class _NewContactState extends State<NewContact> {
             ),
             validator: (value) =>
                 value.length != 10 || (value.length > 0 && value[0] == '0')
-                    ? appLocalization.getTraslateValue("invalid_mobile_number")
+                    ? _appLocalization.getTraslateValue("invalid_mobile_number")
                     : null,
             onChanged: (ph) {
               _phoneNumber = ph;
@@ -146,13 +156,13 @@ class _NewContactState extends State<NewContact> {
   }
 
   void showResult() {
-    if (userExit) {
+    if (_userExit) {
       Fluttertoast.showToast(
-          msg: appLocalization.getTraslateValue("contactAdd"));
+          msg: _appLocalization.getTraslateValue("contactAdd"));
     } else {
       Fluttertoast.showToast(
-          msg: appLocalization.getTraslateValue("contactNotExit"));
+          msg: _appLocalization.getTraslateValue("contactNotExit"));
     }
-    userExit = false;
+    _userExit = false;
   }
 }

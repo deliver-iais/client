@@ -29,7 +29,7 @@ import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dar
     MaterialRoute(page: MemberSelectionPage),
     MaterialRoute(page: GroupInfoDeterminationPage),
     MaterialRoute(page: SelectionToForwardPage),
-    MaterialRoute(page:  NewContact),
+    MaterialRoute(page: NewContact),
     MaterialRoute(page:  AccountInfo)
 
   ],
