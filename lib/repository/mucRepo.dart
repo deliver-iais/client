@@ -235,7 +235,7 @@ class MucRepo {
   _insetTodb(Uid groupUid, String groupName, List<Uid> memberUids) async {
     await _mucDao.insertGroup(Group(
         uid: groupUid.string, name: groupName, members: memberUids.length + 1));
-    roomRepo.updateRoomName(groupUid.string,groupName);
+    roomRepo.updateRoomName(groupUid,groupName);
     Room room = Room(roomId: groupUid.string, lastMessage: null);
     await _roomDao.insertRoom(room);
     sendFirstMessage(groupUid, room);

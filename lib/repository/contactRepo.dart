@@ -131,7 +131,7 @@ class ContactRepo {
         isBlock: false,
       ));
       roomRepo.updateRoomName(
-          contact.uid.string, contact.firstName + "\t" + contact.lastName);
+          contact.uid, contact.firstName + "\t" + contact.lastName);
       roomDao.insertRoom(myContact.Room(
           roomId: contact.uid.string, lastMessage: null, mentioned: false));
     }
