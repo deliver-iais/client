@@ -1,6 +1,7 @@
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart' as myContact;
+import 'package:deliver_flutter/repository/roomRepo.dart';
 
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:contacts_service/contacts_service.dart' as OsContact;
@@ -29,6 +30,8 @@ class ContactRepo {
   var roomDao = GetIt.I.get<RoomDao>();
 
   var messageRepo = GetIt.I.get<MessageRepo>();
+
+  var roomRepo = GetIt.I.get<RoomRepo>();
 
   static ClientChannel clientChannel = ClientChannel(
       servicesDiscoveryRepo.contactServices.host,
@@ -110,16 +113,16 @@ class ContactRepo {
             metadata: {'accessToken': await accountRepo.getAccessToken()}));
     for (var contact in result.userList) {
       contactDao.insetContact(myContact.Contact(
-          uid: contact.uid.string,
-
-          phoneNumber: contact.phoneNumber.nationalNumber.toString(),
-          firstName: contact.firstName,
-          lastName: contact.lastName,
-          isMute: true,
-          isBlock: false,
-          ));
-
-      await roomDao.insertRoom(myContact.Room(
+        uid: contact.uid.string,
+        phoneNumber: contact.phoneNumber.nationalNumber.toString(),
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+        isMute: true,
+        isBlock: false,
+      ));
+      roomRepo.updateRoomName(
+          contact.uid.string, contact.firstName + "\t" + contact.lastName);
+      roomDao.insertRoom(myContact.Room(
           roomId: contact.uid.string, lastMessage: null, mentioned: false));
     }
 
