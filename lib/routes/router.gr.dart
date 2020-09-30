@@ -175,8 +175,11 @@ class Router extends RouterBase {
       );
     },
     NewContact: (data) {
+      final args = data.getArgs<NewContactArguments>(
+        orElse: () => NewContactArguments(),
+      );
       return MaterialPageRoute<dynamic>(
-        builder: (context) => NewContact(),
+        builder: (context) => NewContact(key: args.key),
         settings: data,
       );
     },
@@ -247,4 +250,10 @@ class SelectionToForwardPageArguments {
   final Key key;
   final List<dynamic> forwardedMessages;
   SelectionToForwardPageArguments({this.key, this.forwardedMessages});
+}
+
+/// NewContact arguments holder class
+class NewContactArguments {
+  final Key key;
+  NewContactArguments({this.key});
 }
