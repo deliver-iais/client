@@ -13,12 +13,23 @@ class _SplashScreenState extends State<SplashScreen> {
   var loggedInStatus;
 
   AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
+  int attempts = 0;
 
   @override
   void initState() {
     super.initState();
-    accountRepo.init().then((_) {
-//      _navigateToIntroPage();
+    tryInitAccountRepo();
+  }
+
+  tryInitAccountRepo() {
+    accountRepo.init().timeout(Duration(seconds: 2), onTimeout: () {
+      if (attempts < 3) {
+        attempts++;
+        tryInitAccountRepo();
+      } else {
+        _navigateToIntroPage();
+      }
+    }).then((_) {
       accountRepo.isLoggedIn() ? _navigateToHomePage() : _navigateToIntroPage();
     });
   }

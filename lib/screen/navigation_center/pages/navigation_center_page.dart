@@ -207,8 +207,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         child:
                             Text(appLocalization.getTraslateValue("newGroup")),
                         onTap: () {
-                          // ExtendedNavigator.of(context)
-                          //     .push(Routes.memberSelectionPage);
+                          routingService.openMemberSelection();
                         },
                       )),
                       PopupMenuItem(

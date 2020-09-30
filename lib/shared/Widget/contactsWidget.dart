@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -15,16 +16,19 @@ import '../circleAvatar.dart';
 class ContactWidget extends StatelessWidget {
   final Contact contact;
   final IconData circleIcon;
+  final bool isSelected;
   var accountRepo = GetIt.I.get<AccountRepo>();
 
-  ContactWidget({this.contact, this.circleIcon});
+  ContactWidget({this.contact, this.circleIcon, this.isSelected = false});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 0, right: 0, top: 5, bottom: 5),
-      child:
-      Row(
+    return Container(
+      decoration: BoxDecoration(
+          color: isSelected ? Theme.of(context).focusColor : null,
+          borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
+      padding: const EdgeInsets.all(MAIN_PADDING / 2),
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Row(
@@ -32,9 +36,11 @@ class ContactWidget extends StatelessWidget {
               Stack(
                 children: <Widget>[
                   CircleAvatarWidget(
-                      contact.uid!=null?contact.uid.uid:Uid.create(),
-                      contact.lastName??contact.firstName.substring(0, 1)+
-                          contact.lastName??contact.lastName.substring(0, 1),
+                      contact.uid != null ? contact.uid.uid : Uid.create(),
+                      contact.lastName ??
+                          contact.firstName.substring(0, 1) +
+                              contact.lastName ??
+                          contact.lastName.substring(0, 1),
                       23),
                   Positioned(
                     child: Container(
@@ -60,7 +66,7 @@ class ContactWidget extends StatelessWidget {
                 width: 20,
               ),
               Text(
-                contact.firstName  + contact.lastName,
+                "${contact.firstName} ${contact.lastName}",
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: ExtraTheme.of(context).infoChat,
@@ -69,17 +75,18 @@ class ContactWidget extends StatelessWidget {
               ),
             ],
           ),
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: ExtraTheme.of(context).secondColor,
-            child: FittedBox(
-              child: Icon(
-                circleIcon,
-                color: ExtraTheme.of(context).circleAvatarIcon,
-                size: 21,
+          if (circleIcon != null)
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: ExtraTheme.of(context).secondColor,
+              child: FittedBox(
+                child: Icon(
+                  circleIcon,
+                  color: ExtraTheme.of(context).circleAvatarIcon,
+                  size: 21,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

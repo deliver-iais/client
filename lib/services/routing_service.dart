@@ -2,32 +2,35 @@ import 'dart:collection';
 
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
+import 'package:deliver_flutter/screen/app_group/pages/group_info_determination_page.dart';
+import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/profile_page.dart';
 import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
 import 'package:deliver_flutter/screen/settings/accountSetting.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
+import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
 
 class Page {
   final Widget largePageNavigator;
   final Widget largePageMain;
   final Widget smallPageMain;
-  final bool canPop;
-  final String uniqueKey;
+  final String path;
 
   Page(
       {this.largePageNavigator,
       this.largePageMain,
       this.smallPageMain,
-      this.canPop = false,
-      this.uniqueKey});
+      this.path});
 }
 
 class RoutingService {
+  var _createMucService = GetIt.I.get<CreateMucService>();
   BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
 
   Widget _navigationCenter;
@@ -46,70 +49,92 @@ class RoutingService {
     reset();
   }
 
-  openRoom(String roomId, {List<Message> forwardedMessages = const []}) {
-    var roomWidget = RoomPage(
+  void openRoom(String roomId, {List<Message> forwardedMessages = const []}) {
+    var widget = RoomPage(
       key: ValueKey("/room/$roomId"),
       roomId: roomId,
       forwardedMessages: forwardedMessages,
     );
-    _popAndPush(Page(
+    _popAllAndPush(Page(
         largePageNavigator: _navigationCenter,
-        largePageMain: roomWidget,
-        smallPageMain: roomWidget,
-        canPop: false,
-        uniqueKey: "/room/$roomId"));
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/room/$roomId"));
   }
 
+  void openSettings() {
+    var widget = SettingsPage(key: ValueKey("/settings"));
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/settings"));
+  }
+
+  void openProfile(String roomId) {
+    var widget = ProfilePage(roomId.uid, key: ValueKey("/profile/$roomId"));
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/profile/$roomId"));
+  }
 
   openAccountSettings() {
-    var accountSettingsWidget = AccountInfo(key: ValueKey("/accountSettings"));
+    var accountSettingsWidget = AccountInfo(key: ValueKey("/account-settings"));
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: accountSettingsWidget,
         smallPageMain: accountSettingsWidget,
-        canPop: true,
-        uniqueKey: "/accountSettings"));
+        path: "/account-settings"));
   }
 
-
-  openSettings() {
-    var settingsWidget = SettingsPage(key: ValueKey("/settings"));
+  void openMemberSelection() {
+    _createMucService.reset();
+    var widget = MemberSelectionPage(key: ValueKey("/member-selection-page"));
     _push(Page(
         largePageNavigator: _navigationCenter,
-        largePageMain: settingsWidget,
-        smallPageMain: settingsWidget,
-        canPop: true,
-        uniqueKey: "/settings"));
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/member-selection-page"));
   }
 
-  openProfile(String roomId) {
-    var settingsWidget =
-        ProfilePage(roomId.uid, key: ValueKey("/profile/$roomId"));
+  void openGroupInfoDeterminationPage() {
+    var widget = GroupInfoDeterminationPage(
+        key: ValueKey("/group-info-determination-page"));
     _push(Page(
         largePageNavigator: _navigationCenter,
-        largePageMain: settingsWidget,
-        smallPageMain: settingsWidget,
-        canPop: true,
-        uniqueKey: "/profile/$roomId"));
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/group-info-determination-page"));
   }
 
   _push(Page p) {
-    if (p.uniqueKey == _stack.last.uniqueKey) return;
+    if (p.path == _stack.last.path) return;
     _stack.add(p);
-    _route.add(_stack.last.uniqueKey);
+    _route.add(_stack.last.path);
   }
 
-  _popAndPush(Page p) {
-    if (p.uniqueKey == _stack.last.uniqueKey) return;
-    if (_stack.length > 1) _stack.removeLast();
+  _popAllAndPush(Page p) {
+    if (p.path == _stack.last.path) return;
+    if (_stack != null) {
+      _stack.clear();
+    }
+    _stack = ListQueue.from([
+      Page(
+          largePageNavigator: _navigationCenter,
+          smallPageMain: _navigationCenter,
+          largePageMain: _empty,
+          path: "/")
+    ]);
     _stack.add(p);
-    _route.add(_stack.last.uniqueKey);
+    _route.add(_stack.last.path);
   }
 
   pop() {
     if (_stack.length > 1) {
       _stack.removeLast();
-      _route.add(_stack.last.uniqueKey);
+      _route.add(_stack.last.path);
     }
   }
 
@@ -123,7 +148,7 @@ class RoutingService {
           largePageNavigator: _navigationCenter,
           smallPageMain: _navigationCenter,
           largePageMain: _empty,
-          uniqueKey: "/")
+          path: "/")
     ]);
   }
 
@@ -131,17 +156,21 @@ class RoutingService {
 
   String get currentRoute => _route.value;
 
-  bool canPop() {
-    return _stack.last.canPop;
-  }
-
   bool canPerformBackButton() {
     return _stack.length < 2;
   }
 
+  Widget backButtonLeading() {
+    return BackButton(
+      onPressed: () {
+        pop();
+      },
+    );
+  }
+
   bool isInRoom(String roomId) =>
-      _stack.last.uniqueKey == "/room/$roomId" ||
-      _stack.last.uniqueKey == "/profile/$roomId";
+      _stack.last.path == "/room/$roomId" ||
+      _stack.last.path == "/profile/$roomId";
 
   largePageNavigator(BuildContext context) {
     return _stack.last.largePageNavigator;

@@ -26,8 +26,6 @@ import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dar
     MaterialRoute(page: HomePage),
     MaterialRoute(page: MediaDetailsPage),
     MaterialRoute(page: ShowImagePage),
-    MaterialRoute(page: MemberSelectionPage),
-    MaterialRoute(page: GroupInfoDeterminationPage),
     MaterialRoute(page: SelectionToForwardPage),
     MaterialRoute(page: NewContact),
     MaterialRoute(page:  AccountInfo)

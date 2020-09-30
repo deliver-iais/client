@@ -1,8 +1,11 @@
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
-ThemeData DarkTheme =
-    ThemeData(brightness: Brightness.dark, fontFamily: "Vazir").copyWith(
+ThemeData DarkTheme = ThemeData(
+        brightness: Brightness.dark,
+        fontFamily: "Vazir",
+        platform: TargetPlatform.macOS)
+    .copyWith(
         visualDensity: VisualDensity.adaptivePlatformDensity,
         primaryColor: Color(0xFF2699FB),
         accentColor: Color(0x8bc1e0FF),

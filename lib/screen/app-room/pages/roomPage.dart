@@ -11,16 +11,16 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/f
 import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/chatTime.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/custom_context_menu.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/recievedMessageBox.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/reply_widgets/reply-widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/sendedMessageBox.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
-import 'package:deliver_flutter/shared/appbar.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/newMessageInput.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
-import 'package:deliver_flutter/shared/mucAppbar.dart';
+import 'package:deliver_flutter/shared/mucAppbarTitle.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +45,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   bool waitingForForwardedMessage;
   AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
   MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
+  RoutingService _routingService = GetIt.I.get<RoutingService>();
 
   void resetRoomPageDetails() {
     setState(() {
@@ -120,11 +121,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     snapshot.data == true || audioPlayerService.lastDur != null
                         ? 100
                         : 60),
-                child: isMuc
-                    ? MucAppbar(
-                        roomId: widget.roomId,
-                      )
-                    : Appbar(),
+                child: AppBar(
+                  leading: _routingService.backButtonLeading(),
+                  title: Align(
+                    alignment: Alignment.centerLeft,
+                    child: isMuc
+                        ? MucAppbarTitle(mucUid: widget.roomId)
+                        : Text(
+                            "Judi",
+                            style: Theme.of(context).textTheme.headline2,
+                          ),
+                  ),
+                ),
               ),
               body: Column(
                 children: <Widget>[

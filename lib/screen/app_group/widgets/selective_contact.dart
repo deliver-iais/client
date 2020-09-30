@@ -15,13 +15,21 @@ class SelectiveContact extends StatefulWidget {
 class _SelectiveContactState extends State<SelectiveContact> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ContactWidget(
-          contact: widget.contact,
-          circleIcon: widget.isSelected ? Icons.check : null,
-        ),
-      ],
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).dividerColor.withAlpha(10))
+        )
+      ),
+      child: Column(
+        children: [
+          ContactWidget(
+            contact: widget.contact,
+            circleIcon: widget.isSelected ? Icons.check : null,
+            isSelected: widget.isSelected,
+          ),
+        ],
+      ),
     );
   }
 }
