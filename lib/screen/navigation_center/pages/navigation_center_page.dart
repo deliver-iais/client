@@ -207,14 +207,16 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         child:
                             Text(appLocalization.getTraslateValue("newGroup")),
                         onTap: () {
-                          routingService.openMemberSelection();
+                          routingService.openMemberSelection(isChannel: false);
                         },
                       )),
                       PopupMenuItem(
                           child: GestureDetector(
                         child: Text(
                             appLocalization.getTraslateValue("newChannel")),
-                        onTap: () {},
+                            onTap: () {
+                              routingService.openMemberSelection(isChannel: true);
+                            },
                       ))
                     ])
             : PopupMenuButton(

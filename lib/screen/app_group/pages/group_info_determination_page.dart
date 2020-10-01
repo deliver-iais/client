@@ -6,24 +6,29 @@ import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
+import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
-class GroupInfoDeterminationPage extends StatefulWidget {
-  const GroupInfoDeterminationPage({Key key}) : super(key: key);
+class MucInfoDeterminationPage extends StatefulWidget {
+  final isChannel;
+  const MucInfoDeterminationPage({Key key,this.isChannel}) : super(key: key);
 
   @override
-  _GroupInfoDeterminationPageState createState() =>
-      _GroupInfoDeterminationPageState();
+  _MucInfoDeterminationPageState createState() =>
+      _MucInfoDeterminationPageState();
 }
 
-class _GroupInfoDeterminationPageState
-    extends State<GroupInfoDeterminationPage> {
+class _MucInfoDeterminationPageState
+    extends State<MucInfoDeterminationPage> {
   TextEditingController controller;
-  String groupName = '';
+  TextEditingController idController;
+
+  String mucName = '';
+  String channelId = "";
   bool showEmoji = false;
   bool autofocus = false;
   var _routingService = GetIt.I.get<RoutingService>();
@@ -32,17 +37,18 @@ class _GroupInfoDeterminationPageState
   @override
   void initState() {
     controller = TextEditingController();
+    idController = TextEditingController();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    MucRepo groupRepo = GetIt.I.get<MucRepo>();
+    MucRepo _mucRepo = GetIt.I.get<MucRepo>();
     return Scaffold(
       appBar: AppBar(
         leading: _routingService.backButtonLeading(),
-        title: Text(appLocalization.getTraslateValue("newGroup")),
+        title: Text(widget.isChannel? appLocalization.getTraslateValue("newChannel"):appLocalization.getTraslateValue("newGroup")),
       ),
       body: FluidContainerWidget(
         child: Stack(
@@ -54,21 +60,6 @@ class _GroupInfoDeterminationPageState
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    // Container(
-                    //   width: 50,
-                    //   height: 50,
-                    //   decoration: BoxDecoration(
-                    //     shape: BoxShape.circle,
-                    //     color: Theme.of(context).primaryColor,
-                    //   ),
-                    //   child: IconButton(
-                    //       icon: Icon(
-                    //         Icons.add_a_photo,
-                    //         color: ExtraTheme.of(context).active,
-                    //       ),
-                    //       onPressed: null),
-                    // ),
-                    // SizedBox(width: 20),
                     Flexible(
                       child: TextField(
                         minLines: 1,
@@ -79,17 +70,42 @@ class _GroupInfoDeterminationPageState
                         onSubmitted: null,
                         onChanged: (str) {
                           setState(() {
-                            groupName = str;
+                            mucName = str;
                           });
                         },
                         decoration: InputDecoration(
-                          hintText: appLocalization
+                          hintText: widget.isChannel?appLocalization
+                              .getTraslateValue("enter-channel-name"):appLocalization
                               .getTraslateValue("enter-group-name"),
                         ),
                       ),
                     ),
                   ],
                 ),
+                widget.isChannel?Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      child: TextField(
+                        minLines: 1,
+                        maxLines: 1,
+                        autofocus: autofocus,
+                        textInputAction: TextInputAction.send,
+                        controller: idController,
+                        onSubmitted: null,
+                        onChanged: (str) {
+                          setState(() {
+                            channelId = str;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          hintText: appLocalization
+                              .getTraslateValue("enter-channel-id")
+                        ),
+                      ),
+                    ),
+                  ],
+                ):SizedBox.shrink(),
                 SizedBox(
                   height: 20,
                 ),
@@ -143,14 +159,21 @@ class _GroupInfoDeterminationPageState
                   icon: Icon(Icons.check),
                   onPressed: () async {
                     List<Uid> memberUidList = [];
+                    Uid micUid;
                     for (var i = 0; i < _createMucService.members.length; i++) {
                       memberUidList.add(_createMucService.members[i].uid.uid);
                     }
-                    Uid groupUid = await groupRepo.makeNewGroup(
-                        memberUidList, controller.text);
-                    groupName = '';
-                    controller.clear();
-                    _routingService.openRoom(groupUid.getString());
+                    if(widget.isChannel){
+                      micUid = await _mucRepo.makeNewChannel(idController.text,
+                          memberUidList, controller.text,ChannelType.PUBLIC);
+                    }else{
+                      micUid = await _mucRepo.makeNewGroup(
+                          memberUidList, controller.text);
+                      controller.clear();
+                    }
+                    if(micUid !=null) {
+                      _routingService.openRoom(micUid.getString());
+                    }
                   },
                 ),
               ),

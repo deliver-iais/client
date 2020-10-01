@@ -42,7 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
     AppLocalization appLocalization = AppLocalization.of(context);
     return Scaffold(
         body: DefaultTabController(
-            length: 4,
+            length: widget.userUid.category == Categories.USER ? 3 : 4,
             child: NestedScrollView(
                 headerSliverBuilder:
                     (BuildContext context, bool innerBoxIsScrolled) {
@@ -250,27 +250,28 @@ class _ProfilePageState extends State<ProfilePage> {
                         maxHeight: 60,
                         minHeight: 60,
                         child: Container(
-                          color: Theme.of(context).backgroundColor,
-                          child: TabBar(
-                            tabs: [
-                              widget.userUid.category == Categories.USER
-                                  ? SizedBox.shrink()
-                                  : Tab(
-                                      text: appLocalization
-                                          .getTraslateValue("members"),
-                                    ),
-                              Tab(
-                                text: appLocalization.getTraslateValue("media"),
-                              ),
-                              Tab(
-                                text: appLocalization.getTraslateValue("file"),
-                              ),
-                              Tab(
-                                text: appLocalization.getTraslateValue("links"),
-                              ),
-                            ],
-                          ),
-                        ),
+                            color: Theme.of(context).backgroundColor,
+                            child: TabBar(
+                              tabs: [
+                                if (widget.userUid.category != Categories.USER)
+                                  Tab(
+                                    text: appLocalization
+                                        .getTraslateValue("members"),
+                                  ),
+                                Tab(
+                                  text:
+                                      appLocalization.getTraslateValue("media"),
+                                ),
+                                Tab(
+                                  text:
+                                      appLocalization.getTraslateValue("file"),
+                                ),
+                                Tab(
+                                  text:
+                                      appLocalization.getTraslateValue("links"),
+                                ),
+                              ],
+                            )),
                       ),
                     ),
                   ];
@@ -285,60 +286,15 @@ class _ProfilePageState extends State<ProfilePage> {
                       }
                       return Container(
                           child: TabBarView(children: [
-                        widget.userUid.category == Categories.USER? SizedBox.shrink():SingleChildScrollView(
-                          child: Column(children: [
-                            MucMemberWidget(
-                              mucUid: widget.userUid,
-                            ),
-                          ]),
-                        ),
-                        GridView.builder(
-                            shrinkWrap: true,
-                            padding: EdgeInsets.zero,
-                            itemCount: snapshot.data.length,
-                            scrollDirection: Axis.vertical,
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
-                            ),
-                            itemBuilder: (context, position) {
-                              return GestureDetector(
-                                onTap: () {
-                                  Navigator.push(context,
-                                      MaterialPageRoute(builder: (_) {
-                                    return MediaDetailsPage(
-                                      mediaUrl:
-                                          snapshot.data[position].mediaUrl,
-                                      mediaListLenght: snapshot.data.length,
-                                      mediaPosition: position,
-                                      heroTag: "btn$position",
-                                      mediaList: mediaUrls,
-                                      mediaSender:
-                                          snapshot.data[position].mediaSender,
-                                      mediaTime: snapshot.data[position].time,
-                                    );
-                                  }));
-                                },
-                                child: Hero(
-                                    tag: "btn$position",
-                                    child: Container(
-                                      decoration: new BoxDecoration(
-                                        image: new DecorationImage(
-                                            image: new NetworkImage(
-                                              snapshot.data[position].mediaUrl,
-                                              // imageList[position],
-                                            ),
-                                            fit: BoxFit.cover),
-                                        border: Border.all(
-                                          width: 1,
-                                          color: ExtraTheme.of(context)
-                                              .secondColor,
-                                        ),
-                                      ),
-                                    )),
-                              );
-                            }),
+                        if (widget.userUid.category != Categories.USER)
+                          SingleChildScrollView(
+                            child: Column(children: [
+                              MucMemberWidget(
+                                mucUid: widget.userUid,
+                              ),
+                            ]),
+                          ),
+                        mediaWidget(snapshot.data),
                         ListView(
                           padding: EdgeInsets.zero,
                           children: <Widget>[
@@ -356,6 +312,51 @@ class _ProfilePageState extends State<ProfilePage> {
                     }
                   },
                 ))));
+  }
+
+  Widget mediaWidget(List<Media> medias) {
+    return GridView.builder(
+        shrinkWrap: true,
+        padding: EdgeInsets.zero,
+        itemCount: medias.length,
+        scrollDirection: Axis.vertical,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
+        ),
+        itemBuilder: (context, position) {
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) {
+                return MediaDetailsPage(
+                  mediaUrl: medias[position].mediaUrl,
+                  mediaListLenght: medias.length,
+                  mediaPosition: position,
+                  heroTag: "btn$position",
+                  mediaList: mediaUrls,
+                  mediaSender: medias[position].mediaSender,
+                  mediaTime: medias[position].time,
+                );
+              }));
+            },
+            child: Hero(
+                tag: "btn$position",
+                child: Container(
+                  decoration: new BoxDecoration(
+                    image: new DecorationImage(
+                        image: new NetworkImage(
+                          medias[position].mediaUrl,
+                          // imageList[position],
+                        ),
+                        fit: BoxFit.cover),
+                    border: Border.all(
+                      width: 1,
+                      color: ExtraTheme.of(context).secondColor,
+                    ),
+                  ),
+                )),
+          );
+        });
   }
 }
 

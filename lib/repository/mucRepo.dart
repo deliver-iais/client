@@ -232,13 +232,13 @@ class MucRepo {
     var result = await mucServices.modifyGroup(Muc.Group());
   }
 
-  _insetTodb(Uid groupUid, String groupName, List<Uid> memberUids) async {
+  _insetTodb(Uid mucUid, String mucName, List<Uid> memberUids) async {
     await _mucDao.insertGroup(Group(
-        uid: groupUid.string, name: groupName, members: memberUids.length + 1));
-    roomRepo.updateRoomName(groupUid,groupName);
-    Room room = Room(roomId: groupUid.string, lastMessage: null);
+        uid: mucUid.string, name: mucName, members: memberUids.length + 1));
+    roomRepo.updateRoomName(mucUid.string,mucName);
+    Room room = Room(roomId: mucUid.string, lastMessage: null);
     await _roomDao.insertRoom(room);
-    sendFirstMessage(groupUid, room);
+    sendFirstMessage(mucUid, room);
   }
 
   sendFirstMessage(Uid groupUid, Room room) async {

@@ -10,8 +10,9 @@ import 'package:get_it/get_it.dart';
 class MemberSelectionPage extends StatelessWidget {
   var _routingService = GetIt.I.get<RoutingService>();
   var _createMucService = GetIt.I.get<CreateMucService>();
+  final bool isChannel;
 
-  MemberSelectionPage({Key key}) : super(key: key);
+  MemberSelectionPage({Key key,this.isChannel}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,7 @@ class MemberSelectionPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              appLocalization.getTraslateValue("newGroup"),
+              isChannel?appLocalization.getTraslateValue("newChannel"):appLocalization.getTraslateValue("newGroup"),
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             StreamBuilder<int>(
@@ -56,7 +57,7 @@ class MemberSelectionPage extends StatelessWidget {
         ),
       ),
       body: FluidContainerWidget(
-        child: SelectiveContactsList(),
+        child: SelectiveContactsList(isChannel: isChannel,),
       ),
     );
   }
