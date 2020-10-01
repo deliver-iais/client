@@ -15,13 +15,16 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class SelectiveContactsList extends StatefulWidget {
-  SelectiveContactsList({Key key}) : super(key: key);
+
+  bool isChannel;
+  SelectiveContactsList({Key key,this.isChannel}) : super(key: key);
 
   @override
   _SelectiveContactsListState createState() => _SelectiveContactsListState();
 }
 
 class _SelectiveContactsListState extends State<SelectiveContactsList> {
+
   TextEditingController editingController;
 
   List<Contact> selectedList = [];
@@ -148,7 +151,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                         for (var i = 0; i < selectedList.length; i++) {
                           members.add(selectedList[i]);
                         }
-                        _routingService.openGroupInfoDeterminationPage();
+                        _routingService.openGroupInfoDeterminationPage(isChannel: widget.isChannel);
                       },
                     ),
                   ),

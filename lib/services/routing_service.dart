@@ -89,9 +89,9 @@ class RoutingService {
         path: "/account-settings"));
   }
 
-  void openMemberSelection() {
+  void openMemberSelection({bool isChannel}) {
     _createMucService.reset();
-    var widget = MemberSelectionPage(key: ValueKey("/member-selection-page"));
+    var widget = MemberSelectionPage(key: ValueKey("/member-selection-page"),isChannel: isChannel,);
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,
@@ -99,9 +99,9 @@ class RoutingService {
         path: "/member-selection-page"));
   }
 
-  void openGroupInfoDeterminationPage() {
-    var widget = GroupInfoDeterminationPage(
-        key: ValueKey("/group-info-determination-page"));
+  void openGroupInfoDeterminationPage({bool isChannel}) {
+    var widget = MucInfoDeterminationPage(
+        key: ValueKey("/group-info-determination-page"),isChannel: isChannel,);
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,

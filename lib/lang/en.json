@@ -89,5 +89,7 @@
   "email_not_valid": "email not valid",
   "usernameHelper": "Minimum 5 and maximum 20 letters.$\n And does not include '.'.And do not start with a number",
   "enter-group-name": "Enter Group Name",
-  "settings": "Settings"
+  "settings": "Settings",
+  "enter-channel-name" : "Enter Channel Name",
+  "enter-channel-id" : "Enter Channel Id"
 }

@@ -11,8 +11,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
