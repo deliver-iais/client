@@ -1,5 +1,4 @@
 enum AppMode {
-  CONNECTING,
-  UPDATING,
+  DISCONNECT,
   STABLE,
 }

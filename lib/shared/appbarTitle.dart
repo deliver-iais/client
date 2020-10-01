@@ -27,10 +27,8 @@ class AppbarTitle extends StatelessWidget {
                         : "Judi",
                 style: Theme.of(context).textTheme.headline2,
               ),
-              mode.data != AppMode.STABLE
-                  ? Text(enumToString(mode.data ?? AppMode.CONNECTING)
-                          .toLowerCase() +
-                      '...')
+              mode.data == AppMode.DISCONNECT
+                  ? Text(appLocalization.getTraslateValue("connecting") + '...')
                   : Container(),
             ],
           );
