@@ -62,5 +62,6 @@
   "Delete": "Delete",
   "ForwardTo": "Forward to...",
   "ForwardedMessages": "forwarded messages",
-  "Log_out": "Log out"
+  "Log_out": "Log out",
+  "connecting": "connecting"
 }
