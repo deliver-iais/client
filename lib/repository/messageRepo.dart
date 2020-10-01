@@ -42,7 +42,7 @@ class MessageRepo {
   MessageRepo() {
     modeChecker.appMode.listen((mode) {
       if (mode == AppMode.STABLE) {
-        establish();
+        updating();
       }
     });
 
@@ -51,7 +51,8 @@ class MessageRepo {
     // establish();
   }
 
-  establish() async {
+  updating() async {
+    modeChecker.updating.add(true);
     try {
       var getAllUserRoomMetaRes = await _queryServiceClient.getAllUserRoomMeta(
           GetAllUserRoomMetaReq(),
@@ -95,16 +96,10 @@ class MessageRepo {
     } catch (e) {
       print(e);
     }
+    modeChecker.updating.add(false);
   }
 
-  // test() {
-  //   _stream.add(null);
-  // }
 
-  updating() {
-    // metadata
-    // fetch, lastMessage
-  }
 
   reconnecting() {}
   sendTextMessage(Uid roomId, String text,
