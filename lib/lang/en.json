@@ -63,5 +63,6 @@
   "ForwardTo": "Forward to...",
   "ForwardedMessages": "forwarded messages",
   "Log_out": "Log out",
-  "connecting": "connecting"
+  "connecting": "connecting",
+  "updating": "updating"
 }

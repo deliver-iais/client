@@ -10,6 +10,7 @@ import 'methods/enum_helper_methods.dart';
 
 class AppbarTitle extends StatelessWidget {
   var modeChecker = GetIt.I.get<ModeChecker>();
+
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
@@ -29,7 +30,17 @@ class AppbarTitle extends StatelessWidget {
               ),
               mode.data == AppMode.DISCONNECT
                   ? Text(appLocalization.getTraslateValue("connecting") + '...')
-                  : Container(),
+                  : StreamBuilder<bool>(
+                      stream: modeChecker.updating.stream,
+                      builder: (context, updating) {
+                        if (updating.data == true)
+                          return Text(
+                              appLocalization.getTraslateValue("updating") +
+                                  '...');
+                        else
+                          return Container();
+                      },
+                    ),
             ],
           );
         });

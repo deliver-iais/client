@@ -33,13 +33,31 @@ class MucAppbarTitle extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      Text(
-                        mode.data != AppMode.STABLE
-                            ? appLocalization.getTraslateValue("connecting") + '...'
-                            : '${snapshot.data.members} ' +
-                                appLocalization.getTraslateValue("members"),
-                        style: TextStyle(fontSize: 11),
-                      ),
+                      mode.data == AppMode.DISCONNECT
+                          ? Text(
+                              appLocalization.getTraslateValue("connecting") +
+                                  '...',
+                              style: TextStyle(fontSize: 11),
+                            )
+                          : StreamBuilder<bool>(
+                              stream: modeChecker.updating.stream,
+                              builder: (context, updating) {
+                                if (updating.data == true)
+                                  return Text(
+                                    appLocalization
+                                            .getTraslateValue("updating") +
+                                        '...',
+                                    style: TextStyle(fontSize: 11),
+                                  );
+                                else
+                                  return Text(
+                                    '${snapshot.data.members} ' +
+                                        appLocalization
+                                            .getTraslateValue("members"),
+                                    style: TextStyle(fontSize: 11),
+                                  );
+                              },
+                            ),
                     ],
                   );
                 });
