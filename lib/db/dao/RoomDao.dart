@@ -28,7 +28,7 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
     return (select(rooms).join([
       leftOuterJoin(
           messages,
-          messages.dbId.equalsExp(rooms.lastMessage) &
+          messages.packetId.equalsExp(rooms.lastMessage) &
               messages.roomId.equalsExp(rooms.roomId)),
     ])
           ..orderBy([OrderingTerm.desc(messages.time)]))

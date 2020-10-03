@@ -61,7 +61,7 @@ class _ImageUiState extends State<ImageUi> {
     if (accountRepo.currentUserUid.string == widget.message.from) {
       return Container(
         child: StreamBuilder<List<PendingMessage>>(
-          stream: pendingMessageDao.getByMessageId(widget.message.dbId),
+          stream: pendingMessageDao.getByMessageId(widget.message.packetId),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (snapshot.data.length > 0) {
@@ -120,7 +120,7 @@ class _ImageUiState extends State<ImageUi> {
     } else
       return Container(
         child: StreamBuilder<List<PendingMessage>>(
-          stream: pendingMessageDao.getByMessageId(widget.message.dbId),
+          stream: pendingMessageDao.getByMessageId(widget.message.packetId),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return FutureBuilder<bool>(

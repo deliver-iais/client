@@ -9,7 +9,7 @@ import 'package:get_it/get_it.dart';
 
 class LoadFileStatus extends StatefulWidget {
   final File file;
-  final int dbId;
+  final String  dbId;
   final Function onPressed;
   LoadFileStatus({Key key, this.file, this.dbId, this.onPressed})
       : super(key: key);

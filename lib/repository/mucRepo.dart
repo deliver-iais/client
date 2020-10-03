@@ -242,15 +242,16 @@ class MucRepo {
   }
 
   sendFirstMessage(Uid groupUid, Room room) async {
-    int lastMessage = await messageDao.insertMessage(Message(
+    var  message = Message(
         roomId: groupUid.string,
-        packetId: 14,
+        packetId: _getPacketId(),
         time: DateTime.now(),
         from: _accountRepo.currentUserUid.string,
         to: groupUid.string,
         type: MessageType.PERSISTENT_EVENT,
-        json: jsonEncode({"text": "You created the group"})));
-    await _roomDao.updateRoom(room.copyWith(lastMessage: lastMessage));
+        json: jsonEncode({"text": "You created the group"}));
+    messageDao.insertMessage(message);
+    await _roomDao.updateRoom(room.copyWith(lastMessage: message.packetId));
   }
 
   addMember(Uid mucUid, List<Uid> memberUids) async {
@@ -280,10 +281,14 @@ class MucRepo {
     }
   }
 
+
   insertUserInDb(Uid mucUid, List<Member> members) async {
     for (Member member in members) {
       await _memberDao.insertMember(member);
     }
+  }
+  String _getPacketId() {
+    return "${_accountRepo.currentUserUid.getString()}:${DateTime.now().microsecondsSinceEpoch.toString()}";
   }
 
   Muc.Role getRole(MucRole role) {
