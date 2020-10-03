@@ -38,7 +38,7 @@ class _MessageHeaderState extends State<MessageHeader> {
     PendingMessageDao pendingMessageDao = GetIt.I.get<PendingMessageDao>();
     var fileRepo = GetIt.I.get<FileRepo>();
     return StreamBuilder<List<PendingMessage>>(
-      stream: pendingMessageDao.getByMessageId(widget.message.dbId),
+      stream: pendingMessageDao.getByMessageId(widget.message.packetId),
       builder: (context, pendingMessage) {
         if (pendingMessage.hasData) {
           return FutureBuilder<bool>(
@@ -59,7 +59,7 @@ class _MessageHeaderState extends State<MessageHeader> {
                               ? (pendingMessage.data[0]).status
                               : null,
                           file: file,
-                          messageDbId: widget.message.dbId,
+                          messageDbId: widget.message.packetId,
                           onPressed: download,
                         ),
                         //TODO width

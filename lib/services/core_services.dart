@@ -1,14 +1,18 @@
 import 'dart:async';
 
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
+import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
+import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/database.dart' as M;
+
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:grpc/grpc.dart';
@@ -26,6 +30,8 @@ class CoreServices {
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   var _messageDao = GetIt.I.get<MessageDao>();
+  var _seenDao = GetIt.I.get<SeenDao>();
+  PendingMessageDao _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
 
   CoreServices() {}
 
@@ -35,38 +41,38 @@ class CoreServices {
         options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
     responseStream.listen((serverPacket) {
-      switch (serverPacket.whichType() ){
+      switch (serverPacket.whichType()) {
         case ServerPacket_Type.message:
           print("messageweeeeeeeeeeeeeeeeeeee");
           _saveIncomingMessage(serverPacket.message);
           break;
         case ServerPacket_Type.error:
-         serverPacket.error;
           print("errrrrrrrrrrrrrrrrrror");
           break;
         case ServerPacket_Type.seen:
-
+          _saveSeenMessage(serverPacket.seen);
 
           break;
         case ServerPacket_Type.activity:
-
+          _saveActivityMessage(serverPacket.activity);
           break;
         case ServerPacket_Type.pollStatusChanged:
-
           break;
         case ServerPacket_Type.liveLocationStatusChanged:
-
           break;
         case ServerPacket_Type.notSet:
           break;
+        case ServerPacket_Type.pong:
+          savePingMessage(serverPacket.pong);
+          break;
       }
-
     });
   }
+
   _saveIncomingMessage(Message message) {
     _messageDao.insertMessage(M.Message(
-        id: message.id.hashCode,
-        packetId: int.parse(message.packetId),
+        id: message.id.toInt(),
+        packetId: message.packetId,
         time: DateTime.parse(message.time.toString()),
         to: message.to.string,
         from: message.from.string,
@@ -76,21 +82,28 @@ class CoreServices {
         edited: message.edited,
         encrypted: message.encrypted,
         type: getMessageType(message.whichType())));
+    _pendingMessageDao
+        .deletePendingMessage(M.PendingMessage(messageId: message.packetId));
   }
 
   sendMessage(MessageByClient message) {
-
-    _clientPacket.add(ClientPacket()..message = message);
+    _clientPacket.add(ClientPacket()..message = message..id = message.packetId);
     print("message is send ");
   }
 
-  seenMessage(SeenByClient seen) {
-    _clientPacket.add(ClientPacket()..seen = seen);
+  sendPingMessage() {
+
+    _clientPacket.add(ClientPacket()..ping = Ping() );
   }
 
-  sendActivity(ActivityByClient activity){
-    _clientPacket.add(ClientPacket()..activity = activity);
+  sendSeenMessage(SeenByClient seen) {
+    _clientPacket.add(ClientPacket()..seen = seen..id = DateTime.now().microsecondsSinceEpoch.toString());
   }
+
+  sendActivityMessage(ActivityByClient activity) {
+    _clientPacket.add(ClientPacket()..activity = activity..id = DateTime.now().microsecondsSinceEpoch.toString());
+  }
+
 
   MessageType getMessageType(Message_Type messageType) {
     switch (messageType) {
@@ -124,5 +137,30 @@ class CoreServices {
     }
   }
 
+  _saveSeenMessage(Seen seen) {
+    Uid roomId;
+    switch (seen.to.category) {
+      case Categories.USER:
+        seen.to == _accountRepo.currentUserUid
+            ? roomId = seen.to
+            : roomId = seen.from;
+        break;
+      case Categories.GROUP:
+      case Categories.PRIVATE_CHANNEL:
+      case Categories.PUBLIC_CHANNEL:
+      case Categories.BOT:
+        roomId = seen.to;
+        break;
+    }
+    _seenDao.insertSeen(M.Seen(
+        messageId: seen.id.toInt(),
+        user: seen.from.string,
+        roomId: roomId.string));
+  }
 
+  _saveActivityMessage(Activity activity) {
+    //todo
+  }
+
+  void savePingMessage(Pong pong) {}
 }

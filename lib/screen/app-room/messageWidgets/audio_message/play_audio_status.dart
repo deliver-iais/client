@@ -9,7 +9,7 @@ import 'dart:io';
 
 class PlayAudioStatus extends StatefulWidget {
   final filePb.File file;
-  final int dbId;
+  final String dbId;
   const PlayAudioStatus({Key key, this.file, this.dbId}) : super(key: key);
   @override
   _PlayAudioStatusState createState() => _PlayAudioStatusState();
