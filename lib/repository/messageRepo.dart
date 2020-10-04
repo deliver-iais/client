@@ -253,7 +253,10 @@ class MessageRepo {
       return MessageType.POLL;
     else if (message.hasLiveLocation())
       return MessageType.LIVE_LOCATION;
-    else if (message.hasLocation()) return MessageType.LOCATION;
+    else if (message.hasLocation())
+      return MessageType.LOCATION;
+    else
+      return MessageType.NAN;
   }
 
   String findFetchMessageJson(messagePb.Message message, MessageType type) {

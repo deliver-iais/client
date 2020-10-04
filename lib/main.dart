@@ -66,6 +66,7 @@ void setupRepositories() {
   getIt.registerSingleton<AccountRepo>(AccountRepo());
   getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
+  getIt.registerSingleton<ModeChecker>(ModeChecker());
   getIt.registerSingleton<MessageService>(MessageService());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
@@ -77,7 +78,6 @@ void setupRepositories() {
   getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
-  getIt.registerSingleton<ModeChecker>(ModeChecker());
 }
 
 setupFlutterNotification() async {
@@ -92,6 +92,7 @@ void setupDIAndRunApp() {
 }
 
 void main() {
+  print('hi');
   WidgetsFlutterBinding.ensureInitialized();
   Fimber.plantTree(DebugTree.elapsed());
   Fimber.i("Application has been started");

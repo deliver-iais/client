@@ -7,4 +7,5 @@ enum MessageType {
   POLL,
   FORM,
   PERSISTENT_EVENT,
+  NAN,
 }

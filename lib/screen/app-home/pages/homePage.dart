@@ -30,10 +30,8 @@ class HomePage extends StatelessWidget {
                 return Scaffold(
                   backgroundColor: Theme.of(context).backgroundColor,
                   appBar: PreferredSize(
-                    preferredSize: Size.fromHeight(
-                        mode.data != AppMode.STABLE || snapshot.data == true
-                            ? 100
-                            : 60),
+                    preferredSize:
+                        Size.fromHeight(snapshot.data == true ? 100 : 60),
                     child: Appbar(),
                   ),
                   body: MainWidget(
