@@ -25,10 +25,12 @@ import 'dart:io';
 import 'Contacts.dart';
 import 'FileInfo.dart';
 import 'Group.dart';
+import 'LastSeen.dart';
 import 'Member.dart';
 import 'Rooms.dart';
 import 'Seens.dart';
 import 'PendingMessages.dart';
+import 'dao/LastSeenDao.dart';
 import 'dao/MemberDao.dart';
 import 'dao/RoomDao.dart';
 import 'dao/MessageDao.dart';
@@ -48,6 +50,7 @@ part 'database.g.dart';
   SharedPreferences,
   Members,
   Groups,
+  LastSeens,
 ], daos: [
   MessageDao,
   RoomDao,
@@ -61,6 +64,7 @@ part 'database.g.dart';
   SharedPreferencesDao,
   MemberDao,
   GroupDao,
+  LastSeenDao,
 ])
 class Database extends _$Database {
   Database()
@@ -82,7 +86,6 @@ class Database extends _$Database {
       }
     });
   }
-
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

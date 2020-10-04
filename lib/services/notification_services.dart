@@ -17,7 +17,7 @@ class NotificationServices {
         onDidReceiveLocalNotification: onDidReceiveLocalNotification);
 
     var initializationSettings = InitializationSettings(
-        androidNotificationSetting, iosNotificationSetting);
+        android: androidNotificationSetting, iOS: iosNotificationSetting);
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: (room) {
       if (room != null && room.isNotEmpty) {
@@ -62,8 +62,8 @@ class NotificationServices {
         'channel_ID', 'cs', 'desc',
         styleInformation: bigTextStyleInformation);
     var iOSNotificationDetails = IOSNotificationDetails();
-    _notificationDetails =
-        NotificationDetails(androidNotificationDetails, iOSNotificationDetails);
+    _notificationDetails = NotificationDetails(
+        android: androidNotificationDetails, iOS: iOSNotificationDetails);
 
     await flutterLocalNotificationsPlugin.show(
         notificationId, roomName, "", _notificationDetails,
@@ -84,8 +84,8 @@ class NotificationServices {
         'channel_ID', 'cs', 'desc',
         styleInformation: bigPictureStyleInformation);
     var iOSNotificationDetails = IOSNotificationDetails();
-    _notificationDetails =
-        NotificationDetails(androidNotificationDetails, iOSNotificationDetails);
+    _notificationDetails = NotificationDetails(
+        android: androidNotificationDetails, iOS: iOSNotificationDetails);
 
     await flutterLocalNotificationsPlugin.show(
         notificationId, roomName, imagePath, _notificationDetails,

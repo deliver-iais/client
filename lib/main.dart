@@ -36,6 +36,7 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:window_size/window_size.dart';
+import 'db/dao/LastSeenDao.dart';
 import 'db/dao/MessageDao.dart';
 import 'db/dao/GroupDao.dart';
 import 'db/dao/RoomDao.dart';
@@ -57,6 +58,7 @@ void setupDB() {
   getIt.registerSingleton<SharedPreferencesDao>(db.sharedPreferencesDao);
   getIt.registerSingleton<GroupDao>(db.groupDao);
   getIt.registerSingleton<MemberDao>(db.memberDao);
+  getIt.registerSingleton<LastSeenDao>(db.lastSeenDao);
 }
 
 void setupRepositories() {
@@ -69,6 +71,7 @@ void setupRepositories() {
   getIt.registerSingleton<MessageService>(MessageService());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
+  getIt.registerSingleton<ModeChecker>(ModeChecker());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<MessageRepo>(MessageRepo());
   getIt.registerSingleton<MucRepo>(MucRepo());
@@ -77,7 +80,6 @@ void setupRepositories() {
   getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
-  getIt.registerSingleton<ModeChecker>(ModeChecker());
 }
 
 setupFlutterNotification() async {

@@ -4312,6 +4312,243 @@ class $GroupsTable extends Groups with TableInfo<$GroupsTable, Group> {
   }
 }
 
+class LastSeen extends DataClass implements Insertable<LastSeen> {
+  final int dbId;
+  final int messageId;
+  final String roomId;
+  LastSeen(
+      {@required this.dbId, @required this.messageId, @required this.roomId});
+  factory LastSeen.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final intType = db.typeSystem.forDartType<int>();
+    final stringType = db.typeSystem.forDartType<String>();
+    return LastSeen(
+      dbId: intType.mapFromDatabaseResponse(data['${effectivePrefix}db_id']),
+      messageId:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}message_id']),
+      roomId:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || dbId != null) {
+      map['db_id'] = Variable<int>(dbId);
+    }
+    if (!nullToAbsent || messageId != null) {
+      map['message_id'] = Variable<int>(messageId);
+    }
+    if (!nullToAbsent || roomId != null) {
+      map['room_id'] = Variable<String>(roomId);
+    }
+    return map;
+  }
+
+  LastSeensCompanion toCompanion(bool nullToAbsent) {
+    return LastSeensCompanion(
+      dbId: dbId == null && nullToAbsent ? const Value.absent() : Value(dbId),
+      messageId: messageId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(messageId),
+      roomId:
+          roomId == null && nullToAbsent ? const Value.absent() : Value(roomId),
+    );
+  }
+
+  factory LastSeen.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return LastSeen(
+      dbId: serializer.fromJson<int>(json['dbId']),
+      messageId: serializer.fromJson<int>(json['messageId']),
+      roomId: serializer.fromJson<String>(json['roomId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'dbId': serializer.toJson<int>(dbId),
+      'messageId': serializer.toJson<int>(messageId),
+      'roomId': serializer.toJson<String>(roomId),
+    };
+  }
+
+  LastSeen copyWith({int dbId, int messageId, String roomId}) => LastSeen(
+        dbId: dbId ?? this.dbId,
+        messageId: messageId ?? this.messageId,
+        roomId: roomId ?? this.roomId,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('LastSeen(')
+          ..write('dbId: $dbId, ')
+          ..write('messageId: $messageId, ')
+          ..write('roomId: $roomId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      $mrjf($mrjc(dbId.hashCode, $mrjc(messageId.hashCode, roomId.hashCode)));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is LastSeen &&
+          other.dbId == this.dbId &&
+          other.messageId == this.messageId &&
+          other.roomId == this.roomId);
+}
+
+class LastSeensCompanion extends UpdateCompanion<LastSeen> {
+  final Value<int> dbId;
+  final Value<int> messageId;
+  final Value<String> roomId;
+  const LastSeensCompanion({
+    this.dbId = const Value.absent(),
+    this.messageId = const Value.absent(),
+    this.roomId = const Value.absent(),
+  });
+  LastSeensCompanion.insert({
+    this.dbId = const Value.absent(),
+    @required int messageId,
+    @required String roomId,
+  })  : messageId = Value(messageId),
+        roomId = Value(roomId);
+  static Insertable<LastSeen> custom({
+    Expression<int> dbId,
+    Expression<int> messageId,
+    Expression<String> roomId,
+  }) {
+    return RawValuesInsertable({
+      if (dbId != null) 'db_id': dbId,
+      if (messageId != null) 'message_id': messageId,
+      if (roomId != null) 'room_id': roomId,
+    });
+  }
+
+  LastSeensCompanion copyWith(
+      {Value<int> dbId, Value<int> messageId, Value<String> roomId}) {
+    return LastSeensCompanion(
+      dbId: dbId ?? this.dbId,
+      messageId: messageId ?? this.messageId,
+      roomId: roomId ?? this.roomId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (dbId.present) {
+      map['db_id'] = Variable<int>(dbId.value);
+    }
+    if (messageId.present) {
+      map['message_id'] = Variable<int>(messageId.value);
+    }
+    if (roomId.present) {
+      map['room_id'] = Variable<String>(roomId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LastSeensCompanion(')
+          ..write('dbId: $dbId, ')
+          ..write('messageId: $messageId, ')
+          ..write('roomId: $roomId')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LastSeensTable extends LastSeens
+    with TableInfo<$LastSeensTable, LastSeen> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $LastSeensTable(this._db, [this._alias]);
+  final VerificationMeta _dbIdMeta = const VerificationMeta('dbId');
+  GeneratedIntColumn _dbId;
+  @override
+  GeneratedIntColumn get dbId => _dbId ??= _constructDbId();
+  GeneratedIntColumn _constructDbId() {
+    return GeneratedIntColumn('db_id', $tableName, false,
+        hasAutoIncrement: true, declaredAsPrimaryKey: true);
+  }
+
+  final VerificationMeta _messageIdMeta = const VerificationMeta('messageId');
+  GeneratedIntColumn _messageId;
+  @override
+  GeneratedIntColumn get messageId => _messageId ??= _constructMessageId();
+  GeneratedIntColumn _constructMessageId() {
+    return GeneratedIntColumn(
+      'message_id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
+  GeneratedTextColumn _roomId;
+  @override
+  GeneratedTextColumn get roomId => _roomId ??= _constructRoomId();
+  GeneratedTextColumn _constructRoomId() {
+    return GeneratedTextColumn(
+      'room_id',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [dbId, messageId, roomId];
+  @override
+  $LastSeensTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'last_seens';
+  @override
+  final String actualTableName = 'last_seens';
+  @override
+  VerificationContext validateIntegrity(Insertable<LastSeen> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('db_id')) {
+      context.handle(
+          _dbIdMeta, dbId.isAcceptableOrUnknown(data['db_id'], _dbIdMeta));
+    }
+    if (data.containsKey('message_id')) {
+      context.handle(_messageIdMeta,
+          messageId.isAcceptableOrUnknown(data['message_id'], _messageIdMeta));
+    } else if (isInserting) {
+      context.missing(_messageIdMeta);
+    }
+    if (data.containsKey('room_id')) {
+      context.handle(_roomIdMeta,
+          roomId.isAcceptableOrUnknown(data['room_id'], _roomIdMeta));
+    } else if (isInserting) {
+      context.missing(_roomIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {dbId};
+  @override
+  LastSeen map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return LastSeen.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $LastSeensTable createAlias(String alias) {
+    return $LastSeensTable(_db, alias);
+  }
+}
+
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $MessagesTable _messages;
@@ -4340,6 +4577,8 @@ abstract class _$Database extends GeneratedDatabase {
   $MembersTable get members => _members ??= $MembersTable(this);
   $GroupsTable _groups;
   $GroupsTable get groups => _groups ??= $GroupsTable(this);
+  $LastSeensTable _lastSeens;
+  $LastSeensTable get lastSeens => _lastSeens ??= $LastSeensTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
@@ -4367,6 +4606,8 @@ abstract class _$Database extends GeneratedDatabase {
   MemberDao get memberDao => _memberDao ??= MemberDao(this as Database);
   GroupDao _groupDao;
   GroupDao get groupDao => _groupDao ??= GroupDao(this as Database);
+  LastSeenDao _lastSeenDao;
+  LastSeenDao get lastSeenDao => _lastSeenDao ??= LastSeenDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
@@ -4382,6 +4623,7 @@ abstract class _$Database extends GeneratedDatabase {
         medias,
         sharedPreferences,
         members,
-        groups
+        groups,
+        lastSeens
       ];
 }
