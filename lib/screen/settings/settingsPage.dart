@@ -8,7 +8,6 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 
-
 import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/screen/settings/account_settings.dart';
@@ -110,12 +109,7 @@ class SettingsPage extends StatelessWidget {
                   child: MaterialButton(
                     color: Theme.of(context).errorColor,
                     onPressed: () {
-                      deleteDb();
-                      _routingService.reset();
-                      Navigator.of(context).pushAndRemoveUntil(
-                          new MaterialPageRoute(
-                              builder: (context) => IntroPage()),
-                          (Route<dynamic> route) => false);
+                      _routingService.logout(context);
                     },
                     shape: CircleBorder(),
                     child: Icon(Icons.exit_to_app_rounded),
@@ -150,9 +144,11 @@ class SettingsPage extends StatelessWidget {
                     style: TextStyle(
                         color: ExtraTheme.of(context).text, fontSize: 13),
                   ),
-                  IconButton(icon: Icon(Icons.navigate_next), onPressed: () {
-                    _routingService.openAccountSettings();
-                  }),
+                  IconButton(
+                      icon: Icon(Icons.navigate_next),
+                      onPressed: () {
+                        _routingService.openAccountSettings();
+                      }),
                 ],
               ),
             ),
@@ -206,11 +202,7 @@ class SettingsPage extends StatelessWidget {
   }
 
   Widget settingsRow(BuildContext context,
-      {Widget child,
-      IconData iconData,
-      String title,
-      Function onClick}) {
-
+      {Widget child, IconData iconData, String title, Function onClick}) {
     return GestureDetector(
       onTap: () {
         onClick?.call();
@@ -239,10 +231,5 @@ class SettingsPage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Future<void> deleteDb() async {
-    Database db = Database();
-    await db.deleteAllData();
   }
 }

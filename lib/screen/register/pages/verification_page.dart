@@ -1,10 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/services/check_permissions_service.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
@@ -24,12 +21,9 @@ class _VerificationPageState extends State<VerificationPage> {
   String _verificationCode;
   AppLocalization _appLocalization;
 
-
   final FocusNode focusNode = FocusNode();
 
   AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
-  CheckPermissionsService _checkPermission =
-      GetIt.I.get<CheckPermissionsService>();
 
   var _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
@@ -67,24 +61,11 @@ class _VerificationPageState extends State<VerificationPage> {
     });
   }
 
-  _requestPermissions() {
-    _checkPermission.checkContactPermission(context);
-    _checkPermission.checkStoragePermission();
-  }
-
   _navigationToHome() async {
-    var userPrivateData = await _accountRepo.usernameIsSet();
-    if (userPrivateData) {
-      _requestPermissions();
-      ExtendedNavigator.of(context).pushAndRemoveUntil(
-        Routes.homePage,
-        (_) => false,
-      );
-    } else {
-      ExtendedNavigator.of(context).push(
-        Routes.accountSettings,arguments: AccountSettingsArguments(back: false)
-      );
-    }
+    ExtendedNavigator.of(context).pushAndRemoveUntil(
+      Routes.homePage,
+      (_) => false,
+    );
   }
 
   _setErrorAndResetCode() {

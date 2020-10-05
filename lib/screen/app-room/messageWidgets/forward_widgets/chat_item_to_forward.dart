@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
@@ -68,11 +67,7 @@ class ChatItemToForward extends StatelessWidget {
                     color: ExtraTheme.of(context).active,
                   ),
                   onPressed: (){
-                    ExtendedNavigator.of(context).push(
-                      Routes.roomPage,arguments: RoomPageArguments(roomId: uid.getString(),forwardedMessages: forwardedMessages)
-
-                    );
-
+                    _routingService.openRoom(uid.getString(),forwardedMessages: forwardedMessages);
                   },
                 ),
               )
