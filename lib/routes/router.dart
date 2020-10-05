@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route_annotations.dart';
+import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
 import 'package:deliver_flutter/screen/home/pages/home_page.dart';
 import 'package:deliver_flutter/screen/app-contacts/widgets/new_Contact.dart';
 
@@ -8,6 +9,7 @@ import 'package:deliver_flutter/screen/register/pages/verification_page.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/showImage_Widget.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
 import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
+import 'package:deliver_flutter/screen/settings/account_settings.dart';
 import 'package:deliver_flutter/screen/splash/pages/splash_screen.dart';
 
 @MaterialAutoRouter(
@@ -21,6 +23,9 @@ import 'package:deliver_flutter/screen/splash/pages/splash_screen.dart';
     MaterialRoute(page: ShowImagePage),
     MaterialRoute(page: SelectionToForwardPage),
     MaterialRoute(page: NewContact),
+    MaterialRoute(page: AccountSettings),
+    MaterialRoute(page: RoomPage),
+
   ],
 )
 class $Router {}

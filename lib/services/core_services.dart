@@ -103,6 +103,9 @@ class CoreServices {
   sendActivityMessage(ActivityByClient activity) {
     _clientPacket.add(ClientPacket()..activity = activity..id = DateTime.now().microsecondsSinceEpoch.toString());
   }
+  deleteMessage(){
+
+  }
 
 
   MessageType getMessageType(Message_Type messageType) {

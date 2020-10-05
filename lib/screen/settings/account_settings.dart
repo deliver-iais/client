@@ -1,9 +1,11 @@
 import 'dart:ui';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +14,8 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AccountSettings extends StatefulWidget {
-  AccountSettings({Key key}) : super(key: key);
+  final bool back;
+  AccountSettings({Key key,this.back}) : super(key: key);
 
   @override
   _AccountSettingsState createState() => _AccountSettingsState();
@@ -22,16 +25,18 @@ class _AccountSettingsState extends State<AccountSettings> {
   AppLocalization _appLocalization;
   BehaviorSubject<String> subject = new BehaviorSubject<String>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
-  String _username;
+  CheckPermissionsService _checkPermission =
+  GetIt.I.get<CheckPermissionsService>();
+  String _username ="";
   String _newUsername = "";
-  String _email;
-  String _lastName;
-  String _firstName;
+  String _email="";
+  String _lastName="";
+  String _firstName = "";
   String _lastUserName;
   Account _account;
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
-  bool _userNameNotValid = false;
+  bool _userNameAlreadyExit = false;
   bool _userNameCorrect = false;
   final _routingService = GetIt.I.get<RoutingService>();
 
@@ -47,12 +52,12 @@ class _AccountSettingsState extends State<AccountSettings> {
           bool validUsername = await _accountRepo.checkUserName(username);
           if (!validUsername) {
             setState(() {
-              _userNameNotValid = true;
+              _userNameAlreadyExit = true;
             });
           }
         } else {
           setState(() {
-            _userNameNotValid = false;
+            _userNameAlreadyExit = false;
           });
         }
       }
@@ -64,7 +69,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     _appLocalization = AppLocalization.of(context);
     return Scaffold(
       appBar: AppBar(
-        leading: _routingService.backButtonLeading(),
+        leading:  widget.back? _routingService.backButtonLeading():SizedBox.shrink(),
         title: Text(_appLocalization.getTraslateValue("account_info")),
       ),
       body: FluidContainerWidget(
@@ -100,7 +105,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 validator: validateUsername,
                                 decoration: InputDecoration(
                                     border: OutlineInputBorder(),
-                                    hintText: _appLocalization
+                                    labelText: _appLocalization
                                         .getTraslateValue("username")),
                               ),
                             ),
@@ -113,12 +118,13 @@ class _AccountSettingsState extends State<AccountSettings> {
                                       Text(
                                         _appLocalization
                                             .getTraslateValue("usernameHelper"),
-                                        style: TextStyle(fontSize: 10),
+                                        style: TextStyle(fontSize: 10,color: Colors.blueAccent
+                                        ),
                                       ),
                                     ],
                                   )
                                 : SizedBox.shrink(),
-                            _userNameNotValid
+                            _userNameAlreadyExit
                                 ? Row(
                                     children: [
                                       Text(
@@ -145,7 +151,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                               validator: validateFirstName,
                               decoration: InputDecoration(
                                   border: OutlineInputBorder(),
-                                  hintText: _appLocalization
+                                  labelText: _appLocalization
                                       .getTraslateValue("firstName")),
                             ),
                             SizedBox(
@@ -161,9 +167,10 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   });
                                 },
                                 decoration: InputDecoration(
+                                    labelText: _appLocalization
+                                        .getTraslateValue("lastName"),
                                     border: OutlineInputBorder(),
-                                    hintText: _appLocalization
-                                        .getTraslateValue("lastName"))),
+                                   )),
                             SizedBox(
                               height: 20,
                             ),
@@ -179,7 +186,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 validator: validateEmail,
                                 decoration: InputDecoration(
                                     border: OutlineInputBorder(),
-                                    hintText: _appLocalization
+                                    labelText: _appLocalization
                                         .getTraslateValue("email"))),
                             SizedBox(
                               height: 40,
@@ -230,13 +237,13 @@ class _AccountSettingsState extends State<AccountSettings> {
     if (value.isEmpty) {
       setState(() {
         _userNameCorrect = false;
-        _userNameNotValid = false;
+        _userNameAlreadyExit = false;
       });
       return _appLocalization.getTraslateValue("username_not_empty");
     } else if (!regex.hasMatch(value)) {
       setState(() {
         _userNameCorrect = false;
-        _userNameNotValid = false;
+        _userNameAlreadyExit = false;
       });
       return _appLocalization.getTraslateValue("username_length");
     } else {
@@ -257,14 +264,40 @@ class _AccountSettingsState extends State<AccountSettings> {
     }
   }
 
-  checkAndSend() {
-    bool isValidated = _formKey?.currentState?.validate() ?? false;
-    if (isValidated) {
-      _accountRepo.setAccountDetails(
-          _username ?? _account.userName,
-          _firstName ?? _account.firstName,
-          _lastName ?? _account.lastName,
-          _email ?? _account.email);
+  checkAndSend()async  {
+    bool checkUserName = _usernameFormKey?.currentState?.validate() ?? false;
+    if(checkUserName){
+      bool isValidated = _formKey?.currentState?.validate() ?? false;
+      if (isValidated) {
+        if(!_userNameAlreadyExit){
+          bool setPrivateInfo = await  _accountRepo.setAccountDetails(
+              _username.isNotEmpty?_username: _account.userName,
+              _firstName.isNotEmpty?_firstName: _account.firstName,
+              _lastName.isNotEmpty?_lastName:_account.lastName,
+              _email.isNotEmpty?_email: _account.email);
+          if(setPrivateInfo){
+            if(!widget.back){
+              _requestPermissions();
+              ExtendedNavigator.of(context).pushAndRemoveUntil(
+                Routes.homePage,
+                    (_) => false,
+              );
+            }
+            else{
+              _routingService.pop();
+            }
+
+          }
+        }
+
+      }
     }
+
   }
+  _requestPermissions() {
+    _checkPermission.checkContactPermission(context);
+    _checkPermission.checkStoragePermission();
+  }
+
+
 }

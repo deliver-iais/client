@@ -81,7 +81,7 @@ class RoutingService {
   }
 
   openAccountSettings() {
-    var accountSettingsWidget = AccountSettings(key: ValueKey("/account-settings"));
+    var accountSettingsWidget = AccountSettings(key: ValueKey("/account-settings"),back: true,);
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: accountSettingsWidget,

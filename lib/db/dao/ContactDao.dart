@@ -27,4 +27,12 @@ class ContactDao extends DatabaseAccessor<Database> with _$ContactDaoMixin {
   }
 
   Stream<List<Contact>> getAllContacts() => select(contacts).watch();
+
+  Future<List<Contact>> getContactByName(String text) {
+    return(select(contacts)..where((tbl) =>tbl.lastName.contains(text)|tbl.firstName.contains(text) | tbl.username.contains(text))).get();
+  }
+
+  Future<List<Contact> >getAllUser() {
+    return(select(contacts)..where((tbl) => isNotNull(tbl.uid))).get();
+  }
 }

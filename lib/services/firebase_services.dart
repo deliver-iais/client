@@ -25,7 +25,6 @@ class FireBaseServices {
     _firebaseMessaging.requestNotificationPermissions();
     var fireBaseToken = await _firebaseMessaging.getToken();
     _sendFireBaseToken(fireBaseToken);
-    print("ffffffff");
     _setFirebaseSetting(context);
   }
 

@@ -61,8 +61,9 @@ class ChatItem extends StatelessWidget {
                             roomWithMessage.room.roomId.uid),
                         builder: (BuildContext c, AsyncSnapshot<String> snaps) {
                           if (snaps.hasData && snaps.data.isNotEmpty) {
+                            print("name"+snaps.data.toString());
                             return Text(
-                              snaps.data,
+                              snaps.data.toString(),
                               style: TextStyle(
                                 color: ExtraTheme.of(context).infoChat,
                                 fontSize: 16,

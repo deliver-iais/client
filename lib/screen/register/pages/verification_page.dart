@@ -4,6 +4,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
@@ -19,45 +20,44 @@ class VerificationPage extends StatefulWidget {
 }
 
 class _VerificationPageState extends State<VerificationPage> {
-  bool showError = false;
-  String verificationCode;
-  AppLocalization appLocalization;
+  bool _showError = false;
+  String _verificationCode;
+  AppLocalization _appLocalization;
+
 
   final FocusNode focusNode = FocusNode();
 
-  AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
-  CheckPermissionsService checkPermission =
+  AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
+  CheckPermissionsService _checkPermission =
       GetIt.I.get<CheckPermissionsService>();
 
-  var fireBaseServices = GetIt.I.get<FireBaseServices>();
+  var _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
   _sendVerificationCode() {
-    if ((verificationCode?.length ?? 0) < 5) {
+    if ((_verificationCode?.length ?? 0) < 5) {
       setState(() {
-        showError = true;
+        _showError = true;
       });
       return;
     }
     setState(() {
-      showError = false;
+      _showError = false;
     });
     FocusScope.of(context).requestFocus(FocusNode());
-    var result = accountRepo.sendVerificationCode(verificationCode);
+    var result = _accountRepo.sendVerificationCode(_verificationCode);
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
-        accountRepo.saveTokens(accessTokenResponse);
-        _requestPermissions();
-        fireBaseServices.sendFireBaseToken(context);
+        _accountRepo.saveTokens(accessTokenResponse);
+        _fireBaseServices.sendFireBaseToken(context);
         _navigationToHome();
-      }
-      else if (accessTokenResponse.status ==
+      } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {
         Fluttertoast.showToast(msg: "PASSWORD_PROTECTED");
         Fimber.d("PASSWORD_PROTECTED");
         // TODO navigate to password validation page
-      }else {
+      } else {
         Fluttertoast.showToast(
-            msg: appLocalization
+            msg: _appLocalization
                 .getTraslateValue("verification_Code_Not_Valid"));
         _setErrorAndResetCode();
       }
@@ -68,28 +68,36 @@ class _VerificationPageState extends State<VerificationPage> {
   }
 
   _requestPermissions() {
-    checkPermission.checkContactPermission(context);
-    checkPermission.checkStoragePermission();
+    _checkPermission.checkContactPermission(context);
+    _checkPermission.checkStoragePermission();
   }
 
-  _navigationToHome() {
-    ExtendedNavigator.of(context).pushAndRemoveUntil(
-      Routes.homePage,
-      (_) => false,
-    );
+  _navigationToHome() async {
+    var userPrivateData = await _accountRepo.usernameIsSet();
+    if (userPrivateData) {
+      _requestPermissions();
+      ExtendedNavigator.of(context).pushAndRemoveUntil(
+        Routes.homePage,
+        (_) => false,
+      );
+    } else {
+      ExtendedNavigator.of(context).push(
+        Routes.accountSettings,arguments: AccountSettingsArguments(back: false)
+      );
+    }
   }
 
   _setErrorAndResetCode() {
     setState(() {
-      showError = true;
-      verificationCode = "";
+      _showError = true;
+      _verificationCode = "";
       FocusScope.of(context).requestFocus(focusNode);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    appLocalization = AppLocalization.of(context);
+    _appLocalization = AppLocalization.of(context);
     return FluidWidget(
       child: Scaffold(
         primary: true,
@@ -105,7 +113,7 @@ class _VerificationPageState extends State<VerificationPage> {
         appBar: AppBar(
           backgroundColor: Theme.of(context).backgroundColor,
           title: Text(
-            appLocalization.getTraslateValue("verification"),
+            _appLocalization.getTraslateValue("verification"),
             style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).primaryColor),
@@ -131,14 +139,14 @@ class _VerificationPageState extends State<VerificationPage> {
                     height: 10,
                   ),
                   Text(
-                    appLocalization.getTraslateValue("enter_code"),
+                    _appLocalization.getTraslateValue("enter_code"),
                     style: Theme.of(context).primaryTextTheme.headline5,
                   ),
                   SizedBox(
                     height: 30,
                   ),
                   Text(
-                    appLocalization.getTraslateValue("sendCode"),
+                    _appLocalization.getTraslateValue("sendCode"),
                     style: Theme.of(context).primaryTextTheme.bodyText2,
                   ),
                   SizedBox(
@@ -159,24 +167,24 @@ class _VerificationPageState extends State<VerificationPage> {
                               .primaryTextTheme
                               .headline4
                               .copyWith(color: Theme.of(context).primaryColor)),
-                      currentCode: verificationCode,
+                      currentCode: _verificationCode,
                       onCodeSubmitted: (code) {
-                        verificationCode = code;
-                        Fimber.d(verificationCode);
+                        _verificationCode = code;
+                        Fimber.d(_verificationCode);
                         _sendVerificationCode();
                       },
                       onCodeChanged: (code) {
-                        Fimber.d(verificationCode);
-                        verificationCode = code;
+                        Fimber.d(_verificationCode);
+                        _verificationCode = code;
                         if (code.length == 5) {
                           _sendVerificationCode();
                         }
                       },
                     ),
                   ),
-                  showError
+                  _showError
                       ? Text(
-                          appLocalization.getTraslateValue("wrongCode"),
+                          _appLocalization.getTraslateValue("wrongCode"),
                           style: Theme.of(context)
                               .primaryTextTheme
                               .subtitle1

@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 
 class ForwardWidget extends StatelessWidget {
   final List<Message> forwardedMessages;
+  final Function onClick;
 
-  const ForwardWidget({Key key, this.forwardedMessages}) : super(key: key);
+  const ForwardWidget({Key key, this.forwardedMessages,this.onClick}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -35,7 +36,7 @@ class ForwardWidget extends StatelessWidget {
               padding: EdgeInsets.all(0),
               alignment: Alignment.center,
               icon: Icon(Icons.close, size: 18),
-              onPressed: null,
+              onPressed: this.onClick,
             ),
           ],
         ),

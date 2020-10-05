@@ -92,5 +92,7 @@
   "enter-group-name": "نام گروه را وارد کنید",
   "settings": "تنظیمات",
   "enter-channel-name" : "نام گروه  را وارد کنید.",
-  "enter-channel-id" : "آیدی کانال را وارد کنید"
+  "enter-channel-id" : "آیدی کانال را وارد کنید",
+  "local_search": "جستجو در گفتگوها ومخاظبین",
+  "global_search": "جستجو کلی"
 }

@@ -91,8 +91,8 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                 },
                 controller: editingController),
             Expanded(
-                child: StreamBuilder(
-                    stream: contactDao.getAllContacts(),
+                child: FutureBuilder(
+                    future: contactDao.getAllUser(),
                     builder: (BuildContext context,
                         AsyncSnapshot<List<Contact>> snapshot) {
                       if (snapshot.hasData &&

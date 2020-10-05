@@ -1,5 +1,3 @@
-
-
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/account.dart';
@@ -7,6 +5,7 @@ import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
@@ -48,7 +47,6 @@ class AccountRepo {
   var authServiceStub = AuthServiceClient(_clientChannel);
   var _userServices = UserServiceClient(_clientChannel);
 
-
   Future<void> init() async {
     var accessToken = await _prefs.get(ACCESS_TOKEN_KEY);
     var refreshToken = await _prefs.get(REFRESH_TOKEN_KEY);
@@ -61,34 +59,35 @@ class AccountRepo {
       ..nationalNumber = Int64.parseInt(nationalNumber);
     this.phoneNumber = phone;
     var verificationCode =
-        await authServiceStub.getVerificationCode(GetVerificationCodeReq()
-          ..phoneNumber = phone
-          ..type = VerificationType.SMS);
+    await authServiceStub.getVerificationCode(GetVerificationCodeReq()
+      ..phoneNumber = phone
+      ..type = VerificationType.SMS);
     return verificationCode;
   }
 
   Future sendVerificationCode(String code) async {
     var sendVerificationCode =
-        await authServiceStub.verifyAndGetToken(VerifyCodeReq()
-          ..phoneNumber = this.phoneNumber
-          ..code = code
+    await authServiceStub.verifyAndGetToken(VerifyCodeReq()
+      ..phoneNumber = this.phoneNumber
+      ..code = code
 //          TODO add real device name
-          ..device = "android/124"
+      ..device = "android/124"
 //          TODO add password mechanism
-          ..password = "");
+      ..password = "");
     return sendVerificationCode;
   }
 
   Future _getAccessToken(String refreshToken) async {
     var getAccessToken = await authServiceStub
-        .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
+        .renewAccessToken(RenewAccessTokenReq()
+      ..refreshToken = refreshToken);
     return getAccessToken;
   }
 
   Future<String> getAccessToken() async {
     if (_isExpired(_accessToken)) {
       RenewAccessTokenRes renewAccessTokenRes =
-          await _getAccessToken(_refreshToken);
+      await _getAccessToken(_refreshToken);
       _saveTokens(renewAccessTokenRes);
       return renewAccessTokenRes.accessToken;
     } else {
@@ -110,6 +109,21 @@ class AccountRepo {
 
   void _saveTokens(RenewAccessTokenRes res) {
     _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
+  }
+
+  Future<bool> usernameIsSet() async {
+    var result = await _userServices.getUserProfile(GetUserProfileReq(),
+        options:
+        CallOptions(metadata: {'accessToken': await getAccessToken()}));
+    if (result.profile.hasUsername()) {
+      _saveProfilePrivateDate(username: result.profile.username,
+          firstName: result.profile.firstName,
+          lastName: result.profile.lastName,
+          email: result.profile.email);
+      return true;
+    }else{
+      return false;
+    }
   }
 
   void _setTokensAndCurrentUserUid(String accessToken, String refreshToken) {
@@ -146,14 +160,19 @@ class AccountRepo {
       ..description = await _prefs.get(DESCRIPTION);
   }
 
-  Future<bool> checkUserName(String username)async {
-    CheckUsernameRes checkUsernameRes = await _userServices.checkUsername(CheckUsernameReq()..username = username);
-    switch(checkUsernameRes.status){
+  Future<bool> checkUserName(String username) async {
+    CheckUsernameRes checkUsernameRes = await _userServices.checkUsername(
+        CheckUsernameReq()
+          ..username = username,
+        options:
+        CallOptions(metadata: {'accessToken': await getAccessToken()}));
+    switch (checkUsernameRes.status) {
       case CheckUsernameRes_Status.REGEX_IS_WRONG:
         return false;
         break;
       case CheckUsernameRes_Status.ALREADY_EXIST:
-        return false;
+      //todo delete
+        return true;
         break;
       case CheckUsernameRes_Status.OK:
         return true;
@@ -163,27 +182,49 @@ class AccountRepo {
     return false;
   }
 
-  Future<bool> setAccountDetails(
-    String username,
-    String firstName,
-    String lastName,
-    String email,
-  ) async {
+  Future<bool> setAccountDetails(String username,
+      String firstName,
+      String lastName,
+      String email,) async {
     try {
-      await _userServices.saveUserProfile(SaveUserProfileReq()
-        ..username = username
-        ..lastName = lastName
-        ..firstName = firstName
-        ..email = email);
+      SaveUserProfileReq saveUserProfileReq = SaveUserProfileReq();
+      if (username != null) {
+        saveUserProfileReq.username = username;
+      }
+      if (firstName != null) {
+        saveUserProfileReq.firstName = firstName;
+      }
+      if (lastName != null) {
+        saveUserProfileReq.lastName = lastName;
+      }
+      if (email != null) {
+        saveUserProfileReq.email = email;
+      }
 
-      _prefs.set(USERNAME, username);
-      _prefs.set(FIRST_NAME, firstName);
-      _prefs.set(LAST_NAME, lastName);
-      _prefs.set(EMAIL, email);
+      await _userServices.saveUserProfile(saveUserProfileReq,
+          options:
+          CallOptions(metadata: {'accessToken': await getAccessToken()}));
+      _saveProfilePrivateDate(
+          username: username,
+          firstName: firstName,
+          lastName: lastName,
+          email: email);
 
       return true;
     } catch (e) {
+      print(e.toString());
       return false;
     }
+  }
+
+  _saveProfilePrivateDate(
+      {String username, String firstName, String lastName, String email}) {
+    if(username!=null){
+      _prefs.set(USERNAME, username);
+    }
+
+    _prefs.set(FIRST_NAME, firstName);
+    _prefs.set(LAST_NAME, lastName);
+    _prefs.set(EMAIL, email);
   }
 }

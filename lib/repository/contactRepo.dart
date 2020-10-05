@@ -8,7 +8,9 @@ import 'package:contacts_service/contacts_service.dart' as OsContact;
 
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:flutter/foundation.dart';
@@ -89,19 +91,48 @@ class ContactRepo {
     }
 
     Iterable<OsContact.Contact> phoneContacts =
-    await OsContact.ContactsService.getContacts();
+        await OsContact.ContactsService.getContacts();
+
     for (OsContact.Contact phoneContact in phoneContacts) {
-      PhoneNumber phoneNumber = PhoneNumber()
-        ..nationalNumber =
-        Int64.parseInt(phoneContact.phones.elementAt(0).toString());
-      Contact contact = Contact()
-        ..lastName = phoneContact.displayName
-        ..phoneNumber = phoneNumber;
+      try {
+        String contactPhoneNumber = phoneContact.phones.first.value
+            .toString()
+            .replaceAll(' ', '')
+            .replaceAll('+', '')
+            .replaceAll('(', '')
+            .replaceAll(')', '')
+            .replaceAll('-', '');
 
-      contacts.add(contact);
+        Contact contact = Contact()
+          ..lastName = phoneContact.displayName
+          ..phoneNumber = _getPhoneNumber(contactPhoneNumber);
+        contacts.add(contact);
+      } catch (e) {
+        print("ContactRepo");
+      }
     }
-
     sendContacts(contacts);
+  }
+
+  PhoneNumber _getPhoneNumber(String phone) {
+    PhoneNumber phoneNumber = PhoneNumber();
+    switch (phone.length) {
+      case 11:
+        phoneNumber.countryCode = 98;
+        phoneNumber.nationalNumber = Int64.parseInt(phone.substring(1, 11));
+        return phoneNumber;
+
+        break;
+      case 12:
+        phoneNumber.countryCode = int.parse(phone.substring(0, 2));
+        phoneNumber.nationalNumber = Int64.parseInt(phone.substring(2, 12));
+        return phoneNumber;
+
+      case 10:
+        phoneNumber.countryCode = 98;
+        phoneNumber.nationalNumber = Int64.parseInt(phone.substring(0, 10));
+        return phoneNumber;
+    }
   }
 
   Future<List<UserAsContact>> sendContacts(List<Contact> contacts) async {
@@ -130,10 +161,14 @@ class ContactRepo {
         isMute: true,
         isBlock: false,
       ));
-      roomRepo.updateRoomName(
-          contact.uid, contact.firstName + "\t" + contact.lastName);
-      roomDao.insertRoom(myContact.Room(
-          roomId: contact.uid.string, lastMessage: null, mentioned: false));
+      if(contact.uid!=null){
+        roomRepo.updateRoomName(
+            contact.uid, contact.firstName + "\t" + contact.lastName);
+        roomDao.insertRoom(myContact.Room(
+            roomId: contact.uid.string, lastMessage: null, mentioned: false));
+      }
+
+
     }
 
     _getContactsDetails();
@@ -153,5 +188,29 @@ class ContactRepo {
           isMute: true,
           isBlock: false));
     }
+  }
+
+  Future<UserAsContact> searchUserByUid(Uid uid) async {
+    var result = await contactServices.getUserByUid(
+        GetUserByUidReq()..uid = uid,
+        options: CallOptions(
+            metadata: {'accessToken': await accountRepo.getAccessToken()}));
+    return result.user;
+  }
+
+  Future<UserAsContact> searchUserByUsername(String username) async {
+    var result = await contactServices.getUserByUsername(
+        GetUserByUsernameReq()..username = username,
+        options: CallOptions(
+            metadata: {'accessToken': await accountRepo.getAccessToken()}));
+
+    return result.user;
+  }
+
+  Future<List<UserAsContact>> searchUser(String query) async {
+    var result = await contactServices.userSearch(UserSearchReq()..text = query,
+        options: CallOptions(
+            metadata: {'accessToken': await accountRepo.getAccessToken()}));
+    return result.userList;
   }
 }
