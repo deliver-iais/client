@@ -1,9 +1,10 @@
-import 'package:deliver_flutter/db/dao/ContactDao.dart';
+import 'dart:math';
+
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,11 +31,30 @@ class CircleAvatarWidget extends StatelessWidget {
         .toUpperCase();
   }
 
+  Color colorFor(String text) {
+    var hash = 0;
+    for (var i = 0; i < text.length; i++) {
+      hash = text.codeUnitAt(i) + ((hash << 5) - hash);
+    }
+    final finalHash = hash.abs() % (100);
+    print(finalHash * 0.01);
+    var r = new Random(finalHash);
+    return RandomColor(r).randomColor(
+        colorHue: ColorHue.multiple(colorHues: [
+          ColorHue.blue,
+          ColorHue.yellow,
+          ColorHue.red,
+          ColorHue.orange
+        ], random: r),
+        colorBrightness: ColorBrightness.light,
+        colorSaturation: ColorSaturation.highSaturation);
+  }
+
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: radius,
-      backgroundColor: ExtraTheme.of(context).circleAvatarBackground,
+      backgroundColor: colorFor(contactUid.getString()),
       child: showAsStreamOfAvatar
           ? StreamBuilder<LastAvatar>(
               stream:
