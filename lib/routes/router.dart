@@ -22,10 +22,6 @@ import 'package:deliver_flutter/screen/splash/pages/splash_screen.dart';
     MaterialRoute(page: MediaDetailsPage),
     MaterialRoute(page: ShowImagePage),
     MaterialRoute(page: SelectionToForwardPage),
-    MaterialRoute(page: NewContact),
-    MaterialRoute(page: AccountSettings),
-    MaterialRoute(page: RoomPage),
-
   ],
 )
 class $Router {}

@@ -1,4 +1,3 @@
-
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -12,10 +11,9 @@ class ContactsPage extends StatelessWidget {
   var contactRepo = GetIt.I.get<ContactRepo>();
   var rootingServices = GetIt.I.get<RoutingService>();
 
-   ContactsPage({Key key}) : super(key: key){
-     contactRepo.syncContacts();
-   }
-
+  ContactsPage({Key key}) : super(key: key) {
+    contactRepo.syncContacts();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,23 +26,25 @@ class ContactsPage extends StatelessWidget {
                   snapshot.data != null &&
                   snapshot.data.length > 0) {
                 return Container(
-                    child: ListView.builder(
-                  itemCount: snapshot.data.length,
-                  itemBuilder: (BuildContext ctxt, int index) =>
-                      GestureDetector(
-                          onTap: () {
-                            if (snapshot.data[index].uid!=null) {
-                              rootingServices.openRoom(snapshot.data[index].uid);
-                            } else {
-                              // todo invite contact
-                            }
-                          },
-                          child:
-                          ContactWidget(
-                              contact: snapshot.data[index],
-                              circleIcon: (snapshot.data[index].uid!=null)
-                                  ? Icons.message
-                                  : Icons.add)),
+                    child: Scrollbar(
+                  child: ListView.builder(
+                    itemCount: snapshot.data.length,
+                    itemBuilder: (BuildContext ctxt, int index) =>
+                        GestureDetector(
+                            onTap: () {
+                              if (snapshot.data[index].uid != null) {
+                                rootingServices
+                                    .openRoom(snapshot.data[index].uid);
+                              } else {
+                                // todo invite contact
+                              }
+                            },
+                            child: ContactWidget(
+                                contact: snapshot.data[index],
+                                circleIcon: (snapshot.data[index].uid != null)
+                                    ? Icons.message
+                                    : Icons.add)),
+                  ),
                 ));
               } else {
                 return SizedBox.shrink();

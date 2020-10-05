@@ -1,14 +1,17 @@
 import 'dart:collection';
 
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/screen/app-contacts/widgets/new_Contact.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
 import 'package:deliver_flutter/screen/app_group/pages/group_info_determination_page.dart';
 import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/profile_page.dart';
+import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
 import 'package:deliver_flutter/screen/settings/account_settings.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -20,12 +23,16 @@ class Page {
   final Widget largePageNavigator;
   final Widget largePageMain;
   final Widget smallPageMain;
+  final Widget singlePageMain;
   final String path;
+  final bool lockBackButton;
 
   Page(
       {this.largePageNavigator,
       this.largePageMain,
       this.smallPageMain,
+      this.singlePageMain,
+      this.lockBackButton,
       this.path});
 }
 
@@ -80,18 +87,27 @@ class RoutingService {
         path: "/profile/$roomId"));
   }
 
-  openAccountSettings() {
-    var accountSettingsWidget = AccountSettings(key: ValueKey("/account-settings"),back: true,);
+  openAccountSettings({bool forceToSetUsernameAndName = false}) {
+    var accountSettingsWidget = AccountSettings(
+      key: ValueKey("/account-settings"),
+      forceToSetUsernameAndName: forceToSetUsernameAndName,
+    );
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: accountSettingsWidget,
         smallPageMain: accountSettingsWidget,
+        singlePageMain:
+            forceToSetUsernameAndName ? accountSettingsWidget : null,
+        lockBackButton: forceToSetUsernameAndName,
         path: "/account-settings"));
   }
 
   void openMemberSelection({bool isChannel}) {
     _createMucService.reset();
-    var widget = MemberSelectionPage(key: ValueKey("/member-selection-page"),isChannel: isChannel,);
+    var widget = MemberSelectionPage(
+      key: ValueKey("/member-selection-page"),
+      isChannel: isChannel,
+    );
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,
@@ -99,9 +115,22 @@ class RoutingService {
         path: "/member-selection-page"));
   }
 
+  void openCreateNewContactPage() {
+    var widget = NewContact(
+      key: ValueKey("/new-contact"),
+    );
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/new-contact"));
+  }
+
   void openGroupInfoDeterminationPage({bool isChannel}) {
     var widget = MucInfoDeterminationPage(
-        key: ValueKey("/group-info-determination-page"),isChannel: isChannel,);
+      key: ValueKey("/group-info-determination-page"),
+      isChannel: isChannel,
+    );
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,
@@ -152,12 +181,25 @@ class RoutingService {
     ]);
   }
 
+  logout(BuildContext context) {
+    deleteDb();
+    reset();
+    Navigator.of(context).pushAndRemoveUntil(
+        new MaterialPageRoute(builder: (context) => IntroPage()),
+        (Route<dynamic> route) => false);
+  }
+
+  Future<void> deleteDb() async {
+    Database db = Database();
+    await db.deleteAllData();
+  }
+
   Stream<String> get currentRouteStream => _route.stream;
 
   String get currentRoute => _route.value;
 
   bool canPerformBackButton() {
-    return _stack.length < 2;
+    return _stack.length < 2 || (_stack?.last?.lockBackButton ?? false);
   }
 
   Widget backButtonLeading() {
@@ -172,15 +214,31 @@ class RoutingService {
       _stack.last.path == "/room/$roomId" ||
       _stack.last.path == "/profile/$roomId";
 
-  largePageNavigator(BuildContext context) {
+  Widget routerOutlet(BuildContext context) {
+    if (_stack.last.singlePageMain != null) return _stack.last.singlePageMain;
+    return Row(
+      children: [
+        Container(
+            width: isLarge(context)
+                ? BREAKDOWN_SIZE / 2 + 84
+                : MediaQuery.of(context).size.width,
+            child: isLarge(context)
+                ? _largePageNavigator(context)
+                : _smallPageMain(context)),
+        if (isLarge(context)) Expanded(child: _largePageMain(context))
+      ],
+    );
+  }
+
+  _largePageNavigator(BuildContext context) {
     return _stack.last.largePageNavigator;
   }
 
-  largePageMain(BuildContext context) {
+  _largePageMain(BuildContext context) {
     return _stack.last.largePageMain;
   }
 
-  smallPageMain(BuildContext context) {
+  _smallPageMain(BuildContext context) {
     return _stack.last.smallPageMain;
   }
 }

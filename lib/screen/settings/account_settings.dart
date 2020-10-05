@@ -14,8 +14,10 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AccountSettings extends StatefulWidget {
-  final bool back;
-  AccountSettings({Key key,this.back}) : super(key: key);
+  final bool forceToSetUsernameAndName;
+
+  AccountSettings({Key key, this.forceToSetUsernameAndName = true})
+      : super(key: key);
 
   @override
   _AccountSettingsState createState() => _AccountSettingsState();
@@ -26,17 +28,17 @@ class _AccountSettingsState extends State<AccountSettings> {
   BehaviorSubject<String> subject = new BehaviorSubject<String>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
   CheckPermissionsService _checkPermission =
-  GetIt.I.get<CheckPermissionsService>();
-  String _username ="";
+      GetIt.I.get<CheckPermissionsService>();
+  String _username = "";
   String _newUsername = "";
-  String _email="";
-  String _lastName="";
+  String _email = "";
+  String _lastName = "";
   String _firstName = "";
   String _lastUserName;
   Account _account;
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
-  bool _userNameAlreadyExit = false;
+  bool _userNameAlreadyExist = false;
   bool _userNameCorrect = false;
   final _routingService = GetIt.I.get<RoutingService>();
 
@@ -52,172 +54,202 @@ class _AccountSettingsState extends State<AccountSettings> {
           bool validUsername = await _accountRepo.checkUserName(username);
           if (!validUsername) {
             setState(() {
-              _userNameAlreadyExit = true;
+              _userNameAlreadyExist = true;
             });
           }
         } else {
           setState(() {
-            _userNameAlreadyExit = false;
+            _userNameAlreadyExist = false;
           });
         }
       }
     });
+    // if (widget.forceToSetUsernameAndName) {
+    //   _requestPermissions();
+    // }
   }
 
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        leading:  widget.back? _routingService.backButtonLeading():SizedBox.shrink(),
-        title: Text(_appLocalization.getTraslateValue("account_info")),
-      ),
-      body: FluidContainerWidget(
-        child: Stack(
-          children: [
-            FutureBuilder<Account>(
-              future: _accountRepo.getAccount(),
-              builder: (BuildContext c, AsyncSnapshot<Account> snapshot) {
-                if (!snapshot.hasData || snapshot.data == null) {
-                  return SizedBox.shrink();
-                }
-                _account = snapshot.data;
-                _lastUserName = snapshot.data.userName;
-                return ListView(
-                  children: [
-                    Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
-                            Form(
-                              key: _usernameFormKey,
-                              child: TextFormField(
+    return WillPopScope(
+      onWillPop: () async {
+        if (widget.forceToSetUsernameAndName) return false;
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: !widget.forceToSetUsernameAndName
+              ? _routingService.backButtonLeading()
+              : null,
+          title: Column(
+            children: [
+              Text(_appLocalization.getTraslateValue("account_info"),
+                  style: Theme.of(context).textTheme.headline2),
+              if (widget.forceToSetUsernameAndName)
+                Text(
+                  _appLocalization
+                      .getTraslateValue("should_set_username_and_name"),
+                  style: Theme.of(context).textTheme.subtitle2,
+                )
+            ],
+          ),
+        ),
+        body: FluidContainerWidget(
+          child: Stack(
+            children: [
+              FutureBuilder<Account>(
+                future: _accountRepo.getAccount(),
+                builder: (BuildContext c, AsyncSnapshot<Account> snapshot) {
+                  if (!snapshot.hasData || snapshot.data == null) {
+                    return SizedBox.shrink();
+                  }
+                  _account = snapshot.data;
+                  _lastUserName = snapshot.data.userName;
+                  return ListView(
+                    children: [
+                      Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              Form(
+                                key: _usernameFormKey,
+                                child: TextFormField(
+                                  minLines: 1,
+                                  initialValue: snapshot.data.userName,
+                                  textInputAction: TextInputAction.send,
+                                  onChanged: (str) {
+                                    setState(() {
+                                      _newUsername = str;
+                                      _username = str;
+                                      subject.add(str);
+                                    });
+                                  },
+                                  validator: validateUsername,
+                                  decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      suffix: Text("*"),
+                                      labelText: _appLocalization
+                                          .getTraslateValue("username")),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              _newUsername.isEmpty
+                                  ? Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            _appLocalization.getTraslateValue(
+                                                "usernameHelper"),
+                                            textAlign: TextAlign.justify,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 2,
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.blueAccent),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : SizedBox.shrink(),
+                              _userNameAlreadyExist
+                                  ? Row(
+                                      children: [
+                                        Text(
+                                          _appLocalization
+                                              .getTraslateValue("usernameExit"),
+                                          style: TextStyle(
+                                              fontSize: 10, color: Colors.red),
+                                        ),
+                                      ],
+                                    )
+                                  : SizedBox.shrink(),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              TextFormField(
+                                initialValue: snapshot.data.firstName ?? "",
                                 minLines: 1,
-                                initialValue: snapshot.data.userName,
                                 textInputAction: TextInputAction.send,
                                 onChanged: (str) {
                                   setState(() {
-                                    _newUsername = str;
-                                    _username = str;
-                                    subject.add(str);
+                                    _firstName = str;
                                   });
                                 },
-                                validator: validateUsername,
+                                validator: validateFirstName,
                                 decoration: InputDecoration(
                                     border: OutlineInputBorder(),
+                                    suffix: Text("*"),
                                     labelText: _appLocalization
-                                        .getTraslateValue("username")),
+                                        .getTraslateValue("firstName")),
                               ),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            _newUsername.isEmpty
-                                ? Row(
-                                    children: [
-                                      Text(
-                                        _appLocalization
-                                            .getTraslateValue("usernameHelper"),
-                                        style: TextStyle(fontSize: 10,color: Colors.blueAccent
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                : SizedBox.shrink(),
-                            _userNameAlreadyExit
-                                ? Row(
-                                    children: [
-                                      Text(
-                                        _appLocalization
-                                            .getTraslateValue("usernameExit"),
-                                        style: TextStyle(
-                                            fontSize: 10, color: Colors.red),
-                                      ),
-                                    ],
-                                  )
-                                : SizedBox.shrink(),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            TextFormField(
-                              initialValue: snapshot.data.firstName ?? "",
-                              minLines: 1,
-                              textInputAction: TextInputAction.send,
-                              onChanged: (str) {
-                                setState(() {
-                                  _firstName = str;
-                                });
-                              },
-                              validator: validateFirstName,
-                              decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  labelText: _appLocalization
-                                      .getTraslateValue("firstName")),
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            TextFormField(
-                                initialValue: snapshot.data.lastName ?? "",
-                                minLines: 1,
-                                textInputAction: TextInputAction.send,
-                                onChanged: (str) {
-                                  setState(() {
-                                    _lastName = str;
-                                  });
-                                },
-                                decoration: InputDecoration(
+                              SizedBox(
+                                height: 20,
+                              ),
+                              TextFormField(
+                                  initialValue: snapshot.data.lastName ?? "",
+                                  minLines: 1,
+                                  textInputAction: TextInputAction.send,
+                                  onChanged: (str) {
+                                    setState(() {
+                                      _lastName = str;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
                                     labelText: _appLocalization
                                         .getTraslateValue("lastName"),
                                     border: OutlineInputBorder(),
-                                   )),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            TextFormField(
-                                initialValue: snapshot.data.email ?? "",
-                                minLines: 1,
-                                textInputAction: TextInputAction.send,
-                                onChanged: (str) {
-                                  setState(() {
-                                    _email = str;
-                                  });
-                                },
-                                validator: validateEmail,
-                                decoration: InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    labelText: _appLocalization
-                                        .getTraslateValue("email"))),
-                            SizedBox(
-                              height: 40,
-                            ),
-                          ],
-                        )),
-                  ],
-                );
-              },
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).primaryColor,
-                ),
-                child: IconButton(
-                  alignment: Alignment.center,
-                  padding: EdgeInsets.all(0),
-                  icon: Icon(Icons.done),
-                  onPressed: () async {
-                    checkAndSend();
-                  },
+                                  )),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              TextFormField(
+                                  initialValue: snapshot.data.email ?? "",
+                                  minLines: 1,
+                                  textInputAction: TextInputAction.send,
+                                  onChanged: (str) {
+                                    setState(() {
+                                      _email = str;
+                                    });
+                                  },
+                                  validator: validateEmail,
+                                  decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      labelText: _appLocalization
+                                          .getTraslateValue("email"))),
+                              SizedBox(
+                                height: 40,
+                              ),
+                            ],
+                          )),
+                    ],
+                  );
+                },
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  child: IconButton(
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(0),
+                    icon: Icon(Icons.done),
+                    onPressed: () async {
+                      checkAndSend();
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -237,13 +269,13 @@ class _AccountSettingsState extends State<AccountSettings> {
     if (value.isEmpty) {
       setState(() {
         _userNameCorrect = false;
-        _userNameAlreadyExit = false;
+        _userNameAlreadyExist = false;
       });
       return _appLocalization.getTraslateValue("username_not_empty");
     } else if (!regex.hasMatch(value)) {
       setState(() {
         _userNameCorrect = false;
-        _userNameAlreadyExit = false;
+        _userNameAlreadyExist = false;
       });
       return _appLocalization.getTraslateValue("username_length");
     } else {
@@ -264,40 +296,27 @@ class _AccountSettingsState extends State<AccountSettings> {
     }
   }
 
-  checkAndSend()async  {
+  checkAndSend() async {
     bool checkUserName = _usernameFormKey?.currentState?.validate() ?? false;
-    if(checkUserName){
+    if (checkUserName) {
       bool isValidated = _formKey?.currentState?.validate() ?? false;
       if (isValidated) {
-        if(!_userNameAlreadyExit){
-          bool setPrivateInfo = await  _accountRepo.setAccountDetails(
-              _username.isNotEmpty?_username: _account.userName,
-              _firstName.isNotEmpty?_firstName: _account.firstName,
-              _lastName.isNotEmpty?_lastName:_account.lastName,
-              _email.isNotEmpty?_email: _account.email);
-          if(setPrivateInfo){
-            if(!widget.back){
-              _requestPermissions();
-              ExtendedNavigator.of(context).pushAndRemoveUntil(
-                Routes.homePage,
-                    (_) => false,
-              );
-            }
-            else{
-              _routingService.pop();
-            }
-
+        if (!_userNameAlreadyExist) {
+          bool setPrivateInfo = await _accountRepo.setAccountDetails(
+              _username.isNotEmpty ? _username : _account.userName,
+              _firstName.isNotEmpty ? _firstName : _account.firstName,
+              _lastName.isNotEmpty ? _lastName : _account.lastName,
+              _email.isNotEmpty ? _email : _account.email);
+          if (setPrivateInfo) {
+            _routingService.pop();
           }
         }
-
       }
     }
-
   }
+
   _requestPermissions() {
     _checkPermission.checkContactPermission(context);
     _checkPermission.checkStoragePermission();
   }
-
-
 }

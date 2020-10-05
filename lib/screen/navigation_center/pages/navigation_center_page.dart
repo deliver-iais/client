@@ -278,7 +278,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         child: Text(
                             appLocalization.getTraslateValue("newContact")),
                         onTap: () {
-                          ExtendedNavigator.of(context).push(Routes.newContact);
+                          _routingService.openCreateNewContactPage();
                         },
                       )),
                     ]),
@@ -336,7 +336,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 }
               }),
           FutureBuilder<List<LocalSearchResult>>(
-              future: _roomRepo.searchInRoomAndContacts(query,tab == NavigationTabs.Chats?true:false),
+              future: _roomRepo.searchInRoomAndContacts(
+                  query, tab == NavigationTabs.Chats ? true : false),
               builder: (BuildContext c,
                   AsyncSnapshot<List<LocalSearchResult>> snaps) {
                 if (snaps.hasData &&
@@ -403,7 +404,6 @@ Widget _contactResultWidget(
             "$firstName\t$lastName" ?? username,
             style: TextStyle(fontSize: 19),
           ),
-
         ],
       ),
       SizedBox(

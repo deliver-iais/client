@@ -1,9 +1,8 @@
 import 'dart:ffi';
 
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -35,10 +34,11 @@ class _NewContactState extends State<NewContact> {
   AppLocalization _appLocalization;
 
   var _contactRepo = GetIt.I.get<ContactRepo>();
+  var _routingService = GetIt.I.get<RoutingService>();
 
   String _firstName;
   String _lastName;
-  bool _userExit = false;
+  bool _userExist = false;
 
   @override
   Widget build(BuildContext context) {
@@ -46,13 +46,7 @@ class _NewContactState extends State<NewContact> {
     _appLocalization = AppLocalization.of(context);
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            ExtendedNavigator.of(context)
-                .push(Routes.homePage);
-          },
-        ),
+        leading: _routingService.backButtonLeading(),
         actions: [
           IconButton(
               icon: Icon(Icons.check),
@@ -72,7 +66,7 @@ class _NewContactState extends State<NewContact> {
                 for (UserAsContact contact in result) {
                   if (contact.phoneNumber.nationalNumber ==
                       phoneNumber.nationalNumber) {
-                    _userExit = true;
+                    _userExist = true;
                   }
                 }
                 showResult();
@@ -80,89 +74,91 @@ class _NewContactState extends State<NewContact> {
               })
         ],
       ),
-      body: Column(
-        children: [
-          SizedBox(
-            height: 20,
-          ),
-          Container(
-            padding: EdgeInsets.only(left: 12),
-            child: TextField(
-              onChanged: (firstName) {
-                _firstName = firstName;
-              },
-              decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: _appLocalization.getTraslateValue("firstName")),
+      body: FluidContainerWidget(
+        child: Column(
+          children: [
+            SizedBox(
+              height: 20,
             ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Container(
-            padding: EdgeInsets.only(left: 12),
-            child: TextField(
-              onChanged: (lastName) {
-                _lastName = lastName;
-              },
-              decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: _appLocalization.getTraslateValue("lastName")),
-            ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          IntlPhoneField(
-            decoration: InputDecoration(
-              prefixIcon: Icon(
-                Icons.phone,
-                color: Theme.of(context).primaryTextTheme.button.color,
+            Container(
+              padding: EdgeInsets.only(left: 12),
+              child: TextField(
+                onChanged: (firstName) {
+                  _firstName = firstName;
+                },
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: _appLocalization.getTraslateValue("firstName")),
               ),
-              fillColor: ExtraTheme.of(context).secondColor,
-              labelText: _appLocalization.getTraslateValue("phoneNumber"),
-              labelStyle: TextStyle(
-                  color: Theme.of(context).primaryTextTheme.button.color),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5.0),
-                borderSide: BorderSide(
-                  color: Theme.of(context).primaryColor,
-                  width: 2.0,
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+              padding: EdgeInsets.only(left: 12),
+              child: TextField(
+                onChanged: (lastName) {
+                  _lastName = lastName;
+                },
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: _appLocalization.getTraslateValue("lastName")),
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            IntlPhoneField(
+              decoration: InputDecoration(
+                prefixIcon: Icon(
+                  Icons.phone,
+                  color: Theme.of(context).primaryTextTheme.button.color,
+                ),
+                fillColor: ExtraTheme.of(context).secondColor,
+                labelText: _appLocalization.getTraslateValue("phoneNumber"),
+                labelStyle: TextStyle(
+                    color: Theme.of(context).primaryTextTheme.button.color),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor,
+                    width: 2.0,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor.withOpacity(0.5),
+                    width: 2.0,
+                  ),
                 ),
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5.0),
-                borderSide: BorderSide(
-                  color: Theme.of(context).primaryColor.withOpacity(0.5),
-                  width: 2.0,
-                ),
-              ),
+              // validator: (value) =>
+              //     value.length != 10 || (value.length > 0 && value[0] == '0')
+              //         ? _appLocalization.getTraslateValue("invalid_mobile_number")
+              //         : null,
+              // onChanged: (ph) {
+              //   _phoneNumber = ph;
+              // },
+              // onSubmitted: (p) {
+              //   _phoneNumber = p;
+              //   // checkAndGoNext();
+              // },
             ),
-            validator: (value) =>
-                value.length != 10 || (value.length > 0 && value[0] == '0')
-                    ? _appLocalization.getTraslateValue("invalid_mobile_number")
-                    : null,
-            onChanged: (ph) {
-              _phoneNumber = ph;
-            },
-            onSubmitted: (p) {
-              _phoneNumber = p;
-              // checkAndGoNext();
-            },
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   void showResult() {
-    if (_userExit) {
+    if (_userExist) {
       Fluttertoast.showToast(
           msg: _appLocalization.getTraslateValue("contactAdd"));
     } else {
       Fluttertoast.showToast(
           msg: _appLocalization.getTraslateValue("contactNotExit"));
     }
-    _userExit = false;
+    _userExist = false;
   }
 }
