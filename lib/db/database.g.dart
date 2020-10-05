@@ -1205,6 +1205,7 @@ class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
 }
 
 class Contact extends DataClass implements Insertable<Contact> {
+  final String username;
   final String uid;
   final String phoneNumber;
   final String firstName;
@@ -1212,7 +1213,8 @@ class Contact extends DataClass implements Insertable<Contact> {
   final bool isMute;
   final bool isBlock;
   Contact(
-      {this.uid,
+      {this.username,
+      this.uid,
       @required this.phoneNumber,
       this.firstName,
       this.lastName,
@@ -1224,6 +1226,8 @@ class Contact extends DataClass implements Insertable<Contact> {
     final stringType = db.typeSystem.forDartType<String>();
     final boolType = db.typeSystem.forDartType<bool>();
     return Contact(
+      username: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}username']),
       uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
       phoneNumber: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}phone_number']),
@@ -1240,6 +1244,9 @@ class Contact extends DataClass implements Insertable<Contact> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || username != null) {
+      map['username'] = Variable<String>(username);
+    }
     if (!nullToAbsent || uid != null) {
       map['uid'] = Variable<String>(uid);
     }
@@ -1263,6 +1270,9 @@ class Contact extends DataClass implements Insertable<Contact> {
 
   ContactsCompanion toCompanion(bool nullToAbsent) {
     return ContactsCompanion(
+      username: username == null && nullToAbsent
+          ? const Value.absent()
+          : Value(username),
       uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       phoneNumber: phoneNumber == null && nullToAbsent
           ? const Value.absent()
@@ -1285,6 +1295,7 @@ class Contact extends DataClass implements Insertable<Contact> {
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Contact(
+      username: serializer.fromJson<String>(json['username']),
       uid: serializer.fromJson<String>(json['uid']),
       phoneNumber: serializer.fromJson<String>(json['phoneNumber']),
       firstName: serializer.fromJson<String>(json['firstName']),
@@ -1297,6 +1308,7 @@ class Contact extends DataClass implements Insertable<Contact> {
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'username': serializer.toJson<String>(username),
       'uid': serializer.toJson<String>(uid),
       'phoneNumber': serializer.toJson<String>(phoneNumber),
       'firstName': serializer.toJson<String>(firstName),
@@ -1307,13 +1319,15 @@ class Contact extends DataClass implements Insertable<Contact> {
   }
 
   Contact copyWith(
-          {String uid,
+          {String username,
+          String uid,
           String phoneNumber,
           String firstName,
           String lastName,
           bool isMute,
           bool isBlock}) =>
       Contact(
+        username: username ?? this.username,
         uid: uid ?? this.uid,
         phoneNumber: phoneNumber ?? this.phoneNumber,
         firstName: firstName ?? this.firstName,
@@ -1324,6 +1338,7 @@ class Contact extends DataClass implements Insertable<Contact> {
   @override
   String toString() {
     return (StringBuffer('Contact(')
+          ..write('username: $username, ')
           ..write('uid: $uid, ')
           ..write('phoneNumber: $phoneNumber, ')
           ..write('firstName: $firstName, ')
@@ -1336,17 +1351,20 @@ class Contact extends DataClass implements Insertable<Contact> {
 
   @override
   int get hashCode => $mrjf($mrjc(
-      uid.hashCode,
+      username.hashCode,
       $mrjc(
-          phoneNumber.hashCode,
+          uid.hashCode,
           $mrjc(
-              firstName.hashCode,
-              $mrjc(lastName.hashCode,
-                  $mrjc(isMute.hashCode, isBlock.hashCode))))));
+              phoneNumber.hashCode,
+              $mrjc(
+                  firstName.hashCode,
+                  $mrjc(lastName.hashCode,
+                      $mrjc(isMute.hashCode, isBlock.hashCode)))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Contact &&
+          other.username == this.username &&
           other.uid == this.uid &&
           other.phoneNumber == this.phoneNumber &&
           other.firstName == this.firstName &&
@@ -1356,6 +1374,7 @@ class Contact extends DataClass implements Insertable<Contact> {
 }
 
 class ContactsCompanion extends UpdateCompanion<Contact> {
+  final Value<String> username;
   final Value<String> uid;
   final Value<String> phoneNumber;
   final Value<String> firstName;
@@ -1363,6 +1382,7 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
   final Value<bool> isMute;
   final Value<bool> isBlock;
   const ContactsCompanion({
+    this.username = const Value.absent(),
     this.uid = const Value.absent(),
     this.phoneNumber = const Value.absent(),
     this.firstName = const Value.absent(),
@@ -1371,6 +1391,7 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
     this.isBlock = const Value.absent(),
   });
   ContactsCompanion.insert({
+    this.username = const Value.absent(),
     this.uid = const Value.absent(),
     @required String phoneNumber,
     this.firstName = const Value.absent(),
@@ -1381,6 +1402,7 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
         isMute = Value(isMute),
         isBlock = Value(isBlock);
   static Insertable<Contact> custom({
+    Expression<String> username,
     Expression<String> uid,
     Expression<String> phoneNumber,
     Expression<String> firstName,
@@ -1389,6 +1411,7 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
     Expression<bool> isBlock,
   }) {
     return RawValuesInsertable({
+      if (username != null) 'username': username,
       if (uid != null) 'uid': uid,
       if (phoneNumber != null) 'phone_number': phoneNumber,
       if (firstName != null) 'first_name': firstName,
@@ -1399,13 +1422,15 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
   }
 
   ContactsCompanion copyWith(
-      {Value<String> uid,
+      {Value<String> username,
+      Value<String> uid,
       Value<String> phoneNumber,
       Value<String> firstName,
       Value<String> lastName,
       Value<bool> isMute,
       Value<bool> isBlock}) {
     return ContactsCompanion(
+      username: username ?? this.username,
       uid: uid ?? this.uid,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       firstName: firstName ?? this.firstName,
@@ -1418,6 +1443,9 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (username.present) {
+      map['username'] = Variable<String>(username.value);
+    }
     if (uid.present) {
       map['uid'] = Variable<String>(uid.value);
     }
@@ -1442,6 +1470,7 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
   @override
   String toString() {
     return (StringBuffer('ContactsCompanion(')
+          ..write('username: $username, ')
           ..write('uid: $uid, ')
           ..write('phoneNumber: $phoneNumber, ')
           ..write('firstName: $firstName, ')
@@ -1457,6 +1486,18 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
   final GeneratedDatabase _db;
   final String _alias;
   $ContactsTable(this._db, [this._alias]);
+  final VerificationMeta _usernameMeta = const VerificationMeta('username');
+  GeneratedTextColumn _username;
+  @override
+  GeneratedTextColumn get username => _username ??= _constructUsername();
+  GeneratedTextColumn _constructUsername() {
+    return GeneratedTextColumn(
+      'username',
+      $tableName,
+      true,
+    );
+  }
+
   final VerificationMeta _uidMeta = const VerificationMeta('uid');
   GeneratedTextColumn _uid;
   @override
@@ -1533,7 +1574,7 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
 
   @override
   List<GeneratedColumn> get $columns =>
-      [uid, phoneNumber, firstName, lastName, isMute, isBlock];
+      [username, uid, phoneNumber, firstName, lastName, isMute, isBlock];
   @override
   $ContactsTable get asDslTable => this;
   @override
@@ -1545,6 +1586,10 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('username')) {
+      context.handle(_usernameMeta,
+          username.isAcceptableOrUnknown(data['username'], _usernameMeta));
+    }
     if (data.containsKey('uid')) {
       context.handle(
           _uidMeta, uid.isAcceptableOrUnknown(data['uid'], _uidMeta));

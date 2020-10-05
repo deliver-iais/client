@@ -12,12 +12,14 @@ import 'package:flutter/material.dart';
 
 import '../screen/app-contacts/widgets/new_Contact.dart';
 import '../screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
+import '../screen/app-room/pages/roomPage.dart';
 import '../screen/app-room/widgets/showImage_Widget.dart';
 import '../screen/app_profile/pages/media_details_page.dart';
 import '../screen/home/pages/home_page.dart';
 import '../screen/intro/pages/intro_page.dart';
 import '../screen/register/pages/login_page.dart';
 import '../screen/register/pages/verification_page.dart';
+import '../screen/settings/account_settings.dart';
 import '../screen/splash/pages/splash_screen.dart';
 
 class Routes {
@@ -30,6 +32,8 @@ class Routes {
   static const String showImagePage = '/show-image-page';
   static const String selectionToForwardPage = '/selection-to-forward-page';
   static const String newContact = '/new-contact';
+  static const String accountSettings = '/account-settings';
+  static const String roomPage = '/room-page';
   static const all = <String>{
     splashScreen,
     introPage,
@@ -40,6 +44,8 @@ class Routes {
     showImagePage,
     selectionToForwardPage,
     newContact,
+    accountSettings,
+    roomPage,
   };
 }
 
@@ -56,6 +62,8 @@ class Router extends RouterBase {
     RouteDef(Routes.showImagePage, page: ShowImagePage),
     RouteDef(Routes.selectionToForwardPage, page: SelectionToForwardPage),
     RouteDef(Routes.newContact, page: NewContact),
+    RouteDef(Routes.accountSettings, page: AccountSettings),
+    RouteDef(Routes.roomPage, page: RoomPage),
   ];
   @override
   Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
@@ -151,6 +159,31 @@ class Router extends RouterBase {
         settings: data,
       );
     },
+    AccountSettings: (data) {
+      final args = data.getArgs<AccountSettingsArguments>(
+        orElse: () => AccountSettingsArguments(),
+      );
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => AccountSettings(
+          key: args.key,
+          back: args.back,
+        ),
+        settings: data,
+      );
+    },
+    RoomPage: (data) {
+      final args = data.getArgs<RoomPageArguments>(
+        orElse: () => RoomPageArguments(),
+      );
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => RoomPage(
+          key: args.key,
+          roomId: args.roomId,
+          forwardedMessages: args.forwardedMessages,
+        ),
+        settings: data,
+      );
+    },
   };
 }
 
@@ -211,4 +244,19 @@ class SelectionToForwardPageArguments {
 class NewContactArguments {
   final Key key;
   NewContactArguments({this.key});
+}
+
+/// AccountSettings arguments holder class
+class AccountSettingsArguments {
+  final Key key;
+  final bool back;
+  AccountSettingsArguments({this.key, this.back});
+}
+
+/// RoomPage arguments holder class
+class RoomPageArguments {
+  final Key key;
+  final String roomId;
+  final List<dynamic> forwardedMessages;
+  RoomPageArguments({this.key, this.roomId, this.forwardedMessages});
 }

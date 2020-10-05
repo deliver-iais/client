@@ -1,6 +1,9 @@
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/GroupDao.dart';
+import 'package:deliver_flutter/db/dao/RoomDao.dart';
+import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/models/localSearchResult.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -8,40 +11,82 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class RoomRepo {
-  Cache roomNameCache =
+  Cache _roomNameCache =
       LruCache<String, String>(storage: SimpleStorage(size: 40));
-  var mucDao = GetIt.I.get<GroupDao>();
-  var cantactDao = GetIt.I.get<ContactDao>();
+  var _mucDao = GetIt.I.get<GroupDao>();
+  var _contactDao = GetIt.I.get<ContactDao>();
+  var _roomDao = GetIt.I.get<RoomDao>();
 
   Future<String> getRoomDisplayName(Uid uid) async {
     switch (uid.category) {
       case Categories.USER:
-        String name = roomNameCache.get(uid.string);
-        if (name != null) {
+        String name = _roomNameCache.get(uid.string);
+        if (name.length>1) {
           return name;
         } else {
-          var contact = await cantactDao.getContactByUid(uid.string);
+          var contact = await _contactDao.getContactByUid(uid.string);
           String contactName = contact.firstName + "\t" + contact.lastName;
-          roomNameCache.set(uid.string, contactName);
+          _roomNameCache.set(uid.string, contactName);
           return contactName;
         }
+
         break;
 
       case Categories.GROUP:
       case Categories.PRIVATE_CHANNEL:
       case Categories.PUBLIC_CHANNEL:
-        String name = roomNameCache.get(uid.string);
+        String name = _roomNameCache.get(uid.string);
         if (name != null) {
           return name;
         } else {
-          var muc = await mucDao.getGroupByUid(uid.string);
-          roomNameCache.set(uid.string, muc.name);
+          var muc = await _mucDao.getGroupByUid(uid.string);
+          _roomNameCache.set(uid.string, muc.name);
           return muc.name;
         }
         break;
     }
   }
-  updateRoomName(Uid uid,String name){
-    roomNameCache.set(uid.string, name);
+
+  updateRoomName(Uid uid, String name) {
+    _roomNameCache.set(uid.string, name);
+  }
+
+  Future<List<Uid>> getAllRooms() async {
+    Map<Uid,Uid> finalList  = Map();
+
+    var allUser =  await _contactDao.getAllUser();
+    for(var contact in allUser){
+      finalList[contact.uid.uid] = contact.uid.uid;
+    }
+    var allRooms  = await _roomDao.gerAllRooms();
+    for(var room in allRooms){
+      finalList[room.roomId.uid] = room.roomId.uid;
+    }
+    return finalList.values.toList();
+  }
+
+  Future<List<LocalSearchResult>> searchInRoomAndContacts(String text,bool searchInRooms) async {
+    List<LocalSearchResult> searchResult = List();
+    List<Contact> searchInContact = await _contactDao.getContactByName(text);
+     print(searchInContact.length.toString());
+    for (Contact contact in searchInContact) {
+      searchResult.add(LocalSearchResult()
+        ..username = contact.username
+        ..firstName = contact.firstName??""
+        ..lastName = contact.lastName??""
+      ..uid = contact.uid != null?contact.uid.uid:null
+      );
+
+    }
+    if(searchInRooms){
+      List<Group> searchInGroup = await _mucDao.getGroupByName(text);
+      for (Group group in searchInGroup) {
+        searchResult.add(LocalSearchResult()
+          ..firstName = group.name
+          ..lastName
+          ..uid = group.uid.uid);
+      }
+    }
+    return searchResult;
   }
 }

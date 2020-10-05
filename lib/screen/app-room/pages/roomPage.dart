@@ -254,7 +254,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       : Container(),
                   waitingForForwardedMessage
                       ? ForwardWidget(
-                          forwardedMessages: widget.forwardedMessages)
+                          forwardedMessages: widget.forwardedMessages,onClick: (){
+                            setState(() {
+                              waitingForForwardedMessage = false;
+                            });
+                  },)
                       : Container(),
                   NewMessageInput(
                     currentRoomId: widget.roomId,

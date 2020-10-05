@@ -3,6 +3,10 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
 class SearchBox extends StatelessWidget {
+  dynamic Function(String) onChange;
+
+  SearchBox({this.onChange});
+
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
@@ -14,6 +18,8 @@ class SearchBox extends StatelessWidget {
         textAlign: TextAlign.start,
         autofocus: false,
         maxLines: 1,
+        onChanged: this.onChange,
+
         cursorColor: ExtraTheme.of(context).details,
         decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(
