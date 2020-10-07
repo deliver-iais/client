@@ -1,6 +1,8 @@
 import 'package:moor/moor.dart';
+import 'package:rxdart/streams.dart';
 import '../Messages.dart';
 import '../database.dart';
+import 'dart:async';
 
 part 'MessageDao.g.dart';
 
@@ -20,10 +22,29 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
   Future updateMessage(Message updatedMessage) =>
       update(messages).replace(updatedMessage);
 
-  Stream<List<Message>> getByRoomId(String roomId) {
+  Stream<List<Message>> getByRoomId(String roomId, int lastShowedMessageId) {
+    print(roomId);
+    // var query = select(messages)
+    //   ..orderBy([
+    //     (m) => OrderingTerm(expression: m.time, mode: OrderingMode.desc),
+    //   ])
+    //   ..where((message) => message.roomId.equals(roomId));
+
+    // return MergeStream<List<Message>>([
+    // ((query
+    //       ..where((message) =>
+    //           message.id.isBiggerOrEqualValue(lastShowedMessageId)))
+    //       ..limit(40))
+    //     .watch(),
+    //   ((query
+    //         ..where(
+    //             (message) => message.id.isSmallerThanValue(lastShowedMessageId))
+    //         ..limit(40))
+    //       .watch())
+    // ]);
     return (select(messages)
           ..orderBy([
-            (m) => OrderingTerm(expression: m.time, mode: OrderingMode.desc)
+            (m) => OrderingTerm(expression: m.time, mode: OrderingMode.desc),
           ])
           ..where((message) => message.roomId.equals(roomId)))
         .watch();

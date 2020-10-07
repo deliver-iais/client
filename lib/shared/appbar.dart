@@ -32,7 +32,7 @@ class Appbar extends StatelessWidget {
         children: <Widget>[
           Row(
             children: <Widget>[
-              AppbarPic(),
+              // AppbarPic(),
               SizedBox(
                 width: 10,
               ),
