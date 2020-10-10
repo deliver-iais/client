@@ -1,11 +1,16 @@
 import 'dart:math';
 
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/models/account.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -14,22 +19,17 @@ class CircleAvatarWidget extends StatelessWidget {
   final Uid contactUid;
   final double radius;
   final bool forceToUpdate;
-  String displayName;
   final bool showAsStreamOfAvatar;
 
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
 
-  CircleAvatarWidget(this.contactUid, this.displayName, this.radius,
-      {this.forceToUpdate = false, this.showAsStreamOfAvatar = false}) {
-    String name = this.displayName;
-    this.displayName = (name == null
-            ? ""
-            : (name.length >= 2
-                ? name.substring(0, 2)
-                : (name.isEmpty ? "" : name[0])))
-        .toUpperCase();
-  }
+  var _roomRepo = GetIt.I.get<RoomRepo>();
+  var _contactRepo = GetIt.I.get<ContactRepo>();
+  var _accountRepo = GetIt.I.get<AccountRepo>();
+
+  CircleAvatarWidget(this.contactUid, this.radius,
+      {this.forceToUpdate = false, this.showAsStreamOfAvatar = false}) {}
 
   Color colorFor(String text) {
     var hash = 0;
@@ -82,15 +82,59 @@ class CircleAvatarWidget extends StatelessWidget {
               ).image,
             );
           } else {
-            return new Text(displayName,
-                style: TextStyle(
-                    color: Colors.white, fontSize: radius, height: 2));
+            return showDisPlayName();
           }
         },
       );
     } else {
-      return Text(displayName,
-          style: TextStyle(color: Colors.white, fontSize: radius, height: 2));
+      return showDisPlayName();
     }
+  }
+
+  Widget showDisPlayName() {
+    return contactUid != _accountRepo.currentUserUid
+        ? FutureBuilder<String>(
+            future: _roomRepo.getRoomDisplayName(contactUid),
+            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+              if (snapshot.data != null) {
+                String name = snapshot.data.replaceAll(' ', '');
+                return Text(name.substring(0, 2),
+                    style: TextStyle(
+                        color: Colors.white, fontSize: radius, height: 2));
+              } else {
+                return FutureBuilder<UserAsContact>(
+                  future: _contactRepo.searchUserByUid(contactUid),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<UserAsContact> snapshot) {
+                    if (snapshot.data != null) {
+                      return Text(snapshot.data.username.substring(0, 2),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: radius,
+                              height: 2));
+                    } else {
+                      return Icon(
+                        Icons.person,
+                        size: 30,
+                        color: Colors.white,
+                      );
+                    }
+                  },
+                );
+              }
+            },
+          )
+        : FutureBuilder<Account>(
+            future: _accountRepo.getAccount(),
+            builder: (BuildContext context, AsyncSnapshot<Account> snapshot) {
+              if (snapshot.data != null) {
+                return Text(snapshot.data.firstName.substring(0, 2),
+                    style: TextStyle(
+                        color: Colors.white, fontSize: radius, height: 2));
+              } else {
+                return SizedBox.shrink();
+              }
+            },
+          );
   }
 }

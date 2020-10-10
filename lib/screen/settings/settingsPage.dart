@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/models/account.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
@@ -63,9 +65,7 @@ class SettingsPage extends StatelessWidget {
       path = result.path;
     }
     if (path != null) {
-      print(path);
-      Avatar avatar = await _avatarRepo.uploadAvatar(File(path));
-      if (avatar != null) {}
+      await _avatarRepo.uploadAvatar(File(path));
     }
   }
 
@@ -124,10 +124,21 @@ class SettingsPage extends StatelessWidget {
                 title: appLocalization.getTraslateValue("username"),
                 child: Row(
                   children: <Widget>[
-                    Text(
-                      _accountRepo.currentUsername,
-                      style: TextStyle(
-                          color: ExtraTheme.of(context).text, fontSize: 13),
+                    FutureBuilder<Account>(
+                      future: _accountRepo.getAccount(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<Account> snapshot) {
+                        if (snapshot.data != null) {
+                          return Text(
+                            snapshot.data.userName,
+                            style: TextStyle(
+                                color: ExtraTheme.of(context).text,
+                                fontSize: 13),
+                          );
+                        } else {
+                          return SizedBox.shrink();
+                        }
+                      },
                     ),
                     IconButton(
                         icon: Icon(Icons.navigate_next), onPressed: () {}),
@@ -139,10 +150,20 @@ class SettingsPage extends StatelessWidget {
               title: appLocalization.getTraslateValue("phone"),
               child: Row(
                 children: <Widget>[
-                  Text(
-                    '091222222222',
-                    style: TextStyle(
-                        color: ExtraTheme.of(context).text, fontSize: 13),
+                  FutureBuilder<Account>(
+                    future: _accountRepo.getAccount(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<Account> snapshot) {
+                      if (snapshot.data != null) {
+                        return Text(
+                          snapshot.data.phoneNumber,
+                          style: TextStyle(
+                              color: ExtraTheme.of(context).text, fontSize: 13),
+                        );
+                      } else {
+                        return SizedBox.shrink();
+                      }
+                    },
                   ),
                   IconButton(
                       icon: Icon(Icons.navigate_next),

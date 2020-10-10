@@ -21,6 +21,7 @@ import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'dart:io';
 
 import 'Contacts.dart';
@@ -66,8 +67,9 @@ part 'database.g.dart';
 class Database extends _$Database {
   Database()
       : super(LazyDatabase(() async {
-          // put the database file, called db.sqlite here, into the documents folder
-          // for your app.
+          if (Platform.isWindows) {
+            sqfliteFfiInit();
+          }
           final dbFolder = await getApplicationDocumentsDirectory();
           final file = File(p.join(dbFolder.path, 'db.sqlite'));
           return VmDatabase(file, logStatements: true);

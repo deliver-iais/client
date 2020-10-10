@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
+import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/database.dart' as M;
 
@@ -31,6 +32,7 @@ class CoreServices {
 
   var _messageDao = GetIt.I.get<MessageDao>();
   var _seenDao = GetIt.I.get<SeenDao>();
+  var _roomDao = GetIt.I.get<RoomDao>();
   PendingMessageDao _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
 
   CoreServices() {}
@@ -84,6 +86,8 @@ class CoreServices {
         type: getMessageType(message.whichType())));
     _pendingMessageDao
         .deletePendingMessage(M.PendingMessage(messageId: message.packetId));
+    _roomDao.insertRoom(M.Room(roomId: message.from.string,lastMessage: message.packetId),);
+
   }
 
   sendMessage(MessageByClient message) {

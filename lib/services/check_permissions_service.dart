@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+
 import 'package:permissions_plugin/permissions_plugin.dart';
 
 class CheckPermissionsService {
@@ -13,56 +13,30 @@ class CheckPermissionsService {
     }
   }
 
-  Future<bool> request(List<Permission> permission) {
-    PermissionsPlugin.requestPermissions(permission);
+  Future<bool> request(List<Permission> permission) async {
+    try {
+      return (await PermissionsPlugin.requestPermissions(permission))
+          .values
+          .every(
+              (permissionState) => permissionState == PermissionState.GRANTED);
+    } catch (e) {
+      return false;
+    }
   }
 }
 
 extension PermissionsExtension on CheckPermissionsService {
-  checkContactPermission(BuildContext context) async {
+  Future<bool> checkContactPermission() async {
     if (!await check([Permission.READ_CONTACTS])) {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-              actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
-              backgroundColor: Colors.white,
-              title: Container(
-                height: 80,
-                color: Colors.blue,
-                child: Icon(
-                  Icons.contacts,
-                  color: Colors.white,
-                  size: 40,
-                ),
-              ),
-              content: Text(
-                  "Dliver needs access to your contacts so that you can connect with "
-                  "your friend across all your device. your contacts will be continuously "
-                  "synced with Dliver's  heavily encrypted cloud servers.",
-                  style: TextStyle(color: Colors.black, fontSize: 18)),
-              actions: <Widget>[
-                GestureDetector(
-                  child: Text(
-                    "Continue",
-                    style: TextStyle(fontSize: 16, color: Colors.blue),
-                  ),
-                  onTap: () {
-                    Navigator.of(context)
-                        .pop(request([Permission.READ_CONTACTS]));
-                  },
-                )
-              ],
-            );
-          });
+      return await request([Permission.READ_CONTACTS]);
+    } else {
+      return true;
     }
   }
 
   Future<bool> checkAudioRecorderPermission() async {
     if (!await check([Permission.RECORD_AUDIO])) {
-      request([Permission.RECORD_AUDIO]);
-      return false;
+      return request([Permission.RECORD_AUDIO]);
     } else {
       return true;
     }

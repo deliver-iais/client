@@ -9,6 +9,7 @@ import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
+import 'package:deliver_flutter/shared/methods/helper.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
@@ -89,8 +90,9 @@ class MessageRepo {
           "uuid": "0",
           "size": 0,
           "type": type,
+          "path":path,
           "name": path.split('/').last,
-          "caption": caption,
+          "caption": caption??"",
           "width": type == 'image' || type == 'video' ? 200 : 0,
           "height": type == 'image' || type == 'video' ? 100 : 0,
           "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
@@ -132,6 +134,7 @@ class MessageRepo {
       messageId: messageId.toString(),
       remainingRetries: remainingRetries,
       time: DateTime.now(),
+      details: message.json,
       status: status,
     );
     _pendingMessageDao.insertPendingMessage(pendingMessage);
@@ -145,7 +148,7 @@ class MessageRepo {
 
   _updateRoomLastMessage(Uid roomId, String messageId) {
     _roomDao.insertRoom(
-        Room(roomId: roomId.string, lastMessage: messageId, mentioned: false));
+        Room(roomId: roomId.string, lastMessage: messageId, mentioned: false,mute: false));
   }
 
   sendForwardedMessage(Uid roomId, List<Message> forwardedMessage) async {
@@ -205,7 +208,7 @@ class MessageRepo {
     File file = File()
       ..name = fileInfo.name
       ..uuid = fileInfo.uuid
-      ..size;
+      ..caption = "dddd";// todo caption
 
     clientMessage.MessageByClient messageByClient =
         clientMessage.MessageByClient()
@@ -217,6 +220,7 @@ class MessageRepo {
     if (message.forwardedFrom != null) {
       messageByClient.forwardFrom = message.forwardedFrom.uid;
     }
+    _coreServices.sendMessage(messageByClient);
   }
 
   _updatePendingMessage(PendingMessage pendingMessage) {

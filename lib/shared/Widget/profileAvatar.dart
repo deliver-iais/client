@@ -4,12 +4,15 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +39,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   var avatarRepo = GetIt.I.get<AvatarRepo>();
   var fileRepo = GetIt.I.get<FileRepo>();
   var routingService = GetIt.I.get<RoutingService>();
+  var _roomRepo = GetIt.I.get<RoomRepo>();
+  var _contactRepo = GetIt.I.get<ContactRepo>();
   List<Avatar> _avatars = new List();
   String uploadAvatarPath;
 
@@ -223,18 +228,58 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           collapseMode: CollapseMode.pin,
           titlePadding: const EdgeInsets.all(0),
           title: Container(
-            child: Text("Jude",
-                //textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: ExtraTheme.of(context).infoChat,
-                  fontSize: 28.0,
-                  shadows: <Shadow>[
-                    Shadow(
-                      blurRadius: 30.0,
-                      color: Color.fromARGB(255, 0, 0, 0),
-                    ),
-                  ],
-                )),
+            child: FutureBuilder<String>(
+              future: _roomRepo.getRoomDisplayName(widget.userUid),
+              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                if(snapshot.data != null){
+                  return Text(snapshot.data,
+                      //textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: ExtraTheme.of(context).infoChat,
+                        fontSize: 28.0,
+                        shadows: <Shadow>[
+                          Shadow(
+                            blurRadius: 30.0,
+                            color: Color.fromARGB(255, 0, 0, 0),
+                          ),
+                        ],
+                      ));
+                }else{
+                  return FutureBuilder<UserAsContact>(
+                    future: _contactRepo.searchUserByUid(widget.userUid),
+                    builder: (BuildContext context, AsyncSnapshot<UserAsContact> snapshot) {
+                      if(snapshot.data != null){
+                        return Text(snapshot.data.username,
+                            //textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: ExtraTheme.of(context).infoChat,
+                              fontSize: 28.0,
+                              shadows: <Shadow>[
+                                Shadow(
+                                  blurRadius: 30.0,
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                ),
+                              ],
+                            ));
+                      }else{
+                        return Text("Unknown",
+                            //textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: ExtraTheme.of(context).infoChat,
+                              fontSize: 28.0,
+                              shadows: <Shadow>[
+                                Shadow(
+                                  blurRadius: 30.0,
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                ),
+                              ],
+                            ));
+                      }
+                    },);
+                }
+              },),
+
+
           ),
           background: ClipRRect(
             borderRadius: BorderRadius.circular(10),

@@ -4,6 +4,7 @@ import 'package:deliver_flutter/screen/home/pages/home_page.dart';
 import 'package:deliver_flutter/screen/app-contacts/widgets/new_Contact.dart';
 
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
+import 'package:deliver_flutter/screen/inputSharedFile/shareInComigFile.dart';
 import 'package:deliver_flutter/screen/register/pages/login_page.dart';
 import 'package:deliver_flutter/screen/register/pages/verification_page.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/showImage_Widget.dart';
@@ -22,6 +23,11 @@ import 'package:deliver_flutter/screen/splash/pages/splash_screen.dart';
     MaterialRoute(page: MediaDetailsPage),
     MaterialRoute(page: ShowImagePage),
     MaterialRoute(page: SelectionToForwardPage),
+    MaterialRoute(page: NewContact),
+    MaterialRoute(page: AccountSettings),
+    MaterialRoute(page: RoomPage),
+    MaterialRoute(page: ShareInputFile),
+
   ],
 )
 class $Router {}

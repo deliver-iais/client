@@ -7,6 +7,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/group_Ui_widget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/memberWidget.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
@@ -18,6 +19,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class ProfilePage extends StatefulWidget {
   Uid userUid;
@@ -34,6 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
   var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   List<String> mediaUrls = [];
   var memberLength;
+  var _routingService = GetIt.I.get<RoutingService>();
 
   var accountRepo = GetIt.I.get<AccountRepo>();
 
@@ -49,7 +52,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   return <Widget>[
                     ProfileAvatar(
                       innerBoxIsScrolled: innerBoxIsScrolled,
-                      userUid: accountRepo.currentUserUid,
+                      userUid: widget.userUid,
                       settingProfile: false,
                     ),
                     widget.userUid.category == Categories.USER
@@ -57,12 +60,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             delegate: SliverChildListDelegate([
                             Container(
                               height: 80,
-                              // padding:
-                              //const EdgeInsetsDirectional.only(start: 20, end: 15),
                               child: Align(
                                 alignment: Alignment.centerLeft,
-                                // child:Padding(
-                                //  padding: EdgeInsets.fromLTRB(20,20,0,0),
                                 child: Wrap(
                                     direction: Axis.vertical,
                                     runSpacing: 40,
@@ -108,19 +107,24 @@ class _ProfilePageState extends State<ProfilePage> {
                                 height: 60,
                                 padding: const EdgeInsetsDirectional.only(
                                     start: 5, end: 15),
-                                child: Row(children: <Widget>[
-                                  IconButton(
-                                    icon: Icon(Icons.message),
-                                    onPressed: () {},
-                                  ),
-                                  /* Icon(
-                  Icons.message,
-                  size: 30,
-                ),*/
-                                  //  SizedBox(width: 10),
-                                  Text(appLocalization
-                                      .getTraslateValue("sendMessage")),
-                                ])),
+                                child: GestureDetector(
+                                  child: Row(children: <Widget>[
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Icon(Icons.message),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    //  SizedBox(width: 10),
+                                    Text(appLocalization
+                                        .getTraslateValue("sendMessage")),
+                                  ]),
+                                  onTap: () {
+                                    _routingService
+                                        .openRoom(widget.userUid.string);
+                                  },
+                                )),
                             Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(

@@ -157,7 +157,7 @@ class _ImageUiState extends State<ImageUi> {
                             return CircularProgressIndicator();
                         },
                       );
-                    } else if (snapshot.data.length == 0 ||
+                    } else if (snapshot.data != null && snapshot.data.length == 0 ||
                         (snapshot.data[0]).status !=
                             SendingStatus.SENDING_FILE) {
                       return FilteredImage(

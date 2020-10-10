@@ -8,15 +8,20 @@
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
+import '../screen/app-contacts/widgets/new_Contact.dart';
 import '../screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
+import '../screen/app-room/pages/roomPage.dart';
 import '../screen/app-room/widgets/showImage_Widget.dart';
 import '../screen/app_profile/pages/media_details_page.dart';
 import '../screen/home/pages/home_page.dart';
+import '../screen/inputSharedFile/shareInComigFile.dart';
 import '../screen/intro/pages/intro_page.dart';
 import '../screen/register/pages/login_page.dart';
 import '../screen/register/pages/verification_page.dart';
+import '../screen/settings/account_settings.dart';
 import '../screen/splash/pages/splash_screen.dart';
 
 class Routes {
@@ -28,6 +33,10 @@ class Routes {
   static const String mediaDetailsPage = '/media-details-page';
   static const String showImagePage = '/show-image-page';
   static const String selectionToForwardPage = '/selection-to-forward-page';
+  static const String newContact = '/new-contact';
+  static const String accountSettings = '/account-settings';
+  static const String roomPage = '/room-page';
+  static const String shareInputFile = '/share-input-file';
   static const all = <String>{
     splashScreen,
     introPage,
@@ -37,6 +46,10 @@ class Routes {
     mediaDetailsPage,
     showImagePage,
     selectionToForwardPage,
+    newContact,
+    accountSettings,
+    roomPage,
+    shareInputFile,
   };
 }
 
@@ -52,6 +65,10 @@ class Router extends RouterBase {
     RouteDef(Routes.mediaDetailsPage, page: MediaDetailsPage),
     RouteDef(Routes.showImagePage, page: ShowImagePage),
     RouteDef(Routes.selectionToForwardPage, page: SelectionToForwardPage),
+    RouteDef(Routes.newContact, page: NewContact),
+    RouteDef(Routes.accountSettings, page: AccountSettings),
+    RouteDef(Routes.roomPage, page: RoomPage),
+    RouteDef(Routes.shareInputFile, page: ShareInputFile),
   ];
   @override
   Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
@@ -138,6 +155,51 @@ class Router extends RouterBase {
         settings: data,
       );
     },
+    NewContact: (data) {
+      final args = data.getArgs<NewContactArguments>(
+        orElse: () => NewContactArguments(),
+      );
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => NewContact(key: args.key),
+        settings: data,
+      );
+    },
+    AccountSettings: (data) {
+      final args = data.getArgs<AccountSettingsArguments>(
+        orElse: () => AccountSettingsArguments(),
+      );
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => AccountSettings(
+          key: args.key,
+          forceToSetUsernameAndName: args.forceToSetUsernameAndName,
+        ),
+        settings: data,
+      );
+    },
+    RoomPage: (data) {
+      final args = data.getArgs<RoomPageArguments>(
+        orElse: () => RoomPageArguments(),
+      );
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => RoomPage(
+          key: args.key,
+          roomId: args.roomId,
+          forwardedMessages: args.forwardedMessages,
+          inputFilePath: args.inputFilePath,
+        ),
+        settings: data,
+      );
+    },
+    ShareInputFile: (data) {
+      final args = data.getArgs<ShareInputFileArguments>(
+        orElse: () => ShareInputFileArguments(),
+      );
+      return MaterialPageRoute<dynamic>(
+        builder: (context) =>
+            ShareInputFile(inputSharedFilePath: args.inputSharedFilePath),
+        settings: data,
+      );
+    },
   };
 }
 
@@ -183,7 +245,7 @@ class MediaDetailsPageArguments {
 class ShowImagePageArguments {
   final Key key;
   final File imageFile;
-  final String contactUid;
+  final Uid contactUid;
   ShowImagePageArguments({this.key, this.imageFile, this.contactUid});
 }
 
@@ -192,4 +254,33 @@ class SelectionToForwardPageArguments {
   final Key key;
   final List<dynamic> forwardedMessages;
   SelectionToForwardPageArguments({this.key, this.forwardedMessages});
+}
+
+/// NewContact arguments holder class
+class NewContactArguments {
+  final Key key;
+  NewContactArguments({this.key});
+}
+
+/// AccountSettings arguments holder class
+class AccountSettingsArguments {
+  final Key key;
+  final bool forceToSetUsernameAndName;
+  AccountSettingsArguments({this.key, this.forceToSetUsernameAndName = true});
+}
+
+/// RoomPage arguments holder class
+class RoomPageArguments {
+  final Key key;
+  final String roomId;
+  final List<dynamic> forwardedMessages;
+  final List<String> inputFilePath;
+  RoomPageArguments(
+      {this.key, this.roomId, this.forwardedMessages, this.inputFilePath});
+}
+
+/// ShareInputFile arguments holder class
+class ShareInputFileArguments {
+  final List<String> inputSharedFilePath;
+  ShareInputFileArguments({this.inputSharedFilePath});
 }

@@ -27,8 +27,6 @@ class _AccountSettingsState extends State<AccountSettings> {
   AppLocalization _appLocalization;
   BehaviorSubject<String> subject = new BehaviorSubject<String>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
-  CheckPermissionsService _checkPermission =
-      GetIt.I.get<CheckPermissionsService>();
   String _username = "";
   String _newUsername = "";
   String _email = "";
@@ -313,10 +311,5 @@ class _AccountSettingsState extends State<AccountSettings> {
         }
       }
     }
-  }
-
-  _requestPermissions() {
-    _checkPermission.checkContactPermission(context);
-    _checkPermission.checkStoragePermission();
   }
 }

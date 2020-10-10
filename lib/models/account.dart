@@ -1,6 +1,6 @@
-
-
 class Account {
+  String phoneNumber;
+
   String userName;
 
   String firstName;

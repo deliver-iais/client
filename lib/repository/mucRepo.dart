@@ -12,6 +12,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pb.dart' as Muc;
+import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart' as Muc;
 import 'package:deliver_public_protocol/pub/v1/models/muc.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -42,6 +43,7 @@ class MucRepo {
       String channelName, ChannelType channelType) async {
     Uid channelUid =
         await mucServices.createNewChannel(channelName, channelType, channelId);
+
     if (channelUid != null) {
       addMember(channelUid, memberUids);
       _insetTodb(channelUid, channelName, memberUids);
@@ -97,7 +99,6 @@ class MucRepo {
   }
 
   changeGroupMemberRole(Member groupMember) async {
-
     Muc.Member member = Muc.Member()
       ..mucUid = groupMember.mucUid.uid
       ..memberUid = groupMember.memberUid.uid
@@ -235,14 +236,14 @@ class MucRepo {
   _insetTodb(Uid mucUid, String mucName, List<Uid> memberUids) async {
     await _mucDao.insertGroup(Group(
         uid: mucUid.string, name: mucName, members: memberUids.length + 1));
-    roomRepo.updateRoomName(mucUid.string,mucName);
+    roomRepo.updateRoomName(mucUid.string, mucName);
     Room room = Room(roomId: mucUid.string, lastMessage: null);
     await _roomDao.insertRoom(room);
     sendFirstMessage(mucUid, room);
   }
 
   sendFirstMessage(Uid groupUid, Room room) async {
-    var  message = Message(
+    var message = Message(
         roomId: groupUid.string,
         packetId: _getPacketId(),
         time: DateTime.now(),
@@ -254,41 +255,50 @@ class MucRepo {
     await _roomDao.updateRoom(room.copyWith(lastMessage: message.packetId));
   }
 
-  addMember(Uid mucUid, List<Uid> memberUids) async {
-    List<Muc.Member> members = new List();
-    for (Uid uid in memberUids) {
-      members.add(Muc.Member()
-        ..memberUid = uid
-        ..mucUid = mucUid
-        ..role = (uid == accountRepo.currentUserUid)
-            ? Muc.Role.OWNER
-            : Muc.Role.MEMBER);
-    }
-
-    bool result = await mucServices.addGroupMembers(members);
-    if (result) {
-      List<Member> mucMembers = new List();
+  Future<bool> addMember(Uid mucUid, List<Uid> memberUids) async {
+    try {
+      bool usersAdd = false;
+      List<Muc.Member> members = new List();
       for (Uid uid in memberUids) {
-        mucMembers.add(Member(
-            memberUid: uid.string,
-            mucUid: mucUid.string,
-            role: (uid == accountRepo.currentUserUid)
-                ? MucRole.OWNER
-                : Muc.Role.MEMBER));
+        members.add(Muc.Member()
+          ..memberUid = uid
+          ..mucUid = mucUid
+          ..role = Muc.Role.MEMBER);
       }
 
-      insertUserInDb(mucUid, mucMembers);
+      if (mucUid.category == Categories.GROUP) {
+        usersAdd = await mucServices.addGroupMembers(members);
+      } else {
+        usersAdd = await mucServices.addChannelMembers(members);
+      }
+
+      if (usersAdd) {
+
+        if (mucUid.category == Categories.GROUP) {
+          getGroupMembers(mucUid);
+        } else {
+          getChannelMembers(mucUid);
+        }
+
+
+
+
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
     }
   }
-
 
   insertUserInDb(Uid mucUid, List<Member> members) async {
     for (Member member in members) {
       await _memberDao.insertMember(member);
     }
   }
+
   String _getPacketId() {
-    return "${_accountRepo.currentUserUid.getString()}:${DateTime.now().microsecondsSinceEpoch.toString()}";
+    return "${_accountRepo.currentUserUid}:${DateTime.now().microsecondsSinceEpoch}";
   }
 
   Muc.Role getRole(MucRole role) {
