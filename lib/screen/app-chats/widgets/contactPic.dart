@@ -4,7 +4,7 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+
 
 class ContactPic extends StatelessWidget {
   final bool isOnline;
@@ -15,7 +15,7 @@ class ContactPic extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        CircleAvatarWidget(this.uid ,this.uid.string, 18),
+        CircleAvatarWidget(this.uid , 18),
         Positioned(
           child: Container(
             width: 12.0,

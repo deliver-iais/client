@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/models/account.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
@@ -24,6 +26,8 @@ class ProfileAvatarCard extends StatelessWidget {
 
   ProfileAvatarCard({this.userUid, this.buttons});
 
+  var _accountRepo = GetIt.I.get<AccountRepo>();
+
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -32,14 +36,23 @@ class ProfileAvatarCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              CircleAvatarWidget(userUid, "John", 80, showAsStreamOfAvatar: true,),
+              CircleAvatarWidget(userUid, 80, showAsStreamOfAvatar: true,),
               SizedBox(
                 height: 10,
               ),
-              Text(
-                "John",
-                style: Theme.of(context).primaryTextTheme.headline5,
-              ),
+              FutureBuilder<Account>(
+                future: _accountRepo.getAccount(),
+                builder: (BuildContext context, AsyncSnapshot<Account> snapshot) {
+                  if(snapshot.data != null){
+                    return Text(
+                    "${snapshot.data.firstName}\t ${snapshot.data.lastName??""}",
+                      style: Theme.of(context).primaryTextTheme.headline5,
+                    );
+                  }else{
+                    return SizedBox.shrink();
+                  }
+                },),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: buttons,

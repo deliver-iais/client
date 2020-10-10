@@ -12,6 +12,7 @@ import 'package:deliver_flutter/screen/settings/account_settings.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -102,11 +103,12 @@ class RoutingService {
         path: "/account-settings"));
   }
 
-  void openMemberSelection({bool isChannel}) {
+  void openMemberSelection({bool isChannel, Uid mucUid}) {
     _createMucService.reset();
     var widget = MemberSelectionPage(
       key: ValueKey("/member-selection-page"),
       isChannel: isChannel,
+      mucUid: mucUid,
     );
     _push(Page(
         largePageNavigator: _navigationCenter,

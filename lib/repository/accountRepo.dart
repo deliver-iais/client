@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/account.dart';
@@ -10,8 +12,10 @@ import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:device_info/device_info.dart';
 
 import 'package:get_it/get_it.dart';
+
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:fixnum/fixnum.dart';
@@ -24,6 +28,7 @@ const FIRST_NAME = "firstName";
 const PASSWORD = "password";
 const EMAIL = "email";
 const DESCRIPTION = "description";
+const PHONE_NUMBER = "phoneNumber";
 
 class AccountRepo {
   // TODO add account name protocol to server
@@ -53,41 +58,60 @@ class AccountRepo {
     _setTokensAndCurrentUserUid(accessToken, refreshToken);
   }
 
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+
+  String platformVersion;
+
+
   Future getVerificationCode(String countryCode, String nationalNumber) async {
+
     PhoneNumber phone = PhoneNumber()
       ..countryCode = int.parse(countryCode)
       ..nationalNumber = Int64.parseInt(nationalNumber);
     this.phoneNumber = phone;
+    _savePhoneNumber();
     var verificationCode =
-    await authServiceStub.getVerificationCode(GetVerificationCodeReq()
-      ..phoneNumber = phone
-      ..type = VerificationType.SMS);
+        await authServiceStub.getVerificationCode(GetVerificationCodeReq()
+          ..phoneNumber = phone
+          ..type = VerificationType.SMS);
     return verificationCode;
   }
 
   Future sendVerificationCode(String code) async {
+    String device;
+
+    if(Platform.isAndroid){
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      device = androidInfo.androidId;
+
+    }else if(Platform.isIOS){
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      device = iosInfo.identifierForVendor;
+    }
+
+
     var sendVerificationCode =
-    await authServiceStub.verifyAndGetToken(VerifyCodeReq()
-      ..phoneNumber = this.phoneNumber
-      ..code = code
-//          TODO add real device name
-      ..device = "android/124"
+        await authServiceStub.verifyAndGetToken(VerifyCodeReq()
+          ..phoneNumber = this.phoneNumber
+          ..code = code
+          ..device = device
 //          TODO add password mechanism
-      ..password = "");
+          ..password = "");
+
+
     return sendVerificationCode;
   }
 
   Future _getAccessToken(String refreshToken) async {
     var getAccessToken = await authServiceStub
-        .renewAccessToken(RenewAccessTokenReq()
-      ..refreshToken = refreshToken);
+        .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
     return getAccessToken;
   }
 
   Future<String> getAccessToken() async {
     if (_isExpired(_accessToken)) {
       RenewAccessTokenRes renewAccessTokenRes =
-      await _getAccessToken(_refreshToken);
+          await _getAccessToken(_refreshToken);
       _saveTokens(renewAccessTokenRes);
       return renewAccessTokenRes.accessToken;
     } else {
@@ -114,14 +138,15 @@ class AccountRepo {
   Future<bool> usernameIsSet() async {
     var result = await _userServices.getUserProfile(GetUserProfileReq(),
         options:
-        CallOptions(metadata: {'accessToken': await getAccessToken()}));
+            CallOptions(metadata: {'accessToken': await getAccessToken()}));
     if (result.profile.hasUsername()) {
-      _saveProfilePrivateDate(username: result.profile.username,
+      _saveProfilePrivateDate(
+          username: result.profile.username,
           firstName: result.profile.firstName,
           lastName: result.profile.lastName,
           email: result.profile.email);
       return true;
-    }else{
+    } else {
       return false;
     }
   }
@@ -152,6 +177,7 @@ class AccountRepo {
 
   Future<Account> getAccount() async {
     return Account()
+      ..phoneNumber = await _prefs.get(PHONE_NUMBER)
       ..userName = await _prefs.get(USERNAME)
       ..firstName = await _prefs.get(FIRST_NAME)
       ..lastName = await _prefs.get(LAST_NAME)
@@ -162,16 +188,15 @@ class AccountRepo {
 
   Future<bool> checkUserName(String username) async {
     CheckUsernameRes checkUsernameRes = await _userServices.checkUsername(
-        CheckUsernameReq()
-          ..username = username,
+        CheckUsernameReq()..username = username,
         options:
-        CallOptions(metadata: {'accessToken': await getAccessToken()}));
+            CallOptions(metadata: {'accessToken': await getAccessToken()}));
     switch (checkUsernameRes.status) {
       case CheckUsernameRes_Status.REGEX_IS_WRONG:
         return false;
         break;
       case CheckUsernameRes_Status.ALREADY_EXIST:
-      //todo delete
+        //todo delete
         return true;
         break;
       case CheckUsernameRes_Status.OK:
@@ -182,10 +207,12 @@ class AccountRepo {
     return false;
   }
 
-  Future<bool> setAccountDetails(String username,
-      String firstName,
-      String lastName,
-      String email,) async {
+  Future<bool> setAccountDetails(
+    String username,
+    String firstName,
+    String lastName,
+    String email,
+  ) async {
     try {
       SaveUserProfileReq saveUserProfileReq = SaveUserProfileReq();
       if (username != null) {
@@ -203,7 +230,7 @@ class AccountRepo {
 
       await _userServices.saveUserProfile(saveUserProfileReq,
           options:
-          CallOptions(metadata: {'accessToken': await getAccessToken()}));
+              CallOptions(metadata: {'accessToken': await getAccessToken()}));
       _saveProfilePrivateDate(
           username: username,
           firstName: firstName,
@@ -219,12 +246,16 @@ class AccountRepo {
 
   _saveProfilePrivateDate(
       {String username, String firstName, String lastName, String email}) {
-    if(username!=null){
+    if (username != null) {
       _prefs.set(USERNAME, username);
     }
-
     _prefs.set(FIRST_NAME, firstName);
     _prefs.set(LAST_NAME, lastName);
     _prefs.set(EMAIL, email);
+  }
+
+  _savePhoneNumber() {
+    _prefs.set(PHONE_NUMBER,
+        "${this.phoneNumber.countryCode}${this.phoneNumber.nationalNumber}");
   }
 }

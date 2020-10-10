@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -27,10 +28,11 @@ class _BoxContentState extends State<BoxContent> {
   void initiaLastCross(CrossAxisAlignment c) {
     last = c;
   }
+  AppLocalization _appLocalization;
 
   @override
   Widget build(BuildContext context) {
-    print(widget.message);
+  _appLocalization = AppLocalization.of(context);
     return Column(
       crossAxisAlignment: last,
       children: [
@@ -46,15 +48,11 @@ class _BoxContentState extends State<BoxContent> {
                   future: _roomRepo.getRoomDisplayName(widget.message.from.uid),
                   builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                     if(snapshot.hasData  && snapshot.data!=null){
-                      return Text(
-                          'Forwarded message\nFrom ' +
-                              snapshot.data,
+                      return Text("${_appLocalization.getTraslateValue("Forwarded_From")} \t ${snapshot.data}",
                           style:
                           TextStyle(color: ExtraTheme.of(context).secondColor));
                     }else{
-                      return Text(
-                          'Forwarded message\nFrom ' +
-                              "unKnown",
+                      return Text("${_appLocalization.getTraslateValue("Forwarded_From")} \t Unknown",
                           style:
                           TextStyle(color: ExtraTheme.of(context).secondColor)); ;
                     }

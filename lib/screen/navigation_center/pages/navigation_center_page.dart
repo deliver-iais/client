@@ -105,7 +105,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           child: Center(
                             child: CircleAvatarWidget(
                               _accountRepo.currentUserUid,
-                              _accountRepo.currentUsername,
                               18,
                               showAsStreamOfAvatar: true,
                             ),
@@ -244,7 +243,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           onTap: () {
                             var fakeGroupUid = Uid()
                               ..category = Categories.GROUP
-                              ..node = "123123";
+                              ..node = "5745645454545456";
                             _routingService
                                 .openProfile(fakeGroupUid.getString());
                           },
@@ -392,10 +391,7 @@ Widget _contactResultWidget(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           CircleAvatarWidget(
-              uid,
-              lastName ??
-                  firstName.substring(0, 1) + lastName ??
-                  lastName.substring(0, 1),
+              uid!=null?uid:Uid.getDefault(),
               23),
           SizedBox(
             width: 20,

@@ -1,41 +1,49 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 
 import 'package:deliver_flutter/screen/app_group/widgets/selective_contact.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class SelectiveContactsList extends StatefulWidget {
+  Uid mucUid;
 
   bool isChannel;
-  SelectiveContactsList({Key key,this.isChannel}) : super(key: key);
+
+  SelectiveContactsList({Key key, this.isChannel, this.mucUid})
+      : super(key: key);
 
   @override
   _SelectiveContactsListState createState() => _SelectiveContactsListState();
 }
 
 class _SelectiveContactsListState extends State<SelectiveContactsList> {
-
   TextEditingController editingController;
 
   List<Contact> selectedList = [];
 
   var items;
 
-  var accountRepo = GetIt.I.get<AccountRepo>();
+  var _accountRepo = GetIt.I.get<AccountRepo>();
 
-  var contactDao = GetIt.I.get<ContactDao>();
+  var _contactDao = GetIt.I.get<ContactDao>();
 
   var _routingService = GetIt.I.get<RoutingService>();
+
+  var _mucRepo = GetIt.I.get<MucRepo>();
 
   var _createMucService = GetIt.I.get<CreateMucService>();
 
@@ -60,7 +68,10 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                 .replaceAll(new RegExp(r"\s\b|\b\s"), "")
                 .toLowerCase()
                 .contains(query) ||
-            item.lastName.replaceAll(new RegExp(r"\s\b|\b\s"), "").toLowerCase().contains(query)) {
+            item.lastName
+                .replaceAll(new RegExp(r"\s\b|\b\s"), "")
+                .toLowerCase()
+                .contains(query)) {
           dummyListData.add(item);
         }
       });
@@ -92,7 +103,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                 controller: editingController),
             Expanded(
                 child: FutureBuilder(
-                    future: contactDao.getAllUser(),
+                    future: _contactDao.getAllUser(),
                     builder: (BuildContext context,
                         AsyncSnapshot<List<Contact>> snapshot) {
                       if (snapshot.hasData &&
@@ -142,18 +153,37 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                       shape: BoxShape.circle,
                       color: Theme.of(context).primaryColor,
                     ),
-                    child: IconButton(
-                      icon: Icon(Icons.arrow_forward),
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.all(0),
-                      onPressed: () {
-                        List<Contact> members = [];
-                        for (var i = 0; i < selectedList.length; i++) {
-                          members.add(selectedList[i]);
-                        }
-                        _routingService.openGroupInfoDeterminationPage(isChannel: widget.isChannel);
-                      },
-                    ),
+                    child: widget.mucUid != null
+                        ? IconButton(
+                            icon: Icon(Icons.check),
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.all(0),
+                            onPressed: () async {
+                              List<Uid> users = List();
+                              for (Contact contact
+                                  in _createMucService.members) {
+                                users.add(contact.uid.uid);
+                              }
+                              bool usersAdd = await _mucRepo.addMember(
+                                  widget.mucUid, users);
+                              if (usersAdd) {
+                                _routingService.pop();
+                              } else {
+                                Fluttertoast.showToast(
+                                    msg: appLocalization
+                                        .getTraslateValue("occurred_Error"));
+                                _routingService.pop();
+                              }
+                            })
+                        : IconButton(
+                            icon: Icon(Icons.arrow_forward),
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.all(0),
+                            onPressed: () {
+                              _routingService.openGroupInfoDeterminationPage(
+                                  isChannel: widget.isChannel);
+                            },
+                          ),
                   ),
                 );
               else

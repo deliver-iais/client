@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
 import 'package:dio/dio.dart';
 import 'package:fimber/fimber.dart';
@@ -12,10 +13,12 @@ import 'package:path_provider/path_provider.dart';
 enum ThumbnailSize { small, medium, large }
 
 class FileService {
+  var _checkPermission = GetIt.I.get<CheckPermissionsService>();
   var accountRepo = GetIt.I.get<AccountRepo>();
   var _dio = Dio();
 
   Future<String> get _localPath async {
+    _checkPermission.checkStoragePermission();
     final directory = await getApplicationDocumentsDirectory();
     if (!await Directory('${directory.path}/.thumbnails').exists())
       await Directory('${directory.path}/.thumbnails').create(recursive: true);

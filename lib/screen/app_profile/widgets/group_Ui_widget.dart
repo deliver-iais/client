@@ -2,6 +2,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/models/role.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -26,7 +27,8 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
   bool notification = true;
   Uid mucUid;
   AppLocalization appLocalization;
-  var mucRepo = GetIt.I.get<MucRepo>();
+  var _mucRepo = GetIt.I.get<MucRepo>();
+  var _routingService = GetIt.I.get<RoutingService>();
 
 
   @override
@@ -104,6 +106,7 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
               IconButton(
                 icon: Icon(Icons.person_add),
                 disabledColor: Colors.blue,
+
               ),
               SizedBox(
                 width: 10,
@@ -115,7 +118,9 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
             ],
           ),
         ),
-        onTap: () {},
+        onTap: () {
+          _routingService.openMemberSelection(isChannel: true,mucUid:this.mucUid);
+        },
       ),
     ]));
   }

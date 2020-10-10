@@ -10,18 +10,18 @@ import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
 
-class ChatItemToForward extends StatelessWidget {
+class ChatItemToShareFile extends StatelessWidget {
   final Uid uid;
-  final List<Message> forwardedMessages;
+  final List<String> sharedFilePath;
+  final String sharedText;
 
-  ChatItemToForward({Key key, this.uid, this.forwardedMessages})
+ChatItemToShareFile({Key key, this.uid, this.sharedText,this.sharedFilePath})
       : super(key: key);
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _routingService = GetIt.I.get<RoutingService>();
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
+  Widget build(BuildContext context) {    return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
       child: Container(
           height: 40,
@@ -58,13 +58,13 @@ class ChatItemToForward extends StatelessWidget {
                         }
                       }),
                   onTap: () {
+
                     ExtendedNavigator.of(context).push(Routes.roomPage,
                         arguments: RoomPageArguments(
-                            roomId: uid.getString(),
-                            forwardedMessages: forwardedMessages));
+                            roomId: uid.string,inputFilePath:sharedFilePath )
+                    );
                   },
                 ),
-
                 Spacer(),
               ],
             ),

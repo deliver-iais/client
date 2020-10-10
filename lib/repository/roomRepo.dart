@@ -20,16 +20,16 @@ class RoomRepo {
   Future<String> getRoomDisplayName(Uid uid) async {
     switch (uid.category) {
       case Categories.USER:
-        String name = _roomNameCache.get(uid.string);
-        if (name.length>1) {
+        String name = await _roomNameCache.get(uid.string);
+        if (name != null) {
           return name;
         } else {
           var contact = await _contactDao.getContactByUid(uid.string);
-          String contactName = contact.firstName + "\t" + contact.lastName;
+          String contactName = "${contact.firstName} ${contact.lastName}";
+          print(contactName);
           _roomNameCache.set(uid.string, contactName);
           return contactName;
         }
-
         break;
 
       case Categories.GROUP:
@@ -51,34 +51,41 @@ class RoomRepo {
     _roomNameCache.set(uid.string, name);
   }
 
-  Future<List<Uid>> getAllRooms() async {
-    Map<Uid,Uid> finalList  = Map();
+  changeRoomMuteTye({String roomId, bool mute}) async {
+    _roomDao.insertRoom(Room(roomId: roomId, mute: mute));
+  }
 
-    var allUser =  await _contactDao.getAllUser();
-    for(var contact in allUser){
+  Stream<Room> roomIsMute(String roomId) {
+    return _roomDao.getByRoomId(roomId);
+  }
+
+  Future<List<Uid>> getAllRooms() async {
+    Map<Uid, Uid> finalList = Map();
+
+    var allUser = await _contactDao.getAllUser();
+    for (var contact in allUser) {
       finalList[contact.uid.uid] = contact.uid.uid;
     }
-    var allRooms  = await _roomDao.gerAllRooms();
-    for(var room in allRooms){
+    var allRooms = await _roomDao.gerAllRooms();
+    for (var room in allRooms) {
       finalList[room.roomId.uid] = room.roomId.uid;
     }
     return finalList.values.toList();
   }
 
-  Future<List<LocalSearchResult>> searchInRoomAndContacts(String text,bool searchInRooms) async {
+  Future<List<LocalSearchResult>> searchInRoomAndContacts(
+      String text, bool searchInRooms) async {
     List<LocalSearchResult> searchResult = List();
     List<Contact> searchInContact = await _contactDao.getContactByName(text);
-     print(searchInContact.length.toString());
+    print(searchInContact.length.toString());
     for (Contact contact in searchInContact) {
       searchResult.add(LocalSearchResult()
         ..username = contact.username
-        ..firstName = contact.firstName??""
-        ..lastName = contact.lastName??""
-      ..uid = contact.uid != null?contact.uid.uid:null
-      );
-
+        ..firstName = contact.firstName
+        ..lastName = contact.lastName
+        ..uid = contact.uid != null ? contact.uid.uid : null);
     }
-    if(searchInRooms){
+    if (searchInRooms) {
       List<Group> searchInGroup = await _mucDao.getGroupByName(text);
       for (Group group in searchInGroup) {
         searchResult.add(LocalSearchResult()

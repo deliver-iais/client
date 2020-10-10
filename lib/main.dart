@@ -39,6 +39,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:window_size/window_size.dart';
@@ -91,10 +92,10 @@ void setupRepositories() {
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
   getIt.registerSingleton<CreateMucService>(CreateMucService());
   getIt.registerSingleton<RoutingService>(RoutingService());
-
 }
 
-setupFlutterNotification()async {
+
+setupFlutterNotification() async {
   await Firebase.initializeApp();
 }
 

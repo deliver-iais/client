@@ -94,5 +94,12 @@
   "enter-channel-name" : "Enter Channel Name",
   "enter-channel-id" : "Enter Channel Id",
   "local_search": "search in Rooms and Contacts",
-  "global_search": "Global search"
+  "global_search": "Global search",
+  "Forwarded_From" : "Forwarded From",
+  "send_To": "Send to...",
+  "mute": "Mute",
+  "un_mute": "UnMute",
+  "occurred_Error":"Occurred Error",
+  "continue": "Continue",
+  "send_Contacts_message": "Dliver needs access to your contacts so that you can connect with your friend across all your device. your contacts will be continuously synced with Dliver's  heavily encrypted cloud servers."
 }

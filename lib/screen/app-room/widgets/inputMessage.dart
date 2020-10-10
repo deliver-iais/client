@@ -1,11 +1,15 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:audio_recorder/audio_recorder.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/emojiKeybord.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/db/database.dart';
@@ -55,21 +59,27 @@ class _InputMessageWidget extends State<InputMessage> {
 
   bool startAudioRecorder = false;
 
+  var _messageRepo = GetIt.I.get<MessageRepo>();
+
   AudioRecorder _audioRecorder;
 
   Widget showButtonSheet() {
-    showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        isDismissible: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) {
-          return ShareBox(
-            currentRoomId: currentRoom.roomId.uid,
-            replyMessageId: widget.replyMessageId,
-            resetRoomPageDetails: widget.resetRoomPageDetails,
-          );
-        });
+    if (isDesktop()) {
+      _attachFileInWindowsMode();
+    } else {
+      showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          isDismissible: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) {
+            return ShareBox(
+              currentRoomId: currentRoom.roomId.uid,
+              replyMessageId: widget.replyMessageId,
+              resetRoomPageDetails: widget.resetRoomPageDetails,
+            );
+          });
+    }
   }
 
   @override
@@ -379,4 +389,13 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;
+
+  _attachFileInWindowsMode() async {
+    final result = await showOpenPanel(
+      allowsMultipleSelection: false,
+    );
+    if (result.paths.isNotEmpty) {
+      _messageRepo.sendFileMessage(currentRoom.roomId.uid, result.paths[0]);
+    }
+  }
 }

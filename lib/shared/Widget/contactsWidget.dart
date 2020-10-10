@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/theme/constants.dart';
@@ -35,13 +37,20 @@ class ContactWidget extends StatelessWidget {
             children: <Widget>[
               Stack(
                 children: <Widget>[
-                  CircleAvatarWidget(
-                      contact.uid != null ? contact.uid.uid : Uid.create(),
-                      contact.lastName ??
-                          contact.firstName.substring(0, 1) +
-                              contact.lastName ??
-                          contact.lastName.substring(0, 1),
-                      23),
+                  contact.uid != null
+                      ? CircleAvatarWidget(
+                          contact.uid.uid,
+                          23)
+                      : CircleAvatar(
+                          backgroundColor: Colors.blue,
+                          child: Text(
+                            contact.lastName.length > 2
+                                ? contact.lastName.substring(0, 2)
+                                : contact.lastName,
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          radius: 23,
+                        ),
                   Positioned(
                     child: Container(
                       width: 12.0,

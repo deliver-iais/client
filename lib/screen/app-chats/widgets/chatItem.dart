@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/models/roomWithMessage.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/recievedMsgStatusIcon.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -8,6 +9,7 @@ import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:fimber/fimber_base.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -20,16 +22,18 @@ class ChatItem extends StatelessWidget {
 
   final bool isSelected;
 
-  final AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
+  final AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
 
-  var roomRepo = GetIt.I.get<RoomRepo>();
+  var _roomRepo = GetIt.I.get<RoomRepo>();
+
+  var _contactRepo = GetIt.I.get<ContactRepo>();
 
   ChatItem({key: Key, this.roomWithMessage, this.isSelected}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     var messageType = roomWithMessage.lastMessage.from
-            .isSameEntity(accountRepo.currentUserUid)
+            .isSameEntity(_accountRepo.currentUserUid)
         ? "send"
         : "recieve";
 
@@ -51,17 +55,16 @@ class ChatItem extends StatelessWidget {
           ),
           Expanded(
             flex: 90,
-            child: Column(
+            child:SingleChildScrollView(child:Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Container(
                     width: 200,
                     child: FutureBuilder<String>(
-                        future: roomRepo.getRoomDisplayName(
+                        future: _roomRepo.getRoomDisplayName(
                             roomWithMessage.room.roomId.uid),
                         builder: (BuildContext c, AsyncSnapshot<String> snaps) {
                           if (snaps.hasData && snaps.data.isNotEmpty) {
-                            print("name"+snaps.data.toString());
                             return Text(
                               snaps.data.toString(),
                               style: TextStyle(
@@ -73,16 +76,37 @@ class ChatItem extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             );
                           } else {
-                            return Text(
-                              "UnKnown",
-                              style: TextStyle(
-                                color: ExtraTheme.of(context).infoChat,
-                                fontSize: 16,
-                              ),
-                              maxLines: 1,
-                              softWrap: false,
-                              overflow: TextOverflow.ellipsis,
+                            return FutureBuilder<UserAsContact>(
+                              future: _contactRepo.searchUserByUid(
+                                  roomWithMessage.room.roomId.uid),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<UserAsContact> snapshot) {
+                                if (snapshot.data != null) {
+                                  return Text(
+                                    snapshot.data.username,
+                                    style: TextStyle(
+                                      color: ExtraTheme.of(context).infoChat,
+                                      fontSize: 16,
+                                    ),
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
+                                  );
+                                } else {
+                                  return Text(
+                                    "UnKnown",
+                                    style: TextStyle(
+                                      color: ExtraTheme.of(context).infoChat,
+                                      fontSize: 16,
+                                    ),
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
+                                  );
+                                }
+                              },
                             );
+                            ;
                           }
                         })),
                 Row(
@@ -95,11 +119,11 @@ class ChatItem extends StatelessWidget {
                           top: 3.0,
                         ),
                         child:
-                            LastMessage(message: roomWithMessage.lastMessage)),
+                        LastMessage(message: roomWithMessage.lastMessage)),
                   ],
                 ),
               ],
-            ),
+            ),)
           ),
           Expanded(
             flex: 10,

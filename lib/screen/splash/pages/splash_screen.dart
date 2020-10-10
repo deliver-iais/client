@@ -1,9 +1,14 @@
+
+
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
+
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:flutter/material.dart';
+
 import 'package:get_it/get_it.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -13,8 +18,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   var loggedInStatus;
   var _coreServices = GetIt.I.get<CoreServices>();
-
-  AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
+  AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
   int attempts = 0;
 
   @override
@@ -23,8 +27,9 @@ class _SplashScreenState extends State<SplashScreen> {
     tryInitAccountRepo();
   }
 
+
   tryInitAccountRepo() {
-    accountRepo.init().timeout(Duration(seconds: 2), onTimeout: () {
+    _accountRepo.init().timeout(Duration(seconds: 2), onTimeout: () {
       if (attempts < 3) {
         attempts++;
         tryInitAccountRepo();
@@ -32,7 +37,9 @@ class _SplashScreenState extends State<SplashScreen> {
         _navigateToIntroPage();
       }
     }).then((_) {
-      accountRepo.isLoggedIn() ? _navigateToHomePage() : _navigateToIntroPage();
+      _accountRepo.isLoggedIn()
+          ? gotoRooms(context)
+          : _navigateToIntroPage();
     });
   }
 
@@ -41,12 +48,35 @@ class _SplashScreenState extends State<SplashScreen> {
         .pushAndRemoveUntil(Routes.introPage, (_) => false);
   }
 
-  void _navigateToHomePage() {
+  gotoRooms(BuildContext context) async {
+
+
+   var result = await ReceiveSharingIntent.getInitialMedia();
+      if (result != null ) {
+        List<String> paths = List();
+        for(var path in result){
+          paths.add(path.path);
+        }
+        ExtendedNavigator.of(context).push(
+          Routes.shareInputFile,arguments: ShareInputFileArguments(inputSharedFilePath: paths)
+        );
+      } else {
+        _navigateToHomePage();
+      }
+  }
+
+  void _navigateToHomePage() async {
     _coreServices.setCoreSetting();
-    ExtendedNavigator.of(context).pushAndRemoveUntil(
-      Routes.homePage,
-      (_) => false,
-    );
+    bool setUserName = await _accountRepo.usernameIsSet();
+    if (setUserName) {
+      ExtendedNavigator.of(context).pushAndRemoveUntil(
+        Routes.homePage,
+            (_) => false,
+      );
+    } else {
+      ExtendedNavigator.of(context).push(Routes.accountSettings,
+          arguments: AccountSettingsArguments(forceToSetUsernameAndName: false));
+    }
   }
 
   @override

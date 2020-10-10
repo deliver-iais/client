@@ -676,8 +676,13 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
 class Room extends DataClass implements Insertable<Room> {
   final String roomId;
   final bool mentioned;
+  final bool mute;
   final String lastMessage;
-  Room({@required this.roomId, this.mentioned, this.lastMessage});
+  Room(
+      {@required this.roomId,
+      this.mentioned,
+      @required this.mute,
+      this.lastMessage});
   factory Room.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -688,6 +693,7 @@ class Room extends DataClass implements Insertable<Room> {
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
       mentioned:
           boolType.mapFromDatabaseResponse(data['${effectivePrefix}mentioned']),
+      mute: boolType.mapFromDatabaseResponse(data['${effectivePrefix}mute']),
       lastMessage: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}last_message']),
     );
@@ -700,6 +706,9 @@ class Room extends DataClass implements Insertable<Room> {
     }
     if (!nullToAbsent || mentioned != null) {
       map['mentioned'] = Variable<bool>(mentioned);
+    }
+    if (!nullToAbsent || mute != null) {
+      map['mute'] = Variable<bool>(mute);
     }
     if (!nullToAbsent || lastMessage != null) {
       map['last_message'] = Variable<String>(lastMessage);
@@ -714,6 +723,7 @@ class Room extends DataClass implements Insertable<Room> {
       mentioned: mentioned == null && nullToAbsent
           ? const Value.absent()
           : Value(mentioned),
+      mute: mute == null && nullToAbsent ? const Value.absent() : Value(mute),
       lastMessage: lastMessage == null && nullToAbsent
           ? const Value.absent()
           : Value(lastMessage),
@@ -726,6 +736,7 @@ class Room extends DataClass implements Insertable<Room> {
     return Room(
       roomId: serializer.fromJson<String>(json['roomId']),
       mentioned: serializer.fromJson<bool>(json['mentioned']),
+      mute: serializer.fromJson<bool>(json['mute']),
       lastMessage: serializer.fromJson<String>(json['lastMessage']),
     );
   }
@@ -735,13 +746,17 @@ class Room extends DataClass implements Insertable<Room> {
     return <String, dynamic>{
       'roomId': serializer.toJson<String>(roomId),
       'mentioned': serializer.toJson<bool>(mentioned),
+      'mute': serializer.toJson<bool>(mute),
       'lastMessage': serializer.toJson<String>(lastMessage),
     };
   }
 
-  Room copyWith({String roomId, bool mentioned, String lastMessage}) => Room(
+  Room copyWith(
+          {String roomId, bool mentioned, bool mute, String lastMessage}) =>
+      Room(
         roomId: roomId ?? this.roomId,
         mentioned: mentioned ?? this.mentioned,
+        mute: mute ?? this.mute,
         lastMessage: lastMessage ?? this.lastMessage,
       );
   @override
@@ -749,45 +764,52 @@ class Room extends DataClass implements Insertable<Room> {
     return (StringBuffer('Room(')
           ..write('roomId: $roomId, ')
           ..write('mentioned: $mentioned, ')
+          ..write('mute: $mute, ')
           ..write('lastMessage: $lastMessage')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf(
-      $mrjc(roomId.hashCode, $mrjc(mentioned.hashCode, lastMessage.hashCode)));
+  int get hashCode => $mrjf($mrjc(roomId.hashCode,
+      $mrjc(mentioned.hashCode, $mrjc(mute.hashCode, lastMessage.hashCode))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Room &&
           other.roomId == this.roomId &&
           other.mentioned == this.mentioned &&
+          other.mute == this.mute &&
           other.lastMessage == this.lastMessage);
 }
 
 class RoomsCompanion extends UpdateCompanion<Room> {
   final Value<String> roomId;
   final Value<bool> mentioned;
+  final Value<bool> mute;
   final Value<String> lastMessage;
   const RoomsCompanion({
     this.roomId = const Value.absent(),
     this.mentioned = const Value.absent(),
+    this.mute = const Value.absent(),
     this.lastMessage = const Value.absent(),
   });
   RoomsCompanion.insert({
     @required String roomId,
     this.mentioned = const Value.absent(),
+    this.mute = const Value.absent(),
     this.lastMessage = const Value.absent(),
   }) : roomId = Value(roomId);
   static Insertable<Room> custom({
     Expression<String> roomId,
     Expression<bool> mentioned,
+    Expression<bool> mute,
     Expression<String> lastMessage,
   }) {
     return RawValuesInsertable({
       if (roomId != null) 'room_id': roomId,
       if (mentioned != null) 'mentioned': mentioned,
+      if (mute != null) 'mute': mute,
       if (lastMessage != null) 'last_message': lastMessage,
     });
   }
@@ -795,10 +817,12 @@ class RoomsCompanion extends UpdateCompanion<Room> {
   RoomsCompanion copyWith(
       {Value<String> roomId,
       Value<bool> mentioned,
+      Value<bool> mute,
       Value<String> lastMessage}) {
     return RoomsCompanion(
       roomId: roomId ?? this.roomId,
       mentioned: mentioned ?? this.mentioned,
+      mute: mute ?? this.mute,
       lastMessage: lastMessage ?? this.lastMessage,
     );
   }
@@ -812,6 +836,9 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     if (mentioned.present) {
       map['mentioned'] = Variable<bool>(mentioned.value);
     }
+    if (mute.present) {
+      map['mute'] = Variable<bool>(mute.value);
+    }
     if (lastMessage.present) {
       map['last_message'] = Variable<String>(lastMessage.value);
     }
@@ -823,6 +850,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     return (StringBuffer('RoomsCompanion(')
           ..write('roomId: $roomId, ')
           ..write('mentioned: $mentioned, ')
+          ..write('mute: $mute, ')
           ..write('lastMessage: $lastMessage')
           ..write(')'))
         .toString();
@@ -854,6 +882,15 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
         defaultValue: Constant(false));
   }
 
+  final VerificationMeta _muteMeta = const VerificationMeta('mute');
+  GeneratedBoolColumn _mute;
+  @override
+  GeneratedBoolColumn get mute => _mute ??= _constructMute();
+  GeneratedBoolColumn _constructMute() {
+    return GeneratedBoolColumn('mute', $tableName, false,
+        defaultValue: Constant(false));
+  }
+
   final VerificationMeta _lastMessageMeta =
       const VerificationMeta('lastMessage');
   GeneratedTextColumn _lastMessage;
@@ -866,7 +903,7 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
   }
 
   @override
-  List<GeneratedColumn> get $columns => [roomId, mentioned, lastMessage];
+  List<GeneratedColumn> get $columns => [roomId, mentioned, mute, lastMessage];
   @override
   $RoomsTable get asDslTable => this;
   @override
@@ -887,6 +924,10 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
     if (data.containsKey('mentioned')) {
       context.handle(_mentionedMeta,
           mentioned.isAcceptableOrUnknown(data['mentioned'], _mentionedMeta));
+    }
+    if (data.containsKey('mute')) {
+      context.handle(
+          _muteMeta, mute.isAcceptableOrUnknown(data['mute'], _muteMeta));
     }
     if (data.containsKey('last_message')) {
       context.handle(
