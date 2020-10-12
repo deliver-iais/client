@@ -45,7 +45,7 @@ class ProfileAvatarCard extends StatelessWidget {
                 builder: (BuildContext context, AsyncSnapshot<Account> snapshot) {
                   if(snapshot.data != null){
                     return Text(
-                    "${snapshot.data.firstName}\t ${snapshot.data.lastName??""}",
+                    "${snapshot.data.firstName}${snapshot.data.lastName??""}",
                       style: Theme.of(context).primaryTextTheme.headline5,
                     );
                   }else{

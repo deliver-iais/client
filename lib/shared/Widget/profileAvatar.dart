@@ -3,30 +3,32 @@ import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class ProfileAvatar extends StatefulWidget {
   @required
   final bool innerBoxIsScrolled;
   @required
   final Uid userUid;
-  @required
-  final bool settingProfile;
 
-  ProfileAvatar({this.innerBoxIsScrolled, this.userUid, this.settingProfile});
+  ProfileAvatar({this.innerBoxIsScrolled, this.userUid});
 
   @override
   _ProfileAvatarState createState() => _ProfileAvatarState();
@@ -35,14 +37,32 @@ class ProfileAvatar extends StatefulWidget {
 class _ProfileAvatarState extends State<ProfileAvatar> {
   double currentAvatarIndex = 0;
   bool showProgressBar = false;
-  final selectedImages = Map<int, bool>();
+  final _selectedImages = Map<int, bool>();
   var avatarRepo = GetIt.I.get<AvatarRepo>();
   var fileRepo = GetIt.I.get<FileRepo>();
   var routingService = GetIt.I.get<RoutingService>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   List<Avatar> _avatars = new List();
-  String uploadAvatarPath;
+  String _uploadAvatarPath;
+  bool _setAvatarPermission = false;
+  var _memberRepo = GetIt.I.get<MemberRepo>();
+  var _accountRepo = GetIt.I.get<AccountRepo>();
+
+  @override
+  void initState() {
+    if (widget.userUid.category != Categories.USER) {
+      _checkSetAvatarPermission();
+    }
+  }
+
+  _checkSetAvatarPermission() async {
+    bool per = await _memberRepo.mucAdminOrOwner(
+        widget.userUid.string, _accountRepo.currentUserUid.string);
+    setState(() {
+      _setAvatarPermission = per;
+    });
+  }
 
   showBottomSheet() {
     showModalBottomSheet(
@@ -67,11 +87,11 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         onClick: (File croppedFile) async {
                           setState(() {
                             showProgressBar = true;
-                            uploadAvatarPath = croppedFile.path;
+                            _uploadAvatarPath = croppedFile.path;
                           });
 
-                          Avatar uploadeadAvatar =
-                              await avatarRepo.uploadAvatar(croppedFile);
+                          Avatar uploadeadAvatar = await avatarRepo
+                              .uploadAvatar(croppedFile, widget.userUid);
                           if (uploadeadAvatar != null) {
                             _avatars = _avatars.reversed.toList();
                             _avatars.add(uploadeadAvatar);
@@ -81,7 +101,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                             });
                           } else {}
                         },
-                        selectedImages: selectedImages,
+                        selectedImages: _selectedImages,
                         selectGallery: false,
                       ),
                     ),
@@ -201,8 +221,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     AppLocalization appLocalization = AppLocalization.of(context);
     return SliverAppBar(
         actions: <Widget>[
-          widget.settingProfile
+          _setAvatarPermission
               ? PopupMenuButton(
+                  icon: Icon(Icons.more_vert),
                   itemBuilder: (_) => <PopupMenuItem<String>>[
                     new PopupMenuItem<String>(
                         child: Text(
@@ -231,7 +252,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
             child: FutureBuilder<String>(
               future: _roomRepo.getRoomDisplayName(widget.userUid),
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                if(snapshot.data != null){
+                if (snapshot.data != null) {
                   return Text(snapshot.data,
                       //textAlign: TextAlign.center,
                       style: TextStyle(
@@ -244,11 +265,12 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                           ),
                         ],
                       ));
-                }else{
+                } else {
                   return FutureBuilder<UserAsContact>(
                     future: _contactRepo.searchUserByUid(widget.userUid),
-                    builder: (BuildContext context, AsyncSnapshot<UserAsContact> snapshot) {
-                      if(snapshot.data != null){
+                    builder: (BuildContext context,
+                        AsyncSnapshot<UserAsContact> snapshot) {
+                      if (snapshot.data != null) {
                         return Text(snapshot.data.username,
                             //textAlign: TextAlign.center,
                             style: TextStyle(
@@ -261,7 +283,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                 ),
                               ],
                             ));
-                      }else{
+                      } else {
                         return Text("Unknown",
                             //textAlign: TextAlign.center,
                             style: TextStyle(
@@ -275,11 +297,11 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                               ],
                             ));
                       }
-                    },);
+                    },
+                  );
                 }
-              },),
-
-
+              },
+            ),
           ),
           background: ClipRRect(
             borderRadius: BorderRadius.circular(10),
@@ -288,7 +310,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     children: [
                       Container(
                         child: Image.file(
-                          File(uploadAvatarPath),
+                          File(_uploadAvatarPath),
                           fit: BoxFit.cover,
                           height: 300,
                           width: 300,

@@ -46,85 +46,92 @@ class ChatItem extends StatelessWidget {
               ? null
               : Border.all(color: Theme.of(context).dividerColor),
           borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
-      height: 50,
+      height: 60,
       child: Row(
         children: <Widget>[
-          ContactPic(true, roomWithMessage.room.roomId.uid),
+          Padding(
+            padding: EdgeInsets.only(bottom: 10),
+            child: ContactPic(true, roomWithMessage.room.roomId.uid),
+          ),
           SizedBox(
             width: 8,
           ),
           Expanded(
-            flex: 90,
-            child:SingleChildScrollView(child:Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                    width: 200,
-                    child: FutureBuilder<String>(
-                        future: _roomRepo.getRoomDisplayName(
-                            roomWithMessage.room.roomId.uid),
-                        builder: (BuildContext c, AsyncSnapshot<String> snaps) {
-                          if (snaps.hasData && snaps.data.isNotEmpty) {
-                            return Text(
-                              snaps.data.toString(),
-                              style: TextStyle(
-                                color: ExtraTheme.of(context).infoChat,
-                                fontSize: 16,
-                              ),
-                              maxLines: 1,
-                              softWrap: false,
-                              overflow: TextOverflow.ellipsis,
-                            );
-                          } else {
-                            return FutureBuilder<UserAsContact>(
-                              future: _contactRepo.searchUserByUid(
-                                  roomWithMessage.room.roomId.uid),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<UserAsContact> snapshot) {
-                                if (snapshot.data != null) {
-                                  return Text(
-                                    snapshot.data.username,
-                                    style: TextStyle(
-                                      color: ExtraTheme.of(context).infoChat,
-                                      fontSize: 16,
-                                    ),
-                                    maxLines: 1,
-                                    softWrap: false,
-                                    overflow: TextOverflow.ellipsis,
-                                  );
-                                } else {
-                                  return Text(
-                                    "UnKnown",
-                                    style: TextStyle(
-                                      color: ExtraTheme.of(context).infoChat,
-                                      fontSize: 16,
-                                    ),
-                                    maxLines: 1,
-                                    softWrap: false,
-                                    overflow: TextOverflow.ellipsis,
-                                  );
-                                }
-                              },
-                            );
-                            ;
-                          }
-                        })),
-                Row(
+              flex: 90,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    messageType == "send"
-                        ? SeenStatus(roomWithMessage.lastMessage)
-                        : Container(),
-                    Padding(
-                        padding: const EdgeInsets.only(
-                          top: 3.0,
-                        ),
-                        child:
-                        LastMessage(message: roomWithMessage.lastMessage)),
+                    Container(
+                        width: 200,
+                        child: FutureBuilder<String>(
+                            future: _roomRepo.getRoomDisplayName(
+                                roomWithMessage.room.roomId.uid),
+                            builder:
+                                (BuildContext c, AsyncSnapshot<String> snaps) {
+                              if (snaps.hasData && snaps.data.isNotEmpty) {
+                                return Text(
+                                  snaps.data.toString(),
+                                  style: TextStyle(
+                                    color: ExtraTheme.of(context).infoChat,
+                                    fontSize: 16,
+                                  ),
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  overflow: TextOverflow.ellipsis,
+                                );
+                              } else {
+                                return FutureBuilder<UserAsContact>(
+                                  future: _contactRepo.searchUserByUid(
+                                      roomWithMessage.room.roomId.uid),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<UserAsContact> snapshot) {
+                                    if (snapshot.data != null) {
+                                      return Text(
+                                        snapshot.data.username,
+                                        style: TextStyle(
+                                          color:
+                                              ExtraTheme.of(context).infoChat,
+                                          fontSize: 16,
+                                        ),
+                                        maxLines: 1,
+                                        softWrap: false,
+                                        overflow: TextOverflow.ellipsis,
+                                      );
+                                    } else {
+                                      return Text(
+                                        "UnKnown",
+                                        style: TextStyle(
+                                          color:
+                                              ExtraTheme.of(context).infoChat,
+                                          fontSize: 16,
+                                        ),
+                                        maxLines: 1,
+                                        softWrap: false,
+                                        overflow: TextOverflow.ellipsis,
+                                      );
+                                    }
+                                  },
+                                );
+                                ;
+                              }
+                            })),
+                    Row(
+                      children: <Widget>[
+                        messageType == "send"
+                            ? SeenStatus(roomWithMessage.lastMessage)
+                            : Container(),
+                        Padding(
+                            padding: const EdgeInsets.only(
+                              top: 3.0,
+                            ),
+                            child: LastMessage(
+                                message: roomWithMessage.lastMessage)),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),)
-          ),
+              )),
           Expanded(
             flex: 10,
             child: Column(

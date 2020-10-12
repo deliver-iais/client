@@ -164,7 +164,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                                   in _createMucService.members) {
                                 users.add(contact.uid.uid);
                               }
-                              bool usersAdd = await _mucRepo.addMember(
+                              bool usersAdd = await _mucRepo.sendMembers(
                                   widget.mucUid, users);
                               if (usersAdd) {
                                 _routingService.pop();

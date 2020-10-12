@@ -35,40 +35,46 @@ class CoreServices {
   var _roomDao = GetIt.I.get<RoomDao>();
   PendingMessageDao _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
 
-  CoreServices() {}
 
   setCoreSetting() async {
-    ResponseStream<ServerPacket> responseStream = coreService.establishStream(
-        _clientPacket.stream,
-        options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-    responseStream.listen((serverPacket) {
-      switch (serverPacket.whichType()) {
-        case ServerPacket_Type.message:
-          print("messageweeeeeeeeeeeeeeeeeeee");
-          _saveIncomingMessage(serverPacket.message);
-          break;
-        case ServerPacket_Type.error:
-          print("errrrrrrrrrrrrrrrrrror");
-          break;
-        case ServerPacket_Type.seen:
-          _saveSeenMessage(serverPacket.seen);
+    try{
+      ResponseStream<ServerPacket> responseStream = coreService.establishStream(
+          _clientPacket.stream,
+          options: CallOptions(
+              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      responseStream.listen((serverPacket) {
+        print("messageweeeeee");
+        switch (serverPacket.whichType()) {
+          case ServerPacket_Type.message:
 
-          break;
-        case ServerPacket_Type.activity:
-          _saveActivityMessage(serverPacket.activity);
-          break;
-        case ServerPacket_Type.pollStatusChanged:
-          break;
-        case ServerPacket_Type.liveLocationStatusChanged:
-          break;
-        case ServerPacket_Type.notSet:
-          break;
-        case ServerPacket_Type.pong:
-          savePingMessage(serverPacket.pong);
-          break;
-      }
-    });
+            _saveIncomingMessage(serverPacket.message);
+            break;
+          case ServerPacket_Type.error:
+            print("errrrrrrrrrrrrrrrrrror");
+            break;
+          case ServerPacket_Type.seen:
+            _saveSeenMessage(serverPacket.seen);
+
+            break;
+          case ServerPacket_Type.activity:
+            _saveActivityMessage(serverPacket.activity);
+            break;
+          case ServerPacket_Type.pollStatusChanged:
+            break;
+          case ServerPacket_Type.liveLocationStatusChanged:
+            break;
+          case ServerPacket_Type.notSet:
+            break;
+          case ServerPacket_Type.pong:
+            print("ffffffff");
+            savePingMessage(serverPacket.pong);
+            break;
+        }
+      });
+    }catch(e){
+      print("correservice error");
+    }
+
   }
 
   _saveIncomingMessage(Message message) {
@@ -97,11 +103,11 @@ class CoreServices {
 
   sendPingMessage() {
 
-    _clientPacket.add(ClientPacket()..ping = Ping() );
+    _clientPacket.add(ClientPacket()..ping = Ping()..id = DateTime.now().microsecondsSinceEpoch.toString());
   }
 
   sendSeenMessage(SeenByClient seen) {
-    _clientPacket.add(ClientPacket()..seen = seen..id = DateTime.now().microsecondsSinceEpoch.toString());
+    _clientPacket.add(ClientPacket()..seen = seen..id = seen.id.toString());
   }
 
   sendActivityMessage(ActivityByClient activity) {

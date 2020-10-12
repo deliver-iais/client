@@ -65,7 +65,7 @@ class SettingsPage extends StatelessWidget {
       path = result.path;
     }
     if (path != null) {
-      await _avatarRepo.uploadAvatar(File(path));
+      await _avatarRepo.uploadAvatar(File(path),_accountRepo.currentUserUid);
     }
   }
 

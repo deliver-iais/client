@@ -397,7 +397,7 @@ Widget _contactResultWidget(
             width: 20,
           ),
           Text(
-            "$firstName\t$lastName" ?? username,
+            "$firstName $lastName" ?? username,
             style: TextStyle(fontSize: 19),
           ),
         ],

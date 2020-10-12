@@ -135,11 +135,12 @@ class AvatarRepo {
     });
   }
 
-  Future<Avatar> uploadAvatar(File file) async {
+  Future<Avatar> uploadAvatar(File file,Uid uid) async {
     FileInfo fileInfo = await _fileRepo.uploadFile(file);
+    print('rrrrrrr');
     if (fileInfo != null) {
       int avatarUuid = DateTime.now().millisecondsSinceEpoch;
-      _setAvatarAtServer(fileInfo, avatarUuid);
+      _setAvatarAtServer(fileInfo, avatarUuid,uid);
       Avatar avatar = Avatar(
           uid: _accountRepo.currentUserUid.getString(),
           createdOn: DateTime.fromMillisecondsSinceEpoch(avatarUuid),
@@ -165,11 +166,11 @@ class AvatarRepo {
   }
 
 
-  _setAvatarAtServer(FileInfo fileInfo, int createOn) async {
+  _setAvatarAtServer(FileInfo fileInfo, int createOn,Uid uid) async {
     var avatar = AvatarObject.Avatar()
       ..createdOn =  Int64.parseInt(createOn.toString())
-      ..category = _accountRepo.currentUserUid.category
-      ..node = _accountRepo.currentUserUid.node
+      ..category = uid.category
+      ..node = uid.node
       ..fileUuid = fileInfo.uuid;
     var addAvatarReq = AddAvatarReq()..avatar = avatar;
     // TODO add try catch for exceptions

@@ -48,11 +48,11 @@ class _BoxContentState extends State<BoxContent> {
                   future: _roomRepo.getRoomDisplayName(widget.message.from.uid),
                   builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                     if(snapshot.hasData  && snapshot.data!=null){
-                      return Text("${_appLocalization.getTraslateValue("Forwarded_From")} \t ${snapshot.data}",
+                      return Text("${_appLocalization.getTraslateValue("Forwarded_From")} ${snapshot.data}",
                           style:
                           TextStyle(color: ExtraTheme.of(context).secondColor));
                     }else{
-                      return Text("${_appLocalization.getTraslateValue("Forwarded_From")} \t Unknown",
+                      return Text("${_appLocalization.getTraslateValue("Forwarded_From")}  Unknown",
                           style:
                           TextStyle(color: ExtraTheme.of(context).secondColor)); ;
                     }

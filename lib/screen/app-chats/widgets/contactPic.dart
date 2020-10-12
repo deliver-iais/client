@@ -1,5 +1,4 @@
 import 'package:deliver_flutter/shared/circleAvatar.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,7 +14,7 @@ class ContactPic extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        CircleAvatarWidget(this.uid , 18),
+        CircleAvatarWidget(this.uid , 30),
         Positioned(
           child: Container(
             width: 12.0,
@@ -31,8 +30,8 @@ class ContactPic extends StatelessWidget {
               ),
             ),
           ),
-          top: 35.0,
-          right: 0.0,
+          top: 25.0,
+          right: 10.0,
         ),
       ],
     );

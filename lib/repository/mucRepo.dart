@@ -32,8 +32,8 @@ class MucRepo {
   Future<Uid> makeNewGroup(List<Uid> memberUids, String groupName) async {
     Uid groupUid = await mucServices.createNewGroup(groupName);
     if (groupUid != null) {
-      addMember(groupUid, memberUids);
-      _insetTodb(groupUid, groupName, memberUids);
+      sendMembers(groupUid, memberUids);
+      _insetTodb(groupUid, groupName, memberUids.length+1);
       return groupUid;
     }
     return null;
@@ -45,8 +45,8 @@ class MucRepo {
         await mucServices.createNewChannel(channelName, channelType, channelId);
 
     if (channelUid != null) {
-      addMember(channelUid, memberUids);
-      _insetTodb(channelUid, channelName, memberUids);
+      sendMembers(channelUid, memberUids);
+      _insetTodb(channelUid, channelName, memberUids.length+1);
       return channelUid;
     }
     return null;
@@ -58,7 +58,7 @@ class MucRepo {
     for (Muc.Member member in result) {
       members.add(Member(
           memberUid: member.memberUid.string,
-          mucUid: member.memberUid.string,
+          mucUid: groupUid.string,
           role: getLocalRole(member.role)));
     }
     insertUserInDb(groupUid, members);
@@ -70,7 +70,7 @@ class MucRepo {
     for (Muc.Member member in result) {
       members.add(Member(
           memberUid: member.memberUid.string,
-          mucUid: member.memberUid.string,
+          mucUid: channelUid.string,
           role: getLocalRole(member.role)));
     }
     insertUserInDb(channelUid, members);
@@ -233,11 +233,11 @@ class MucRepo {
     var result = await mucServices.modifyGroup(Muc.Group());
   }
 
-  _insetTodb(Uid mucUid, String mucName, List<Uid> memberUids) async {
+  _insetTodb(Uid mucUid, String mucName, int memberCount) async {
     await _mucDao.insertGroup(Group(
-        uid: mucUid.string, name: mucName, members: memberUids.length + 1));
-    roomRepo.updateRoomName(mucUid.string, mucName);
-    Room room = Room(roomId: mucUid.string, lastMessage: null);
+        uid: mucUid.string, name: mucName, members: memberCount));
+    roomRepo.updateRoomName(mucUid, mucName);
+    Room room = Room(roomId: mucUid.string, lastMessage: null,mute: false);
     await _roomDao.insertRoom(room);
     sendFirstMessage(mucUid, room);
   }
@@ -250,12 +250,12 @@ class MucRepo {
         from: _accountRepo.currentUserUid.string,
         to: groupUid.string,
         type: MessageType.PERSISTENT_EVENT,
-        json: jsonEncode({"text": "You created the group"}));
+        json:groupUid.category == Categories.GROUP ? jsonEncode({"text": "You created the group"}):jsonEncode({"text": "You created the channel"}));
     messageDao.insertMessage(message);
     await _roomDao.updateRoom(room.copyWith(lastMessage: message.packetId));
   }
 
-  Future<bool> addMember(Uid mucUid, List<Uid> memberUids) async {
+  Future<bool> sendMembers(Uid mucUid, List<Uid> memberUids) async {
     try {
       bool usersAdd = false;
       List<Muc.Member> members = new List();
@@ -273,16 +273,11 @@ class MucRepo {
       }
 
       if (usersAdd) {
-
         if (mucUid.category == Categories.GROUP) {
           getGroupMembers(mucUid);
         } else {
           getChannelMembers(mucUid);
         }
-
-
-
-
         return true;
       }
       return false;
@@ -291,9 +286,9 @@ class MucRepo {
     }
   }
 
-  insertUserInDb(Uid mucUid, List<Member> members) async {
+  insertUserInDb(Uid mucUid, List<Member> members)  {
     for (Member member in members) {
-      await _memberDao.insertMember(member);
+      _memberDao.insertMember(member);
     }
   }
 
