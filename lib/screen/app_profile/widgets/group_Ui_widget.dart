@@ -1,7 +1,10 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/db/dao/RoomDao.dart';
+import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/role.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -12,8 +15,8 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class GroupUiWidget extends StatefulWidget {
-
   Uid mucUid;
+
   GroupUiWidget({this.mucUid});
 
   @override
@@ -21,15 +24,13 @@ class GroupUiWidget extends StatefulWidget {
 }
 
 class _GroupUiWidgetState extends State<GroupUiWidget> {
-
-
   var _memberRepo = GetIt.I.get<MemberRepo>();
   bool notification = true;
   Uid mucUid;
   AppLocalization appLocalization;
-  var _mucRepo = GetIt.I.get<MucRepo>();
-  var _routingService = GetIt.I.get<RoutingService>();
 
+  var _routingService = GetIt.I.get<RoutingService>();
+  var _roomDao = GetIt.I.get<RoomDao>();
 
   @override
   void initState() {
@@ -85,15 +86,27 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
                     ],
                   ),
                 ),
-                Switch(
-                  activeColor: ExtraTheme.of(context).blueOfProfilePage,
-                  value: notification,
-                  onChanged: (newNotifState) {
-                    setState(() {
-                      notification = newNotifState;
-                    });
+                StreamBuilder<Room>(
+                  stream: _roomDao.getByRoomId(widget.mucUid.string),
+                  builder:
+                      (BuildContext context, AsyncSnapshot<Room> snapshot) {
+                    if (snapshot.data != null) {
+                      return Switch(
+                        activeColor: ExtraTheme.of(context).blueOfProfilePage,
+                        value: !snapshot.data.mute,
+                        onChanged: (newNotifState) {
+                          setState(() {
+                            _roomDao.insertRoom(Room(
+                                roomId: snapshot.data.roomId,
+                                mute: !newNotifState));
+                          });
+                        },
+                      );
+                    } else {
+                      return SizedBox.shrink();
+                    }
                   },
-                )
+                ),
               ])),
       SizedBox(
         height: 15,
@@ -106,7 +119,6 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
               IconButton(
                 icon: Icon(Icons.person_add),
                 disabledColor: Colors.blue,
-
               ),
               SizedBox(
                 width: 10,
@@ -119,7 +131,8 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
           ),
         ),
         onTap: () {
-          _routingService.openMemberSelection(isChannel: true,mucUid:this.mucUid);
+          _routingService.openMemberSelection(
+              isChannel: true, mucUid: this.mucUid);
         },
       ),
     ]));

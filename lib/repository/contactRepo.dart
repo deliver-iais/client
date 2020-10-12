@@ -159,6 +159,7 @@ class ContactRepo {
         phoneNumber: contact.phoneNumber.nationalNumber.toString(),
         firstName: contact.firstName,
         lastName: contact.lastName,
+        username: contact.username,
         isMute: true,
         isBlock: false,
       ));
@@ -209,5 +210,10 @@ class ContactRepo {
         options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
     return result.userList;
+  }
+
+  Future<myContact.Contact>getContact(Uid userUid) async {
+     myContact.Contact contact = await _contactDao.getContactByUid(userUid.string);
+     return contact;
   }
 }

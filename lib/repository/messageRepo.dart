@@ -42,7 +42,7 @@ class MessageRepo {
       roomId: roomId.string,
       packetId: packetId,
       time: DateTime.now(),
-      from: _accountRepo.currentUserUid.string,
+      from:_accountRepo.currentUserUid.string,
       to: roomId.string,
       edited: false,
       encrypted: false,
@@ -208,7 +208,7 @@ class MessageRepo {
     File file = File()
       ..name = fileInfo.name
       ..uuid = fileInfo.uuid
-      ..caption = "dddd";// todo caption
+      ..caption =  jsonDecode(message.json)["caption"];
 
     clientMessage.MessageByClient messageByClient =
         clientMessage.MessageByClient()
@@ -228,6 +228,9 @@ class MessageRepo {
         messageId: pendingMessage.messageId,
         time: DateTime.now(),
         remainingRetries: pendingMessage.remainingRetries- 1));
+  }
+  deleteMessage(List<Message> messages){
+
   }
 
   String _getPacketId() {

@@ -46,6 +46,7 @@ class MucServices {
       await groupServices.addMembers(addMemberRequest,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
+
       return true;
     } catch (e) {
       return false;
@@ -80,6 +81,7 @@ class MucServices {
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
+
       return false;
     }
   }
@@ -172,6 +174,7 @@ class MucServices {
           ..id = channelId,
         options: CallOptions(
             metadata: {'accessToken': await accountRepo.getAccessToken()}));
+    print("ccccccc"+request.uid.toString());
     return request.uid;
   }
 
@@ -185,6 +188,7 @@ class MucServices {
       await channelServices.addMembers(addMemberRequest,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
+      print("ggggggggggggggggggggggggggg");
       return true;
     } catch (e) {
       return false;

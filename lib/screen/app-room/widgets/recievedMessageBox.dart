@@ -12,7 +12,7 @@ class RecievedMessageBox extends StatelessWidget {
   final double maxWidth;
   final bool isGroup;
 
-  const RecievedMessageBox({Key key, this.message, this.maxWidth,this.isGroup})
+  const RecievedMessageBox({Key key, this.message, this.maxWidth, this.isGroup})
       : super(key: key);
 
   @override
@@ -24,25 +24,16 @@ class RecievedMessageBox extends StatelessWidget {
           if (snapshot.hasData && snapshot.data.messageId < message.id) {
             seenDao.updateSeen(snapshot.data.copyWith(messageId: message.id));
           }
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0,left: 5.0,right: 3.0),
-                child: CircleAvatarWidget(message.from.uid,18),
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+              child: Container(
+                color: ExtraTheme.of(context).secondColor,
+                padding: const EdgeInsets.all(2),
+                child: BoxContent(message: message, maxWidth: maxWidth),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(5)),
-                  child: Container(
-                    color: ExtraTheme.of(context).secondColor,
-                    padding: const EdgeInsets.all(2),
-                    child: BoxContent(message: message, maxWidth: maxWidth),
-                  ),
-                ),
-              )
-            ],
+            ),
           );
         });
   }

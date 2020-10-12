@@ -1,7 +1,11 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/memberType.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
+import 'package:deliver_flutter/repository/memberRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -14,6 +18,7 @@ import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +28,6 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class ProfilePage extends StatefulWidget {
   Uid userUid;
-  bool isOnline = true;
 
   ProfilePage(this.userUid, {Key key}) : super(key: key);
 
@@ -32,13 +36,13 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  bool notification = true;
   var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  List<String> mediaUrls = [];
-  var memberLength;
-  var _routingService = GetIt.I.get<RoutingService>();
+  List<String> _mediaUrls = [];
 
-  var accountRepo = GetIt.I.get<AccountRepo>();
+  var _routingService = GetIt.I.get<RoutingService>();
+  var _roomDao = GetIt.I.get<RoomDao>();
+  var _contactRepo = GetIt.I.get<ContactRepo>();
+  var _memberRepo = GetIt.I.get<MemberRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -50,11 +54,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 headerSliverBuilder:
                     (BuildContext context, bool innerBoxIsScrolled) {
                   return <Widget>[
-                    ProfileAvatar(
+                        ProfileAvatar(
                       innerBoxIsScrolled: innerBoxIsScrolled,
                       userUid: widget.userUid,
-                      settingProfile: false,
-                    ),
+                      ),
                     widget.userUid.category == Categories.USER
                         ? SliverList(
                             delegate: SliverChildListDelegate([
@@ -80,17 +83,33 @@ class _ProfilePageState extends State<ProfilePage> {
                                         ),
                                       ),
                                       SizedBox(height: 10),
-                                      Padding(
-                                        padding:
-                                            EdgeInsets.fromLTRB(20, 0, 0, 0),
-                                        child: Text(
-                                          appLocalization
-                                              .getTraslateValue("Description"),
-                                          style: TextStyle(
-                                            fontSize: 20.0,
-                                          ),
-                                        ),
-                                      )
+                                      FutureBuilder<Contact>(
+                                        future: _contactRepo
+                                            .getContact(widget.userUid),
+                                        builder: (BuildContext context,
+                                            AsyncSnapshot<Contact> snapshot) {
+                                          if (snapshot.data != null) {
+                                            return _showUsername(
+                                                snapshot.data.username);
+                                          } else {
+                                            return FutureBuilder<UserAsContact>(
+                                              future:
+                                                  _contactRepo.searchUserByUid(
+                                                      widget.userUid),
+                                              builder: (BuildContext context,
+                                                  AsyncSnapshot<UserAsContact>
+                                                      snapshot) {
+                                                if (snapshot.data != null) {
+                                                  return _showUsername(
+                                                      snapshot.data.username);
+                                                } else {
+                                                  return SizedBox.shrink();
+                                                }
+                                              },
+                                            );
+                                          }
+                                        },
+                                      ),
                                     ]),
                                 // )
                               ),
@@ -154,14 +173,29 @@ class _ProfilePageState extends State<ProfilePage> {
                                           ],
                                         ),
                                       ),
-                                      Switch(
-                                        activeColor: ExtraTheme.of(context)
-                                            .blueOfProfilePage,
-                                        value: notification,
-                                        onChanged: (newNotifState) {
-                                          setState(() {
-                                            notification = newNotifState;
-                                          });
+                                      StreamBuilder<Room>(
+                                        stream: _roomDao
+                                            .getByRoomId(widget.userUid.string),
+                                        builder: (BuildContext context,
+                                            AsyncSnapshot<Room> snapshot) {
+                                          if (snapshot.data != null) {
+                                            return Switch(
+                                              activeColor:
+                                                  ExtraTheme.of(context)
+                                                      .blueOfProfilePage,
+                                              value: !snapshot.data.mute,
+                                              onChanged: (newNotifState) {
+                                                setState(() {
+                                                  _roomDao.insertRoom(Room(
+                                                      roomId:
+                                                          widget.userUid.string,
+                                                      mute: !newNotifState));
+                                                });
+                                              },
+                                            );
+                                          } else {
+                                            return SizedBox.shrink();
+                                          }
                                         },
                                       )
                                     ])),
@@ -176,71 +210,103 @@ class _ProfilePageState extends State<ProfilePage> {
                                 height: 60,
                                 padding: const EdgeInsetsDirectional.only(
                                     start: 7, end: 15),
-                                child: Row(children: <Widget>[
-                                  IconButton(
-                                    icon: Icon(Icons.phone),
-                                    onPressed: () {},
-                                  ),
-                                  Text(appLocalization
-                                      .getTraslateValue("phone")),
-                                  kDebugMode
-                                      ? IconButton(
-                                          icon: Icon(Icons.add),
-                                          onPressed: () {
-                                            DateFormat dateFormat =
-                                                DateFormat("yyyy-MM-dd HH:mm");
-                                            DateTime sendTime = DateTime.now();
-                                            String time =
-                                                dateFormat.format(sendTime);
-                                            _mediaQueryRepo.insertMediaQueryInfo(
-                                                1,
-                                                "https://picsum.photos/250?image=9",
-                                                "parinaz",
-                                                "laptop",
-                                                "image",
-                                                time,
-                                                "p.asghari",
-                                                "laptop");
-                                            _mediaQueryRepo.insertMediaQueryInfo(
-                                                2,
-                                                "https://picsum.photos/seed/picsum/200/300",
-                                                "parinaz",
-                                                "sky",
-                                                "image",
-                                                time,
-                                                "p.asghari",
-                                                "skyy");
-                                            _mediaQueryRepo.insertMediaQueryInfo(
-                                                3,
-                                                "https://picsum.photos/seed/picsum/200/300",
-                                                "parinaz",
-                                                "sky1",
-                                                "image",
-                                                time,
-                                                "p.asghari",
-                                                "skyy1");
-                                            _mediaQueryRepo.insertMediaQueryInfo(
-                                                14,
-                                                "https://picsum.photos/seed/picsum/200/300",
-                                                "parinaz",
-                                                "sky1",
-                                                "image",
-                                                time,
-                                                "p.asghari",
-                                                "skyy1");
-                                            _mediaQueryRepo.insertMediaQueryInfo(
-                                                19,
-                                                "https://picsum.photos/seed/picsum/200/300",
-                                                "parinaz",
-                                                "sky1",
-                                                "image",
-                                                time,
-                                                "p.asghari",
-                                                "skyy1");
-                                          },
-                                        )
-                                      : SizedBox.shrink(),
-                                ])),
+                                child: FutureBuilder<Contact>(
+                                  future:
+                                      _contactRepo.getContact(widget.userUid),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<Contact> snapshot) {
+                                    if (snapshot.data != null) {
+                                      return Stack(children: <Widget>[
+                                        Row(
+                                          children: [
+                                            IconButton(
+                                              icon: Icon(Icons.phone),
+                                              onPressed: () {},
+                                            ),
+                                            Text(appLocalization
+                                                .getTraslateValue("phone")),
+                                          ],
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(top: 20),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Text(snapshot.data.phoneNumber),
+                                            ],
+                                          ),
+                                        ),
+//                                        kDebugMode
+//                                            ? IconButton(
+//                                                icon: Icon(Icons.add),
+//                                                onPressed: () {
+//                                                  DateFormat dateFormat =
+//                                                      DateFormat(
+//                                                          "yyyy-MM-dd HH:mm");
+//                                                  DateTime sendTime =
+//                                                      DateTime.now();
+//                                                  String time = dateFormat
+//                                                      .format(sendTime);
+//                                                  _mediaQueryRepo
+//                                                      .insertMediaQueryInfo(
+//                                                          1,
+//                                                          "https://picsum.photos/250?image=9",
+//                                                          "parinaz",
+//                                                          "laptop",
+//                                                          "image",
+//                                                          time,
+//                                                          "p.asghari",
+//                                                          "laptop");
+//                                                  _mediaQueryRepo
+//                                                      .insertMediaQueryInfo(
+//                                                          2,
+//                                                          "https://picsum.photos/seed/picsum/200/300",
+//                                                          "parinaz",
+//                                                          "sky",
+//                                                          "image",
+//                                                          time,
+//                                                          "p.asghari",
+//                                                          "skyy");
+//                                                  _mediaQueryRepo
+//                                                      .insertMediaQueryInfo(
+//                                                          3,
+//                                                          "https://picsum.photos/seed/picsum/200/300",
+//                                                          "parinaz",
+//                                                          "sky1",
+//                                                          "image",
+//                                                          time,
+//                                                          "p.asghari",
+//                                                          "skyy1");
+//                                                  _mediaQueryRepo
+//                                                      .insertMediaQueryInfo(
+//                                                          14,
+//                                                          "https://picsum.photos/seed/picsum/200/300",
+//                                                          "parinaz",
+//                                                          "sky1",
+//                                                          "image",
+//                                                          time,
+//                                                          "p.asghari",
+//                                                          "skyy1");
+//                                                  _mediaQueryRepo
+//                                                      .insertMediaQueryInfo(
+//                                                          19,
+//                                                          "https://picsum.photos/seed/picsum/200/300",
+//                                                          "parinaz",
+//                                                          "sky1",
+//                                                          "image",
+//                                                          time,
+//                                                          "p.asghari",
+//                                                          "skyy1");
+//                                                },
+//                                              )
+//                                            : SizedBox.shrink(),
+                                      ]);
+                                    } else {
+                                      return SizedBox.shrink();
+                                    }
+                                  },
+                                )),
                             SizedBox(
                               height: 40,
                             )
@@ -286,7 +352,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       AsyncSnapshot<List<Media>> snapshot) {
                     if (snapshot.hasData && snapshot.data.length != null) {
                       for (int i = 0; i < snapshot.data.length; i++) {
-                        mediaUrls.add(snapshot.data[i].mediaUrl);
+                        _mediaUrls.add(snapshot.data[i].mediaUrl);
                       }
                       return Container(
                           child: TabBarView(children: [
@@ -337,7 +403,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   mediaListLenght: medias.length,
                   mediaPosition: position,
                   heroTag: "btn$position",
-                  mediaList: mediaUrls,
+                  mediaList: _mediaUrls,
                   mediaSender: medias[position].mediaSender,
                   mediaTime: medias[position].time,
                 );
@@ -361,6 +427,19 @@ class _ProfilePageState extends State<ProfilePage> {
                 )),
           );
         });
+  }
+
+  Widget _showUsername(String username) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+      child: Text(
+        username!=null?"@$username":'',
+        style: TextStyle(
+          fontSize: 18.0,
+          color: Colors.blue
+        ),
+      ),
+    );
   }
 }
 

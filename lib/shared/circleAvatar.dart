@@ -82,36 +82,40 @@ class CircleAvatarWidget extends StatelessWidget {
               ).image,
             );
           } else {
-            return showDisPlayName();
+            return showDisplayName();
           }
         },
       );
     } else {
-      return showDisPlayName();
+      return showDisplayName();
     }
   }
 
-  Widget showDisPlayName() {
+  Widget showDisplayName() {
     return contactUid != _accountRepo.currentUserUid
         ? FutureBuilder<String>(
             future: _roomRepo.getRoomDisplayName(contactUid),
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
               if (snapshot.data != null) {
                 String name = snapshot.data.replaceAll(' ', '');
-                return Text(name.substring(0, 2),
-                    style: TextStyle(
-                        color: Colors.white, fontSize: radius, height: 2));
+                return Center(
+                  child: Text(name.length>2?name.substring(0, 2):name,
+                      style: TextStyle(
+                          color: Colors.white, fontSize:18, height: 2)),
+                );
               } else {
                 return FutureBuilder<UserAsContact>(
                   future: _contactRepo.searchUserByUid(contactUid),
                   builder: (BuildContext context,
                       AsyncSnapshot<UserAsContact> snapshot) {
                     if (snapshot.data != null) {
-                      return Text(snapshot.data.username.substring(0, 2),
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: radius,
-                              height: 2));
+                      return Center(
+                        child: Text(snapshot.data.username.substring(0, 2),
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: radius,
+                                height: 2)),
+                      );
                     } else {
                       return Icon(
                         Icons.person,
@@ -128,7 +132,7 @@ class CircleAvatarWidget extends StatelessWidget {
             future: _accountRepo.getAccount(),
             builder: (BuildContext context, AsyncSnapshot<Account> snapshot) {
               if (snapshot.data != null) {
-                return Text(snapshot.data.firstName.substring(0, 2),
+                return Text(snapshot.data.firstName!= null?snapshot.data.firstName.substring(0, 2):"",
                     style: TextStyle(
                         color: Colors.white, fontSize: radius, height: 2));
               } else {

@@ -4,6 +4,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/contactPic.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -24,14 +25,15 @@ class ChatItemToForward extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
       child: Container(
-          height: 40,
+          height: 50,
           child: Expanded(
             child: Row(
               children: <Widget>[
                 SizedBox(
                   width: 12,
                 ),
-                ContactPic(true, uid),
+                CircleAvatarWidget(this.uid , 30),
+               // ContactPic(true, uid),
                 SizedBox(
                   width: 12,
                 ),

@@ -27,6 +27,7 @@ class MucAppbarTitle extends StatelessWidget {
         child: GestureDetector(child: Row(
           children: [
             CircleAvatarWidget(mucUid.uid, 23),
+            SizedBox(width: 20,),
             StreamBuilder<Group>(
                 stream: groupDao.getByUid(mucUid),
                 builder: (context, snapshot) {
@@ -39,6 +40,7 @@ class MucAppbarTitle extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
+
                         Text(
                           '${snapshot.data.members} ' +
                               appLocalization.getTraslateValue("members"),

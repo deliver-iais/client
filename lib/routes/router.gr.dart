@@ -17,11 +17,11 @@ import '../screen/app-room/pages/roomPage.dart';
 import '../screen/app-room/widgets/showImage_Widget.dart';
 import '../screen/app_profile/pages/media_details_page.dart';
 import '../screen/home/pages/home_page.dart';
-import '../screen/inputSharedFile/shareInComigFile.dart';
 import '../screen/intro/pages/intro_page.dart';
 import '../screen/register/pages/login_page.dart';
 import '../screen/register/pages/verification_page.dart';
 import '../screen/settings/account_settings.dart';
+import '../screen/share_input_file/share_input_file.dart';
 import '../screen/splash/pages/splash_screen.dart';
 
 class Routes {

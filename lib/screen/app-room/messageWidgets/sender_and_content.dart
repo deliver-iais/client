@@ -21,8 +21,8 @@ class SenderAndContent extends StatelessWidget {
   String generateTitle() {
     List<String> names = List<String>();
     for (var i = 0; i < messages.length; i++) {
-      if (!names.contains(messages[i].from.substring(0, 3)))
-        names.add(messages[i].from.substring(0, 3));
+      if (!names.contains(messages[i].from.length>3?messages[i].from.substring(0, 3):messages[i].from))
+        names.add(messages[i].from.length>3?messages[i].from.substring(0, 3):messages[i].from);
     }
     String title = names[0];
     for (var i = 1; i < names.length; i++) {

@@ -1,6 +1,8 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/models/role.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
@@ -29,28 +31,19 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   AppLocalization _appLocalization;
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
-  bool mucOwner = true;
+
+  var _accountRepo = GetIt.I.get<AccountRepo>();
   static const String CHANGE_ROLE = "changeRole";
   static const String DELETE = "delete";
   static const String BAN = "ban";
-  String _dispyName;
+  MucRole _myRoleInThisRoom ;
 
   @override
   void initState() {
-    checkMucOwner();
     _mucUid = widget.mucUid;
     _mucUid.category == Categories.GROUP
         ? _mucRepo.getGroupMembers(_mucUid)
         : _mucRepo.getChannelMembers(_mucUid);
-  }
-
-  checkMucOwner() async {
-    var result = await _memberRepo.isOwner(widget.mucUid);
-    if (result) {
-      setState(() {
-        mucOwner = true;
-      });
-    }
   }
 
   @override
@@ -63,6 +56,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
           if (snapshot.hasData &&
               snapshot.data != null &&
               snapshot.data.length > 0) {
+            obtainMyRole(snapshot.data);
             List<Widget> widgets = [];
             snapshot.data.forEach((member) {
               widgets.add(Padding(
@@ -83,12 +77,32 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                             builder: (BuildContext context,
                                 AsyncSnapshot<String> name) {
                               if (name.data != null) {
+
                                 return Text(
                                   name.data,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     fontSize: 16,
                                   ),
+                                );
+                              } else if (member.memberUid.contains(
+                                  _accountRepo.currentUserUid.string)) {
+                                return FutureBuilder<Account>(
+                                  future: _accountRepo.getAccount(),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<Account> snapshot) {
+                                    if (snapshot.data != null) {
+                                      return Text(
+                                        "${snapshot.data.firstName} ${snapshot.data.lastName ?? ""}",
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                        ),
+                                      );
+                                    } else {
+                                      return SizedBox.shrink();
+                                    }
+                                  },
                                 );
                               } else {
                                 return FutureBuilder<UserAsContact>(
@@ -123,38 +137,47 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                       Row(
                         children: [
                           showMemberRole(member),
-                          mucOwner
-                              ? PopupMenuButton(
-                                  icon: Icon(
-                                    Icons.more_vert,
-                                    size: 18,
-                                  ),
-                                  itemBuilder: (_) => <PopupMenuItem<String>>[
-                                    new PopupMenuItem<String>(
-                                        child: member.role == MucRole.MEMBER
-                                            ? Text(_appLocalization
-                                                .getTraslateValue(
-                                                    "change_role_to_admin"))
-                                            : Text(_appLocalization
-                                                .getTraslateValue(
-                                                    "change_role_to_member")),
-                                        value: CHANGE_ROLE),
-                                    new PopupMenuItem<String>(
-                                        child: Text(_appLocalization
-                                            .getTraslateValue("kick")),
-                                        value: DELETE),
-                                    new PopupMenuItem<String>(
-                                        child: Text(_appLocalization
-                                            .getTraslateValue("ban")),
-                                        value: BAN),
-                                  ],
-                                  onSelected: (key) {
-                                    onSelected(key, member);
-                                  },
+                          member.memberUid
+                                  .contains(_accountRepo.currentUserUid.string)
+                              ? SizedBox(
+                                  width: 50,
                                 )
-                              : SizedBox(
-                                  width: 10,
-                                )
+                              : _myRoleInThisRoom == MucRole.ADMIN ||
+                                      _myRoleInThisRoom == MucRole.OWNER
+                                  ? PopupMenuButton(
+                                      icon: Icon(
+                                        Icons.more_vert,
+                                        size: 18,
+                                      ),
+                                      itemBuilder: (_) =>
+                                          <PopupMenuItem<String>>[
+                                        if (_myRoleInThisRoom == MucRole.OWNER)
+                                          new PopupMenuItem<String>(
+                                              child: member.role ==
+                                                      MucRole.MEMBER
+                                                  ? Text(_appLocalization
+                                                      .getTraslateValue(
+                                                          "change_role_to_admin"))
+                                                  : Text(_appLocalization
+                                                      .getTraslateValue(
+                                                          "change_role_to_member")),
+                                              value: CHANGE_ROLE),
+                                        new PopupMenuItem<String>(
+                                            child: Text(_appLocalization
+                                                .getTraslateValue("kick")),
+                                            value: DELETE),
+                                        new PopupMenuItem<String>(
+                                            child: Text(_appLocalization
+                                                .getTraslateValue("ban")),
+                                            value: BAN),
+                                      ],
+                                      onSelected: (key) {
+                                        onSelected(key, member);
+                                      },
+                                    )
+                                  : SizedBox(
+                                      width: 50,
+                                    )
                         ],
                       )
                     ]),
@@ -221,6 +244,14 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
             ? _mucRepo.banGroupMember(member)
             : _mucRepo.banChannelMember(member);
         break;
+    }
+  }
+
+  obtainMyRole(List<Member> members) {
+    for (Member member in members) {
+      if (member.memberUid.contains(_accountRepo.currentUserUid.string)) {
+          _myRoleInThisRoom = member.role;
+      }
     }
   }
 }
