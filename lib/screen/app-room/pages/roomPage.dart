@@ -1,4 +1,3 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
@@ -9,7 +8,6 @@ import 'package:deliver_flutter/models/operation_on_message.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/forward_widget.dart';
@@ -219,13 +217,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                         onTapDown: storePosition,
                                         child: SingleChildScrollView(
                                           child: Container(
-                                            color: _selectedMessages.containsKey(
-                                                    currentRoomMessages[index]
-                                                        .packetId)
-                                                ? Theme.of(context)
-                                                    .disabledColor
-                                                : Theme.of(context)
-                                                    .backgroundColor,
+                                            color:
+                                                _selectedMessages.containsKey(
+                                                        currentRoomMessages[
+                                                                index]
+                                                            .packetId)
+                                                    ? Theme.of(context)
+                                                        .disabledColor
+                                                    : Theme.of(context)
+                                                        .backgroundColor,
                                             child: Stack(
                                               alignment: AlignmentDirectional
                                                   .bottomStart,
@@ -414,8 +414,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   _addForwardMessage(Message message) {
     setState(() {
-
-
       _selectedMessages.containsKey(message.packetId)
           ? _selectedMessages.remove(message.packetId)
           : _selectedMessages[message.packetId] = message;
@@ -486,8 +484,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     Icons.delete,
                     size: 30,
                   ),
-                  onPressed:(){
-                    _messageRepo.deleteMessage(_selectedMessages.values.toList());
+                  onPressed: () {
+                    _messageRepo
+                        .deleteMessage(_selectedMessages.values.toList());
                   }),
               IconButton(
                   icon: Icon(
@@ -497,7 +496,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   onPressed: () {
                     ExtendedNavigator.root.push(Routes.selectionToForwardPage,
                         arguments: SelectionToForwardPageArguments(
-                            forwardedMessages: _selectedMessages.values.toList()));
+                            forwardedMessages:
+                                _selectedMessages.values.toList()));
                     _selectedMessages.clear();
                   })
             ],
@@ -518,4 +518,3 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     }
   }
 }
-

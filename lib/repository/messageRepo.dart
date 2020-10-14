@@ -67,21 +67,23 @@ class MessageRepo {
       var getAllUserRoomMetaRes = await _queryServiceClient.getAllUserRoomMeta(
           GetAllUserRoomMetaReq(),
           options: CallOptions(
-              metadata: {'accessToken': await accountRepo.getAccessToken()}));
+              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
-        Room room = await _roomDao.getByRoomId(userRoomMeta.uid.string).single;
-        if (room.lastMessage != userRoomMeta.lastMessageId.toInt()) {
+        Room room =
+            await _roomDao.getByRoomId(userRoomMeta.roomUid.string).single;
+        if (room.lastMessage != userRoomMeta.lastMessageId.toString()) {
+          //it is wrong
           try {
             var fetchMessagesRes = await _queryServiceClient.fetchMessages(
                 FetchMessagesReq()
-                  ..with_1 = room.roomId.uid
+                  ..roomUid = room.roomId.uid
                   ..pointer = userRoomMeta.lastMessageId
                   ..type = FetchMessagesReq_Type.FORWARD_FETCH
                   ..limit = 5,
                 options: CallOptions(metadata: {
-                  'accessToken': await accountRepo.getAccessToken()
+                  'accessToken': await _accountRepo.getAccessToken()
                 }));
-            messageDao.insertMessage(Message(
+            _messageDao.insertMessage(Message(
                 roomId: room.roomId,
                 packetId: null, //?
                 id: userRoomMeta.lastMessageId.toInt() +
@@ -95,9 +97,9 @@ class MessageRepo {
                 type: null, //?
                 json: null)); //?
             await _roomDao.updateRoom(room.copyWith(
-                lastMessage: userRoomMeta.lastMessageId.toInt() +
-                    fetchMessagesRes.messages.length -
-                    1));
+                lastMessage: userRoomMeta.lastMessageId.toString()));
+
+            ///it is wrong
           } catch (e) {
             print(e);
           }
@@ -117,7 +119,7 @@ class MessageRepo {
       roomId: roomId.string,
       packetId: packetId,
       time: DateTime.now(),
-      from:_accountRepo.currentUserUid.string,
+      from: _accountRepo.currentUserUid.string,
       to: roomId.string,
       edited: false,
       encrypted: false,
@@ -165,9 +167,9 @@ class MessageRepo {
           "uuid": "0",
           "size": 0,
           "type": type,
-          "path":path,
+          "path": path,
           "name": path.split('/').last,
-          "caption": caption??"",
+          "caption": caption ?? "",
           "width": type == 'image' || type == 'video' ? 200 : 0,
           "height": type == 'image' || type == 'video' ? 100 : 0,
           "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
@@ -203,8 +205,8 @@ class MessageRepo {
     });
   }
 
-  _savePendingMessage(
-      String messageId, SendingStatus status, int remainingRetries, Message message) {
+  _savePendingMessage(String messageId, SendingStatus status,
+      int remainingRetries, Message message) {
     PendingMessage pendingMessage = PendingMessage(
       messageId: messageId.toString(),
       remainingRetries: remainingRetries,
@@ -222,8 +224,11 @@ class MessageRepo {
   }
 
   _updateRoomLastMessage(Uid roomId, String messageId) {
-    _roomDao.insertRoom(
-        Room(roomId: roomId.string, lastMessage: messageId, mentioned: false,mute: false));
+    _roomDao.insertRoom(Room(
+        roomId: roomId.string,
+        lastMessage: messageId,
+        mentioned: false,
+        mute: false));
   }
 
   sendForwardedMessage(Uid roomId, List<Message> forwardedMessage) async {
@@ -283,7 +288,7 @@ class MessageRepo {
     File file = File()
       ..name = fileInfo.name
       ..uuid = fileInfo.uuid
-      ..caption =  jsonDecode(message.json)["caption"];
+      ..caption = jsonDecode(message.json)["caption"];
 
     clientMessage.MessageByClient messageByClient =
         clientMessage.MessageByClient()
@@ -302,11 +307,10 @@ class MessageRepo {
     _pendingMessageDao.insertPendingMessage(PendingMessage(
         messageId: pendingMessage.messageId,
         time: DateTime.now(),
-        remainingRetries: pendingMessage.remainingRetries- 1));
+        remainingRetries: pendingMessage.remainingRetries - 1));
   }
-  deleteMessage(List<Message> messages){
 
-  }
+  deleteMessage(List<Message> messages) {}
 
   String _getPacketId() {
     return "${_accountRepo.currentUserUid.getString()}:${DateTime.now().microsecondsSinceEpoch.toString()}";

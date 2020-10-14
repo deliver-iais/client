@@ -98,7 +98,6 @@ void setupRepositories() {
   getIt.registerSingleton<RoutingService>(RoutingService());
 }
 
-
 setupFlutterNotification() async {
   await Firebase.initializeApp();
 }

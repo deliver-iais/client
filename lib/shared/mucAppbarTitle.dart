@@ -15,7 +15,7 @@ import 'methods/enum_helper_methods.dart';
 class MucAppbarTitle extends StatelessWidget {
   final String mucUid;
 
-   MucAppbarTitle({Key key, this.mucUid}) : super(key: key);
+  MucAppbarTitle({Key key, this.mucUid}) : super(key: key);
 
   var _routingService = GetIt.I.get<RoutingService>();
 
@@ -25,49 +25,47 @@ class MucAppbarTitle extends StatelessWidget {
     GroupDao groupDao = GetIt.I.get<GroupDao>();
     AppLocalization appLocalization = AppLocalization.of(context);
     return Container(
-        color: Theme
-            .of(context)
-            .appBarTheme
-            .color,
-        child: GestureDetector(child: Row(
-          children: [
-            CircleAvatarWidget(mucUid.uid, 23),
-            SizedBox(width: 20,),
-            StreamBuilder<Group>(
-                stream: groupDao.getByUid(mucUid),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData)
-                    return StreamBuilder<AppMode>(
-                              stream: modeChecker.appMode,
-                              builder: (context, mode) {
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      snapshot.data.name,
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-
-                                    Text(
-                                      '${snapshot.data.members} ' +
-                                          appLocalization.getTraslateValue(
-                                              "members"),
-                                      style: TextStyle(fontSize: 11),
-                                    ),
-                                  ],
-                                );
-                              });
-                  else
-                    return Container();
-                })
-          ],
-        ),onTap: (){
-          _routingService
-              .openProfile(mucUid);
-        },)
-
-    );
+        color: Theme.of(context).appBarTheme.color,
+        child: GestureDetector(
+          child: Row(
+            children: [
+              CircleAvatarWidget(mucUid.uid, 23),
+              SizedBox(
+                width: 20,
+              ),
+              StreamBuilder<Group>(
+                  stream: groupDao.getByUid(mucUid),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData)
+                      return StreamBuilder<AppMode>(
+                          stream: modeChecker.appMode,
+                          builder: (context, mode) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  snapshot.data.name,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  '${snapshot.data.members} ' +
+                                      appLocalization
+                                          .getTraslateValue("members"),
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                              ],
+                            );
+                          });
+                    else
+                      return Container();
+                  })
+            ],
+          ),
+          onTap: () {
+            _routingService.openProfile(mucUid);
+          },
+        ));
   }
 }
