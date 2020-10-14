@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io' as LocalFile;
 
+import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/app_mode.dart';
@@ -44,6 +45,7 @@ class MessageRepo {
   MessageService messageService = GetIt.I.get<MessageService>();
   FileRepo fileRepo = GetIt.I.get<FileRepo>();
   ModeChecker modeChecker = GetIt.I.get<ModeChecker>();
+  Cache cache = LruCache<String, Message>(storage: SimpleStorage(size: 50));
   // ignore: non_constant_identifier_names
   final int MAX_REMAINING_RETRIES = 3;
   static ClientChannel _clientChannel = ClientChannel("172.16.111.189",
@@ -314,5 +316,10 @@ class MessageRepo {
 
   String _getPacketId() {
     return "${_accountRepo.currentUserUid.getString()}:${DateTime.now().microsecondsSinceEpoch.toString()}";
+  }
+
+  getPage(int page, String roomId) {
+    var messages = _messageDao.getPage(roomId, page);
+    return messages;
   }
 }
