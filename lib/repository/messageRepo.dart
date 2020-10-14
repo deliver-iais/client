@@ -52,7 +52,7 @@ class MessageRepo {
   }
 
   updating() async {
-    modeChecker.updating.add(true);
+    // modeChecker.updating.add(true);
     try {
       var getAllUserRoomMetaRes = await _queryServiceClient.getAllUserRoomMeta(
           GetAllUserRoomMetaReq(),
@@ -96,10 +96,8 @@ class MessageRepo {
     } catch (e) {
       print(e);
     }
-    modeChecker.updating.add(false);
+    // modeChecker.updating.add(false);
   }
-
-
 
   reconnecting() {}
   sendTextMessage(Uid roomId, String text,

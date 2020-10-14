@@ -35,7 +35,8 @@ class MucAppbarTitle extends StatelessWidget {
                       ),
                       Text(
                         mode.data != AppMode.STABLE
-                            ? appLocalization.getTraslateValue("connecting") + '...'
+                            ? appLocalization.getTraslateValue("connecting") +
+                                '...'
                             : '${snapshot.data.members} ' +
                                 appLocalization.getTraslateValue("members"),
                         style: TextStyle(fontSize: 11),

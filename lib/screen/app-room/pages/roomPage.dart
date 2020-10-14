@@ -27,7 +27,6 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:indexed_list_view/indexed_list_view.dart';
 
 class RoomPage extends StatefulWidget {
   final String roomId;
@@ -48,7 +47,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
   MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
   int lastShowedMessageId = 0;
-  IndexedScrollController _scrollController;
+  ScrollController _scrollController;
 
   void resetRoomPageDetails() {
     setState(() {
@@ -97,10 +96,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     (GetIt.I.get<LastSeenDao>().getByRoomId(widget.roomId)).then((value) {
       lastShowedMessageId = value.messageId;
     });
-    _scrollController = IndexedScrollController();
-    // initialIndex: (lastShowedMessageId / 2).floor());
-    print(
-        '************************************${(lastShowedMessageId / 2).floor()}');
+    _scrollController = ScrollController();
     super.initState();
   }
 
@@ -108,24 +104,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
-  }
-
-  indexController(int index, int length) {
-    if (index < 0) {
-      print('hi');
-      _scrollController.jumpToIndex(0);
-    } else if (index > length - 1) {
-      _scrollController.jumpToIndex(length - 1);
-    }
-    if (index == (length / 4).floor()) {
-      setState(() {
-        lastShowedMessageId = (length / 4).floor();
-      });
-    } else if (index == (length * 3 / 4).floor()) {
-      setState(() {
-        lastShowedMessageId = (lastShowedMessageId * 3 / 4).floor();
-      });
-    }
   }
 
   @override
@@ -138,7 +116,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         var currentRoomMessages = snapshot.data ?? [];
         int month;
         int day;
-        print('current : ${currentRoomMessages.length}');
         //TODO check day on 00:00
         if (currentRoomMessages.length > 0) {
           month = currentRoomMessages[0].time.month;
@@ -167,18 +144,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 children: <Widget>[
                   Flexible(
                     fit: FlexFit.loose,
-                    child: IndexedListView.builder(
-                      minItemCount: 0,
-                      maxItemCount: 80,
+                    child: ListView.builder(
                       reverse: true,
                       controller: _scrollController,
+                      // itemCount: ,
                       padding: const EdgeInsets.all(5),
-                      emptyItemBuilder: (BuildContext context, int index) =>
-                          Text('index: $index'),
                       itemBuilder: (BuildContext context, int index) {
-                        print("index: $index");
-                        // indexController(index, currentRoomMessages.length);
-                        print(currentRoomMessages[index]);
                         lastSeenDao.updateLastSeen(
                             widget.roomId, currentRoomMessages[index].id ?? -1);
                         newTime = false;

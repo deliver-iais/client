@@ -39,7 +39,7 @@ class HomePage extends StatelessWidget {
                   body: MainWidget(
                       Column(
                         children: <Widget>[
-                          SearchBox(),
+                          // SearchBox(),
                           if (isHomePage(context))
                             ChatsPage()
                           else

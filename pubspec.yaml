@@ -91,7 +91,6 @@ dependencies:
   firebase_core: 0.5.0
   mockito: 4.1.1 # Great Library for Mocking in Tests
   data_connection_checker: ^0.3.4
-  indexed_list_view: ^1.1.5
   test:
 
 dev_dependencies:
