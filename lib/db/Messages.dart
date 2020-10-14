@@ -2,11 +2,9 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:moor/moor.dart';
 
 class Messages extends Table {
-  IntColumn get dbId => integer().autoIncrement()();
+  TextColumn get packetId => text()();
 
   TextColumn get roomId => text()();
-
-  IntColumn get packetId => integer()();
 
   IntColumn get id => integer().nullable()();
 
@@ -27,4 +25,10 @@ class Messages extends Table {
   IntColumn get type => intEnum<MessageType>()();
 
   TextColumn get json => text()();
+
+
+  @override
+  Set<Column> get primaryKey => {packetId};
+
+
 }

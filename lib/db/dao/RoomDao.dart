@@ -13,7 +13,7 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
 
   RoomDao(this.db) : super(db);
 
-  Stream<List<Room>> watchAllRooms() => select(rooms).watch();
+  Future<List<Room>> gerAllRooms() => select(rooms).get();
 
   Future insertRoom(Room newRoom) {
     return into(rooms).insertOnConflictUpdate(newRoom);
@@ -28,7 +28,7 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
     return (select(rooms).join([
       leftOuterJoin(
           messages,
-          messages.dbId.equalsExp(rooms.lastMessage) &
+          messages.packetId.equalsExp(rooms.lastMessage) &
               messages.roomId.equalsExp(rooms.roomId)),
     ])
           ..orderBy([OrderingTerm.desc(messages.time)]))

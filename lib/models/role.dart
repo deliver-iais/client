@@ -1,4 +1,4 @@
-enum Role {
+enum MucRole {
   MEMBER,
   ADMIN,
   OWNER,

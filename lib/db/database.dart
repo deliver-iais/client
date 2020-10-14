@@ -13,6 +13,7 @@ import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/models/memberType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/models/role.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
@@ -20,6 +21,7 @@ import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'dart:io';
 
 import 'Contacts.dart';
@@ -69,8 +71,9 @@ part 'database.g.dart';
 class Database extends _$Database {
   Database()
       : super(LazyDatabase(() async {
-          // put the database file, called db.sqlite here, into the documents folder
-          // for your app.
+          if (Platform.isWindows) {
+            sqfliteFfiInit();
+          }
           final dbFolder = await getApplicationDocumentsDirectory();
           final file = File(p.join(dbFolder.path, 'db.sqlite'));
           return VmDatabase(file, logStatements: true);
@@ -79,10 +82,10 @@ class Database extends _$Database {
   @override
   int get schemaVersion => 7;
 
-  Future<void> deleteAllData() async {
-    return transaction(() async {
+  Future<void> deleteAllData()  {
+    return transaction(() {
       for (var table in allTables) {
-        await delete(table).go();
+        delete(table).go();
       }
     });
   }

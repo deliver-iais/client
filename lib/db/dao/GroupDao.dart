@@ -24,4 +24,15 @@ class GroupDao extends DatabaseAccessor<Database> with _$GroupDaoMixin {
     return (select(groups)..where((group) => group.uid.equals(uid)))
         .watchSingle();
   }
+
+
+  Future<Group> getGroupByUid(String uid) {
+    return (select(groups)..where((group) => group.uid.equals(uid)))
+        .getSingle();
+  }
+
+  Future<List<Group>> getGroupByName(String text){
+    return (select(groups)..where((group) => group.name.equals(text)))
+        .get();
+  }
 }

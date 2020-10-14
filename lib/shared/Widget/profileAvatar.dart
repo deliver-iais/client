@@ -3,26 +3,32 @@ import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/memberRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/services/file_service.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class ProfileAvatar extends StatefulWidget {
   @required
   final bool innerBoxIsScrolled;
   @required
   final Uid userUid;
-  @required
-  final bool settingProfile;
 
-  ProfileAvatar({this.innerBoxIsScrolled, this.userUid, this.settingProfile});
+  ProfileAvatar({this.innerBoxIsScrolled, this.userUid});
 
   @override
   _ProfileAvatarState createState() => _ProfileAvatarState();
@@ -31,11 +37,32 @@ class ProfileAvatar extends StatefulWidget {
 class _ProfileAvatarState extends State<ProfileAvatar> {
   double currentAvatarIndex = 0;
   bool showProgressBar = false;
-  final selectedImages = Map<int, bool>();
+  final _selectedImages = Map<int, bool>();
   var avatarRepo = GetIt.I.get<AvatarRepo>();
   var fileRepo = GetIt.I.get<FileRepo>();
+  var routingService = GetIt.I.get<RoutingService>();
+  var _roomRepo = GetIt.I.get<RoomRepo>();
+  var _contactRepo = GetIt.I.get<ContactRepo>();
   List<Avatar> _avatars = new List();
-  String uploadAvatarPath;
+  String _uploadAvatarPath;
+  bool _setAvatarPermission = false;
+  var _memberRepo = GetIt.I.get<MemberRepo>();
+  var _accountRepo = GetIt.I.get<AccountRepo>();
+
+  @override
+  void initState() {
+    if (widget.userUid.category != Categories.USER) {
+      _checkSetAvatarPermission();
+    }
+  }
+
+  _checkSetAvatarPermission() async {
+    bool per = await _memberRepo.mucAdminOrOwner(
+        widget.userUid.string, _accountRepo.currentUserUid.string);
+    setState(() {
+      _setAvatarPermission = per;
+    });
+  }
 
   showBottomSheet() {
     showModalBottomSheet(
@@ -60,11 +87,11 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         onClick: (File croppedFile) async {
                           setState(() {
                             showProgressBar = true;
-                            uploadAvatarPath = croppedFile.path;
+                            _uploadAvatarPath = croppedFile.path;
                           });
 
-                          Avatar uploadeadAvatar =
-                              await avatarRepo.uploadAvatar(croppedFile);
+                          Avatar uploadeadAvatar = await avatarRepo
+                              .uploadAvatar(croppedFile, widget.userUid);
                           if (uploadeadAvatar != null) {
                             _avatars = _avatars.reversed.toList();
                             _avatars.add(uploadeadAvatar);
@@ -74,7 +101,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                             });
                           } else {}
                         },
-                        selectedImages: selectedImages,
+                        selectedImages: _selectedImages,
                         selectGallery: false,
                       ),
                     ),
@@ -112,8 +139,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         children: <Widget>[
           CarouselSlider(
             options: CarouselOptions(
-              height: MediaQuery.of(context).size.width,
+              height: 300,
               viewportFraction: 1,
+              aspectRatio: 1,
               onPageChanged: (index, reason) {
                 setState(() {
                   currentAvatarIndex = index.ceilToDouble();
@@ -127,15 +155,19 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     children: <Widget>[
                       Container(
                         child: FutureBuilder<File>(
-                          future: fileRepo.getFile(avatar.fileId, avatar.fileName),
-                          builder:
-                              (BuildContext c, AsyncSnapshot<File> snaps) {
+                          future:
+                              fileRepo.getFile(avatar.fileId, avatar.fileName),
+                          builder: (BuildContext c, AsyncSnapshot<File> snaps) {
                             if (snaps.hasData && snaps.data != null) {
-                              return Image.file(
-                                File(snaps.data.path),
-                                fit: BoxFit.cover,
-                                height: MediaQuery.of(context).size.width,
-                                width: MediaQuery.of(context).size.width,
+                              return Container(
+                                height: 400,
+                                width: 400,
+                                child: Image.file(
+                                  File(snaps.data.path),
+                                  fit: BoxFit.cover,
+                                  height: MediaQuery.of(context).size.width,
+                                  width: MediaQuery.of(context).size.width,
+                                ),
                               );
                             } else {
                               return Container(
@@ -189,30 +221,27 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     AppLocalization appLocalization = AppLocalization.of(context);
     return SliverAppBar(
         actions: <Widget>[
-          widget.settingProfile
+          _setAvatarPermission
               ? PopupMenuButton(
+                  icon: Icon(Icons.more_vert),
                   itemBuilder: (_) => <PopupMenuItem<String>>[
                     new PopupMenuItem<String>(
                         child: Text(
                             appLocalization.getTraslateValue("setProfile")),
                         value: "select"),
-                    _avatars.length > 0
-                        ? new PopupMenuItem<String>(
-                            child: Text(
-                                appLocalization.getTraslateValue("delete")),
-                            value: "delete")
-                        : new PopupMenuItem<String>(
-                            child: SizedBox.shrink(), value: "w"),
+                    if (_avatars.length > 0)
+                      new PopupMenuItem<String>(
+                          child:
+                              Text(appLocalization.getTraslateValue("delete")),
+                          value: "delete"),
                   ],
                   onSelected: onSelected,
                 )
               : SizedBox.shrink()
         ],
         forceElevated: widget.innerBoxIsScrolled,
-        leading: BackButton(
-          color: ExtraTheme.of(context).infoChat,
-        ),
-        expandedHeight: MediaQuery.of(context).size.width - 40,
+        leading: routingService.backButtonLeading(),
+        expandedHeight: 300,
         floating: false,
         pinned: true,
         flexibleSpace: FlexibleSpaceBar(
@@ -220,64 +249,108 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           collapseMode: CollapseMode.pin,
           titlePadding: const EdgeInsets.all(0),
           title: Container(
-            child: Text("Jude",
-                //textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: ExtraTheme.of(context).infoChat,
-                  fontSize: 28.0,
-                  shadows: <Shadow>[
-                    Shadow(
-                      blurRadius: 30.0,
-                      color: Color.fromARGB(255, 0, 0, 0),
-                    ),
-                  ],
-                )),
+            child: FutureBuilder<String>(
+              future: _roomRepo.getRoomDisplayName(widget.userUid),
+              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                if (snapshot.data != null) {
+                  return Text(snapshot.data,
+                      //textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: ExtraTheme.of(context).infoChat,
+                        fontSize: 28.0,
+                        shadows: <Shadow>[
+                          Shadow(
+                            blurRadius: 30.0,
+                            color: Color.fromARGB(255, 0, 0, 0),
+                          ),
+                        ],
+                      ));
+                } else {
+                  return FutureBuilder<UserAsContact>(
+                    future: _contactRepo.searchUserByUid(widget.userUid),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<UserAsContact> snapshot) {
+                      if (snapshot.data != null) {
+                        return Text(snapshot.data.username,
+                            //textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: ExtraTheme.of(context).infoChat,
+                              fontSize: 28.0,
+                              shadows: <Shadow>[
+                                Shadow(
+                                  blurRadius: 30.0,
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                ),
+                              ],
+                            ));
+                      } else {
+                        return Text("Unknown",
+                            //textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: ExtraTheme.of(context).infoChat,
+                              fontSize: 28.0,
+                              shadows: <Shadow>[
+                                Shadow(
+                                  blurRadius: 30.0,
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                ),
+                              ],
+                            ));
+                      }
+                    },
+                  );
+                }
+              },
+            ),
           ),
-          background: showProgressBar
-              ? Stack(
-                  children: [
-                    Container(
-                      child: Image.file(
-                        File(uploadAvatarPath),
-                        fit: BoxFit.cover,
-                        height: MediaQuery.of(context).size.width,
-                        width: MediaQuery.of(context).size.width,
-                      ),
-                      foregroundDecoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color.fromARGB(200, 0, 0, 0)],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          stops: [showProgressBar ? 0.6 : 0, 1],
+          background: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: showProgressBar
+                ? Stack(
+                    children: [
+                      Container(
+                        child: Image.file(
+                          File(_uploadAvatarPath),
+                          fit: BoxFit.cover,
+                          height: 300,
+                          width: 300,
+                        ),
+                        foregroundDecoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color.fromARGB(200, 0, 0, 0)],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            stops: [showProgressBar ? 0.6 : 0, 1],
+                          ),
                         ),
                       ),
-                    ),
-                    Center(
-                      child: SizedBox(
-                          height: 100.0,
-                          width: 100.0,
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation(Colors.blue),
-                            strokeWidth: 6.0,
-                          )),
-                    )
-                  ],
-                )
-              : StreamBuilder<List<Avatar>>(
-                  stream: avatarRepo.getAvatar(widget.userUid, true),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<List<Avatar>> snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data != null &&
-                        snapshot.data.length > 0) {
-                      return backgroundImage(snapshot.data);
-                    } else {
-                      return Container(
-                        child: SizedBox.shrink(),
-                        color: Colors.blueAccent,
-                      );
-                    }
-                  }),
+                      Center(
+                        child: SizedBox(
+                            height: 100.0,
+                            width: 100.0,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation(Colors.blue),
+                              strokeWidth: 6.0,
+                            )),
+                      )
+                    ],
+                  )
+                : StreamBuilder<List<Avatar>>(
+                    stream: avatarRepo.getAvatar(widget.userUid, false),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<List<Avatar>> snapshot) {
+                      if (snapshot.hasData &&
+                          snapshot.data != null &&
+                          snapshot.data.length > 0) {
+                        return backgroundImage(snapshot.data);
+                      } else {
+                        return Container(
+                          child: SizedBox.shrink(),
+                          color: Colors.blueAccent,
+                        );
+                      }
+                    }),
+          ),
         ));
   }
 }

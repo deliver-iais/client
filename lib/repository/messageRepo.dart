@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+import 'dart:ffi';
+import 'dart:io' as LocalFile;
 
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
@@ -9,6 +10,13 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/services/core_services.dart';
+import 'package:deliver_flutter/shared/methods/helper.dart';
+
+import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
+    as clientMessage;
 import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/services/mode_checker.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
@@ -21,18 +29,23 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+
+import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
 import 'package:path_provider/path_provider.dart';
 
 class MessageRepo {
-  MessageDao messageDao = GetIt.I.get<MessageDao>();
-  RoomDao roomDao = GetIt.I.get<RoomDao>();
-  PendingMessageDao pendingMessageDao = GetIt.I.get<PendingMessageDao>();
-  AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
+  MessageDao _messageDao = GetIt.I.get<MessageDao>();
+  RoomDao _roomDao = GetIt.I.get<RoomDao>();
+  PendingMessageDao _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
+  AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
+  FileRepo _fileRepo = GetIt.I.get<FileRepo>();
+  CoreServices _coreServices = GetIt.I.get<CoreServices>();
   MessageService messageService = GetIt.I.get<MessageService>();
   FileRepo fileRepo = GetIt.I.get<FileRepo>();
   ModeChecker modeChecker = GetIt.I.get<ModeChecker>();
-
+  // ignore: non_constant_identifier_names
+  final int MAX_REMAINING_RETRIES = 3;
   static ClientChannel _clientChannel = ClientChannel("172.16.111.189",
       port: 30100,
       options: ChannelOptions(credentials: ChannelCredentials.insecure()));
@@ -45,9 +58,6 @@ class MessageRepo {
         updating();
       }
     });
-
-    // connecting
-
     // establish();
   }
 
@@ -59,7 +69,7 @@ class MessageRepo {
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
-        Room room = await roomDao.getByRoomId(userRoomMeta.uid.string).single;
+        Room room = await _roomDao.getByRoomId(userRoomMeta.uid.string).single;
         if (room.lastMessage != userRoomMeta.lastMessageId.toInt()) {
           try {
             var fetchMessagesRes = await _queryServiceClient.fetchMessages(
@@ -84,7 +94,7 @@ class MessageRepo {
                 encrypted: fetchMessagesRes.messages.last.encrypted,
                 type: null, //?
                 json: null)); //?
-            await roomDao.updateRoom(room.copyWith(
+            await _roomDao.updateRoom(room.copyWith(
                 lastMessage: userRoomMeta.lastMessageId.toInt() +
                     fetchMessagesRes.messages.length -
                     1));
@@ -102,11 +112,12 @@ class MessageRepo {
   reconnecting() {}
   sendTextMessage(Uid roomId, String text,
       {int replyId, String forwardedFrom}) async {
+    String packetId = _getPacketId();
     Message message = Message(
       roomId: roomId.string,
-      packetId: 1000,
+      packetId: packetId,
       time: DateTime.now(),
-      from: accountRepo.currentUserUid.string,
+      from:_accountRepo.currentUserUid.string,
       to: roomId.string,
       edited: false,
       encrypted: false,
@@ -115,23 +126,11 @@ class MessageRepo {
       type: MessageType.TEXT,
       json: jsonEncode({"text": text}),
     );
-    int messageId = await messageDao.insertMessage(message);
-    await roomDao.insertRoom(
-        Room(roomId: roomId.string, lastMessage: messageId, mentioned: false));
-    PendingMessage pendingMessage = PendingMessage(
-      messageId: messageId,
-      retry: 0,
-      time: DateTime.now(),
-      status: SendingStatus.PENDING,
-      details: message.json,
-    );
-    int pendingMsgDbId =
-        await pendingMessageDao.insertPendingMessage(pendingMessage);
-    Message updatedByServer = await messageService.sendMessage(message);
-    messageDao.updateMessage(
-        updatedByServer.copyWith(time: DateTime.now(), dbId: messageId));
-    pendingMessageDao
-        .deletePendingMessage(pendingMessage.copyWith(dbId: pendingMsgDbId));
+    _messageDao.insertMessage(message);
+    _savePendingMessage(
+        packetId, SendingStatus.PENDING, MAX_REMAINING_RETRIES, message);
+    _sendTextMessage(message);
+    _updateRoomLastMessage(roomId, packetId);
   }
 
   String findType(String path) {
@@ -149,14 +148,14 @@ class MessageRepo {
 
   sendFileMessage(Uid roomId, String path,
       {int replyId, String forwardedFrom, String caption}) async {
+    String packetId = _getPacketId();
     String type;
     type = findType(path);
-
     Message message = Message(
         roomId: roomId.string,
-        packetId: 1000,
+        packetId: packetId,
         time: DateTime.now(),
-        from: accountRepo.currentUserUid.string,
+        from: _accountRepo.currentUserUid.string,
         to: roomId.string,
         edited: false,
         encrypted: false,
@@ -166,69 +165,150 @@ class MessageRepo {
           "uuid": "0",
           "size": 0,
           "type": type,
+          "path":path,
           "name": path.split('/').last,
-          "caption": caption,
+          "caption": caption??"",
           "width": type == 'image' || type == 'video' ? 200 : 0,
           "height": type == 'image' || type == 'video' ? 100 : 0,
           "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
         }));
-    var messageId = await messageDao.insertMessage(message);
-    RoomDao roomDao = GetIt.I.get<RoomDao>();
-    roomDao.getByRoomId(roomId.string).first.then(
-        (value) => roomDao.updateRoom(value.copyWith(lastMessage: messageId)));
+    _messageDao.insertMessage(message);
+    _savePendingMessage(
+        packetId, SendingStatus.SENDING_FILE, MAX_REMAINING_RETRIES, message);
+    _sendFileMessage(message, path);
+    _updateRoomLastMessage(roomId, packetId);
+  }
+
+  sendPendingMessage() {
+    _pendingMessageDao.watchAllMessages().listen((event) {
+      for (PendingMessage pendingMessage in event) {
+        if (pendingMessage.remainingRetries > 0) {
+          switch (pendingMessage.status) {
+            case SendingStatus.SENDING_FILE:
+              _messageDao.getByDBId(pendingMessage.messageId).listen((message) {
+                _sendFileMessage(message, jsonDecode(message.json)["path"]);
+              });
+              _updatePendingMessage(pendingMessage);
+
+              break;
+            case SendingStatus.PENDING:
+              _messageDao.getByDBId(pendingMessage.messageId).listen((message) {
+                _sendTextMessage(message);
+              });
+              _updatePendingMessage(pendingMessage);
+              break;
+          }
+        }
+      }
+    });
+  }
+
+  _savePendingMessage(
+      String messageId, SendingStatus status, int remainingRetries, Message message) {
     PendingMessage pendingMessage = PendingMessage(
-      messageId: messageId,
-      retry: 0,
+      messageId: messageId.toString(),
+      remainingRetries: remainingRetries,
       time: DateTime.now(),
-      status: SendingStatus.SENDING_FILE,
-      details: jsonEncode({"path": path}),
+      details: message.json,
+      status: status,
     );
+    _pendingMessageDao.insertPendingMessage(pendingMessage);
+  }
 
-    int pendingMsgDbId =
-        await pendingMessageDao.insertPendingMessage(pendingMessage);
-    Fimber.d('before uploading ${DateTime.now()}');
-    FileInfo fileInfo = await fileRepo.uploadFile(File(path));
-    Fimber.d(
-        'after uploading ${DateTime.now()} and name of uploadedFile is ${fileInfo.name}');
+  sendSeenMessage(int messageId, Uid to, Uid roomId) {
+    _coreServices.sendSeenMessage(SeenByClient()
+      ..to = to
+      ..id = Int64.parseInt(messageId.toString()));
+  }
 
-    message = message.copyWith(
-      dbId: messageId,
-      json: jsonEncode({
-        "uuid": fileInfo.uuid,
-        "size": fileInfo.compressionSize,
-        "name": fileInfo.name,
-        "type": type,
-        "width": type == 'image' || type == 'video' ? 250 : 0,
-        "height": type == 'image' || type == 'video' ? 300 : 0,
-        "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
-      }),
-      time: DateTime.now(),
-    );
-    await messageDao.updateMessage(message);
-
-    pendingMessage = pendingMessage.copyWith(
-        dbId: pendingMsgDbId,
-        status: SendingStatus.PENDING,
-        time: message.time);
-    await pendingMessageDao.updatePendingMessage(pendingMessage);
-    Fimber.d('before sending ${DateTime.now()}');
-
-    message = await messageService.sendMessage(message);
-    Fimber.d('after sending ${DateTime.now()} sent message is $message');
-
-    messageDao.updateMessage(message.copyWith(time: DateTime.now()));
-    pendingMessageDao.deletePendingMessage(pendingMessage);
+  _updateRoomLastMessage(Uid roomId, String messageId) {
+    _roomDao.insertRoom(
+        Room(roomId: roomId.string, lastMessage: messageId, mentioned: false,mute: false));
   }
 
   sendForwardedMessage(Uid roomId, List<Message> forwardedMessage) async {
-    // print('hi hi ');
-    for (var i = 0; i < forwardedMessage.length; i++) {
-      if (forwardedMessage[i].type == MessageType.TEXT) {
-        sendTextMessage(roomId, (jsonDecode(forwardedMessage[i].json))["text"],
-            forwardedFrom: forwardedMessage[i].from);
-      } else if (forwardedMessage[i].type == MessageType.FILE) {
-        //TODO sendFileMessage(roomId)
+    for (Message forwardedMessage in forwardedMessage) {
+      switch (forwardedMessage.type) {
+        case MessageType.TEXT:
+          sendTextMessage(
+            roomId,
+            (jsonDecode(forwardedMessage.json))["text"],
+            forwardedFrom: forwardedMessage.from,
+          );
+          break;
+        case MessageType.FILE:
+          sendFileMessage(forwardedMessage.roomId.uid,
+              jsonDecode(forwardedMessage.json)["path"],
+              forwardedFrom: forwardedMessage.forwardedFrom);
+          break;
+        case MessageType.STICKER:
+          // TODO: Handle this case.
+          break;
+        case MessageType.LOCATION:
+          // TODO: Handle this case.
+          break;
+        case MessageType.LIVE_LOCATION:
+          // TODO: Handle this case.
+          break;
+        case MessageType.POLL:
+          // TODO: Handle this case.
+          break;
+        case MessageType.FORM:
+          // TODO: Handle this case.
+          break;
+        case MessageType.PERSISTENT_EVENT:
+          // TODO: Handle this case.
+          break;
       }
     }
+  }
+
+  _sendTextMessage(Message message) {
+    clientMessage.Text messageText = clientMessage.Text()..text = message.json;
+    clientMessage.MessageByClient messageByClient =
+        clientMessage.MessageByClient()
+          ..packetId = message.packetId
+          ..text = messageText
+          ..replyToId = Int64.parseInt(message.replyToId.toString())
+          ..to = message.to.uid;
+
+    if (message.forwardedFrom != null) {
+      messageByClient.forwardFrom = message.forwardedFrom.uid;
+    }
+    _coreServices.sendMessage(messageByClient);
+  }
+
+  _sendFileMessage(Message message, String path) async {
+    FileInfo fileInfo = await _fileRepo.uploadFile(LocalFile.File(path));
+    File file = File()
+      ..name = fileInfo.name
+      ..uuid = fileInfo.uuid
+      ..caption =  jsonDecode(message.json)["caption"];
+
+    clientMessage.MessageByClient messageByClient =
+        clientMessage.MessageByClient()
+          ..packetId = message.packetId
+          ..file = file
+          ..replyToId = Int64.parseInt(message.replyToId.toString())
+          ..to = message.to.uid;
+
+    if (message.forwardedFrom != null) {
+      messageByClient.forwardFrom = message.forwardedFrom.uid;
+    }
+    _coreServices.sendMessage(messageByClient);
+  }
+
+  _updatePendingMessage(PendingMessage pendingMessage) {
+    _pendingMessageDao.insertPendingMessage(PendingMessage(
+        messageId: pendingMessage.messageId,
+        time: DateTime.now(),
+        remainingRetries: pendingMessage.remainingRetries- 1));
+  }
+  deleteMessage(List<Message> messages){
+
+  }
+
+  String _getPacketId() {
+    return "${_accountRepo.currentUserUid.getString()}:${DateTime.now().microsecondsSinceEpoch.toString()}";
   }
 }

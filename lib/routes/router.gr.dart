@@ -11,19 +11,17 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
-import '../screen/app-home/pages/homePage.dart';
-import '../screen/app-home/widgets/forward.dart';
+import '../screen/app-contacts/widgets/new_Contact.dart';
 import '../screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import '../screen/app-room/pages/roomPage.dart';
 import '../screen/app-room/widgets/showImage_Widget.dart';
-import '../screen/app_group/pages/group_info_determination_page.dart';
-import '../screen/app_group/pages/member_selection_page.dart';
 import '../screen/app_profile/pages/media_details_page.dart';
-import '../screen/app_profile/pages/profile_page.dart';
+import '../screen/home/pages/home_page.dart';
 import '../screen/intro/pages/intro_page.dart';
 import '../screen/register/pages/login_page.dart';
 import '../screen/register/pages/verification_page.dart';
-import '../screen/settings/settingsPage.dart';
+import '../screen/settings/account_settings.dart';
+import '../screen/share_input_file/share_input_file.dart';
 import '../screen/splash/pages/splash_screen.dart';
 
 class Routes {
@@ -32,33 +30,26 @@ class Routes {
   static const String loginPage = '/login-page';
   static const String verificationPage = '/verification-page';
   static const String homePage = '/home-page';
-  static const String contactsPage = '/contacts-page';
-  static const String settingsPage = '/settings-page';
-  static const String roomPage = '/room-page';
-  static const String forwardMessage = '/forward-message';
-  static const String profilePage = '/profile-page';
   static const String mediaDetailsPage = '/media-details-page';
   static const String showImagePage = '/show-image-page';
-  static const String memberSelectionPage = '/member-selection-page';
-  static const String groupInfoDeterminationPage =
-      '/group-info-determination-page';
   static const String selectionToForwardPage = '/selection-to-forward-page';
+  static const String newContact = '/new-contact';
+  static const String accountSettings = '/account-settings';
+  static const String roomPage = '/room-page';
+  static const String shareInputFile = '/share-input-file';
   static const all = <String>{
     splashScreen,
     introPage,
     loginPage,
     verificationPage,
     homePage,
-    contactsPage,
-    settingsPage,
-    roomPage,
-    forwardMessage,
-    profilePage,
     mediaDetailsPage,
     showImagePage,
-    memberSelectionPage,
-    groupInfoDeterminationPage,
     selectionToForwardPage,
+    newContact,
+    accountSettings,
+    roomPage,
+    shareInputFile,
   };
 }
 
@@ -71,17 +62,13 @@ class Router extends RouterBase {
     RouteDef(Routes.loginPage, page: LoginPage),
     RouteDef(Routes.verificationPage, page: VerificationPage),
     RouteDef(Routes.homePage, page: HomePage),
-    RouteDef(Routes.contactsPage, page: HomePage),
-    RouteDef(Routes.settingsPage, page: SettingsPage),
-    RouteDef(Routes.roomPage, page: RoomPage),
-    RouteDef(Routes.forwardMessage, page: ForwardMessage),
-    RouteDef(Routes.profilePage, page: ProfilePage),
     RouteDef(Routes.mediaDetailsPage, page: MediaDetailsPage),
     RouteDef(Routes.showImagePage, page: ShowImagePage),
-    RouteDef(Routes.memberSelectionPage, page: MemberSelectionPage),
-    RouteDef(Routes.groupInfoDeterminationPage,
-        page: GroupInfoDeterminationPage),
     RouteDef(Routes.selectionToForwardPage, page: SelectionToForwardPage),
+    RouteDef(Routes.newContact, page: NewContact),
+    RouteDef(Routes.accountSettings, page: AccountSettings),
+    RouteDef(Routes.roomPage, page: RoomPage),
+    RouteDef(Routes.shareInputFile, page: ShareInputFile),
   ];
   @override
   Map<Type, AutoRouteFactory> get pagesMap => _pagesMap;
@@ -117,40 +104,11 @@ class Router extends RouterBase {
       );
     },
     HomePage: (data) {
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => HomePage(),
-        settings: data,
-      );
-    },
-    SettingsPage: (data) {
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => SettingsPage(),
-        settings: data,
-      );
-    },
-    RoomPage: (data) {
-      final args = data.getArgs<RoomPageArguments>(
-        orElse: () => RoomPageArguments(),
+      final args = data.getArgs<HomePageArguments>(
+        orElse: () => HomePageArguments(),
       );
       return MaterialPageRoute<dynamic>(
-        builder: (context) => RoomPage(
-          key: args.key,
-          roomId: args.roomId,
-          forwardedMessages: args.forwardedMessages,
-        ),
-        settings: data,
-      );
-    },
-    ForwardMessage: (data) {
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => ForwardMessage(),
-        settings: data,
-      );
-    },
-    ProfilePage: (data) {
-      final args = data.getArgs<ProfilePageArguments>(nullOk: false);
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => ProfilePage(args.userUid),
+        builder: (context) => HomePage(key: args.key),
         settings: data,
       );
     },
@@ -185,24 +143,6 @@ class Router extends RouterBase {
         settings: data,
       );
     },
-    MemberSelectionPage: (data) {
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => MemberSelectionPage(),
-        settings: data,
-      );
-    },
-    GroupInfoDeterminationPage: (data) {
-      final args = data.getArgs<GroupInfoDeterminationPageArguments>(
-        orElse: () => GroupInfoDeterminationPageArguments(),
-      );
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => GroupInfoDeterminationPage(
-          key: args.key,
-          members: args.members,
-        ),
-        settings: data,
-      );
-    },
     SelectionToForwardPage: (data) {
       final args = data.getArgs<SelectionToForwardPageArguments>(
         orElse: () => SelectionToForwardPageArguments(),
@@ -212,6 +152,51 @@ class Router extends RouterBase {
           key: args.key,
           forwardedMessages: args.forwardedMessages,
         ),
+        settings: data,
+      );
+    },
+    NewContact: (data) {
+      final args = data.getArgs<NewContactArguments>(
+        orElse: () => NewContactArguments(),
+      );
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => NewContact(key: args.key),
+        settings: data,
+      );
+    },
+    AccountSettings: (data) {
+      final args = data.getArgs<AccountSettingsArguments>(
+        orElse: () => AccountSettingsArguments(),
+      );
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => AccountSettings(
+          key: args.key,
+          forceToSetUsernameAndName: args.forceToSetUsernameAndName,
+        ),
+        settings: data,
+      );
+    },
+    RoomPage: (data) {
+      final args = data.getArgs<RoomPageArguments>(
+        orElse: () => RoomPageArguments(),
+      );
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => RoomPage(
+          key: args.key,
+          roomId: args.roomId,
+          forwardedMessages: args.forwardedMessages,
+          inputFilePath: args.inputFilePath,
+        ),
+        settings: data,
+      );
+    },
+    ShareInputFile: (data) {
+      final args = data.getArgs<ShareInputFileArguments>(
+        orElse: () => ShareInputFileArguments(),
+      );
+      return MaterialPageRoute<dynamic>(
+        builder: (context) =>
+            ShareInputFile(inputSharedFilePath: args.inputSharedFilePath),
         settings: data,
       );
     },
@@ -229,18 +214,10 @@ class IntroPageArguments {
   IntroPageArguments({this.key, this.currentPage});
 }
 
-/// RoomPage arguments holder class
-class RoomPageArguments {
+/// HomePage arguments holder class
+class HomePageArguments {
   final Key key;
-  final String roomId;
-  final List<dynamic> forwardedMessages;
-  RoomPageArguments({this.key, this.roomId, this.forwardedMessages});
-}
-
-/// ProfilePage arguments holder class
-class ProfilePageArguments {
-  final Uid userUid;
-  ProfilePageArguments({@required this.userUid});
+  HomePageArguments({this.key});
 }
 
 /// MediaDetailsPage arguments holder class
@@ -268,15 +245,8 @@ class MediaDetailsPageArguments {
 class ShowImagePageArguments {
   final Key key;
   final File imageFile;
-  final String contactUid;
+  final Uid contactUid;
   ShowImagePageArguments({this.key, this.imageFile, this.contactUid});
-}
-
-/// GroupInfoDeterminationPage arguments holder class
-class GroupInfoDeterminationPageArguments {
-  final Key key;
-  final List<dynamic> members;
-  GroupInfoDeterminationPageArguments({this.key, this.members});
 }
 
 /// SelectionToForwardPage arguments holder class
@@ -284,4 +254,33 @@ class SelectionToForwardPageArguments {
   final Key key;
   final List<dynamic> forwardedMessages;
   SelectionToForwardPageArguments({this.key, this.forwardedMessages});
+}
+
+/// NewContact arguments holder class
+class NewContactArguments {
+  final Key key;
+  NewContactArguments({this.key});
+}
+
+/// AccountSettings arguments holder class
+class AccountSettingsArguments {
+  final Key key;
+  final bool forceToSetUsernameAndName;
+  AccountSettingsArguments({this.key, this.forceToSetUsernameAndName = true});
+}
+
+/// RoomPage arguments holder class
+class RoomPageArguments {
+  final Key key;
+  final String roomId;
+  final List<dynamic> forwardedMessages;
+  final List<String> inputFilePath;
+  RoomPageArguments(
+      {this.key, this.roomId, this.forwardedMessages, this.inputFilePath});
+}
+
+/// ShareInputFile arguments holder class
+class ShareInputFileArguments {
+  final List<String> inputSharedFilePath;
+  ShareInputFileArguments({this.inputSharedFilePath});
 }

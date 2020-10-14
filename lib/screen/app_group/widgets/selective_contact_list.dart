@@ -1,48 +1,77 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/listItem.dart';
+
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/screen/app-contacts/contactsData.dart';
+
 import 'package:deliver_flutter/screen/app_group/widgets/selective_contact.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/services/create_muc_service.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class SelectiveContactsList extends StatefulWidget {
-  final Function increaseMember;
-  final Function decreaseMember;
+  Uid mucUid;
 
-  const SelectiveContactsList(
-      {Key key, this.increaseMember, this.decreaseMember})
+  bool isChannel;
+
+  SelectiveContactsList({Key key, this.isChannel, this.mucUid})
       : super(key: key);
+
   @override
   _SelectiveContactsListState createState() => _SelectiveContactsListState();
 }
 
 class _SelectiveContactsListState extends State<SelectiveContactsList> {
   TextEditingController editingController;
-  var selectedList = [];
-  var items = [];
-  var accountRepo = GetIt.I.get<AccountRepo>();
+
+  List<Contact> selectedList = [];
+
+  var items;
+
+  var _accountRepo = GetIt.I.get<AccountRepo>();
+
+  var _contactDao = GetIt.I.get<ContactDao>();
+
+  var _routingService = GetIt.I.get<RoutingService>();
+
+  var _mucRepo = GetIt.I.get<MucRepo>();
+
+  var _createMucService = GetIt.I.get<CreateMucService>();
+
+  List<Contact> contacts = [];
+
   @override
   void initState() {
-    items.addAll(contactsList);
-    editingController = TextEditingController();
     super.initState();
+    editingController = TextEditingController();
   }
 
   void filterSearchResults(String query) {
-    List<Contact> dummySearchList = List<Contact>();
-    dummySearchList.addAll(contactsList);
+    query = query.replaceAll(new RegExp(r"\s\b|\b\s"), "").toLowerCase();
     if (query.isNotEmpty) {
       List<Contact> dummyListData = List<Contact>();
-      dummySearchList.forEach((item) {
-        if (item.firstName.toLowerCase().contains(query) ||
-            item.lastName.toLowerCase().contains(query)) {
+      contacts.forEach((item) {
+        var searchTerm = '${item.firstName}${item.lastName}'
+            .replaceAll(new RegExp(r"\s\b|\b\s"), "")
+            .toLowerCase();
+        if (searchTerm.contains(query) ||
+            item.firstName
+                .replaceAll(new RegExp(r"\s\b|\b\s"), "")
+                .toLowerCase()
+                .contains(query) ||
+            item.lastName
+                .replaceAll(new RegExp(r"\s\b|\b\s"), "")
+                .toLowerCase()
+                .contains(query)) {
           dummyListData.add(item);
         }
       });
@@ -50,11 +79,10 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
         items.clear();
         items.addAll(dummyListData);
       });
-      return;
     } else {
       setState(() {
         items.clear();
-        items.addAll(contactsList);
+        items.addAll(contacts);
       });
     }
   }
@@ -62,88 +90,62 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0, left: 8),
-      child: Stack(
-        children: [
-          Column(
-            children: [
-              Flexible(
-                child: TextField(
-                  onChanged: (value) {
-                    filterSearchResults(value);
-                  },
-                  controller: editingController,
-                  decoration: InputDecoration(
-                    prefixIcon: Wrap(
-                        direction: Axis.horizontal,
-                        children: List.generate(
-                            selectedList.length,
-                            (index) => Padding(
-                                  padding: const EdgeInsets.all(1.0),
-                                  child: Stack(
-                                    alignment: Alignment.centerLeft,
-                                    children: [
-                                      Container(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              top: 5.0,
-                                              bottom: 5,
-                                              left: 30,
-                                              right: 5),
-                                          child: Text(
-                                            selectedList[index].firstName,
-                                            style: TextStyle(fontSize: 12),
-                                          ),
-                                        ),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(12)),
-                                          color: Theme.of(context).accentColor,
-                                        ),
-                                      ),
-                                      Positioned(
-                                        child: CircleAvatarWidget(
-                                            accountRepo.currentUserUid,
-                                            selectedList[index]
-                                                    .firstName
-                                                    .substring(0, 1) +
-                                                selectedList[index]
-                                                    .lastName
-                                                    .substring(0, 1),
-                                            14,
-                                            false),
-                                      )
-                                    ],
-                                  ),
-                                ))),
-                  ),
-                ),
-              ),
-              Expanded(
-                  child: Stack(
-                children: [
-                  items.length != 0
-                      ? Container(
-                          child: ListView.builder(
-                            itemCount: items.length,
-                            itemBuilder: _getListItemTile,
-                          ),
-                        )
-                      : Center(
+    return Stack(
+      children: [
+        Column(
+          children: [
+            TextField(
+                decoration: InputDecoration(
+                    hintText: appLocalization.getTraslateValue("search")),
+                onChanged: (value) {
+                  filterSearchResults(value);
+                },
+                controller: editingController),
+            Expanded(
+                child: FutureBuilder(
+                    future: _contactDao.getAllUser(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<List<Contact>> snapshot) {
+                      if (snapshot.hasData &&
+                          snapshot.data != null &&
+                          snapshot.data.length > 0) {
+                        contacts = snapshot.data;
+                        if (items == null) {
+                          items = contacts.map((e) => e.copyWith()).toList();
+                        }
+
+                        return StreamBuilder<int>(
+                            stream: _createMucService.selectedLengthStream(),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) {
+                                return SizedBox.shrink();
+                              }
+                              return ListView.builder(
+                                itemCount: items.length,
+                                itemBuilder: _getListItemTile,
+                              );
+                            });
+                      } else {
+                        return Center(
                           child: Text(
                             appLocalization.getTraslateValue("NoResults"),
                             style: TextStyle(fontSize: 18),
                           ),
-                        ),
-                ],
-              )),
-            ],
-          ),
-          selectedList.length > 0
-              ? Positioned(
-                  bottom: 30,
-                  right: 30,
+                        );
+                      }
+                    })),
+          ],
+        ),
+        StreamBuilder<int>(
+            stream: _createMucService.selectedLengthStream(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return SizedBox.shrink();
+              }
+              if (snapshot.data > 0)
+                return Positioned(
+                  bottom: 0,
+                  right: 0,
                   child: Container(
                     width: 40,
                     height: 40,
@@ -151,64 +153,60 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                       shape: BoxShape.circle,
                       color: Theme.of(context).primaryColor,
                     ),
-                    child: IconButton(
-                      icon: Icon(Icons.arrow_forward),
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.all(0),
-                      onPressed: () {
-                        List<Contact> members = [];
-                        for (var i = 0; i < selectedList.length; i++) {
-                          members.add(selectedList[i]);
-                        }
-                        ExtendedNavigator.of(context).push(
-                            Routes.groupInfoDeterminationPage,
-                            arguments: GroupInfoDeterminationPageArguments(
-                                members: members));
-                      },
-                    ),
+                    child: widget.mucUid != null
+                        ? IconButton(
+                            icon: Icon(Icons.check),
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.all(0),
+                            onPressed: () async {
+                              List<Uid> users = List();
+                              for (Contact contact
+                                  in _createMucService.members) {
+                                users.add(contact.uid.uid);
+                              }
+                              bool usersAdd = await _mucRepo.sendMembers(
+                                  widget.mucUid, users);
+                              if (usersAdd) {
+                                _routingService.pop();
+                              } else {
+                                Fluttertoast.showToast(
+                                    msg: appLocalization
+                                        .getTraslateValue("occurred_Error"));
+                                _routingService.pop();
+                              }
+                            })
+                        : IconButton(
+                            icon: Icon(Icons.arrow_forward),
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.all(0),
+                            onPressed: () {
+                              _routingService.openGroupInfoDeterminationPage(
+                                  isChannel: widget.isChannel);
+                            },
+                          ),
                   ),
-                )
-              : Container(),
-        ],
-      ),
+                );
+              else
+                return SizedBox.shrink();
+            })
+      ],
     );
   }
 
   Widget _getListItemTile(BuildContext context, int index) {
     return GestureDetector(
       onTap: () {
-        if (selectedList.contains(items[index])) {
-          selectedList.remove(items[index]);
+        if (!_createMucService.isSelected(items[index])) {
+          _createMucService.addMember(items[index]);
           editingController.clear();
-          items.clear();
-          items.addAll(contactsList);
-          widget.decreaseMember();
         } else {
-          selectedList.add(items[index]);
+          _createMucService.deleteMember(items[index]);
           editingController.clear();
-          items.clear();
-          items.addAll(contactsList);
-          widget.increaseMember();
         }
       },
-      onLongPress: () {
-        if (!selectedList.contains(items[index])) {
-          selectedList.add(items[index]);
-          editingController.clear();
-          items.clear();
-          items.addAll(contactsList);
-          widget.increaseMember();
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.only(left: 8.0, right: 8),
-        child: Container(
-          margin: EdgeInsets.symmetric(vertical: 4),
-          child: SelectiveContact(
-              contact: items[index],
-              isSelected: selectedList.contains(items[index])),
-        ),
-      ),
+      child: SelectiveContact(
+          contact: items[index],
+          isSelected: _createMucService.isSelected(items[index])),
     );
   }
 }

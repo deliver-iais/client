@@ -35,7 +35,7 @@ class _MessageUiState extends State<MessageUi> {
                   )
                 : MessageHeader(
                     message: widget.message, maxWidth: widget.maxWidth),
-        Padding(
+       widget.message.json.toFile().caption.isNotEmpty? Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           child: TextUi(
             content: widget.message.json.toFile().caption,
@@ -43,7 +43,7 @@ class _MessageUiState extends State<MessageUi> {
             lastCross: widget.lastCross,
             isCaption: true,
           ),
-        )
+        ):SizedBox.shrink()
       ],
     );
   }

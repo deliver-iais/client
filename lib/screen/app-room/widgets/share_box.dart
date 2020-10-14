@@ -16,12 +16,14 @@ class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
   final int replyMessageId;
   final Function resetRoomPageDetails;
+
   const ShareBox(
       {Key key,
       this.currentRoomId,
       this.replyMessageId,
       this.resetRoomPageDetails})
       : super(key: key);
+
   @override
   _ShareBoxState createState() => _ShareBoxState();
 }
@@ -146,6 +148,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   },
                                   selectedImages: selectedImages,
                                   selectGallery: true,
+                                  roomUid: widget.currentRoomId,
                                 )
                               : SizedBox.shrink()),
               Column(

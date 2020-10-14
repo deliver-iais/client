@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class ExtraThemeData {
   Color circleAvatarBackground = Color(0xFF2699FB);
-  Color introColor = Color(0xFF5F5F5F);
   Color details = Color(0xFF9D9D9D);
   Color circleAvatarIcon = Colors.white;
   Color secondColor = Color(0xFF393939);
@@ -10,33 +9,33 @@ class ExtraThemeData {
   Color infoChat = Colors.white;
   Color text = Color(0xFFBCE0FD);
   Color blueOfProfilePage = Color(0xFF2699FB);
-  Color backgroundOfProfilePage =  Color(0xFF424242);
+  Color backgroundOfProfilePage = Color(0xFF424242);
   Color borderOfProfilePage = Color(0xFF9D9D9D);
-  Color tabsColor = Colors.white;
-  Color black = Colors.black;
 
-  ExtraThemeData({this.circleAvatarBackground,
-    this.introColor,
-    this.details,
-    this.circleAvatarIcon,
-    this.secondColor,
-    this.active,
-    this.infoChat,
-    this.text});
+  ExtraThemeData(
+      {this.circleAvatarBackground,
+      this.details,
+      this.circleAvatarIcon,
+      this.secondColor,
+      this.active,
+      this.infoChat,
+      this.text});
 }
 
 class ExtraTheme extends InheritedWidget {
   final ExtraThemeData extraThemeData;
 
-  ExtraTheme({Key key,
+  ExtraTheme({
+    Key key,
     @required Widget child,
     @required this.extraThemeData,
-  })
-      : assert(child != null),
+  })  : assert(child != null),
         super(key: key, child: child);
 
   static ExtraThemeData of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<ExtraTheme>().extraThemeData;
+    return context
+        .dependOnInheritedWidgetOfExactType<ExtraTheme>()
+        .extraThemeData;
   }
 
   @override

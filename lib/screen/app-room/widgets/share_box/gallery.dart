@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/repository/avatarRepo.dart';
+
 import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
 
 import 'package:image_picker/image_picker.dart';
@@ -17,13 +17,15 @@ class ShareBoxGallery extends StatefulWidget {
   final Function onClick;
   final Map<int, bool> selectedImages;
   final bool selectGallery;
+  final Uid roomUid;
 
   const ShareBoxGallery(
       {Key key,
       @required this.selectGallery,
       @required this.scrollController,
       @required this.onClick,
-      @required this.selectedImages})
+      @required this.selectedImages,
+      @required this.roomUid })
       : super(key: key);
 
   @override
@@ -100,7 +102,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                     Routes.showImagePage,
                                     arguments: ShowImagePageArguments(
                                         imageFile: File(pickedFile.path),
-                                        contactUid: "Judi"))
+                                        contactUid: widget.roomUid))
                                 : cropAvatar(image.path);
                           } catch (e) {}
                         },
@@ -117,7 +119,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                       Routes.showImagePage,
                                       arguments: ShowImagePageArguments(
                                           imageFile: File(image.path),
-                                          contactUid: "Judi"));
+                                          contactUid:widget.roomUid ));
                                 } else {
                                   widget.onClick(index, image.path);
                                 }

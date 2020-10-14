@@ -11,7 +11,8 @@ class PendingMessageDao extends DatabaseAccessor<Database>
 
   PendingMessageDao(this.database) : super(database);
 
-  Stream watchAllMessages() => select(pendingMessages).watch();
+  Stream<List<PendingMessage>> watchAllMessages() =>
+      select(pendingMessages).watch();
 
   Future<int> insertPendingMessage(PendingMessage newPendingMessage) =>
       into(pendingMessages).insertOnConflictUpdate(newPendingMessage);
@@ -22,7 +23,7 @@ class PendingMessageDao extends DatabaseAccessor<Database>
   Future updatePendingMessage(PendingMessage updatedPendingMessage) =>
       update(pendingMessages).replace(updatedPendingMessage);
 
-  Stream<List<PendingMessage>> getByMessageId(int messageId) {
+  Stream<List<PendingMessage>> getByMessageId(String messageId) {
     return (select(pendingMessages)
           ..where((pm) => pm.messageId.equals(messageId)))
         .watch();

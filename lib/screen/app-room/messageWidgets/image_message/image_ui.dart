@@ -12,11 +12,10 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/image_message/fil
 import 'package:deliver_flutter/screen/app-room/messageWidgets/sending_file_circular_indicator.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
-import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
-import 'package:deliver_flutter/shared/extensions/uid_Extension.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class ImageUi extends StatefulWidget {
   final Message message;
@@ -62,7 +61,7 @@ class _ImageUiState extends State<ImageUi> {
     if (accountRepo.currentUserUid.string == widget.message.from) {
       return Container(
         child: StreamBuilder<List<PendingMessage>>(
-          stream: pendingMessageDao.getByMessageId(widget.message.dbId),
+          stream: pendingMessageDao.getByMessageId(widget.message.packetId),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (snapshot.data.length > 0) {
@@ -121,7 +120,7 @@ class _ImageUiState extends State<ImageUi> {
     } else
       return Container(
         child: StreamBuilder<List<PendingMessage>>(
-          stream: pendingMessageDao.getByMessageId(widget.message.dbId),
+          stream: pendingMessageDao.getByMessageId(widget.message.packetId),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return FutureBuilder<bool>(
@@ -158,7 +157,7 @@ class _ImageUiState extends State<ImageUi> {
                             return CircularProgressIndicator();
                         },
                       );
-                    } else if (snapshot.data.length == 0 ||
+                    } else if (snapshot.data != null && snapshot.data.length == 0 ||
                         (snapshot.data[0]).status !=
                             SendingStatus.SENDING_FILE) {
                       return FilteredImage(

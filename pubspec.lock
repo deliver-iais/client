@@ -7,14 +7,14 @@ packages:
       name: _fe_analyzer_shared
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.0.0"
+    version: "7.0.0"
   analyzer:
     dependency: transitive
     description:
       name: analyzer
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.39.14"
+    version: "0.39.17"
   analyzer_plugin:
     dependency: transitive
     description:
@@ -35,7 +35,7 @@ packages:
       name: async
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.5.0-nullsafety"
+    version: "2.5.0-nullsafety.1"
   audio_recorder:
     dependency: "direct main"
     description:
@@ -77,7 +77,7 @@ packages:
       name: boolean_selector
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0-nullsafety"
+    version: "2.1.0-nullsafety.1"
   build:
     dependency: transitive
     description:
@@ -112,7 +112,7 @@ packages:
       name: build_runner
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.10.1"
+    version: "1.10.2"
   build_runner_core:
     dependency: transitive
     description:
@@ -154,14 +154,14 @@ packages:
       name: characters
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0-nullsafety.2"
+    version: "1.1.0-nullsafety.3"
   charcode:
     dependency: transitive
     description:
       name: charcode
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.0-nullsafety"
+    version: "1.2.0-nullsafety.1"
   checked_yaml:
     dependency: transitive
     description:
@@ -182,7 +182,7 @@ packages:
       name: clock
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0-nullsafety"
+    version: "1.1.0-nullsafety.1"
   code_builder:
     dependency: transitive
     description:
@@ -196,7 +196,7 @@ packages:
       name: collection
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.15.0-nullsafety.2"
+    version: "1.15.0-nullsafety.3"
   contacts_service:
     dependency: "direct main"
     description:
@@ -260,15 +260,36 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0+4"
+  dcache:
+    dependency: "direct main"
+    description:
+      name: dcache
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.0"
   deliver_public_protocol:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.3.1"
-      resolved-ref: "8aedff993dda69be4dd24139241b87d145e6724c"
+      ref: "tags/v1.4.4"
+      resolved-ref: "888c997325c0d80e8a4cf88292d475bb02e34d46"
       url: "https://gitlab.iais.co/deliver/protocol/pub-dart-artifactory.git"
     source: git
-    version: "1.3.1"
+    version: "1.4.4"
+  device_info:
+    dependency: "direct main"
+    description:
+      name: device_info
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.2+8"
+  device_info_platform_interface:
+    dependency: transitive
+    description:
+      name: device_info_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
   dio:
     dependency: "direct main"
     description:
@@ -318,6 +339,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.2.1"
+  file_chooser:
+    dependency: "direct main"
+    description:
+      path: "plugins/file_chooser"
+      ref: "0efb6b14a802a01b5432b2a2ee97c7f4821f2ab2"
+      resolved-ref: "0efb6b14a802a01b5432b2a2ee97c7f4821f2ab2"
+      url: "git://github.com/google/flutter-desktop-embedding.git"
+    source: git
+    version: "0.2.0"
   fimber:
     dependency: "direct main"
     description:
@@ -400,6 +430,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.4.2"
+  flutter_icons:
+    dependency: "direct main"
+    description:
+      name: flutter_icons
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.0"
   flutter_isolate:
     dependency: transitive
     description:
@@ -624,14 +661,14 @@ packages:
       name: matcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.12.10-nullsafety"
+    version: "0.12.10-nullsafety.1"
   meta:
     dependency: transitive
     description:
       name: meta
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.3.0-nullsafety.3"
+    version: "1.1.8"
   mime:
     dependency: transitive
     description:
@@ -723,6 +760,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.6.14"
+  path_provider_fde:
+    dependency: "direct main"
+    description:
+      path: "plugins/flutter_plugins/path_provider_fde"
+      ref: "66e4b05"
+      resolved-ref: "66e4b058971cb6c92c653f0d89c6a5c4aadb6539"
+      url: "git://github.com/google/flutter-desktop-embedding.git"
+    source: git
+    version: "0.0.1"
   path_provider_linux:
     dependency: transitive
     description:
@@ -842,6 +888,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.0"
+  receive_sharing_intent:
+    dependency: "direct main"
+    description:
+      name: receive_sharing_intent
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.4.1"
   rxdart:
     dependency: "direct main"
     description:
@@ -931,6 +984,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2+1"
+  sqflite_common_ffi:
+    dependency: "direct main"
+    description:
+      name: sqflite_common_ffi
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.0+1"
   sqlite3:
     dependency: transitive
     description:

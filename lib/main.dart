@@ -12,27 +12,35 @@ import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart' as R;
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
+import 'package:deliver_flutter/services/core_services.dart';
+import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/services/message_service.dart';
+import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_flutter/services/mode_checker.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_flutter/theme/sizing.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:fimber/fimber.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:window_size/window_size.dart';
@@ -73,14 +81,23 @@ void setupRepositories() {
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<ModeChecker>(ModeChecker());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
+  getIt.registerSingleton<CoreServices>(CoreServices());
   getIt.registerSingleton<MessageRepo>(MessageRepo());
+  getIt.registerSingleton<MucServices>(MucServices());
+  getIt.registerSingleton<RoomRepo>(RoomRepo());
+  getIt.registerSingleton<ContactRepo>(ContactRepo());
   getIt.registerSingleton<MucRepo>(MucRepo());
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
   getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());
   getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
+
+  getIt.registerSingleton<MemberRepo>(MemberRepo());
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
+  getIt.registerSingleton<CreateMucService>(CreateMucService());
+  getIt.registerSingleton<RoutingService>(RoutingService());
 }
+
 
 setupFlutterNotification() async {
   await Firebase.initializeApp();

@@ -3,12 +3,12 @@ import 'package:moor/moor.dart';
 class Avatars extends Table {
   TextColumn get uid => text()();
 
-  TextColumn get fileId => text()();
+  DateTimeColumn get createdOn => dateTime()();
 
-  IntColumn get date => integer()();
+  TextColumn get fileId => text()();
 
   TextColumn get fileName => text()();
 
   @override
-  Set<Column> get primaryKey => {fileId};
+  Set<Column> get primaryKey => {uid, createdOn};
 }

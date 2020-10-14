@@ -56,8 +56,9 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
         .watchSingle();
   }
 
-  Stream<Message> getByDBId(int dbId) {
-    return (select(messages)..where((m) => m.dbId.equals(dbId))).watchSingle();
+  Stream<Message> getByDBId(String dbId) {
+    return (select(messages)..where((m) => m.packetId.equals(dbId)))
+        .watchSingle();
   }
 
   Stream getMessagesInCurrentWeek() {

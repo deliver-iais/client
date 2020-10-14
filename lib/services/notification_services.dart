@@ -31,12 +31,12 @@ class NotificationServices {
       int id, String title, String body, String payload) async {}
 
   gotoRoomPage(String roomId) {
-    ExtendedNavigator.root.push(
-      Routes.roomPage,
-      arguments: RoomPageArguments(
-        roomId: roomId,
-      ),
-    );
+    // ExtendedNavigator.root.push(
+    //   Routes.roomPage,
+    //   arguments: RoomPageArguments(
+    //     roomId: roomId,
+    //   ),
+    // );
   }
 
   cancelNotification(int notificationId) {

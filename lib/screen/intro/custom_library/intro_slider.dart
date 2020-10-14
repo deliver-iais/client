@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/theme/sizing.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:flutter/material.dart';
 
 import 'list_rtl_language.dart';
