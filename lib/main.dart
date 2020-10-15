@@ -76,10 +76,10 @@ void setupRepositories() {
   getIt.registerSingleton<AccountRepo>(AccountRepo());
   getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
+  getIt.registerSingleton<ModeChecker>(ModeChecker());
   getIt.registerSingleton<MessageService>(MessageService());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
-  getIt.registerSingleton<ModeChecker>(ModeChecker());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<CoreServices>(CoreServices());
   getIt.registerSingleton<MessageRepo>(MessageRepo());
