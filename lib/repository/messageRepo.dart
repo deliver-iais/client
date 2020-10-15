@@ -87,8 +87,8 @@ class MessageRepo {
                   'accessToken': await _accountRepo.getAccessToken()
                 }));
             await saveFetchMessages(fetchMessagesRes.messages);
-            await roomDao.updateRoom(room.copyWith(
-                lastMessage: fetchMessagesRes.messages.last.id.toInt()));
+            await _roomDao.updateRoom(room.copyWith(
+                lastMessage: fetchMessagesRes.messages.last.packetId));
           } catch (e) {
             print(e);
           }
@@ -324,10 +324,10 @@ class MessageRepo {
     for (messagePb.Message message in messages) {
       MessageType type = findFetchMessageType(message);
       String json = findFetchMessageJson(message, type);
-      messageDao.insertMessage(
+      _messageDao.insertMessage(
         Message(
           roomId: message.to.string,
-          packetId: int.parse(message.packetId),
+          packetId: message.packetId,
           id: message.id.toInt(),
           time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
           from: message.from.string,
@@ -359,7 +359,7 @@ class MessageRepo {
     else if (message.hasLocation())
       return MessageType.LOCATION;
     else
-      return MessageType.NAN;
+      return MessageType.NOT_SET;
   }
 
   String findFetchMessageJson(messagePb.Message message, MessageType type) {
@@ -387,7 +387,7 @@ class MessageRepo {
         "height": message.sticker.height
       };
     else if (type == MessageType.PERSISTENT_EVENT)
-      json = {"type": message.persistEvent.issue}; //TODO edit this
+      json = {"type": message.persistEvent}; //TODO edit this
     else if (type == MessageType.POLL)
       json = {
         "uuid": message.poll.uuid,
