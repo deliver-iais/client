@@ -7,6 +7,7 @@ import 'package:deliver_flutter/models/localSearchResult.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
@@ -95,5 +96,9 @@ class RoomRepo {
       }
     }
     return searchResult;
+  }
+
+  Stream<Room> getMessagesLength(String roomId) {
+    return _roomDao.getByRoomId(roomId);
   }
 }

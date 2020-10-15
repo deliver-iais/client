@@ -318,8 +318,18 @@ class MessageRepo {
     return "${_accountRepo.currentUserUid.getString()}:${DateTime.now().microsecondsSinceEpoch.toString()}";
   }
 
-  getPage(int page, String roomId) {
+  getPage(int page, String roomId) async {
     var messages = _messageDao.getPage(roomId, page);
+    if (messages == null) {
+      var fetchMessagesRes = await _queryServiceClient.fetchMessages(
+          FetchMessagesReq()
+            ..roomUid = roomId.uid
+            ..pointer = Int64(page * 50)
+            ..type = FetchMessagesReq_Type.FORWARD_FETCH
+            ..limit = 50,
+          options: CallOptions(
+              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+    }
     return messages;
   }
 }

@@ -3,8 +3,10 @@ import 'dart:ui';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/GroupDao.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/models/app_mode.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/services/mode_checker.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -22,16 +24,20 @@ class UserAppbar extends StatelessWidget {
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
+  var _modeChecker = GetIt.I.get<ModeChecker>();
 
   @override
   Widget build(BuildContext context) {
+    AppLocalization appLocalization = AppLocalization.of(context);
     return Container(
         color: Theme.of(context).appBarTheme.color,
         child: GestureDetector(
           child: Row(
             children: [
               CircleAvatarWidget(userUid, 23),
-              SizedBox(width: 15,),
+              SizedBox(
+                width: 15,
+              ),
               FutureBuilder<String>(
                 future: _roomRepo.getRoomDisplayName(userUid),
                 builder:
@@ -39,22 +45,35 @@ class UserAppbar extends StatelessWidget {
                   if (snapshot.data != null) {
                     return Column(
                       children: [
-                        Text(snapshot.data,style: TextStyle(fontSize: 14),),
-                        Text("last seen",style: TextStyle(fontSize: 12),) //todo last seen
+                        Text(
+                          snapshot.data,
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        Text(
+                          "last seen",
+                          style: TextStyle(fontSize: 12),
+                        ) //todo last seen
                       ],
                     );
                   } else {
-                   return FutureBuilder<UserAsContact>(
+                    return FutureBuilder<UserAsContact>(
                       future: _contactRepo.searchUserByUid(userUid),
                       builder: (BuildContext context,
                           AsyncSnapshot<UserAsContact> snapshot) {
                         if (snapshot.data != null) {
-                          return Column(
-                            children: [
-                              Text(snapshot.data.username),
-                              Text("last seen")
-                            ],
-                          );
+                          return StreamBuilder<AppMode>(
+                              stream: _modeChecker.appMode,
+                              builder: (context, mode) {
+                                return Column(
+                                  children: [
+                                    Text(snapshot.data.username),
+                                    Text(mode.data == AppMode.STABLE
+                                        ? "last seen"
+                                        : appLocalization
+                                            .getTraslateValue("connecting")),
+                                  ],
+                                );
+                              });
                         } else {
                           return Text("Unknown");
                         }

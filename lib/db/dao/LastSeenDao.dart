@@ -17,16 +17,16 @@ class LastSeenDao extends DatabaseAccessor<Database> with _$LastSeenDaoMixin {
   Future deleteLastSeen(LastSeen lastSeen) =>
       delete(lastSeens).delete(lastSeen);
 
-  updateLastSeen(String roomId, int lastSeenMessageId) async {
+  updateLastSeen(String roomId, String lastSeenMessagePacketId) async {
     LastSeen lastSeenRoom = await (select(lastSeens)
           ..where((lastSeen) => lastSeen.roomId.equals(roomId)))
         .getSingle();
     if (lastSeenRoom == null)
       await insertLastSeen(
-          LastSeen(messageId: lastSeenMessageId, roomId: roomId));
-    else if (lastSeenRoom.messageId < lastSeenMessageId)
+          LastSeen(messageId: lastSeenMessagePacketId, roomId: roomId));
+    else if (lastSeenRoom.messageId != lastSeenMessagePacketId)
       update(lastSeens)
-          .replace(lastSeenRoom.copyWith(messageId: lastSeenMessageId));
+          .replace(lastSeenRoom.copyWith(messageId: lastSeenMessagePacketId));
   }
 
   Future<LastSeen> getByRoomId(String roomId) {

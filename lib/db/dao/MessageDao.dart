@@ -24,24 +24,6 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
 
   Stream<List<Message>> getByRoomId(String roomId, int lastShowedMessageId) {
     print(roomId);
-    // var query = select(messages)
-    //   ..orderBy([
-    //     (m) => OrderingTerm(expression: m.time, mode: OrderingMode.desc),
-    //   ])
-    //   ..where((message) => message.roomId.equals(roomId));
-
-    // return MergeStream<List<Message>>([
-    // ((query
-    //       ..where((message) =>
-    //           message.id.isBiggerOrEqualValue(lastShowedMessageId)))
-    //       ..limit(40))
-    //     .watch(),
-    //   ((query
-    //         ..where(
-    //             (message) => message.id.isSmallerThanValue(lastShowedMessageId))
-    //         ..limit(40))
-    //       .watch())
-    // ]);
     return (select(messages)
           ..orderBy([
             (m) => OrderingTerm(expression: m.time, mode: OrderingMode.desc),

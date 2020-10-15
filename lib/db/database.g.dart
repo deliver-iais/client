@@ -4204,7 +4204,7 @@ class $GroupsTable extends Groups with TableInfo<$GroupsTable, Group> {
 
 class LastSeen extends DataClass implements Insertable<LastSeen> {
   final int dbId;
-  final int messageId;
+  final String messageId;
   final String roomId;
   LastSeen(
       {@required this.dbId, @required this.messageId, @required this.roomId});
@@ -4215,8 +4215,8 @@ class LastSeen extends DataClass implements Insertable<LastSeen> {
     final stringType = db.typeSystem.forDartType<String>();
     return LastSeen(
       dbId: intType.mapFromDatabaseResponse(data['${effectivePrefix}db_id']),
-      messageId:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}message_id']),
+      messageId: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}message_id']),
       roomId:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
     );
@@ -4228,7 +4228,7 @@ class LastSeen extends DataClass implements Insertable<LastSeen> {
       map['db_id'] = Variable<int>(dbId);
     }
     if (!nullToAbsent || messageId != null) {
-      map['message_id'] = Variable<int>(messageId);
+      map['message_id'] = Variable<String>(messageId);
     }
     if (!nullToAbsent || roomId != null) {
       map['room_id'] = Variable<String>(roomId);
@@ -4252,7 +4252,7 @@ class LastSeen extends DataClass implements Insertable<LastSeen> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return LastSeen(
       dbId: serializer.fromJson<int>(json['dbId']),
-      messageId: serializer.fromJson<int>(json['messageId']),
+      messageId: serializer.fromJson<String>(json['messageId']),
       roomId: serializer.fromJson<String>(json['roomId']),
     );
   }
@@ -4261,12 +4261,12 @@ class LastSeen extends DataClass implements Insertable<LastSeen> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'dbId': serializer.toJson<int>(dbId),
-      'messageId': serializer.toJson<int>(messageId),
+      'messageId': serializer.toJson<String>(messageId),
       'roomId': serializer.toJson<String>(roomId),
     };
   }
 
-  LastSeen copyWith({int dbId, int messageId, String roomId}) => LastSeen(
+  LastSeen copyWith({int dbId, String messageId, String roomId}) => LastSeen(
         dbId: dbId ?? this.dbId,
         messageId: messageId ?? this.messageId,
         roomId: roomId ?? this.roomId,
@@ -4295,7 +4295,7 @@ class LastSeen extends DataClass implements Insertable<LastSeen> {
 
 class LastSeensCompanion extends UpdateCompanion<LastSeen> {
   final Value<int> dbId;
-  final Value<int> messageId;
+  final Value<String> messageId;
   final Value<String> roomId;
   const LastSeensCompanion({
     this.dbId = const Value.absent(),
@@ -4304,13 +4304,13 @@ class LastSeensCompanion extends UpdateCompanion<LastSeen> {
   });
   LastSeensCompanion.insert({
     this.dbId = const Value.absent(),
-    @required int messageId,
+    @required String messageId,
     @required String roomId,
   })  : messageId = Value(messageId),
         roomId = Value(roomId);
   static Insertable<LastSeen> custom({
     Expression<int> dbId,
-    Expression<int> messageId,
+    Expression<String> messageId,
     Expression<String> roomId,
   }) {
     return RawValuesInsertable({
@@ -4321,7 +4321,7 @@ class LastSeensCompanion extends UpdateCompanion<LastSeen> {
   }
 
   LastSeensCompanion copyWith(
-      {Value<int> dbId, Value<int> messageId, Value<String> roomId}) {
+      {Value<int> dbId, Value<String> messageId, Value<String> roomId}) {
     return LastSeensCompanion(
       dbId: dbId ?? this.dbId,
       messageId: messageId ?? this.messageId,
@@ -4336,7 +4336,7 @@ class LastSeensCompanion extends UpdateCompanion<LastSeen> {
       map['db_id'] = Variable<int>(dbId.value);
     }
     if (messageId.present) {
-      map['message_id'] = Variable<int>(messageId.value);
+      map['message_id'] = Variable<String>(messageId.value);
     }
     if (roomId.present) {
       map['room_id'] = Variable<String>(roomId.value);
@@ -4370,11 +4370,11 @@ class $LastSeensTable extends LastSeens
   }
 
   final VerificationMeta _messageIdMeta = const VerificationMeta('messageId');
-  GeneratedIntColumn _messageId;
+  GeneratedTextColumn _messageId;
   @override
-  GeneratedIntColumn get messageId => _messageId ??= _constructMessageId();
-  GeneratedIntColumn _constructMessageId() {
-    return GeneratedIntColumn(
+  GeneratedTextColumn get messageId => _messageId ??= _constructMessageId();
+  GeneratedTextColumn _constructMessageId() {
+    return GeneratedTextColumn(
       'message_id',
       $tableName,
       false,
