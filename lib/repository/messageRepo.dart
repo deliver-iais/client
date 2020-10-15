@@ -316,6 +316,9 @@ class MessageRepo {
             ..limit = 50,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      await saveFetchMessages(fetchMessagesRes.messages);
+      messages = _messageDao.getPage(roomId, page);
+      if (messages == null) return List<Message>.filled(0, Message());
     }
     return messages;
   }
