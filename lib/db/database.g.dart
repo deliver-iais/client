@@ -4345,7 +4345,8 @@ class LastSeen extends DataClass implements Insertable<LastSeen> {
   final int dbId;
   final int messageId;
   final String roomId;
-  LastSeen({@required this.dbId, this.messageId, @required this.roomId});
+  LastSeen(
+      {@required this.dbId, @required this.messageId, @required this.roomId});
   factory LastSeen.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -4442,9 +4443,10 @@ class LastSeensCompanion extends UpdateCompanion<LastSeen> {
   });
   LastSeensCompanion.insert({
     this.dbId = const Value.absent(),
-    this.messageId = const Value.absent(),
+    @required int messageId,
     @required String roomId,
-  }) : roomId = Value(roomId);
+  })  : messageId = Value(messageId),
+        roomId = Value(roomId);
   static Insertable<LastSeen> custom({
     Expression<int> dbId,
     Expression<int> messageId,
@@ -4514,7 +4516,7 @@ class $LastSeensTable extends LastSeens
     return GeneratedIntColumn(
       'message_id',
       $tableName,
-      true,
+      false,
     );
   }
 
@@ -4550,6 +4552,8 @@ class $LastSeensTable extends LastSeens
     if (data.containsKey('message_id')) {
       context.handle(_messageIdMeta,
           messageId.isAcceptableOrUnknown(data['message_id'], _messageIdMeta));
+    } else if (isInserting) {
+      context.missing(_messageIdMeta);
     }
     if (data.containsKey('room_id')) {
       context.handle(_roomIdMeta,
