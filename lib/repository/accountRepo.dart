@@ -4,6 +4,7 @@ import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/screen/register/pages/testing_environment_tokens.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -38,8 +39,8 @@ class AccountRepo {
     ..node = "john";
   Avatar avatar;
   PhoneNumber phoneNumber;
-  String _accessToken;
-  String _refreshToken;
+  String _accessToken = TESTING_ENVIRONMENT_ACCESS_TOKEN;
+  String _refreshToken = TESTING_ENVIRONMENT_REFRESH_TOKEN;
 
   // Dependencies
   SharedPreferencesDao _prefs = GetIt.I.get<SharedPreferencesDao>();
@@ -62,9 +63,7 @@ class AccountRepo {
 
   String platformVersion;
 
-
   Future getVerificationCode(String countryCode, String nationalNumber) async {
-
     PhoneNumber phone = PhoneNumber()
       ..countryCode = int.parse(countryCode)
       ..nationalNumber = Int64.parseInt(nationalNumber);
@@ -80,15 +79,13 @@ class AccountRepo {
   Future sendVerificationCode(String code) async {
     String device;
 
-    if(Platform.isAndroid){
+    if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       device = androidInfo.androidId;
-
-    }else if(Platform.isIOS){
+    } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       device = iosInfo.identifierForVendor;
     }
-
 
     var sendVerificationCode =
         await authServiceStub.verifyAndGetToken(VerifyCodeReq()
@@ -97,7 +94,6 @@ class AccountRepo {
           ..device = device
 //          TODO add password mechanism
           ..password = "");
-
 
     return sendVerificationCode;
   }
@@ -136,10 +132,13 @@ class AccountRepo {
   }
 
   Future<bool> usernameIsSet() async {
+    print('accountRepo/userNameIsSet/beforeGetUserProfile');
     var result = await _userServices.getUserProfile(GetUserProfileReq(),
         options:
             CallOptions(metadata: {'accessToken': await getAccessToken()}));
+    print('accountRepo/userNameIsSet/afterGetUserProfile');
     if (result.profile.hasUsername()) {
+      print('accountRepo/userNameIsSet/in if');
       _saveProfilePrivateDate(
           username: result.profile.username,
           firstName: result.profile.firstName,
@@ -147,6 +146,7 @@ class AccountRepo {
           email: result.profile.email);
       return true;
     } else {
+      print('accountRepo/userNameIsSet/in else');
       return false;
     }
   }

@@ -35,9 +35,8 @@ class CoreServices {
   var _roomDao = GetIt.I.get<RoomDao>();
   PendingMessageDao _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
 
-
   setCoreSetting() async {
-    try{
+    try {
       ResponseStream<ServerPacket> responseStream = coreService.establishStream(
           _clientPacket.stream,
           options: CallOptions(
@@ -46,7 +45,6 @@ class CoreServices {
         print("messageweeeeee");
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:
-
             _saveIncomingMessage(serverPacket.message);
             break;
           case ServerPacket_Type.error:
@@ -71,10 +69,9 @@ class CoreServices {
             break;
         }
       });
-    }catch(e){
+    } catch (e) {
       print("correservice error");
     }
-
   }
 
   _saveIncomingMessage(Message message) {
@@ -92,31 +89,40 @@ class CoreServices {
         type: getMessageType(message.whichType())));
     _pendingMessageDao
         .deletePendingMessage(M.PendingMessage(messageId: message.packetId));
-    _roomDao.insertRoom(M.Room(roomId: message.from.string,lastMessage: message.packetId),);
-
+    _roomDao.insertRoom(
+      M.Room(
+          roomId: message.from.string,
+          lastMessageId: message.id.toInt(),
+          lastMessage: message.packetId),
+    );
   }
 
   sendMessage(MessageByClient message) {
-    _clientPacket.add(ClientPacket()..message = message..id = message.packetId);
+    _clientPacket.add(ClientPacket()
+      ..message = message
+      ..id = message.packetId);
     print("message is send ");
   }
 
   sendPingMessage() {
-
-    _clientPacket.add(ClientPacket()..ping = Ping()..id = DateTime.now().microsecondsSinceEpoch.toString());
+    _clientPacket.add(ClientPacket()
+      ..ping = Ping()
+      ..id = DateTime.now().microsecondsSinceEpoch.toString());
   }
 
   sendSeenMessage(SeenByClient seen) {
-    _clientPacket.add(ClientPacket()..seen = seen..id = seen.id.toString());
+    _clientPacket.add(ClientPacket()
+      ..seen = seen
+      ..id = seen.id.toString());
   }
 
   sendActivityMessage(ActivityByClient activity) {
-    _clientPacket.add(ClientPacket()..activity = activity..id = DateTime.now().microsecondsSinceEpoch.toString());
+    _clientPacket.add(ClientPacket()
+      ..activity = activity
+      ..id = DateTime.now().microsecondsSinceEpoch.toString());
   }
-  deleteMessage(){
 
-  }
-
+  deleteMessage() {}
 
   MessageType getMessageType(Message_Type messageType) {
     switch (messageType) {

@@ -8,6 +8,7 @@ part of 'database.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
 class Message extends DataClass implements Insertable<Message> {
+  final int dbId;
   final String packetId;
   final String roomId;
   final int id;
@@ -21,7 +22,8 @@ class Message extends DataClass implements Insertable<Message> {
   final MessageType type;
   final String json;
   Message(
-      {@required this.packetId,
+      {@required this.dbId,
+      @required this.packetId,
       @required this.roomId,
       this.id,
       @required this.time,
@@ -36,11 +38,12 @@ class Message extends DataClass implements Insertable<Message> {
   factory Message.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
     final intType = db.typeSystem.forDartType<int>();
+    final stringType = db.typeSystem.forDartType<String>();
     final dateTimeType = db.typeSystem.forDartType<DateTime>();
     final boolType = db.typeSystem.forDartType<bool>();
     return Message(
+      dbId: intType.mapFromDatabaseResponse(data['${effectivePrefix}db_id']),
       packetId: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}packet_id']),
       roomId:
@@ -66,6 +69,9 @@ class Message extends DataClass implements Insertable<Message> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || dbId != null) {
+      map['db_id'] = Variable<int>(dbId);
+    }
     if (!nullToAbsent || packetId != null) {
       map['packet_id'] = Variable<String>(packetId);
     }
@@ -108,6 +114,7 @@ class Message extends DataClass implements Insertable<Message> {
 
   MessagesCompanion toCompanion(bool nullToAbsent) {
     return MessagesCompanion(
+      dbId: dbId == null && nullToAbsent ? const Value.absent() : Value(dbId),
       packetId: packetId == null && nullToAbsent
           ? const Value.absent()
           : Value(packetId),
@@ -137,6 +144,7 @@ class Message extends DataClass implements Insertable<Message> {
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Message(
+      dbId: serializer.fromJson<int>(json['dbId']),
       packetId: serializer.fromJson<String>(json['packetId']),
       roomId: serializer.fromJson<String>(json['roomId']),
       id: serializer.fromJson<int>(json['id']),
@@ -155,6 +163,7 @@ class Message extends DataClass implements Insertable<Message> {
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'dbId': serializer.toJson<int>(dbId),
       'packetId': serializer.toJson<String>(packetId),
       'roomId': serializer.toJson<String>(roomId),
       'id': serializer.toJson<int>(id),
@@ -171,7 +180,8 @@ class Message extends DataClass implements Insertable<Message> {
   }
 
   Message copyWith(
-          {String packetId,
+          {int dbId,
+          String packetId,
           String roomId,
           int id,
           DateTime time,
@@ -184,6 +194,7 @@ class Message extends DataClass implements Insertable<Message> {
           MessageType type,
           String json}) =>
       Message(
+        dbId: dbId ?? this.dbId,
         packetId: packetId ?? this.packetId,
         roomId: roomId ?? this.roomId,
         id: id ?? this.id,
@@ -200,6 +211,7 @@ class Message extends DataClass implements Insertable<Message> {
   @override
   String toString() {
     return (StringBuffer('Message(')
+          ..write('dbId: $dbId, ')
           ..write('packetId: $packetId, ')
           ..write('roomId: $roomId, ')
           ..write('id: $id, ')
@@ -218,31 +230,34 @@ class Message extends DataClass implements Insertable<Message> {
 
   @override
   int get hashCode => $mrjf($mrjc(
-      packetId.hashCode,
+      dbId.hashCode,
       $mrjc(
-          roomId.hashCode,
+          packetId.hashCode,
           $mrjc(
-              id.hashCode,
+              roomId.hashCode,
               $mrjc(
-                  time.hashCode,
+                  id.hashCode,
                   $mrjc(
-                      from.hashCode,
+                      time.hashCode,
                       $mrjc(
-                          to.hashCode,
+                          from.hashCode,
                           $mrjc(
-                              replyToId.hashCode,
+                              to.hashCode,
                               $mrjc(
-                                  forwardedFrom.hashCode,
+                                  replyToId.hashCode,
                                   $mrjc(
-                                      edited.hashCode,
+                                      forwardedFrom.hashCode,
                                       $mrjc(
-                                          encrypted.hashCode,
-                                          $mrjc(type.hashCode,
-                                              json.hashCode))))))))))));
+                                          edited.hashCode,
+                                          $mrjc(
+                                              encrypted.hashCode,
+                                              $mrjc(type.hashCode,
+                                                  json.hashCode)))))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Message &&
+          other.dbId == this.dbId &&
           other.packetId == this.packetId &&
           other.roomId == this.roomId &&
           other.id == this.id &&
@@ -258,6 +273,7 @@ class Message extends DataClass implements Insertable<Message> {
 }
 
 class MessagesCompanion extends UpdateCompanion<Message> {
+  final Value<int> dbId;
   final Value<String> packetId;
   final Value<String> roomId;
   final Value<int> id;
@@ -271,6 +287,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   final Value<MessageType> type;
   final Value<String> json;
   const MessagesCompanion({
+    this.dbId = const Value.absent(),
     this.packetId = const Value.absent(),
     this.roomId = const Value.absent(),
     this.id = const Value.absent(),
@@ -285,6 +302,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     this.json = const Value.absent(),
   });
   MessagesCompanion.insert({
+    this.dbId = const Value.absent(),
     @required String packetId,
     @required String roomId,
     this.id = const Value.absent(),
@@ -305,6 +323,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
         type = Value(type),
         json = Value(json);
   static Insertable<Message> custom({
+    Expression<int> dbId,
     Expression<String> packetId,
     Expression<String> roomId,
     Expression<int> id,
@@ -319,6 +338,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     Expression<String> json,
   }) {
     return RawValuesInsertable({
+      if (dbId != null) 'db_id': dbId,
       if (packetId != null) 'packet_id': packetId,
       if (roomId != null) 'room_id': roomId,
       if (id != null) 'id': id,
@@ -335,7 +355,8 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   }
 
   MessagesCompanion copyWith(
-      {Value<String> packetId,
+      {Value<int> dbId,
+      Value<String> packetId,
       Value<String> roomId,
       Value<int> id,
       Value<DateTime> time,
@@ -348,6 +369,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
       Value<MessageType> type,
       Value<String> json}) {
     return MessagesCompanion(
+      dbId: dbId ?? this.dbId,
       packetId: packetId ?? this.packetId,
       roomId: roomId ?? this.roomId,
       id: id ?? this.id,
@@ -366,6 +388,9 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (dbId.present) {
+      map['db_id'] = Variable<int>(dbId.value);
+    }
     if (packetId.present) {
       map['packet_id'] = Variable<String>(packetId.value);
     }
@@ -409,6 +434,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   @override
   String toString() {
     return (StringBuffer('MessagesCompanion(')
+          ..write('dbId: $dbId, ')
           ..write('packetId: $packetId, ')
           ..write('roomId: $roomId, ')
           ..write('id: $id, ')
@@ -430,6 +456,15 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   final GeneratedDatabase _db;
   final String _alias;
   $MessagesTable(this._db, [this._alias]);
+  final VerificationMeta _dbIdMeta = const VerificationMeta('dbId');
+  GeneratedIntColumn _dbId;
+  @override
+  GeneratedIntColumn get dbId => _dbId ??= _constructDbId();
+  GeneratedIntColumn _constructDbId() {
+    return GeneratedIntColumn('db_id', $tableName, false,
+        hasAutoIncrement: true, declaredAsPrimaryKey: true);
+  }
+
   final VerificationMeta _packetIdMeta = const VerificationMeta('packetId');
   GeneratedTextColumn _packetId;
   @override
@@ -572,6 +607,7 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
 
   @override
   List<GeneratedColumn> get $columns => [
+        dbId,
         packetId,
         roomId,
         id,
@@ -596,6 +632,10 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('db_id')) {
+      context.handle(
+          _dbIdMeta, dbId.isAcceptableOrUnknown(data['db_id'], _dbIdMeta));
+    }
     if (data.containsKey('packet_id')) {
       context.handle(_packetIdMeta,
           packetId.isAcceptableOrUnknown(data['packet_id'], _packetIdMeta));
@@ -657,7 +697,7 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {packetId};
+  Set<GeneratedColumn> get $primaryKey => {dbId};
   @override
   Message map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -676,11 +716,13 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
 class Room extends DataClass implements Insertable<Room> {
   final String roomId;
   final bool mentioned;
+  final int lastMessageId;
   final bool mute;
   final String lastMessage;
   Room(
       {@required this.roomId,
       this.mentioned,
+      this.lastMessageId,
       @required this.mute,
       this.lastMessage});
   factory Room.fromData(Map<String, dynamic> data, GeneratedDatabase db,
@@ -688,11 +730,14 @@ class Room extends DataClass implements Insertable<Room> {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
     final boolType = db.typeSystem.forDartType<bool>();
+    final intType = db.typeSystem.forDartType<int>();
     return Room(
       roomId:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
       mentioned:
           boolType.mapFromDatabaseResponse(data['${effectivePrefix}mentioned']),
+      lastMessageId: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}last_message_id']),
       mute: boolType.mapFromDatabaseResponse(data['${effectivePrefix}mute']),
       lastMessage: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}last_message']),
@@ -706,6 +751,9 @@ class Room extends DataClass implements Insertable<Room> {
     }
     if (!nullToAbsent || mentioned != null) {
       map['mentioned'] = Variable<bool>(mentioned);
+    }
+    if (!nullToAbsent || lastMessageId != null) {
+      map['last_message_id'] = Variable<int>(lastMessageId);
     }
     if (!nullToAbsent || mute != null) {
       map['mute'] = Variable<bool>(mute);
@@ -723,6 +771,9 @@ class Room extends DataClass implements Insertable<Room> {
       mentioned: mentioned == null && nullToAbsent
           ? const Value.absent()
           : Value(mentioned),
+      lastMessageId: lastMessageId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMessageId),
       mute: mute == null && nullToAbsent ? const Value.absent() : Value(mute),
       lastMessage: lastMessage == null && nullToAbsent
           ? const Value.absent()
@@ -736,6 +787,7 @@ class Room extends DataClass implements Insertable<Room> {
     return Room(
       roomId: serializer.fromJson<String>(json['roomId']),
       mentioned: serializer.fromJson<bool>(json['mentioned']),
+      lastMessageId: serializer.fromJson<int>(json['lastMessageId']),
       mute: serializer.fromJson<bool>(json['mute']),
       lastMessage: serializer.fromJson<String>(json['lastMessage']),
     );
@@ -746,16 +798,22 @@ class Room extends DataClass implements Insertable<Room> {
     return <String, dynamic>{
       'roomId': serializer.toJson<String>(roomId),
       'mentioned': serializer.toJson<bool>(mentioned),
+      'lastMessageId': serializer.toJson<int>(lastMessageId),
       'mute': serializer.toJson<bool>(mute),
       'lastMessage': serializer.toJson<String>(lastMessage),
     };
   }
 
   Room copyWith(
-          {String roomId, bool mentioned, bool mute, String lastMessage}) =>
+          {String roomId,
+          bool mentioned,
+          int lastMessageId,
+          bool mute,
+          String lastMessage}) =>
       Room(
         roomId: roomId ?? this.roomId,
         mentioned: mentioned ?? this.mentioned,
+        lastMessageId: lastMessageId ?? this.lastMessageId,
         mute: mute ?? this.mute,
         lastMessage: lastMessage ?? this.lastMessage,
       );
@@ -764,6 +822,7 @@ class Room extends DataClass implements Insertable<Room> {
     return (StringBuffer('Room(')
           ..write('roomId: $roomId, ')
           ..write('mentioned: $mentioned, ')
+          ..write('lastMessageId: $lastMessageId, ')
           ..write('mute: $mute, ')
           ..write('lastMessage: $lastMessage')
           ..write(')'))
@@ -771,14 +830,19 @@ class Room extends DataClass implements Insertable<Room> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(roomId.hashCode,
-      $mrjc(mentioned.hashCode, $mrjc(mute.hashCode, lastMessage.hashCode))));
+  int get hashCode => $mrjf($mrjc(
+      roomId.hashCode,
+      $mrjc(
+          mentioned.hashCode,
+          $mrjc(lastMessageId.hashCode,
+              $mrjc(mute.hashCode, lastMessage.hashCode)))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Room &&
           other.roomId == this.roomId &&
           other.mentioned == this.mentioned &&
+          other.lastMessageId == this.lastMessageId &&
           other.mute == this.mute &&
           other.lastMessage == this.lastMessage);
 }
@@ -786,29 +850,34 @@ class Room extends DataClass implements Insertable<Room> {
 class RoomsCompanion extends UpdateCompanion<Room> {
   final Value<String> roomId;
   final Value<bool> mentioned;
+  final Value<int> lastMessageId;
   final Value<bool> mute;
   final Value<String> lastMessage;
   const RoomsCompanion({
     this.roomId = const Value.absent(),
     this.mentioned = const Value.absent(),
+    this.lastMessageId = const Value.absent(),
     this.mute = const Value.absent(),
     this.lastMessage = const Value.absent(),
   });
   RoomsCompanion.insert({
     @required String roomId,
     this.mentioned = const Value.absent(),
+    this.lastMessageId = const Value.absent(),
     this.mute = const Value.absent(),
     this.lastMessage = const Value.absent(),
   }) : roomId = Value(roomId);
   static Insertable<Room> custom({
     Expression<String> roomId,
     Expression<bool> mentioned,
+    Expression<int> lastMessageId,
     Expression<bool> mute,
     Expression<String> lastMessage,
   }) {
     return RawValuesInsertable({
       if (roomId != null) 'room_id': roomId,
       if (mentioned != null) 'mentioned': mentioned,
+      if (lastMessageId != null) 'last_message_id': lastMessageId,
       if (mute != null) 'mute': mute,
       if (lastMessage != null) 'last_message': lastMessage,
     });
@@ -817,11 +886,13 @@ class RoomsCompanion extends UpdateCompanion<Room> {
   RoomsCompanion copyWith(
       {Value<String> roomId,
       Value<bool> mentioned,
+      Value<int> lastMessageId,
       Value<bool> mute,
       Value<String> lastMessage}) {
     return RoomsCompanion(
       roomId: roomId ?? this.roomId,
       mentioned: mentioned ?? this.mentioned,
+      lastMessageId: lastMessageId ?? this.lastMessageId,
       mute: mute ?? this.mute,
       lastMessage: lastMessage ?? this.lastMessage,
     );
@@ -835,6 +906,9 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     }
     if (mentioned.present) {
       map['mentioned'] = Variable<bool>(mentioned.value);
+    }
+    if (lastMessageId.present) {
+      map['last_message_id'] = Variable<int>(lastMessageId.value);
     }
     if (mute.present) {
       map['mute'] = Variable<bool>(mute.value);
@@ -850,6 +924,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     return (StringBuffer('RoomsCompanion(')
           ..write('roomId: $roomId, ')
           ..write('mentioned: $mentioned, ')
+          ..write('lastMessageId: $lastMessageId, ')
           ..write('mute: $mute, ')
           ..write('lastMessage: $lastMessage')
           ..write(')'))
@@ -882,6 +957,17 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
         defaultValue: Constant(false));
   }
 
+  final VerificationMeta _lastMessageIdMeta =
+      const VerificationMeta('lastMessageId');
+  GeneratedIntColumn _lastMessageId;
+  @override
+  GeneratedIntColumn get lastMessageId =>
+      _lastMessageId ??= _constructLastMessageId();
+  GeneratedIntColumn _constructLastMessageId() {
+    return GeneratedIntColumn('last_message_id', $tableName, true,
+        $customConstraints: 'REFERENCES messages(id)');
+  }
+
   final VerificationMeta _muteMeta = const VerificationMeta('mute');
   GeneratedBoolColumn _mute;
   @override
@@ -903,7 +989,8 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
   }
 
   @override
-  List<GeneratedColumn> get $columns => [roomId, mentioned, mute, lastMessage];
+  List<GeneratedColumn> get $columns =>
+      [roomId, mentioned, lastMessageId, mute, lastMessage];
   @override
   $RoomsTable get asDslTable => this;
   @override
@@ -924,6 +1011,12 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
     if (data.containsKey('mentioned')) {
       context.handle(_mentionedMeta,
           mentioned.isAcceptableOrUnknown(data['mentioned'], _mentionedMeta));
+    }
+    if (data.containsKey('last_message_id')) {
+      context.handle(
+          _lastMessageIdMeta,
+          lastMessageId.isAcceptableOrUnknown(
+              data['last_message_id'], _lastMessageIdMeta));
     }
     if (data.containsKey('mute')) {
       context.handle(
@@ -2598,12 +2691,14 @@ class $LastAvatarsTable extends LastAvatars
 
 class PendingMessage extends DataClass implements Insertable<PendingMessage> {
   final String messageId;
+  final String roomId;
   final int remainingRetries;
   final DateTime time;
   final SendingStatus status;
   final String details;
   PendingMessage(
       {@required this.messageId,
+      @required this.roomId,
       @required this.remainingRetries,
       @required this.time,
       @required this.status,
@@ -2618,6 +2713,8 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
     return PendingMessage(
       messageId: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}message_id']),
+      roomId:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
       remainingRetries: intType
           .mapFromDatabaseResponse(data['${effectivePrefix}remaining_retries']),
       time:
@@ -2633,6 +2730,9 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
     final map = <String, Expression>{};
     if (!nullToAbsent || messageId != null) {
       map['message_id'] = Variable<String>(messageId);
+    }
+    if (!nullToAbsent || roomId != null) {
+      map['room_id'] = Variable<String>(roomId);
     }
     if (!nullToAbsent || remainingRetries != null) {
       map['remaining_retries'] = Variable<int>(remainingRetries);
@@ -2655,6 +2755,8 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
       messageId: messageId == null && nullToAbsent
           ? const Value.absent()
           : Value(messageId),
+      roomId:
+          roomId == null && nullToAbsent ? const Value.absent() : Value(roomId),
       remainingRetries: remainingRetries == null && nullToAbsent
           ? const Value.absent()
           : Value(remainingRetries),
@@ -2672,6 +2774,7 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return PendingMessage(
       messageId: serializer.fromJson<String>(json['messageId']),
+      roomId: serializer.fromJson<String>(json['roomId']),
       remainingRetries: serializer.fromJson<int>(json['remainingRetries']),
       time: serializer.fromJson<DateTime>(json['time']),
       status: serializer.fromJson<SendingStatus>(json['status']),
@@ -2683,6 +2786,7 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'messageId': serializer.toJson<String>(messageId),
+      'roomId': serializer.toJson<String>(roomId),
       'remainingRetries': serializer.toJson<int>(remainingRetries),
       'time': serializer.toJson<DateTime>(time),
       'status': serializer.toJson<SendingStatus>(status),
@@ -2692,12 +2796,14 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
 
   PendingMessage copyWith(
           {String messageId,
+          String roomId,
           int remainingRetries,
           DateTime time,
           SendingStatus status,
           String details}) =>
       PendingMessage(
         messageId: messageId ?? this.messageId,
+        roomId: roomId ?? this.roomId,
         remainingRetries: remainingRetries ?? this.remainingRetries,
         time: time ?? this.time,
         status: status ?? this.status,
@@ -2707,6 +2813,7 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
   String toString() {
     return (StringBuffer('PendingMessage(')
           ..write('messageId: $messageId, ')
+          ..write('roomId: $roomId, ')
           ..write('remainingRetries: $remainingRetries, ')
           ..write('time: $time, ')
           ..write('status: $status, ')
@@ -2718,13 +2825,18 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
   @override
   int get hashCode => $mrjf($mrjc(
       messageId.hashCode,
-      $mrjc(remainingRetries.hashCode,
-          $mrjc(time.hashCode, $mrjc(status.hashCode, details.hashCode)))));
+      $mrjc(
+          roomId.hashCode,
+          $mrjc(
+              remainingRetries.hashCode,
+              $mrjc(
+                  time.hashCode, $mrjc(status.hashCode, details.hashCode))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is PendingMessage &&
           other.messageId == this.messageId &&
+          other.roomId == this.roomId &&
           other.remainingRetries == this.remainingRetries &&
           other.time == this.time &&
           other.status == this.status &&
@@ -2733,12 +2845,14 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
 
 class PendingMessagesCompanion extends UpdateCompanion<PendingMessage> {
   final Value<String> messageId;
+  final Value<String> roomId;
   final Value<int> remainingRetries;
   final Value<DateTime> time;
   final Value<SendingStatus> status;
   final Value<String> details;
   const PendingMessagesCompanion({
     this.messageId = const Value.absent(),
+    this.roomId = const Value.absent(),
     this.remainingRetries = const Value.absent(),
     this.time = const Value.absent(),
     this.status = const Value.absent(),
@@ -2746,16 +2860,19 @@ class PendingMessagesCompanion extends UpdateCompanion<PendingMessage> {
   });
   PendingMessagesCompanion.insert({
     @required String messageId,
+    @required String roomId,
     @required int remainingRetries,
     @required DateTime time,
     @required SendingStatus status,
     this.details = const Value.absent(),
   })  : messageId = Value(messageId),
+        roomId = Value(roomId),
         remainingRetries = Value(remainingRetries),
         time = Value(time),
         status = Value(status);
   static Insertable<PendingMessage> custom({
     Expression<String> messageId,
+    Expression<String> roomId,
     Expression<int> remainingRetries,
     Expression<DateTime> time,
     Expression<int> status,
@@ -2763,6 +2880,7 @@ class PendingMessagesCompanion extends UpdateCompanion<PendingMessage> {
   }) {
     return RawValuesInsertable({
       if (messageId != null) 'message_id': messageId,
+      if (roomId != null) 'room_id': roomId,
       if (remainingRetries != null) 'remaining_retries': remainingRetries,
       if (time != null) 'time': time,
       if (status != null) 'status': status,
@@ -2772,12 +2890,14 @@ class PendingMessagesCompanion extends UpdateCompanion<PendingMessage> {
 
   PendingMessagesCompanion copyWith(
       {Value<String> messageId,
+      Value<String> roomId,
       Value<int> remainingRetries,
       Value<DateTime> time,
       Value<SendingStatus> status,
       Value<String> details}) {
     return PendingMessagesCompanion(
       messageId: messageId ?? this.messageId,
+      roomId: roomId ?? this.roomId,
       remainingRetries: remainingRetries ?? this.remainingRetries,
       time: time ?? this.time,
       status: status ?? this.status,
@@ -2790,6 +2910,9 @@ class PendingMessagesCompanion extends UpdateCompanion<PendingMessage> {
     final map = <String, Expression>{};
     if (messageId.present) {
       map['message_id'] = Variable<String>(messageId.value);
+    }
+    if (roomId.present) {
+      map['room_id'] = Variable<String>(roomId.value);
     }
     if (remainingRetries.present) {
       map['remaining_retries'] = Variable<int>(remainingRetries.value);
@@ -2811,6 +2934,7 @@ class PendingMessagesCompanion extends UpdateCompanion<PendingMessage> {
   String toString() {
     return (StringBuffer('PendingMessagesCompanion(')
           ..write('messageId: $messageId, ')
+          ..write('roomId: $roomId, ')
           ..write('remainingRetries: $remainingRetries, ')
           ..write('time: $time, ')
           ..write('status: $status, ')
@@ -2832,6 +2956,15 @@ class $PendingMessagesTable extends PendingMessages
   GeneratedTextColumn _constructMessageId() {
     return GeneratedTextColumn('message_id', $tableName, false,
         $customConstraints: 'REFERENCES messages(packet_id)');
+  }
+
+  final VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
+  GeneratedTextColumn _roomId;
+  @override
+  GeneratedTextColumn get roomId => _roomId ??= _constructRoomId();
+  GeneratedTextColumn _constructRoomId() {
+    return GeneratedTextColumn('room_id', $tableName, false,
+        $customConstraints: 'REFERENCES rooms(room_id)');
   }
 
   final VerificationMeta _remainingRetriesMeta =
@@ -2886,7 +3019,7 @@ class $PendingMessagesTable extends PendingMessages
 
   @override
   List<GeneratedColumn> get $columns =>
-      [messageId, remainingRetries, time, status, details];
+      [messageId, roomId, remainingRetries, time, status, details];
   @override
   $PendingMessagesTable get asDslTable => this;
   @override
@@ -2903,6 +3036,12 @@ class $PendingMessagesTable extends PendingMessages
           messageId.isAcceptableOrUnknown(data['message_id'], _messageIdMeta));
     } else if (isInserting) {
       context.missing(_messageIdMeta);
+    }
+    if (data.containsKey('room_id')) {
+      context.handle(_roomIdMeta,
+          roomId.isAcceptableOrUnknown(data['room_id'], _roomIdMeta));
+    } else if (isInserting) {
+      context.missing(_roomIdMeta);
     }
     if (data.containsKey('remaining_retries')) {
       context.handle(
@@ -4204,10 +4343,9 @@ class $GroupsTable extends Groups with TableInfo<$GroupsTable, Group> {
 
 class LastSeen extends DataClass implements Insertable<LastSeen> {
   final int dbId;
-  final String messageId;
+  final int messageId;
   final String roomId;
-  LastSeen(
-      {@required this.dbId, @required this.messageId, @required this.roomId});
+  LastSeen({@required this.dbId, this.messageId, @required this.roomId});
   factory LastSeen.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -4215,8 +4353,8 @@ class LastSeen extends DataClass implements Insertable<LastSeen> {
     final stringType = db.typeSystem.forDartType<String>();
     return LastSeen(
       dbId: intType.mapFromDatabaseResponse(data['${effectivePrefix}db_id']),
-      messageId: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}message_id']),
+      messageId:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}message_id']),
       roomId:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
     );
@@ -4228,7 +4366,7 @@ class LastSeen extends DataClass implements Insertable<LastSeen> {
       map['db_id'] = Variable<int>(dbId);
     }
     if (!nullToAbsent || messageId != null) {
-      map['message_id'] = Variable<String>(messageId);
+      map['message_id'] = Variable<int>(messageId);
     }
     if (!nullToAbsent || roomId != null) {
       map['room_id'] = Variable<String>(roomId);
@@ -4252,7 +4390,7 @@ class LastSeen extends DataClass implements Insertable<LastSeen> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return LastSeen(
       dbId: serializer.fromJson<int>(json['dbId']),
-      messageId: serializer.fromJson<String>(json['messageId']),
+      messageId: serializer.fromJson<int>(json['messageId']),
       roomId: serializer.fromJson<String>(json['roomId']),
     );
   }
@@ -4261,12 +4399,12 @@ class LastSeen extends DataClass implements Insertable<LastSeen> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'dbId': serializer.toJson<int>(dbId),
-      'messageId': serializer.toJson<String>(messageId),
+      'messageId': serializer.toJson<int>(messageId),
       'roomId': serializer.toJson<String>(roomId),
     };
   }
 
-  LastSeen copyWith({int dbId, String messageId, String roomId}) => LastSeen(
+  LastSeen copyWith({int dbId, int messageId, String roomId}) => LastSeen(
         dbId: dbId ?? this.dbId,
         messageId: messageId ?? this.messageId,
         roomId: roomId ?? this.roomId,
@@ -4295,7 +4433,7 @@ class LastSeen extends DataClass implements Insertable<LastSeen> {
 
 class LastSeensCompanion extends UpdateCompanion<LastSeen> {
   final Value<int> dbId;
-  final Value<String> messageId;
+  final Value<int> messageId;
   final Value<String> roomId;
   const LastSeensCompanion({
     this.dbId = const Value.absent(),
@@ -4304,13 +4442,12 @@ class LastSeensCompanion extends UpdateCompanion<LastSeen> {
   });
   LastSeensCompanion.insert({
     this.dbId = const Value.absent(),
-    @required String messageId,
+    this.messageId = const Value.absent(),
     @required String roomId,
-  })  : messageId = Value(messageId),
-        roomId = Value(roomId);
+  }) : roomId = Value(roomId);
   static Insertable<LastSeen> custom({
     Expression<int> dbId,
-    Expression<String> messageId,
+    Expression<int> messageId,
     Expression<String> roomId,
   }) {
     return RawValuesInsertable({
@@ -4321,7 +4458,7 @@ class LastSeensCompanion extends UpdateCompanion<LastSeen> {
   }
 
   LastSeensCompanion copyWith(
-      {Value<int> dbId, Value<String> messageId, Value<String> roomId}) {
+      {Value<int> dbId, Value<int> messageId, Value<String> roomId}) {
     return LastSeensCompanion(
       dbId: dbId ?? this.dbId,
       messageId: messageId ?? this.messageId,
@@ -4336,7 +4473,7 @@ class LastSeensCompanion extends UpdateCompanion<LastSeen> {
       map['db_id'] = Variable<int>(dbId.value);
     }
     if (messageId.present) {
-      map['message_id'] = Variable<String>(messageId.value);
+      map['message_id'] = Variable<int>(messageId.value);
     }
     if (roomId.present) {
       map['room_id'] = Variable<String>(roomId.value);
@@ -4370,14 +4507,14 @@ class $LastSeensTable extends LastSeens
   }
 
   final VerificationMeta _messageIdMeta = const VerificationMeta('messageId');
-  GeneratedTextColumn _messageId;
+  GeneratedIntColumn _messageId;
   @override
-  GeneratedTextColumn get messageId => _messageId ??= _constructMessageId();
-  GeneratedTextColumn _constructMessageId() {
-    return GeneratedTextColumn(
+  GeneratedIntColumn get messageId => _messageId ??= _constructMessageId();
+  GeneratedIntColumn _constructMessageId() {
+    return GeneratedIntColumn(
       'message_id',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -4413,8 +4550,6 @@ class $LastSeensTable extends LastSeens
     if (data.containsKey('message_id')) {
       context.handle(_messageIdMeta,
           messageId.isAcceptableOrUnknown(data['message_id'], _messageIdMeta));
-    } else if (isInserting) {
-      context.missing(_messageIdMeta);
     }
     if (data.containsKey('room_id')) {
       context.handle(_roomIdMeta,

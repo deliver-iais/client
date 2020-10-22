@@ -15,6 +15,7 @@ class ChatsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('chatsPage/build');
     var roomDao = GetIt.I.get<RoomDao>();
     return Expanded(
         child: StreamBuilder<List<RoomWithMessage>>(
@@ -29,14 +30,14 @@ class ChatsPage extends StatelessWidget {
                       child: ListView.builder(
                         itemCount: roomsWithMessages.length,
                         itemBuilder: (BuildContext ctx, int index) {
-                          if(roomsWithMessages[index].lastMessage!= null){
+                          if (roomsWithMessages[index].lastMessage != null) {
                             return GestureDetector(
                               child: ChatItem(
                                 key: ValueKey(
                                     "chatItem/${roomsWithMessages[index].room.roomId}"),
                                 roomWithMessage: roomsWithMessages[index],
-                                isSelected: routingService
-                                    .isInRoom(roomsWithMessages[index].room.roomId),
+                                isSelected: routingService.isInRoom(
+                                    roomsWithMessages[index].room.roomId),
                               ),
                               onTap: () {
                                 routingService.openRoom(roomsWithMessages[index]
@@ -45,8 +46,8 @@ class ChatsPage extends StatelessWidget {
                                     .toString());
                               },
                             );
-                          }return SizedBox.shrink();
-
+                          }
+                          return SizedBox.shrink();
                         },
                       ),
                     ),

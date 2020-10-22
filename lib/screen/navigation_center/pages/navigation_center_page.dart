@@ -85,6 +85,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     _appLocalization = AppLocalization.of(context);
     AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
     AppLocalization appLocalization = AppLocalization.of(context);
+    print('navigation_center_page/build');
     return StreamBuilder<bool>(
         stream: audioPlayerService.isOn,
         builder: (context, snapshot) {
@@ -103,12 +104,12 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       GestureDetector(
                         child: Container(
                           child: Center(
-                            child: CircleAvatarWidget(
-                              _accountRepo.currentUserUid,
-                              18,
-                              showAsStreamOfAvatar: true,
-                            ),
-                          ),
+                              // child: CircleAvatarWidget(
+                              //   _accountRepo.currentUserUid,
+                              //   18,
+                              //   showAsStreamOfAvatar: true,
+                              // ),
+                              ),
                         ),
                         onTap: tapOnCurrentUserAvatar,
                       ),
@@ -390,9 +391,7 @@ Widget _contactResultWidget(
       Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          CircleAvatarWidget(
-              uid!=null?uid:Uid.getDefault(),
-              23),
+          CircleAvatarWidget(uid != null ? uid : Uid.getDefault(), 23),
           SizedBox(
             width: 20,
           ),

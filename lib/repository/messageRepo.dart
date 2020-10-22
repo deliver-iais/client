@@ -11,6 +11,7 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/screen/register/pages/testing_environment_tokens.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
 
@@ -50,7 +51,7 @@ class MessageRepo {
   // ignore: non_constant_identifier_names
   final int MAX_REMAINING_RETRIES = 3;
   static ClientChannel _clientChannel = ClientChannel("172.16.111.189",
-      port: 30100,
+      port: 30101,
       options: ChannelOptions(credentials: ChannelCredentials.insecure()));
 
   QueryServiceClient _queryServiceClient = QueryServiceClient(_clientChannel);
@@ -65,7 +66,8 @@ class MessageRepo {
   }
 
   updating() async {
-    // modeChecker.updating.add(true);
+    modeChecker.updating.add(true);
+    int lastMessageDbId;
     try {
       var getAllUserRoomMetaRes = await _queryServiceClient.getAllUserRoomMeta(
           GetAllUserRoomMetaReq(),
@@ -74,8 +76,11 @@ class MessageRepo {
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
         Room room =
             await _roomDao.getByRoomId(userRoomMeta.roomUid.string).single;
-        if (room.lastMessage != userRoomMeta.lastMessageId.toString()) {
-          //it is wrong
+        if (room == null) {
+          await _roomDao.insertRoom(Room(roomId: userRoomMeta.roomUid.string));
+          room = await _roomDao.getByRoomId(userRoomMeta.roomUid.string).single;
+        }
+        if (room.lastMessageId != userRoomMeta.lastMessageId.toInt()) {
           try {
             var fetchMessagesRes = await _queryServiceClient.fetchMessages(
                 FetchMessagesReq()
@@ -86,9 +91,11 @@ class MessageRepo {
                 options: CallOptions(metadata: {
                   'accessToken': await _accountRepo.getAccessToken()
                 }));
-            await saveFetchMessages(fetchMessagesRes.messages);
+            lastMessageDbId =
+                await _saveFetchMessages(fetchMessagesRes.messages);
+            //TODO update last message db id
             await _roomDao.updateRoom(room.copyWith(
-                lastMessage: fetchMessagesRes.messages.last.packetId));
+                lastMessageId: fetchMessagesRes.messages.last.id.toInt()));
           } catch (e) {
             print(e);
           }
@@ -97,7 +104,7 @@ class MessageRepo {
     } catch (e) {
       print(e);
     }
-    // modeChecker.updating.add(false);
+    modeChecker.updating.add(false);
   }
 
   reconnecting() {}
@@ -118,10 +125,12 @@ class MessageRepo {
       json: jsonEncode({"text": text}),
     );
     _messageDao.insertMessage(message);
-    _savePendingMessage(
-        packetId, SendingStatus.PENDING, MAX_REMAINING_RETRIES, message);
+    _savePendingMessage(packetId, roomId.string, SendingStatus.PENDING,
+        MAX_REMAINING_RETRIES, message);
+
     _sendTextMessage(message);
-    _updateRoomLastMessage(roomId, packetId);
+    var k = await _updateRoomLastMessage(roomId, packetId);
+    print('k************************ = $k');
   }
 
   String findType(String path) {
@@ -164,8 +173,8 @@ class MessageRepo {
           "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
         }));
     _messageDao.insertMessage(message);
-    _savePendingMessage(
-        packetId, SendingStatus.SENDING_FILE, MAX_REMAINING_RETRIES, message);
+    _savePendingMessage(packetId, roomId.string, SendingStatus.SENDING_FILE,
+        MAX_REMAINING_RETRIES, message);
     _sendFileMessage(message, path);
     _updateRoomLastMessage(roomId, packetId);
   }
@@ -194,10 +203,11 @@ class MessageRepo {
     });
   }
 
-  _savePendingMessage(String messageId, SendingStatus status,
+  _savePendingMessage(String messageId, String roomId, SendingStatus status,
       int remainingRetries, Message message) {
     PendingMessage pendingMessage = PendingMessage(
       messageId: messageId.toString(),
+      roomId: roomId,
       remainingRetries: remainingRetries,
       time: DateTime.now(),
       details: message.json,
@@ -213,9 +223,11 @@ class MessageRepo {
   }
 
   _updateRoomLastMessage(Uid roomId, String messageId) {
-    _roomDao.insertRoom(Room(
+    print('messageRepo/_updateRoomLastMessage');
+    return _roomDao.insertRoom(Room(
         roomId: roomId.string,
         lastMessage: messageId,
+        lastMessageId: 0,
         mentioned: false,
         mute: false));
   }
@@ -253,6 +265,9 @@ class MessageRepo {
         case MessageType.PERSISTENT_EVENT:
           // TODO: Handle this case.
           break;
+        case MessageType.NOT_SET:
+          // TODO: Handle this case.
+          break;
       }
     }
   }
@@ -270,6 +285,7 @@ class MessageRepo {
       messageByClient.forwardFrom = message.forwardedFrom.uid;
     }
     _coreServices.sendMessage(messageByClient);
+    print('pooooof');
   }
 
   _sendFileMessage(Message message, String path) async {
@@ -295,6 +311,7 @@ class MessageRepo {
   _updatePendingMessage(PendingMessage pendingMessage) {
     _pendingMessageDao.insertPendingMessage(PendingMessage(
         messageId: pendingMessage.messageId,
+        roomId: pendingMessage.roomId,
         time: DateTime.now(),
         remainingRetries: pendingMessage.remainingRetries - 1));
   }
@@ -316,18 +333,19 @@ class MessageRepo {
             ..limit = 50,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      await saveFetchMessages(fetchMessagesRes.messages);
+      await _saveFetchMessages(fetchMessagesRes.messages);
       messages = _messageDao.getPage(roomId, page);
       if (messages == null) return List<Message>.filled(0, Message());
     }
     return messages;
   }
 
-  saveFetchMessages(List<messagePb.Message> messages) {
+  _saveFetchMessages(List<messagePb.Message> messages) async {
+    int lastMessageDbId;
     for (messagePb.Message message in messages) {
       MessageType type = findFetchMessageType(message);
       String json = findFetchMessageJson(message, type);
-      _messageDao.insertMessage(
+      lastMessageDbId = await _messageDao.insertMessage(
         Message(
           roomId: message.to.string,
           packetId: message.packetId,
@@ -342,6 +360,7 @@ class MessageRepo {
         ),
       );
     }
+    return lastMessageDbId;
   }
 
   MessageType findFetchMessageType(messagePb.Message message) {

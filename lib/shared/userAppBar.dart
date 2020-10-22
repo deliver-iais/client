@@ -34,7 +34,7 @@ class UserAppbar extends StatelessWidget {
         child: GestureDetector(
           child: Row(
             children: [
-              CircleAvatarWidget(userUid, 23),
+              // CircleAvatarWidget(userUid, 23),
               SizedBox(
                 width: 15,
               ),

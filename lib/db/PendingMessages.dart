@@ -3,11 +3,13 @@ import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:moor/moor.dart';
 
 class PendingMessages extends Table {
-
   TextColumn get messageId =>
       text().customConstraint('REFERENCES messages(packet_id)')();
 
-  IntColumn get remainingRetries  => integer()();
+  TextColumn get roomId =>
+      text().customConstraint('REFERENCES rooms(room_id)')();
+
+  IntColumn get remainingRetries => integer()();
 
   DateTimeColumn get time => dateTime()();
 

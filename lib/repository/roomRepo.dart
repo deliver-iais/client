@@ -97,8 +97,4 @@ class RoomRepo {
     }
     return searchResult;
   }
-
-  Stream<Room> getMessagesLength(String roomId) {
-    return _roomDao.getByRoomId(roomId);
-  }
 }
