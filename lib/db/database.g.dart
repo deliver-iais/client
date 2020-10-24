@@ -964,8 +964,11 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
   GeneratedIntColumn get lastMessageId =>
       _lastMessageId ??= _constructLastMessageId();
   GeneratedIntColumn _constructLastMessageId() {
-    return GeneratedIntColumn('last_message_id', $tableName, true,
-        $customConstraints: 'REFERENCES messages(id)');
+    return GeneratedIntColumn(
+      'last_message_id',
+      $tableName,
+      true,
+    );
   }
 
   final VerificationMeta _muteMeta = const VerificationMeta('mute');
@@ -2963,8 +2966,11 @@ class $PendingMessagesTable extends PendingMessages
   @override
   GeneratedTextColumn get roomId => _roomId ??= _constructRoomId();
   GeneratedTextColumn _constructRoomId() {
-    return GeneratedTextColumn('room_id', $tableName, false,
-        $customConstraints: 'REFERENCES rooms(room_id)');
+    return GeneratedTextColumn(
+      'room_id',
+      $tableName,
+      false,
+    );
   }
 
   final VerificationMeta _remainingRetriesMeta =

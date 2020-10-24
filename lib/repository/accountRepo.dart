@@ -39,8 +39,8 @@ class AccountRepo {
     ..node = "john";
   Avatar avatar;
   PhoneNumber phoneNumber;
-  String _accessToken = TESTING_ENVIRONMENT_ACCESS_TOKEN;
-  String _refreshToken = TESTING_ENVIRONMENT_REFRESH_TOKEN;
+  String _accessToken;
+  String _refreshToken;
 
   // Dependencies
   SharedPreferencesDao _prefs = GetIt.I.get<SharedPreferencesDao>();

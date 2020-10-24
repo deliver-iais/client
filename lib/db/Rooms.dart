@@ -6,8 +6,7 @@ class Rooms extends Table {
   BoolColumn get mentioned =>
       boolean().nullable().withDefault(Constant(false))();
 
-  IntColumn get lastMessageId =>
-      integer().customConstraint('REFERENCES messages(id)').nullable()();
+  IntColumn get lastMessageId => integer().nullable()();
 
   BoolColumn get mute => boolean().withDefault(Constant(false))();
 

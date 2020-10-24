@@ -26,11 +26,13 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
 
 //TODO need to edit
   Stream<List<RoomWithMessage>> getByContactId() {
+    print('RoomDao/getByContactId');
     return (select(rooms).join([
       leftOuterJoin(
-          messages,
-          messages.packetId.equalsExp(rooms.lastMessage) &
-              messages.roomId.equalsExp(rooms.roomId)),
+        messages,
+        messages.roomId.equalsExp(rooms.roomId) &
+            messages.packetId.equalsExp(rooms.lastMessage),
+      )
     ])
           ..orderBy([OrderingTerm.desc(messages.time)]))
         .watch()

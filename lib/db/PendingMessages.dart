@@ -7,7 +7,7 @@ class PendingMessages extends Table {
       text().customConstraint('REFERENCES messages(packet_id)')();
 
   TextColumn get roomId =>
-      text().customConstraint('REFERENCES rooms(room_id)')();
+      text()();
 
   IntColumn get remainingRetries => integer()();
 

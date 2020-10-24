@@ -124,11 +124,13 @@ class MessageRepo {
       type: MessageType.TEXT,
       json: jsonEncode({"text": text}),
     );
-    _messageDao.insertMessage(message);
-    _savePendingMessage(packetId, roomId.string, SendingStatus.PENDING,
+    await _messageDao.insertMessage(message);
+    await _savePendingMessage(packetId, roomId.string, SendingStatus.PENDING,
         MAX_REMAINING_RETRIES, message);
-
-    _sendTextMessage(message);
+    print(
+        'messageRepo/sendTextMessage/after insert message and pending message');
+    await _sendTextMessage(message);
+    print('messageRepo/sendTextMessage/after _sendTextMessage');
     var k = await _updateRoomLastMessage(roomId, packetId);
     print('k************************ = $k');
   }
@@ -285,7 +287,6 @@ class MessageRepo {
       messageByClient.forwardFrom = message.forwardedFrom.uid;
     }
     _coreServices.sendMessage(messageByClient);
-    print('pooooof');
   }
 
   _sendFileMessage(Message message, String path) async {
