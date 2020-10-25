@@ -233,7 +233,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                         'Item $index',
                                         style: TextStyle(color: Colors.white),
                                       ),
-                                    )
+                                    );
                                   },
                                   reverse: true,
                                   itemScrollController: itemScrollController,
