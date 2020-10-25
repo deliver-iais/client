@@ -1,13 +1,13 @@
-import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:moor/moor.dart';
 
 class PendingMessages extends Table {
-  TextColumn get messageId =>
-      text().customConstraint('REFERENCES messages(packet_id)')();
+  IntColumn get messageDbId =>
+      integer().customConstraint('REFERENCES messages(db_id)')();
 
-  TextColumn get roomId =>
-      text()();
+  TextColumn get messagePacketId => text()();
+
+  TextColumn get roomId => text()();
 
   IntColumn get remainingRetries => integer()();
 
@@ -18,5 +18,5 @@ class PendingMessages extends Table {
   TextColumn get details => text().nullable()();
 
   @override
-  Set<Column> get primaryKey => {messageId};
+  Set<Column> get primaryKey => {messageDbId};
 }

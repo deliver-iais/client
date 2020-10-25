@@ -165,7 +165,7 @@ class ContactRepo {
       ));
       if(contact.uid!=null){
         _roomDao.insertRoom(myContact.Room(
-            roomId: contact.uid.string, lastMessage: null, mentioned: false,mute: false));
+            roomId: contact.uid.string, lastMessageDbId: null, mentioned: false,mute: false));
       }
     }
 

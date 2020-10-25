@@ -10,8 +10,8 @@ class Rooms extends Table {
 
   BoolColumn get mute => boolean().withDefault(Constant(false))();
 
-  TextColumn get lastMessage =>
-      text().customConstraint('REFERENCES messages(packet_id)').nullable()();
+  IntColumn get lastMessageDbId =>
+      integer().customConstraint('REFERENCES messages(db_id)').nullable()();
 
   @override
   Set<Column> get primaryKey => {roomId};

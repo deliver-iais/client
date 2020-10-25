@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io' as LocalFile;
@@ -11,9 +10,7 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/screen/register/pages/testing_environment_tokens.dart';
 import 'package:deliver_flutter/services/core_services.dart';
-import 'package:deliver_flutter/shared/methods/helper.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
@@ -21,7 +18,6 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as clientMessage;
 import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/services/mode_checker.dart';
-import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as messagePb;
@@ -36,7 +32,6 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
-import 'package:path_provider/path_provider.dart';
 
 class MessageRepo {
   MessageDao _messageDao = GetIt.I.get<MessageDao>();
@@ -48,6 +43,7 @@ class MessageRepo {
   MessageService messageService = GetIt.I.get<MessageService>();
   ModeChecker modeChecker = GetIt.I.get<ModeChecker>();
   Cache cache = LruCache<String, Message>(storage: SimpleStorage(size: 50));
+
   // ignore: non_constant_identifier_names
   final int MAX_REMAINING_RETRIES = 3;
   static ClientChannel _clientChannel = ClientChannel("172.16.111.189",
@@ -108,6 +104,7 @@ class MessageRepo {
   }
 
   reconnecting() {}
+
   sendTextMessage(Uid roomId, String text,
       {int replyId, String forwardedFrom}) async {
     String packetId = _getPacketId();
@@ -124,14 +121,11 @@ class MessageRepo {
       type: MessageType.TEXT,
       json: jsonEncode({"text": text}),
     );
-    await _messageDao.insertMessage(message);
-    await _savePendingMessage(packetId, roomId.string, SendingStatus.PENDING,
+    int dbId = await _messageDao.insertMessage(message);
+    await _savePendingMessage(dbId, roomId.string, SendingStatus.PENDING,
         MAX_REMAINING_RETRIES, message);
-    print(
-        'messageRepo/sendTextMessage/after insert message and pending message');
     await _sendTextMessage(message);
-    print('messageRepo/sendTextMessage/after _sendTextMessage');
-    var k = await _updateRoomLastMessage(roomId, packetId);
+    var k = await _updateRoomLastMessage(roomId, dbId);
     print('k************************ = $k');
   }
 
@@ -174,11 +168,11 @@ class MessageRepo {
           "height": type == 'image' || type == 'video' ? 100 : 0,
           "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
         }));
-    _messageDao.insertMessage(message);
-    _savePendingMessage(packetId, roomId.string, SendingStatus.SENDING_FILE,
+    int dbId = await _messageDao.insertMessage(message);
+    _savePendingMessage(dbId, roomId.string, SendingStatus.SENDING_FILE,
         MAX_REMAINING_RETRIES, message);
     _sendFileMessage(message, path);
-    _updateRoomLastMessage(roomId, packetId);
+    _updateRoomLastMessage(roomId, dbId);
   }
 
   sendPendingMessage() {
@@ -187,14 +181,18 @@ class MessageRepo {
         if (pendingMessage.remainingRetries > 0) {
           switch (pendingMessage.status) {
             case SendingStatus.SENDING_FILE:
-              _messageDao.getByDBId(pendingMessage.messageId).listen((message) {
+              _messageDao
+                  .getByDbId(pendingMessage.messageDbId)
+                  .listen((message) {
                 _sendFileMessage(message, jsonDecode(message.json)["path"]);
               });
               _updatePendingMessage(pendingMessage);
 
               break;
             case SendingStatus.PENDING:
-              _messageDao.getByDBId(pendingMessage.messageId).listen((message) {
+              _messageDao
+                  .getByDbId(pendingMessage.messageDbId)
+                  .listen((message) {
                 _sendTextMessage(message);
               });
               _updatePendingMessage(pendingMessage);
@@ -205,17 +203,18 @@ class MessageRepo {
     });
   }
 
-  _savePendingMessage(String messageId, String roomId, SendingStatus status,
-      int remainingRetries, Message message) {
+  _savePendingMessage(int dbId, String roomId, SendingStatus status,
+      int remainingRetries, Message message) async {
     PendingMessage pendingMessage = PendingMessage(
-      messageId: messageId.toString(),
+      messageDbId: dbId,
+      messagePacketId: message.packetId,
       roomId: roomId,
       remainingRetries: remainingRetries,
       time: DateTime.now(),
       details: message.json,
       status: status,
     );
-    _pendingMessageDao.insertPendingMessage(pendingMessage);
+    return _pendingMessageDao.insertPendingMessage(pendingMessage);
   }
 
   sendSeenMessage(int messageId, Uid to, Uid roomId) {
@@ -224,11 +223,11 @@ class MessageRepo {
       ..id = Int64.parseInt(messageId.toString()));
   }
 
-  _updateRoomLastMessage(Uid roomId, String messageId) {
+  _updateRoomLastMessage(Uid roomId, int dbId) {
     print('messageRepo/_updateRoomLastMessage');
     return _roomDao.insertRoom(Room(
         roomId: roomId.string,
-        lastMessage: messageId,
+        lastMessageDbId: dbId,
         lastMessageId: 0,
         mentioned: false,
         mute: false));
@@ -311,7 +310,8 @@ class MessageRepo {
 
   _updatePendingMessage(PendingMessage pendingMessage) {
     _pendingMessageDao.insertPendingMessage(PendingMessage(
-        messageId: pendingMessage.messageId,
+        messageDbId: pendingMessage.messageDbId,
+        messagePacketId: pendingMessage.messagePacketId,
         roomId: pendingMessage.roomId,
         time: DateTime.now(),
         remainingRetries: pendingMessage.remainingRetries - 1));

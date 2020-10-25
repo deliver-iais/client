@@ -9,7 +9,7 @@ import 'package:get_it/get_it.dart';
 
 class LoadFileStatus extends StatefulWidget {
   final File file;
-  final String  dbId;
+  final int dbId;
   final Function onPressed;
   LoadFileStatus({Key key, this.file, this.dbId, this.onPressed})
       : super(key: key);
@@ -23,7 +23,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
   Widget build(BuildContext context) {
     PendingMessageDao pendingMessageDao = GetIt.I.get<PendingMessageDao>();
     return StreamBuilder<List<PendingMessage>>(
-        stream: pendingMessageDao.getByMessageId(widget.dbId),
+        stream: pendingMessageDao.getByMessageDbId(widget.dbId),
         builder: (context, pendingMessage) {
           if (pendingMessage.hasData) {
             return Row(

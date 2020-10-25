@@ -24,9 +24,8 @@ class PendingMessageDao extends DatabaseAccessor<Database>
   Future updatePendingMessage(PendingMessage updatedPendingMessage) =>
       update(pendingMessages).replace(updatedPendingMessage);
 
-  Stream<List<PendingMessage>> getByMessageId(String messageId) {
-    return (select(pendingMessages)
-          ..where((pm) => pm.messageId.equals(messageId)))
+  Stream<List<PendingMessage>> getByMessageDbId(int dbId) {
+    return (select(pendingMessages)..where((pm) => pm.messageDbId.equals(dbId)))
         .watch();
   }
 

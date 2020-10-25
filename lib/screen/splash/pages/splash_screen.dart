@@ -48,19 +48,19 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   gotoRooms(BuildContext context) async {
-    var result = await ReceiveSharingIntent.getInitialMedia();
-    if (result != null) {
-      List<String> paths = List();
-      for (var path in result) {
-        paths.add(path.path);
-      }
-      print('splashScreen/gotoRooms/inIf/afterFor');
-      ExtendedNavigator.of(context).push(Routes.shareInputFile,
-          arguments: ShareInputFileArguments(inputSharedFilePath: paths));
-    } else {
-      print('splashScreen/gotoRooms/inElse');
+    // var result = await ReceiveSharingIntent.getInitialMedia();
+    // if (result != null) {
+    //   List<String> paths = List();
+    //   for (var path in result) {
+    //     paths.add(path.path);
+    //   }
+    //   print('splashScreen/gotoRooms/inIf/afterFor');
+    //   ExtendedNavigator.of(context).push(Routes.shareInputFile,
+    //       arguments: ShareInputFileArguments(inputSharedFilePath: paths));
+    // } else {
+    //   print('splashScreen/gotoRooms/inElse');
       _navigateToHomePage();
-    }
+    // }
   }
 
   void _navigateToHomePage() async {

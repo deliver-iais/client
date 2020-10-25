@@ -9,7 +9,7 @@ import 'package:open_file/open_file.dart';
 
 class OpenFileStatus extends StatelessWidget {
   final filePb.File file;
-  final String dbId;
+  final int dbId;
 
   const OpenFileStatus({Key key, this.file, this.dbId}) : super(key: key);
 
