@@ -48,8 +48,6 @@ class MessageRepo {
 
   static int id = 0;
 
-  Cache cache = LruCache<String, Message>(storage: SimpleStorage(size: 50));
-
   // ignore: non_constant_identifier_names
   final int MAX_REMAINING_RETRIES = 3;
   static ClientChannel _clientChannel = ClientChannel("172.16.111.189",
