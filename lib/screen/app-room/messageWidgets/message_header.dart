@@ -14,6 +14,7 @@ class MessageHeader extends StatefulWidget {
   final double maxWidth;
 
   const MessageHeader({Key key, this.message, this.maxWidth}) : super(key: key);
+
   @override
   _MessageHeaderState createState() => _MessageHeaderState();
 }
@@ -22,6 +23,7 @@ class _MessageHeaderState extends State<MessageHeader> {
   filePb.File file;
   bool isDownloaded = false;
   double loadProgress = 0.0;
+
   @override
   void initState() {
     super.initState();
@@ -38,7 +40,7 @@ class _MessageHeaderState extends State<MessageHeader> {
     PendingMessageDao pendingMessageDao = GetIt.I.get<PendingMessageDao>();
     var fileRepo = GetIt.I.get<FileRepo>();
     return StreamBuilder<List<PendingMessage>>(
-      stream: pendingMessageDao.getByMessageId(widget.message.packetId),
+      stream: pendingMessageDao.getByMessageDbId(widget.message.dbId),
       builder: (context, pendingMessage) {
         if (pendingMessage.hasData) {
           return FutureBuilder<bool>(
@@ -59,7 +61,7 @@ class _MessageHeaderState extends State<MessageHeader> {
                               ? (pendingMessage.data[0]).status
                               : null,
                           file: file,
-                          messageDbId: widget.message.packetId,
+                          messageDbId: widget.message.dbId,
                           onPressed: download,
                         ),
                         //TODO width

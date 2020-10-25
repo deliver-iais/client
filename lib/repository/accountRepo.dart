@@ -85,6 +85,8 @@ class AccountRepo {
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       device = iosInfo.identifierForVendor;
+    } else {
+      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     }
 
     var sendVerificationCode =

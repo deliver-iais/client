@@ -61,7 +61,7 @@ class _ImageUiState extends State<ImageUi> {
     if (accountRepo.currentUserUid.string == widget.message.from) {
       return Container(
         child: StreamBuilder<List<PendingMessage>>(
-          stream: pendingMessageDao.getByMessageId(widget.message.packetId),
+          stream: pendingMessageDao.getByMessageDbId(widget.message.dbId),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (snapshot.data.length > 0) {
@@ -120,7 +120,7 @@ class _ImageUiState extends State<ImageUi> {
     } else
       return Container(
         child: StreamBuilder<List<PendingMessage>>(
-          stream: pendingMessageDao.getByMessageId(widget.message.packetId),
+          stream: pendingMessageDao.getByMessageDbId(widget.message.dbId),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return FutureBuilder<bool>(
@@ -157,7 +157,8 @@ class _ImageUiState extends State<ImageUi> {
                             return CircularProgressIndicator();
                         },
                       );
-                    } else if (snapshot.data != null && snapshot.data.length == 0 ||
+                    } else if (snapshot.data != null &&
+                            snapshot.data.length == 0 ||
                         (snapshot.data[0]).status !=
                             SendingStatus.SENDING_FILE) {
                       return FilteredImage(

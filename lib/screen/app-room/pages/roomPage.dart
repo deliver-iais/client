@@ -185,6 +185,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     return StreamBuilder<LastSeen>(
                         stream: lastSeenDao.getByRoomId(widget.roomId),
                         builder: (context, lastSeenStream) {
+                          if (lastSeenStream.data == null || !lastSeenStream.hasData) {
+                            return Container(height: 100);
+                          }
                           lastShowedMessageId =
                               lastSeenStream.data.messageId ?? -1;
                           return StreamBuilder<Room>(

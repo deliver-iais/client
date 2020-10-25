@@ -87,14 +87,14 @@ class CoreServices {
         edited: message.edited,
         encrypted: message.encrypted,
         type: getMessageType(message.whichType())));
-    _pendingMessageDao
-        .deletePendingMessage(M.PendingMessage(messageId: message.packetId));
-    _roomDao.insertRoom(
-      M.Room(
-          roomId: message.from.string,
-          lastMessageId: message.id.toInt(),
-          lastMessage: message.packetId),
-    );
+    // _pendingMessageDao
+    //     .deletePendingMessage(M.PendingMessage(messageDbId: : message.));
+    // _roomDao.insertRoom(
+    //   M.Room(
+    //       roomId: message.from.string,
+    //       lastMessageId: message.id.toInt(),
+    //       lastMessageDbId: message.),
+    // );
   }
 
   sendMessage(MessageByClient message) {
