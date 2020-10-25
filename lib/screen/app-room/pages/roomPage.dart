@@ -196,7 +196,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   future: lastSeenDao.getByRoomId(widget.roomId),
                   builder: (context, lastSeen$) {
                     print(widget.roomId);
-                    lastShowedMessageId = lastSeen$.data?.messageId ?? -1;
+                    _lastSeenSubject.add(lastSeen$.data?.messageId ?? -1);
                     if (lastSeen$.data == null) {
                       return Expanded(
                         child: Container(),
@@ -224,13 +224,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   itemCount: 500,
                                   initialScrollIndex: 200,
                                   initialAlignment: 1.0,
-                                  itemBuilder: (context, index) => Container(
-                                    height: index + 10.0,
-                                    child: Text(
-                                      'Item $index',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
+                                  itemBuilder: (context, index) {
+                                    dynamic m = {"id": 4};
+                                    _lastSeenSubject.add(m.id);
+                                    return Container(
+                                      height: index + 10.0,
+                                      child: Text(
+                                        'Item $index',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    )
+                                  },
                                   reverse: true,
                                   itemScrollController: itemScrollController,
                                   itemPositionsListener: itemPositionsListener,
