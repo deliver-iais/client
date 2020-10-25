@@ -233,7 +233,7 @@ class MessageRepo {
 
   _updateRoomLastMessage(Uid roomId, int dbId) {
     print('messageRepo/_updateRoomLastMessage');
-    _lastSeenDao.insertLastSeen(LastSeen(messageId: -1, roomId: roomId.string));
+    _lastSeenDao.insertLastSeen(LastSeen(messageId: id, roomId: roomId.string));
     return _roomDao.insertRoom(Room(
         roomId: roomId.string,
         lastMessageDbId: dbId,
