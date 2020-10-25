@@ -75,9 +75,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       ItemPositionsListener.create();
 
   Subject<int> _lastSeenSubject = BehaviorSubject.seeded(-1);
+  // _lastSeenSubject.add(3);
+  //
+  // _lastSeenSubject.max().asStream().listen((event) { });
 
   Cache _cache = LruCache<String, Message>(storage: SimpleStorage(size: 50));
 
+  // TODO - Should return list instead of one message!
   Future<List<Message>> getMessage(int index, String roomId) async {
     var msg = _cache.get(roomId + '_' + index.toString());
     if (msg != null) {
