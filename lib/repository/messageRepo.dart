@@ -3,7 +3,9 @@ import 'dart:ffi';
 import 'dart:io' as LocalFile;
 
 import 'package:dcache/dcache.dart';
+import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
+import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/app_mode.dart';
 import 'package:deliver_flutter/models/messageType.dart';
@@ -36,13 +38,15 @@ import 'package:grpc/grpc.dart';
 class MessageRepo {
   MessageDao _messageDao = GetIt.I.get<MessageDao>();
   RoomDao _roomDao = GetIt.I.get<RoomDao>();
+  LastSeenDao _lastSeenDao = GetIt.I.get<LastSeenDao>();
   PendingMessageDao _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
   FileRepo _fileRepo = GetIt.I.get<FileRepo>();
   CoreServices _coreServices = GetIt.I.get<CoreServices>();
   MessageService messageService = GetIt.I.get<MessageService>();
   ModeChecker modeChecker = GetIt.I.get<ModeChecker>();
-  Cache cache = LruCache<String, Message>(storage: SimpleStorage(size: 50));
+
+  static int id = 0;
 
   // ignore: non_constant_identifier_names
   final int MAX_REMAINING_RETRIES = 3;
@@ -109,6 +113,7 @@ class MessageRepo {
       {int replyId, String forwardedFrom}) async {
     String packetId = _getPacketId();
     Message message = Message(
+      id: id,
       roomId: roomId.string,
       packetId: packetId,
       time: DateTime.now(),
@@ -122,11 +127,12 @@ class MessageRepo {
       json: jsonEncode({"text": text}),
     );
     int dbId = await _messageDao.insertMessage(message);
-    await _savePendingMessage(dbId, roomId.string, SendingStatus.PENDING,
-        MAX_REMAINING_RETRIES, message);
+    // await _savePendingMessage(dbId, roomId.string, SendingStatus.PENDING,
+    //     MAX_REMAINING_RETRIES, message);
     await _sendTextMessage(message);
     var k = await _updateRoomLastMessage(roomId, dbId);
     print('k************************ = $k');
+    id++;
   }
 
   String findType(String path) {
@@ -225,6 +231,7 @@ class MessageRepo {
 
   _updateRoomLastMessage(Uid roomId, int dbId) {
     print('messageRepo/_updateRoomLastMessage');
+    _lastSeenDao.insertLastSeen(LastSeen(messageId: id, roomId: roomId.string));
     return _roomDao.insertRoom(Room(
         roomId: roomId.string,
         lastMessageDbId: dbId,
