@@ -35,6 +35,8 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+int pageSize = 10;
+
 class RoomPage extends StatefulWidget {
   final String roomId;
   final List<Message> forwardedMessages;
@@ -67,7 +69,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _memberRepo = GetIt.I.get<MemberRepo>();
   int lastShowedMessageId;
   ScrollController _scrollController;
-  int itemCount = 10; //TODO
+  int itemCount;
   bool disableScrolling = false;
   int maxShownId = -1;
   final ItemScrollController itemScrollController = ItemScrollController();
@@ -78,44 +80,49 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   // _lastSeenSubject.add(3);
   //
 
-  Cache _cache = LruCache<String, Message>(storage: SimpleStorage(size: 50));
+  Cache _cache =
+      LruCache<String, Message>(storage: SimpleStorage(size: pageSize));
 
   // TODO check function
   Future<List<Message>> getMessage(int id, String roomId) async {
-    print("id : $id");
-    var result = [];
+    List<Message> result = [];
     var msg = _cache.get(roomId + '_' + id.toString());
     int page;
     if (msg != null) {
+      print('main message with id $id it is in cache');
       result.add(msg);
     } else {
-      page = (id / 50).floor();
-      print('page: $page');
+      page = (id / pageSize).floor();
       List<Message> messages = await _messageRepo.getPage(page, roomId);
-      print('messages.length : ${messages.length}');
+      print(
+          "main messages is not in cache so $page th page is recived from db : $messages.length");
       for (int i = 0; i < messages.length; i = i + 1) {
         _cache.set(roomId + '_' + messages[i].id.toString(), messages[i]);
-        print("message.id: ${messages[i].id}");
       }
-      result.add(messages[id - page * 50]);
+      print(
+          'we return messages[${id - page * pageSize}] and we wand message with id: $id, and it is equal ${messages[id - page * pageSize].id}');
+      result.add(messages[id - page * pageSize]);
     }
-    if (id == 0) {
-      print('good bye');
-      return result;
-    } else {
-      msg = _cache.get(roomId + '_' + (id - 1).toString());
-      if (msg != null) {
-        result.add(msg);
-        return result;
-      } else {
-        List<Message> messages = _messageRepo.getPage(page - 1, roomId);
-        for (int i = 0; i < messages.length; i = i + 1) {
-          _cache.set(roomId + '_' + messages[i].id.toString(), messages[i]);
-        }
-        result.add(messages[id - 1 - page * 50]);
-      }
-      return result;
-    }
+    // if (id == 0 && result.length > 0) {
+    //   print(" result: $result");
+    //   return result;
+    // } else {
+    //   msg = _cache.get(roomId + '_' + (id - 1).toString());
+    // if (msg != null) {
+    //   result.add(msg);
+    //   print('main message with id ${id - 1} it is in cache');
+    //   return result;
+    // } else {
+    //   List<Message> messages = _messageRepo.getPage(page - 1, roomId);
+    //   print(
+    //       "main messages is not in cache so ${page - 1} th page is recived from db : $messages.length");
+    //   for (int i = 0; i < messages.length; i = i + 1) {
+    //     _cache.set(roomId + '_' + messages[i].id.toString(), messages[i]);
+    //   }
+    //   result.add(messages[id - 1 - page * pageSize]);
+    // }
+    // }
+    return result;
   }
 
   void resetRoomPageDetails() {
@@ -175,6 +182,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _lastSeenSubject.listen((event) {
       if (maxShownId < event) {
         maxShownId = event;
+        // lastShowedMessageId = event;
         _lastSeenDao.updateLastSeen(widget.roomId, event);
         _messageRepo.sendSeenMessage(
             event, widget.roomId.uid, widget.roomId.uid);
@@ -239,6 +247,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         builder: (context, currentRoomStream) {
                           if (currentRoomStream.hasData) {
                             Room currentRoom = currentRoomStream.data;
+
                             itemCount = currentRoom.lastMessageId +
                                 1; //TODO PEndingMessage
                             int month;
@@ -248,25 +257,28 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                             return Flexible(
                               fit: FlexFit.loose,
                               child: Container(
-                                height: deviceHeight, //TODO
-                                color: Colors.amber,
+                                height: deviceHeight,
+                                // color: Colors.amber,
                                 child: ScrollablePositionedList.builder(
                                   itemCount: itemCount,
                                   initialScrollIndex: lastShowedMessageId,
                                   initialAlignment: 1.0,
+                                  // reverse: true,
+                                  itemScrollController: itemScrollController,
+                                  itemPositionsListener: itemPositionsListener,
                                   itemBuilder: (context, index) {
                                     print(
-                                        "index : $index, lastShown: $lastShowedMessageId, itemCount: $itemCount");
+                                        'itemCount : $itemCount, index: $index, lastShowedMessageId: $lastShowedMessageId');
                                     return FutureBuilder<List<Message>>(
-                                      future: getMessage(
-                                          lastShowedMessageId >= index
-                                              ? lastShowedMessageId - index
-                                              : index,
-                                          widget.roomId),
+                                      future: getMessage(index, widget.roomId),
                                       builder: (context, messagesFuture) {
                                         print(
-                                            'messages.hasData() : ${messagesFuture.hasData}');
+                                            'messase : ${messagesFuture.data}');
+
                                         if (messagesFuture.hasData) {
+                                          if (lastShowedMessageId < index) {
+                                            lastShowedMessageId = index;
+                                          }
                                           var messages = messagesFuture.data;
                                           if (messages.length == 0) {
                                             return Container();
@@ -275,16 +287,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                             day = messages[0].time.day;
                                             _lastSeenSubject
                                                 .add(messages[0].id);
-                                            // if(lastShowedMessageId < messages[0].id){
-                                            //   lastShowedMessageId++;
-                                            // }TODO check
                                           }
                                           newTime = false;
-                                          if (index == itemCount - 1)
+                                          if (index == 0)
                                             newTime = true;
-                                          else if (messages[1].time.day !=
-                                                  day ||
-                                              messages[1].time.month != month) {
+                                          else if (messages.length > 1 &&
+                                              (messages[1].time.day != day ||
+                                                  messages[1].time.month !=
+                                                      month)) {
                                             newTime = true;
                                             day = messages[1].time.day;
                                             month = messages[1].time.month;
@@ -383,7 +393,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                         maxWidth:
                                                                             _maxWidth,
                                                                         isGroup:
-                                                                            widget.roomId.uid.characters ==
+                                                                            widget.roomId.characters ==
                                                                                 Categories.GROUP,
                                                                       ),
                                                                     ],
@@ -498,16 +508,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                           );
                                         } else {
                                           return Container(
-                                            height: deviceHeight,
-                                            child: CircularProgressIndicator(),
-                                          );
+                                              // height: deviceHeight,
+                                              child: Text('index : $index'));//TODO
                                         }
                                       },
                                     );
                                   },
-                                  reverse: true,
-                                  itemScrollController: itemScrollController,
-                                  itemPositionsListener: itemPositionsListener,
                                 ),
                               ),
                             );

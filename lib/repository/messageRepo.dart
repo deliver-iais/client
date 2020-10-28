@@ -130,8 +130,8 @@ class MessageRepo {
     // await _savePendingMessage(dbId, roomId.string, SendingStatus.PENDING,
     //     MAX_REMAINING_RETRIES, message);
     await _sendTextMessage(message);
-    var k = await _updateRoomLastMessage(roomId, dbId);
-    print('k************************ = $k');
+    await _updateRoomLastMessage(roomId.string, dbId);
+    print('messageRepo/sendTextMessage');
     id++;
   }
 
@@ -178,7 +178,7 @@ class MessageRepo {
     _savePendingMessage(dbId, roomId.string, SendingStatus.SENDING_FILE,
         MAX_REMAINING_RETRIES, message);
     _sendFileMessage(message, path);
-    _updateRoomLastMessage(roomId, dbId);
+    _updateRoomLastMessage(roomId.string, dbId);
   }
 
   sendPendingMessage() {
@@ -229,15 +229,21 @@ class MessageRepo {
       ..id = Int64.parseInt(messageId.toString()));
   }
 
-  _updateRoomLastMessage(Uid roomId, int dbId) {
+  _updateRoomLastMessage(String roomId, int dbId) async {
     print('messageRepo/_updateRoomLastMessage');
-    _lastSeenDao.insertLastSeen(LastSeen(messageId: id, roomId: roomId.string));
-    return _roomDao.insertRoom(Room(
-        roomId: roomId.string,
-        lastMessageDbId: dbId,
-        lastMessageId: 0,
-        mentioned: false,
-        mute: false));
+    if (id == 0) {
+      await _lastSeenDao
+          .insertLastSeen(LastSeen(messageId: id, roomId: roomId));
+      await _roomDao.insertRoom(Room(
+          roomId: roomId,
+          lastMessageDbId: dbId,
+          lastMessageId: 0,
+          mentioned: false,
+          mute: false));
+    } else {
+      await _lastSeenDao.updateLastSeen(roomId, id);
+      await _roomDao.updateRoomLastMessage(roomId, id, dbId);
+    }
   }
 
   sendForwardedMessage(Uid roomId, List<Message> forwardedMessage) async {
@@ -280,7 +286,7 @@ class MessageRepo {
     }
   }
 
-  _sendTextMessage(Message message) {
+  _sendTextMessage(Message message) async {
     clientMessage.Text messageText = clientMessage.Text()..text = message.json;
     clientMessage.MessageByClient messageByClient =
         clientMessage.MessageByClient()
@@ -292,7 +298,7 @@ class MessageRepo {
     if (message.forwardedFrom != null) {
       messageByClient.forwardFrom = message.forwardedFrom.uid;
     }
-    _coreServices.sendMessage(messageByClient);
+    await _coreServices.sendMessage(messageByClient);
   }
 
   _sendFileMessage(Message message, String path) async {
@@ -330,6 +336,7 @@ class MessageRepo {
     return "${_accountRepo.currentUserUid.getString()}:${DateTime.now().microsecondsSinceEpoch.toString()}";
   }
 
+  int pageSize = 10;
   getPage(int page, String roomId) async {
     var messages = _messageDao.getPage(roomId, page);
     print("messages.length : ${await messages}");
@@ -337,9 +344,9 @@ class MessageRepo {
       var fetchMessagesRes = await _queryServiceClient.fetchMessages(
           FetchMessagesReq()
             ..roomUid = roomId.uid
-            ..pointer = Int64(page * 50)
+            ..pointer = Int64(page * pageSize)
             ..type = FetchMessagesReq_Type.FORWARD_FETCH
-            ..limit = 50,
+            ..limit = pageSize,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       await _saveFetchMessages(fetchMessagesRes.messages);
