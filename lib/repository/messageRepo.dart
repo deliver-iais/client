@@ -332,7 +332,8 @@ class MessageRepo {
 
   getPage(int page, String roomId) async {
     var messages = _messageDao.getPage(roomId, page);
-    if (messages == null) {
+    print("messages.length : ${await messages}");
+    if ((await messages) == null) {
       var fetchMessagesRes = await _queryServiceClient.fetchMessages(
           FetchMessagesReq()
             ..roomUid = roomId.uid

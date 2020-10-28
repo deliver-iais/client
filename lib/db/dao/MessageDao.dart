@@ -39,6 +39,7 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
   }
 
   Future<List<Message>> getPage(String roomId, int page) async {
+    print('hi');
     return (select(messages)
           ..where((m) =>
               m.roomId.equals(roomId) &
@@ -47,8 +48,7 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
   }
 
   Stream<Message> getByDbId(int dbId) {
-    return (select(messages)..where((m) => m.dbId.equals(dbId)))
-        .watchSingle();
+    return (select(messages)..where((m) => m.dbId.equals(dbId))).watchSingle();
   }
 
   Stream getMessagesInCurrentWeek() {
