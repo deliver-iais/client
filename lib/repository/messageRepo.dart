@@ -463,4 +463,24 @@ class MessageRepo {
       json = {"uuid": message.liveLocation.uuid};
     return jsonEncode(json);
   }
+
+  receiveMessage(String a) async {
+    for (int i = 0; i < 20; i++) {
+      int k = await _messageDao.insertMessage(Message(
+        packetId: "a:${DateTime.now().microsecondsSinceEpoch.toString()}",
+        roomId: a,
+        from: a,
+        to: _accountRepo.currentUserUid.getString(),
+        time: DateTime.now(),
+        id: id,
+        edited: false,
+        encrypted: false,
+        replyToId: -1,
+        type: MessageType.TEXT,
+        json: jsonEncode({"text": 'aaaa $id'}),
+      ));
+      await _roomDao.updateRoomLastMessage(a, id, k);
+      id++;
+    }
+  }
 }

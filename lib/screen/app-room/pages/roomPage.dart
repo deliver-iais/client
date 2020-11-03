@@ -87,7 +87,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Future<List<Message>> getMessage(
       int id, String roomId, bool isPendingMessage) async {
     List<Message> result = [];
-    print('isPendinggggggg: $isPendingMessage');
+    // print('isPendinggggggg: $isPendingMessage');
     if (isPendingMessage) {
       print('hello');
       result = [await _messageRepo.getPendingMessage(id)];
@@ -97,19 +97,19 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       var msg = _cache.get(roomId + '_' + id.toString());
       int page;
       if (msg != null) {
-        print('main message with id $id it is in cache');
+        // print('main message with id $id it is in cache');
         result.add(msg);
       } else {
         page = (id / pageSize).floor();
-        print('page : $page');
+        // print('page : $page');
         List<Message> messages = await _messageRepo.getPage(page, roomId);
-        print(
-            "main messages is not in cache so $page th page is recived from db : $messages.length");
+        // print(
+        //     "main messages is not in cache so $page th page is recived from db : $messages.length");
         for (int i = 0; i < messages.length; i = i + 1) {
           _cache.set(roomId + '_' + messages[i].id.toString(), messages[i]);
         }
-        print(
-            'we return messages[${id - page * pageSize}] and we wand message with id: $id, and it is equal ${messages[id - page * pageSize].id}');
+        // print(
+        //     'we return messages[${id - page * pageSize}] and we wand message with id: $id, and it is equal ${messages[id - page * pageSize].id}');
         result.add(messages[id - page * pageSize]);
       }
       // if (id == 0 && result.length > 0) {
@@ -189,10 +189,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     }
     //TODO check
     _lastSeenSubject.listen((event) {
-      print('event : $event, maxShownId: $maxShownId');
-      if (event != null && maxShownId < event) {
-        maxShownId = event;
+      if (event != null && lastShowedMessageId < event) {
+        // maxShownId = event;
         // lastShowedMessageId = event;
+        print('event : $event, maxShownId: $lastShowedMessageId');
         _lastSeenDao.updateLastSeen(widget.roomId, event);
         _messageRepo.sendSeenMessage(
             event, widget.roomId.uid, widget.roomId.uid);
@@ -246,6 +246,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     print(widget.roomId);
                     _lastSeenSubject.add(lastSeen$.data?.messageId ?? -1);
                     lastShowedMessageId = lastSeen$.data?.messageId ?? 0;
+                    print(
+                        'last Show*******************************n : $lastShowedMessageId');
                     if (lastSeen$.data == null) {
                       return Expanded(
                         child: Container(),
@@ -281,7 +283,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   // TODO check day on 00:00
                                   bool newTime;
                                   print(
-                                      'lastMessageId : ${currentRoom.lastMessageId}, pendinglength: ${pendingMessages.length}, itemCount: $itemCount');
+                                      'lastMessageId : ${currentRoom.lastMessageId}, pendinglength: ${pendingMessages.length}, itemCount: $itemCount, lastShowdMesssageId : $lastShowedMessageId');
                                   return Flexible(
                                     fit: FlexFit.loose,
                                     child: Container(
@@ -293,7 +295,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                             pendingMessages.length > 0
                                                 ? itemCount - 1
                                                 : lastShowedMessageId,
-                                        initialAlignment: 1.0,
+                                        initialAlignment: 0.0,
                                         // reverse: true,
                                         itemScrollController:
                                             itemScrollController,
@@ -321,10 +323,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                 isPendingMessage),
                                             builder: (context, messagesFuture) {
                                               if (messagesFuture.hasData) {
-                                                if (lastShowedMessageId <
-                                                    index) {
-                                                  lastShowedMessageId = index;
-                                                }
+                                                // if (lastShowedMessageId <
+                                                //     index) {
+                                                //   lastShowedMessageId = index;
+                                                // }
                                                 var messages =
                                                     messagesFuture.data;
                                                 if (messages.length == 0) {
@@ -352,7 +354,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                   month =
                                                       messages[1].time.month;
                                                 }
-
+                                                print(
+                                                    'index - lastShowedMessageId : ${index - lastShowedMessageId}, $index, $lastShowedMessageId');
                                                 return Column(
                                                   children: <Widget>[
                                                     newTime
@@ -364,6 +367,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                         ? Container(
                                                             width:
                                                                 double.infinity,
+                                                            alignment: Alignment
+                                                                .center,
                                                             color: Colors.white,
                                                             child: Text(
                                                               _appLocalization
@@ -440,7 +445,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                             SentMessageBox(
                                                                               message: messages[0],
                                                                               maxWidth: _maxWidth,
-                                                                              isGroup: widget.roomId.characters == Categories.GROUP,
+                                                                              isGroup: widget.roomId.uid.category == Categories.GROUP,
                                                                             ),
                                                                           ],
                                                                         ),
@@ -507,7 +512,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                         maxWidth:
                                                                             _maxWidth,
                                                                         isGroup:
-                                                                            widget.roomId.uid.characters ==
+                                                                            widget.roomId.uid.category ==
                                                                                 Categories.GROUP,
                                                                       ),
                                                                       Padding(
@@ -541,9 +546,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                 );
                                               } else {
                                                 return Container(
-                                                    // height: deviceHeight,
-                                                    child: Text(
-                                                        'index : $index')); //TODO
+                                                    height: deviceHeight,
+                                                    child:
+                                                        CircularProgressIndicator()); //TODO
                                               }
                                             },
                                           );
