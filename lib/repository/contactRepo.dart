@@ -92,7 +92,7 @@ class ContactRepo {
       }
 
       Iterable<OsContact.Contact> phoneContacts =
-      await OsContact.ContactsService.getContacts();
+          await OsContact.ContactsService.getContacts();
 
       for (OsContact.Contact phoneContact in phoneContacts) {
         try {
@@ -138,14 +138,23 @@ class ContactRepo {
   }
 
   Future<List<UserAsContact>> sendContacts(List<Contact> contacts) async {
+    int i = 0;
+    while (i < contacts.length) {
+      _sendContacts(contacts.sublist(
+          i, contacts.length > i + 49 ? i + 49 : contacts.length));
+      i = i + 50;
+    }
+    return _getContacts(contacts);
+  }
+
+  _sendContacts(List<Contact> contacts) async {
     var sendContacts = SaveContactsReq();
     contacts.forEach((element) {
       sendContacts.contactList.add(element);
     });
-    var result = await contactServices.saveContacts(sendContacts,
+    await contactServices.saveContacts(sendContacts,
         options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-    return _getContacts(contacts);
   }
 
   Future<List<UserAsContact>> _getContacts(List<Contact> contacts) async {
@@ -163,9 +172,12 @@ class ContactRepo {
         isMute: true,
         isBlock: false,
       ));
-      if(contact.uid!=null){
+      if (contact.uid != null) {
         _roomDao.insertRoom(myContact.Room(
-            roomId: contact.uid.string, lastMessage: null, mentioned: false,mute: false));
+            roomId: contact.uid.string,
+            lastMessage: null,
+            mentioned: false,
+            mute: false));
       }
     }
 
@@ -212,8 +224,9 @@ class ContactRepo {
     return result.userList;
   }
 
-  Future<myContact.Contact>getContact(Uid userUid) async {
-     myContact.Contact contact = await _contactDao.getContactByUid(userUid.string);
-     return contact;
+  Future<myContact.Contact> getContact(Uid userUid) async {
+    myContact.Contact contact =
+        await _contactDao.getContactByUid(userUid.string);
+    return contact;
   }
 }

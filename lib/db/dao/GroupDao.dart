@@ -1,38 +1,38 @@
 import 'package:moor/moor.dart';
-import '../Group.dart';
+import '../Mucs.dart';
 import '../database.dart';
 
 part 'GroupDao.g.dart';
 
-@UseDao(tables: [Groups])
+@UseDao(tables: [Mucs])
 class GroupDao extends DatabaseAccessor<Database> with _$GroupDaoMixin {
   final Database database;
 
   GroupDao(this.database) : super(database);
 
-  Stream watchAllGroups() => select(groups).watch();
+  Stream watchAllmucs() => select(mucs).watch();
 
-  Future<int> insertGroup(Group newGroup) =>
-      into(groups).insertOnConflictUpdate(newGroup);
+  Future<int> insertMuc(Muc muc) =>
+      into(mucs).insertOnConflictUpdate(muc);
 
-  Future deleteGroup(Group group) => delete(groups).delete(group);
+  Future deleteMuc(Muc muc) => delete(mucs).delete(muc);
 
-  Future updateGroup(Group updatedGroup) =>
-      update(groups).replace(updatedGroup);
+  Future updateMuc(Muc updatedMuc) =>
+      update(mucs).replace(updatedMuc);
 
-  Stream<Group> getByUid(String uid) {
-    return (select(groups)..where((group) => group.uid.equals(uid)))
+  Stream<Muc> getByUid(String uid) {
+    return (select(mucs)..where((muc) => muc.uid.equals(uid)))
         .watchSingle();
   }
 
 
-  Future<Group> getGroupByUid(String uid) {
-    return (select(groups)..where((group) => group.uid.equals(uid)))
+  Future<Muc> getMucByUid(String uid) {
+    return (select(mucs)..where((muc) => muc.uid.equals(uid)))
         .getSingle();
   }
 
-  Future<List<Group>> getGroupByName(String text){
-    return (select(groups)..where((group) => group.name.equals(text)))
+  Future<List<Muc>> getMucByName(String text){
+    return (select(mucs)..where((muc) => muc.name.equals(text)))
         .get();
   }
 }

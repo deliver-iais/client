@@ -10,7 +10,7 @@ class AvatarDao extends DatabaseAccessor<Database> with _$AvatarDaoMixin {
 
   AvatarDao(this.database) : super(database);
 
-  Future insetAvatar(Avatar avatar) =>
+  Future insertAvatar(Avatar avatar) =>
       into(avatars).insertOnConflictUpdate(avatar);
 
   Future deleteAvatar(Avatar avatar) => delete(avatars).delete(avatar);

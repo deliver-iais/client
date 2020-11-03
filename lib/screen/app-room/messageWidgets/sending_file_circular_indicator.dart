@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 class SendingFileCircularIndicator extends StatefulWidget {
   final double loadProgress;
   final bool isMedia;
+  final Function cancelUpload;
 
-  const SendingFileCircularIndicator({Key key, this.loadProgress, this.isMedia})
+  const SendingFileCircularIndicator({Key key, this.loadProgress, this.isMedia,this.cancelUpload})
       : super(key: key);
 
   @override
@@ -59,7 +60,7 @@ class _SendingFileCircularIndicatorState
                 : Theme.of(context).primaryColor,
             size: 35,
           ),
-          onPressed: null,
+          onPressed: widget.cancelUpload,
         ),
       ],
     );

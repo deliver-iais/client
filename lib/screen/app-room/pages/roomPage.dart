@@ -1,16 +1,23 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
+import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/operation_on_message.dart';
+import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/file_message.dart/pendingFileSending.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/forward_widget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/operation_on_message_entry.dart';
@@ -59,6 +66,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _roomRepo = GetIt.I.get<RoomRepo>();
   AppLocalization _appLocalization;
   var _memberRepo = GetIt.I.get<MemberRepo>();
+  var _messageDao = GetIt.I.get<MessageDao>();
+  var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
+
+  AudioPlayerService _audioPlayerService = GetIt.I.get<AudioPlayerService>();
 
   void resetRoomPageDetails() {
     setState(() {
@@ -119,10 +130,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
-    var messageDao = GetIt.I.get<MessageDao>();
     _maxWidth = MediaQuery.of(context).size.width * 0.7;
     return StreamBuilder<List<Message>>(
-      stream: messageDao.getByRoomId(widget.roomId),
+      stream: _messageDao.getByRoomId(widget.roomId),
       builder: (context, snapshot) {
         var currentRoomMessages = snapshot.data ?? [];
         int month;
@@ -133,15 +143,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           day = currentRoomMessages[0].time.day;
         }
         bool newTime;
-        AudioPlayerService audioPlayerService =
-            GetIt.I.get<AudioPlayerService>();
+
         return StreamBuilder<bool>(
-          stream: audioPlayerService.isOn,
+          stream: _audioPlayerService.isOn,
           builder: (context, snapshot) {
             return Scaffold(
               appBar: PreferredSize(
                 preferredSize: Size.fromHeight(
-                    snapshot.data == true || audioPlayerService.lastDur != null
+                    snapshot.data == true || _audioPlayerService.lastDur != null
                         ? 100
                         : 60),
                 child: AppBar(
@@ -203,13 +212,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                         onTapDown: storePosition,
                                         child: SingleChildScrollView(
                                           child: Container(
-                                            color: _selectedMessages.containsKey(
-                                                    currentRoomMessages[index]
-                                                        .packetId)
-                                                ? Theme.of(context)
-                                                    .disabledColor
-                                                : Theme.of(context)
-                                                    .backgroundColor,
+                                            color:
+                                                _selectedMessages.containsKey(
+                                                        currentRoomMessages[
+                                                                index]
+                                                            .packetId)
+                                                    ? Theme.of(context)
+                                                        .disabledColor
+                                                    : Theme.of(context)
+                                                        .backgroundColor,
                                             child: Stack(
                                               alignment: AlignmentDirectional
                                                   .bottomStart,
@@ -220,34 +231,36 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.end,
                                                   children: <Widget>[
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 8.0),
-                                                      child: SeenStatus(
-                                                          currentRoomMessages[
-                                                              index]),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 8.0),
-                                                      child: MsgTime(
-                                                        time:
+                                                    currentRoomMessages[index]
+                                                                .type ==
+                                                            MessageType.FILE
+                                                        ? StreamBuilder<
+                                                            PendingMessage>(
+                                                            stream: _pendingMessageDao
+                                                                .getByMessageId(
+                                                                    currentRoomMessages[
+                                                                            index]
+                                                                        .packetId),
+                                                            builder: (context,
+                                                                snapshot) {
+                                                              if (snapshot
+                                                                      .data !=
+                                                                  null) {
+                                                                return PendingMessageFileSending(
+                                                                    snapshot
+                                                                        .data,
+                                                                    currentRoomMessages[
+                                                                        index],
+                                                                    _maxWidth);
+                                                              } else {
+                                                                return SizedBox
+                                                                    .shrink();
+                                                              }
+                                                            },
+                                                          )
+                                                        : showSendingMessage(
                                                             currentRoomMessages[
-                                                                    index]
-                                                                .time,
-                                                      ),
-                                                    ),
-                                                    SentMessageBox(
-                                                      message:
-                                                          currentRoomMessages[
-                                                              index],
-                                                      maxWidth: _maxWidth,
-                                                      isGroup: widget.roomId
-                                                              .characters ==
-                                                          Categories.GROUP,
-                                                    ),
+                                                                index])
                                                   ],
                                                 ),
                                                 if (_selectMultiMessage)
@@ -368,9 +381,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           sendForwardMessage: sendForwardMessage,
                         )
                       : Container(
-                          height: 45,
-                          color: Theme.of(context).buttonColor,
-                          child: roomMuteWidgt(),
+                          height: 50,
+                          width: double.infinity,
+                          child: RaisedButton(
+                            color: Theme.of(context).bottomAppBarColor,
+                            child: roomMuteWidgt(),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(20.0),
+                            ),
+                          ),
                         )
                 ],
               ),
@@ -380,6 +399,26 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         );
       },
     );
+  }
+
+  showSendingMessage(Message message) {
+    return Row(children: [
+      Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: SeenStatus(message),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: MsgTime(
+          time: message.time,
+        ),
+      ),
+      SentMessageBox(
+        message: message,
+        maxWidth: _maxWidth,
+        isGroup: widget.roomId.characters == Categories.GROUP,
+      ),
+    ]);
   }
 
   Widget selectMultiMessage({Message message}) {
@@ -398,8 +437,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   _addForwardMessage(Message message) {
     setState(() {
-
-
       _selectedMessages.containsKey(message.packetId)
           ? _selectedMessages.remove(message.packetId)
           : _selectedMessages[message.packetId] = message;
@@ -417,20 +454,32 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       child: StreamBuilder<Room>(
         stream: _roomRepo.roomIsMute(widget.roomId),
         builder: (BuildContext context, AsyncSnapshot<Room> room) {
-          if (room.data.mute) {
-            return GestureDetector(
-              child: Text(_appLocalization.getTraslateValue("un_mute")),
-              onTap: () {
-                _roomRepo.changeRoomMuteTye(roomId: widget.roomId, mute: false);
-              },
-            );
+          if (room.data != null) {
+            if (room.data.mute) {
+              return GestureDetector(
+                child: Text(
+                  _appLocalization.getTraslateValue("un_mute"),
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  _roomRepo.changeRoomMuteTye(
+                      roomId: widget.roomId, mute: false);
+                },
+              );
+            } else {
+              return GestureDetector(
+                child: Text(
+                  _appLocalization.getTraslateValue("mute"),
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  _roomRepo.changeRoomMuteTye(
+                      roomId: widget.roomId, mute: true);
+                },
+              );
+            }
           } else {
-            return GestureDetector(
-              child: Text(_appLocalization.getTraslateValue("mute")),
-              onTap: () {
-                _roomRepo.changeRoomMuteTye(roomId: widget.roomId, mute: true);
-              },
-            );
+            return SizedBox.shrink();
           }
         },
       ),
@@ -470,8 +519,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     Icons.delete,
                     size: 30,
                   ),
-                  onPressed:(){
-                    _messageRepo.deleteMessage(_selectedMessages.values.toList());
+                  onPressed: () {
+                    _messageRepo
+                        .deleteMessage(_selectedMessages.values.toList());
                   }),
               IconButton(
                   icon: Icon(
@@ -481,7 +531,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   onPressed: () {
                     ExtendedNavigator.root.push(Routes.selectionToForwardPage,
                         arguments: SelectionToForwardPageArguments(
-                            forwardedMessages: _selectedMessages.values.toList()));
+                            forwardedMessages:
+                                _selectedMessages.values.toList()));
                     _selectedMessages.clear();
                   })
             ],
@@ -492,9 +543,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   _checkChannelRole() async {
-    var hasPermissionInMuc = await _memberRepo.mucAdminOrOwner(
+    var hasPermissionInMuc = await _memberRepo.isMucAdminOrOwner(
         _accountRepo.currentUserUid.string, widget.roomId);
-
     if (!hasPermissionInMuc) {
       setState(() {
         _hasPermissionToSendMessageInChannel = false;
@@ -502,4 +552,3 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     }
   }
 }
-

@@ -22,7 +22,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
   @override
   Widget build(BuildContext context) {
     PendingMessageDao pendingMessageDao = GetIt.I.get<PendingMessageDao>();
-    return StreamBuilder<List<PendingMessage>>(
+    return StreamBuilder<PendingMessage>(
         stream: pendingMessageDao.getByMessageId(widget.dbId),
         builder: (context, pendingMessage) {
           if (pendingMessage.hasData) {
@@ -31,8 +31,8 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
               children: [
                 Stack(
                   children: <Widget>[
-                    pendingMessage.data.length != 0
-                        ? pendingMessage.data[0].status ==
+                    pendingMessage.data != null
+                        ? pendingMessage.data.status ==
                                 SendingStatus.SENDING_FILE
                             ? SendingFileCircularIndicator(
                                 loadProgress: 0.5,
@@ -49,7 +49,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: ExtraTheme.of(context).text),
-                      child: pendingMessage.data.length == 0
+                      child: pendingMessage.data == null
                           ? IconButton(
                               padding: EdgeInsets.all(0),
                               icon: Icon(

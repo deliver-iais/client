@@ -51,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen> {
   gotoRooms(BuildContext context) async {
 
 
-   var result = await ReceiveSharingIntent.getInitialMedia();
+  /* var result = await ReceiveSharingIntent.getInitialMedia();
       if (result != null ) {
         List<String> paths = List();
         for(var path in result){
@@ -60,9 +60,9 @@ class _SplashScreenState extends State<SplashScreen> {
         ExtendedNavigator.of(context).push(
           Routes.shareInputFile,arguments: ShareInputFileArguments(inputSharedFilePath: paths)
         );
-      } else {
+      } else {*/
         _navigateToHomePage();
-      }
+     // }
   }
 
   void _navigateToHomePage() async {

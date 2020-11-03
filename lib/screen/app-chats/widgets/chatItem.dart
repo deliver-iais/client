@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/models/roomWithMessage.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -30,8 +31,11 @@ class ChatItem extends StatelessWidget {
 
   ChatItem({key: Key, this.roomWithMessage, this.isSelected}) : super(key: key);
 
+  AppLocalization _appLocalization;
+
   @override
   Widget build(BuildContext context) {
+    _appLocalization = AppLocalization.of(context);
     var messageType = roomWithMessage.lastMessage.from
             .isSameEntity(_accountRepo.currentUserUid)
         ? "send"
@@ -64,58 +68,26 @@ class ChatItem extends StatelessWidget {
                   children: <Widget>[
                     Container(
                         width: 200,
-                        child: FutureBuilder<String>(
-                            future: _roomRepo.getRoomDisplayName(
-                                roomWithMessage.room.roomId.uid),
-                            builder:
-                                (BuildContext c, AsyncSnapshot<String> snaps) {
-                              if (snaps.hasData && snaps.data.isNotEmpty) {
-                                return Text(
-                                  snaps.data.toString(),
-                                  style: TextStyle(
-                                    color: ExtraTheme.of(context).infoChat,
-                                    fontSize: 16,
-                                  ),
-                                  maxLines: 1,
-                                  softWrap: false,
-                                  overflow: TextOverflow.ellipsis,
-                                );
-                              } else {
-                                return FutureBuilder<UserAsContact>(
-                                  future: _contactRepo.searchUserByUid(
-                                      roomWithMessage.room.roomId.uid),
-                                  builder: (BuildContext context,
-                                      AsyncSnapshot<UserAsContact> snapshot) {
-                                    if (snapshot.data != null) {
-                                      return Text(
-                                        snapshot.data.username,
-                                        style: TextStyle(
-                                          color:
-                                              ExtraTheme.of(context).infoChat,
-                                          fontSize: 16,
-                                        ),
-                                        maxLines: 1,
-                                        softWrap: false,
-                                        overflow: TextOverflow.ellipsis,
-                                      );
-                                    } else {
-                                      return Text(
-                                        "UnKnown",
-                                        style: TextStyle(
-                                          color:
-                                              ExtraTheme.of(context).infoChat,
-                                          fontSize: 16,
-                                        ),
-                                        maxLines: 1,
-                                        softWrap: false,
-                                        overflow: TextOverflow.ellipsis,
-                                      );
-                                    }
-                                  },
-                                );
-                                ;
-                              }
-                            })),
+                        child: roomWithMessage.room.roomId.uid
+                                .toString()
+                                .contains(
+                                    _accountRepo.currentUserUid.toString())
+                            ? _showDisplayName(
+                                _appLocalization
+                                    .getTraslateValue("saved_message"),
+                                context)
+                            : FutureBuilder<String>(
+                                future: _roomRepo.getRoomDisplayName(
+                                    roomWithMessage.room.roomId.uid),
+                                builder: (BuildContext c,
+                                    AsyncSnapshot<String> snaps) {
+                                  if (snaps.hasData && snaps.data.isNotEmpty) {
+                                    return _showDisplayName(
+                                        snaps.data, context);
+                                  } else {
+                                    return _showDisplayName("Unknown", context);
+                                  }
+                                })),
                     Row(
                       children: <Widget>[
                         messageType == "send"
@@ -200,6 +172,19 @@ class ChatItem extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+
+  _showDisplayName(name, context) {
+    return Text(
+      name,
+      style: TextStyle(
+        color: ExtraTheme.of(context).infoChat,
+        fontSize: 16,
+      ),
+      maxLines: 1,
+      softWrap: false,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }

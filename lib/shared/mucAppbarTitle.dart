@@ -28,7 +28,7 @@ class MucAppbarTitle extends StatelessWidget {
           children: [
             CircleAvatarWidget(mucUid.uid, 23),
             SizedBox(width: 20,),
-            StreamBuilder<Group>(
+            StreamBuilder<Muc>(
                 stream: groupDao.getByUid(mucUid),
                 builder: (context, snapshot) {
                   if (snapshot.hasData)

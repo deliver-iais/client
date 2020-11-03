@@ -21,7 +21,6 @@ import 'package:deliver_flutter/screen/splash/pages/splash_screen.dart';
     MaterialRoute(page: LoginPage),
     MaterialRoute(page: VerificationPage),
     MaterialRoute(page: HomePage),
-    MaterialRoute(page: MediaDetailsPage),
     MaterialRoute(page: ShowImagePage),
     MaterialRoute(page: SelectionToForwardPage),
     MaterialRoute(page: NewContact),

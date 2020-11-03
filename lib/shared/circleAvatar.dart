@@ -7,6 +7,7 @@ import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -20,6 +21,7 @@ class CircleAvatarWidget extends StatelessWidget {
   final double radius;
   final bool forceToUpdate;
   final bool showAsStreamOfAvatar;
+  bool isAvatar;
 
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
@@ -99,31 +101,15 @@ class CircleAvatarWidget extends StatelessWidget {
               if (snapshot.data != null) {
                 String name = snapshot.data.replaceAll(' ', '');
                 return Center(
-                  child: Text(name.length>2?name.substring(0, 2):name,
+                  child: Text(name.length > 2 ? name.substring(0, 2) : name,
                       style: TextStyle(
-                          color: Colors.white, fontSize:18, height: 2)),
+                          color: Colors.white, fontSize: 18, height: 2)),
                 );
               } else {
-                return FutureBuilder<UserAsContact>(
-                  future: _contactRepo.searchUserByUid(contactUid),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<UserAsContact> snapshot) {
-                    if (snapshot.data != null) {
-                      return Center(
-                        child: Text(snapshot.data.username.substring(0, 2),
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: radius,
-                                height: 2)),
-                      );
-                    } else {
-                      return Icon(
-                        Icons.person,
-                        size: 30,
-                        color: Colors.white,
-                      );
-                    }
-                  },
+                return Icon(
+                  Icons.person,
+                  size: 30,
+                  color: Colors.white,
                 );
               }
             },
@@ -132,7 +118,10 @@ class CircleAvatarWidget extends StatelessWidget {
             future: _accountRepo.getAccount(),
             builder: (BuildContext context, AsyncSnapshot<Account> snapshot) {
               if (snapshot.data != null) {
-                return Text(snapshot.data.firstName!= null?snapshot.data.firstName.substring(0, 2):"",
+                return Text(
+                    snapshot.data.firstName != null
+                        ? snapshot.data.firstName.substring(0, 2)
+                        : "",
                     style: TextStyle(
                         color: Colors.white, fontSize: radius, height: 2));
               } else {

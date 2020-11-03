@@ -1,4 +1,4 @@
-import 'dart:convert';
+
 import 'dart:io';
 import 'dart:ui';
 
@@ -60,66 +60,26 @@ class _ImageUiState extends State<ImageUi> {
 
     if (accountRepo.currentUserUid.string == widget.message.from) {
       return Container(
-        child: StreamBuilder<List<PendingMessage>>(
-          stream: pendingMessageDao.getByMessageId(widget.message.packetId),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              if (snapshot.data.length > 0) {
-                //pending
-                path = (jsonDecode(snapshot.data[0].details))['path'];
-                return Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Image.file(
-                      File(path),
-                      width: width,
-                      height: height,
-                      fit: BoxFit.fill,
-                    ),
-                    SendingFileCircularIndicator(
-                      loadProgress:
-                          snapshot.data[0].status == SendingStatus.PENDING
-                              ? 1
-                              : 0.8,
-                      isMedia: true,
-                    ),
-                  ],
+        child: FutureBuilder<File>(
+            future: fileRepo.getFile(image.uuid, image.name),
+            builder: (context, file) {
+              if (file.hasData) {
+                return Image.file(
+                  file.data,
+                  width: width,
+                  height: height,
+                  fit: BoxFit.fill,
                 );
-              } else {
-                return FutureBuilder<File>(
-                    future: fileRepo.getFile(image.uuid, image.name),
-                    builder: (context, file) {
-                      if (file.hasData) {
-                        return Image.file(
-                          file.data,
-                          width: width,
-                          height: height,
-                          fit: BoxFit.fill,
-                        );
-                      }
-                      return Container(
-                        width: width,
-                        height: height,
-                      );
-                      // return FilteredImage(
-                      //   uuid: image.uuid,
-                      //   name: image.name,
-                      //   path: path,
-                      //   sended: true,
-                      //   width: width,
-                      //   height: height,
-                      //   onPressed: download,
-                      // );
-                    });
               }
-            }
-            return CircularFileStatusIndicator();
-          },
-        ),
+              return Container(
+                width: width,
+                height: height,
+              );
+            })
       );
     } else
       return Container(
-        child: StreamBuilder<List<PendingMessage>>(
+        child: StreamBuilder<PendingMessage>(
           stream: pendingMessageDao.getByMessageId(widget.message.packetId),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
@@ -157,8 +117,9 @@ class _ImageUiState extends State<ImageUi> {
                             return CircularProgressIndicator();
                         },
                       );
-                    } else if (snapshot.data != null && snapshot.data.length == 0 ||
-                        (snapshot.data[0]).status !=
+                    } else if (snapshot.data != null &&
+                            snapshot.data == null ||
+                        (snapshot.data).status !=
                             SendingStatus.SENDING_FILE) {
                       return FilteredImage(
                         uuid: image.uuid,
