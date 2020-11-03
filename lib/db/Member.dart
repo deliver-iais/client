@@ -1,4 +1,3 @@
-import 'package:deliver_flutter/models/memberType.dart';
 import 'package:deliver_flutter/models/role.dart';
 import 'package:moor/moor.dart';
 

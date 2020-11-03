@@ -20,6 +20,13 @@ import 'package:get_it/get_it.dart';
 
 import 'package:grpc/grpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:rxdart/rxdart.dart';
+
+enum ConnectionStatus { Connected, Disconnected }
+
+const MIN_BACKOFF_TIME = 4;
+const MAX_BACKOFF_TIME = 32;
+const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
   static ClientChannel _clientChannel = ClientChannel(
@@ -27,36 +34,84 @@ class CoreServices {
       port: ServicesDiscoveryRepo().coreService.port,
       options: ChannelOptions(credentials: ChannelCredentials.insecure()));
 
-  var coreService = CoreServiceClient(_clientChannel);
-  StreamController<ClientPacket> _clientPacket =
-  StreamController<ClientPacket>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
+  var _grpcCoreService = CoreServiceClient(_clientChannel);
+  var _clientPacket = StreamController<ClientPacket>();
+  ResponseStream<ServerPacket> _responseStream;
+  StreamSubscription<ServerPacket> _listenner;
 
+  int _backoffTime = MIN_BACKOFF_TIME;
+
+  BehaviorSubject<ConnectionStatus> connectionStatus =
+      BehaviorSubject.seeded(ConnectionStatus.Disconnected);
+
+  BehaviorSubject<ConnectionStatus> _connectionStatus =
+      BehaviorSubject.seeded(ConnectionStatus.Disconnected);
+
+  bool _responseChecked = false;
+
+  var _accountRepo = GetIt.I.get<AccountRepo>();
   var _messageDao = GetIt.I.get<MessageDao>();
   var _seenDao = GetIt.I.get<SeenDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
-  PendingMessageDao _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
+  var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _notificationService = GetIt.I.get<NotificationServices>();
 
+  initStreamConnection() async {
+    _startStream();
 
-  setCoreSetting() async {
+    _startCheckerTimer();
+
+    _connectionStatus
+        .distinct()
+        .map((event) => connectionStatus.add(event));
+  }
+
+  _startCheckerTimer() {
+    sendPingMessage();
+    _responseChecked = false;
+
+    Timer(new Duration(seconds: _backoffTime), () {
+      print("timer");
+      if (!_responseChecked) {
+        print("not respond");
+        if (_backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO)
+          _backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
+        _connectionStatus.add(ConnectionStatus.Disconnected);
+        try {
+          _responseStream.cancel();
+        } catch (ignored) {}
+        try {
+        _listenner.cancel();
+        } catch (ignored) {}
+        _startStream();
+      }
+      _startCheckerTimer();
+    });
+  }
+
+  void gotResponse() {
+    _connectionStatus.add(ConnectionStatus.Connected);
+    _backoffTime = MIN_BACKOFF_TIME;
+    _responseChecked = true;
+  }
+
+  _startStream() async {
     try {
-      ResponseStream<ServerPacket> responseStream = coreService.establishStream(
-          _clientPacket.stream,
+      _responseStream = _grpcCoreService.establishStream(_clientPacket.stream,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      responseStream.listen((serverPacket) {
+
+      _listenner = _responseStream.listen((serverPacket) {
         print(serverPacket.toString());
+        gotResponse();
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:
             _saveIncomingMessage(serverPacket.message);
             break;
           case ServerPacket_Type.error:
-            print("errrrrrrrrrrrrrrrrrror");
             break;
           case ServerPacket_Type.seen:
             _saveSeenMessage(serverPacket.seen);
-
             break;
           case ServerPacket_Type.activity:
             _saveActivityMessage(serverPacket.activity);
@@ -68,7 +123,6 @@ class CoreServices {
           case ServerPacket_Type.notSet:
             break;
           case ServerPacket_Type.pong:
-            savePingMessage(serverPacket.pong);
             break;
         }
       });
@@ -92,25 +146,23 @@ class CoreServices {
         json: message.whichType() == Message_Type.text
             ? message.text.text
             : jsonEncode({
-          "uuid": message.file.uuid,
-          "name": message.file.name,
-          "caption": message.file.caption,
-          "type": findType(message.file.name)
-        }),
+                "uuid": message.file.uuid,
+                "name": message.file.name,
+                "caption": message.file.caption,
+                "type": findType(message.file.name)
+              }),
         edited: message.edited,
         encrypted: message.encrypted,
-        type: getMessageType(message.whichType()))
-
-    );
+        type: getMessageType(message.whichType())));
     _pendingMessageDao
         .deletePendingMessage(M.PendingMessage(messageId: message.packetId));
     _roomDao.insertRoom(
-      M.Room(roomId: message.from.string, lastMessage: message.packetId),);
-    if (!message.from.node.contains(_accountRepo.currentUserUid.node)){
+      M.Room(roomId: message.from.string, lastMessage: message.packetId),
+    );
+    if (!message.from.node.contains(_accountRepo.currentUserUid.node)) {
       _notificationService.showTextNotification(
-          message.id.toInt(), message.from.string,"ffff", message.text.text);
+          message.id.toInt(), message.from.string, "ffff", message.text.text);
     }
-
   }
 
   sendMessage(MessageByClient message) {
@@ -123,10 +175,7 @@ class CoreServices {
   sendPingMessage() {
     _clientPacket.add(ClientPacket()
       ..ping = Ping()
-      ..id = DateTime
-          .now()
-          .microsecondsSinceEpoch
-          .toString());
+      ..id = DateTime.now().microsecondsSinceEpoch.toString());
   }
 
   sendSeenMessage(SeenByClient seen) {
@@ -138,16 +187,10 @@ class CoreServices {
   sendActivityMessage(ActivityByClient activity) {
     _clientPacket.add(ClientPacket()
       ..activity = activity
-      ..id = DateTime
-          .now()
-          .microsecondsSinceEpoch
-          .toString());
+      ..id = DateTime.now().microsecondsSinceEpoch.toString());
   }
 
-  deleteMessage() {
-
-  }
-
+  deleteMessage() {}
 
   MessageType getMessageType(Message_Type messageType) {
     switch (messageType) {
@@ -206,10 +249,10 @@ class CoreServices {
     //todo
   }
 
+  void savePongMessage(Pong pong) {}
+
   String findType(String path) {
-    String postfix = path
-        .split('.')
-        .last;
+    String postfix = path.split('.').last;
     if (postfix == 'png' || postfix == 'jpg' || postfix == 'jpeg')
       return 'image';
     else if (postfix == 'mp4')
@@ -219,6 +262,4 @@ class CoreServices {
     else
       return 'file';
   }
-
-  void savePingMessage(Pong pong) {}
 }

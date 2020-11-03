@@ -66,7 +66,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToHomePage() async {
-    _coreServices.setCoreSetting();
     bool setUserName = await _accountRepo.usernameIsSet();
     if (setUserName) {
       ExtendedNavigator.of(context).pushAndRemoveUntil(
