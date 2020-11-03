@@ -84,45 +84,55 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       LruCache<String, Message>(storage: SimpleStorage(size: pageSize));
 
   // TODO check function
-  Future<List<Message>> getMessage(int id, String roomId) async {
+  Future<List<Message>> getMessage(
+      int id, String roomId, bool isPendingMessage) async {
     List<Message> result = [];
-    var msg = _cache.get(roomId + '_' + id.toString());
-    int page;
-    if (msg != null) {
-      print('main message with id $id it is in cache');
-      result.add(msg);
+    print('isPendinggggggg: $isPendingMessage');
+    if (isPendingMessage) {
+      print('hello');
+      result = [await _messageRepo.getPendingMessage(id)];
+      print('result : $result');
+      return result;
     } else {
-      page = (id / pageSize).floor();
-      List<Message> messages = await _messageRepo.getPage(page, roomId);
-      print(
-          "main messages is not in cache so $page th page is recived from db : $messages.length");
-      for (int i = 0; i < messages.length; i = i + 1) {
-        _cache.set(roomId + '_' + messages[i].id.toString(), messages[i]);
+      var msg = _cache.get(roomId + '_' + id.toString());
+      int page;
+      if (msg != null) {
+        print('main message with id $id it is in cache');
+        result.add(msg);
+      } else {
+        page = (id / pageSize).floor();
+        print('page : $page');
+        List<Message> messages = await _messageRepo.getPage(page, roomId);
+        print(
+            "main messages is not in cache so $page th page is recived from db : $messages.length");
+        for (int i = 0; i < messages.length; i = i + 1) {
+          _cache.set(roomId + '_' + messages[i].id.toString(), messages[i]);
+        }
+        print(
+            'we return messages[${id - page * pageSize}] and we wand message with id: $id, and it is equal ${messages[id - page * pageSize].id}');
+        result.add(messages[id - page * pageSize]);
       }
-      print(
-          'we return messages[${id - page * pageSize}] and we wand message with id: $id, and it is equal ${messages[id - page * pageSize].id}');
-      result.add(messages[id - page * pageSize]);
+      // if (id == 0 && result.length > 0) {
+      //   print(" result: $result");
+      //   return result;
+      // } else {
+      //   msg = _cache.get(roomId + '_' + (id - 1).toString());
+      // if (msg != null) {
+      //   result.add(msg);
+      //   print('main message with id ${id - 1} it is in cache');
+      //   return result;
+      // } else {
+      //   List<Message> messages = _messageRepo.getPage(page - 1, roomId);
+      //   print(
+      //       "main messages is not in cache so ${page - 1} th page is recived from db : $messages.length");
+      //   for (int i = 0; i < messages.length; i = i + 1) {
+      //     _cache.set(roomId + '_' + messages[i].id.toString(), messages[i]);
+      //   }
+      //   result.add(messages[id - 1 - page * pageSize]);
+      // }
+      // }
+      return result;
     }
-    // if (id == 0 && result.length > 0) {
-    //   print(" result: $result");
-    //   return result;
-    // } else {
-    //   msg = _cache.get(roomId + '_' + (id - 1).toString());
-    // if (msg != null) {
-    //   result.add(msg);
-    //   print('main message with id ${id - 1} it is in cache');
-    //   return result;
-    // } else {
-    //   List<Message> messages = _messageRepo.getPage(page - 1, roomId);
-    //   print(
-    //       "main messages is not in cache so ${page - 1} th page is recived from db : $messages.length");
-    //   for (int i = 0; i < messages.length; i = i + 1) {
-    //     _cache.set(roomId + '_' + messages[i].id.toString(), messages[i]);
-    //   }
-    //   result.add(messages[id - 1 - page * pageSize]);
-    // }
-    // }
-    return result;
   }
 
   void resetRoomPageDetails() {
@@ -174,13 +184,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         : false;
     _scrollController = ScrollController();
     sendInputSharedFile();
-
     if (widget.roomId.uid.category == Categories.PUBLIC_CHANNEL) {
       _checkChannelRole();
     }
     //TODO check
     _lastSeenSubject.listen((event) {
-      if (maxShownId < event) {
+      print('event : $event, maxShownId: $maxShownId');
+      if (event != null && maxShownId < event) {
         maxShownId = event;
         // lastShowedMessageId = event;
         _lastSeenDao.updateLastSeen(widget.roomId, event);
@@ -241,142 +251,264 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         child: Container(),
                       );
                     }
-                    print(lastSeen$.toString());
-                    return StreamBuilder<Room>(
-                        stream: _roomDao.getByRoomId(widget.roomId),
-                        builder: (context, currentRoomStream) {
-                          if (currentRoomStream.hasData) {
-                            Room currentRoom = currentRoomStream.data;
+                    return StreamBuilder<List<PendingMessage>>(
+                        stream: _pendingMessageDao.getByRoomId(widget.roomId),
+                        builder: (context, pendingMessagesStream) {
+                          var pendingMessages = pendingMessagesStream.hasData
+                              ? pendingMessagesStream.data
+                              : List<PendingMessage>.filled(
+                                  0, PendingMessage());
 
-                            itemCount = currentRoom.lastMessageId +
-                                1; //TODO PEndingMessage
-                            int month;
-                            int day;
-                            // TODO check day on 00:00
-                            bool newTime;
-                            return Flexible(
-                              fit: FlexFit.loose,
-                              child: Container(
-                                height: deviceHeight,
-                                // color: Colors.amber,
-                                child: ScrollablePositionedList.builder(
-                                  itemCount: itemCount,
-                                  initialScrollIndex: lastShowedMessageId,
-                                  initialAlignment: 1.0,
-                                  // reverse: true,
-                                  itemScrollController: itemScrollController,
-                                  itemPositionsListener: itemPositionsListener,
-                                  itemBuilder: (context, index) {
-                                    print(
-                                        'itemCount : $itemCount, index: $index, lastShowedMessageId: $lastShowedMessageId');
-                                    return FutureBuilder<List<Message>>(
-                                      future: getMessage(index, widget.roomId),
-                                      builder: (context, messagesFuture) {
-                                        print(
-                                            'messase : ${messagesFuture.data}');
+                          return StreamBuilder<Room>(
+                              stream: _roomDao.getByRoomId(widget.roomId),
+                              builder: (context, currentRoomStream) {
+                                if (currentRoomStream.hasData) {
+                                  Room currentRoom = currentRoomStream.data;
+                                  if (pendingMessages.length > 0) {
+                                    lastShowedMessageId =
+                                        currentRoom.lastMessageId ?? 0;
+                                  }
+                                  if (currentRoom.lastMessageId == null) {
+                                    itemCount = pendingMessages.length;
+                                  } else {
+                                    itemCount = currentRoom.lastMessageId +
+                                        1 +
+                                        pendingMessages.length;
+                                  }
 
-                                        if (messagesFuture.hasData) {
-                                          if (lastShowedMessageId < index) {
-                                            lastShowedMessageId = index;
-                                          }
-                                          var messages = messagesFuture.data;
-                                          if (messages.length == 0) {
-                                            return Container();
-                                          } else if (messages.length > 0) {
-                                            month = messages[0].time.month;
-                                            day = messages[0].time.day;
-                                            _lastSeenSubject
-                                                .add(messages[0].id);
-                                          }
-                                          newTime = false;
-                                          if (index == 0)
-                                            newTime = true;
-                                          else if (messages.length > 1 &&
-                                              (messages[1].time.day != day ||
-                                                  messages[1].time.month !=
-                                                      month)) {
-                                            newTime = true;
-                                            day = messages[1].time.day;
-                                            month = messages[1].time.month;
-                                          }
-                                          return Column(
-                                            children: <Widget>[
-                                              newTime
-                                                  ? ChatTime(
-                                                      t: messages[0].time)
-                                                  : Container(),
-                                              (index - lastShowedMessageId) == 1
-                                                  ? Container(
-                                                      width: double.infinity,
-                                                      color: Colors.white,
-                                                      child: Text(
-                                                        _appLocalization
-                                                            .getTraslateValue(
-                                                                "UnreadMessages"),
-                                                        style: TextStyle(
-                                                            color: Theme.of(
-                                                                    context)
-                                                                .primaryColor),
-                                                      ),
-                                                    )
-                                                  : Container(),
-                                              messages[0].type !=
-                                                      MessageType
-                                                          .PERSISTENT_EVENT
-                                                  ? (messages[0]
-                                                          .from
-                                                          .isSameEntity(
-                                                              _accountRepo
-                                                                  .currentUserUid)
-                                                      ? GestureDetector(
-                                                          onTap: () {
-                                                            _selectMultiMessage
-                                                                ? _addForwardMessage(
-                                                                    messages[0])
-                                                                : _showCustomMenu(
-                                                                    messages[
-                                                                        0]);
-                                                          },
-                                                          onLongPress: () {
-                                                            setState(() {
-                                                              _selectMultiMessage =
-                                                                  true;
-                                                            });
-                                                          },
-                                                          onTapDown:
-                                                              storePosition,
-                                                          child:
-                                                              SingleChildScrollView(
-                                                            child: Container(
-                                                              color: _selectedMessages
-                                                                      .containsKey(
+                                  int month;
+                                  int day;
+                                  // TODO check day on 00:00
+                                  bool newTime;
+                                  print(
+                                      'lastMessageId : ${currentRoom.lastMessageId}, pendinglength: ${pendingMessages.length}, itemCount: $itemCount');
+                                  return Flexible(
+                                    fit: FlexFit.loose,
+                                    child: Container(
+                                      height: deviceHeight,
+                                      // color: Colors.amber,
+                                      child: ScrollablePositionedList.builder(
+                                        itemCount: itemCount,
+                                        initialScrollIndex:
+                                            pendingMessages.length > 0
+                                                ? itemCount - 1
+                                                : lastShowedMessageId,
+                                        initialAlignment: 1.0,
+                                        // reverse: true,
+                                        itemScrollController:
+                                            itemScrollController,
+                                        itemPositionsListener:
+                                            itemPositionsListener,
+                                        itemBuilder: (context, index) {
+                                          bool isPendingMessage =
+                                              (currentRoom.lastMessageId ==
+                                                      null)
+                                                  ? true
+                                                  : index >
+                                                      currentRoom.lastMessageId;
+
+                                          return FutureBuilder<List<Message>>(
+                                            future: getMessage(
+                                                isPendingMessage
+                                                    ? pendingMessages[index -
+                                                            1 -
+                                                            (currentRoom
+                                                                    .lastMessageId ??
+                                                                0)]
+                                                        .messageDbId
+                                                    : index,
+                                                widget.roomId,
+                                                isPendingMessage),
+                                            builder: (context, messagesFuture) {
+                                              if (messagesFuture.hasData) {
+                                                if (lastShowedMessageId <
+                                                    index) {
+                                                  lastShowedMessageId = index;
+                                                }
+                                                var messages =
+                                                    messagesFuture.data;
+                                                if (messages.length == 0) {
+                                                  return Container();
+                                                } else if (messages.length >
+                                                    0) {
+                                                  month =
+                                                      messages[0].time.month;
+                                                  day = messages[0].time.day;
+                                                  _lastSeenSubject
+                                                      .add(messages[0].id);
+                                                }
+                                                newTime = false;
+                                                if (index == 0)
+                                                  newTime = true;
+                                                else if (messages.length > 1 &&
+                                                    (messages[1].time.day !=
+                                                            day ||
+                                                        messages[1]
+                                                                .time
+                                                                .month !=
+                                                            month)) {
+                                                  newTime = true;
+                                                  day = messages[1].time.day;
+                                                  month =
+                                                      messages[1].time.month;
+                                                }
+
+                                                return Column(
+                                                  children: <Widget>[
+                                                    newTime
+                                                        ? ChatTime(
+                                                            t: messages[0].time)
+                                                        : Container(),
+                                                    (index - lastShowedMessageId) ==
+                                                            1
+                                                        ? Container(
+                                                            width:
+                                                                double.infinity,
+                                                            color: Colors.white,
+                                                            child: Text(
+                                                              _appLocalization
+                                                                  .getTraslateValue(
+                                                                      "UnreadMessages"),
+                                                              style: TextStyle(
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .primaryColor),
+                                                            ),
+                                                          )
+                                                        : Container(),
+                                                    messages[0].type !=
+                                                            MessageType
+                                                                .PERSISTENT_EVENT
+                                                        ? (messages[0]
+                                                                .from
+                                                                .isSameEntity(
+                                                                    _accountRepo
+                                                                        .currentUserUid)
+                                                            ? GestureDetector(
+                                                                onTap: () {
+                                                                  _selectMultiMessage
+                                                                      ? _addForwardMessage(
+                                                                          messages[
+                                                                              0])
+                                                                      : _showCustomMenu(
+                                                                          messages[
+                                                                              0]);
+                                                                },
+                                                                onLongPress:
+                                                                    () {
+                                                                  setState(() {
+                                                                    _selectMultiMessage =
+                                                                        true;
+                                                                  });
+                                                                },
+                                                                onTapDown:
+                                                                    storePosition,
+                                                                child:
+                                                                    SingleChildScrollView(
+                                                                  child:
+                                                                      Container(
+                                                                    color: _selectedMessages.containsKey(
+                                                                            messages[0]
+                                                                                .packetId)
+                                                                        ? Theme.of(context)
+                                                                            .disabledColor
+                                                                        : Theme.of(context)
+                                                                            .backgroundColor,
+                                                                    child:
+                                                                        Stack(
+                                                                      alignment:
+                                                                          AlignmentDirectional
+                                                                              .bottomStart,
+                                                                      children: [
+                                                                        Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.end,
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment.end,
+                                                                          children: <
+                                                                              Widget>[
+                                                                            Padding(
+                                                                              padding: const EdgeInsets.only(bottom: 8.0),
+                                                                              child: SeenStatus(messages[0]),
+                                                                            ),
+                                                                            Padding(
+                                                                              padding: const EdgeInsets.only(bottom: 8.0),
+                                                                              child: MsgTime(
+                                                                                time: messages[0].time,
+                                                                              ),
+                                                                            ),
+                                                                            SentMessageBox(
+                                                                              message: messages[0],
+                                                                              maxWidth: _maxWidth,
+                                                                              isGroup: widget.roomId.characters == Categories.GROUP,
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                        if (_selectMultiMessage)
+                                                                          selectMultiMessage(
+                                                                              message: messages[0])
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : GestureDetector(
+                                                                onTap: () {
+                                                                  _selectMultiMessage
+                                                                      ? _addForwardMessage(
+                                                                          messages[
+                                                                              0])
+                                                                      : _showCustomMenu(
+                                                                          messages[
+                                                                              0]);
+                                                                },
+                                                                onLongPress:
+                                                                    () {
+                                                                  setState(() {
+                                                                    _selectMultiMessage =
+                                                                        true;
+                                                                  });
+                                                                },
+                                                                onTapDown:
+                                                                    storePosition,
+                                                                child:
+                                                                    Container(
+                                                                  color: _selectedMessages.containsKey(
                                                                           messages[0]
                                                                               .packetId)
-                                                                  ? Theme.of(
-                                                                          context)
-                                                                      .disabledColor
-                                                                  : Theme.of(
-                                                                          context)
-                                                                      .backgroundColor,
-                                                              child: Stack(
-                                                                alignment:
-                                                                    AlignmentDirectional
-                                                                        .bottomStart,
-                                                                children: [
-                                                                  Row(
+                                                                      ? Theme.of(
+                                                                              context)
+                                                                          .disabledColor
+                                                                      : Theme.of(
+                                                                              context)
+                                                                          .backgroundColor,
+                                                                  child: Row(
                                                                     mainAxisAlignment:
                                                                         MainAxisAlignment
-                                                                            .end,
+                                                                            .start,
                                                                     crossAxisAlignment:
                                                                         CrossAxisAlignment
                                                                             .end,
                                                                     children: <
                                                                         Widget>[
-                                                                      Padding(
-                                                                        padding:
-                                                                            const EdgeInsets.only(bottom: 8.0),
-                                                                        child: SeenStatus(
-                                                                            messages[0]),
+                                                                      _isMuc
+                                                                          ? Padding(
+                                                                              padding: const EdgeInsets.only(bottom: 8.0, left: 5.0, right: 3.0),
+                                                                              child: CircleAvatarWidget(messages[0].from.uid, 18),
+                                                                            )
+                                                                          : Container(),
+                                                                      if (_selectMultiMessage)
+                                                                        selectMultiMessage(
+                                                                            message:
+                                                                                messages[0]),
+                                                                      RecievedMessageBox(
+                                                                        message:
+                                                                            messages[0],
+                                                                        maxWidth:
+                                                                            _maxWidth,
+                                                                        isGroup:
+                                                                            widget.roomId.uid.characters ==
+                                                                                Categories.GROUP,
                                                                       ),
                                                                       Padding(
                                                                         padding:
@@ -387,139 +519,42 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                               messages[0].time,
                                                                         ),
                                                                       ),
-                                                                      SentMessageBox(
-                                                                        message:
-                                                                            messages[0],
-                                                                        maxWidth:
-                                                                            _maxWidth,
-                                                                        isGroup:
-                                                                            widget.roomId.characters ==
-                                                                                Categories.GROUP,
-                                                                      ),
                                                                     ],
                                                                   ),
-                                                                  if (_selectMultiMessage)
-                                                                    selectMultiMessage(
-                                                                        message:
-                                                                            messages[0])
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        )
-                                                      : GestureDetector(
-                                                          onTap: () {
-                                                            _selectMultiMessage
-                                                                ? _addForwardMessage(
-                                                                    messages[0])
-                                                                : _showCustomMenu(
-                                                                    messages[
-                                                                        0]);
-                                                          },
-                                                          onLongPress: () {
-                                                            setState(() {
-                                                              _selectMultiMessage =
-                                                                  true;
-                                                            });
-                                                          },
-                                                          onTapDown:
-                                                              storePosition,
-                                                          child: Container(
-                                                            color: _selectedMessages
-                                                                    .containsKey(
-                                                                        messages[0]
-                                                                            .packetId)
-                                                                ? Theme.of(
-                                                                        context)
-                                                                    .disabledColor
-                                                                : Theme.of(
-                                                                        context)
-                                                                    .backgroundColor,
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .start,
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .end,
-                                                              children: <
-                                                                  Widget>[
-                                                                _isMuc
-                                                                    ? Padding(
-                                                                        padding: const EdgeInsets.only(
-                                                                            bottom:
-                                                                                8.0,
-                                                                            left:
-                                                                                5.0,
-                                                                            right:
-                                                                                3.0),
-                                                                        child: CircleAvatarWidget(
-                                                                            messages[0].from.uid,
-                                                                            18),
-                                                                      )
-                                                                    : Container(),
-                                                                if (_selectMultiMessage)
-                                                                  selectMultiMessage(
-                                                                      message:
-                                                                          messages[
-                                                                              0]),
-                                                                RecievedMessageBox(
-                                                                  message:
+                                                                )))
+                                                        : Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              PersistentEventMessage(
+                                                                  content:
                                                                       messages[
-                                                                          0],
-                                                                  maxWidth:
-                                                                      _maxWidth,
-                                                                  isGroup: widget
-                                                                          .roomId
-                                                                          .uid
-                                                                          .characters ==
-                                                                      Categories
-                                                                          .GROUP,
-                                                                ),
-                                                                Padding(
-                                                                  padding: const EdgeInsets
-                                                                          .only(
-                                                                      bottom:
-                                                                          8.0),
-                                                                  child:
-                                                                      MsgTime(
-                                                                    time: messages[
-                                                                            0]
-                                                                        .time,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          )))
-                                                  : Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        PersistentEventMessage(
-                                                            content: messages[0]
-                                                                .json),
-                                                      ],
-                                                    ),
-                                            ],
+                                                                              0]
+                                                                          .json),
+                                                            ],
+                                                          ),
+                                                  ],
+                                                );
+                                              } else {
+                                                return Container(
+                                                    // height: deviceHeight,
+                                                    child: Text(
+                                                        'index : $index')); //TODO
+                                              }
+                                            },
                                           );
-                                        } else {
-                                          return Container(
-                                              // height: deviceHeight,
-                                              child: Text('index : $index'));//TODO
-                                        }
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                            );
-                          } else {
-                            return Container();
-                          }
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  return Container();
+                                }
+                              });
                         });
                   }),
               _replyedMessage != null

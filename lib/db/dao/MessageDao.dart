@@ -40,7 +40,8 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
 
   int pageSize = 10;
   Future<List<Message>> getPage(String roomId, int page) async {
-    return (select(messages)
+    print('page : ${page * pageSize}');
+    return await (select(messages)
           ..where((m) =>
               m.roomId.equals(roomId) &
               m.id.isBetweenValues(page * pageSize, (page + 1) * pageSize)))
@@ -49,6 +50,10 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
 
   Stream<Message> getByDbId(int dbId) {
     return (select(messages)..where((m) => m.dbId.equals(dbId))).watchSingle();
+  }
+
+  Future<Message> getPendingMessage(int dbId) {
+    return (select(messages)..where((m) => m.dbId.equals(dbId))).getSingle();
   }
 
   Stream getMessagesInCurrentWeek() {

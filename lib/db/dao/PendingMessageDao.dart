@@ -18,8 +18,13 @@ class PendingMessageDao extends DatabaseAccessor<Database>
   Future<int> insertPendingMessage(PendingMessage newPendingMessage) =>
       into(pendingMessages).insertOnConflictUpdate(newPendingMessage);
 
-  Future deletePendingMessage(PendingMessage pendingMessage) =>
-      delete(pendingMessages).delete(pendingMessage);
+  Future deletePendingMessage(int dbId) async {
+    var q = await (select(pendingMessages)
+          ..where((pm) => pm.messageDbId.equals(dbId)))
+        .getSingle();
+    print('in delete $q');
+    delete(pendingMessages).delete(q);
+  }
 
   Future updatePendingMessage(PendingMessage updatedPendingMessage) =>
       update(pendingMessages).replace(updatedPendingMessage);
@@ -30,7 +35,12 @@ class PendingMessageDao extends DatabaseAccessor<Database>
   }
 
   Stream<List<PendingMessage>> getByRoomId(String roomId) {
-    return (select(pendingMessages)..where((pm) => pm.roomId.equals(roomId)))
+    return (select(pendingMessages)
+          ..where((pm) => pm.roomId.equals(roomId))
+          ..orderBy([
+            (pm) => OrderingTerm(
+                expression: pm.messageDbId, mode: OrderingMode.asc),
+          ]))
         .watch();
   }
 

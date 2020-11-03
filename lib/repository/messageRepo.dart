@@ -113,7 +113,7 @@ class MessageRepo {
       {int replyId, String forwardedFrom}) async {
     String packetId = _getPacketId();
     Message message = Message(
-      id: id,
+      // id: id,
       roomId: roomId.string,
       packetId: packetId,
       time: DateTime.now(),
@@ -127,12 +127,24 @@ class MessageRepo {
       json: jsonEncode({"text": text}),
     );
     int dbId = await _messageDao.insertMessage(message);
-    // await _savePendingMessage(dbId, roomId.string, SendingStatus.PENDING,
-    //     MAX_REMAINING_RETRIES, message);
+    await _savePendingMessage(dbId, roomId.string, SendingStatus.PENDING,
+        MAX_REMAINING_RETRIES, message);
     await _sendTextMessage(message);
-    await _updateRoomLastMessage(roomId.string, dbId);
-    print('messageRepo/sendTextMessage');
-    id++;
+    await Future.delayed(Duration(seconds: 20)).whenComplete(() async {
+      if (id == 0) {
+        await insertRoomAndLastSeen((roomId.string));
+      }
+      //TODO
+      await _messageDao.updateMessage(
+          message.copyWith(dbId: dbId, id: id, time: DateTime.now()));
+      await _updateRoomLastMessage(roomId.string, dbId, id);
+
+      await _lastSeenDao.updateLastSeen(message.roomId, id);
+
+      await _pendingMessageDao.deletePendingMessage(dbId);
+
+      id++;
+    });
   }
 
   String findType(String path) {
@@ -178,7 +190,17 @@ class MessageRepo {
     _savePendingMessage(dbId, roomId.string, SendingStatus.SENDING_FILE,
         MAX_REMAINING_RETRIES, message);
     _sendFileMessage(message, path);
-    _updateRoomLastMessage(roomId.string, dbId);
+    await Future.delayed(Duration(seconds: 10));
+    if (id == 0) {
+      await insertRoomAndLastSeen((roomId.string));
+    }
+    //TODO
+    await _updateRoomLastMessage(roomId.string, dbId, id);
+    await _lastSeenDao.updateLastSeen(message.roomId, id);
+    await _messageDao.updateMessage(
+        message.copyWith(dbId: dbId, id: id, time: DateTime.now()));
+    await _pendingMessageDao.deletePendingMessage(dbId);
+    id++;
   }
 
   sendPendingMessage() {
@@ -220,7 +242,7 @@ class MessageRepo {
       details: message.json,
       status: status,
     );
-    return _pendingMessageDao.insertPendingMessage(pendingMessage);
+    return await _pendingMessageDao.insertPendingMessage(pendingMessage);
   }
 
   sendSeenMessage(int messageId, Uid to, Uid roomId) {
@@ -229,21 +251,16 @@ class MessageRepo {
       ..id = Int64.parseInt(messageId.toString()));
   }
 
-  _updateRoomLastMessage(String roomId, int dbId) async {
+  insertRoomAndLastSeen(String roomId) async {
+    await _lastSeenDao.insertLastSeen(LastSeen(roomId: roomId));
+    await _roomDao
+        .insertRoom(Room(roomId: roomId, mentioned: false, mute: false));
+  }
+
+  _updateRoomLastMessage(String roomId, int dbId, int id) async {
     print('messageRepo/_updateRoomLastMessage');
-    if (id == 0) {
-      await _lastSeenDao
-          .insertLastSeen(LastSeen(messageId: id, roomId: roomId));
-      await _roomDao.insertRoom(Room(
-          roomId: roomId,
-          lastMessageDbId: dbId,
-          lastMessageId: 0,
-          mentioned: false,
-          mute: false));
-    } else {
-      await _lastSeenDao.updateLastSeen(roomId, id);
-      await _roomDao.updateRoomLastMessage(roomId, id, dbId);
-    }
+    // await _lastSeenDao.updateLastSeen(roomId, id);
+    await _roomDao.updateRoomLastMessage(roomId, id, dbId);
   }
 
   sendForwardedMessage(Uid roomId, List<Message> forwardedMessage) async {
@@ -330,6 +347,10 @@ class MessageRepo {
         remainingRetries: pendingMessage.remainingRetries - 1));
   }
 
+  getPendingMessage(int dbId) async {
+    return await _messageDao.getPendingMessage(dbId);
+  }
+
   deleteMessage(List<Message> messages) {}
 
   String _getPacketId() {
@@ -338,9 +359,9 @@ class MessageRepo {
 
   int pageSize = 10;
   getPage(int page, String roomId) async {
-    var messages = _messageDao.getPage(roomId, page);
-    print("messages.length : ${await messages}");
-    if ((await messages) == null) {
+    var messages = await _messageDao.getPage(roomId, page);
+    print('messageeees : $messages');
+    if (messages == null) {
       var fetchMessagesRes = await _queryServiceClient.fetchMessages(
           FetchMessagesReq()
             ..roomUid = roomId.uid
@@ -350,7 +371,8 @@ class MessageRepo {
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       await _saveFetchMessages(fetchMessagesRes.messages);
-      messages = _messageDao.getPage(roomId, page);
+      messages = await _messageDao.getPage(roomId, page);
+      print('messages : $messages');
       if (messages == null) return List<Message>.filled(0, Message());
     }
     return messages;

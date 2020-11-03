@@ -28,7 +28,7 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
     var room = await (select(rooms)..where((c) => c.roomId.equals(roomId)))
         .getSingle();
     await updateRoom(
-        room.copyWith(lastMessageId: newMessageId, lastMessageDbId: newDbId));
+        room.copyWith(lastMessageDbId: newDbId, lastMessageId: newMessageId));
   }
 
 //TODO need to edit
