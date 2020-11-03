@@ -26,7 +26,7 @@ import 'dart:io';
 
 import 'Contacts.dart';
 import 'FileInfo.dart';
-import 'Group.dart';
+import 'Mucs.dart';
 import 'Member.dart';
 import 'Rooms.dart';
 import 'Seens.dart';
@@ -49,7 +49,7 @@ part 'database.g.dart';
   Medias,
   SharedPreferences,
   Members,
-  Groups,
+  Mucs,
 ], daos: [
   MessageDao,
   RoomDao,

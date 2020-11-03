@@ -4,9 +4,11 @@ import 'package:deliver_flutter/db/dao/GroupDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/localSearchResult.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
@@ -16,6 +18,7 @@ class RoomRepo {
   var _mucDao = GetIt.I.get<GroupDao>();
   var _contactDao = GetIt.I.get<ContactDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
+  var _contactRepo = GetIt.I.get<ContactRepo>();
 
   Future<String> getRoomDisplayName(Uid uid) async {
     switch (uid.category) {
@@ -25,10 +28,13 @@ class RoomRepo {
           return name;
         } else {
           var contact = await _contactDao.getContactByUid(uid.string);
-          String contactName = "${contact.firstName} ${contact.lastName}";
-          print(contactName);
-          _roomNameCache.set(uid.string, contactName);
-          return contactName;
+          if(contact != null){
+            String contactName = "${contact.firstName} ${contact.lastName}";
+            _roomNameCache.set(uid.string, contactName);
+            return contactName;
+          }
+          else return _searchByUid(uid);
+
         }
         break;
 
@@ -39,12 +45,17 @@ class RoomRepo {
         if (name != null) {
           return name;
         } else {
-          var muc = await _mucDao.getGroupByUid(uid.string);
+          var muc = await _mucDao.getMucByUid(uid.string);
           _roomNameCache.set(uid.string, muc.name);
           return muc.name;
         }
         break;
     }
+  }
+
+  Future<String> _searchByUid(Uid uid)async{
+    UserAsContact userAsContact = await _contactRepo.searchUserByUid(uid);
+    return userAsContact.username;
   }
 
   updateRoomName(Uid uid, String name) {
@@ -86,8 +97,8 @@ class RoomRepo {
         ..uid = contact.uid != null ? contact.uid.uid : null);
     }
     if (searchInRooms) {
-      List<Group> searchInGroup = await _mucDao.getGroupByName(text);
-      for (Group group in searchInGroup) {
+      List<Muc> searchInMucs = await _mucDao.getMucByName(text);
+      for (Muc group in searchInMucs) {
         searchResult.add(LocalSearchResult()
           ..firstName = group.name
           ..lastName

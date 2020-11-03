@@ -5,6 +5,7 @@ import 'package:deliver_flutter/screen/app-contacts/widgets/new_Contact.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
 import 'package:deliver_flutter/screen/app_group/pages/group_info_determination_page.dart';
 import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dart';
+import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/profile_page.dart';
 import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
@@ -77,6 +78,36 @@ class RoutingService {
         largePageMain: widget,
         smallPageMain: widget,
         path: "/settings"));
+  }
+
+  void openShowAllAvatars({Uid uid, bool hasPermissionToDeleteAvatar,String heroTag}) {
+    var widget = MediaDetailsPage.showAvatar(
+      key: ValueKey("/media-details"),
+      uid: uid,
+      hasPermissionToDeleteAvatar: hasPermissionToDeleteAvatar,
+      heroTag: heroTag
+    );
+    _push(Page(
+      largePageNavigator: _navigationCenter,
+      largePageMain: widget,
+      smallPageMain: widget,
+      path: "/media-details",
+    ));
+  }
+
+  void openShowAllMedia({int mediaPosition, int mediasLength, String heroTag}) {
+    var widget = MediaDetailsPage.showMedia(
+      key: ValueKey("/media-details"),
+      mediaPosition: mediaPosition,
+      mediasLength: mediasLength,
+      heroTag: heroTag,
+    );
+    _push(Page(
+      largePageNavigator: _navigationCenter,
+      largePageMain: widget,
+      smallPageMain: widget,
+      path: "/media-details",
+    ));
   }
 
   void openProfile(String roomId) {

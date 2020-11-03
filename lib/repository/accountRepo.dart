@@ -80,13 +80,14 @@ class AccountRepo {
   Future sendVerificationCode(String code) async {
     String device;
 
-    if(Platform.isAndroid){
+    if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       device = androidInfo.androidId;
-
-    }else if(Platform.isIOS){
+    } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       device = iosInfo.identifierForVendor;
+    } else {
+      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     }
 
 

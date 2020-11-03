@@ -8,6 +8,8 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
+import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
+import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
@@ -21,12 +23,14 @@ import 'package:get_it/get_it.dart';
 
 class ProfileAvatarCard extends StatelessWidget {
   final Uid userUid;
-
+  var lastAvatar;
   final List<Widget> buttons;
+  var _routingServices = GetIt.I.get<RoutingService>();
 
   ProfileAvatarCard({this.userUid, this.buttons});
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
+  var _avatarRepo = GetIt.I.get<AvatarRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -36,23 +40,43 @@ class ProfileAvatarCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              CircleAvatarWidget(userUid, 80, showAsStreamOfAvatar: true,),
+              GestureDetector(
+                child: Hero(
+                  tag: "avatar",
+                  child: CircleAvatarWidget(
+                    userUid,
+                    80,
+                    showAsStreamOfAvatar: true,
+                  ),
+                ),
+                onTap: () async {
+                  var lastAvatar = await _avatarRepo.getLastAvatar(
+                      _accountRepo.currentUserUid, false);
+                  if (lastAvatar.createdOn != null) {
+                    _routingServices.openShowAllAvatars(
+                        uid: userUid,
+                        hasPermissionToDeleteAvatar: true,
+                        heroTag: "avatar");
+                  }
+                },
+              ),
               SizedBox(
                 height: 10,
               ),
               FutureBuilder<Account>(
                 future: _accountRepo.getAccount(),
-                builder: (BuildContext context, AsyncSnapshot<Account> snapshot) {
-                  if(snapshot.data != null){
+                builder:
+                    (BuildContext context, AsyncSnapshot<Account> snapshot) {
+                  if (snapshot.data != null) {
                     return Text(
-                    "${snapshot.data.firstName}${snapshot.data.lastName??""}",
+                      "${snapshot.data.firstName}${snapshot.data.lastName ?? ""}",
                       style: Theme.of(context).primaryTextTheme.headline5,
                     );
-                  }else{
+                  } else {
                     return SizedBox.shrink();
                   }
-                },),
-
+                },
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: buttons,

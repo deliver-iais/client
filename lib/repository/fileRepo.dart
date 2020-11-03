@@ -69,7 +69,6 @@ class FileRepo {
       {ThumbnailSize thumbnailSize}) async {
     File file =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
-
     if (file != null) {
       return file;
     }
@@ -82,10 +81,6 @@ class FileRepo {
   }
 
   Future<FileInfo> _getFileInDB(String size, String uuid) async {
-    var infoList = await _fileDao.getFileInfo(uuid, enumToString(size));
-    if (infoList.isNotEmpty)
-      return infoList.elementAt(0);
-    else
-      return null;
+    return await _fileDao.getFileInfo(uuid, enumToString(size));
   }
 }

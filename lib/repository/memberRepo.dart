@@ -21,10 +21,12 @@ class MemberRepo {
     return _memberDao.getByMucUid(mucUid);
   }
 
-  Future<bool> mucAdminOrOwner(String memberUid, String mucUid) async {
+  Future<bool> isMucAdminOrOwner(String memberUid, String mucUid) async {
     var member = await _memberDao.getMember(memberUid, mucUid);
-    if (member.role == MucRole.OWNER || member.role == MucRole.ADMIN) {
-      return true;
+    if (member != null) {
+      if (member.role == MucRole.OWNER || member.role == MucRole.ADMIN) {
+        return true;
+      }
     }
     return false;
   }
@@ -34,6 +36,16 @@ class MemberRepo {
         _accountRepo.currentUserUid.string, mucUid.string);
     if (member.role == MucRole.OWNER) {
       return true;
+    }
+    return false;
+  }
+
+  Future<bool> mucOwner(userUid, mucUid) async {
+    var member = await _memberDao.getMember(userUid, mucUid);
+    if (member != null) {
+      if (member.role == MucRole.OWNER) {
+        return true;
+      }
     }
     return false;
   }

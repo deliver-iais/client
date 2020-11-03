@@ -37,7 +37,7 @@ class _MessageHeaderState extends State<MessageHeader> {
   Widget build(BuildContext context) {
     PendingMessageDao pendingMessageDao = GetIt.I.get<PendingMessageDao>();
     var fileRepo = GetIt.I.get<FileRepo>();
-    return StreamBuilder<List<PendingMessage>>(
+    return StreamBuilder<PendingMessage>(
       stream: pendingMessageDao.getByMessageId(widget.message.packetId),
       builder: (context, pendingMessage) {
         if (pendingMessage.hasData) {
@@ -55,8 +55,8 @@ class _MessageHeaderState extends State<MessageHeader> {
                       children: <Widget>[
                         CircularFileStatusIndicator(
                           isExist: isExist.data | isDownloaded == true,
-                          sendingStatus: pendingMessage.data.length != 0
-                              ? (pendingMessage.data[0]).status
+                          sendingStatus: pendingMessage.data != null
+                              ? (pendingMessage.data).status
                               : null,
                           file: file,
                           messageDbId: widget.message.packetId,

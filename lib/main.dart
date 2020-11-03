@@ -80,8 +80,8 @@ void setupRepositories() {
   getIt.registerSingleton<CoreServices>(CoreServices());
   getIt.registerSingleton<MessageRepo>(MessageRepo());
   getIt.registerSingleton<MucServices>(MucServices());
-  getIt.registerSingleton<RoomRepo>(RoomRepo());
   getIt.registerSingleton<ContactRepo>(ContactRepo());
+  getIt.registerSingleton<RoomRepo>(RoomRepo());
   getIt.registerSingleton<MucRepo>(MucRepo());
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
   getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());

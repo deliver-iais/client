@@ -3,7 +3,7 @@ import 'package:moor/moor.dart';
 class LastAvatars extends Table {
   TextColumn get uid => text()();
 
-  DateTimeColumn get createdOn => dateTime().nullable()();
+  IntColumn get createdOn => integer().nullable()();
 
   TextColumn get fileId => text().nullable()();
 
