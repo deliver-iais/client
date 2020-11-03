@@ -97,7 +97,7 @@ class CoreServices {
 
   _startStream() async {
     try {
-      _responseStream = _grpcCoreService.establishStream(_clientPacket.stream,
+      _responseStream = _grpcCoreService.establishStream(_clientPacket.stream.asBroadcastStream(),
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
 
