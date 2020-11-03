@@ -63,7 +63,7 @@ class CoreServices {
 
     _connectionStatus
         .distinct()
-        .map((event) => connectionStatus.add(event));
+        .listen((event) => connectionStatus.add(event));
   }
 
   _startCheckerTimer() {
