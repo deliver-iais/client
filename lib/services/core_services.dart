@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
@@ -9,6 +10,7 @@ import 'package:deliver_flutter/db/database.dart' as M;
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
@@ -27,26 +29,26 @@ class CoreServices {
 
   var coreService = CoreServiceClient(_clientChannel);
   StreamController<ClientPacket> _clientPacket =
-      StreamController<ClientPacket>();
+  StreamController<ClientPacket>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   var _messageDao = GetIt.I.get<MessageDao>();
   var _seenDao = GetIt.I.get<SeenDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   PendingMessageDao _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
+  var _notificationService = GetIt.I.get<NotificationServices>();
 
 
   setCoreSetting() async {
-    try{
+    try {
       ResponseStream<ServerPacket> responseStream = coreService.establishStream(
           _clientPacket.stream,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       responseStream.listen((serverPacket) {
-        print("messageweeeeee");
+        print(serverPacket.toString());
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:
-
             _saveIncomingMessage(serverPacket.message);
             break;
           case ServerPacket_Type.error:
@@ -66,54 +68,83 @@ class CoreServices {
           case ServerPacket_Type.notSet:
             break;
           case ServerPacket_Type.pong:
-            print("ffffffff");
             savePingMessage(serverPacket.pong);
             break;
         }
       });
-    }catch(e){
+    } catch (e) {
       print("correservice error");
     }
-
   }
 
   _saveIncomingMessage(Message message) {
     _messageDao.insertMessage(M.Message(
         id: message.id.toInt(),
+        roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
+            ? message.to.string
+            : message.from.string,
         packetId: message.packetId,
-        time: DateTime.parse(message.time.toString()),
+        time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
         to: message.to.string,
         from: message.from.string,
-        replyToId: message.replyToId.hashCode,
+        replyToId: message.replyToId.toInt(),
         forwardedFrom: message.forwardFrom.string,
-        json: message.text.text,
+        json: message.whichType() == Message_Type.text
+            ? message.text.text
+            : jsonEncode({
+          "uuid": message.file.uuid,
+          "name": message.file.name,
+          "caption": message.file.caption,
+          "type": findType(message.file.name)
+        }),
         edited: message.edited,
         encrypted: message.encrypted,
-        type: getMessageType(message.whichType())));
+        type: getMessageType(message.whichType()))
+
+    );
     _pendingMessageDao
         .deletePendingMessage(M.PendingMessage(messageId: message.packetId));
-    _roomDao.insertRoom(M.Room(roomId: message.from.string,lastMessage: message.packetId),);
+    _roomDao.insertRoom(
+      M.Room(roomId: message.from.string, lastMessage: message.packetId),);
+    if (!message.from.node.contains(_accountRepo.currentUserUid.node)){
+      _notificationService.showTextNotification(
+          message.id.toInt(), message.from.string,"ffff", message.text.text);
+    }
 
   }
 
   sendMessage(MessageByClient message) {
-    _clientPacket.add(ClientPacket()..message = message..id = message.packetId);
+    _clientPacket.add(ClientPacket()
+      ..message = message
+      ..id = message.packetId);
     print("message is send ");
   }
 
   sendPingMessage() {
-
-    _clientPacket.add(ClientPacket()..ping = Ping()..id = DateTime.now().microsecondsSinceEpoch.toString());
+    _clientPacket.add(ClientPacket()
+      ..ping = Ping()
+      ..id = DateTime
+          .now()
+          .microsecondsSinceEpoch
+          .toString());
   }
 
   sendSeenMessage(SeenByClient seen) {
-    _clientPacket.add(ClientPacket()..seen = seen..id = seen.id.toString());
+    _clientPacket.add(ClientPacket()
+      ..seen = seen
+      ..id = seen.id.toString());
   }
 
   sendActivityMessage(ActivityByClient activity) {
-    _clientPacket.add(ClientPacket()..activity = activity..id = DateTime.now().microsecondsSinceEpoch.toString());
+    _clientPacket.add(ClientPacket()
+      ..activity = activity
+      ..id = DateTime
+          .now()
+          .microsecondsSinceEpoch
+          .toString());
   }
-  deleteMessage(){
+
+  deleteMessage() {
 
   }
 
@@ -173,6 +204,20 @@ class CoreServices {
 
   _saveActivityMessage(Activity activity) {
     //todo
+  }
+
+  String findType(String path) {
+    String postfix = path
+        .split('.')
+        .last;
+    if (postfix == 'png' || postfix == 'jpg' || postfix == 'jpeg')
+      return 'image';
+    else if (postfix == 'mp4')
+      return 'video';
+    else if (postfix == 'mp3')
+      return 'audio';
+    else
+      return 'file';
   }
 
   void savePingMessage(Pong pong) {}

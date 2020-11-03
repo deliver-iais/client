@@ -14,6 +14,7 @@ class NewMessageInput extends StatelessWidget {
   final Function resetRoomPageDetails;
   final bool waitingForForward;
   final Function sendForwardMessage;
+  var _roomDao = GetIt.I.get<RoomDao>();
 
   NewMessageInput(
       {Key key,
@@ -40,7 +41,8 @@ class NewMessageInput extends StatelessWidget {
               sendForwardMessage: sendForwardMessage,
             );
           } else {
-            return Text("No Such a Room");
+            _roomDao.insertRoom(Room(roomId: currentRoomId,mute: false));
+            return SizedBox.shrink();
           }
         });
   }

@@ -16,9 +16,9 @@ extension JsonMapper on String {
     f.type = (jsonDecode(this))['type'];
     f.name = (jsonDecode(this))['name'];
     f.caption = (jsonDecode(this))['caption'];
-    f.width = (jsonDecode(this))['width'];
-    f.height = (jsonDecode(this))['height'];
-    f.duration = (jsonDecode(this))['duration'];
+    f.width = 200;
+    f.height = 200;
+    f.duration = 0.0;
     return f;
   }
 

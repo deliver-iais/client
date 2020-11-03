@@ -9,7 +9,7 @@ class AudioBar extends StatelessWidget {
   Widget build(BuildContext context) {
     AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
     return StreamBuilder<AudioPlayerState>(
-        stream: audioPlayerService.audioPlayerState,
+        stream: audioPlayerService.audioPlayerState(""),
         builder: (context, snapshot) {
           if (snapshot.data == AudioPlayerState.PLAYING ||
               snapshot.data == AudioPlayerState.PAUSED ||
@@ -31,7 +31,7 @@ class AudioBar extends StatelessWidget {
                               Icons.pause,
                               color: Theme.of(context).primaryColor,
                             ),
-                            onPressed: audioPlayerService.onPause)
+                            onPressed: audioPlayerService.onPause(""))
                         : IconButton(
                             padding: EdgeInsets.all(0),
                             alignment: Alignment.center,
@@ -66,7 +66,7 @@ class AudioBar extends StatelessWidget {
                         color: ExtraTheme.of(context).details,
                         size: 20,
                       ),
-                      onPressed: audioPlayerService.onStop,
+                      onPressed: audioPlayerService.onStop(""),
                     ),
                   ],
                 ),

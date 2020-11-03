@@ -9,8 +9,9 @@ class CircularFileStatusIndicator extends StatelessWidget {
   final bool isExist;
   final SendingStatus sendingStatus;
   final File file;
-  final String  messageDbId;
+  final String messageDbId;
   final Function onPressed;
+
   const CircularFileStatusIndicator(
       {Key key,
       this.isExist,
@@ -36,7 +37,7 @@ class CircularFileStatusIndicator extends StatelessWidget {
                   )
                 : Container();
       } else {
-        return LoadFileStatus(
+        return new LoadFileStatus(
           file: file,
           dbId: messageDbId,
           onPressed: onPressed,

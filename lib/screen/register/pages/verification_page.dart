@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
@@ -20,6 +21,7 @@ class _VerificationPageState extends State<VerificationPage> {
   bool _showError = false;
   String _verificationCode;
   AppLocalization _appLocalization;
+  var coreServices = GetIt.I.get<CoreServices>();
 
   final FocusNode focusNode = FocusNode();
 
@@ -61,6 +63,7 @@ class _VerificationPageState extends State<VerificationPage> {
   }
 
   _navigationToHome() async {
+    coreServices.setCoreSetting();
     ExtendedNavigator.of(context).pushAndRemoveUntil(
       Routes.homePage,
       (_) => false,
