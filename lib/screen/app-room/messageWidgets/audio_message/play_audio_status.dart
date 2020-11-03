@@ -10,27 +10,19 @@ import 'dart:io';
 class PlayAudioStatus extends StatefulWidget {
   final filePb.File file;
   final String dbId;
+
   const PlayAudioStatus({Key key, this.file, this.dbId}) : super(key: key);
+
   @override
   _PlayAudioStatusState createState() => _PlayAudioStatusState();
 }
 
 class _PlayAudioStatusState extends State<PlayAudioStatus> {
   AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
-
-  @override
-  void initState() {
-    super.initState();
-    audioPlayerService.audioPlayer.onPlayerCompletion.listen((event) {
-      setState(() {
-        audioPlayerService.onCompletion();
-      });
-    });
-  }
+  var fileRepo = GetIt.I.get<FileRepo>();
 
   @override
   Widget build(BuildContext context) {
-    var fileRepo = GetIt.I.get<FileRepo>();
     return FutureBuilder<File>(
         future: fileRepo.getFile(widget.file.uuid, widget.file.name),
         builder: (context, audio) {
@@ -42,10 +34,9 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
               color: ExtraTheme.of(context).text,
             ),
             child: StreamBuilder<AudioPlayerState>(
-                stream: audioPlayerService.audioPlayerState,
+                stream: audioPlayerService.audioPlayerState(widget.file.uuid),
                 builder: (context, snapshot) {
-                  if (snapshot.data == AudioPlayerState.PLAYING ||
-                      audioPlayerService.isPlaying == true) {
+                  if (snapshot.data == AudioPlayerState.PLAYING) {
                     return IconButton(
                       padding: EdgeInsets.all(0),
                       alignment: Alignment.center,
@@ -56,7 +47,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
                       ),
                       onPressed: () {
                         setState(() {
-                          audioPlayerService.onPause();
+                          audioPlayerService.onPause(widget.file.uuid);
                         });
                       },
                     );

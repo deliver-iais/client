@@ -343,8 +343,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                 try {
                                   Recording recording =
                                       await AudioRecorder.stop();
-                                  // TODO add file sending function
-//                                  uploadFile.uploadFile(recording.path);
+                                  messageRepo.sendFileMessage(
+                                      widget.currentRoom.roomId.uid,
+                                      [recording.path]);
                                 } catch (e) {}
                               }
                             },
@@ -395,7 +396,7 @@ class _InputMessageWidget extends State<InputMessage> {
       allowsMultipleSelection: false,
     );
     if (result.paths.isNotEmpty) {
-      _messageRepo.sendFileMessage(currentRoom.roomId.uid, result.paths[0]);
+      _messageRepo.sendFileMessage(currentRoom.roomId.uid, [result.paths[0]]);
     }
   }
 }

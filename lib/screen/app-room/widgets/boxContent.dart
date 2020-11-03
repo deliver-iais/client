@@ -41,16 +41,18 @@ class _BoxContentState extends State<BoxContent> {
                 roomId: widget.message.roomId,
                 replyToId: widget.message.replyToId)
             : Container(),
-        widget.message.forwardedFrom != null
-            ? Container(
+        widget.message.forwardedFrom != null && widget.message.forwardedFrom.length>3
+            ?
+        Container(
                 padding: EdgeInsets.only(top: 8, left: 8, right: 8),
                 child: FutureBuilder<String>(
-                  future: _roomRepo.getRoomDisplayName(widget.message.from.uid),
+                  future: _roomRepo.getRoomDisplayName(widget.message.forwardedFrom.uid),
                   builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                     if(snapshot.hasData  && snapshot.data!=null){
+                      print(snapshot.data);
                       return Text("${_appLocalization.getTraslateValue("Forwarded_From")} ${snapshot.data}",
                           style:
-                          TextStyle(color: ExtraTheme.of(context).secondColor));
+                          TextStyle(color: ExtraTheme.of(context).text));
                     }else{
                       return Text("${_appLocalization.getTraslateValue("Forwarded_From")}  Unknown",
                           style:

@@ -89,6 +89,7 @@ dependencies:
   flutter_timer: 0.0.6
   uuid: 2.2.0
   audio_recorder: 1.0.2
+  percent_indicator: 2.1.8
   step_progress_indicator: ^0.2.3+6
   cached_network_image: ^2.0.0
   flutter_swiper: ^1.0.0

@@ -1,12 +1,17 @@
+import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class SendingFileCircularIndicator extends StatefulWidget {
   final double loadProgress;
   final bool isMedia;
-  final Function cancelUpload;
+  final File file;
 
-  const SendingFileCircularIndicator({Key key, this.loadProgress, this.isMedia,this.cancelUpload})
+  const SendingFileCircularIndicator(
+      {Key key, this.loadProgress, this.isMedia, this.file})
       : super(key: key);
 
   @override
@@ -18,6 +23,8 @@ class _SendingFileCircularIndicatorState
     extends State<SendingFileCircularIndicator>
     with SingleTickerProviderStateMixin {
   AnimationController _controller;
+  var fileService = GetIt.I.get<FileService>();
+
   @override
   void initState() {
     super.initState();
@@ -36,31 +43,31 @@ class _SendingFileCircularIndicatorState
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        RotationTransition(
-          turns: _controller,
-          child: Container(
-            width: 45,
-            height: 45,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-            ),
-            child: CircularProgressIndicator(
-              value: widget.loadProgress,
-              strokeWidth: 5,
-            ),
-          ),
-        ),
+        StreamBuilder<double>(
+            stream: fileService.filesUploadStatus[widget.file.uuid],
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return CircularPercentIndicator(
+                  radius: 55.0,
+                  lineWidth: 5.0,
+                  percent: snapshot.data,
+                  progressColor: Colors.blue,
+                );
+              } else {
+                return SizedBox.shrink();
+              }
+            }),
         IconButton(
-          padding: EdgeInsets.all(0),
+          padding: EdgeInsets.only(top: 8, left: 5),
           alignment: Alignment.center,
           icon: Icon(
             Icons.close,
             color: widget.isMedia
                 ? Theme.of(context).accentColor
                 : Theme.of(context).primaryColor,
-            size: 35,
+            size: 38,
           ),
-          onPressed: widget.cancelUpload,
+          onPressed: null,
         ),
       ],
     );

@@ -25,14 +25,9 @@ class FileRepo {
     return fileInfo;
   }
 
-  uploadFileList(List<String> filesPath) {
-    for (String filePath in filesPath) {
-      uploadFile(File(filePath));
-    }
-  }
 
-  Future<FileInfo> uploadFile(File file) async {
-    var value = await _fileService.uploadFile(file.path);
+  Future<FileInfo> uploadFile(File file,{String uploadKey}) async {
+    var value = await _fileService.uploadFile(file.path,uploadKey:uploadKey);
     FileInfo savedFile = await saveFileInfo(
         jsonDecode(value.toString())["uuid"],
         file,

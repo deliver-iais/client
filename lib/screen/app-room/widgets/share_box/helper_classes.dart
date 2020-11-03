@@ -60,7 +60,6 @@ class AudioItem extends FileBasic {
   static Future<List<AudioItem>> getAudios() async {
     var storageFiles = _storageFiles(await StoragePath.audioPath);
     List<AudioItem> items = [];
-    Fimber.d("pashmak");
     for (int i = 0; i < storageFiles.length; i++) {
       for (int j = 0; j < storageFiles[i].files.length; j++) {
         var f = storageFiles[i].files[j];
