@@ -60,6 +60,7 @@ class MessageRepo {
   }
 
   String findType(String path) {
+    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+path);
     Fimber.d('path is ' + path);
     String postfix = path.split('.').last;
     if (postfix == 'png' || postfix == 'jpg' || postfix == 'jpeg')
@@ -180,7 +181,7 @@ class MessageRepo {
           break;
         case MessageType.FILE:
           sendFileMessage(forwardedMessage.roomId.uid,
-              jsonDecode(forwardedMessage.json)["path"],
+              [jsonDecode(forwardedMessage.json)["path"]],
               forwardedFrom: forwardedMessage.forwardedFrom);
           break;
         case MessageType.STICKER:
