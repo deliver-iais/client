@@ -43,6 +43,7 @@ class _MessageHeaderState extends State<MessageHeader> {
             future: fileRepo.isExist(file.uuid, file.name),
             builder: (context, isExist) {
               if (isExist.hasData) {
+                print("################"+isExist.data.toString());
                 return Padding(
                   padding: const EdgeInsets.only(left: 8.0, top: 6),
                   child: Row(
@@ -52,7 +53,7 @@ class _MessageHeaderState extends State<MessageHeader> {
                         : CrossAxisAlignment.start,
                     children: <Widget>[
                       CircularFileStatusIndicator(
-                        isExist: widget.message.from != _accountRpo.currentUserUid && isExist.data | isDownloaded == true,
+                        isExist: isExist.data | isDownloaded == true,
                         sendingStatus: pendingMessage.data != null
                             ? (pendingMessage.data).status
                             : null,
