@@ -22,7 +22,6 @@ class MessageHeader extends StatefulWidget {
 
 class _MessageHeaderState extends State<MessageHeader> {
   filePb.File file;
-  bool isDownloaded = false;
   double loadProgress = 0.0;
   PendingMessageDao pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var fileRepo = GetIt.I.get<FileRepo>();
@@ -43,7 +42,6 @@ class _MessageHeaderState extends State<MessageHeader> {
             future: fileRepo.isExist(file.uuid, file.name),
             builder: (context, isExist) {
               if (isExist.hasData) {
-                print("################"+file.name+"###"+isExist.data.toString());
                 return Padding(
                   padding: const EdgeInsets.only(left: 8.0, top: 6),
                   child: Row(
