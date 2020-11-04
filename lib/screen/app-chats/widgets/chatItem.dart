@@ -35,7 +35,7 @@ class ChatItem extends StatelessWidget {
     var messageType = roomWithMessage.lastMessage.from
             .isSameEntity(_accountRepo.currentUserUid)
         ? "send"
-        : "recieve";
+        : "receive";
 
     return Container(
       margin: const EdgeInsets.only(bottom: 5),
@@ -192,7 +192,7 @@ class ChatItem extends StatelessWidget {
                           ],
                         ),
                       )
-                    : messageType == "recieve"
+                    : messageType == "receive"
                         ? ReceivedMsgIcon(roomWithMessage.lastMessage)
                         : Container()
               ],

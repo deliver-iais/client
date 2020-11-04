@@ -64,12 +64,6 @@ class ChatsPage extends StatelessWidget {
                     },
                   );
                 })),
-        FloatingActionButton(
-          child: Text('receive message'),
-          onPressed: () async {
-            await GetIt.I.get<MessageRepo>().receiveMessage(a);
-          },
-        ),
       ],
     );
   }

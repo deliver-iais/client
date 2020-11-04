@@ -24,11 +24,14 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
 
   Future updateRoom(Room updatedRoom) => update(rooms).replace(updatedRoom);
 
-  updateRoomLastMessage(String roomId, int newMessageId, int newDbId) async {
+  updateRoomLastMessage(String roomId, int newDbId, {int newMessageId}) async {
     var room = await (select(rooms)..where((c) => c.roomId.equals(roomId)))
         .getSingle();
-    await updateRoom(
-        room.copyWith(lastMessageDbId: newDbId, lastMessageId: newMessageId));
+    if (newMessageId != null)
+      await updateRoom(
+          room.copyWith(lastMessageDbId: newDbId, lastMessageId: newMessageId));
+    else
+      await updateRoom(room.copyWith(lastMessageDbId: newDbId));
   }
 
 //TODO need to edit

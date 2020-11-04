@@ -112,6 +112,9 @@ class MessageRepo {
   sendTextMessage(Uid roomId, String text,
       {int replyId, String forwardedFrom}) async {
     String packetId = _getPacketId();
+    if (id == 0) {
+      await insertRoomAndLastSeen((roomId.string));
+    }
     Message message = Message(
       // id: id,
       roomId: roomId.string,
@@ -127,17 +130,16 @@ class MessageRepo {
       json: jsonEncode({"text": text}),
     );
     int dbId = await _messageDao.insertMessage(message);
+
+    await _updateRoomLastMessage(roomId.string, dbId);
     await _savePendingMessage(dbId, roomId.string, SendingStatus.PENDING,
         MAX_REMAINING_RETRIES, message);
     await _sendTextMessage(message);
     await Future.delayed(Duration(seconds: 20)).whenComplete(() async {
-      if (id == 0) {
-        await insertRoomAndLastSeen((roomId.string));
-      }
       //TODO
       await _messageDao.updateMessage(
           message.copyWith(dbId: dbId, id: id, time: DateTime.now()));
-      await _updateRoomLastMessage(roomId.string, dbId, id);
+      await _updateRoomLastMessage(roomId.string, dbId, id: id);
 
       await _lastSeenDao.updateLastSeen(message.roomId, id);
 
@@ -187,18 +189,19 @@ class MessageRepo {
           "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
         }));
     int dbId = await _messageDao.insertMessage(message);
-    _savePendingMessage(dbId, roomId.string, SendingStatus.SENDING_FILE,
+    await _updateRoomLastMessage(roomId.string, dbId);
+    await _savePendingMessage(dbId, roomId.string, SendingStatus.SENDING_FILE,
         MAX_REMAINING_RETRIES, message);
-    _sendFileMessage(message, path);
+    await _sendFileMessage(message, path);
     await Future.delayed(Duration(seconds: 10));
     if (id == 0) {
       await insertRoomAndLastSeen((roomId.string));
     }
     //TODO
-    await _updateRoomLastMessage(roomId.string, dbId, id);
-    await _lastSeenDao.updateLastSeen(message.roomId, id);
     await _messageDao.updateMessage(
         message.copyWith(dbId: dbId, id: id, time: DateTime.now()));
+    await _updateRoomLastMessage(roomId.string, dbId, id: id);
+    await _lastSeenDao.updateLastSeen(message.roomId, id);
     await _pendingMessageDao.deletePendingMessage(dbId);
     id++;
   }
@@ -257,10 +260,13 @@ class MessageRepo {
         .insertRoom(Room(roomId: roomId, mentioned: false, mute: false));
   }
 
-  _updateRoomLastMessage(String roomId, int dbId, int id) async {
+  _updateRoomLastMessage(String roomId, int dbId, {int id}) async {
     print('messageRepo/_updateRoomLastMessage');
     // await _lastSeenDao.updateLastSeen(roomId, id);
-    await _roomDao.updateRoomLastMessage(roomId, id, dbId);
+    if (id != null)
+      await _roomDao.updateRoomLastMessage(roomId, dbId, newMessageId: id);
+    else
+      await _roomDao.updateRoomLastMessage(roomId, dbId);
   }
 
   sendForwardedMessage(Uid roomId, List<Message> forwardedMessage) async {
@@ -479,7 +485,7 @@ class MessageRepo {
         type: MessageType.TEXT,
         json: jsonEncode({"text": 'aaaa $id'}),
       ));
-      await _roomDao.updateRoomLastMessage(a, id, k);
+      await _roomDao.updateRoomLastMessage(a, k, newMessageId: id);
       id++;
     }
   }

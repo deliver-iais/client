@@ -363,7 +363,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                             t: messages[0].time)
                                                         : Container(),
                                                     (index - lastShowedMessageId) ==
-                                                            1
+                                                                1 &&
+                                                            !(messages[0]
+                                                                .from
+                                                                .isSameEntity(
+                                                                    _accountRepo
+                                                                        .currentUserUid))
                                                         ? Container(
                                                             width:
                                                                 double.infinity,

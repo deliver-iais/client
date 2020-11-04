@@ -7,7 +7,8 @@ extension ToText on DateTime {
     if (difference.inMinutes <= 2) {
       return "just now";
     } else if (difference.inDays < 1 && this.day == now.day) {
-      DateTimeFormat.format(this, format: 'H:i');
+      print('time?, $difference)');
+      return DateTimeFormat.format(this, format: 'H:i');
     } else if (difference.inDays <= 7)
       return DateTimeFormat.format(this, format: 'D');
     else
