@@ -77,6 +77,9 @@ class AudioPlayerService {
   }
 
   void onPlay(String path, String uuid, String name) {
+    _audioPlayerStateController.keys.forEach((element) {
+      _audioPlayerStateController[element].add(AudioPlayerState.STOPPED);
+    });
     setAudioDetails("Description", path, name, uuid);
     isPlaying = true;
     _audioPlayerController.add(true);

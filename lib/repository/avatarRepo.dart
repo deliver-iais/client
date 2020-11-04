@@ -145,12 +145,12 @@ class AvatarRepo {
       int createdOn = DateTime.now().millisecondsSinceEpoch;
       _setAvatarAtServer(fileInfo, createdOn, uid);
       Avatar avatar = Avatar(
-          uid: _accountRepo.currentUserUid.getString(),
+          uid: uid.string,
           createdOn: createdOn,
           fileId: fileInfo.uuid,
           fileName: fileInfo.name);
       updateLastUpdateAvatarTime(
-          _accountRepo.currentUserUid.getString(), avatar);
+          uid.string, avatar);
       return avatar;
     } else {
       return null;

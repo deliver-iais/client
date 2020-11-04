@@ -48,7 +48,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   var fileRepo = GetIt.I.get<FileRepo>();
   var routingService = GetIt.I.get<RoutingService>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _contactRepo = GetIt.I.get<ContactRepo>();
   String _uploadAvatarPath;
   bool _setAvatarPermission = false;
   bool _deleteMucPermission = false;

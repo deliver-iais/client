@@ -77,12 +77,6 @@ class CoreServices {
         if (_backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO)
           _backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
         _connectionStatus.add(ConnectionStatus.Disconnected);
-        // try {
-        //   _responseStream.cancel();
-        // } catch (ignored) {}
-        // try {
-        // _listenner.cancel();
-        // } catch (ignored) {}
         _startStream();
       }
       _startCheckerTimer();
