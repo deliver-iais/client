@@ -277,7 +277,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         child: Text(
                             appLocalization.getTraslateValue("newContact")),
                         onTap: () {
-                          _routingService.openCreateNewContactPage();
+                          ExtendedNavigator.of(context).popAndPush(Routes.newContact);
                         },
                       )),
                     ]),

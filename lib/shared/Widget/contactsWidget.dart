@@ -75,8 +75,8 @@ class ContactWidget extends StatelessWidget {
                 width: 20,
               ),
               Text(
-                "${contact.firstName} ${contact.lastName}",
-                overflow: TextOverflow.ellipsis,
+                "${contact.firstName} ${contact.lastName}".length>24? "${contact.firstName} ${contact.lastName}".substring(0,24): "${contact.firstName} ${contact.lastName}",
+                overflow: TextOverflow.clip,
                 style: TextStyle(
                   color: ExtraTheme.of(context).infoChat,
                   fontSize: 18,

@@ -107,5 +107,7 @@
   "leftChannel": "Left Channel",
   "deleteGroup": "Delete Group",
   "deleteChannel": "Delete Channel",
-  "saved_message": "Saved Message"
+  "saved_message": "Saved Message",
+  "contactNotExit": "Contact not Exist",
+  "contactAdd": "Contact Add in Contacts"
 }

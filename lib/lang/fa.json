@@ -107,5 +107,7 @@
   "leftChannel": "ترک کانال",
   "deleteGroup": "حذف گروه",
   "deleteChannel": "حذف کانال",
-  "saved_message": "پیام های ذخیره شده"
+  "saved_message": "پیام های ذخیره شده",
+  "contactNotExit": "مخاطب وجود ندارد.",
+  "contactAdd": "مخاطب اضافه شد."
 }
