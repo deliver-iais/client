@@ -88,7 +88,8 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                     lineWidth: 4.0,
                                     percent: 0.1,
                                     progressColor: Colors.blue,
-                                  ); ;
+                                  );
+                                  ;
                                 }
                               }))
                       : Padding(
@@ -123,7 +124,6 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                       });
                                       widget.onPressed(
                                           widget.file.uuid, widget.file.name);
-
                                     },
                                   ),
                           ),
