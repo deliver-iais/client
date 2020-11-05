@@ -374,7 +374,7 @@ class MessageRepo {
     return "${_accountRepo.currentUserUid.getString()}:${DateTime.now().microsecondsSinceEpoch.toString()}";
   }
 
-  int pageSize = 10;
+  int pageSize = 50;
   getPage(int page, String roomId) async {
     var messages = await _messageDao.getPage(roomId, page);
     if (messages == null) {

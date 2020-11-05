@@ -37,7 +37,7 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
         .watchSingle();
   }
 
-  int pageSize = 10;
+  int pageSize = 50;
   Future<List<Message>> getPage(String roomId, int page) async {
     return await (select(messages)
           ..where((m) =>

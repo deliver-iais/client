@@ -35,7 +35,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-int pageSize = 10;
+int pageSize = 50;
 
 class RoomPage extends StatefulWidget {
   final String roomId;
