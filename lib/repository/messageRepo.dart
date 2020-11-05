@@ -77,13 +77,15 @@ class MessageRepo {
       {int replyId,
       String forwardedFrom,
       String caption,
-      String messageBody}) async {
+      String forwardedMessageBody}) async {
     List<Message> messageList = new List();
     List<String> uploadKeyList = new List();
     for (var path in filesPath) {
       String packetId = _getPacketId();
       String type;
-      type = messageBody != null ?jsonDecode(messageBody)["type"]: findType(path);
+      type = forwardedMessageBody != null
+          ? jsonDecode(forwardedMessageBody)["type"]
+          : findType(path);
       String uploadKey = randomUid().node;
       uploadKeyList.add(uploadKey);
       Message message = Message(
@@ -97,8 +99,8 @@ class MessageRepo {
           forwardedFrom: forwardedFrom,
           replyToId: replyId != null ? replyId : -1,
           type: MessageType.FILE,
-          json: messageBody != null
-              ? messageBody
+          json: forwardedMessageBody != null
+              ? forwardedMessageBody
               : jsonEncode({
                   "uuid": uploadKey,
                   "size": 0,
@@ -116,7 +118,8 @@ class MessageRepo {
           packetId, SendingStatus.SENDING_FILE, MAX_REMAINING_RETRIES, message);
       _updateRoomLastMessage(roomId, packetId);
     }
-    if (messageBody == null) {
+
+    if (forwardedMessageBody == null) {
       for (int i = 0; i < filesPath.length; i++) {
         FileInfo fileInfo = await _fileRepo.uploadFile(
           LocalFile.File(filesPath[i]),
@@ -193,9 +196,9 @@ class MessageRepo {
           );
           break;
         case MessageType.FILE:
-          sendFileMessage(roomId,
-              ["null"],
-              forwardedFrom: forwardedMessage.forwardedFrom,messageBody: forwardedMessage.json);
+          sendFileMessage(roomId, [""],
+              forwardedFrom: forwardedMessage.forwardedFrom,
+              forwardedMessageBody: forwardedMessage.json);
           break;
         case MessageType.STICKER:
           // TODO: Handle this case.
