@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -26,30 +27,45 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Duration>(
-        stream: audioPlayerService.audioDuration,
-        builder: (context, snapshot1) {
-          dur = snapshot1.data ?? dur ?? Duration.zero;
-          return StreamBuilder<Duration>(
-              stream: audioPlayerService.audioCurrentPosition,
-              builder: (context, snapshot2) {
-                currentPos = audioPlayerService.audioName == null
-                    ? Duration.zero
-                    : snapshot2.data ?? currentPos ?? Duration.zero;
-                if (dur.inHours > 0)
-                  return Container(
-                    child: Text(currentPos.toString().split('.')[0] +
-                        " / " +
-                        dur.toString().split('.')[0]),
-                  );
-                else
-                  return Text(
-                    currentPos.toString().split('.')[0].substring(2) +
-                        " / " +
-                        dur.toString().split('.')[0].substring(2),
-                    style: TextStyle(fontSize: 11),
-                  );
-              });
+    return StreamBuilder<AudioPlayerState>(
+        stream: audioPlayerService.audioPlayerState(widget.audioUuid),
+        builder: (c, state) {
+          if (state.hasData &&
+              state.data != null &&
+              state.data == AudioPlayerState.PLAYING) {
+            return StreamBuilder<Duration>(
+                stream: audioPlayerService.audioDuration,
+                builder: (context, snapshot1) {
+                  dur = snapshot1.data ?? dur ?? Duration.zero;
+                  return StreamBuilder<Duration>(
+                      stream: audioPlayerService.audioCurrentPosition,
+                      builder: (context, snapshot2) {
+                        currentPos = audioPlayerService.audioName == null
+                            ? Duration.zero
+                            : snapshot2.data ?? currentPos ?? Duration.zero;
+                        if (dur.inHours > 0)
+                          return Container(
+                            child: Text(currentPos.toString().split('.')[0] +
+                                " / " +
+                                dur.toString().split('.')[0]),
+                          );
+                        return Text(
+                          currentPos.toString().split('.')[0].substring(2) +
+                              " / " +
+                              dur.toString().split('.')[0].substring(2),
+                          style: TextStyle(fontSize: 11),
+                        );
+                      });
+                });
+            return SizedBox.shrink();
+          } else {
+            return Text(
+              "00"
+                      " / " +
+                  dur.toString().split('.')[0].substring(2),
+              style: TextStyle(fontSize: 11),
+            );
+          }
         });
   }
 }
