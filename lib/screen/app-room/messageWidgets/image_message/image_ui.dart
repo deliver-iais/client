@@ -39,11 +39,6 @@ class _ImageUiState extends State<ImageUi> {
     super.initState();
   }
 
-  download() {
-    setState(() {
-      isDownloaded = true;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +51,6 @@ class _ImageUiState extends State<ImageUi> {
     height = image.height.toDouble();
     if (widget.maxWidth < width) width = widget.maxWidth;
     if (widget.maxWidth * 1.2 < height) height = widget.maxWidth;
-    String path;
 
     if (accountRepo.currentUserUid.string == widget.message.from) {
       return Container(
@@ -64,25 +58,47 @@ class _ImageUiState extends State<ImageUi> {
           stream: pendingMessageDao.getByMessageId(widget.message.packetId),
           builder: (context, snapshot) {
             if (snapshot.data != null) {
-              //pending
-              path = (jsonDecode(snapshot.data.details))['path'];
-              return Stack(
-                alignment: Alignment.center,
-                children: [
-                  Image.file(
-                    File(path),
-                    width: width,
-                    height: height,
-                    fit: BoxFit.fill,
-                  ),
-                  SendingFileCircularIndicator(
-                    loadProgress:
+         return FutureBuilder<File>(future:fileRepo.getFileIfExist(image.uuid, image.name)  ,builder: (contex,file){
+                if(file !=  null){
+                  return Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Image.file(
+                        file.data,
+                        width: width,
+                        height: height,
+                        fit: BoxFit.fill,
+                      ),
+                      SendingFileCircularIndicator(
+                        loadProgress:
                         snapshot.data.status == SendingStatus.PENDING ? 1 : 0.8,
-                    isMedia: true,
-                    file: image,
-                  ),
-                ],
-              );
+                        isMedia: true,
+                        file: image,
+                      ),
+                    ],
+                  );
+                }else{
+                   String path = (jsonDecode(snapshot.data.details))['path'];
+                  return Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Image.file(
+                        File(path),
+                        width: width,
+                        height: height,
+                        fit: BoxFit.fill,
+                      ),
+                      SendingFileCircularIndicator(
+                        loadProgress:
+                        snapshot.data.status == SendingStatus.PENDING ? 1 : 0.8,
+                        isMedia: true,
+                        file: image,
+                      ),
+                    ],
+                  );
+                }
+              });
+              //pending
             } else {
               return FutureBuilder<File>(
                   future: fileRepo.getFile(image.uuid, image.name),

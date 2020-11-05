@@ -16,6 +16,7 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as clientMessage;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:emojis/emojis.dart';
 import 'package:fimber/fimber.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
@@ -60,7 +61,6 @@ class MessageRepo {
   }
 
   String findType(String path) {
-    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+path);
     Fimber.d('path is ' + path);
     String postfix = path.split('.').last;
     if (postfix == 'png' || postfix == 'jpg' || postfix == 'jpeg')
@@ -74,14 +74,17 @@ class MessageRepo {
   }
 
   sendFileMessage(Uid roomId, List<String> filesPath,
-      {int replyId, String forwardedFrom, String caption}) async {
+      {int replyId,
+      String forwardedFrom,
+      String caption,
+      String messageBody}) async {
     List<Message> messageList = new List();
     List<String> uploadKeyList = new List();
     for (var path in filesPath) {
       String packetId = _getPacketId();
       String type;
-      type = findType(path);
-      String uploadKey = randomString(10);
+      type = messageBody != null ?jsonDecode(messageBody)["type"]: findType(path);
+      String uploadKey = randomUid().node;
       uploadKeyList.add(uploadKey);
       Message message = Message(
           roomId: roomId.string,
@@ -91,31 +94,41 @@ class MessageRepo {
           to: roomId.string,
           edited: false,
           encrypted: false,
+          forwardedFrom: forwardedFrom,
           replyToId: replyId != null ? replyId : -1,
           type: MessageType.FILE,
-          json: jsonEncode({
-            "uuid": uploadKey,
-            "size": 0,
-            "type": type,
-            "path": path,
-            "name": path.split('/').last,
-            "caption": caption ?? "",
-            "width": type == 'image' || type == 'video' ? 200 : 0,
-            "height": type == 'image' || type == 'video' ? 100 : 0,
-            "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
-          }));
+          json: messageBody != null
+              ? messageBody
+              : jsonEncode({
+                  "uuid": uploadKey,
+                  "size": 0,
+                  "type": type,
+                  "path": path,
+                  "name": path.split('/').last,
+                  "caption": caption ?? "",
+                  "width": type == 'image' || type == 'video' ? 200 : 0,
+                  "height": type == 'image' || type == 'video' ? 100 : 0,
+                  "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
+                }));
       messageList.add(message);
       _messageDao.insertMessage(message);
       _savePendingMessage(
           packetId, SendingStatus.SENDING_FILE, MAX_REMAINING_RETRIES, message);
       _updateRoomLastMessage(roomId, packetId);
     }
-    for (int i = 0; i < filesPath.length; i++) {
-      FileInfo fileInfo = await _fileRepo.uploadFile(
-        LocalFile.File(filesPath[i]),
-        uploadKey: uploadKeyList[i],
-      );
-     await _sendFileMessage(messageList[i], filesPath[i], fileInfo: fileInfo);
+    if (messageBody == null) {
+      for (int i = 0; i < filesPath.length; i++) {
+        FileInfo fileInfo = await _fileRepo.uploadFile(
+          LocalFile.File(filesPath[i]),
+          uploadKey: uploadKeyList[i],
+        );
+        _sendFileMessage(messageList[i], fileInfo: fileInfo);
+      }
+    } else {
+      _sendFileMessage(messageList[0],
+          fileInfo: FileInfo(
+              uuid: jsonDecode(messageList[0].json)["uuid"],
+              name: jsonDecode(messageList[0].json)["name"]));
     }
   }
 
@@ -126,7 +139,7 @@ class MessageRepo {
           switch (pendingMessage.status) {
             case SendingStatus.SENDING_FILE:
               _messageDao.getByDBId(pendingMessage.messageId).listen((message) {
-                _sendFileMessage(message, jsonDecode(message.json)["path"]);
+                _sendFileMessage(message);
               });
               _updatePendingMessage(pendingMessage);
 
@@ -180,9 +193,9 @@ class MessageRepo {
           );
           break;
         case MessageType.FILE:
-          sendFileMessage(forwardedMessage.roomId.uid,
-              [jsonDecode(forwardedMessage.json)["path"]],
-              forwardedFrom: forwardedMessage.forwardedFrom);
+          sendFileMessage(roomId,
+              ["null"],
+              forwardedFrom: forwardedMessage.forwardedFrom,messageBody: forwardedMessage.json);
           break;
         case MessageType.STICKER:
           // TODO: Handle this case.
@@ -221,8 +234,7 @@ class MessageRepo {
     _coreServices.sendMessage(messageByClient);
   }
 
-  _sendFileMessage(Message message, String path,
-      { FileInfo fileInfo}) async {
+  _sendFileMessage(Message message, {FileInfo fileInfo}) async {
     File file = File()
       ..name = fileInfo.name
       ..uuid = fileInfo.uuid
