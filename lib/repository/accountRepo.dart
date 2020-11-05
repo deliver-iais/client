@@ -134,13 +134,10 @@ class AccountRepo {
   }
 
   Future<bool> usernameIsSet() async {
-    print('accountRepo/userNameIsSet/beforeGetUserProfile');
     var result = await _userServices.getUserProfile(GetUserProfileReq(),
         options:
             CallOptions(metadata: {'accessToken': await getAccessToken()}));
-    print('accountRepo/userNameIsSet/afterGetUserProfile');
     if (result.profile.hasUsername()) {
-      print('accountRepo/userNameIsSet/in if');
       _saveProfilePrivateDate(
           username: result.profile.username,
           firstName: result.profile.firstName,
@@ -148,7 +145,6 @@ class AccountRepo {
           email: result.profile.email);
       return true;
     } else {
-      print('accountRepo/userNameIsSet/in else');
       return false;
     }
   }

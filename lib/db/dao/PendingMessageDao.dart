@@ -22,7 +22,6 @@ class PendingMessageDao extends DatabaseAccessor<Database>
     var q = await (select(pendingMessages)
           ..where((pm) => pm.messageDbId.equals(dbId)))
         .getSingle();
-    print('in delete $q');
     delete(pendingMessages).delete(q);
   }
 

@@ -87,50 +87,37 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Future<List<Message>> getMessage(
       int id, String roomId, bool isPendingMessage) async {
     List<Message> result = [];
-    // print('isPendinggggggg: $isPendingMessage');
     if (isPendingMessage) {
-      print('hello');
       result = [await _messageRepo.getPendingMessage(id)];
-      print('result : $result');
       return result;
     } else {
       var msg = _cache.get(roomId + '_' + id.toString());
       int page;
       if (msg != null) {
-        // print('main message with id $id it is in cache');
         result.add(msg);
       } else {
         page = (id / pageSize).floor();
-        // print('page : $page');
         List<Message> messages = await _messageRepo.getPage(page, roomId);
-        // print(
-        //     "main messages is not in cache so $page th page is recived from db : $messages.length");
         for (int i = 0; i < messages.length; i = i + 1) {
           _cache.set(roomId + '_' + messages[i].id.toString(), messages[i]);
         }
-        // print(
-        //     'we return messages[${id - page * pageSize}] and we wand message with id: $id, and it is equal ${messages[id - page * pageSize].id}');
         result.add(messages[id - page * pageSize]);
       }
-      // if (id == 0 && result.length > 0) {
-      //   print(" result: $result");
-      //   return result;
-      // } else {
-      //   msg = _cache.get(roomId + '_' + (id - 1).toString());
-      // if (msg != null) {
-      //   result.add(msg);
-      //   print('main message with id ${id - 1} it is in cache');
-      //   return result;
-      // } else {
-      //   List<Message> messages = _messageRepo.getPage(page - 1, roomId);
-      //   print(
-      //       "main messages is not in cache so ${page - 1} th page is recived from db : $messages.length");
-      //   for (int i = 0; i < messages.length; i = i + 1) {
-      //     _cache.set(roomId + '_' + messages[i].id.toString(), messages[i]);
-      //   }
-      //   result.add(messages[id - 1 - page * pageSize]);
-      // }
-      // }
+      if (id > 0) {
+        msg = _cache.get(roomId + '_' + (id - 1).toString());
+        if (msg != null) {
+          result.add(msg);
+          return result;
+        } else {
+          List<Message> messages = _messageRepo.getPage(page - 1, roomId);
+
+          for (int i = 0; i < messages.length; i = i + 1) {
+            _cache.set(roomId + '_' + messages[i].id.toString(), messages[i]);
+          }
+          result.add(messages[id - 1 - page * pageSize]);
+          return result;
+        }
+      }
       return result;
     }
   }
@@ -190,9 +177,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     //TODO check
     _lastSeenSubject.listen((event) {
       if (event != null && lastShowedMessageId < event) {
-        // maxShownId = event;
-        // lastShowedMessageId = event;
-        print('event : $event, maxShownId: $lastShowedMessageId');
         _lastSeenDao.updateLastSeen(widget.roomId, event);
         _messageRepo.sendSeenMessage(
             event, widget.roomId.uid, widget.roomId.uid);
@@ -243,16 +227,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               FutureBuilder<LastSeen>(
                   future: lastSeenDao.getByRoomId(widget.roomId),
                   builder: (context, lastSeen$) {
-                    print(widget.roomId);
                     _lastSeenSubject.add(lastSeen$.data?.messageId ?? -1);
                     lastShowedMessageId = lastSeen$.data?.messageId ?? 0;
-                    print(
-                        'last Show*******************************n : $lastShowedMessageId');
+
                     if (lastSeen$.data == null) {
                       return Expanded(
                         child: Container(),
                       );
                     }
+
                     return StreamBuilder<List<PendingMessage>>(
                         stream: _pendingMessageDao.getByRoomId(widget.roomId),
                         builder: (context, pendingMessagesStream) {
@@ -282,8 +265,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   int day;
                                   // TODO check day on 00:00
                                   bool newTime;
-                                  print(
-                                      'lastMessageId : ${currentRoom.lastMessageId}, pendinglength: ${pendingMessages.length}, itemCount: $itemCount, lastShowdMesssageId : $lastShowedMessageId');
                                   return Flexible(
                                     fit: FlexFit.loose,
                                     child: Container(
@@ -316,17 +297,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                             1 -
                                                             (currentRoom
                                                                     .lastMessageId ??
-                                                                0)]
+                                                                -1)]
                                                         .messageDbId
                                                     : index,
                                                 widget.roomId,
                                                 isPendingMessage),
                                             builder: (context, messagesFuture) {
                                               if (messagesFuture.hasData) {
-                                                // if (lastShowedMessageId <
-                                                //     index) {
-                                                //   lastShowedMessageId = index;
-                                                // }
                                                 var messages =
                                                     messagesFuture.data;
                                                 if (messages.length == 0) {
@@ -342,20 +319,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                 newTime = false;
                                                 if (index == 0)
                                                   newTime = true;
-                                                else if (messages.length > 1 &&
-                                                    (messages[1].time.day !=
-                                                            day ||
-                                                        messages[1]
-                                                                .time
-                                                                .month !=
-                                                            month)) {
-                                                  newTime = true;
-                                                  day = messages[1].time.day;
-                                                  month =
-                                                      messages[1].time.month;
+                                                else if (messages.length > 1) {
+                                                  if (messages[1].time.day !=
+                                                          day ||
+                                                      messages[1].time.month !=
+                                                          month) {
+                                                    newTime = true;
+                                                    day = messages[1].time.day;
+                                                    month =
+                                                        messages[1].time.month;
+                                                  }
                                                 }
-                                                print(
-                                                    'index - lastShowedMessageId : ${index - lastShowedMessageId}, $index, $lastShowedMessageId');
+
                                                 return Column(
                                                   children: <Widget>[
                                                     newTime

@@ -261,8 +261,6 @@ class MessageRepo {
   }
 
   _updateRoomLastMessage(String roomId, int dbId, {int id}) async {
-    print('messageRepo/_updateRoomLastMessage');
-    // await _lastSeenDao.updateLastSeen(roomId, id);
     if (id != null)
       await _roomDao.updateRoomLastMessage(roomId, dbId, newMessageId: id);
     else
@@ -366,7 +364,6 @@ class MessageRepo {
   int pageSize = 10;
   getPage(int page, String roomId) async {
     var messages = await _messageDao.getPage(roomId, page);
-    print('messageeees : $messages');
     if (messages == null) {
       var fetchMessagesRes = await _queryServiceClient.fetchMessages(
           FetchMessagesReq()
@@ -378,7 +375,6 @@ class MessageRepo {
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       await _saveFetchMessages(fetchMessagesRes.messages);
       messages = await _messageDao.getPage(roomId, page);
-      print('messages : $messages');
       if (messages == null) return List<Message>.filled(0, Message());
     }
     return messages;

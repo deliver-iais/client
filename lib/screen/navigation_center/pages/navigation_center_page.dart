@@ -85,7 +85,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
     _appLocalization = AppLocalization.of(context);
     AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
     AppLocalization appLocalization = AppLocalization.of(context);
-    print('navigation_center_page/build');
     return StreamBuilder<bool>(
         stream: audioPlayerService.isOn,
         builder: (context, snapshot) {

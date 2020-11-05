@@ -16,7 +16,6 @@ class ChatsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('chatsPage/build');
     var roomDao = GetIt.I.get<RoomDao>();
     String a;
     return Column(
@@ -25,11 +24,9 @@ class ChatsPage extends StatelessWidget {
             child: StreamBuilder<List<RoomWithMessage>>(
                 stream: roomDao.getByContactId(),
                 builder: (context, snapshot) {
-                  print('chatsPage/build/streamBuilder getByContactId');
                   return StreamBuilder(
                     stream: routingService.currentRouteStream,
                     builder: (BuildContext c, AsyncSnapshot<Object> s) {
-                      print('chatsPage/build/streamBuilder currentRouteStream');
                       final roomsWithMessages = snapshot.data ?? [];
                       return Container(
                         child: Scrollbar(

@@ -31,18 +31,14 @@ class _SplashScreenState extends State<SplashScreen> {
         attempts++;
         tryInitAccountRepo();
       } else {
-        print('splashScreen/tryInitAccountRepo/before_navigateToIntroPage');
         _navigateToIntroPage();
       }
     }).then((_) {
-      print(
-          'splashScreen/tryInitAccountRepo/inThen/${_accountRepo.isLoggedIn()}');
       _accountRepo.isLoggedIn() ? gotoRooms(context) : _navigateToIntroPage();
     });
   }
 
   void _navigateToIntroPage() {
-    print('splashScreen/_navigateToIntroPage');
     ExtendedNavigator.of(context)
         .pushAndRemoveUntil(Routes.introPage, (_) => false);
   }
@@ -54,28 +50,22 @@ class _SplashScreenState extends State<SplashScreen> {
     //   for (var path in result) {
     //     paths.add(path.path);
     //   }
-    //   print('splashScreen/gotoRooms/inIf/afterFor');
     //   ExtendedNavigator.of(context).push(Routes.shareInputFile,
     //       arguments: ShareInputFileArguments(inputSharedFilePath: paths));
     // } else {
-    //   print('splashScreen/gotoRooms/inElse');
-      _navigateToHomePage();
+    _navigateToHomePage();
     // }
   }
 
   void _navigateToHomePage() async {
     _coreServices.setCoreSetting();
-    print('splashScreen/_navigateToHomePage/beforeBoolSetUserName');
     bool setUserName = await _accountRepo.usernameIsSet();
-    print('splashScreen/_navigateToHomePage/afterBoolSetUserName');
     if (setUserName) {
-      print('splashScreen/_navigateToHomePage/inIf');
       ExtendedNavigator.of(context).pushAndRemoveUntil(
         Routes.homePage,
         (_) => false,
       );
     } else {
-      print('splashScreen/_navigateToHomePage/inElse');
       ExtendedNavigator.of(context).push(Routes.accountSettings,
           arguments:
               AccountSettingsArguments(forceToSetUsernameAndName: false));

@@ -44,7 +44,6 @@ class CoreServices {
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       responseStream.listen((serverPacket) {
-        print("messageweeeeee");
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:
             _saveIncomingMessage(serverPacket.message);

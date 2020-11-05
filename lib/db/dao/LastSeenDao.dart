@@ -26,7 +26,9 @@ class LastSeenDao extends DatabaseAccessor<Database> with _$LastSeenDaoMixin {
     update(lastSeens).replace(lastSeen.copyWith(messageId: lastSeenMessageId));
   }
 
-  Future<LastSeen> getByRoomId(String roomId) {
+  Future<LastSeen> getByRoomId(String roomId) async {
+    print('************');
+    print(await select(lastSeens).get());
     return (select(lastSeens)
           ..where((lastSeen) => lastSeen.roomId.equals(roomId)))
         .getSingle();

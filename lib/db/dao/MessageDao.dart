@@ -23,7 +23,6 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
       update(messages).replace(updatedMessage);
 
   Stream<List<Message>> getByRoomId(String roomId, int lastShowedMessageId) {
-    print(roomId);
     return (select(messages)
           ..orderBy([
             (m) => OrderingTerm(expression: m.time, mode: OrderingMode.desc),
@@ -40,7 +39,6 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
 
   int pageSize = 10;
   Future<List<Message>> getPage(String roomId, int page) async {
-    print('page : ${page * pageSize}');
     return await (select(messages)
           ..where((m) =>
               m.roomId.equals(roomId) &

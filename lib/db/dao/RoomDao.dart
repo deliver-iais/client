@@ -36,7 +36,6 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
 
 //TODO need to edit
   Stream<List<RoomWithMessage>> getByContactId() {
-    print('RoomDao/getByContactId');
     return (select(rooms).join([
       leftOuterJoin(
         messages,
