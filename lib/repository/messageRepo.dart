@@ -2,10 +2,8 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io' as LocalFile;
 
-import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/app_mode.dart';
 import 'package:deliver_flutter/models/messageType.dart';

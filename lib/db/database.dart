@@ -16,7 +16,6 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/memberType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/models/role.dart';
-import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
 import 'package:path_provider/path_provider.dart';
