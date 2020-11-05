@@ -1050,7 +1050,7 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
 
 class Avatar extends DataClass implements Insertable<Avatar> {
   final String uid;
-  final DateTime createdOn;
+  final int createdOn;
   final String fileId;
   final String fileName;
   Avatar(
@@ -1062,11 +1062,11 @@ class Avatar extends DataClass implements Insertable<Avatar> {
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
-    final dateTimeType = db.typeSystem.forDartType<DateTime>();
+    final intType = db.typeSystem.forDartType<int>();
     return Avatar(
       uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
-      createdOn: dateTimeType
-          .mapFromDatabaseResponse(data['${effectivePrefix}created_on']),
+      createdOn:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}created_on']),
       fileId:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}file_id']),
       fileName: stringType
@@ -1080,7 +1080,7 @@ class Avatar extends DataClass implements Insertable<Avatar> {
       map['uid'] = Variable<String>(uid);
     }
     if (!nullToAbsent || createdOn != null) {
-      map['created_on'] = Variable<DateTime>(createdOn);
+      map['created_on'] = Variable<int>(createdOn);
     }
     if (!nullToAbsent || fileId != null) {
       map['file_id'] = Variable<String>(fileId);
@@ -1110,7 +1110,7 @@ class Avatar extends DataClass implements Insertable<Avatar> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Avatar(
       uid: serializer.fromJson<String>(json['uid']),
-      createdOn: serializer.fromJson<DateTime>(json['createdOn']),
+      createdOn: serializer.fromJson<int>(json['createdOn']),
       fileId: serializer.fromJson<String>(json['fileId']),
       fileName: serializer.fromJson<String>(json['fileName']),
     );
@@ -1120,14 +1120,14 @@ class Avatar extends DataClass implements Insertable<Avatar> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'uid': serializer.toJson<String>(uid),
-      'createdOn': serializer.toJson<DateTime>(createdOn),
+      'createdOn': serializer.toJson<int>(createdOn),
       'fileId': serializer.toJson<String>(fileId),
       'fileName': serializer.toJson<String>(fileName),
     };
   }
 
   Avatar copyWith(
-          {String uid, DateTime createdOn, String fileId, String fileName}) =>
+          {String uid, int createdOn, String fileId, String fileName}) =>
       Avatar(
         uid: uid ?? this.uid,
         createdOn: createdOn ?? this.createdOn,
@@ -1160,7 +1160,7 @@ class Avatar extends DataClass implements Insertable<Avatar> {
 
 class AvatarsCompanion extends UpdateCompanion<Avatar> {
   final Value<String> uid;
-  final Value<DateTime> createdOn;
+  final Value<int> createdOn;
   final Value<String> fileId;
   final Value<String> fileName;
   const AvatarsCompanion({
@@ -1171,7 +1171,7 @@ class AvatarsCompanion extends UpdateCompanion<Avatar> {
   });
   AvatarsCompanion.insert({
     @required String uid,
-    @required DateTime createdOn,
+    @required int createdOn,
     @required String fileId,
     @required String fileName,
   })  : uid = Value(uid),
@@ -1180,7 +1180,7 @@ class AvatarsCompanion extends UpdateCompanion<Avatar> {
         fileName = Value(fileName);
   static Insertable<Avatar> custom({
     Expression<String> uid,
-    Expression<DateTime> createdOn,
+    Expression<int> createdOn,
     Expression<String> fileId,
     Expression<String> fileName,
   }) {
@@ -1194,7 +1194,7 @@ class AvatarsCompanion extends UpdateCompanion<Avatar> {
 
   AvatarsCompanion copyWith(
       {Value<String> uid,
-      Value<DateTime> createdOn,
+      Value<int> createdOn,
       Value<String> fileId,
       Value<String> fileName}) {
     return AvatarsCompanion(
@@ -1212,7 +1212,7 @@ class AvatarsCompanion extends UpdateCompanion<Avatar> {
       map['uid'] = Variable<String>(uid.value);
     }
     if (createdOn.present) {
-      map['created_on'] = Variable<DateTime>(createdOn.value);
+      map['created_on'] = Variable<int>(createdOn.value);
     }
     if (fileId.present) {
       map['file_id'] = Variable<String>(fileId.value);
@@ -1252,11 +1252,11 @@ class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
   }
 
   final VerificationMeta _createdOnMeta = const VerificationMeta('createdOn');
-  GeneratedDateTimeColumn _createdOn;
+  GeneratedIntColumn _createdOn;
   @override
-  GeneratedDateTimeColumn get createdOn => _createdOn ??= _constructCreatedOn();
-  GeneratedDateTimeColumn _constructCreatedOn() {
-    return GeneratedDateTimeColumn(
+  GeneratedIntColumn get createdOn => _createdOn ??= _constructCreatedOn();
+  GeneratedIntColumn _constructCreatedOn() {
+    return GeneratedIntColumn(
       'created_on',
       $tableName,
       false,
@@ -2352,7 +2352,7 @@ class $SeensTable extends Seens with TableInfo<$SeensTable, Seen> {
 
 class LastAvatar extends DataClass implements Insertable<LastAvatar> {
   final String uid;
-  final DateTime createdOn;
+  final int createdOn;
   final String fileId;
   final String fileName;
   final int lastUpdate;
@@ -2366,12 +2366,11 @@ class LastAvatar extends DataClass implements Insertable<LastAvatar> {
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
-    final dateTimeType = db.typeSystem.forDartType<DateTime>();
     final intType = db.typeSystem.forDartType<int>();
     return LastAvatar(
       uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
-      createdOn: dateTimeType
-          .mapFromDatabaseResponse(data['${effectivePrefix}created_on']),
+      createdOn:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}created_on']),
       fileId:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}file_id']),
       fileName: stringType
@@ -2387,7 +2386,7 @@ class LastAvatar extends DataClass implements Insertable<LastAvatar> {
       map['uid'] = Variable<String>(uid);
     }
     if (!nullToAbsent || createdOn != null) {
-      map['created_on'] = Variable<DateTime>(createdOn);
+      map['created_on'] = Variable<int>(createdOn);
     }
     if (!nullToAbsent || fileId != null) {
       map['file_id'] = Variable<String>(fileId);
@@ -2423,7 +2422,7 @@ class LastAvatar extends DataClass implements Insertable<LastAvatar> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return LastAvatar(
       uid: serializer.fromJson<String>(json['uid']),
-      createdOn: serializer.fromJson<DateTime>(json['createdOn']),
+      createdOn: serializer.fromJson<int>(json['createdOn']),
       fileId: serializer.fromJson<String>(json['fileId']),
       fileName: serializer.fromJson<String>(json['fileName']),
       lastUpdate: serializer.fromJson<int>(json['lastUpdate']),
@@ -2434,7 +2433,7 @@ class LastAvatar extends DataClass implements Insertable<LastAvatar> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'uid': serializer.toJson<String>(uid),
-      'createdOn': serializer.toJson<DateTime>(createdOn),
+      'createdOn': serializer.toJson<int>(createdOn),
       'fileId': serializer.toJson<String>(fileId),
       'fileName': serializer.toJson<String>(fileName),
       'lastUpdate': serializer.toJson<int>(lastUpdate),
@@ -2443,7 +2442,7 @@ class LastAvatar extends DataClass implements Insertable<LastAvatar> {
 
   LastAvatar copyWith(
           {String uid,
-          DateTime createdOn,
+          int createdOn,
           String fileId,
           String fileName,
           int lastUpdate}) =>
@@ -2486,7 +2485,7 @@ class LastAvatar extends DataClass implements Insertable<LastAvatar> {
 
 class LastAvatarsCompanion extends UpdateCompanion<LastAvatar> {
   final Value<String> uid;
-  final Value<DateTime> createdOn;
+  final Value<int> createdOn;
   final Value<String> fileId;
   final Value<String> fileName;
   final Value<int> lastUpdate;
@@ -2507,7 +2506,7 @@ class LastAvatarsCompanion extends UpdateCompanion<LastAvatar> {
         lastUpdate = Value(lastUpdate);
   static Insertable<LastAvatar> custom({
     Expression<String> uid,
-    Expression<DateTime> createdOn,
+    Expression<int> createdOn,
     Expression<String> fileId,
     Expression<String> fileName,
     Expression<int> lastUpdate,
@@ -2523,7 +2522,7 @@ class LastAvatarsCompanion extends UpdateCompanion<LastAvatar> {
 
   LastAvatarsCompanion copyWith(
       {Value<String> uid,
-      Value<DateTime> createdOn,
+      Value<int> createdOn,
       Value<String> fileId,
       Value<String> fileName,
       Value<int> lastUpdate}) {
@@ -2543,7 +2542,7 @@ class LastAvatarsCompanion extends UpdateCompanion<LastAvatar> {
       map['uid'] = Variable<String>(uid.value);
     }
     if (createdOn.present) {
-      map['created_on'] = Variable<DateTime>(createdOn.value);
+      map['created_on'] = Variable<int>(createdOn.value);
     }
     if (fileId.present) {
       map['file_id'] = Variable<String>(fileId.value);
@@ -2588,11 +2587,11 @@ class $LastAvatarsTable extends LastAvatars
   }
 
   final VerificationMeta _createdOnMeta = const VerificationMeta('createdOn');
-  GeneratedDateTimeColumn _createdOn;
+  GeneratedIntColumn _createdOn;
   @override
-  GeneratedDateTimeColumn get createdOn => _createdOn ??= _constructCreatedOn();
-  GeneratedDateTimeColumn _constructCreatedOn() {
-    return GeneratedDateTimeColumn(
+  GeneratedIntColumn get createdOn => _createdOn ??= _constructCreatedOn();
+  GeneratedIntColumn _constructCreatedOn() {
+    return GeneratedIntColumn(
       'created_on',
       $tableName,
       true,
@@ -4087,25 +4086,22 @@ class $MembersTable extends Members with TableInfo<$MembersTable, Member> {
       const EnumIndexConverter<MucRole>(MucRole.values);
 }
 
-class Group extends DataClass implements Insertable<Group> {
-  final int dbId;
+class Muc extends DataClass implements Insertable<Muc> {
   final String uid;
   final String name;
   final String info;
   final int members;
-  Group(
-      {@required this.dbId,
-      this.uid,
+  Muc(
+      {@required this.uid,
       @required this.name,
       this.info,
       @required this.members});
-  factory Group.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+  factory Muc.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
-    return Group(
-      dbId: intType.mapFromDatabaseResponse(data['${effectivePrefix}db_id']),
+    final intType = db.typeSystem.forDartType<int>();
+    return Muc(
       uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
       name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
       info: stringType.mapFromDatabaseResponse(data['${effectivePrefix}info']),
@@ -4116,9 +4112,6 @@ class Group extends DataClass implements Insertable<Group> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || dbId != null) {
-      map['db_id'] = Variable<int>(dbId);
-    }
     if (!nullToAbsent || uid != null) {
       map['uid'] = Variable<String>(uid);
     }
@@ -4134,9 +4127,8 @@ class Group extends DataClass implements Insertable<Group> {
     return map;
   }
 
-  GroupsCompanion toCompanion(bool nullToAbsent) {
-    return GroupsCompanion(
-      dbId: dbId == null && nullToAbsent ? const Value.absent() : Value(dbId),
+  MucsCompanion toCompanion(bool nullToAbsent) {
+    return MucsCompanion(
       uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
       info: info == null && nullToAbsent ? const Value.absent() : Value(info),
@@ -4146,11 +4138,10 @@ class Group extends DataClass implements Insertable<Group> {
     );
   }
 
-  factory Group.fromJson(Map<String, dynamic> json,
+  factory Muc.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
-    return Group(
-      dbId: serializer.fromJson<int>(json['dbId']),
+    return Muc(
       uid: serializer.fromJson<String>(json['uid']),
       name: serializer.fromJson<String>(json['name']),
       info: serializer.fromJson<String>(json['info']),
@@ -4161,7 +4152,6 @@ class Group extends DataClass implements Insertable<Group> {
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'dbId': serializer.toJson<int>(dbId),
       'uid': serializer.toJson<String>(uid),
       'name': serializer.toJson<String>(name),
       'info': serializer.toJson<String>(info),
@@ -4169,10 +4159,7 @@ class Group extends DataClass implements Insertable<Group> {
     };
   }
 
-  Group copyWith(
-          {int dbId, String uid, String name, String info, int members}) =>
-      Group(
-        dbId: dbId ?? this.dbId,
+  Muc copyWith({String uid, String name, String info, int members}) => Muc(
         uid: uid ?? this.uid,
         name: name ?? this.name,
         info: info ?? this.info,
@@ -4180,8 +4167,7 @@ class Group extends DataClass implements Insertable<Group> {
       );
   @override
   String toString() {
-    return (StringBuffer('Group(')
-          ..write('dbId: $dbId, ')
+    return (StringBuffer('Muc(')
           ..write('uid: $uid, ')
           ..write('name: $name, ')
           ..write('info: $info, ')
@@ -4191,51 +4177,44 @@ class Group extends DataClass implements Insertable<Group> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(
-      dbId.hashCode,
-      $mrjc(uid.hashCode,
-          $mrjc(name.hashCode, $mrjc(info.hashCode, members.hashCode)))));
+  int get hashCode => $mrjf($mrjc(uid.hashCode,
+      $mrjc(name.hashCode, $mrjc(info.hashCode, members.hashCode))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
-      (other is Group &&
-          other.dbId == this.dbId &&
+      (other is Muc &&
           other.uid == this.uid &&
           other.name == this.name &&
           other.info == this.info &&
           other.members == this.members);
 }
 
-class GroupsCompanion extends UpdateCompanion<Group> {
-  final Value<int> dbId;
+class MucsCompanion extends UpdateCompanion<Muc> {
   final Value<String> uid;
   final Value<String> name;
   final Value<String> info;
   final Value<int> members;
-  const GroupsCompanion({
-    this.dbId = const Value.absent(),
+  const MucsCompanion({
     this.uid = const Value.absent(),
     this.name = const Value.absent(),
     this.info = const Value.absent(),
     this.members = const Value.absent(),
   });
-  GroupsCompanion.insert({
-    this.dbId = const Value.absent(),
-    this.uid = const Value.absent(),
+  MucsCompanion.insert({
+    @required String uid,
     @required String name,
     this.info = const Value.absent(),
     @required int members,
-  })  : name = Value(name),
+  })  : uid = Value(uid),
+        name = Value(name),
         members = Value(members);
-  static Insertable<Group> custom({
-    Expression<int> dbId,
+  static Insertable<Muc> custom({
     Expression<String> uid,
     Expression<String> name,
     Expression<String> info,
     Expression<int> members,
   }) {
     return RawValuesInsertable({
-      if (dbId != null) 'db_id': dbId,
       if (uid != null) 'uid': uid,
       if (name != null) 'name': name,
       if (info != null) 'info': info,
@@ -4243,14 +4222,12 @@ class GroupsCompanion extends UpdateCompanion<Group> {
     });
   }
 
-  GroupsCompanion copyWith(
-      {Value<int> dbId,
-      Value<String> uid,
+  MucsCompanion copyWith(
+      {Value<String> uid,
       Value<String> name,
       Value<String> info,
       Value<int> members}) {
-    return GroupsCompanion(
-      dbId: dbId ?? this.dbId,
+    return MucsCompanion(
       uid: uid ?? this.uid,
       name: name ?? this.name,
       info: info ?? this.info,
@@ -4261,9 +4238,6 @@ class GroupsCompanion extends UpdateCompanion<Group> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (dbId.present) {
-      map['db_id'] = Variable<int>(dbId.value);
-    }
     if (uid.present) {
       map['uid'] = Variable<String>(uid.value);
     }
@@ -4281,8 +4255,7 @@ class GroupsCompanion extends UpdateCompanion<Group> {
 
   @override
   String toString() {
-    return (StringBuffer('GroupsCompanion(')
-          ..write('dbId: $dbId, ')
+    return (StringBuffer('MucsCompanion(')
           ..write('uid: $uid, ')
           ..write('name: $name, ')
           ..write('info: $info, ')
@@ -4292,19 +4265,10 @@ class GroupsCompanion extends UpdateCompanion<Group> {
   }
 }
 
-class $GroupsTable extends Groups with TableInfo<$GroupsTable, Group> {
+class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
   final GeneratedDatabase _db;
   final String _alias;
-  $GroupsTable(this._db, [this._alias]);
-  final VerificationMeta _dbIdMeta = const VerificationMeta('dbId');
-  GeneratedIntColumn _dbId;
-  @override
-  GeneratedIntColumn get dbId => _dbId ??= _constructDbId();
-  GeneratedIntColumn _constructDbId() {
-    return GeneratedIntColumn('db_id', $tableName, false,
-        hasAutoIncrement: true, declaredAsPrimaryKey: true);
-  }
-
+  $MucsTable(this._db, [this._alias]);
   final VerificationMeta _uidMeta = const VerificationMeta('uid');
   GeneratedTextColumn _uid;
   @override
@@ -4313,7 +4277,7 @@ class $GroupsTable extends Groups with TableInfo<$GroupsTable, Group> {
     return GeneratedTextColumn(
       'uid',
       $tableName,
-      true,
+      false,
     );
   }
 
@@ -4354,25 +4318,23 @@ class $GroupsTable extends Groups with TableInfo<$GroupsTable, Group> {
   }
 
   @override
-  List<GeneratedColumn> get $columns => [dbId, uid, name, info, members];
+  List<GeneratedColumn> get $columns => [uid, name, info, members];
   @override
-  $GroupsTable get asDslTable => this;
+  $MucsTable get asDslTable => this;
   @override
-  String get $tableName => _alias ?? 'groups';
+  String get $tableName => _alias ?? 'mucs';
   @override
-  final String actualTableName = 'groups';
+  final String actualTableName = 'mucs';
   @override
-  VerificationContext validateIntegrity(Insertable<Group> instance,
+  VerificationContext validateIntegrity(Insertable<Muc> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('db_id')) {
-      context.handle(
-          _dbIdMeta, dbId.isAcceptableOrUnknown(data['db_id'], _dbIdMeta));
-    }
     if (data.containsKey('uid')) {
       context.handle(
           _uidMeta, uid.isAcceptableOrUnknown(data['uid'], _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -4394,16 +4356,16 @@ class $GroupsTable extends Groups with TableInfo<$GroupsTable, Group> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {dbId};
+  Set<GeneratedColumn> get $primaryKey => {uid};
   @override
-  Group map(Map<String, dynamic> data, {String tablePrefix}) {
+  Muc map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Group.fromData(data, _db, prefix: effectivePrefix);
+    return Muc.fromData(data, _db, prefix: effectivePrefix);
   }
 
   @override
-  $GroupsTable createAlias(String alias) {
-    return $GroupsTable(_db, alias);
+  $MucsTable createAlias(String alias) {
+    return $MucsTable(_db, alias);
   }
 }
 
@@ -4630,8 +4592,8 @@ abstract class _$Database extends GeneratedDatabase {
       _sharedPreferences ??= $SharedPreferencesTable(this);
   $MembersTable _members;
   $MembersTable get members => _members ??= $MembersTable(this);
-  $GroupsTable _groups;
-  $GroupsTable get groups => _groups ??= $GroupsTable(this);
+  $MucsTable _mucs;
+  $MucsTable get mucs => _mucs ??= $MucsTable(this);
   $LastSeensTable _lastSeens;
   $LastSeensTable get lastSeens => _lastSeens ??= $LastSeensTable(this);
   MessageDao _messageDao;
@@ -4678,7 +4640,7 @@ abstract class _$Database extends GeneratedDatabase {
         medias,
         sharedPreferences,
         members,
-        groups,
+        mucs,
         lastSeens
       ];
 }

@@ -201,8 +201,8 @@ class MessageRepo {
       int dbId = await _messageDao.insertMessage(message);
       dbIdList.add(dbId);
       await _updateRoomLastMessage(roomId.string, dbId);
-      await _savePendingMessage(
-          dbId, roomId.string, SendingStatus.SENDING_FILE, MAX_REMAINING_RETRIES, message);
+      await _savePendingMessage(dbId, roomId.string, SendingStatus.SENDING_FILE,
+          MAX_REMAINING_RETRIES, message);
     }
     for (int i = 0; i < filesPath.length; i++) {
       FileInfo fileInfo = await _fileRepo.uploadFile(
@@ -213,10 +213,10 @@ class MessageRepo {
       await Future.delayed(Duration(seconds: 10));
 
       //TODO
-      await _messageDao.updateMessage(
-          message.copyWith(dbId: dbIdList[i], id: id, time: DateTime.now()));
+      await _messageDao.updateMessage(messageList[i]
+          .copyWith(dbId: dbIdList[i], id: id, time: DateTime.now()));
       await _updateRoomLastMessage(roomId.string, dbIdList[i], id: id);
-      await _lastSeenDao.updateLastSeen(message.roomId, id);
+      await _lastSeenDao.updateLastSeen(messageList[i].roomId, id);
       await _pendingMessageDao.deletePendingMessage(dbIdList[i]);
       id++;
     }
@@ -338,8 +338,7 @@ class MessageRepo {
     await _coreServices.sendMessage(messageByClient);
   }
 
-  _sendFileMessage(Message message, String path,
-      { FileInfo fileInfo}) async {
+  _sendFileMessage(Message message, String path, {FileInfo fileInfo}) async {
     File file = File()
       ..name = fileInfo.name
       ..uuid = fileInfo.uuid

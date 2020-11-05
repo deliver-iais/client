@@ -29,7 +29,6 @@ class UserAppbar extends StatelessWidget {
   var _modeChecker = GetIt.I.get<ModeChecker>();
   AppLocalization _appLocalization;
 
-
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
@@ -62,14 +61,13 @@ class UserAppbar extends StatelessWidget {
                               ),
                               //       Text("last seen",style: TextStyle(fontSize: 12),) //todo last seen
                               StreamBuilder<AppMode>(
-                              stream: _modeChecker.appMode,
-                        builder: (context, mode) {
-                        return mode.data != AppMode.STABLE
-                        ?Text(
-                        appLocalization
-                            .getTraslateValue("connecting")) : Container(),
-                        );
-                        });
+                                  stream: _modeChecker.appMode,
+                                  builder: (context, mode) {
+                                    return mode.data != AppMode.STABLE
+                                        ? Text(_appLocalization
+                                            .getTraslateValue("connecting"))
+                                        : Container();
+                                  }),
                             ],
                           );
                         } else {

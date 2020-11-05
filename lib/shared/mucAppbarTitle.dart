@@ -25,51 +25,50 @@ class MucAppbarTitle extends StatelessWidget {
     GroupDao groupDao = GetIt.I.get<GroupDao>();
     AppLocalization appLocalization = AppLocalization.of(context);
     return Container(
-        color: Theme
-            .of(context)
-            .appBarTheme
-            .color,
-        child: GestureDetector(child: Row(
-          children: [
-            CircleAvatarWidget(mucUid.uid, 23),
-            SizedBox(width: 20,),
-            StreamBuilder<Group>(
-                stream: groupDao.getByUid(mucUid),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData)
-                  return StreamBuilder<AppMode>(
-                    stream: modeChecker.appMode,
-                    builder: (context, mode) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            snapshot.data.name,
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-
-                          Text(
-                            mode.data == AppMode.STABLE
-                                ? '${snapshot.data.members} ' +
-                                appLocalization
-                                    .getTraslateValue("members")
-                                : appLocalization
-                                .getTraslateValue("connecting"),
-                            style: TextStyle(fontSize: 11),
-                          ),
-                        ],
-                      );
-                    });
-                  else
-                    return Container();
-                })
-          ],
-        ),onTap: (){
-          _routingService
-              .openProfile(mucUid);
-        },)
-
-    );
+        color: Theme.of(context).appBarTheme.color,
+        child: GestureDetector(
+          child: Row(
+            children: [
+              CircleAvatarWidget(mucUid.uid, 23),
+              SizedBox(
+                width: 20,
+              ),
+              StreamBuilder<Muc>(
+                  stream: groupDao.getByUid(mucUid),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData)
+                      return StreamBuilder<AppMode>(
+                          stream: modeChecker.appMode,
+                          builder: (context, mode) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  snapshot.data.name,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  mode.data == AppMode.STABLE
+                                      ? '${snapshot.data.members} ' +
+                                          appLocalization
+                                              .getTraslateValue("members")
+                                      : appLocalization
+                                          .getTraslateValue("connecting"),
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                              ],
+                            );
+                          });
+                    else
+                      return Container();
+                  })
+            ],
+          ),
+          onTap: () {
+            _routingService.openProfile(mucUid);
+          },
+        ));
   }
 }

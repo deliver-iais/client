@@ -82,14 +82,13 @@ class Database extends _$Database {
   @override
   int get schemaVersion => 7;
 
-  Future<void> deleteAllData()  {
+  Future<void> deleteAllData() {
     return transaction(() {
       for (var table in allTables) {
         delete(table).go();
       }
     });
   }
-
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

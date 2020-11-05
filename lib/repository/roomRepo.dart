@@ -28,13 +28,12 @@ class RoomRepo {
           return name;
         } else {
           var contact = await _contactDao.getContactByUid(uid.string);
-          if(contact != null){
+          if (contact != null) {
             String contactName = "${contact.firstName} ${contact.lastName}";
             _roomNameCache.set(uid.string, contactName);
             return contactName;
-          }
-          else return _searchByUid(uid);
-
+          } else
+            return _searchByUid(uid);
         }
         break;
 
@@ -53,7 +52,7 @@ class RoomRepo {
     }
   }
 
-  Future<String> _searchByUid(Uid uid)async{
+  Future<String> _searchByUid(Uid uid) async {
     UserAsContact userAsContact = await _contactRepo.searchUserByUid(uid);
     return userAsContact.username;
   }

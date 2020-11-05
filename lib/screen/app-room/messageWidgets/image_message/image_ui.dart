@@ -60,7 +60,7 @@ class _ImageUiState extends State<ImageUi> {
 
     if (accountRepo.currentUserUid.string == widget.message.from) {
       return Container(
-        child: StreamBuilder<List<PendingMessage>>(
+        child: StreamBuilder<PendingMessage>(
           stream: pendingMessageDao.getByMessageDbId(widget.message.dbId),
           builder: (context, snapshot) {
             if (snapshot.data != null) {
