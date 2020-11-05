@@ -17,9 +17,8 @@ class AudioPlayProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
     return StreamBuilder<bool>(
-        stream: audioPlayerService.isOn,
+        stream: _audioPlayerService.isOn,
         builder: (context, snapshot) {
           return Stack(
             children: <Widget>[
