@@ -25,14 +25,9 @@ class FileRepo {
     return fileInfo;
   }
 
-  uploadFileList(List<String> filesPath) {
-    for (String filePath in filesPath) {
-      uploadFile(File(filePath));
-    }
-  }
 
-  Future<FileInfo> uploadFile(File file) async {
-    var value = await _fileService.uploadFile(file.path);
+  Future<FileInfo> uploadFile(File file,{String uploadKey}) async {
+    var value = await _fileService.uploadFile(file.path,uploadKey:uploadKey);
     FileInfo savedFile = await saveFileInfo(
         jsonDecode(value.toString())["uuid"],
         file,
@@ -69,7 +64,6 @@ class FileRepo {
       {ThumbnailSize thumbnailSize}) async {
     File file =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
-
     if (file != null) {
       return file;
     }
@@ -82,10 +76,6 @@ class FileRepo {
   }
 
   Future<FileInfo> _getFileInDB(String size, String uuid) async {
-    var infoList = await _fileDao.getFileInfo(uuid, enumToString(size));
-    if (infoList.isNotEmpty)
-      return infoList.elementAt(0);
-    else
-      return null;
+    return await _fileDao.getFileInfo(uuid, enumToString(size));
   }
 }

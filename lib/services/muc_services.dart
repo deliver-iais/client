@@ -1,11 +1,11 @@
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart'
-as ChannelServices;
+    as ChannelServices;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
 
 import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart'
-as GroupServices;
+    as GroupServices;
 import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart';
@@ -38,7 +38,7 @@ class MucServices {
 
   Future<bool> addGroupMembers(List<Member> members) async {
     GroupServices.AddMembersReq addMemberRequest =
-    GroupServices.AddMembersReq();
+        GroupServices.AddMembersReq();
     for (Member member in members) {
       addMemberRequest.members.add(member);
     }
@@ -81,7 +81,6 @@ class MucServices {
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
-
       return false;
     }
   }
@@ -112,12 +111,15 @@ class MucServices {
     for (Member member in members) {
       kickMembersReq.members.add(member.memberUid);
     }
+    kickMembersReq.group = members[0].mucUid;
     try {
       await groupServices.kickMembers(kickMembersReq,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
+      print(e.toString());
+
       return false;
     }
   }
@@ -125,11 +127,14 @@ class MucServices {
   Future<bool> banGroupMember(Member member) async {
     try {
       await groupServices.banMember(
-          GroupServices.BanMemberReq()..member = member.memberUid,
+          GroupServices.BanMemberReq()
+            ..member = member.memberUid
+            ..group = member.mucUid,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
+      print(e.toString());
       return false;
     }
   }
@@ -137,7 +142,9 @@ class MucServices {
   Future<bool> unbanGroupMember(Member member) async {
     try {
       await groupServices.unbanMember(
-          GroupServices.UnbanMemberReq()..member= member.memberUid,
+          GroupServices.UnbanMemberReq()
+            ..member = member.memberUid
+            ..group = member.mucUid,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;
@@ -174,23 +181,22 @@ class MucServices {
           ..id = channelId,
         options: CallOptions(
             metadata: {'accessToken': await accountRepo.getAccessToken()}));
-    print("ccccccc"+request.uid.toString());
     return request.uid;
   }
 
   Future<bool> addChannelMembers(List<Member> members) async {
     try {
       ChannelServices.AddMembersReq addMemberRequest =
-      ChannelServices.AddMembersReq();
+          ChannelServices.AddMembersReq();
       for (Member member in members) {
         addMemberRequest.members.add(member);
       }
       await channelServices.addMembers(addMemberRequest,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
-      print("ggggggggggggggggggggggggggg");
       return true;
     } catch (e) {
+      print(e.toString());
       return false;
     }
   }
@@ -253,6 +259,7 @@ class MucServices {
     for (Member member in members) {
       kickMembersReq.members.add(member.memberUid);
     }
+    kickMembersReq..channel = members[0].mucUid;
     try {
       await channelServices.kickMembers(kickMembersReq,
           options: CallOptions(
@@ -266,7 +273,9 @@ class MucServices {
   Future<bool> banChannelMember(Member member) async {
     try {
       await channelServices.banMember(
-          ChannelServices.BanMemberReq()..member = member.memberUid,
+          ChannelServices.BanMemberReq()
+            ..member = member.memberUid
+            ..channel = member.mucUid,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;
@@ -278,7 +287,9 @@ class MucServices {
   Future<bool> unbanChannelMember(Member member) async {
     try {
       await channelServices.unbanMember(
-          ChannelServices.UnbanMemberReq()..member = member.memberUid,
+          ChannelServices.UnbanMemberReq()
+            ..member = member.memberUid
+            ..channel = member.mucUid,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;

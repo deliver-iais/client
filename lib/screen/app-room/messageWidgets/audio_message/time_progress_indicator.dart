@@ -44,9 +44,9 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
                   );
                 else
                   return Text(
-                    currentPos.toString().split('.')[0].substring(3) +
+                    currentPos.toString().split('.')[0].substring(2) +
                         " / " +
-                        dur.toString().split('.')[0].substring(3),
+                        dur.toString().split('.')[0].substring(2),
                     style: TextStyle(fontSize: 11),
                   );
               });

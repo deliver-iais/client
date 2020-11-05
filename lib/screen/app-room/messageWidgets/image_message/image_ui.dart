@@ -63,129 +63,90 @@ class _ImageUiState extends State<ImageUi> {
         child: StreamBuilder<List<PendingMessage>>(
           stream: pendingMessageDao.getByMessageDbId(widget.message.dbId),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              if (snapshot.data.length > 0) {
-                //pending
-                path = (jsonDecode(snapshot.data[0].details))['path'];
-                return Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Image.file(
-                      File(path),
-                      width: width,
-                      height: height,
-                      fit: BoxFit.fill,
-                    ),
-                    SendingFileCircularIndicator(
-                      loadProgress:
-                          snapshot.data[0].status == SendingStatus.PENDING
-                              ? 1
-                              : 0.8,
-                      isMedia: true,
-                    ),
-                  ],
-                );
-              } else {
-                return FutureBuilder<File>(
-                    future: fileRepo.getFile(image.uuid, image.name),
-                    builder: (context, file) {
-                      if (file.hasData) {
-                        return Image.file(
-                          file.data,
-                          width: width,
-                          height: height,
-                          fit: BoxFit.fill,
-                        );
-                      }
-                      return Container(
+            if (snapshot.data != null) {
+              //pending
+              path = (jsonDecode(snapshot.data.details))['path'];
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.file(
+                    File(path),
+                    width: width,
+                    height: height,
+                    fit: BoxFit.fill,
+                  ),
+                  SendingFileCircularIndicator(
+                    loadProgress:
+                        snapshot.data.status == SendingStatus.PENDING ? 1 : 0.8,
+                    isMedia: true,
+                    file: image,
+                  ),
+                ],
+              );
+            } else {
+              return FutureBuilder<File>(
+                  future: fileRepo.getFile(image.uuid, image.name),
+                  builder: (context, file) {
+                    if (file.hasData) {
+                      return Image.file(
+                        file.data,
                         width: width,
                         height: height,
+                        fit: BoxFit.fill,
                       );
-                      // return FilteredImage(
-                      //   uuid: image.uuid,
-                      //   name: image.name,
-                      //   path: path,
-                      //   sended: true,
-                      //   width: width,
-                      //   height: height,
-                      //   onPressed: download,
-                      // );
-                    });
-              }
+                    }
+                    return Container(
+                      width: width,
+                      height: height,
+                    );
+                    // return FilteredImage(
+                    //   uuid: image.uuid,
+                    //   name: image.name,
+                    //   path: path,
+                    //   sended: true,
+                    //   width: width,
+                    //   height: height,
+                    //   onPressed: download,
+                    // );
+                  });
             }
-            return CircularFileStatusIndicator();
           },
         ),
       );
     } else
       return Container(
-        child: StreamBuilder<List<PendingMessage>>(
-          stream: pendingMessageDao.getByMessageDbId(widget.message.dbId),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return FutureBuilder<bool>(
-                future: fileRepo.isExist(image.uuid, image.name,
+        child: FutureBuilder<File>(
+          future: fileRepo.getFileIfExist(image.uuid, image.name),
+          builder: (context, file) {
+            if (file.hasData && file.data != null) {
+              return Image.file(
+                file.data,
+                width: width,
+                height: height,
+                fit: BoxFit.fill,
+              );
+            } else {
+              return FutureBuilder<File>(
+                future: fileRepo.getFile(image.uuid, image.name,
                     thumbnailSize: ThumbnailSize.medium),
-                builder: (context, isExist) {
-                  if (isExist.hasData == false) {
-                    return CircularProgressIndicator(
-                        backgroundColor: Colors.green);
-                  } else {
-                    if (isExist.data == true || isDownloaded == true) {
-                      return FutureBuilder<File>(
-                        future: fileRepo.getFile(image.uuid, image.name,
-                            thumbnailSize: ThumbnailSize.medium),
-                        builder: (context, file) {
-                          if (file.hasData) {
-                            //   return Image.file(
-                            //     file.data,
-                            //     width: width,
-                            //     height: height,
-                            //     fit: BoxFit.fill,
-                            //   );
-                            // } else
-                            return FilteredImage(
-                              uuid: image.uuid,
-                              name: image.name,
-                              path: '',
-                              sended: true,
-                              width: width,
-                              height: height,
-                              onPressed: download,
-                            );
-                          } else
-                            return CircularProgressIndicator();
-                        },
-                      );
-                    } else if (snapshot.data != null &&
-                            snapshot.data.length == 0 ||
-                        (snapshot.data[0]).status !=
-                            SendingStatus.SENDING_FILE) {
-                      return FilteredImage(
+                builder: (context, file) {
+                  if (file.hasData) {
+                    return FilteredImage(
                         uuid: image.uuid,
                         name: image.name,
                         path: '',
                         sended: true,
                         width: width,
                         height: height,
-                        onPressed: download,
-                      );
-                    } else {
-                      return FilteredImage(
-                        uuid: image.uuid,
-                        name: image.name,
-                        path: '',
-                        sended: false,
-                        width: width,
-                        height: height,
-                        onPressed: null,
-                      );
-                    }
-                  }
+                        onPressed: () async {
+                          await fileRepo.getFile(image.uuid, image.name);
+                          setState(() {});
+                        });
+                  } else
+                    return CircularProgressIndicator();
                 },
               );
-            } else
-              return CircularProgressIndicator(backgroundColor: Colors.red);
+            }
           },
         ),
       );

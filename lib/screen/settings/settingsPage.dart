@@ -94,7 +94,7 @@ class SettingsPage extends StatelessWidget {
                     attachFile();
                   },
                   shape: CircleBorder(),
-                  child: Icon(Icons.add_a_photo_rounded),
+                  child: Icon(Icons.add_a_photo),
                   padding: const EdgeInsets.all(20),
                 ),
                 MaterialButton(
@@ -112,7 +112,7 @@ class SettingsPage extends StatelessWidget {
                       _routingService.logout(context);
                     },
                     shape: CircleBorder(),
-                    child: Icon(Icons.exit_to_app_rounded),
+                    child: Icon(Icons.exit_to_app),
                     padding: const EdgeInsets.all(20),
                   ),
                 )
@@ -130,7 +130,7 @@ class SettingsPage extends StatelessWidget {
                           AsyncSnapshot<Account> snapshot) {
                         if (snapshot.data != null) {
                           return Text(
-                            snapshot.data.userName,
+                            snapshot.data.userName??"",
                             style: TextStyle(
                                 color: ExtraTheme.of(context).text,
                                 fontSize: 13),

@@ -29,7 +29,7 @@ class CoreServices {
 
   var coreService = CoreServiceClient(_clientChannel);
   StreamController<ClientPacket> _clientPacket =
-      StreamController<ClientPacket>();
+  StreamController<ClientPacket>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   var _messageDao = GetIt.I.get<MessageDao>();
@@ -37,6 +37,8 @@ class CoreServices {
   var _roomDao = GetIt.I.get<RoomDao>();
   PendingMessageDao _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _notificationService = GetIt.I.get<NotificationServices>();
+
+
   setCoreSetting() async {
     try {
       ResponseStream<ServerPacket> responseStream = coreService.establishStream(
@@ -44,6 +46,7 @@ class CoreServices {
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       responseStream.listen((serverPacket) {
+        print(serverPacket.toString());
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:
             _saveIncomingMessage(serverPacket.message);
@@ -65,7 +68,6 @@ class CoreServices {
           case ServerPacket_Type.notSet:
             break;
           case ServerPacket_Type.pong:
-            print("ffffffff");
             savePingMessage(serverPacket.pong);
             break;
         }
@@ -75,8 +77,8 @@ class CoreServices {
     }
   }
 
-  _saveIncomingMessage(Message message) async {
-    var dbId = await _messageDao.insertMessage(M.Message(
+  _saveIncomingMessage(Message message) {
+    _messageDao.insertMessage(M.Message(
         id: message.id.toInt(),
         roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
             ? message.to.string
@@ -90,37 +92,25 @@ class CoreServices {
         json: message.whichType() == Message_Type.text
             ? message.text.text
             : jsonEncode({
-                "uuid": message.file.uuid,
-                "name": message.file.name,
-                "caption": message.file.caption,
-                "type": findType(message.file.name)
-              }),
+          "uuid": message.file.uuid,
+          "name": message.file.name,
+          "caption": message.file.caption,
+          "type": findType(message.file.name)
+        }),
         edited: message.edited,
         encrypted: message.encrypted,
-        type: getMessageType(message.whichType())));
-    _pendingMessageDao.deletePendingMessage(dbId);
-    _roomDao.insertRoom(
-      M.Room(
-          roomId: message.from.string,
-          lastMessageId: message.id.toInt(),
-          lastMessageDbId: dbId),
-    );
-    if (!message.from.node.contains(_accountRepo.currentUserUid.node)) {
-      _notificationService.showTextNotification(
-          message.id.toInt(), message.from.string, "ffff", message.text.text);
-    }
-  }
+        type: getMessageType(message.whichType()))
 
-  String findType(String path) {
-    String postfix = path.split('.').last;
-    if (postfix == 'png' || postfix == 'jpg' || postfix == 'jpeg')
-      return 'image';
-    else if (postfix == 'mp4')
-      return 'video';
-    else if (postfix == 'mp3')
-      return 'audio';
-    else
-      return 'file';
+    );
+    _pendingMessageDao
+        .deletePendingMessage(M.PendingMessage(messageId: message.packetId));
+    _roomDao.insertRoom(
+      M.Room(roomId: message.from.string, lastMessage: message.packetId),);
+    if (!message.from.node.contains(_accountRepo.currentUserUid.node)){
+      _notificationService.showTextNotification(
+          message.id.toInt(), message.from.string,"ffff", message.text.text);
+    }
+
   }
 
   sendMessage(MessageByClient message) {
@@ -133,7 +123,10 @@ class CoreServices {
   sendPingMessage() {
     _clientPacket.add(ClientPacket()
       ..ping = Ping()
-      ..id = DateTime.now().microsecondsSinceEpoch.toString());
+      ..id = DateTime
+          .now()
+          .microsecondsSinceEpoch
+          .toString());
   }
 
   sendSeenMessage(SeenByClient seen) {
@@ -145,10 +138,16 @@ class CoreServices {
   sendActivityMessage(ActivityByClient activity) {
     _clientPacket.add(ClientPacket()
       ..activity = activity
-      ..id = DateTime.now().microsecondsSinceEpoch.toString());
+      ..id = DateTime
+          .now()
+          .microsecondsSinceEpoch
+          .toString());
   }
 
-  deleteMessage() {}
+  deleteMessage() {
+
+  }
+
 
   MessageType getMessageType(Message_Type messageType) {
     switch (messageType) {
@@ -205,6 +204,20 @@ class CoreServices {
 
   _saveActivityMessage(Activity activity) {
     //todo
+  }
+
+  String findType(String path) {
+    String postfix = path
+        .split('.')
+        .last;
+    if (postfix == 'png' || postfix == 'jpg' || postfix == 'jpeg')
+      return 'image';
+    else if (postfix == 'mp4')
+      return 'video';
+    else if (postfix == 'mp3')
+      return 'audio';
+    else
+      return 'file';
   }
 
   void savePingMessage(Pong pong) {}

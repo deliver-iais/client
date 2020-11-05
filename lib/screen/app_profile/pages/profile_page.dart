@@ -38,11 +38,12 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   List<String> _mediaUrls = [];
+  List<String> mediaUrls = [];
+ var mediasLength;
 
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
-  var _memberRepo = GetIt.I.get<MemberRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   return <Widget>[
                         ProfileAvatar(
                       innerBoxIsScrolled: innerBoxIsScrolled,
-                      userUid: widget.userUid,
+                      roomUid: widget.userUid,
                       ),
                     widget.userUid.category == Categories.USER
                         ? SliverList(
@@ -237,70 +238,70 @@ class _ProfilePageState extends State<ProfilePage> {
                                             ],
                                           ),
                                         ),
-//                                        kDebugMode
-//                                            ? IconButton(
-//                                                icon: Icon(Icons.add),
-//                                                onPressed: () {
-//                                                  DateFormat dateFormat =
-//                                                      DateFormat(
-//                                                          "yyyy-MM-dd HH:mm");
-//                                                  DateTime sendTime =
-//                                                      DateTime.now();
-//                                                  String time = dateFormat
-//                                                      .format(sendTime);
-//                                                  _mediaQueryRepo
-//                                                      .insertMediaQueryInfo(
-//                                                          1,
-//                                                          "https://picsum.photos/250?image=9",
-//                                                          "parinaz",
-//                                                          "laptop",
-//                                                          "image",
-//                                                          time,
-//                                                          "p.asghari",
-//                                                          "laptop");
-//                                                  _mediaQueryRepo
-//                                                      .insertMediaQueryInfo(
-//                                                          2,
-//                                                          "https://picsum.photos/seed/picsum/200/300",
-//                                                          "parinaz",
-//                                                          "sky",
-//                                                          "image",
-//                                                          time,
-//                                                          "p.asghari",
-//                                                          "skyy");
-//                                                  _mediaQueryRepo
-//                                                      .insertMediaQueryInfo(
-//                                                          3,
-//                                                          "https://picsum.photos/seed/picsum/200/300",
-//                                                          "parinaz",
-//                                                          "sky1",
-//                                                          "image",
-//                                                          time,
-//                                                          "p.asghari",
-//                                                          "skyy1");
-//                                                  _mediaQueryRepo
-//                                                      .insertMediaQueryInfo(
-//                                                          14,
-//                                                          "https://picsum.photos/seed/picsum/200/300",
-//                                                          "parinaz",
-//                                                          "sky1",
-//                                                          "image",
-//                                                          time,
-//                                                          "p.asghari",
-//                                                          "skyy1");
-//                                                  _mediaQueryRepo
-//                                                      .insertMediaQueryInfo(
-//                                                          19,
-//                                                          "https://picsum.photos/seed/picsum/200/300",
-//                                                          "parinaz",
-//                                                          "sky1",
-//                                                          "image",
-//                                                          time,
-//                                                          "p.asghari",
-//                                                          "skyy1");
-//                                                },
-//                                              )
-//                                            : SizedBox.shrink(),
+                                        kDebugMode
+                                            ? IconButton(
+                                                icon: Icon(Icons.add),
+                                                onPressed: () {
+                                                  DateFormat dateFormat =
+                                                      DateFormat(
+                                                          "yyyy-MM-dd HH:mm");
+                                                  DateTime sendTime =
+                                                      DateTime.now();
+                                                  String time = dateFormat
+                                                      .format(sendTime);
+                                                  _mediaQueryRepo
+                                                      .insertMediaQueryInfo(
+                                                          1,
+                                                          "https://picsum.photos/250?image=9",
+                                                          "parinaz",
+                                                          "laptop",
+                                                          "image",
+                                                          time,
+                                                          "p.asghari",
+                                                          "laptop");
+                                                  _mediaQueryRepo
+                                                      .insertMediaQueryInfo(
+                                                          2,
+                                                          "https://picsum.photos/seed/picsum/200/300",
+                                                          "parinaz",
+                                                          "sky",
+                                                          "image",
+                                                          time,
+                                                          "p.asghari",
+                                                          "skyy");
+                                                  _mediaQueryRepo
+                                                      .insertMediaQueryInfo(
+                                                          3,
+                                                          "https://picsum.photos/seed/picsum/200/300",
+                                                          "parinaz",
+                                                          "sky1",
+                                                          "image",
+                                                          time,
+                                                          "p.asghari",
+                                                          "skyy1");
+                                                  _mediaQueryRepo
+                                                      .insertMediaQueryInfo(
+                                                          14,
+                                                          "https://picsum.photos/seed/picsum/200/300",
+                                                          "parinaz",
+                                                          "sky1",
+                                                          "image",
+                                                          time,
+                                                          "p.asghari",
+                                                          "skyy1");
+                                                  _mediaQueryRepo
+                                                      .insertMediaQueryInfo(
+                                                          19,
+                                                          "https://picsum.photos/seed/picsum/200/300",
+                                                          "parinaz",
+                                                          "sky1",
+                                                          "image",
+                                                          time,
+                                                          "p.asghari",
+                                                          "skyy1");
+                                                },
+                                              )
+                                            : SizedBox.shrink(),
                                       ]);
                                     } else {
                                       return SizedBox.shrink();
@@ -397,26 +398,23 @@ class _ProfilePageState extends State<ProfilePage> {
         itemBuilder: (context, position) {
           return GestureDetector(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) {
-                return MediaDetailsPage(
-                  mediaUrl: medias[position].mediaUrl,
-                  mediaListLenght: medias.length,
-                  mediaPosition: position,
-                  heroTag: "btn$position",
-                  mediaList: _mediaUrls,
-                  mediaSender: medias[position].mediaSender,
-                  mediaTime: medias[position].time,
-                );
-              }));
+              // Navigator.push(context, MaterialPageRoute(builder: (_) {
+              //   return MediaDetailsPage(
+              //     mediaPosition: position,
+              //     heroTag: "btn$position",
+              //     mediasLength: medias.length,
+              //     isAvatar: false,
+              //   );
+              // }));
             },
-            child: Hero(
+           child: Hero(
                 tag: "btn$position",
                 child: Container(
                   decoration: new BoxDecoration(
                     image: new DecorationImage(
                         image: new NetworkImage(
                           medias[position].mediaUrl,
-                          // imageList[position],
+                           //imageList[position],
                         ),
                         fit: BoxFit.cover),
                     border: Border.all(
@@ -424,7 +422,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       color: ExtraTheme.of(context).secondColor,
                     ),
                   ),
-                )),
+                ), // transitionOnUserGestures: true,
+
+            ),
           );
         });
   }

@@ -15,21 +15,27 @@ class AudioPlayerService {
   bool isPlaying;
 
   StreamController<bool> _audioPlayerController;
+
   Stream<bool> get isOn => _audioPlayerController.stream;
 
-  StreamController<AudioPlayerState> _audioPlayerStateController;
+  Map<String, StreamController<AudioPlayerState>> _audioPlayerStateController;
 
-  Stream<AudioPlayerState> get audioPlayerState =>
-      _audioPlayerStateController.stream;
+  Stream<AudioPlayerState> audioPlayerState(String audioId) {
+    try {
+      return _audioPlayerStateController[audioId].stream;
+    } catch (e) {
+      onCompletion(audioId);
+    }
+  }
 
   AudioPlayerService() {
     audioPlayer = AudioPlayer();
     audioCache = AudioCache(fixedPlayer: audioPlayer);
     audioPlayer.setVolume(1);
     AudioPlayer.logEnabled = true;
-    _audioPlayerController = StreamController<bool>.broadcast();
-    _audioPlayerStateController =
-        StreamController<AudioPlayerState>.broadcast();
+    _audioPlayerController =
+        _audioPlayerController = StreamController<bool>.broadcast();
+    _audioPlayerStateController = Map();
     _audioPlayerController.add(false);
     isPlaying = false;
   }
@@ -61,31 +67,33 @@ class AudioPlayerService {
 
   Stream<Duration> get audioDuration => this.audioPlayer.onDurationChanged;
 
-  void onCompletion() {
+  void onCompletion(String audioId) {
     resetAudioPlayerService();
     _audioPlayerController.add(false);
-    _audioPlayerStateController.add(AudioPlayerState.COMPLETED);
+    StreamController<AudioPlayerState> d =
+        StreamController<AudioPlayerState>.broadcast();
+    d.add(AudioPlayerState.COMPLETED);
+    _audioPlayerStateController[audioId] = d;
   }
 
   void onPlay(String path, String uuid, String name) {
     setAudioDetails("Description", path, name, uuid);
     isPlaying = true;
     _audioPlayerController.add(true);
-    _audioPlayerStateController.add(AudioPlayerState.PLAYING);
-    // this.audioCache.play(audioPath);
+    _audioPlayerStateController[uuid].add(AudioPlayerState.PLAYING);
     this.audioPlayer.play(path, isLocal: true);
   }
 
-  void onPause() {
+  onPause(String audioId) {
     isPlaying = false;
-    _audioPlayerStateController.add(AudioPlayerState.PAUSED);
+    _audioPlayerStateController[audioId].add(AudioPlayerState.PAUSED);
     this.audioPlayer.pause();
   }
 
-  void onStop() {
+  onStop(String audioId) {
     resetAudioPlayerService();
     _audioPlayerController.add(false);
-    _audioPlayerStateController.add(AudioPlayerState.STOPPED);
+    _audioPlayerStateController[audioId].add(AudioPlayerState.STOPPED);
     this.audioPlayer.stop();
   }
 }

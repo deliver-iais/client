@@ -42,10 +42,9 @@ class PendingMessageDao extends DatabaseAccessor<Database>
           ]))
         .watch();
   }
-
-  Future<int> getMessageNumber(String roomId) {
-    return (select(pendingMessages)..where((pm) => pm.roomId.equals(roomId)))
-        .watch()
-        .length;
-  }
+  // Future<PendingMessage> getMessage(String messageId) {
+  //   return (select(pendingMessages)
+  //     ..where((pm) => pm.messageId.equals(messageId)))
+  //       .getSingle();
+  // }
 }

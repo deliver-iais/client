@@ -39,7 +39,7 @@ class _ImageWidget extends State<ShowImagePage> {
           ),
           onPressed: () {
             _messageRepo.sendFileMessage(
-                widget.contactUid, widget.imageFile.path,
+                widget.contactUid, [widget.imageFile.path],
                 caption: _controller.value.text);
             ExtendedNavigator.of(context).pop();
           },

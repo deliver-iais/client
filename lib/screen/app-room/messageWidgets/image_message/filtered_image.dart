@@ -7,7 +7,7 @@ import 'package:deliver_flutter/services/file_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class FilteredImage extends StatelessWidget {
+class FilteredImage extends StatefulWidget {
   final String uuid;
   final String name;
   final String path;
@@ -15,6 +15,7 @@ class FilteredImage extends StatelessWidget {
   final double width;
   final double height;
   final Function onPressed;
+
   FilteredImage(
       {this.uuid,
       this.name,
@@ -23,21 +24,28 @@ class FilteredImage extends StatelessWidget {
       this.width,
       this.height,
       this.onPressed});
+
+  @override
+  _FilteredImageState createState() => _FilteredImageState();
+}
+
+class _FilteredImageState extends State<FilteredImage> {
+  bool startDownload = false;
   @override
   Widget build(BuildContext context) {
     var fileRepo = GetIt.I.get<FileRepo>();
     return FutureBuilder<File>(
         future:
-            fileRepo.getFile(uuid, name, thumbnailSize: ThumbnailSize.small),
+            fileRepo.getFile(widget.uuid, widget.name, thumbnailSize: ThumbnailSize.small),
         builder: (context, file) {
-          if (file.hasData == false && path != null) {
+          if (file.hasData == false && widget.path != null) {
             return Stack(
               alignment: Alignment.center,
               children: [
                 Image.file(
-                  File(path),
-                  width: width,
-                  height: height,
+                  File(widget.path),
+                  width: widget.width,
+                  height: widget.height,
                   fit: BoxFit.fill,
                 ),
                 SendingFileCircularIndicator(
@@ -52,15 +60,15 @@ class FilteredImage extends StatelessWidget {
               children: [
                 Image.file(
                   file.data,
-                  width: width,
-                  height: height,
+                  width: widget.width,
+                  height: widget.height,
                   fit: BoxFit.fill,
                 ),
                 Positioned(
                   top: 0,
                   left: 0,
-                  width: width,
-                  height: height,
+                  width: widget.width,
+                  height: widget.height,
                   child: ClipRect(
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -70,7 +78,7 @@ class FilteredImage extends StatelessWidget {
                     ),
                   ),
                 ),
-                !sended
+                !widget.sended
                     ? SendingFileCircularIndicator(
                         loadProgress: 0.8,
                         isMedia: true,
@@ -83,8 +91,11 @@ class FilteredImage extends StatelessWidget {
                           color: Colors.black.withOpacity(0.5),
                         ),
                         child: IconButton(
-                          icon: Icon(Icons.file_download),
-                          onPressed: onPressed,
+                          icon: startDownload? CircularProgressIndicator():Icon(Icons.file_download),
+                          onPressed: () {
+                            startDownload  = true;
+                            widget.onPressed.call();
+                          },
                         ),
                       )
               ],

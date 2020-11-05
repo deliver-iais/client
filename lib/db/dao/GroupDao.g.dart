@@ -7,5 +7,5 @@ part of 'GroupDao.dart';
 // **************************************************************************
 
 mixin _$GroupDaoMixin on DatabaseAccessor<Database> {
-  $GroupsTable get groups => attachedDatabase.groups;
+  $MucsTable get mucs => attachedDatabase.mucs;
 }

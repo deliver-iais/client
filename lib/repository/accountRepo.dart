@@ -134,6 +134,9 @@ class AccountRepo {
   }
 
   Future<bool> usernameIsSet() async {
+    if( null != await _prefs.get(USERNAME)){
+      return true;
+    }
     var result = await _userServices.getUserProfile(GetUserProfileReq(),
         options:
             CallOptions(metadata: {'accessToken': await getAccessToken()}));

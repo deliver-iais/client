@@ -613,20 +613,32 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       child: StreamBuilder<Room>(
         stream: _roomRepo.roomIsMute(widget.roomId),
         builder: (BuildContext context, AsyncSnapshot<Room> room) {
-          if (room.data.mute) {
-            return GestureDetector(
-              child: Text(_appLocalization.getTraslateValue("un_mute")),
-              onTap: () {
-                _roomRepo.changeRoomMuteTye(roomId: widget.roomId, mute: false);
-              },
-            );
+          if (room.data != null) {
+            if (room.data.mute) {
+              return GestureDetector(
+                child: Text(
+                  _appLocalization.getTraslateValue("un_mute"),
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  _roomRepo.changeRoomMuteTye(
+                      roomId: widget.roomId, mute: false);
+                },
+              );
+            } else {
+              return GestureDetector(
+                child: Text(
+                  _appLocalization.getTraslateValue("mute"),
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  _roomRepo.changeRoomMuteTye(
+                      roomId: widget.roomId, mute: true);
+                },
+              );
+            }
           } else {
-            return GestureDetector(
-              child: Text(_appLocalization.getTraslateValue("mute")),
-              onTap: () {
-                _roomRepo.changeRoomMuteTye(roomId: widget.roomId, mute: true);
-              },
-            );
+            return SizedBox.shrink();
           }
         },
       ),
@@ -636,7 +648,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   sendInputSharedFile() async {
     if (widget.inputFilePath != null) {
       for (String path in widget.inputFilePath) {
-        _messageRepo.sendFileMessage(widget.roomId.uid, path);
+        _messageRepo.sendFileMessage(widget.roomId.uid, [path]);
       }
     }
   }
@@ -690,9 +702,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   _checkChannelRole() async {
-    var hasPermissionInMuc = await _memberRepo.mucAdminOrOwner(
+    var hasPermissionInMuc = await _memberRepo.isMucAdminOrOwner(
         _accountRepo.currentUserUid.string, widget.roomId);
-
     if (!hasPermissionInMuc) {
       setState(() {
         _hasPermissionToSendMessageInChannel = false;

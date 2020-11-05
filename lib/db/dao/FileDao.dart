@@ -14,10 +14,10 @@ class FileDao extends DatabaseAccessor<Database> with _$FileDaoMixin {
 
   Future deleteAvatar(FileInfo file) => delete(fileInfos).delete(file);
 
-  Future<List<FileInfo>> getFileInfo(id, size) {
+  Future<FileInfo> getFileInfo(id, size) {
     return (select(fileInfos)
           ..where((file) =>
               file.uuid.equals(id) & file.compressionSize.equals(size)))
-        .get();
+        .getSingle();
   }
 }

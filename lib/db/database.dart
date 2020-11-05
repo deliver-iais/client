@@ -26,7 +26,7 @@ import 'dart:io';
 
 import 'Contacts.dart';
 import 'FileInfo.dart';
-import 'Group.dart';
+import 'Mucs.dart';
 import 'LastSeen.dart';
 import 'Member.dart';
 import 'Rooms.dart';
@@ -51,7 +51,7 @@ part 'database.g.dart';
   Medias,
   SharedPreferences,
   Members,
-  Groups,
+  Mucs,
   LastSeens,
 ], daos: [
   MessageDao,
@@ -89,6 +89,7 @@ class Database extends _$Database {
       }
     });
   }
+
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

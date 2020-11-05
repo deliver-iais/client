@@ -4,7 +4,9 @@ import 'package:get_it/get_it.dart';
 
 class MediaQueryRepo {
   var mediaList;
+  var allMedia;
   var _mediaQueriesDao = GetIt.I.get<MediaDao>();
+  int count;
 
   Future<Media> insertMediaQueryInfo(
       int messageId,
@@ -31,5 +33,17 @@ class MediaQueryRepo {
   Future<List<Media>> getMediaQuery(String roomId) async {
     mediaList = await _mediaQueriesDao.getByRoomId(roomId);
     return mediaList;
+  }
+
+  Future<List<Media>> getMediaAround(String roomId,int offset) async {
+      mediaList = await _mediaQueriesDao.getMediaAround(roomId, offset);
+      return mediaList;
+  }
+
+
+
+  Future<List<Media>> getAllMedia() async{
+   allMedia= await _mediaQueriesDao.getAll();
+   return allMedia;
   }
 }

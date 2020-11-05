@@ -33,6 +33,7 @@ import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 import 'package:fixnum/fixnum.dart';
+import 'package:random_string/random_string.dart';
 import 'package:grpc/grpc.dart';
 
 class MessageRepo {
@@ -116,7 +117,6 @@ class MessageRepo {
       await insertRoomAndLastSeen((roomId.string));
     }
     Message message = Message(
-      // id: id,
       roomId: roomId.string,
       packetId: packetId,
       time: DateTime.now(),
@@ -162,48 +162,64 @@ class MessageRepo {
       return 'file';
   }
 
-  sendFileMessage(Uid roomId, String path,
+  sendFileMessage(Uid roomId, List<String> filesPath,
       {int replyId, String forwardedFrom, String caption}) async {
-    String packetId = _getPacketId();
-    String type;
-    type = findType(path);
-    Message message = Message(
-        roomId: roomId.string,
-        packetId: packetId,
-        time: DateTime.now(),
-        from: _accountRepo.currentUserUid.string,
-        to: roomId.string,
-        edited: false,
-        encrypted: false,
-        replyToId: replyId != null ? replyId : -1,
-        type: MessageType.FILE,
-        json: jsonEncode({
-          "uuid": "0",
-          "size": 0,
-          "type": type,
-          "path": path,
-          "name": path.split('/').last,
-          "caption": caption ?? "",
-          "width": type == 'image' || type == 'video' ? 200 : 0,
-          "height": type == 'image' || type == 'video' ? 100 : 0,
-          "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
-        }));
-    int dbId = await _messageDao.insertMessage(message);
-    await _updateRoomLastMessage(roomId.string, dbId);
-    await _savePendingMessage(dbId, roomId.string, SendingStatus.SENDING_FILE,
-        MAX_REMAINING_RETRIES, message);
-    await _sendFileMessage(message, path);
-    await Future.delayed(Duration(seconds: 10));
+    List<Message> messageList = new List();
+    List<String> uploadKeyList = new List();
+    List<int> dbIdList = new List();
     if (id == 0) {
       await insertRoomAndLastSeen((roomId.string));
     }
-    //TODO
-    await _messageDao.updateMessage(
-        message.copyWith(dbId: dbId, id: id, time: DateTime.now()));
-    await _updateRoomLastMessage(roomId.string, dbId, id: id);
-    await _lastSeenDao.updateLastSeen(message.roomId, id);
-    await _pendingMessageDao.deletePendingMessage(dbId);
-    id++;
+    for (var path in filesPath) {
+      String packetId = _getPacketId();
+      String type;
+      type = findType(path);
+      String uploadKey = randomString(10);
+      uploadKeyList.add(uploadKey);
+      Message message = Message(
+          roomId: roomId.string,
+          packetId: packetId,
+          time: DateTime.now(),
+          from: _accountRepo.currentUserUid.string,
+          to: roomId.string,
+          edited: false,
+          encrypted: false,
+          replyToId: replyId != null ? replyId : -1,
+          type: MessageType.FILE,
+          json: jsonEncode({
+            "uuid": uploadKey,
+            "size": 0,
+            "type": type,
+            "path": path,
+            "name": path.split('/').last,
+            "caption": caption ?? "",
+            "width": type == 'image' || type == 'video' ? 200 : 0,
+            "height": type == 'image' || type == 'video' ? 100 : 0,
+            "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
+          }));
+      messageList.add(message);
+      int dbId = await _messageDao.insertMessage(message);
+      dbIdList.add(dbId);
+      await _updateRoomLastMessage(roomId.string, dbId);
+      await _savePendingMessage(
+          dbId, roomId.string, SendingStatus.SENDING_FILE, MAX_REMAINING_RETRIES, message);
+    }
+    for (int i = 0; i < filesPath.length; i++) {
+      FileInfo fileInfo = await _fileRepo.uploadFile(
+        LocalFile.File(filesPath[i]),
+        uploadKey: uploadKeyList[i],
+      );
+      await _sendFileMessage(messageList[i], filesPath[i], fileInfo: fileInfo);
+      await Future.delayed(Duration(seconds: 10));
+
+      //TODO
+      await _messageDao.updateMessage(
+          message.copyWith(dbId: dbIdList[i], id: id, time: DateTime.now()));
+      await _updateRoomLastMessage(roomId.string, dbIdList[i], id: id);
+      await _lastSeenDao.updateLastSeen(message.roomId, id);
+      await _pendingMessageDao.deletePendingMessage(dbIdList[i]);
+      id++;
+    }
   }
 
   sendPendingMessage() {
@@ -322,8 +338,8 @@ class MessageRepo {
     await _coreServices.sendMessage(messageByClient);
   }
 
-  _sendFileMessage(Message message, String path) async {
-    FileInfo fileInfo = await _fileRepo.uploadFile(LocalFile.File(path));
+  _sendFileMessage(Message message, String path,
+      { FileInfo fileInfo}) async {
     File file = File()
       ..name = fileInfo.name
       ..uuid = fileInfo.uuid

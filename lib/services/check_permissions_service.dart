@@ -42,15 +42,17 @@ extension PermissionsExtension on CheckPermissionsService {
     }
   }
 
-  checkStoragePermission() async {
+  Future<bool>checkStoragePermission() async {
     if (!await check([
       Permission.READ_EXTERNAL_STORAGE,
       Permission.WRITE_EXTERNAL_STORAGE
     ])) {
-      request([
+      return request([
         Permission.READ_EXTERNAL_STORAGE,
         Permission.WRITE_EXTERNAL_STORAGE
       ]);
+    }else{
+      return true;
     }
   }
 

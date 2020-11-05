@@ -165,19 +165,16 @@ class _ShareBoxState extends State<ShareBox> {
                                   Container(
                                     child: CircleButton(
                                       () {
-                                        finalSelected.forEach((key, value) {
-                                          if (widget.replyMessageId != null) {
-                                            messageRepo.sendFileMessage(
-                                                widget.currentRoomId, value,
-                                                replyId: widget.replyMessageId);
-                                            widget.resetRoomPageDetails();
-                                          } else {
-                                            messageRepo.sendFileMessage(
-                                              widget.currentRoomId,
-                                              value,
-                                            );
-                                          }
-                                        });
+                                        if(widget.replyMessageId != null){
+                                          messageRepo.sendFileMessage(
+                                              widget.currentRoomId, finalSelected.values.toList(),
+                                              replyId: widget.replyMessageId);
+                                        }else{
+                                          messageRepo.sendFileMessage(
+                                            widget.currentRoomId,
+                                            finalSelected.values.toList(),
+                                          );
+                                        }
                                         setState(() {
                                           finalSelected.clear();
                                           selectedAudio.clear();

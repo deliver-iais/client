@@ -15,7 +15,6 @@ import '../screen/app-contacts/widgets/new_Contact.dart';
 import '../screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import '../screen/app-room/pages/roomPage.dart';
 import '../screen/app-room/widgets/showImage_Widget.dart';
-import '../screen/app_profile/pages/media_details_page.dart';
 import '../screen/home/pages/home_page.dart';
 import '../screen/intro/pages/intro_page.dart';
 import '../screen/register/pages/login_page.dart';
@@ -30,7 +29,6 @@ class Routes {
   static const String loginPage = '/login-page';
   static const String verificationPage = '/verification-page';
   static const String homePage = '/home-page';
-  static const String mediaDetailsPage = '/media-details-page';
   static const String showImagePage = '/show-image-page';
   static const String selectionToForwardPage = '/selection-to-forward-page';
   static const String newContact = '/new-contact';
@@ -43,7 +41,6 @@ class Routes {
     loginPage,
     verificationPage,
     homePage,
-    mediaDetailsPage,
     showImagePage,
     selectionToForwardPage,
     newContact,
@@ -62,7 +59,6 @@ class Router extends RouterBase {
     RouteDef(Routes.loginPage, page: LoginPage),
     RouteDef(Routes.verificationPage, page: VerificationPage),
     RouteDef(Routes.homePage, page: HomePage),
-    RouteDef(Routes.mediaDetailsPage, page: MediaDetailsPage),
     RouteDef(Routes.showImagePage, page: ShowImagePage),
     RouteDef(Routes.selectionToForwardPage, page: SelectionToForwardPage),
     RouteDef(Routes.newContact, page: NewContact),
@@ -109,24 +105,6 @@ class Router extends RouterBase {
       );
       return MaterialPageRoute<dynamic>(
         builder: (context) => HomePage(key: args.key),
-        settings: data,
-      );
-    },
-    MediaDetailsPage: (data) {
-      final args = data.getArgs<MediaDetailsPageArguments>(
-        orElse: () => MediaDetailsPageArguments(),
-      );
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => MediaDetailsPage(
-          key: args.key,
-          mediaUrl: args.mediaUrl,
-          mediaListLenght: args.mediaListLenght,
-          mediaPosition: args.mediaPosition,
-          heroTag: args.heroTag,
-          mediaList: args.mediaList,
-          mediaSender: args.mediaSender,
-          mediaTime: args.mediaTime,
-        ),
         settings: data,
       );
     },
@@ -218,27 +196,6 @@ class IntroPageArguments {
 class HomePageArguments {
   final Key key;
   HomePageArguments({this.key});
-}
-
-/// MediaDetailsPage arguments holder class
-class MediaDetailsPageArguments {
-  final Key key;
-  final String mediaUrl;
-  final int mediaListLenght;
-  final int mediaPosition;
-  final String heroTag;
-  final List<String> mediaList;
-  final String mediaSender;
-  final String mediaTime;
-  MediaDetailsPageArguments(
-      {this.key,
-      this.mediaUrl,
-      this.mediaListLenght,
-      this.mediaPosition,
-      this.heroTag,
-      this.mediaList,
-      this.mediaSender,
-      this.mediaTime});
 }
 
 /// ShowImagePage arguments holder class

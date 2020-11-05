@@ -34,7 +34,9 @@ class _SplashScreenState extends State<SplashScreen> {
         _navigateToIntroPage();
       }
     }).then((_) {
-      _accountRepo.isLoggedIn() ? gotoRooms(context) : _navigateToIntroPage();
+      _accountRepo.isLoggedIn()
+          ? gotoRooms(context)
+          : _navigateToIntroPage();
     });
   }
 
@@ -44,17 +46,20 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   gotoRooms(BuildContext context) async {
-    // var result = await ReceiveSharingIntent.getInitialMedia();
-    // if (result != null) {
-    //   List<String> paths = List();
-    //   for (var path in result) {
-    //     paths.add(path.path);
-    //   }
-    //   ExtendedNavigator.of(context).push(Routes.shareInputFile,
-    //       arguments: ShareInputFileArguments(inputSharedFilePath: paths));
-    // } else {
-    _navigateToHomePage();
-    // }
+
+
+  /* var result = await ReceiveSharingIntent.getInitialMedia();
+      if (result != null ) {
+        List<String> paths = List();
+        for(var path in result){
+          paths.add(path.path);
+        }
+        ExtendedNavigator.of(context).push(
+          Routes.shareInputFile,arguments: ShareInputFileArguments(inputSharedFilePath: paths)
+        );
+      } else {*/
+        _navigateToHomePage();
+     // }
   }
 
   void _navigateToHomePage() async {
@@ -63,12 +68,11 @@ class _SplashScreenState extends State<SplashScreen> {
     if (setUserName) {
       ExtendedNavigator.of(context).pushAndRemoveUntil(
         Routes.homePage,
-        (_) => false,
+            (_) => false,
       );
     } else {
       ExtendedNavigator.of(context).push(Routes.accountSettings,
-          arguments:
-              AccountSettingsArguments(forceToSetUsernameAndName: false));
+          arguments: AccountSettingsArguments(forceToSetUsernameAndName: false));
     }
   }
 
