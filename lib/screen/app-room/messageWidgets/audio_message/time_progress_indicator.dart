@@ -60,9 +60,9 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
             return SizedBox.shrink();
           } else {
             return Text(
-              "00"
-                      " / " +
-                  dur.toString().split('.')[0].substring(2),
+              currentPos.toString().split('.')[0].substring(3) +
+                  " / " +
+                  dur.toString().split('.')[0].substring(3),
               style: TextStyle(fontSize: 11),
             );
           }

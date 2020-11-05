@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/audio_progress_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/time_progress_indicator.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
@@ -10,8 +11,10 @@ class AudioPlayProgress extends StatelessWidget {
   final File audio;
   final String audioUuid;
 
-  const AudioPlayProgress({Key key, this.audioUuid, this.audio})
-      : super(key: key);
+  AudioPlayProgress({Key key, this.audioUuid, this.audio}) : super(key: key);
+
+  AudioPlayerService _audioPlayerService = GetIt.I.get<AudioPlayerService>();
+
   @override
   Widget build(BuildContext context) {
     AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
@@ -22,23 +25,29 @@ class AudioPlayProgress extends StatelessWidget {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(top: 3.0),
-                child: (snapshot.data == true) ||
-                        (audioPlayerService.lastDur != null)
-                    ? AudioProgressIndicator(
-                        audioUuid: audioUuid,
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.only(top: 19.0, left: 20),
-                        child: Container(
-                          child: Text(
-                            'description',
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: false,
-                            style:
-                                TextStyle(color: ExtraTheme.of(context).text),
+                child: StreamBuilder<AudioPlayerState>(
+                    stream: _audioPlayerService.audioPlayerState(audioUuid),
+                    builder: (c, state) {
+                      if (state.data != null &&
+                          state.data == AudioPlayerState.PLAYING) {
+                        return AudioProgressIndicator(
+                          audioUuid: audioUuid,
+                        );
+                      } else {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 19.0, left: 20),
+                          child: Container(
+                            child: Text(
+                              'description',
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: false,
+                              style:
+                                  TextStyle(color: ExtraTheme.of(context).text),
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      }
+                    }),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 20.0, top: 44),
