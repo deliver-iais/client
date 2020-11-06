@@ -56,6 +56,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   var _mucRepo = GetIt.I.get<MucRepo>();
   AppLocalization _appLocalization;
   MucType _mucType;
+  var _routingServices = GetIt.I.get<RoutingService>();
 
   @override
   void initState() {
@@ -105,10 +106,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                             showProgressBar = true;
                             _uploadAvatarPath = croppedFile.path;
                           });
-
-                         // bool avatarIsSet = await avatarRepo.uploadAvatar(
-                           //   croppedFile, widget.roomUid);
-                          if (await avatarRepo.uploadAvatar(croppedFile, widget.roomUid)!=null) {
+                          if (await avatarRepo.uploadAvatar(
+                                  croppedFile, widget.roomUid) !=
+                              null) {
                             setState(() {
                               showProgressBar = false;
                             });
@@ -132,6 +132,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   _navigateHomePage() {
+    _routingServices.reset();
     ExtendedNavigator.of(context).pushAndRemoveUntil(
       Routes.homePage,
       (_) => false,
@@ -281,16 +282,3 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 }
 
-
-// StreamBuilder<List<Avatar>>(
-// stream: avatarRepo.getAvatar(widget.roomUid, false),
-// builder: (BuildContext context,
-//     AsyncSnapshot<List<Avatar>> snapshot) {
-// if (snapshot.hasData &&
-// snapshot.data != null &&
-// snapshot.data.length > 0) {
-// return backgroundImage(snapshot.data);
-// } else {
-// return showAvatar();
-// }
-// })
