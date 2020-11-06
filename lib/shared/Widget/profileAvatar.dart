@@ -83,7 +83,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     });
   }
 
-  showBottomSheet() async {
+  selectAvatar() async {
     if (isDesktop()) {
       final imagePath = await showOpenPanel(
           allowsMultipleSelection: false,
@@ -139,7 +139,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   onSelected(String selected) {
     switch (selected) {
       case "select":
-        showBottomSheet();
+        selectAvatar();
         break;
       case "leftMuc":
         _mucType == MucType.GROUP ? _leftGroup() : _leftChannel();
