@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:rxdart/rxdart.dart';
 
 class AudioPlayerService {
   AudioPlayer audioPlayer;
@@ -18,7 +19,9 @@ class AudioPlayerService {
 
   Stream<bool> get isOn => _audioPlayerController.stream;
 
-  Map<String, StreamController<AudioPlayerState>> _audioPlayerStateController;
+  Map<String, StreamController<AudioPlayerState>> audioPlayerStateController;
+
+  String CURRENT_AUDIO_ID = "";
 
   Stream<AudioPlayerState> audioPlayerState(String audioId) {
     try {
@@ -35,7 +38,7 @@ class AudioPlayerService {
     AudioPlayer.logEnabled = true;
     _audioPlayerController =
         _audioPlayerController = StreamController<bool>.broadcast();
-    _audioPlayerStateController = Map();
+    audioPlayerStateController = Map();
     _audioPlayerController.add(false);
     isPlaying = false;
   }
@@ -77,26 +80,29 @@ class AudioPlayerService {
   }
 
   void onPlay(String path, String uuid, String name) {
-    _audioPlayerStateController.keys.forEach((element) {
-      _audioPlayerStateController[element].add(AudioPlayerState.STOPPED);
+    CURRENT_AUDIO_ID = uuid;
+    audioPlayerStateController.keys.forEach((element) {
+      audioPlayerStateController[element].add(AudioPlayerState.STOPPED);
     });
     setAudioDetails("Description", path, name, uuid);
     isPlaying = true;
     _audioPlayerController.add(true);
-    _audioPlayerStateController[uuid].add(AudioPlayerState.PLAYING);
+    audioPlayerStateController[uuid].add(AudioPlayerState.PLAYING);
     this.audioPlayer.play(path, isLocal: true);
   }
 
   onPause(String audioId) {
+    CURRENT_AUDIO_ID = "";
     isPlaying = false;
-    _audioPlayerStateController[audioId].add(AudioPlayerState.PAUSED);
+    audioPlayerStateController[audioId].add(AudioPlayerState.PAUSED);
     this.audioPlayer.pause();
   }
 
   onStop(String audioId) {
+    CURRENT_AUDIO_ID = "";
     resetAudioPlayerService();
     _audioPlayerController.add(false);
-    _audioPlayerStateController[audioId].add(AudioPlayerState.STOPPED);
+    audioPlayerStateController[audioId].add(AudioPlayerState.STOPPED);
     this.audioPlayer.stop();
   }
 }
