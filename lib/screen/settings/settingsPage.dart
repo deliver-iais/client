@@ -46,7 +46,7 @@ class _SettingsPageState extends State<SettingsPage> {
   var _notification = false;
 
   bool _uploadNewAvatar = false;
-  String _newAvatarPath="";
+  String _newAvatarPath = "";
 
   bool _getTheme() {
     if (_uxService.theme == DarkTheme) {
@@ -81,12 +81,12 @@ class _SettingsPageState extends State<SettingsPage> {
         _newAvatarPath = path;
         _uploadNewAvatar = true;
       });
-      if(null != await _avatarRepo.uploadAvatar(File(path),_accountRepo.currentUserUid)){
-        setState(() {
-          _uploadNewAvatar = false;
-        });
+      await _avatarRepo.uploadAvatar(
+          File(path), _accountRepo.currentUserUid);
+      setState(() {
+        _uploadNewAvatar = false;
+      });
 
-      }
     }
   }
 
@@ -153,7 +153,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           AsyncSnapshot<Account> snapshot) {
                         if (snapshot.data != null) {
                           return Text(
-                            snapshot.data.userName??"",
+                            snapshot.data.userName ?? "",
                             style: TextStyle(
                                 color: ExtraTheme.of(context).text,
                                 fontSize: 13),

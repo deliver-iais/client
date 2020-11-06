@@ -47,13 +47,13 @@ class ProfileAvatarCard extends StatelessWidget {
                   tag: "avatar",
                   child:  uploadNewAvatar
                       ? CircleAvatar(
-                    radius: 100,
+                    radius: 80,
                     backgroundImage:
                     Image.file(File(newAvatarPath)).image,
                     child: Center(
                       child: SizedBox(
-                          height: 70.0,
-                          width: 70.0,
+                          height: 50.0,
+                          width: 50.0,
                           child: CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation(Colors.blue),
                             strokeWidth: 6.0,
