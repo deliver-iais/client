@@ -98,7 +98,7 @@ void setupRepositories() {
 }
 
 setupFlutterNotification() async {
-  await Firebase.initializeApp();
+  // await Firebase.initializeApp();
 }
 
 void setupDIAndRunApp() {
