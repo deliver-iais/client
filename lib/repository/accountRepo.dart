@@ -29,6 +29,7 @@ const PASSWORD = "password";
 const EMAIL = "email";
 const DESCRIPTION = "description";
 const PHONE_NUMBER = "phoneNumber";
+const NOTIFICATION = "notification";
 
 class AccountRepo {
   // TODO add account name protocol to server
@@ -262,4 +263,10 @@ class AccountRepo {
     _prefs.set(PHONE_NUMBER,
         "${this.phoneNumber.countryCode}${this.phoneNumber.nationalNumber}");
   }
+
+  setNotificationState(String notif) {
+    _prefs.set(NOTIFICATION, notif);
+  }
+
+  Future<String> get notification => _prefs.get(NOTIFICATION);
 }

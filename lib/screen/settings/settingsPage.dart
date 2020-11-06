@@ -43,8 +43,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   final _routingService = GetIt.I.get<RoutingService>();
 
-  var _notification = false;
-
   bool _uploadNewAvatar = false;
   String _newAvatarPath = "";
 
@@ -81,8 +79,7 @@ class _SettingsPageState extends State<SettingsPage> {
         _newAvatarPath = path;
         _uploadNewAvatar = true;
       });
-      await _avatarRepo.uploadAvatar(
-          File(path), _accountRepo.currentUserUid);
+      await _avatarRepo.uploadAvatar(File(path), _accountRepo.currentUserUid);
       setState(() {
         _uploadNewAvatar = false;
       });
@@ -210,12 +207,31 @@ class _SettingsPageState extends State<SettingsPage> {
             settingsRow(context,
                 iconData: Icons.notifications_active,
                 title: appLocalization.getTraslateValue("notification"),
-                child: Switch(
-                  value: _notification,
-                  onChanged: (newNotifState) {
-                    _notification = newNotifState;
-                  },
-                )),
+                child: FutureBuilder<String>(
+                    future: _accountRepo.notification,
+                    builder: (c, notif) {
+                      if (notif.hasData && notif.data != null) {
+                        bool notification =
+                            notif.data.contains("true") ? true : false;
+                        return Switch(
+                          value: notification,
+                          onChanged: (newNotifState) {
+                            _accountRepo
+                                .setNotificationState(newNotifState.toString());
+                            setState(() {});
+                          },
+                        );
+                      } else {
+                        return Switch(
+                          value: true,
+                          onChanged: (newNotifState) {
+                            _accountRepo
+                                .setNotificationState(newNotifState.toString());
+                            setState(() {});
+                          },
+                        );
+                      }
+                    })),
             settingsRow(context,
                 iconData: Icons.language,
                 title: appLocalization.getTraslateValue("changeLanguage"),
