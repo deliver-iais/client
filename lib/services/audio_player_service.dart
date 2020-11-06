@@ -19,7 +19,7 @@ class AudioPlayerService {
 
   Stream<bool> get isOn => _audioPlayerController.stream;
 
-  Map<String, StreamController<AudioPlayerState>> audioPlayerStateController;
+  Map<String, StreamController<AudioPlayerState>> _audioPlayerStateController;
 
   String CURRENT_AUDIO_ID = "";
 
@@ -38,7 +38,7 @@ class AudioPlayerService {
     AudioPlayer.logEnabled = true;
     _audioPlayerController =
         _audioPlayerController = StreamController<bool>.broadcast();
-    audioPlayerStateController = Map();
+    _audioPlayerStateController = Map();
     _audioPlayerController.add(false);
     isPlaying = false;
   }
@@ -81,20 +81,20 @@ class AudioPlayerService {
 
   void onPlay(String path, String uuid, String name) {
     CURRENT_AUDIO_ID = uuid;
-    audioPlayerStateController.keys.forEach((element) {
-      audioPlayerStateController[element].add(AudioPlayerState.STOPPED);
+    _audioPlayerStateController.keys.forEach((element) {
+      _audioPlayerStateController[element].add(AudioPlayerState.STOPPED);
     });
     setAudioDetails("Description", path, name, uuid);
     isPlaying = true;
     _audioPlayerController.add(true);
-    audioPlayerStateController[uuid].add(AudioPlayerState.PLAYING);
+    _audioPlayerStateController[uuid].add(AudioPlayerState.PLAYING);
     this.audioPlayer.play(path, isLocal: true);
   }
 
   onPause(String audioId) {
     CURRENT_AUDIO_ID = "";
     isPlaying = false;
-    audioPlayerStateController[audioId].add(AudioPlayerState.PAUSED);
+    _audioPlayerStateController[audioId].add(AudioPlayerState.PAUSED);
     this.audioPlayer.pause();
   }
 
@@ -102,7 +102,7 @@ class AudioPlayerService {
     CURRENT_AUDIO_ID = "";
     resetAudioPlayerService();
     _audioPlayerController.add(false);
-    audioPlayerStateController[audioId].add(AudioPlayerState.STOPPED);
+    _audioPlayerStateController[audioId].add(AudioPlayerState.STOPPED);
     this.audioPlayer.stop();
   }
 }
