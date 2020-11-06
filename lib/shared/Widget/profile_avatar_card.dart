@@ -25,9 +25,11 @@ class ProfileAvatarCard extends StatelessWidget {
   final Uid userUid;
   var lastAvatar;
   final List<Widget> buttons;
+  final bool uploadNewAvatar;
+  final String newAvatarPath;
   var _routingServices = GetIt.I.get<RoutingService>();
 
-  ProfileAvatarCard({this.userUid, this.buttons});
+  ProfileAvatarCard({this.userUid, this.buttons,this.uploadNewAvatar,this.newAvatarPath});
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _avatarRepo = GetIt.I.get<AvatarRepo>();
@@ -43,7 +45,22 @@ class ProfileAvatarCard extends StatelessWidget {
               GestureDetector(
                 child: Hero(
                   tag: "avatar",
-                  child: CircleAvatarWidget(
+                  child:  uploadNewAvatar
+                      ? CircleAvatar(
+                    radius: 100,
+                    backgroundImage:
+                    Image.file(File(newAvatarPath)).image,
+                    child: Center(
+                      child: SizedBox(
+                          height: 70.0,
+                          width: 70.0,
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation(Colors.blue),
+                            strokeWidth: 6.0,
+                          )),
+                    ),
+                  )
+                      : CircleAvatarWidget(
                     userUid,
                     80,
                     showAsStreamOfAvatar: true,

@@ -17,11 +17,13 @@ import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -81,54 +83,49 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     });
   }
 
-  showBottomSheet() {
-    showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        isDismissible: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) {
-          return DraggableScrollableSheet(
-            initialChildSize: 0.3,
-            minChildSize: 0.2,
-            maxChildSize: 1,
-            expand: false,
-            builder: (context, scrollController) {
-              return Container(
-                  color: Colors.white,
-                  child: Stack(children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.all(0),
-                      child: ShareBoxGallery(
-                        scrollController: scrollController,
-                        onClick: (File croppedFile) async {
-                          setState(() {
-                            showProgressBar = true;
-                            _uploadAvatarPath = croppedFile.path;
-                          });
-                          if (await avatarRepo.uploadAvatar(
-                                  croppedFile, widget.roomUid) !=
-                              null) {
-                            setState(() {
-                              showProgressBar = false;
-                            });
-                          } else {
-                            setState(() {
-                              showProgressBar = false;
-                            });
-                            Fluttertoast.showToast(
-                                msg: _appLocalization
-                                    .getTraslateValue("occurred_Error"));
-                          }
-                        },
-                        selectedImages: _selectedImages,
-                        selectGallery: false,
+  showBottomSheet() async {
+    if (isDesktop()) {
+      final imagePath = await showOpenPanel(
+          allowsMultipleSelection: false,
+          allowedFileTypes: [
+            FileTypeFilterGroup(
+                fileExtensions: ['png', 'jpg', 'jpeg', 'gif'], label: "image")
+          ]);
+      if (imagePath.paths.isNotEmpty) {
+        _setAvatar(imagePath.paths.first);
+      }
+    } else {
+      showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          isDismissible: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) {
+            return DraggableScrollableSheet(
+              initialChildSize: 0.3,
+              minChildSize: 0.2,
+              maxChildSize: 1,
+              expand: false,
+              builder: (context, scrollController) {
+                return Container(
+                    color: Colors.white,
+                    child: Stack(children: <Widget>[
+                      Container(
+                        padding: const EdgeInsets.all(0),
+                        child: ShareBoxGallery(
+                          scrollController: scrollController,
+                          onClick: (File croppedFile) async {
+                            _setAvatar(croppedFile.path);
+                          },
+                          selectedImages: _selectedImages,
+                          selectGallery: false,
+                        ),
                       ),
-                    ),
-                  ]));
-            },
-          );
-        });
+                    ]));
+              },
+            );
+          });
+    }
   }
 
   _navigateHomePage() {
@@ -280,5 +277,23 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               borderRadius: BorderRadius.circular(10), child: showAvatar()),
         ));
   }
-}
 
+  _setAvatar(String avatarPath) async {
+    setState(() {
+      showProgressBar = true;
+      _uploadAvatarPath = avatarPath;
+    });
+    if (await avatarRepo.uploadAvatar(File(avatarPath), widget.roomUid) !=
+        null) {
+      setState(() {
+        showProgressBar = false;
+      });
+    } else {
+      setState(() {
+        showProgressBar = false;
+      });
+      Fluttertoast.showToast(
+          msg: _appLocalization.getTraslateValue("occurred_Error"));
+    }
+  }
+}

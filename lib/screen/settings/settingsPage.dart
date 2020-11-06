@@ -27,14 +27,26 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   SettingsPage({Key key}) : super(key: key);
 
+  @override
+  _SettingsPageState createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
   final _uxService = GetIt.I.get<UxService>();
+
   final _accountRepo = GetIt.I.get<AccountRepo>();
+
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
+
   final _routingService = GetIt.I.get<RoutingService>();
+
   var _notification = false;
+
+  bool _uploadNewAvatar = false;
+  String _newAvatarPath="";
 
   bool _getTheme() {
     if (_uxService.theme == DarkTheme) {
@@ -65,7 +77,16 @@ class SettingsPage extends StatelessWidget {
       path = result.path;
     }
     if (path != null) {
-      await _avatarRepo.uploadAvatar(File(path),_accountRepo.currentUserUid);
+      setState(() {
+        _newAvatarPath = path;
+        _uploadNewAvatar = true;
+      });
+      if(null != await _avatarRepo.uploadAvatar(File(path),_accountRepo.currentUserUid)){
+        setState(() {
+          _uploadNewAvatar = false;
+        });
+
+      }
     }
   }
 
@@ -86,6 +107,8 @@ class SettingsPage extends StatelessWidget {
         body: FluidContainerWidget(
           child: ListView(children: [
             ProfileAvatarCard(
+              uploadNewAvatar: _uploadNewAvatar,
+              newAvatarPath: _newAvatarPath,
               userUid: _accountRepo.currentUserUid,
               buttons: [
                 MaterialButton(
