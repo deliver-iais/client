@@ -16,7 +16,6 @@ import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as clientMessage;
-import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/services/mode_checker.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
@@ -42,7 +41,6 @@ class MessageRepo {
   AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
   FileRepo _fileRepo = GetIt.I.get<FileRepo>();
   CoreServices _coreServices = GetIt.I.get<CoreServices>();
-  MessageService messageService = GetIt.I.get<MessageService>();
   ModeChecker modeChecker = GetIt.I.get<ModeChecker>();
 
   static int id = 0;

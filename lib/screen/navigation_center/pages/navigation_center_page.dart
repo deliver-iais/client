@@ -103,12 +103,12 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       GestureDetector(
                         child: Container(
                           child: Center(
-                              // child: CircleAvatarWidget(
-                              //   _accountRepo.currentUserUid,
-                              //   18,
-                              //   showAsStreamOfAvatar: true,
-                              // ),
-                              ),
+                            child: CircleAvatarWidget(
+                              _accountRepo.currentUserUid,
+                              18,
+                              showAsStreamOfAvatar: true,
+                            ),
+                          ),
                         ),
                         onTap: tapOnCurrentUserAvatar,
                       ),
