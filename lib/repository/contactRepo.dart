@@ -163,23 +163,15 @@ class ContactRepo {
         GetContactListUsersReq(),
         options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+
     for (var contact in result.userList) {
       _contactDao.insetContact(myContact.Contact(
         uid: contact.uid.string,
         phoneNumber: contact.phoneNumber.nationalNumber.toString(),
-        firstName: contact.firstName,
-        lastName: contact.lastName,
         username: contact.username,
         isMute: true,
         isBlock: false,
       ));
-      if (contact.uid != null) {
-        _roomDao.insertRoom(myContact.Room(
-            roomId: contact.uid.string,
-            lastMessage: null,
-            mentioned: false,
-            mute: false));
-      }
     }
 
     _getContactsDetails();
