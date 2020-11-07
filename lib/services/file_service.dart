@@ -25,21 +25,20 @@ class FileService {
   Future<String> get _localPath async {
     if (await _checkPermission.checkStoragePermission() || isDesktop()) {
       final directory = await getApplicationDocumentsDirectory();
-      if (!await Directory('${directory.path}/.thumbnails').exists())
-        await Directory('${directory.path}/.thumbnails')
-            .create(recursive: true);
-      return directory.path;
+      if (!await Directory('${directory.path}/Dliver').exists())
+        await Directory('${directory.path}/Dliver').create(recursive: true);
+      return directory.path + "/Dliver";
     }
   }
 
-  Future<File> _localFile(String filename) async {
+  Future<File> _localFile(String fileUuid,String fileType) async {
     final path = await _localPath;
-    return File('$path/$filename');
+    return File('$path/$fileUuid.$fileType');
   }
 
   Future<File> _localThumbnailFile(String filename) async {
     final path = await _localPath;
-    return File('$path/.thumbnails/$filename');
+    return File('$path/$filename');
   }
 
   FileService() {
@@ -65,7 +64,7 @@ class FileService {
       behaviorSubject.add((i / j));
       filesDownloadStatus[uuid] = behaviorSubject;
     }, options: Options(responseType: ResponseType.bytes));
-    final file = await _localFile(uuid);
+    final file = await _localFile(uuid,filename.split('.').last);
     file.writeAsBytesSync(res.data);
     return file;
   }
@@ -74,7 +73,7 @@ class FileService {
       String uuid, String filename, ThumbnailSize size) async {
     var res = await _dio.get("/${enumToString(size)}/$uuid/$filename",
         options: Options(responseType: ResponseType.bytes));
-    final file = await _localThumbnailFile("${enumToString(size)}-$uuid");
+    final file = await _localThumbnailFile("${enumToString(size)}-$uuid.${filename.split('.').last}");
     file.writeAsBytesSync(res.data);
     return file;
   }
@@ -85,7 +84,7 @@ class FileService {
         .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
       options.onSendProgress = (int i, int j) {
         behaviorSubject.add((i / j));
-        print((i/j));
+        print((i / j));
         filesUploadStatus[uploadKey] = behaviorSubject;
       };
       return options; //continue

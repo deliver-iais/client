@@ -56,51 +56,59 @@ class _ImageUiState extends State<ImageUi> {
           stream: pendingMessageDao.getByMessageId(widget.message.packetId),
           builder: (context, snapshot) {
             if (snapshot.data != null) {
-              return FutureBuilder<File>(
-                  future: fileRepo.getFileIfExist(image.uuid, image.name),
-                  builder: (contex, file) {
-                    if (file.hasData && file != null) {
-                      return Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Image.file(
-                            file.data,
-                            width: width,
-                            height: height,
-                            fit: BoxFit.fill,
-                          ),
-                          SendingFileCircularIndicator(
-                              loadProgress:
-                                  snapshot.data.status == SendingStatus.PENDING
-                                      ? 1
-                                      : 0.8,
-                              isMedia: true,
-                              file: image),
-                        ],
-                      );
-                    } else {
-                      String path = (jsonDecode(snapshot.data.details))['path'];
-                      return Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Image.file(
-                            File(path),
-                            width: width,
-                            height: height,
-                            fit: BoxFit.fill,
-                          ),
-                          SendingFileCircularIndicator(
-                            loadProgress:
-                                snapshot.data.status == SendingStatus.PENDING
+              String path = (jsonDecode(snapshot.data.details))['path'];
+              if (path != null) {
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Image.file(
+                      File(path),
+                      width: width,
+                      height: height,
+                      fit: BoxFit.fill,
+                    ),
+                    SendingFileCircularIndicator(
+                      loadProgress:
+                          snapshot.data.status == SendingStatus.PENDING
+                              ? 1
+                              : 0.8,
+                      isMedia: true,
+                      file: image,
+                    ),
+                  ],
+                );
+              } else {
+                return FutureBuilder<File>(
+                    future: fileRepo.getFileIfExist(image.uuid, image.name),
+                    builder: (contex, file) {
+                      if (file.hasData && file != null) {
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Image.file(
+                              file.data,
+                              width: width,
+                              height: height,
+                              fit: BoxFit.fill,
+                            ),
+                            SendingFileCircularIndicator(
+                                loadProgress: snapshot.data.status ==
+                                        SendingStatus.PENDING
                                     ? 1
                                     : 0.8,
-                            isMedia: true,
-                            file: image,
-                          ),
-                        ],
-                      );
-                    }
-                  });
+                                isMedia: true,
+                                file: image),
+                          ],
+                        );
+                      } else {
+                        return Container(
+                          width: width,
+                          height: height,
+                        );
+                      }
+                    });
+              }
+
               //pending
             } else {
               return FutureBuilder<File>(

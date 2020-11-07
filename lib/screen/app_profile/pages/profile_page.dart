@@ -390,16 +390,6 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         itemBuilder: (context, position) {
           return GestureDetector(
-            onTap: () {
-              // Navigator.push(context, MaterialPageRoute(builder: (_) {
-              //   return MediaDetailsPage(
-              //     mediaPosition: position,
-              //     heroTag: "btn$position",
-              //     mediasLength: medias.length,
-              //     isAvatar: false,
-              //   );
-              // }));
-            },
            child: Hero(
                 tag: "btn$position",
                 child: Container(

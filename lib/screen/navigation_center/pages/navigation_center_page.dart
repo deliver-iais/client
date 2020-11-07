@@ -151,7 +151,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   _searchMode
                       ? searchResult()
                       : Expanded(
-                          child: isDesktop()
+                          child: isDesktop() && !kDebugMode
                               ? (tab == NavigationTabs.Chats)
                                   ? ChatsPage(key: ValueKey("ChatsPage"))
                                   : ContactsPage(key: ValueKey("ContactsPage"))
@@ -396,9 +396,7 @@ Widget _contactResultWidget(
       Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          CircleAvatarWidget(
-              uid!=null?uid:Uid.getDefault(),
-              23),
+          CircleAvatarWidget(uid != null ? uid : Uid.getDefault(), 23),
           SizedBox(
             width: 20,
           ),
