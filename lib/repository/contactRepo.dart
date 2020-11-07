@@ -1,7 +1,6 @@
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart' as myContact;
-import 'package:deliver_flutter/repository/roomRepo.dart';
 
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:contacts_service/contacts_service.dart' as OsContact;
