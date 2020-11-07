@@ -6,6 +6,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:contacts_service/contacts_service.dart' as OsContact;
 import 'package:deliver_flutter/services/check_permissions_service.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -34,7 +35,6 @@ class ContactRepo {
 
   var _checkPermission = GetIt.I.get<CheckPermissionsService>();
 
-
   static ClientChannel clientChannel = ClientChannel(
       servicesDiscoveryRepo.contactServices.host,
       port: servicesDiscoveryRepo.contactServices.port,
@@ -42,7 +42,7 @@ class ContactRepo {
   var contactServices = ContactServiceClient(clientChannel);
 
   syncContacts() async {
-    if (await _checkPermission.checkContactPermission()) {
+    if (await _checkPermission.checkContactPermission() || isDesktop()) {
       List<Contact> contacts = new List();
 
       if (kDebugMode) {
@@ -90,26 +90,27 @@ class ContactRepo {
               isBlock: false));
         }
       }
+      if (!isDesktop()) {
+        Iterable<OsContact.Contact> phoneContacts =
+            await OsContact.ContactsService.getContacts();
 
-      Iterable<OsContact.Contact> phoneContacts =
-          await OsContact.ContactsService.getContacts();
+        for (OsContact.Contact phoneContact in phoneContacts) {
+          try {
+            String contactPhoneNumber = phoneContact.phones.first.value
+                .toString()
+                .replaceAll(' ', '')
+                .replaceAll('+', '')
+                .replaceAll('(', '')
+                .replaceAll(')', '')
+                .replaceAll('-', '');
 
-      for (OsContact.Contact phoneContact in phoneContacts) {
-        try {
-          String contactPhoneNumber = phoneContact.phones.first.value
-              .toString()
-              .replaceAll(' ', '')
-              .replaceAll('+', '')
-              .replaceAll('(', '')
-              .replaceAll(')', '')
-              .replaceAll('-', '');
-
-          Contact contact = Contact()
-            ..lastName = phoneContact.displayName
-            ..phoneNumber = _getPhoneNumber(contactPhoneNumber);
-          contacts.add(contact);
-        } catch (e) {
-          print("ContactRepo");
+            Contact contact = Contact()
+              ..lastName = phoneContact.displayName
+              ..phoneNumber = _getPhoneNumber(contactPhoneNumber);
+            contacts.add(contact);
+          } catch (e) {
+            print("ContactRepo");
+          }
         }
       }
       sendContacts(contacts);

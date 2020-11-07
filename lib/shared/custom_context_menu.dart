@@ -37,7 +37,7 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
       semanticLabel: semanticLabel,
       shape: shape,
       color: color,
-      captureInheritedThemes: captureInheritedThemes,
+     // captureInheritedThemes: captureInheritedThemes,
       useRootNavigator: useRootNavigator,
     );
   }
