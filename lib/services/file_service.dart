@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:fimber/fimber.dart';
 import 'package:get_it/get_it.dart';
@@ -22,7 +23,7 @@ class FileService {
   Map<String, BehaviorSubject<double>> filesDownloadStatus = Map();
 
   Future<String> get _localPath async {
-    if (await _checkPermission.checkStoragePermission()) {
+    if (await _checkPermission.checkStoragePermission() || isDesktop()) {
       final directory = await getApplicationDocumentsDirectory();
       if (!await Directory('${directory.path}/.thumbnails').exists())
         await Directory('${directory.path}/.thumbnails')
