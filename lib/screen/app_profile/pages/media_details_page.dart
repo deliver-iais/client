@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class MediaDetailsPage extends StatefulWidget {
   String heroTag;
@@ -74,18 +75,19 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     AppLocalization appLocalization = AppLocalization.of(context);
     return Scaffold(
       appBar: AppBar(leading: _routingService.backButtonLeading(), actions: [
-        PopupMenuButton(
-            icon: Icon(
-              Icons.more_vert,
-              color: Colors.white,
-              size: 20,
-            ),
-            itemBuilder: (cc) => [
-                  if (widget.hasPermissionToDeleteAvatar)
+        if (widget.hasPermissionToDeleteAvatar)
+          PopupMenuButton(
+              icon: Icon(
+                Icons.more_vert,
+                color: Colors.white,
+                size: 20,
+              ),
+              itemBuilder: (cc) => [
                     PopupMenuItem(
                         child: GestureDetector(
                       child: Text(appLocalization.getTraslateValue("delete")),
                       onTap: () async {
+                        Navigator.pop(context);
                         await _avatarRepo
                             .deleteAvatar(_allAvatars[swipePosition]);
                         setState(() {});
@@ -176,7 +178,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             if (media == null) {
               widget.heroTag = "btn$i";
               return FutureBuilder(
-                  future: _mediaQueryRepo.getMediaAround("p.asghari", i),
+                  future: _mediaQueryRepo.getMediaAround(widget.uid.string, i),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData || snapshot.data == null) {
                       return Center();

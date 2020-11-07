@@ -192,10 +192,22 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                             )),
                       ),
                     )
-                  : CircleAvatarWidget(
-                      widget.roomUid,
-                      110,
-                      showAsStreamOfAvatar: true,
+                  : GestureDetector(
+                      child: CircleAvatarWidget(
+                        widget.roomUid,
+                        110,
+                        showAsStreamOfAvatar: true,
+                      ),
+                      onTap: () async {
+                        var lastAvatar = await avatarRepo.getLastAvatar(
+                            widget.roomUid, false);
+                        if (lastAvatar.createdOn != null) {
+                          _routingServices.openShowAllAvatars(
+                              uid: widget.roomUid,
+                              hasPermissionToDeleteAvatar: _setAvatarPermission,
+                              heroTag: "avatar");
+                        }
+                      },
                     ),
               SizedBox(
                 height: 10,
