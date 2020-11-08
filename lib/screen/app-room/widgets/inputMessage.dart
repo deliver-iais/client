@@ -393,10 +393,10 @@ class _InputMessageWidget extends State<InputMessage> {
 
   _attachFileInWindowsMode() async {
     final result = await showOpenPanel(
-      allowsMultipleSelection: false,
+      allowsMultipleSelection: true,
     );
-    if (result.paths.isNotEmpty) {
-      _messageRepo.sendFileMessage(currentRoom.roomId.uid, [result.paths[0]]);
+    if (result.paths != null) {
+      messageRepo.sendFileMessage(currentRoom.roomId.uid, result.paths);
     }
   }
 }
