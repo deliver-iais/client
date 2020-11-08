@@ -25,52 +25,51 @@ class ChatItemToForward extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
       child: Container(
-          height: 50,
-          child: Expanded(
-            child: Row(
-              children: <Widget>[
-                SizedBox(
-                  width: 12,
-                ),
-                CircleAvatarWidget(this.uid , 30),
-               // ContactPic(true, uid),
-                SizedBox(
-                  width: 12,
-                ),
-                GestureDetector(
-                  child: FutureBuilder(
-                      future: _roomRepo.getRoomDisplayName(uid),
-                      builder: (BuildContext c, AsyncSnapshot<String> snaps) {
-                        if (snaps.hasData && snaps.data != null) {
-                          return Text(
-                            snaps.data,
-                            style: TextStyle(
-                              color: ExtraTheme.of(context).infoChat,
-                              fontSize: 18,
-                            ),
-                          );
-                        } else {
-                          return Text(
-                            "unKnown",
-                            style: TextStyle(
-                              color: ExtraTheme.of(context).infoChat,
-                              fontSize: 18,
-                            ),
-                          );
-                        }
-                      }),
-                  onTap: () {
-                    ExtendedNavigator.of(context).push(Routes.roomPage,
-                        arguments: RoomPageArguments(
-                            roomId: uid.getString(),
-                            forwardedMessages: forwardedMessages));
-                  },
-                ),
-
-                Spacer(),
-              ],
+        height: 50,
+        child: Row(
+          children: <Widget>[
+            SizedBox(
+              width: 12,
             ),
-          )),
+            CircleAvatarWidget(this.uid, 30),
+            // ContactPic(true, uid),
+            SizedBox(
+              width: 12,
+            ),
+            GestureDetector(
+              child: FutureBuilder(
+                  future: _roomRepo.getRoomDisplayName(uid),
+                  builder: (BuildContext c, AsyncSnapshot<String> snaps) {
+                    if (snaps.hasData && snaps.data != null) {
+                      return Text(
+                        snaps.data,
+                        style: TextStyle(
+                          color: ExtraTheme.of(context).infoChat,
+                          fontSize: 18,
+                        ),
+                      );
+                    } else {
+                      return Text(
+                        "unKnown",
+                        style: TextStyle(
+                          color: ExtraTheme.of(context).infoChat,
+                          fontSize: 18,
+                        ),
+                      );
+                    }
+                  }),
+              onTap: () {
+                ExtendedNavigator.of(context).push(Routes.roomPage,
+                    arguments: RoomPageArguments(
+                        roomId: uid.getString(),
+                        forwardedMessages: forwardedMessages));
+              },
+            ),
+
+            Spacer(),
+          ],
+        ),
+      ),
     );
   }
 }
