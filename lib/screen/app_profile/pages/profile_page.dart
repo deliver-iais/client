@@ -341,7 +341,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ];
                 },
                 body: FutureBuilder<List<Media>>(
-                  future: _mediaQueryRepo.getMediaQuery("p.asghari"),
+                  future: _mediaQueryRepo.getMediaQuery(widget.userUid.string),
                   builder: (BuildContext context,
                       AsyncSnapshot<List<Media>> snapshot) {
                     if (snapshot.hasData && snapshot.data.length != null) {
