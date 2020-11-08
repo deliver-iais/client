@@ -30,8 +30,8 @@ class ContactPic extends StatelessWidget {
               ),
             ),
           ),
-          top: 30.0,
-          right: 5.0,
+          top: 32.0,
+          right: 4.0,
         ),
       ],
     );
