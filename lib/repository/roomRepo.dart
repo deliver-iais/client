@@ -24,7 +24,7 @@ class RoomRepo {
     switch (uid.category) {
       case Categories.USER:
         String name = await _roomNameCache.get(uid.string);
-        if (name != null) {
+        if (name != null && !name.contains("null")) {
           return name;
         } else {
           var contact = await _contactDao.getContactByUid(uid.string);
