@@ -26,6 +26,7 @@ import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key}) : super(key: key);
@@ -83,7 +84,6 @@ class _SettingsPageState extends State<SettingsPage> {
       setState(() {
         _uploadNewAvatar = false;
       });
-
     }
   }
 
@@ -119,7 +119,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 MaterialButton(
                   color: Theme.of(context).buttonColor,
-                  onPressed: () {},
+                  onPressed: () {
+                    _routingService
+                        .openRoom(_accountRepo.currentUserUid.string);
+                  },
                   shape: CircleBorder(),
                   child: Icon(Icons.bookmark),
                   padding: const EdgeInsets.all(20),
@@ -161,7 +164,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                     ),
                     IconButton(
-                        icon: Icon(Icons.navigate_next), onPressed: () {}),
+                        icon: Icon(Icons.navigate_next), onPressed: () {
+                      _routingService.openAccountSettings();
+                    }),
                   ],
                 )),
             settingsRow(
