@@ -91,9 +91,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _waitingForForwardedMessage = false;
         } else if (opr == OperationOnMessage.FORWARD) {
           _replyedMessage = null;
-          ExtendedNavigator.root.push(Routes.selectionToForwardPage,
-              arguments: SelectionToForwardPageArguments(
-                  forwardedMessages: List<Message>.filled(1, message)));
+          _routingService.openSelectForwardMessage([message]);
         }
       });
     });
@@ -491,9 +489,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     size: 30,
                   ),
                   onPressed: () {
-                    ExtendedNavigator.root.push(Routes.selectionToForwardPage,
-                        arguments: SelectionToForwardPageArguments(
-                            forwardedMessages: _selectedMessages.values.toList()));
+                    _routingService.openSelectForwardMessage(_selectedMessages.values.toList());
                     _selectedMessages.clear();
                   })
             ],

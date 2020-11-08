@@ -59,10 +59,11 @@ class ChatItemToForward extends StatelessWidget {
                     }
                   }),
               onTap: () {
-                ExtendedNavigator.of(context).push(Routes.roomPage,
-                    arguments: RoomPageArguments(
-                        roomId: uid.getString(),
-                        forwardedMessages: forwardedMessages));
+                _routingService.openRoom(uid.string,forwardedMessages: forwardedMessages);
+//                ExtendedNavigator.of(context).push(Routes.roomPage,
+//                    arguments: RoomPageArguments(
+//                        roomId: uid.getString(),
+//                        forwardedMessages: forwardedMessages));
               },
             ),
 

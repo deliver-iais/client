@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/app-contacts/widgets/new_Contact.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
 import 'package:deliver_flutter/screen/app_group/pages/group_info_determination_page.dart';
 import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dart';
@@ -151,6 +152,17 @@ class RoutingService {
   void openCreateNewContactPage() {
     var widget = NewContact(
       key: ValueKey("/new-contact"),
+    );
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/new-contact"));
+  }
+  void  openSelectForwardMessage(List<Message> forwardedMessages) {
+    var widget = SelectionToForwardPage(
+      key: ValueKey("/selection-to-forward-page"),
+      forwardedMessages: forwardedMessages,
     );
     _push(Page(
         largePageNavigator: _navigationCenter,
