@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:flutter_audio_desktop/flutter_audio_desktop.dart'
-    as desktopAudioPlayer;
 import 'package:open_file/open_file.dart';
 import 'package:rxdart/rxdart.dart';
 
