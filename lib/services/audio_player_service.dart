@@ -2,6 +2,10 @@ import 'dart:async';
 
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:deliver_flutter/theme/constants.dart';
+import 'package:flutter_audio_desktop/flutter_audio_desktop.dart'
+    as desktopAudioPlayer;
+import 'package:open_file/open_file.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AudioPlayerService {
@@ -80,15 +84,19 @@ class AudioPlayerService {
   }
 
   void onPlay(String path, String uuid, String name) {
-    CURRENT_AUDIO_ID = uuid;
-    _audioPlayerStateController.keys.forEach((element) {
-      _audioPlayerStateController[element].add(AudioPlayerState.STOPPED);
-    });
-    setAudioDetails("Description", path, name, uuid);
-    isPlaying = true;
-    _audioPlayerController.add(true);
-    _audioPlayerStateController[uuid].add(AudioPlayerState.PLAYING);
-    this.audioPlayer.play(path, isLocal: true);
+    if (isDesktop()) {
+      OpenFile.open(path);
+    } else {
+      CURRENT_AUDIO_ID = uuid;
+      _audioPlayerStateController.keys.forEach((element) {
+        _audioPlayerStateController[element].add(AudioPlayerState.STOPPED);
+      });
+      setAudioDetails("Description", path, name, uuid);
+      isPlaying = true;
+      _audioPlayerController.add(true);
+      _audioPlayerStateController[uuid].add(AudioPlayerState.PLAYING);
+      this.audioPlayer.play(path, isLocal: true);
+    }
   }
 
   onPause(String audioId) {

@@ -71,7 +71,7 @@ class FileService {
 
   Future<File> _getFileThumbnail(
       String uuid, String filename, ThumbnailSize size) async {
-    var res = await _dio.get("/${enumToString(size)}/$uuid/$filename",
+    var res = await _dio.get("/${enumToString(size)}/$uuid/.${filename.split('.').last}",
         options: Options(responseType: ResponseType.bytes));
     final file = await _localThumbnailFile("${enumToString(size)}-$uuid.${filename.split('.').last}");
     file.writeAsBytesSync(res.data);

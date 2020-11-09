@@ -11,11 +11,13 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/circular_file_sta
 import 'package:deliver_flutter/screen/app-room/messageWidgets/image_message/filtered_image.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/sending_file_circular_indicator.dart';
 import 'package:deliver_flutter/services/file_service.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:open_file/open_file.dart';
 
 class ImageUi extends StatefulWidget {
   final Message message;
@@ -42,7 +44,6 @@ class _ImageUiState extends State<ImageUi> {
   Widget build(BuildContext context) {
     image = widget.message.json.toFile();
     var fileRepo = GetIt.I.get<FileRepo>();
-    var accountRepo = GetIt.I.get<AccountRepo>();
     PendingMessageDao pendingMessageDao = GetIt.I.get<PendingMessageDao>();
 
     width = image.width.toDouble();
@@ -84,11 +85,16 @@ class _ImageUiState extends State<ImageUi> {
                       return Stack(
                         alignment: Alignment.center,
                         children: [
-                          Image.file(
-                            file.data,
-                            width: width,
-                            height: height,
-                            fit: BoxFit.fill,
+                          GestureDetector(
+                            onTap: () {
+                              OpenFile.open(file.data.path);
+                            },
+                            child: Image.file(
+                              file.data,
+                              width: width,
+                              height: height,
+                              fit: BoxFit.fill,
+                            ),
                           ),
                           SendingFileCircularIndicator(
                               loadProgress: pendingMessage.data.status ==
@@ -116,35 +122,60 @@ class _ImageUiState extends State<ImageUi> {
                     return Stack(
                       alignment: Alignment.center,
                       children: [
-                        Image.file(
-                          File(file.data.path),
-                          width: width,
-                          height: height,
-                          fit: BoxFit.fill,
+                        GestureDetector(
+                          onTap: () {
+                            OpenFile.open(file.data.path);
+                          },
+                          child: Image.file(
+                            file.data,
+                            width: width,
+                            height: height,
+                            fit: BoxFit.fill,
+                          ),
                         ),
                       ],
                     );
                   } else {
-                    return FutureBuilder<File>(
-                      future: fileRepo.getFile(image.uuid, image.name,
-                          thumbnailSize: ThumbnailSize.medium),
-                      builder: (context, file) {
-                        if (file.hasData) {
-                          return FilteredImage(
-                              uuid: image.uuid,
-                              name: image.name,
-                              path: '',
-                              sended: true,
-                              width: width,
-                              height: height,
+                    if (isDesktop()) {
+                      return GestureDetector(
+                        onTap: () async {
+                          await fileRepo.getFile(image.uuid, image.name);
+                          setState(() {});
+                        },
+                        child: Container(
+                            width: width,
+                            height: height,
+                            child: IconButton(
+                              icon: Icon(Icons.arrow_downward),
                               onPressed: () async {
                                 await fileRepo.getFile(image.uuid, image.name);
                                 setState(() {});
-                              });
-                        } else
-                          return CircularProgressIndicator();
-                      },
-                    );
+                              },
+                            )),
+                      );
+                    } else {
+                      return FutureBuilder<File>(
+                        future: fileRepo.getFile(image.uuid, image.name,
+                            thumbnailSize: ThumbnailSize.medium),
+                        builder: (context, file) {
+                          if (file.hasData) {
+                            return FilteredImage(
+                                uuid: image.uuid,
+                                name: image.name,
+                                path: '',
+                                sended: true,
+                                width: width,
+                                height: height,
+                                onPressed: () async {
+                                  await fileRepo.getFile(
+                                      image.uuid, image.name);
+                                  setState(() {});
+                                });
+                          } else
+                            return CircularProgressIndicator();
+                        },
+                      );
+                    }
                   }
                 });
           }

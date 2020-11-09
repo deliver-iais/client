@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   file_chooser
+  flutter_audio_desktop
   path_provider_fde
   window_size
 )
