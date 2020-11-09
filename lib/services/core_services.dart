@@ -163,6 +163,7 @@ class CoreServices {
     _clientPacket.add(ClientPacket()
       ..message = message
       ..id = message.packetId);
+    _notificationService.showTextNotification(1, "tttt","ttt", message.text.text);
     print("message is send ");
   }
 
