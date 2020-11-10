@@ -201,13 +201,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                         onTapDown: storePosition,
                                         child: SingleChildScrollView(
                                           child: Container(
-                                            color: _selectedMessages.containsKey(
-                                                    currentRoomMessages[index]
-                                                        .packetId)
-                                                ? Theme.of(context)
-                                                    .disabledColor
-                                                : Theme.of(context)
-                                                    .backgroundColor,
+                                            color:
+                                                _selectedMessages.containsKey(
+                                                        currentRoomMessages[
+                                                                index]
+                                                            .packetId)
+                                                    ? Theme.of(context)
+                                                        .disabledColor
+                                                    : Theme.of(context)
+                                                        .backgroundColor,
                                             child: Stack(
                                               alignment: AlignmentDirectional
                                                   .bottomStart,
@@ -285,20 +287,31 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.end,
                                             children: <Widget>[
-                                              _isMuc
+                                              currentRoomMessages[index]
+                                                          .roomId
+                                                          .uid
+                                                          .category ==
+                                                      Categories.GROUP
                                                   ? Padding(
                                                       padding:
                                                           const EdgeInsets.only(
                                                               bottom: 8.0,
                                                               left: 5.0,
                                                               right: 3.0),
-                                                      child: CircleAvatarWidget(
-                                                          currentRoomMessages[
-                                                                  index]
-                                                              .from
-                                                              .uid,
-                                                          18),
-                                                    )
+                                                      child: GestureDetector(
+                                                        child: CircleAvatarWidget(
+                                                            currentRoomMessages[
+                                                                    index]
+                                                                .from
+                                                                .uid,
+                                                            18),
+                                                        onTap: () {
+                                                          _routingService.openRoom(
+                                                              currentRoomMessages[
+                                                                      index]
+                                                                  .from);
+                                                        },
+                                                      ))
                                                   : Container(),
                                               if (_selectMultiMessage)
                                                 selectMultiMessage(
@@ -396,8 +409,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   _addForwardMessage(Message message) {
     setState(() {
-
-
       _selectedMessages.containsKey(message.packetId)
           ? _selectedMessages.remove(message.packetId)
           : _selectedMessages[message.packetId] = message;
@@ -478,8 +489,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     Icons.delete,
                     size: 30,
                   ),
-                  onPressed:(){
-                    _messageRepo.deleteMessage(_selectedMessages.values.toList());
+                  onPressed: () {
+                    _messageRepo
+                        .deleteMessage(_selectedMessages.values.toList());
                   }),
               IconButton(
                   icon: Icon(
@@ -487,7 +499,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     size: 30,
                   ),
                   onPressed: () {
-                    _routingService.openSelectForwardMessage(_selectedMessages.values.toList());
+                    _routingService.openSelectForwardMessage(
+                        _selectedMessages.values.toList());
                     _selectedMessages.clear();
                   })
             ],
@@ -507,4 +520,3 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     }
   }
 }
-
