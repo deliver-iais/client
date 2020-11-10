@@ -5,10 +5,10 @@ import '../database.dart';
 part 'GroupDao.g.dart';
 
 @UseDao(tables: [Mucs])
-class GroupDao extends DatabaseAccessor<Database> with _$GroupDaoMixin {
+class MucDao extends DatabaseAccessor<Database> with _$GroupDaoMixin {
   final Database database;
 
-  GroupDao(this.database) : super(database);
+  MucDao(this.database) : super(database);
 
   Stream watchAllmucs() => select(mucs).watch();
 

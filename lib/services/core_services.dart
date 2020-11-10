@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:deliver_flutter/db/dao/GroupDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
@@ -9,6 +10,7 @@ import 'package:deliver_flutter/db/database.dart' as M;
 
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
@@ -56,6 +58,7 @@ class CoreServices {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _notificationService = GetIt.I.get<NotificationServices>();
+  var _mucRepo = GetIt.I.get<MucRepo>();
 
   initStreamConnection() async {
     _startStream();
@@ -161,10 +164,14 @@ class CoreServices {
           ? message.to.string
           : message.to.category == Categories.USER? message.from.string:message.to.string, lastMessage: message.packetId),
     );
+    if(message.to.category != Categories.USER) {
+      _mucRepo.saveMucInfo(message.to);
+    }
     if (!message.from.node.contains(_accountRepo.currentUserUid.node)) {
       _notificationService.showTextNotification(
           message.id.toInt(), message.from.string, "ffff", message.text.text);
     }
+
   }
 
   sendMessage(MessageByClient message) {

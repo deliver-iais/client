@@ -15,7 +15,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 class RoomRepo {
   Cache _roomNameCache =
       LruCache<String, String>(storage: SimpleStorage(size: 40));
-  var _mucDao = GetIt.I.get<GroupDao>();
+  var _mucDao = GetIt.I.get<MucDao>();
   var _contactDao = GetIt.I.get<ContactDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();

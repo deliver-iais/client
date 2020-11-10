@@ -20,14 +20,13 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class MucRepo {
-  GroupDao _mucDao = GetIt.I.get<GroupDao>();
+  MucDao _mucDao = GetIt.I.get<MucDao>();
   MemberDao _memberDao = GetIt.I.get<MemberDao>();
   AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
   RoomDao _roomDao = GetIt.I.get<RoomDao>();
   var mucServices = GetIt.I.get<MucServices>();
   var accountRepo = GetIt.I.get<AccountRepo>();
   var messageDao = GetIt.I.get<MessageDao>();
-  var roomRepo = GetIt.I.get<RoomRepo>();
 
   Future<Uid> makeNewGroup(List<Uid> memberUids, String groupName) async {
     Uid groupUid = await mucServices.createNewGroup(groupName);
@@ -74,6 +73,24 @@ class MucRepo {
           role: getLocalRole(member.role)));
     }
     insertUserInDb(channelUid, members);
+  }
+
+  saveMucInfo(Uid mucUid) async {
+    if (null == await _mucDao.getByUid(mucUid.string)) {
+      if (mucUid.category == Categories.GROUP) {
+        MucPro.Group group = await getGroupInfo(mucUid);
+        _mucDao.insertMuc(Muc(
+            name: group.name,
+            uid: mucUid.string,
+            members: group.population.toInt()));
+      } else {
+        Channel channel = await getChannelInfo(mucUid);
+        _mucDao.insertMuc(Muc(
+            name: channel.name,
+            uid: mucUid.string,
+            members: channel.population.toInt()));
+      }
+    }
   }
 
   Future<bool> removeGroup(Uid groupUid) async {
@@ -249,7 +266,6 @@ class MucRepo {
   _insetToDb(Uid mucUid, String mucName, int memberCount) async {
     await _mucDao.insertMuc(
         Muc(uid: mucUid.string, name: mucName, members: memberCount));
-    roomRepo.updateRoomName(mucUid, mucName);
     Room room = Room(roomId: mucUid.string, lastMessage: null, mute: false);
     await _roomDao.insertRoom(room);
     sendFirstMessage(mucUid, room);

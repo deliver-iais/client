@@ -17,7 +17,7 @@ class MucAppbarTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    GroupDao groupDao = GetIt.I.get<GroupDao>();
+    MucDao groupDao = GetIt.I.get<MucDao>();
     AppLocalization appLocalization = AppLocalization.of(context);
     return Container(
         color: Theme

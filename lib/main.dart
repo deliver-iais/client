@@ -62,7 +62,7 @@ void setupDB() {
   getIt.registerSingleton<PendingMessageDao>(db.pendingMessageDao);
   getIt.registerSingleton<LastAvatarDao>(db.lastAvatarDao);
   getIt.registerSingleton<SharedPreferencesDao>(db.sharedPreferencesDao);
-  getIt.registerSingleton<GroupDao>(db.groupDao);
+  getIt.registerSingleton<MucDao>(db.groupDao);
   getIt.registerSingleton<MemberDao>(db.memberDao);
 }
 
@@ -78,12 +78,13 @@ void setupRepositories() {
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<NotificationServices>(NotificationServices());
+  getIt.registerSingleton<MucServices>(MucServices());
+  getIt.registerSingleton<MucRepo>(MucRepo());
   getIt.registerSingleton<CoreServices>(CoreServices());
   getIt.registerSingleton<MessageRepo>(MessageRepo());
-  getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<ContactRepo>(ContactRepo());
   getIt.registerSingleton<RoomRepo>(RoomRepo());
-  getIt.registerSingleton<MucRepo>(MucRepo());
+
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
   getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());
 
@@ -94,7 +95,6 @@ void setupRepositories() {
   getIt.registerSingleton<CreateMucService>(CreateMucService());
   getIt.registerSingleton<RoutingService>(RoutingService());
 }
-
 
 setupFlutterNotification() async {
   await Firebase.initializeApp();

@@ -60,7 +60,7 @@ part 'database.g.dart';
   MediaDao,
   SharedPreferencesDao,
   MemberDao,
-  GroupDao,
+  MucDao,
 ])
 class Database extends _$Database {
   Database()

@@ -4217,8 +4217,8 @@ abstract class _$Database extends GeneratedDatabase {
       _sharedPreferencesDao ??= SharedPreferencesDao(this as Database);
   MemberDao _memberDao;
   MemberDao get memberDao => _memberDao ??= MemberDao(this as Database);
-  GroupDao _groupDao;
-  GroupDao get groupDao => _groupDao ??= GroupDao(this as Database);
+  MucDao _groupDao;
+  MucDao get groupDao => _groupDao ??= MucDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
