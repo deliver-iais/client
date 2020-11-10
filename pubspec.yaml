@@ -102,6 +102,8 @@ dependencies:
   mockito: 4.1.1 # Great Library for Mocking in Tests
   test:
 
+  overlay_support: 1.0.5
+
   receive_sharing_intent: 1.4.1
 
   flutter_icons: 1.1.0

@@ -16,10 +16,12 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+
 import 'package:get_it/get_it.dart';
 
 import 'package:grpc/grpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+
 import 'package:rxdart/rxdart.dart';
 
 enum ConnectionStatus { Connected, Disconnected }
@@ -37,7 +39,6 @@ class CoreServices {
   var _grpcCoreService = CoreServiceClient(_clientChannel);
   var _clientPacket = StreamController<ClientPacket>();
   ResponseStream<ServerPacket> _responseStream;
-  StreamSubscription<ServerPacket> _listenner;
 
   int _backoffTime = MIN_BACKOFF_TIME;
 
@@ -61,9 +62,7 @@ class CoreServices {
 
     _startCheckerTimer();
 
-    _connectionStatus
-        .distinct()
-        .listen((event) => connectionStatus.add(event));
+    _connectionStatus.distinct().listen((event) => connectionStatus.add(event));
   }
 
   _startCheckerTimer() {
@@ -91,11 +90,18 @@ class CoreServices {
 
   _startStream() async {
     try {
-      _responseStream = _grpcCoreService.establishStream(_clientPacket.stream.asBroadcastStream(),
+      _clientPacket.close();
+      _responseStream.cancel();
+    } catch (e) {}
+
+    try {
+      _clientPacket = StreamController<ClientPacket>();
+      _responseStream = _grpcCoreService.establishStream(
+          _clientPacket.stream.asBroadcastStream(),
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
 
-      _listenner = _responseStream.listen((serverPacket) {
+      _responseStream.listen((serverPacket) {
         print(serverPacket.toString());
         gotResponse();
         switch (serverPacket.whichType()) {
@@ -130,7 +136,7 @@ class CoreServices {
         id: message.id.toInt(),
         roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
             ? message.to.string
-            : message.from.string,
+            : message.to.category == Categories.USER? message.from.string:message.to.string,
         packetId: message.packetId,
         time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
         to: message.to.string,
@@ -151,7 +157,9 @@ class CoreServices {
     _pendingMessageDao
         .deletePendingMessage(M.PendingMessage(messageId: message.packetId));
     _roomDao.insertRoom(
-      M.Room(roomId: message.from.string, lastMessage: message.packetId),
+      M.Room(roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
+          ? message.to.string
+          : message.to.category == Categories.USER? message.from.string:message.to.string, lastMessage: message.packetId),
     );
     if (!message.from.node.contains(_accountRepo.currentUserUid.node)) {
       _notificationService.showTextNotification(
@@ -163,7 +171,7 @@ class CoreServices {
     _clientPacket.add(ClientPacket()
       ..message = message
       ..id = message.packetId);
-    _notificationService.showTextNotification(1, "tttt","ttt", message.text.text);
+
     print("message is send ");
   }
 
