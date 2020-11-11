@@ -26,7 +26,6 @@ import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
-import 'package:deliver_flutter/services/mode_checker.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
@@ -75,7 +74,6 @@ void setupRepositories() {
   getIt.registerSingleton<AccountRepo>(AccountRepo());
   getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
-  getIt.registerSingleton<ModeChecker>(ModeChecker());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
