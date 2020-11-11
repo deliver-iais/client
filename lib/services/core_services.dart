@@ -93,10 +93,10 @@ class CoreServices {
   }
 
   _startStream() async {
-    try {
-      await _clientPacket.close();
-      await _responseStream.cancel();
-    } catch (e) {}
+    // try {
+    //   await _clientPacket.close();
+    //   await _responseStream.cancel();
+    // } catch (e) {}
 
     try {
       _clientPacket = StreamController<ClientPacket>();
@@ -165,11 +165,12 @@ class CoreServices {
         type: getMessageType(message.whichType())));
     _roomDao.insertRoom(
       M.Room(
-          roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
-              ? message.to.string
-              : message.to.category == Categories.USER
-                  ? message.from.string
-                  : message.to.string,),
+        roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
+            ? message.to.string
+            : message.to.category == Categories.USER
+                ? message.from.string
+                : message.to.string,
+      ),
     );
     if (message.to.category != Categories.USER) {
       _mucRepo.saveMucInfo(message.to);
@@ -281,9 +282,10 @@ class CoreServices {
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) {
 //    _pendingMessageDao.deletePendingMessage(
 //        M.PendingMessage(messagePacketId: messageDeliveryAck.packetId));
-    _messageDao.insertMessage(M.Message(
-        packetId: messageDeliveryAck.packetId,
-        time: DateTime.fromMillisecondsSinceEpoch(
-            messageDeliveryAck.time.toInt())));
+    _messageDao.updateMessageId(
+        messageDeliveryAck.to.getString(),
+        messageDeliveryAck.packetId,
+        messageDeliveryAck.id.toInt(),
+        messageDeliveryAck.time.toInt());
   }
 }
