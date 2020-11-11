@@ -90,9 +90,9 @@ class MessageRepo {
                 }));
             lastMessageDbId =
                 await _saveFetchMessages(fetchMessagesRes.messages);
-            //TODO update last message db id
-            await _roomDao.updateRoom(room.copyWith(
-                lastMessageId: fetchMessagesRes.messages.last.id.toInt()));
+            // //TODO update last message db id
+            // await _roomDao.updateRoom(room.copyWith(
+            //     lastMessageId: fetchMessagesRes.messages.last.id.toInt()));
           } catch (e) {
             print(e);
           }
@@ -131,18 +131,18 @@ class MessageRepo {
     await _savePendingMessage(dbId, roomId.string, SendingStatus.PENDING,
         MAX_REMAINING_RETRIES, message);
     await _sendTextMessage(message);
-    await Future.delayed(Duration(seconds: 20)).whenComplete(() async {
-      //TODO
-      await _messageDao.updateMessage(
-          message.copyWith(dbId: dbId, id: id, time: DateTime.now()));
-      await _updateRoomLastMessage(roomId.string, dbId, id: id);
-
-      await _lastSeenDao.updateLastSeen(message.roomId, id);
-
-      await _pendingMessageDao.deletePendingMessage(dbId);
-
-      id++;
-    });
+    // await Future.delayed(Duration(seconds: 20)).whenComplete(() async {
+    //   //TODO
+    //   await _messageDao.updateMessage(
+    //       message.copyWith(dbId: dbId, id: id, time: DateTime.now()));
+    //   await _updateRoomLastMessage(roomId.string, dbId, id: id);
+    //
+    //   await _lastSeenDao.updateLastSeen(message.roomId, id);
+    //
+    //   await _pendingMessageDao.deletePendingMessage(dbId);
+    //
+    //   id++;
+    // });
   }
 
   String findType(String path) {
@@ -208,13 +208,13 @@ class MessageRepo {
       await _sendFileMessage(messageList[i], filesPath[i], fileInfo: fileInfo);
       await Future.delayed(Duration(seconds: 10));
 
-      //TODO
-      await _messageDao.updateMessage(messageList[i]
-          .copyWith(dbId: dbIdList[i], id: id, time: DateTime.now()));
-      await _updateRoomLastMessage(roomId.string, dbIdList[i], id: id);
-      await _lastSeenDao.updateLastSeen(messageList[i].roomId, id);
-      await _pendingMessageDao.deletePendingMessage(dbIdList[i]);
-      id++;
+      // //TODO
+      // await _messageDao.updateMessage(messageList[i]
+      //     .copyWith(dbId: dbIdList[i], id: id, time: DateTime.now()));
+      // await _updateRoomLastMessage(roomId.string, dbIdList[i], id: id);
+      // await _lastSeenDao.updateLastSeen(messageList[i].roomId, id);
+      // await _pendingMessageDao.deletePendingMessage(dbIdList[i]);
+      // id++;
     }
   }
 
