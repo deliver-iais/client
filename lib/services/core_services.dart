@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
@@ -18,7 +17,6 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
 
@@ -280,8 +278,7 @@ class CoreServices {
   }
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) {
-//    _pendingMessageDao.deletePendingMessage(
-//        M.PendingMessage(messagePacketId: messageDeliveryAck.packetId));
+    _pendingMessageDao.deletePendingMessage(messageDeliveryAck.packetId);
     _messageDao.updateMessageId(
         messageDeliveryAck.to.getString(),
         messageDeliveryAck.packetId,

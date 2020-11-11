@@ -18,9 +18,9 @@ class PendingMessageDao extends DatabaseAccessor<Database>
   Future<int> insertPendingMessage(PendingMessage newPendingMessage) =>
       into(pendingMessages).insertOnConflictUpdate(newPendingMessage);
 
-  Future deletePendingMessage(int dbId) async {
+  Future deletePendingMessage(String packetId) async {
     var q = await (select(pendingMessages)
-          ..where((pm) => pm.messageDbId.equals(dbId)))
+          ..where((pm) => pm.messagePacketId.equals(packetId)))
         .getSingle();
     delete(pendingMessages).delete(q);
   }

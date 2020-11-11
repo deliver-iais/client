@@ -17,14 +17,12 @@ import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as clientMessage;
-import 'package:deliver_flutter/services/mode_checker.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as messagePb;
 import 'package:deliver_public_protocol/pub/v1/models/user_room_meta.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-import 'package:emojis/emojis.dart';
 import 'package:fimber/fimber.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
@@ -32,8 +30,10 @@ import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 import 'package:fixnum/fixnum.dart';
-import 'package:random_string/random_string.dart';
 import 'package:grpc/grpc.dart';
+import 'package:rxdart/rxdart.dart';
+
+enum TitleStatusConditions { Disconnected, Updating, Normal }
 
 class MessageRepo {
   MessageDao _messageDao = GetIt.I.get<MessageDao>();
@@ -43,7 +43,8 @@ class MessageRepo {
   AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
   FileRepo _fileRepo = GetIt.I.get<FileRepo>();
   CoreServices _coreServices = GetIt.I.get<CoreServices>();
-  ModeChecker modeChecker = GetIt.I.get<ModeChecker>();
+  BehaviorSubject<TitleStatusConditions> updatingStatus =
+      BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
 
   static int id = 0;
 
@@ -56,8 +57,11 @@ class MessageRepo {
   QueryServiceClient _queryServiceClient = QueryServiceClient(_clientChannel);
 
   MessageRepo() {
-    modeChecker.appMode.listen((mode) {
-      if (mode == AppMode.STABLE) {
+    _coreServices.connectionStatus.listen((mode) {
+      if (mode == ConnectionStatus.Disconnected) {
+        updatingStatus.add(TitleStatusConditions.Disconnected);
+      }
+      if (mode == ConnectionStatus.Connected) {
         updating();
       }
     });
@@ -65,7 +69,7 @@ class MessageRepo {
   }
 
   updating() async {
-    modeChecker.updating.add(true);
+    updatingStatus.add(TitleStatusConditions.Updating);
     int lastMessageDbId;
     try {
       var getAllUserRoomMetaRes = await _queryServiceClient.getAllUserRoomMeta(
@@ -103,7 +107,7 @@ class MessageRepo {
     } catch (e) {
       print(e);
     }
-    modeChecker.updating.add(false);
+    updatingStatus.add(TitleStatusConditions.Normal);
   }
 
   reconnecting() {}
@@ -232,14 +236,18 @@ class MessageRepo {
         if (pendingMessage.remainingRetries > 0) {
           switch (pendingMessage.status) {
             case SendingStatus.SENDING_FILE:
-              _messageDao.getByDbId(pendingMessage.messageDbId).listen((message) {
-              //  _sendFileMessage(message, jsonDecode(message.json)["path"]);
+              _messageDao
+                  .getByDbId(pendingMessage.messageDbId)
+                  .listen((message) {
+                //  _sendFileMessage(message, jsonDecode(message.json)["path"]);
               });
               _updatePendingMessage(pendingMessage);
 
               break;
             case SendingStatus.PENDING:
-              _messageDao.getByDbId(pendingMessage.messageDbId).listen((message) {
+              _messageDao
+                  .getByDbId(pendingMessage.messageDbId)
+                  .listen((message) {
                 _sendTextMessage(message);
               });
               _updatePendingMessage(pendingMessage);
@@ -338,7 +346,7 @@ class MessageRepo {
     await _coreServices.sendMessage(messageByClient);
   }
 
-  _sendFileMessage(Message message,  {FileInfo fileInfo}) async {
+  _sendFileMessage(Message message, {FileInfo fileInfo}) async {
     File file = File()
       ..name = fileInfo.name
       ..uuid = fileInfo.uuid
