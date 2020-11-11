@@ -1,6 +1,8 @@
 import 'package:moor/moor.dart';
+import 'package:rxdart/streams.dart';
 import '../Messages.dart';
 import '../database.dart';
+import 'dart:async';
 
 part 'MessageDao.g.dart';
 
@@ -20,10 +22,10 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
   Future updateMessage(Message updatedMessage) =>
       update(messages).replace(updatedMessage);
 
-  Stream<List<Message>> getByRoomId(String roomId) {
+  Stream<List<Message>> getByRoomId(String roomId, int lastShowedMessageId) {
     return (select(messages)
           ..orderBy([
-            (m) => OrderingTerm(expression: m.time, mode: OrderingMode.desc)
+            (m) => OrderingTerm(expression: m.time, mode: OrderingMode.desc),
           ])
           ..where((message) => message.roomId.equals(roomId)))
         .watch();
@@ -35,9 +37,20 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
         .watchSingle();
   }
 
-  Stream<Message> getByDBId(String dbId) {
-    return (select(messages)..where((m) => m.packetId.equals(dbId)))
-        .watchSingle();
+  Future<List<Message>> getPage(String roomId, int page, {int pageSize = 50}) async {
+    return await (select(messages)
+          ..where((m) =>
+              m.roomId.equals(roomId) &
+              m.id.isBetweenValues(page * pageSize, (page + 1) * pageSize)))
+        .get();
+  }
+
+  Stream<Message> getByDbId(int dbId) {
+    return (select(messages)..where((m) => m.dbId.equals(dbId))).watchSingle();
+  }
+
+  Future<Message> getPendingMessage(int dbId) {
+    return (select(messages)..where((m) => m.dbId.equals(dbId))).getSingle();
   }
 
   Stream getMessagesInCurrentWeek() {

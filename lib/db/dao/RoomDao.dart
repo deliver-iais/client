@@ -13,7 +13,7 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
 
   RoomDao(this.db) : super(db);
 
-  Future<List<Room>> gerAllRooms() => select(rooms).get();
+  Future<List<Room>> getAllRooms() => select(rooms).get();
 
   Future insertRoom(Room newRoom) {
     return into(rooms).insertOnConflictUpdate(newRoom);
@@ -23,13 +23,24 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
 
   Future updateRoom(Room updatedRoom) => update(rooms).replace(updatedRoom);
 
+  updateRoomLastMessage(String roomId, int newDbId, {int newMessageId}) async {
+    var room = await (select(rooms)..where((c) => c.roomId.equals(roomId)))
+        .getSingle();
+    if (newMessageId != null)
+      await updateRoom(
+          room.copyWith(lastMessageDbId: newDbId, lastMessageId: newMessageId));
+    else
+      await updateRoom(room.copyWith(lastMessageDbId: newDbId));
+  }
+
 //TODO need to edit
-  Stream<List<RoomWithMessage>> getByContactId() {
+  Stream<List<RoomWithMessage>> getAllRoomsWithMessage() {
     return (select(rooms).join([
       leftOuterJoin(
-          messages,
-          messages.packetId.equalsExp(rooms.lastMessage) &
-              messages.roomId.equalsExp(rooms.roomId)),
+        messages,
+        messages.roomId.equalsExp(rooms.roomId) &
+            messages.dbId.equalsExp(rooms.lastMessageDbId),
+      )
     ])
           ..orderBy([OrderingTerm.desc(messages.time)]))
         .watch()

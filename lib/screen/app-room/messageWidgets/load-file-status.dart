@@ -17,7 +17,7 @@ import 'audio_message/play_audio_status.dart';
 
 class LoadFileStatus extends StatefulWidget {
   final File file;
-  final String dbId;
+  final int dbId;
   final Function onPressed;
 
   const LoadFileStatus({Key key, this.file, this.dbId, this.onPressed})
@@ -35,7 +35,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<PendingMessage>(
-        stream: pendingMessageDao.getByMessageId(widget.dbId),
+        stream: pendingMessageDao.getByMessageDbId(widget.dbId),
         builder: (context, pendingMessage) {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.end,

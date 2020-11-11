@@ -2,10 +2,10 @@ import 'package:moor/moor.dart';
 import '../Mucs.dart';
 import '../database.dart';
 
-part 'GroupDao.g.dart';
+part 'MucDao.g.dart';
 
 @UseDao(tables: [Mucs])
-class MucDao extends DatabaseAccessor<Database> with _$GroupDaoMixin {
+class MucDao extends DatabaseAccessor<Database> with _$MucDaoMixin {
   final Database database;
 
   MucDao(this.database) : super(database);

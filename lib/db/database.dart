@@ -6,7 +6,7 @@ import 'package:deliver_flutter/db/SharedPreferences.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
-import 'package:deliver_flutter/db/dao/GroupDao.dart';
+import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/LastAvatarDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
@@ -25,10 +25,12 @@ import 'dart:io';
 import 'Contacts.dart';
 import 'FileInfo.dart';
 import 'Mucs.dart';
+import 'LastSeen.dart';
 import 'Member.dart';
 import 'Rooms.dart';
 import 'Seens.dart';
 import 'PendingMessages.dart';
+import 'dao/LastSeenDao.dart';
 import 'dao/MemberDao.dart';
 import 'dao/RoomDao.dart';
 import 'dao/MessageDao.dart';
@@ -48,6 +50,7 @@ part 'database.g.dart';
   SharedPreferences,
   Members,
   Mucs,
+  LastSeens,
 ], daos: [
   MessageDao,
   RoomDao,
@@ -61,6 +64,7 @@ part 'database.g.dart';
   SharedPreferencesDao,
   MemberDao,
   MucDao,
+  LastSeenDao,
 ])
 class Database extends _$Database {
   Database()
@@ -76,14 +80,13 @@ class Database extends _$Database {
   @override
   int get schemaVersion => 7;
 
-  Future<void> deleteAllData()  {
+  Future<void> deleteAllData() {
     return transaction(() {
       for (var table in allTables) {
         delete(table).go();
       }
     });
   }
-
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

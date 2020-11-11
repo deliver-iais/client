@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class MessageHeader extends StatefulWidget {
   final Message message;
@@ -22,6 +23,7 @@ class MessageHeader extends StatefulWidget {
 
 class _MessageHeaderState extends State<MessageHeader> {
   filePb.File file;
+  bool isDownloaded = false;
   double loadProgress = 0.0;
   PendingMessageDao pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var fileRepo = GetIt.I.get<FileRepo>();
@@ -36,7 +38,7 @@ class _MessageHeaderState extends State<MessageHeader> {
   Widget build(BuildContext context) {
     file = widget.message.json.toFile();
     return StreamBuilder<PendingMessage>(
-      stream: pendingMessageDao.getByMessageId(widget.message.packetId),
+      stream: pendingMessageDao.getByMessageDbId(widget.message.dbId),
       builder: (context, pendingMessage) {
         return FutureBuilder<bool>(
             future: fileRepo.isExist(file.uuid, file.name),
@@ -53,10 +55,10 @@ class _MessageHeaderState extends State<MessageHeader> {
                       CircularFileStatusIndicator(
                         isExist: isExist.data,
                         sendingStatus: pendingMessage.data != null
-                            ? (pendingMessage.data).status
+                            ? pendingMessage.data.status
                             : null,
                         file: file,
-                        messageDbId: widget.message.packetId,
+                        messageDbId: widget.message.dbId,
                         onPressed: download,
                       ),
                       //TODO width

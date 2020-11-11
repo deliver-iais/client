@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:deliver_flutter/db/dao/GroupDao.dart';
+import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
@@ -138,8 +138,8 @@ class CoreServices {
     }
   }
 
-  _saveIncomingMessage(Message message) {
-    _messageDao.insertMessage(M.Message(
+  _saveIncomingMessage(Message message) async {
+    var dbId = await _messageDao.insertMessage(M.Message(
         id: message.id.toInt(),
         roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
             ? message.to.string
@@ -169,8 +169,7 @@ class CoreServices {
               ? message.to.string
               : message.to.category == Categories.USER
                   ? message.from.string
-                  : message.to.string,
-          lastMessage: message.packetId),
+                  : message.to.string,),
     );
     if (message.to.category != Categories.USER) {
       _mucRepo.saveMucInfo(message.to);
@@ -182,19 +181,16 @@ class CoreServices {
   }
 
   sendMessage(MessageByClient message) {
-
     _clientPacket.add(ClientPacket()
       ..message = message
       ..id = message.packetId);
-
     print("message is send ");
   }
 
   sendPingMessage() {
-    if (!_clientPacket.isClosed)
-      _clientPacket.add(ClientPacket()
-        ..ping = Ping()
-        ..id = DateTime.now().microsecondsSinceEpoch.toString());
+    _clientPacket.add(ClientPacket()
+      ..ping = Ping()
+      ..id = DateTime.now().microsecondsSinceEpoch.toString());
   }
 
   sendSeenMessage(SeenByClient seen) {
@@ -283,8 +279,8 @@ class CoreServices {
   }
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) {
-    _pendingMessageDao.deletePendingMessage(
-        M.PendingMessage(messageId: messageDeliveryAck.packetId));
+//    _pendingMessageDao.deletePendingMessage(
+//        M.PendingMessage(messagePacketId: messageDeliveryAck.packetId));
     _messageDao.insertMessage(M.Message(
         packetId: messageDeliveryAck.packetId,
         time: DateTime.fromMillisecondsSinceEpoch(

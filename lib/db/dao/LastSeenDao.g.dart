@@ -1,11 +1,11 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'GroupDao.dart';
+part of 'LastSeenDao.dart';
 
 // **************************************************************************
 // DaoGenerator
 // **************************************************************************
 
-mixin _$GroupDaoMixin on DatabaseAccessor<Database> {
-  $MucsTable get mucs => attachedDatabase.mucs;
+mixin _$LastSeenDaoMixin on DatabaseAccessor<Database> {
+  $LastSeensTable get lastSeens => attachedDatabase.lastSeens;
 }

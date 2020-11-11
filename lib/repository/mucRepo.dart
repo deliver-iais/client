@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:deliver_flutter/db/dao/GroupDao.dart';
+import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
@@ -266,7 +266,7 @@ class MucRepo {
   _insetToDb(Uid mucUid, String mucName, int memberCount) async {
     await _mucDao.insertMuc(
         Muc(uid: mucUid.string, name: mucName, members: memberCount));
-    Room room = Room(roomId: mucUid.string, lastMessage: null, mute: false);
+    Room room = Room(roomId: mucUid.string, mute: false);
     await _roomDao.insertRoom(room);
     sendFirstMessage(mucUid, room);
   }
@@ -282,8 +282,8 @@ class MucRepo {
         json: groupUid.category == Categories.GROUP
             ? jsonEncode({"text": "You created the group"})
             : jsonEncode({"text": "You created the channel"}));
-    messageDao.insertMessage(message);
-    await _roomDao.updateRoom(room.copyWith(lastMessage: message.packetId));
+    var dbId = await messageDao.insertMessage(message);
+    await _roomDao.updateRoom(room.copyWith(lastMessageDbId: dbId));
   }
 
   Future<bool> sendMembers(Uid mucUid, List<Uid> memberUids) async {

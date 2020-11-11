@@ -89,9 +89,10 @@ class RoutingService {
       heroTag: heroTag
     );
     _push(Page(
-      largePageNavigator: _navigationCenter,
-      largePageMain: widget,
-      smallPageMain: widget,
+      //largePageNavigator: _navigationCenter,
+      //largePageMain: widget,
+      //smallPageMain: widget,
+      singlePageMain: widget,
       path: "/media-details",
     ));
   }

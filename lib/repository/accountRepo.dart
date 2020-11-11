@@ -4,6 +4,7 @@ import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/screen/register/pages/testing_environment_tokens.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -63,9 +64,7 @@ class AccountRepo {
 
   String platformVersion;
 
-
   Future getVerificationCode(String countryCode, String nationalNumber) async {
-
     PhoneNumber phone = PhoneNumber()
       ..countryCode = int.parse(countryCode)
       ..nationalNumber = Int64.parseInt(nationalNumber);
@@ -91,7 +90,6 @@ class AccountRepo {
       device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     }
 
-
     var sendVerificationCode =
         await authServiceStub.verifyAndGetToken(VerifyCodeReq()
           ..phoneNumber = this.phoneNumber
@@ -99,7 +97,6 @@ class AccountRepo {
           ..device = device
 //          TODO add password mechanism
           ..password = "");
-
 
     return sendVerificationCode;
   }

@@ -53,7 +53,7 @@ class _ImageUiState extends State<ImageUi> {
 
     return Container(
       child: StreamBuilder<PendingMessage>(
-        stream: pendingMessageDao.getByMessageId(widget.message.packetId),
+        stream: pendingMessageDao.getByMessageDbId(widget.message.dbId),
         builder: (context, pendingMessage) {
           if (pendingMessage.data != null) {
             String path = (jsonDecode(pendingMessage.data.details))['path'];
