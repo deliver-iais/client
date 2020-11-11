@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
@@ -19,7 +18,6 @@ class UserAppbar extends StatelessWidget {
 
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _contactRepo = GetIt.I.get<ContactRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
   AppLocalization _appLocalization;
 
