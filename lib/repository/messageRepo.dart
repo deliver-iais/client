@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io' as LocalFile;
+import 'dart:math';
 
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
@@ -70,35 +71,46 @@ class MessageRepo {
 
   updating() async {
     updatingStatus.add(TitleStatusConditions.Updating);
-    int lastMessageDbId;
+    print("UPDATTTTTTTTTTTTTTTTTTTTTTTTTTTTINNNNNNNNNNNNGGGGGGGGGGGG");
     try {
       var getAllUserRoomMetaRes = await _queryServiceClient.getAllUserRoomMeta(
           GetAllUserRoomMetaReq(),
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      print("FOOOOOOOOOOOOOR: $getAllUserRoomMetaRes");
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
-        Room room =
-            await _roomDao.getByRoomId(userRoomMeta.roomUid.string).single;
-        if (room == null) {
-          await _roomDao.insertRoom(Room(roomId: userRoomMeta.roomUid.string));
-          room = await _roomDao.getByRoomId(userRoomMeta.roomUid.string).single;
-        }
-        if (room.lastMessageId != userRoomMeta.lastMessageId.toInt()) {
+        var room =
+            await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.string) ??
+                Room(
+                    roomId: userRoomMeta.roomUid.getString(),
+                    lastMessageId: -1,
+                    lastMessageDbId: -1);
+        print("FOOOOOOOOOOOOOR: $room $userRoomMeta");
+        if (room.lastMessageId < userRoomMeta.lastMessageId.toInt()) {
           try {
             var fetchMessagesRes = await _queryServiceClient.fetchMessages(
                 FetchMessagesReq()
                   ..roomUid = room.roomId.uid
                   ..pointer = userRoomMeta.lastMessageId
-                  ..type = FetchMessagesReq_Type.FORWARD_FETCH
+                  ..type = FetchMessagesReq_Type.BACKWARD_FETCH
                   ..limit = 5,
                 options: CallOptions(metadata: {
                   'accessToken': await _accountRepo.getAccessToken()
                 }));
-            await _saveFetchMessages(fetchMessagesRes.messages);
-            // //TODO update last message db id
-            // await _roomDao.updateRoom(room.copyWith(
-            //     lastMessageId: fetchMessagesRes.messages.last.id.toInt()));
+            List<Message> messages =
+                await _saveFetchMessages(fetchMessagesRes.messages);
+
+            print("messages $messages");
+
+            Message lastMessage = messages.reduce(
+                (value, element) => value.id > element.id ? value : element);
+
+            // TODO if there is Pending Message this line has a bug!!!
+            await _roomDao.insertRoom(room.copyWith(
+                lastMessageId: lastMessage.id.toInt(),
+                lastMessageDbId: lastMessage.dbId));
           } catch (e) {
+            print("EXCEPTIOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNNNNNNNNNN");
             print(e);
           }
         }
@@ -396,7 +408,8 @@ class MessageRepo {
             ..limit = pageSize,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      print("MESSAGE $id IDDDDDDDDDDDDDDDDDDDDD fetch result: ${fetchMessagesRes.messages.length}");
+      print(
+          "MESSAGE $id IDDDDDDDDDDDDDDDDDDDDD fetch result: ${fetchMessagesRes.messages.length}");
       return await _saveFetchMessages(fetchMessagesRes.messages);
     }
     return messages;

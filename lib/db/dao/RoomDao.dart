@@ -68,4 +68,8 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
   Stream<Room> getByRoomId(String rid) {
     return (select(rooms)..where((c) => c.roomId.equals(rid))).watchSingle();
   }
+
+  Future<Room> getByRoomIdFuture(String rid) {
+    return (select(rooms)..where((c) => c.roomId.equals(rid))).getSingle();
+  }
 }
