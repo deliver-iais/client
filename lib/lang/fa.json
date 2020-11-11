@@ -111,6 +111,8 @@
   "connecting": "در حال اتصال",
   "UnreadMessages": "پیام های خوانده نشده",
   "updating": "در حال به روزرسانی",
+  "disconnected": "قطع ارتباط",
+  "connected": "ارتباط برقرار شد",
   "contactNotExit": "مخاطب وجود ندارد.",
   "contactAdd": "مخاطب اضافه شد."
 }
