@@ -234,8 +234,42 @@ class CoreServices {
       return 'file';
   }
 
+  _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
+    var roomId = messageDeliveryAck.to.getString();
+    var packetId = messageDeliveryAck.packetId;
+    var id = messageDeliveryAck.id.toInt();
+    var time = messageDeliveryAck.time.toInt();
+
+    await _messageDao.updateMessageId(roomId, packetId, id, time);
+    await _roomDao.updateRoomWithAckMessage(roomId, id);
+    await _lastSeenDao.updateLastSeen(roomId, id);
+    await _pendingMessageDao.deletePendingMessage(packetId);
+  }
+
   _saveIncomingMessage(Message message) async {
-    var dbId = await _messageDao.insertMessage(M.Message(
+    var msg = saveMessageInMessagesDB(message);
+
+    bool isCurrentUser = message.from.equals(_accountRepo.currentUserUid);
+
+    var roomUid = isCurrentUser
+        ? message.to
+        : (message.to.category == Categories.USER ? message.from : message.to);
+
+    _roomDao.insertRoom(
+      M.Room(
+          roomId: roomUid.getString(),
+          lastMessageId: message.id.toInt(),
+          lastMessageDbId: msg.dbId),
+    );
+
+    // TODO remove later on if Add User to group message feature is implemented
+    if (message.to.category != Categories.USER) {
+      _mucRepo.saveMucInfo(message.to);
+    }
+  }
+
+  saveMessageInMessagesDB(Message message) async {
+    M.Message msg = M.Message(
         id: message.id.toInt(),
         roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
             ? message.to.string
@@ -248,46 +282,79 @@ class CoreServices {
         from: message.from.string,
         replyToId: message.replyToId.toInt(),
         forwardedFrom: message.forwardFrom.string,
-        json: message.whichType() == Message_Type.text
-            ? message.text.text
-            : jsonEncode({
-                "uuid": message.file.uuid,
-                "name": message.file.name,
-                "caption": message.file.caption,
-                "type": findType(message.file.name)
-              }),
+        json: messageToJson(message),
         edited: message.edited,
         encrypted: message.encrypted,
-        type: getMessageType(message.whichType())));
+        type: getMessageType(message.whichType()));
 
-    bool isCurrentUser = message.from.equals(_accountRepo.currentUserUid);
+    int dbId = await _messageDao.insertMessage(msg);
 
-    var roomUid = isCurrentUser
-        ? message.to
-        : (message.to.category == Categories.USER ? message.from : message.to);
+    print("MessageId: ${msg.id}");
 
-    _roomDao.insertRoom(
-      M.Room(
-          roomId: roomUid.getString(),
-          lastMessageId: message.id.toInt(),
-          lastMessageDbId: dbId),
-    );
-
-    // TODO remove later on if Add User to group message feature is implemented
-    if (message.to.category != Categories.USER) {
-      _mucRepo.saveMucInfo(message.to);
-    }
+    return msg.copyWith(dbId: dbId);
   }
 
-  _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
-    var roomId = messageDeliveryAck.to.getString();
-    var packetId = messageDeliveryAck.packetId;
-    var id = messageDeliveryAck.id.toInt();
-    var time = messageDeliveryAck.time.toInt();
+  String messageToJson(Message message) {
+    var type = findFetchMessageType(message);
+    var json = Object();
+    if (type == MessageType.TEXT)
+      json = {"text": message.text};
+    else if (type == MessageType.FILE)
+      json = {
+        "uuid": message.file.uuid,
+        "size": message.file.size,
+        "type": message.file.type,
+        "name": message.file.name,
+        "caption": message.file.caption,
+        "width": message.file.width,
+        "height": message.file.height,
+        "duration": message.file.duration
+      };
+    else if (type == MessageType.FORM)
+      json = {"uuid": message.form.uuid, "title": message.form.title};
+    else if (type == MessageType.STICKER)
+      json = {
+        "uuid": message.sticker.uuid,
+        "id": message.sticker.id,
+        "width": message.sticker.width,
+        "height": message.sticker.height
+      };
+    else if (type == MessageType.PERSISTENT_EVENT)
+      json = {"type": message.persistEvent}; //TODO edit this
+    else if (type == MessageType.POLL)
+      json = {
+        "uuid": message.poll.uuid,
+        "title": message.poll.title,
+        "number_of_options": message.poll.numberOfOptions
+      };
+    else if (type == MessageType.LOCATION)
+      json = {
+        "latitude": message.location.latitude,
+        "longitude": message.location.longitude
+      };
+    else if (type == MessageType.LIVE_LOCATION)
+      json = {"uuid": message.liveLocation.uuid};
+    return jsonEncode(json);
+  }
 
-    await _messageDao.updateMessageId(roomId, packetId, id, time);
-    await _roomDao.updateRoomWithAckMessage(roomId, id);
-    await _lastSeenDao.updateLastSeen(roomId, id);
-    await _pendingMessageDao.deletePendingMessage(packetId);
+  MessageType findFetchMessageType(Message message) {
+    if (message.hasText())
+      return MessageType.TEXT;
+    else if (message.hasFile())
+      return MessageType.FILE;
+    else if (message.hasForm())
+      return MessageType.FORM;
+    else if (message.hasSticker())
+      return MessageType.STICKER;
+    else if (message.hasPersistEvent())
+      return MessageType.PERSISTENT_EVENT;
+    else if (message.hasPoll())
+      return MessageType.POLL;
+    else if (message.hasLiveLocation())
+      return MessageType.LIVE_LOCATION;
+    else if (message.hasLocation())
+      return MessageType.LOCATION;
+    else
+      return MessageType.NOT_SET;
   }
 }

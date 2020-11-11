@@ -94,8 +94,7 @@ class MessageRepo {
                 options: CallOptions(metadata: {
                   'accessToken': await _accountRepo.getAccessToken()
                 }));
-            lastMessageDbId =
-                await _saveFetchMessages(fetchMessagesRes.messages);
+            await _saveFetchMessages(fetchMessagesRes.messages);
             // //TODO update last message db id
             // await _roomDao.updateRoom(room.copyWith(
             //     lastMessageId: fetchMessagesRes.messages.last.id.toInt()));
@@ -384,9 +383,11 @@ class MessageRepo {
     return "${_accountRepo.currentUserUid.getString()}:${DateTime.now().microsecondsSinceEpoch.toString()}";
   }
 
-  getPage(int page, String roomId, {int pageSize = 50}) async {
+  Future<List<Message>> getPage(int page, String roomId, int id,
+      {int pageSize = 50}) async {
+    // print("MESSAGE IDDDDDDDDDDDDDDDDDDDDD: $id");
     var messages = await _messageDao.getPage(roomId, page);
-    if (messages == null) {
+    if (!messages.any((element) => element.id == id)) {
       var fetchMessagesRes = await _queryServiceClient.fetchMessages(
           FetchMessagesReq()
             ..roomUid = roomId.uid
@@ -395,97 +396,20 @@ class MessageRepo {
             ..limit = pageSize,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      await _saveFetchMessages(fetchMessagesRes.messages);
-      messages = await _messageDao.getPage(roomId, page);
-      if (messages == null) return List<Message>.filled(0, Message());
+      print("MESSAGE $id IDDDDDDDDDDDDDDDDDDDDD fetch result: ${fetchMessagesRes.messages.length}");
+      return await _saveFetchMessages(fetchMessagesRes.messages);
     }
     return messages;
   }
 
-  _saveFetchMessages(List<messagePb.Message> messages) async {
-    int lastMessageDbId;
+  Future<List<Message>> _saveFetchMessages(
+      List<messagePb.Message> messages) async {
+    List<Message> msgList = [];
     for (messagePb.Message message in messages) {
-      MessageType type = findFetchMessageType(message);
-      String json = findFetchMessageJson(message, type);
-      lastMessageDbId = await _messageDao.insertMessage(
-        Message(
-          roomId: message.to.string,
-          packetId: message.packetId,
-          id: message.id.toInt(),
-          time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
-          from: message.from.string,
-          to: message.to.string,
-          edited: message.edited,
-          encrypted: message.encrypted,
-          type: type,
-          json: json,
-        ),
-      );
+      msgList.add(await _coreServices.saveMessageInMessagesDB(message));
     }
-    return lastMessageDbId;
-  }
 
-  MessageType findFetchMessageType(messagePb.Message message) {
-    if (message.hasText())
-      return MessageType.TEXT;
-    else if (message.hasFile())
-      return MessageType.FILE;
-    else if (message.hasForm())
-      return MessageType.FORM;
-    else if (message.hasSticker())
-      return MessageType.STICKER;
-    else if (message.hasPersistEvent())
-      return MessageType.PERSISTENT_EVENT;
-    else if (message.hasPoll())
-      return MessageType.POLL;
-    else if (message.hasLiveLocation())
-      return MessageType.LIVE_LOCATION;
-    else if (message.hasLocation())
-      return MessageType.LOCATION;
-    else
-      return MessageType.NOT_SET;
-  }
-
-  String findFetchMessageJson(messagePb.Message message, MessageType type) {
-    var json = Object();
-    if (type == MessageType.TEXT)
-      json = {"text": message.text};
-    else if (type == MessageType.FILE)
-      json = {
-        "uuid": message.file.uuid,
-        "size": message.file.size,
-        "type": message.file.type,
-        "name": message.file.name,
-        "caption": message.file.caption,
-        "width": message.file.width,
-        "height": message.file.height,
-        "duration": message.file.duration
-      };
-    else if (type == MessageType.FORM)
-      json = {"uuid": message.form.uuid, "title": message.form.title};
-    else if (type == MessageType.STICKER)
-      json = {
-        "uuid": message.sticker.uuid,
-        "id": message.sticker.id,
-        "width": message.sticker.width,
-        "height": message.sticker.height
-      };
-    else if (type == MessageType.PERSISTENT_EVENT)
-      json = {"type": message.persistEvent}; //TODO edit this
-    else if (type == MessageType.POLL)
-      json = {
-        "uuid": message.poll.uuid,
-        "title": message.poll.title,
-        "number_of_options": message.poll.numberOfOptions
-      };
-    else if (type == MessageType.LOCATION)
-      json = {
-        "latitude": message.location.latitude,
-        "longitude": message.location.longitude
-      };
-    else if (type == MessageType.LIVE_LOCATION)
-      json = {"uuid": message.liveLocation.uuid};
-    return jsonEncode(json);
+    return msgList;
   }
 
   receiveMessage(String a) async {
