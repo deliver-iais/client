@@ -162,7 +162,7 @@ class MessageRepo {
       {int replyId, String forwardedFrom, String caption}) async {
     List<Message> messageList = new List();
     List<String> uploadKeyList = new List();
-    List<int> dbIdList = new List();
+    // TODO refactored needed
     if (id == 0) {
       await insertRoomAndLastSeen((roomId.string));
     }
@@ -195,7 +195,6 @@ class MessageRepo {
           }));
       messageList.add(message);
       int dbId = await _messageDao.insertMessage(message);
-      dbIdList.add(dbId);
       await _updateRoomLastMessage(roomId.string, dbId);
       await _savePendingMessage(dbId, roomId.string, SendingStatus.SENDING_FILE,
           MAX_REMAINING_RETRIES, message);
@@ -216,34 +215,6 @@ class MessageRepo {
       // await _pendingMessageDao.deletePendingMessage(dbIdList[i]);
       // id++;
     }
-  }
-
-  sendPendingMessage() {
-    _pendingMessageDao.watchAllMessages().listen((event) {
-      for (PendingMessage pendingMessage in event) {
-        if (pendingMessage.remainingRetries > 0) {
-          switch (pendingMessage.status) {
-            case SendingStatus.SENDING_FILE:
-              _messageDao
-                  .getByDbId(pendingMessage.messageDbId)
-                  .listen((message) {
-                _sendFileMessage(message, jsonDecode(message.json)["path"]);
-              });
-              _updatePendingMessage(pendingMessage);
-
-              break;
-            case SendingStatus.PENDING:
-              _messageDao
-                  .getByDbId(pendingMessage.messageDbId)
-                  .listen((message) {
-                _sendTextMessage(message);
-              });
-              _updatePendingMessage(pendingMessage);
-              break;
-          }
-        }
-      }
-    });
   }
 
   _savePendingMessage(int dbId, String roomId, SendingStatus status,
@@ -372,8 +343,7 @@ class MessageRepo {
     return "${_accountRepo.currentUserUid.getString()}:${DateTime.now().microsecondsSinceEpoch.toString()}";
   }
 
-  int pageSize = 50;
-  getPage(int page, String roomId) async {
+  getPage(int page, String roomId, {int pageSize = 50}) async {
     var messages = await _messageDao.getPage(roomId, page);
     if (messages == null) {
       var fetchMessagesRes = await _queryServiceClient.fetchMessages(

@@ -76,7 +76,7 @@ class RoomRepo {
     for (var contact in allUser) {
       finalList[contact.uid.uid] = contact.uid.uid;
     }
-    var allRooms = await _roomDao.gerAllRooms();
+    var allRooms = await _roomDao.getAllRooms();
     for (var room in allRooms) {
       finalList[room.roomId.uid] = room.roomId.uid;
     }

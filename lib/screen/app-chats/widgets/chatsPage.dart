@@ -17,51 +17,45 @@ class ChatsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var roomDao = GetIt.I.get<RoomDao>();
-    String a;
-    return Column(
-      children: [
-        Expanded(
-            child: StreamBuilder<List<RoomWithMessage>>(
-                stream: roomDao.getByContactId(),
-                builder: (context, snapshot) {
-                  return StreamBuilder(
-                    stream: routingService.currentRouteStream,
-                    builder: (BuildContext c, AsyncSnapshot<Object> s) {
-                      final roomsWithMessages = snapshot.data ?? [];
-                      return Container(
-                        child: Scrollbar(
-                          child: ListView.builder(
-                            itemCount: roomsWithMessages.length,
-                            itemBuilder: (BuildContext ctx, int index) {
-                              if (roomsWithMessages[index].lastMessage !=
-                                  null) {
-                                a = roomsWithMessages[index].room.roomId;
-                                return GestureDetector(
-                                  child: ChatItem(
-                                    key: ValueKey(
-                                        "chatItem/${roomsWithMessages[index].room.roomId}"),
-                                    roomWithMessage: roomsWithMessages[index],
-                                    isSelected: routingService.isInRoom(
-                                        roomsWithMessages[index].room.roomId),
-                                  ),
-                                  onTap: () {
-                                    routingService.openRoom(
-                                        roomsWithMessages[index]
-                                            .room
-                                            .roomId
-                                            .toString());
-                                  },
-                                );
-                              }
-                              return SizedBox.shrink();
-                            },
-                          ),
-                        ),
-                      );
-                    },
+    return Expanded(
+        child: StreamBuilder<List<RoomWithMessage>>(
+            stream: roomDao.getAllRoomsWithMessage(),
+            builder: (context, snapshot) {
+              return StreamBuilder(
+                stream: routingService.currentRouteStream,
+                builder: (BuildContext c, AsyncSnapshot<Object> s) {
+                  final roomsWithMessages = snapshot.data ?? [];
+                  return Container(
+                    child: Scrollbar(
+                      child: ListView.builder(
+                        itemCount: roomsWithMessages.length,
+                        itemBuilder: (BuildContext ctx, int index) {
+                          if (roomsWithMessages[index].lastMessage !=
+                              null) {
+                            return GestureDetector(
+                              child: ChatItem(
+                                key: ValueKey(
+                                    "chatItem/${roomsWithMessages[index].room.roomId}"),
+                                roomWithMessage: roomsWithMessages[index],
+                                isSelected: routingService.isInRoom(
+                                    roomsWithMessages[index].room.roomId),
+                              ),
+                              onTap: () {
+                                routingService.openRoom(
+                                    roomsWithMessages[index]
+                                        .room
+                                        .roomId
+                                        .toString());
+                              },
+                            );
+                          }
+                          return SizedBox.shrink();
+                        },
+                      ),
+                    ),
                   );
-                })),
-      ],
-    );
+                },
+              );
+            }));
   }
 }

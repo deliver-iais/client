@@ -35,7 +35,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-int pageSize = 50;
+const int PAGE_SIZE = 50;
 
 class RoomPage extends StatefulWidget {
   final String roomId;
@@ -67,23 +67,20 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _roomDao = GetIt.I.get<RoomDao>();
   AppLocalization _appLocalization;
   var _memberRepo = GetIt.I.get<MemberRepo>();
-  int lastShowedMessageId;
+  int _lastShowedMessageId;
   ScrollController _scrollController;
-  int itemCount;
-  bool disableScrolling = false;
-  int maxShownId = -1;
-  final ItemScrollController itemScrollController = ItemScrollController();
-  final ItemPositionsListener itemPositionsListener =
-      ItemPositionsListener.create();
+  int _itemCount;
+  // TODO should be implemented
+  bool _disableScrolling = false;
+  final ItemScrollController _itemScrollController = ItemScrollController();
 
   Subject<int> _lastSeenSubject = BehaviorSubject.seeded(-1);
-  // _lastSeenSubject.add(3);
-  //
 
-  Cache _cache =
-      LruCache<String, Message>(storage: SimpleStorage(size: pageSize));
+  Cache<int, Message> _cache =
+      LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
 
   // TODO check function
+  // Check print before return result result not working future builder, why?!
   Future<List<Message>> getMessage(
       int id, String roomId, bool isPendingMessage) async {
     List<Message> result = [];
@@ -91,20 +88,20 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       result = [await _messageRepo.getPendingMessage(id)];
       return result;
     } else {
-      var msg = _cache.get(roomId + '_' + id.toString());
+      var msg = _cache.get(id);
       int page;
       if (msg != null) {
         result.add(msg);
       } else {
-        page = (id / pageSize).floor();
+        page = (id / PAGE_SIZE).floor();
         List<Message> messages = await _messageRepo.getPage(page, roomId);
         for (int i = 0; i < messages.length; i = i + 1) {
-          _cache.set(roomId + '_' + messages[i].id.toString(), messages[i]);
+          _cache.set(messages[i].id, messages[i]);
         }
-        result.add(messages[id - page * pageSize]);
+        result.add(messages[id - page * PAGE_SIZE]);
       }
       if (id > 0) {
-        msg = _cache.get(roomId + '_' + (id - 1).toString());
+        msg = _cache.get(id - 1);
         if (msg != null) {
           result.add(msg);
           return result;
@@ -112,9 +109,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           List<Message> messages = _messageRepo.getPage(page - 1, roomId);
 
           for (int i = 0; i < messages.length; i = i + 1) {
-            _cache.set(roomId + '_' + messages[i].id.toString(), messages[i]);
+            _cache.set(messages[i].id, messages[i]);
           }
-          result.add(messages[id - 1 - page * pageSize]);
+          result.add(messages[id - 1 - page * PAGE_SIZE]);
           return result;
         }
       }
@@ -169,14 +166,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _waitingForForwardedMessage = widget.forwardedMessages != null
         ? widget.forwardedMessages.length > 0
         : false;
-    _scrollController = ScrollController();
     sendInputSharedFile();
     if (widget.roomId.uid.category == Categories.PUBLIC_CHANNEL) {
       _checkChannelRole();
     }
     //TODO check
     _lastSeenSubject.listen((event) {
-      if (event != null && lastShowedMessageId < event) {
+      if (event != null && _lastShowedMessageId < event) {
         _lastSeenDao.updateLastSeen(widget.roomId, event);
         _messageRepo.sendSeenMessage(
             event, widget.roomId.uid, widget.roomId.uid);
@@ -188,7 +184,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   @override
   void dispose() {
-    _scrollController.dispose();
     super.dispose();
   }
 
@@ -228,7 +223,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   future: lastSeenDao.getByRoomId(widget.roomId),
                   builder: (context, lastSeen$) {
                     _lastSeenSubject.add(lastSeen$.data?.messageId ?? -1);
-                    lastShowedMessageId = lastSeen$.data?.messageId ?? 0;
+                    _lastShowedMessageId = lastSeen$.data?.messageId ?? 0;
 
                     if (lastSeen$.data == null) {
                       return Expanded(
@@ -250,13 +245,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                 if (currentRoomStream.hasData) {
                                   Room currentRoom = currentRoomStream.data;
                                   if (pendingMessages.length > 0) {
-                                    lastShowedMessageId =
+                                    _lastShowedMessageId =
                                         currentRoom.lastMessageId ?? 0;
                                   }
                                   if (currentRoom.lastMessageId == null) {
-                                    itemCount = pendingMessages.length;
+                                    _itemCount = pendingMessages.length;
                                   } else {
-                                    itemCount = currentRoom.lastMessageId +
+                                    _itemCount = currentRoom.lastMessageId +
                                         1 +
                                         pendingMessages.length;
                                   }
@@ -271,17 +266,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                       height: deviceHeight,
                                       // color: Colors.amber,
                                       child: ScrollablePositionedList.builder(
-                                        itemCount: itemCount,
+                                        itemCount: _itemCount,
                                         initialScrollIndex:
                                             pendingMessages.length > 0
-                                                ? itemCount - 1
-                                                : lastShowedMessageId,
+                                                ? _itemCount - 1
+                                                : _lastShowedMessageId,
                                         initialAlignment: 0.0,
                                         // reverse: true,
                                         itemScrollController:
-                                            itemScrollController,
-                                        itemPositionsListener:
-                                            itemPositionsListener,
+                                            _itemScrollController,
                                         itemBuilder: (context, index) {
                                           bool isPendingMessage =
                                               (currentRoom.lastMessageId ==
@@ -337,7 +330,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                         ? ChatTime(
                                                             t: messages[0].time)
                                                         : Container(),
-                                                    (index - lastShowedMessageId) ==
+                                                    (index - _lastShowedMessageId) ==
                                                                 1 &&
                                                             !(messages[0]
                                                                 .from

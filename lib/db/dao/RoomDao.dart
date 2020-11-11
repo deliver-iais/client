@@ -1,6 +1,5 @@
 import 'package:deliver_flutter/db/Messages.dart';
 import 'package:deliver_flutter/models/roomWithMessage.dart';
-import 'package:flutter/material.dart';
 import 'package:moor/moor.dart';
 
 import '../Rooms.dart';
@@ -14,7 +13,7 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
 
   RoomDao(this.db) : super(db);
 
-  Future<List<Room>> gerAllRooms() => select(rooms).get();
+  Future<List<Room>> getAllRooms() => select(rooms).get();
 
   Future insertRoom(Room newRoom) {
     return into(rooms).insertOnConflictUpdate(newRoom);
@@ -35,7 +34,7 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
   }
 
 //TODO need to edit
-  Stream<List<RoomWithMessage>> getByContactId() {
+  Stream<List<RoomWithMessage>> getAllRoomsWithMessage() {
     return (select(rooms).join([
       leftOuterJoin(
         messages,
