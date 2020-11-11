@@ -104,7 +104,6 @@ dependencies:
   scrollable_positioned_list: 0.1.8
   test:
 
-  overlay_support: 1.0.5
 
   receive_sharing_intent: 1.4.1
 

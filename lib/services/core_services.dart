@@ -93,10 +93,10 @@ class CoreServices {
   }
 
   _startStream() async {
-    try {
-      await _clientPacket.close();
-      await _responseStream.cancel();
-    } catch (e) {}
+//    try {
+//      await _clientPacket.close();
+//      await _responseStream.cancel();
+//    } catch (e) {}
 
     try {
       _clientPacket = StreamController<ClientPacket>();
