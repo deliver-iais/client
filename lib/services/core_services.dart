@@ -18,6 +18,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
 
@@ -43,6 +44,8 @@ class CoreServices {
   ResponseStream<ServerPacket> _responseStream;
 
   int _backoffTime = MIN_BACKOFF_TIME;
+
+  StreamController<MessageByClient> streamController = StreamController();
 
   BehaviorSubject<ConnectionStatus> connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Disconnected);
@@ -94,8 +97,7 @@ class CoreServices {
   _startStream() async {
     try {
       await _clientPacket.close();
-      _responseStream.cancel();
-      //_responseStream.cancel();
+      await _responseStream.cancel();
     } catch (e) {}
 
     try {
@@ -111,6 +113,9 @@ class CoreServices {
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:
             _saveIncomingMessage(serverPacket.message);
+            break;
+          case ServerPacket_Type.messageDeliveryAck:
+            _saveAckMessage(serverPacket.messageDeliveryAck);
             break;
           case ServerPacket_Type.error:
             break;
@@ -160,8 +165,6 @@ class CoreServices {
         edited: message.edited,
         encrypted: message.encrypted,
         type: getMessageType(message.whichType())));
-    _pendingMessageDao
-        .deletePendingMessage(M.PendingMessage(messageId: message.packetId));
     _roomDao.insertRoom(
       M.Room(
           roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
@@ -181,10 +184,11 @@ class CoreServices {
   }
 
   sendMessage(MessageByClient message) {
-    if (!_clientPacket.isClosed)
-      _clientPacket.add(ClientPacket()
-        ..message = message
-        ..id = message.packetId);
+ //   streamController.add(message);
+
+    _clientPacket.add(ClientPacket()
+      ..message = message
+      ..id = message.packetId);
 
     print("message is send ");
   }
@@ -279,5 +283,14 @@ class CoreServices {
       return 'audio';
     else
       return 'file';
+  }
+
+  _saveAckMessage(MessageDeliveryAck messageDeliveryAck) {
+    _pendingMessageDao.deletePendingMessage(
+        M.PendingMessage(messageId: messageDeliveryAck.packetId));
+    _messageDao.insertMessage(M.Message(
+        packetId: messageDeliveryAck.packetId,
+        time: DateTime.fromMillisecondsSinceEpoch(
+            messageDeliveryAck.time.toInt())));
   }
 }
