@@ -1,12 +1,18 @@
+import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:moor/moor.dart';
 
 class Medias extends Table {
-  IntColumn get messageId => integer().autoIncrement()();
-  TextColumn get mediaUrl => text()();
-  TextColumn get mediaSender => text()();
-  TextColumn get mediaName => text()();
-  TextColumn get mediaType => text()();
-  TextColumn get time => text()();
+
+  IntColumn get createdOn => integer()();
+
+  TextColumn get createdBy => text()();
+
+  IntColumn get messageId => integer()();
+
+  IntColumn get type => intEnum<MediaType>()();
+
   TextColumn get roomId => text()();
-  TextColumn get mediaUuid => text()();
+
+  @override
+  Set<Column> get primaryKey => {messageId};
 }

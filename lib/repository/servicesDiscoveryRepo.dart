@@ -30,6 +30,10 @@ class ServicesDiscoveryRepo {
   ..host = "172.16.111.189"
   ..port = 30100;
 
+  ConnectionDetails mediaConnection = ConnectionDetails()
+    ..host = "172.16.111.189"
+    ..port = 30101;
+
 }
 
 class ConnectionDetails {

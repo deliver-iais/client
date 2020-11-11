@@ -203,7 +203,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                   child: CachedNetworkImage(
                     width: MediaQuery.of(context).size.width,
                     fit: BoxFit.fitWidth,
-                    imageUrl: media.mediaUrl,
+                //    imageUrl: media.mediaUrl,
                   ), // transitionOnUserGestures: true,
                 ),
               );

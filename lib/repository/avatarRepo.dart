@@ -42,9 +42,9 @@ class AvatarRepo {
   var avatarServices = AvatarServiceClient(clientChannel);
 
   fetchAvatar(Uid userUid, bool forceToUpdate) async {
-    if (forceToUpdate || await needsUpdate(userUid)) {
+   // if (forceToUpdate || await needsUpdate(userUid)) {
       getAvatarRequest(userUid);
-    }
+    //}
   }
 
   getAvatarRequest(Uid userUid) async {
