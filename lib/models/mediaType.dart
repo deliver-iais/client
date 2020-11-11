@@ -1,7 +1,5 @@
 enum MediaType {
-  MULTI_MEDIA,
-  FILES,
-  AUDIOS,
-  DOCUMENTS,
-  LINKS,
+  FILE,
+  LINK,
+  NOT_SET
 }

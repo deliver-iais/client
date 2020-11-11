@@ -42,6 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
   List<String> _mediaUrls = [];
   List<String> mediaUrls = [];
  var mediasLength;
+  Room currentRoomId;
 
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomDao = GetIt.I.get<RoomDao>();
@@ -50,7 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    _mediaQueryRepo.fetchMedias(widget.userUid , 2020, FetchMediasReq_MediaType.FILES, FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH, 2);
+    _mediaQueryRepo.fetchMedias(widget.userUid, DateTime.now().microsecondsSinceEpoch.toString(),2020, FetchMediasReq_MediaType.FILES, FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH, 50);
     return Scaffold(
         body: DefaultTabController(
             length: widget.userUid.category == Categories.USER ? 3 : 4,

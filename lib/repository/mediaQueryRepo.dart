@@ -10,6 +10,7 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/media.pb.dart'
     as MediaObject;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:fixnum/fixnum.dart';
 
 class MediaQueryRepo {
@@ -18,6 +19,7 @@ class MediaQueryRepo {
   var _mediaQueriesDao = GetIt.I.get<MediaDao>();
   int count;
   var _accountRepo = GetIt.I.get<AccountRepo>();
+  var _mediaDao = GetIt.I.get<MediaDao>();
 
   static ClientChannel clientChannel = ClientChannel(
       ServicesDiscoveryRepo().mediaConnection.host,
@@ -26,57 +28,63 @@ class MediaQueryRepo {
 
   var mediaServices = QueryServiceClient(clientChannel);
 
-   fetchMedias(
+  fetchMedias(
       Uid roomUid,
-      //String pointer,
+      String pointer,
       int year,
       FetchMediasReq_MediaType mediaType,
       FetchMediasReq_FetchingDirectionType fetchingDirectionType,
       int limit) async {
     var getMediaReq = FetchMediasReq();
     getMediaReq..roomUid = roomUid;
-   // getMediaReq..pointer = Int64.parseInt(pointer);
+     getMediaReq..pointer = Int64.parseInt(pointer);
     getMediaReq..year = year;
     getMediaReq..mediaType = mediaType;
     getMediaReq..fetchingDirectionType = fetchingDirectionType;
     getMediaReq..limit = limit;
-    var getMedias = await mediaServices.fetchMedias(getMediaReq,
+    var getMediasRes = await mediaServices.fetchMedias(getMediaReq,
         options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-    print("mediaaaaaaaaaaaaaaaaa${getMedias.medias.length}");
-
-    // for(MediaObject.Media media in getMedias.medias ){
-    //   print(media.messageId);
-    //   // print(media.createdOn);
-    //   // print(media.createdBy);
-    //   // print(media.file);
-    //   // print(media.link);
-    //
-    //  }
-  //  return getMedias;
+    await _saveFetchedMedias(getMediasRes.medias, roomUid);
   }
 
-  // Future<Media> insertMediaQueryInfo(
-  //     int messageId,
-  //     String mediaUrl,
-  //     String mediaSender,
-  //     String mediaName,
-  //     String mediaType,
-  //     String mediaTime,
-  //     String roomId,
-  //     String mediaUuid) async {
-  //   Media mediaQuery = Media(
-  //       messageId: messageId,
-  //       mediaUrl: mediaUrl,
-  //       mediaSender: mediaSender,
-  //       mediaName: mediaName,
-  //       mediaType: mediaType,
-  //       time: mediaTime,
-  //       roomId: roomId,
-  //       mediaUuid: mediaUuid);
-  //   await _mediaQueriesDao.insertQueryMedia(mediaQuery);
-  //   return mediaQuery;
-  // }
+  _saveFetchedMedias(List<MediaObject.Media> getMedias, Uid roomUid) async {
+    for (MediaObject.Media media in getMedias) {
+      MediaType type = findFetchedMediaType(media);
+      if (type == MediaType.FILE) {
+        await _mediaDao.insertQueryMedia(
+          Media(
+              createdOn: media.createdOn.toInt(),
+              createdBy: media.createdBy.string,
+              messageId: media.messageId.toInt(),
+              type: type,
+              roomId: roomUid.string,
+              fileName: media.file.name,
+              fileId: media.file.uuid),
+        );
+      } else if (type == MediaType.LINK) {
+        await _mediaDao.insertQueryMedia(
+          Media(
+              createdOn: media.createdOn.toInt(),
+              createdBy: media.createdBy.string,
+              messageId: media.messageId.toInt(),
+              type: type,
+              roomId: roomUid.string,
+              linkAddress: media.link),
+        );
+      }
+    }
+  }
+
+  MediaType findFetchedMediaType(MediaObject.Media media) {
+    if (media.hasFile()) {
+      return MediaType.FILE;
+    } else if (media.hasLink()) {
+      return MediaType.LINK;
+    } else {
+      return MediaType.NOT_SET;
+    }
+  }
 
   Future<List<Media>> getMediaQuery(String roomId) async {
     mediaList = await _mediaQueriesDao.getByRoomId(roomId);

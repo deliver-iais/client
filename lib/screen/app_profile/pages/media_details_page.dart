@@ -233,9 +233,9 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                     direction: Axis.vertical,
                                     runSpacing: 40,
                                     children: [
-                                      Text(_mediaCache.get("$i").mediaSender),
+                                     // Text(_mediaCache.get("$i").mediaSender),
                                       SizedBox(height: 10),
-                                      Text(_mediaCache.get("$i").time),
+                                   //   Text(_mediaCache.get("$i").time),
                                     ],
                                   ),
                                 ),
@@ -268,7 +268,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                           child: CachedNetworkImage(
                             width: MediaQuery.of(context).size.width,
                             fit: BoxFit.fitWidth,
-                            imageUrl: media.mediaUrl,
+                          //  imageUrl: media.mediaUrl,
                           ),
                         ),
                       ),
@@ -281,9 +281,9 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                             direction: Axis.vertical,
                             runSpacing: 40,
                             children: [
-                              Text(_mediaCache.get("$i").mediaSender),
+                              //Text(_mediaCache.get("$i").mediaSender),
                               SizedBox(height: 10),
-                              Text(_mediaCache.get("$i").time),
+                             // Text(_mediaCache.get("$i").time),
                             ],
                           ),
                         ),

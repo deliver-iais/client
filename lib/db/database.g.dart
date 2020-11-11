@@ -3153,12 +3153,18 @@ class Media extends DataClass implements Insertable<Media> {
   final int messageId;
   final MediaType type;
   final String roomId;
+  final String fileId;
+  final String fileName;
+  final String linkAddress;
   Media(
       {@required this.createdOn,
       @required this.createdBy,
       @required this.messageId,
       @required this.type,
-      @required this.roomId});
+      @required this.roomId,
+      this.fileId,
+      this.fileName,
+      this.linkAddress});
   factory Media.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -3175,6 +3181,12 @@ class Media extends DataClass implements Insertable<Media> {
           intType.mapFromDatabaseResponse(data['${effectivePrefix}type'])),
       roomId:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
+      fileId:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}file_id']),
+      fileName: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}file_name']),
+      linkAddress: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}link_address']),
     );
   }
   @override
@@ -3196,6 +3208,15 @@ class Media extends DataClass implements Insertable<Media> {
     if (!nullToAbsent || roomId != null) {
       map['room_id'] = Variable<String>(roomId);
     }
+    if (!nullToAbsent || fileId != null) {
+      map['file_id'] = Variable<String>(fileId);
+    }
+    if (!nullToAbsent || fileName != null) {
+      map['file_name'] = Variable<String>(fileName);
+    }
+    if (!nullToAbsent || linkAddress != null) {
+      map['link_address'] = Variable<String>(linkAddress);
+    }
     return map;
   }
 
@@ -3213,6 +3234,14 @@ class Media extends DataClass implements Insertable<Media> {
       type: type == null && nullToAbsent ? const Value.absent() : Value(type),
       roomId:
           roomId == null && nullToAbsent ? const Value.absent() : Value(roomId),
+      fileId:
+          fileId == null && nullToAbsent ? const Value.absent() : Value(fileId),
+      fileName: fileName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fileName),
+      linkAddress: linkAddress == null && nullToAbsent
+          ? const Value.absent()
+          : Value(linkAddress),
     );
   }
 
@@ -3225,6 +3254,9 @@ class Media extends DataClass implements Insertable<Media> {
       messageId: serializer.fromJson<int>(json['messageId']),
       type: serializer.fromJson<MediaType>(json['type']),
       roomId: serializer.fromJson<String>(json['roomId']),
+      fileId: serializer.fromJson<String>(json['fileId']),
+      fileName: serializer.fromJson<String>(json['fileName']),
+      linkAddress: serializer.fromJson<String>(json['linkAddress']),
     );
   }
   @override
@@ -3236,6 +3268,9 @@ class Media extends DataClass implements Insertable<Media> {
       'messageId': serializer.toJson<int>(messageId),
       'type': serializer.toJson<MediaType>(type),
       'roomId': serializer.toJson<String>(roomId),
+      'fileId': serializer.toJson<String>(fileId),
+      'fileName': serializer.toJson<String>(fileName),
+      'linkAddress': serializer.toJson<String>(linkAddress),
     };
   }
 
@@ -3244,13 +3279,19 @@ class Media extends DataClass implements Insertable<Media> {
           String createdBy,
           int messageId,
           MediaType type,
-          String roomId}) =>
+          String roomId,
+          String fileId,
+          String fileName,
+          String linkAddress}) =>
       Media(
         createdOn: createdOn ?? this.createdOn,
         createdBy: createdBy ?? this.createdBy,
         messageId: messageId ?? this.messageId,
         type: type ?? this.type,
         roomId: roomId ?? this.roomId,
+        fileId: fileId ?? this.fileId,
+        fileName: fileName ?? this.fileName,
+        linkAddress: linkAddress ?? this.linkAddress,
       );
   @override
   String toString() {
@@ -3259,7 +3300,10 @@ class Media extends DataClass implements Insertable<Media> {
           ..write('createdBy: $createdBy, ')
           ..write('messageId: $messageId, ')
           ..write('type: $type, ')
-          ..write('roomId: $roomId')
+          ..write('roomId: $roomId, ')
+          ..write('fileId: $fileId, ')
+          ..write('fileName: $fileName, ')
+          ..write('linkAddress: $linkAddress')
           ..write(')'))
         .toString();
   }
@@ -3267,8 +3311,16 @@ class Media extends DataClass implements Insertable<Media> {
   @override
   int get hashCode => $mrjf($mrjc(
       createdOn.hashCode,
-      $mrjc(createdBy.hashCode,
-          $mrjc(messageId.hashCode, $mrjc(type.hashCode, roomId.hashCode)))));
+      $mrjc(
+          createdBy.hashCode,
+          $mrjc(
+              messageId.hashCode,
+              $mrjc(
+                  type.hashCode,
+                  $mrjc(
+                      roomId.hashCode,
+                      $mrjc(fileId.hashCode,
+                          $mrjc(fileName.hashCode, linkAddress.hashCode))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -3277,7 +3329,10 @@ class Media extends DataClass implements Insertable<Media> {
           other.createdBy == this.createdBy &&
           other.messageId == this.messageId &&
           other.type == this.type &&
-          other.roomId == this.roomId);
+          other.roomId == this.roomId &&
+          other.fileId == this.fileId &&
+          other.fileName == this.fileName &&
+          other.linkAddress == this.linkAddress);
 }
 
 class MediasCompanion extends UpdateCompanion<Media> {
@@ -3286,12 +3341,18 @@ class MediasCompanion extends UpdateCompanion<Media> {
   final Value<int> messageId;
   final Value<MediaType> type;
   final Value<String> roomId;
+  final Value<String> fileId;
+  final Value<String> fileName;
+  final Value<String> linkAddress;
   const MediasCompanion({
     this.createdOn = const Value.absent(),
     this.createdBy = const Value.absent(),
     this.messageId = const Value.absent(),
     this.type = const Value.absent(),
     this.roomId = const Value.absent(),
+    this.fileId = const Value.absent(),
+    this.fileName = const Value.absent(),
+    this.linkAddress = const Value.absent(),
   });
   MediasCompanion.insert({
     @required int createdOn,
@@ -3299,6 +3360,9 @@ class MediasCompanion extends UpdateCompanion<Media> {
     this.messageId = const Value.absent(),
     @required MediaType type,
     @required String roomId,
+    this.fileId = const Value.absent(),
+    this.fileName = const Value.absent(),
+    this.linkAddress = const Value.absent(),
   })  : createdOn = Value(createdOn),
         createdBy = Value(createdBy),
         type = Value(type),
@@ -3309,6 +3373,9 @@ class MediasCompanion extends UpdateCompanion<Media> {
     Expression<int> messageId,
     Expression<int> type,
     Expression<String> roomId,
+    Expression<String> fileId,
+    Expression<String> fileName,
+    Expression<String> linkAddress,
   }) {
     return RawValuesInsertable({
       if (createdOn != null) 'created_on': createdOn,
@@ -3316,6 +3383,9 @@ class MediasCompanion extends UpdateCompanion<Media> {
       if (messageId != null) 'message_id': messageId,
       if (type != null) 'type': type,
       if (roomId != null) 'room_id': roomId,
+      if (fileId != null) 'file_id': fileId,
+      if (fileName != null) 'file_name': fileName,
+      if (linkAddress != null) 'link_address': linkAddress,
     });
   }
 
@@ -3324,13 +3394,19 @@ class MediasCompanion extends UpdateCompanion<Media> {
       Value<String> createdBy,
       Value<int> messageId,
       Value<MediaType> type,
-      Value<String> roomId}) {
+      Value<String> roomId,
+      Value<String> fileId,
+      Value<String> fileName,
+      Value<String> linkAddress}) {
     return MediasCompanion(
       createdOn: createdOn ?? this.createdOn,
       createdBy: createdBy ?? this.createdBy,
       messageId: messageId ?? this.messageId,
       type: type ?? this.type,
       roomId: roomId ?? this.roomId,
+      fileId: fileId ?? this.fileId,
+      fileName: fileName ?? this.fileName,
+      linkAddress: linkAddress ?? this.linkAddress,
     );
   }
 
@@ -3353,6 +3429,15 @@ class MediasCompanion extends UpdateCompanion<Media> {
     if (roomId.present) {
       map['room_id'] = Variable<String>(roomId.value);
     }
+    if (fileId.present) {
+      map['file_id'] = Variable<String>(fileId.value);
+    }
+    if (fileName.present) {
+      map['file_name'] = Variable<String>(fileName.value);
+    }
+    if (linkAddress.present) {
+      map['link_address'] = Variable<String>(linkAddress.value);
+    }
     return map;
   }
 
@@ -3363,7 +3448,10 @@ class MediasCompanion extends UpdateCompanion<Media> {
           ..write('createdBy: $createdBy, ')
           ..write('messageId: $messageId, ')
           ..write('type: $type, ')
-          ..write('roomId: $roomId')
+          ..write('roomId: $roomId, ')
+          ..write('fileId: $fileId, ')
+          ..write('fileName: $fileName, ')
+          ..write('linkAddress: $linkAddress')
           ..write(')'))
         .toString();
   }
@@ -3433,9 +3521,55 @@ class $MediasTable extends Medias with TableInfo<$MediasTable, Media> {
     );
   }
 
+  final VerificationMeta _fileIdMeta = const VerificationMeta('fileId');
+  GeneratedTextColumn _fileId;
   @override
-  List<GeneratedColumn> get $columns =>
-      [createdOn, createdBy, messageId, type, roomId];
+  GeneratedTextColumn get fileId => _fileId ??= _constructFileId();
+  GeneratedTextColumn _constructFileId() {
+    return GeneratedTextColumn(
+      'file_id',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _fileNameMeta = const VerificationMeta('fileName');
+  GeneratedTextColumn _fileName;
+  @override
+  GeneratedTextColumn get fileName => _fileName ??= _constructFileName();
+  GeneratedTextColumn _constructFileName() {
+    return GeneratedTextColumn(
+      'file_name',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _linkAddressMeta =
+      const VerificationMeta('linkAddress');
+  GeneratedTextColumn _linkAddress;
+  @override
+  GeneratedTextColumn get linkAddress =>
+      _linkAddress ??= _constructLinkAddress();
+  GeneratedTextColumn _constructLinkAddress() {
+    return GeneratedTextColumn(
+      'link_address',
+      $tableName,
+      true,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [
+        createdOn,
+        createdBy,
+        messageId,
+        type,
+        roomId,
+        fileId,
+        fileName,
+        linkAddress
+      ];
   @override
   $MediasTable get asDslTable => this;
   @override
@@ -3469,6 +3603,20 @@ class $MediasTable extends Medias with TableInfo<$MediasTable, Media> {
           roomId.isAcceptableOrUnknown(data['room_id'], _roomIdMeta));
     } else if (isInserting) {
       context.missing(_roomIdMeta);
+    }
+    if (data.containsKey('file_id')) {
+      context.handle(_fileIdMeta,
+          fileId.isAcceptableOrUnknown(data['file_id'], _fileIdMeta));
+    }
+    if (data.containsKey('file_name')) {
+      context.handle(_fileNameMeta,
+          fileName.isAcceptableOrUnknown(data['file_name'], _fileNameMeta));
+    }
+    if (data.containsKey('link_address')) {
+      context.handle(
+          _linkAddressMeta,
+          linkAddress.isAcceptableOrUnknown(
+              data['link_address'], _linkAddressMeta));
     }
     return context;
   }
