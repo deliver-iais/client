@@ -81,7 +81,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
 
   // TODO, get previous message
-  _getPendingMessage(dbId) async {
+  Future<List<Message>>_getPendingMessage(dbId) async {
     return [await _messageRepo.getPendingMessage(dbId)];
   }
 
