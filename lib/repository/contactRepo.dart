@@ -34,7 +34,6 @@ class ContactRepo {
 
   var _checkPermission = GetIt.I.get<CheckPermissionsService>();
 
-
   static ClientChannel clientChannel = ClientChannel(
       servicesDiscoveryRepo.contactServices.host,
       port: servicesDiscoveryRepo.contactServices.port,
@@ -174,10 +173,7 @@ class ContactRepo {
       ));
       if (contact.uid != null) {
         _roomDao.insertRoom(myContact.Room(
-            roomId: contact.uid.string,
-            lastMessage: null,
-            mentioned: false,
-            mute: false));
+            roomId: contact.uid.string, mentioned: false, mute: false));
       }
     }
 

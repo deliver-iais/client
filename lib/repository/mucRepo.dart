@@ -250,7 +250,7 @@ class MucRepo {
     await _mucDao.insertMuc(
         Muc(uid: mucUid.string, name: mucName, members: memberCount));
     roomRepo.updateRoomName(mucUid, mucName);
-    Room room = Room(roomId: mucUid.string, lastMessage: null, mute: false);
+    Room room = Room(roomId: mucUid.string, mute: false);
     await _roomDao.insertRoom(room);
     sendFirstMessage(mucUid, room);
   }
@@ -266,8 +266,8 @@ class MucRepo {
         json: groupUid.category == Categories.GROUP
             ? jsonEncode({"text": "You created the group"})
             : jsonEncode({"text": "You created the channel"}));
-    messageDao.insertMessage(message);
-    await _roomDao.updateRoom(room.copyWith(lastMessage: message.packetId));
+    var dbId = await messageDao.insertMessage(message);
+    await _roomDao.updateRoom(room.copyWith(lastMessageDbId: dbId));
   }
 
   Future<bool> sendMembers(Uid mucUid, List<Uid> memberUids) async {
