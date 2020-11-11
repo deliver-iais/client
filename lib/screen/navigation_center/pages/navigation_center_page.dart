@@ -287,9 +287,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   }
 
   initialDataBase() {
-    GetIt.I
-        .get<MessageRepo>()
-        .sendTextMessage(randomUid(), 'hello welcome to our app');
+    GetIt.I.get<MessageRepo>().sendTextMessage(randomUid(), '0');
   }
 
   Widget searchResult() {
@@ -390,9 +388,7 @@ Widget _contactResultWidget(
       Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          CircleAvatarWidget(
-              uid!=null?uid:Uid.getDefault(),
-              23),
+          CircleAvatarWidget(uid != null ? uid : Uid.getDefault(), 23),
           SizedBox(
             width: 20,
           ),

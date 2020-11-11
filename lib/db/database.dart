@@ -17,7 +17,6 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/memberType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/models/role.dart';
-import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
 import 'package:path_provider/path_provider.dart';
@@ -28,10 +27,12 @@ import 'dart:io';
 import 'Contacts.dart';
 import 'FileInfo.dart';
 import 'Mucs.dart';
+import 'LastSeen.dart';
 import 'Member.dart';
 import 'Rooms.dart';
 import 'Seens.dart';
 import 'PendingMessages.dart';
+import 'dao/LastSeenDao.dart';
 import 'dao/MemberDao.dart';
 import 'dao/RoomDao.dart';
 import 'dao/MessageDao.dart';
@@ -51,6 +52,7 @@ part 'database.g.dart';
   SharedPreferences,
   Members,
   Mucs,
+  LastSeens,
 ], daos: [
   MessageDao,
   RoomDao,
@@ -64,6 +66,7 @@ part 'database.g.dart';
   SharedPreferencesDao,
   MemberDao,
   GroupDao,
+  LastSeenDao,
 ])
 class Database extends _$Database {
   Database()
@@ -79,14 +82,13 @@ class Database extends _$Database {
   @override
   int get schemaVersion => 7;
 
-  Future<void> deleteAllData()  {
+  Future<void> deleteAllData() {
     return transaction(() {
       for (var table in allTables) {
         delete(table).go();
       }
     });
   }
-
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

@@ -8,4 +8,5 @@ part of 'PendingMessageDao.dart';
 
 mixin _$PendingMessageDaoMixin on DatabaseAccessor<Database> {
   $PendingMessagesTable get pendingMessages => attachedDatabase.pendingMessages;
+  $MessagesTable get messages => attachedDatabase.messages;
 }

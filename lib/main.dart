@@ -25,8 +25,8 @@ import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
-import 'package:deliver_flutter/services/message_service.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
+import 'package:deliver_flutter/services/mode_checker.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
@@ -43,6 +43,7 @@ import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:window_size/window_size.dart';
+import 'db/dao/LastSeenDao.dart';
 import 'db/dao/MessageDao.dart';
 import 'db/dao/GroupDao.dart';
 import 'db/dao/RoomDao.dart';
@@ -64,6 +65,7 @@ void setupDB() {
   getIt.registerSingleton<SharedPreferencesDao>(db.sharedPreferencesDao);
   getIt.registerSingleton<GroupDao>(db.groupDao);
   getIt.registerSingleton<MemberDao>(db.memberDao);
+  getIt.registerSingleton<LastSeenDao>(db.lastSeenDao);
 }
 
 void setupRepositories() {
@@ -73,7 +75,7 @@ void setupRepositories() {
   getIt.registerSingleton<AccountRepo>(AccountRepo());
   getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
-  getIt.registerSingleton<MessageService>(MessageService());
+  getIt.registerSingleton<ModeChecker>(ModeChecker());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
@@ -95,9 +97,8 @@ void setupRepositories() {
   getIt.registerSingleton<RoutingService>(RoutingService());
 }
 
-
 setupFlutterNotification() async {
-  await Firebase.initializeApp();
+  // await Firebase.initializeApp();
 }
 
 void setupDIAndRunApp() {

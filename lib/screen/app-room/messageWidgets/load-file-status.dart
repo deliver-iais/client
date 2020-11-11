@@ -17,7 +17,7 @@ import 'audio_message/play_audio_status.dart';
 
 class LoadFileStatus extends StatefulWidget {
   final File file;
-  final String dbId;
+  final int dbId;
   final Function onPressed;
 
   const LoadFileStatus({Key key, this.file, this.dbId, this.onPressed})
@@ -32,11 +32,10 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
   PendingMessageDao pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var fileService = GetIt.I.get<FileService>();
 
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<PendingMessage>(
-        stream: pendingMessageDao.getByMessageId(widget.dbId),
+        stream: pendingMessageDao.getByMessageDbId(widget.dbId),
         builder: (context, pendingMessage) {
           if (pendingMessage.hasData) {
             return Row(
@@ -48,8 +47,8 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                         ? pendingMessage.data.status ==
                                 SendingStatus.SENDING_FILE
                             ? StreamBuilder<double>(
-                                stream:
-                                    fileService.filesUploadStatus[widget.file.uuid],
+                                stream: fileService
+                                    .filesUploadStatus[widget.file.uuid],
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
                                     return CircularPercentIndicator(
@@ -75,7 +74,8 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                     startDownload
                         ? Container(
                             child: StreamBuilder<double>(
-                                stream: fileService.filesDownloadStatus[widget.file.uuid],
+                                stream: fileService
+                                    .filesDownloadStatus[widget.file.uuid],
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData &&
                                       snapshot.data != null) {
@@ -101,7 +101,9 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                   ? IconButton(
                                       padding: EdgeInsets.all(0),
                                       icon: Icon(
-                                        pendingMessage.data != null?Icons.arrow_upward:Icons.arrow_downward,
+                                        pendingMessage.data != null
+                                            ? Icons.arrow_upward
+                                            : Icons.arrow_downward,
                                         color: Theme.of(context).primaryColor,
                                         size: 33,
                                       ),
@@ -122,9 +124,8 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                         size: 35,
                                       ),
                                       onPressed: () {
-                                        pendingMessageDao.deletePendingMessage(
-                                            PendingMessage(
-                                                messageId: widget.dbId));
+                                        pendingMessageDao
+                                            .deletePendingMessage(widget.dbId);
                                       },
                                     ),
                             ),
