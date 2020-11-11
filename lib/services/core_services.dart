@@ -12,7 +12,6 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
-import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
@@ -58,7 +57,6 @@ class CoreServices {
   var _lastSeenDao = GetIt.I.get<LastSeenDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
-  var _notificationService = GetIt.I.get<NotificationServices>();
   var _mucRepo = GetIt.I.get<MucRepo>();
 
   initStreamConnection() async {
@@ -135,49 +133,6 @@ class CoreServices {
       });
     } catch (e) {
       print("correservice error");
-    }
-  }
-
-  _saveIncomingMessage(Message message) async {
-    var dbId = await _messageDao.insertMessage(M.Message(
-        id: message.id.toInt(),
-        roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
-            ? message.to.string
-            : message.to.category == Categories.USER
-                ? message.from.string
-                : message.to.string,
-        packetId: message.packetId,
-        time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
-        to: message.to.string,
-        from: message.from.string,
-        replyToId: message.replyToId.toInt(),
-        forwardedFrom: message.forwardFrom.string,
-        json: message.whichType() == Message_Type.text
-            ? message.text.text
-            : jsonEncode({
-                "uuid": message.file.uuid,
-                "name": message.file.name,
-                "caption": message.file.caption,
-                "type": findType(message.file.name)
-              }),
-        edited: message.edited,
-        encrypted: message.encrypted,
-        type: getMessageType(message.whichType())));
-    _roomDao.insertRoom(
-      M.Room(
-        roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
-            ? message.to.string
-            : message.to.category == Categories.USER
-                ? message.from.string
-                : message.to.string,
-      ),
-    );
-    if (message.to.category != Categories.USER) {
-      _mucRepo.saveMucInfo(message.to);
-    }
-    if (!message.from.node.contains(_accountRepo.currentUserUid.node)) {
-      _notificationService.showTextNotification(
-          message.id.toInt(), message.from.string, "ffff", message.text.text);
     }
   }
 
@@ -277,6 +232,51 @@ class CoreServices {
       return 'audio';
     else
       return 'file';
+  }
+
+  _saveIncomingMessage(Message message) async {
+    var dbId = await _messageDao.insertMessage(M.Message(
+        id: message.id.toInt(),
+        roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
+            ? message.to.string
+            : message.to.category == Categories.USER
+                ? message.from.string
+                : message.to.string,
+        packetId: message.packetId,
+        time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
+        to: message.to.string,
+        from: message.from.string,
+        replyToId: message.replyToId.toInt(),
+        forwardedFrom: message.forwardFrom.string,
+        json: message.whichType() == Message_Type.text
+            ? message.text.text
+            : jsonEncode({
+                "uuid": message.file.uuid,
+                "name": message.file.name,
+                "caption": message.file.caption,
+                "type": findType(message.file.name)
+              }),
+        edited: message.edited,
+        encrypted: message.encrypted,
+        type: getMessageType(message.whichType())));
+
+    bool isCurrentUser = message.from.equals(_accountRepo.currentUserUid);
+
+    var roomUid = isCurrentUser
+        ? message.to
+        : (message.to.category == Categories.USER ? message.from : message.to);
+
+    _roomDao.insertRoom(
+      M.Room(
+          roomId: roomUid.getString(),
+          lastMessageId: message.id.toInt(),
+          lastMessageDbId: dbId),
+    );
+
+    // TODO remove later on if Add User to group message feature is implemented
+    if (message.to.category != Categories.USER) {
+      _mucRepo.saveMucInfo(message.to);
+    }
   }
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
