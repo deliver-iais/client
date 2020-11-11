@@ -247,7 +247,7 @@ class CoreServices {
   }
 
   _saveIncomingMessage(Message message) async {
-    var msg = saveMessageInMessagesDB(message);
+    var msg = await saveMessageInMessagesDB(message);
 
     bool isCurrentUser = message.from.equals(_accountRepo.currentUserUid);
 
@@ -298,17 +298,19 @@ class CoreServices {
     var type = findFetchMessageType(message);
     var json = Object();
     if (type == MessageType.TEXT)
-      json = {"text": message.text};
+      json = {
+        "text": message.text.text
+      };
     else if (type == MessageType.FILE)
       json = {
         "uuid": message.file.uuid,
-        "size": message.file.size,
+        "size": message.file.size.toInt(),
         "type": message.file.type,
         "name": message.file.name,
         "caption": message.file.caption,
-        "width": message.file.width,
-        "height": message.file.height,
-        "duration": message.file.duration
+        "width": message.file.width.toInt(),
+        "height": message.file.height.toInt(),
+        "duration": message.file.duration.toDouble()
       };
     else if (type == MessageType.FORM)
       json = {"uuid": message.form.uuid, "title": message.form.title};
@@ -316,8 +318,8 @@ class CoreServices {
       json = {
         "uuid": message.sticker.uuid,
         "id": message.sticker.id,
-        "width": message.sticker.width,
-        "height": message.sticker.height
+        "width": message.sticker.width.toInt(),
+        "height": message.sticker.height.toInt()
       };
     else if (type == MessageType.PERSISTENT_EVENT)
       json = {"type": message.persistEvent}; //TODO edit this
@@ -329,8 +331,8 @@ class CoreServices {
       };
     else if (type == MessageType.LOCATION)
       json = {
-        "latitude": message.location.latitude,
-        "longitude": message.location.longitude
+        "latitude": message.location.latitude.toInt(),
+        "longitude": message.location.longitude.toInt()
       };
     else if (type == MessageType.LIVE_LOCATION)
       json = {"uuid": message.liveLocation.uuid};
