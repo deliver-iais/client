@@ -73,26 +73,6 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   Widget buildAvatar(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
     return Scaffold(
-      appBar: AppBar(leading: _routingService.backButtonLeading(), actions: [
-        PopupMenuButton(
-            icon: Icon(
-              Icons.more_vert,
-              color: Colors.white,
-              size: 20,
-            ),
-            itemBuilder: (cc) => [
-                  if (widget.hasPermissionToDeleteAvatar)
-                    PopupMenuItem(
-                        child: GestureDetector(
-                      child: Text(appLocalization.getTraslateValue("delete")),
-                      onTap: () async {
-                        await _avatarRepo
-                            .deleteAvatar(_allAvatars[swipePosition]);
-                        setState(() {});
-                      },
-                    )),
-                ])
-      ]),
       body: Container(
         child: StreamBuilder<List<Avatar>>(
             stream: _avatarRepo.getAvatar(widget.uid, false),
@@ -115,17 +95,36 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                       var file = _fileCache.get(fileId);
 
                       if (file != null) {
-                        return Hero(
-                          tag: widget.heroTag,
+
+                        return Center(
                           child: Container(
-                            decoration: new BoxDecoration(
-                              image: new DecorationImage(
-                                image: Image.file(file).image,
-                                fit: BoxFit.fitWidth,
-                              ),
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
+                            child: Stack(
+                              children: [
+                                buildAppBar(i, _allAvatars.length),
+                                Positioned(
+                                  top: 80,
+                                  left: 0.0,
+                                  bottom: 0.0,
+                                  right: 0.0,
+                                  child: Hero(
+                                    tag: "avatar$i",
+                                    child: Container(
+                                      decoration: new BoxDecoration(
+                                        image: new DecorationImage(
+                                          image: Image.file(file).image,
+                                          fit: BoxFit.fitWidth,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
                             ),
                           ),
                         );
+
                       } else {
                         return FutureBuilder(
                             future: _fileRepo.getFile(fileId, fileName),
@@ -135,16 +134,34 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                   snaps.connectionState ==
                                       ConnectionState.done) {
                                 _fileCache.set(fileId, snaps.data);
-                                return Hero(
-                                  tag: widget.heroTag,
+                                return Center(
                                   child: Container(
-                                    decoration: new BoxDecoration(
-                                      image: new DecorationImage(
-                                        image: Image.file(
-                                          snaps.data,
-                                        ).image,
-                                        fit: BoxFit.fitWidth,
-                                      ),
+                                    width: MediaQuery.of(context).size.width,
+                                    height: MediaQuery.of(context).size.height,
+                                    child: Stack(
+                                      alignment: Alignment.centerLeft,
+                                      children: [
+                                        buildAppBar(i, _allAvatars.length),
+                                        Positioned(
+                                          top: 80,
+                                          left: 0.0,
+                                          bottom: 0.0,
+                                          right: 0.0,
+                                          child: Hero(
+                                            tag: "avatar$i",
+                                            child: Container(
+                                              decoration: new BoxDecoration(
+                                                image: new DecorationImage(
+                                                  image: Image.file(
+                                                    snaps.data,
+                                                  ).image,
+                                                  fit: BoxFit.fitWidth,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      ],
                                     ),
                                   ),
                                 );
@@ -182,14 +199,48 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                       return Center();
                     } else {
                       setMediaUrlCache(i, snapshot.data);
-                      return Hero(
-                        tag: widget.heroTag,
-                        child: Center(
-                          child: CachedNetworkImage(
-                            width: MediaQuery.of(context).size.width,
-                            fit: BoxFit.fitWidth,
-                            imageUrl: snapshot
-                                .data[snapshot.data.length - 2].mediaUrl,
+
+                      return Center(
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
+                          child: Stack(
+                            alignment: Alignment.centerLeft,
+                            children: <Widget>[
+                              buildAppBar(i, widget.mediasLength),
+                              Positioned(
+                                  top: 80,
+                                  left: 0.0,
+                                  bottom: 0.0,
+                                  right: 0.0,
+                                  child: Hero(
+                                    tag: widget.heroTag,
+                                    child: CachedNetworkImage(
+                                      width: MediaQuery.of(context).size.width,
+                                      fit: BoxFit.fitWidth,
+                                      imageUrl: snapshot
+                                          .data[snapshot.data.length - 2]
+                                          .mediaUrl,
+                                    ),
+                                  )),
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                child: Padding(
+                                  padding:
+                                  const EdgeInsets.fromLTRB(10, 0, 0, 5),
+                                  child: Wrap(
+                                    direction: Axis.vertical,
+                                    runSpacing: 40,
+                                    children: [
+                                      Text(_mediaCache.get("$i").mediaSender),
+                                      SizedBox(height: 10),
+                                      Text(_mediaCache.get("$i").time),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
                         ),
                       );
@@ -197,15 +248,49 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                   });
             } else {
               widget.heroTag = "btn$i";
-              return Hero(
-                tag: widget.heroTag,
-                child: Center(
-                  child: CachedNetworkImage(
-                    width: MediaQuery.of(context).size.width,
-                    fit: BoxFit.fitWidth,
-                    imageUrl: media.mediaUrl,
-                  ), // transitionOnUserGestures: true,
-                ),
+
+
+              return Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: Stack(
+                    alignment: Alignment.centerLeft,
+                    children: <Widget>[
+                      buildAppBar(i, widget.mediasLength),
+                      Positioned(
+                        top: 80,
+                        left: 0.0,
+                        bottom: 0.0,
+                        right: 0.0,
+                        child: Hero(
+                          tag: widget.heroTag,
+                          child: CachedNetworkImage(
+                            width: MediaQuery.of(context).size.width,
+                            fit: BoxFit.fitWidth,
+                            imageUrl: media.mediaUrl,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 0, 0, 5),
+                          child: Wrap(
+                            direction: Axis.vertical,
+                            runSpacing: 40,
+                            children: [
+                              Text(_mediaCache.get("$i").mediaSender),
+                              SizedBox(height: 10),
+                              Text(_mediaCache.get("$i").time),
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ), // transitionOnUserGestures: true,
               );
             }
           },
@@ -225,4 +310,43 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       _mediaCache.set("${currentPosition + shift + j}", mediaList[j]);
     }
   }
+  Widget buildAppBar(int currentPosition, totalLength) {
+    return AppBar(
+      leading: _routingService.backButtonLeading(),
+      title: Align(
+        alignment: Alignment.topLeft,
+        child: new Text("${currentPosition + 1} of ${totalLength}"),
+      ),
+      actions: [
+        //widget.isAvatar ?
+        PopupMenuButton(
+            icon: Icon(
+              Icons.more_vert,
+              color: Colors.white,
+              size: 20,
+            ),
+            itemBuilder: (cc) => [
+              if (widget.hasPermissionToDeleteAvatar&&widget.isAvatar)
+                PopupMenuItem(
+                    child: GestureDetector(
+                      child: Text("delete"),
+                      onTap: () async {
+                        await _avatarRepo
+                            .deleteAvatar(_allAvatars[swipePosition]);
+                        setState(() {});
+                      },
+                    )),
+            ])
+        //     : PopupMenuButton(
+        //   icon: Icon(
+        //     Icons.more_vert,
+        //     color: Colors.white,
+        //     size: 20,
+        //   ),
+        //   itemBuilder: (cc) => [],
+        // )
+      ],
+    );
+  }
+
 }
