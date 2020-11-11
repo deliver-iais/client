@@ -93,8 +93,9 @@ class CoreServices {
 
   _startStream() async {
     try {
-      _clientPacket.close();
+      await _clientPacket.close();
       _responseStream.cancel();
+      //_responseStream.cancel();
     } catch (e) {}
 
     try {
@@ -139,7 +140,9 @@ class CoreServices {
         id: message.id.toInt(),
         roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
             ? message.to.string
-            : message.to.category == Categories.USER? message.from.string:message.to.string,
+            : message.to.category == Categories.USER
+                ? message.from.string
+                : message.to.string,
         packetId: message.packetId,
         time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
         to: message.to.string,
@@ -160,32 +163,37 @@ class CoreServices {
     _pendingMessageDao
         .deletePendingMessage(M.PendingMessage(messageId: message.packetId));
     _roomDao.insertRoom(
-      M.Room(roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
-          ? message.to.string
-          : message.to.category == Categories.USER? message.from.string:message.to.string, lastMessage: message.packetId),
+      M.Room(
+          roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
+              ? message.to.string
+              : message.to.category == Categories.USER
+                  ? message.from.string
+                  : message.to.string,
+          lastMessage: message.packetId),
     );
-    if(message.to.category != Categories.USER) {
+    if (message.to.category != Categories.USER) {
       _mucRepo.saveMucInfo(message.to);
     }
     if (!message.from.node.contains(_accountRepo.currentUserUid.node)) {
       _notificationService.showTextNotification(
           message.id.toInt(), message.from.string, "ffff", message.text.text);
     }
-
   }
 
   sendMessage(MessageByClient message) {
-    _clientPacket.add(ClientPacket()
-      ..message = message
-      ..id = message.packetId);
+    if (!_clientPacket.isClosed)
+      _clientPacket.add(ClientPacket()
+        ..message = message
+        ..id = message.packetId);
 
     print("message is send ");
   }
 
   sendPingMessage() {
-    _clientPacket.add(ClientPacket()
-      ..ping = Ping()
-      ..id = DateTime.now().microsecondsSinceEpoch.toString());
+    if (!_clientPacket.isClosed)
+      _clientPacket.add(ClientPacket()
+        ..ping = Ping()
+        ..id = DateTime.now().microsecondsSinceEpoch.toString());
   }
 
   sendSeenMessage(SeenByClient seen) {
