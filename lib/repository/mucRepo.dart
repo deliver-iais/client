@@ -75,8 +75,9 @@ class MucRepo {
     insertUserInDb(channelUid, members);
   }
 
+  // TODO remove later on if Add User to group message feature is implemented
   saveMucInfo(Uid mucUid) async {
-    if (null == await _mucDao.getByUid(mucUid.string)) {
+    if (await _mucDao.getByUid(mucUid.string) == null) {
       if (mucUid.category == Categories.GROUP) {
         MucPro.Group group = await getGroupInfo(mucUid);
         _mucDao.insertMuc(Muc(
