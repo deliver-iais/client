@@ -111,6 +111,8 @@
   "connecting": "connecting",
   "UnreadMessages": "Unread Messages",
   "updating": "updating",
+  "disconnected": "Disconnected",
+  "connected": "Connected",
   "contactNotExit": "Contact not Exist",
   "contactAdd": "Contact Add in Contacts"
 }

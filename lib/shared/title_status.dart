@@ -15,22 +15,20 @@ class TitleStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    return Expanded(
-      child: StreamBuilder<TitleStatusConditions>(
-          stream: _messageRepo.updatingStatus.stream,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              if (snapshot.data == TitleStatusConditions.Normal &&
-                  this.normalConditionWidget != null) {
-                return this.normalConditionWidget;
-              } else {
-                return Text(title(appLocalization, snapshot.data),
-                    style: this.style);
-              }
+    return StreamBuilder<TitleStatusConditions>(
+        stream: _messageRepo.updatingStatus.stream,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data == TitleStatusConditions.Normal &&
+                this.normalConditionWidget != null) {
+              return this.normalConditionWidget;
+            } else {
+              return Text(title(appLocalization, snapshot.data),
+                  style: this.style);
             }
-            return normalConditionWidget;
-          }),
-    );
+          }
+          return normalConditionWidget;
+        });
   }
 
   title(
@@ -41,7 +39,7 @@ class TitleStatus extends StatelessWidget {
       case TitleStatusConditions.Updating:
         return appLocalization.getTraslateValue("updating");
       case TitleStatusConditions.Normal:
-        return appLocalization.getTraslateValue("normal");
+        return appLocalization.getTraslateValue("connected");
     }
   }
 }
