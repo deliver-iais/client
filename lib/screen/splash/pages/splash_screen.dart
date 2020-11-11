@@ -15,7 +15,6 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   var loggedInStatus;
-  var _coreServices = GetIt.I.get<CoreServices>();
   AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
   int attempts = 0;
 

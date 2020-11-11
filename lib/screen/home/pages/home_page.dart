@@ -26,8 +26,6 @@ class _HomePageState extends State<HomePage> {
     checkIfUsernameIsSet();
     checkShareFile(context);
     _coreServices.initStreamConnection();
-
-    _coreServices.connectionStatus.listen((value) { Fluttertoast.showToast(msg: "ConnectionStatus: $value"); });
   }
 
   checkShareFile(BuildContext context) {

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
@@ -54,6 +55,7 @@ class CoreServices {
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _messageDao = GetIt.I.get<MessageDao>();
   var _seenDao = GetIt.I.get<SeenDao>();
+  var _lastSeenDao = GetIt.I.get<LastSeenDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _notificationService = GetIt.I.get<NotificationServices>();
@@ -277,12 +279,15 @@ class CoreServices {
       return 'file';
   }
 
-  _saveAckMessage(MessageDeliveryAck messageDeliveryAck) {
-    _pendingMessageDao.deletePendingMessage(messageDeliveryAck.packetId);
-    _messageDao.updateMessageId(
-        messageDeliveryAck.to.getString(),
-        messageDeliveryAck.packetId,
-        messageDeliveryAck.id.toInt(),
-        messageDeliveryAck.time.toInt());
+  _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
+    var roomId = messageDeliveryAck.to.getString();
+    var packetId = messageDeliveryAck.packetId;
+    var id = messageDeliveryAck.id.toInt();
+    var time = messageDeliveryAck.time.toInt();
+
+    await _messageDao.updateMessageId(roomId, packetId, id, time);
+    await _roomDao.updateRoomWithAckMessage(roomId, id);
+    await _lastSeenDao.updateLastSeen(roomId, id);
+    await _pendingMessageDao.deletePendingMessage(packetId);
   }
 }
