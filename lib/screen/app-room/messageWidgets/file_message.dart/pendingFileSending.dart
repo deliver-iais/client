@@ -54,10 +54,6 @@ class PendingMessageFileSending extends StatelessWidget {
                   loadProgress:
                       pendingMessage.status == SendingStatus.PENDING ? 1 : 0.8,
                   isMedia: true,
-                  cancelUpload: () {
-                    _pendingMessageDao.deletePendingMessage(pendingMessage);
-                    _messageDao.deleteMessage(message);
-                  },
                 ),
               ],
             ),
