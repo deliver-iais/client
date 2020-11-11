@@ -70,6 +70,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   int _lastShowedMessageId;
   ScrollController _scrollController;
   int _itemCount;
+
   // TODO should be implemented
   bool _disableScrolling = false;
   final ItemScrollController _itemScrollController = ItemScrollController();
@@ -79,44 +80,34 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Cache<int, Message> _cache =
       LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
 
+  // TODO, get previous message
+  _getPendingMessage(dbId) async {
+    return [await _messageRepo.getPendingMessage(dbId)];
+  }
+
   // TODO check function
   // Check print before return result result not working future builder, why?!
-  Future<List<Message>> getMessage(
-      int id, String roomId, bool isPendingMessage) async {
-    List<Message> result = [];
-    if (isPendingMessage) {
-      result = [await _messageRepo.getPendingMessage(id)];
-      return result;
-    } else {
-      var msg = _cache.get(id);
-      int page;
-      if (msg != null) {
-        result.add(msg);
-      } else {
-        page = (id / PAGE_SIZE).floor();
-        List<Message> messages = await _messageRepo.getPage(page, roomId);
-        for (int i = 0; i < messages.length; i = i + 1) {
-          _cache.set(messages[i].id, messages[i]);
-        }
-        result.add(messages[id - page * PAGE_SIZE]);
-      }
-      if (id > 0) {
-        msg = _cache.get(id - 1);
-        if (msg != null) {
-          result.add(msg);
-          return result;
-        } else {
-          List<Message> messages = _messageRepo.getPage(page - 1, roomId);
+  Future<List<Message>> _getMessageAndPreviousMessage(int id) async {
+    String roomId = widget.roomId;
+    List<Message> result = [await getMessage(id, roomId)];
 
-          for (int i = 0; i < messages.length; i = i + 1) {
-            _cache.set(messages[i].id, messages[i]);
-          }
-          result.add(messages[id - 1 - page * PAGE_SIZE]);
-          return result;
-        }
-      }
-      return result;
+    if (id > 0) {
+      result.add(await getMessage(id - 1, roomId));
     }
+    return result;
+  }
+
+  Future<Message> getMessage(int id, String roomId) async {
+    var msg = _cache.get(id);
+    if (msg != null) {
+      return msg;
+    }
+    int page = (id / PAGE_SIZE).floor();
+    List<Message> messages = await _messageRepo.getPage(page, roomId);
+    for (int i = 0; i < messages.length; i = i + 1) {
+      _cache.set(messages[i].id, messages[i]);
+    }
+    return messages[id - page * PAGE_SIZE];
   }
 
   void resetRoomPageDetails() {
@@ -222,7 +213,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               FutureBuilder<LastSeen>(
                   future: lastSeenDao.getByRoomId(widget.roomId),
                   builder: (context, lastSeen$) {
-                    _lastSeenSubject.add(lastSeen$.data?.messageId ?? -1);
                     _lastShowedMessageId = lastSeen$.data?.messageId ?? 0;
 
                     if (lastSeen$.data == null) {
@@ -284,17 +274,16 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                       currentRoom.lastMessageId;
 
                                           return FutureBuilder<List<Message>>(
-                                            future: getMessage(
-                                                isPendingMessage
-                                                    ? pendingMessages[index -
+                                            future: isPendingMessage
+                                                ? _getPendingMessage(
+                                                    pendingMessages[index -
                                                             1 -
                                                             (currentRoom
                                                                     .lastMessageId ??
                                                                 -1)]
-                                                        .messageDbId
-                                                    : index,
-                                                widget.roomId,
-                                                isPendingMessage),
+                                                        .messageDbId)
+                                                : _getMessageAndPreviousMessage(
+                                                    index),
                                             builder: (context, messagesFuture) {
                                               if (messagesFuture.hasData) {
                                                 var messages =
@@ -306,8 +295,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                   month =
                                                       messages[0].time.month;
                                                   day = messages[0].time.day;
-                                                  _lastSeenSubject
-                                                      .add(messages[0].id);
+                                                  if (!(messages[0]
+                                                      .from
+                                                      .isSameEntity(_accountRepo
+                                                          .currentUserUid)))
+                                                    _lastSeenSubject
+                                                        .add(messages[0].id);
                                                 }
                                                 newTime = false;
                                                 if (index == 0)
@@ -704,44 +697,3 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     }
   }
 }
-
-//length of list $MessagesTable
-//index ?
-//message 0
-
-//pending message = true
-//
-//pending message = false
-//  unreadMessage = true
-//from last show message
-//from
-//  unreadMessage = false
-
-//lastseenId
-//unreadMessage lastId >lastSeenId
-//index 0-lastId
-//id / index
-//lastSeenId - index
-// lastId - index
-// unread = lastId - lastShowId - 1
-
-//11 lastSeen
-//12
-//13
-//20 - index + show + 1
-//
-
-// return Flexible(
-//   fit: FlexFit.loose,
-//   child: ListView.builder(
-//     reverse: true,
-//     controller: _scrollController,
-//     itemCount: itemCount,
-//     padding: const EdgeInsets.all(5),
-//     physics: disableScrolling
-//         ? NeverScrollableScrollPhysics()
-//         : AlwaysScrollableScrollPhysics(),
-//     // TODO check
-//
-//   ),
-// );

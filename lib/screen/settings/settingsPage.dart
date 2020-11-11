@@ -51,7 +51,6 @@ class SettingsPage extends StatelessWidget {
   attachFile() async {
     String path;
     if (isDesktop()) {
-      print("wtf");
       final result = await showOpenPanel(
           allowsMultipleSelection: false,
           allowedFileTypes: [
