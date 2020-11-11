@@ -81,7 +81,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
 
   // TODO, get previous message
-  Future<List<Message>>_getPendingMessage(dbId) async {
+  Future<List<Message>> _getPendingMessage(dbId) async {
     return [await _messageRepo.getPendingMessage(dbId)];
   }
 
@@ -103,11 +103,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       return msg;
     }
     int page = (id / PAGE_SIZE).floor();
-    List<Message> messages = await _messageRepo.getPage(page, roomId);
+    List<Message> messages = await _messageRepo.getPage(page, roomId, id);
     for (int i = 0; i < messages.length; i = i + 1) {
       _cache.set(messages[i].id, messages[i]);
     }
-    return messages[id - page * PAGE_SIZE];
+    return _cache.get(id);
   }
 
   void resetRoomPageDetails() {
@@ -213,7 +213,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               FutureBuilder<LastSeen>(
                   future: lastSeenDao.getByRoomId(widget.roomId),
                   builder: (context, lastSeen$) {
-                    _lastShowedMessageId = lastSeen$.data?.messageId ?? 0;
+                    _lastShowedMessageId = lastSeen$.data?.messageId ?? 200;
 
                     if (lastSeen$.data == null) {
                       return Expanded(
@@ -512,9 +512,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                 );
                                               } else {
                                                 return Container(
-                                                    height: deviceHeight,
-                                                    child:
-                                                        CircularProgressIndicator()); //TODO
+                                                    color: Colors.amberAccent,
+                                                    height: 20,
+                                                    child: Text(
+                                                      "$index",
+                                                      style: TextStyle(
+                                                          color: Colors.red),
+                                                    )); //TODO
                                               }
                                             },
                                           );

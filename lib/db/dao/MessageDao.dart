@@ -15,6 +15,10 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
 
   Stream watchAllMessages() => select(messages).watch();
 
+  Future insertBulk(List<Message> messages) {
+
+  }
+
   Future<int> insertMessage(Message newMessage) =>
       into(messages).insertOnConflictUpdate(newMessage);
 
