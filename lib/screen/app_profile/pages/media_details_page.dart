@@ -74,27 +74,6 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   Widget buildAvatar(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
     return Scaffold(
-      appBar: AppBar(leading: _routingService.backButtonLeading(), actions: [
-        if (widget.hasPermissionToDeleteAvatar)
-          PopupMenuButton(
-              icon: Icon(
-                Icons.more_vert,
-                color: Colors.white,
-                size: 20,
-              ),
-              itemBuilder: (cc) => [
-                    PopupMenuItem(
-                        child: GestureDetector(
-                      child: Text(appLocalization.getTraslateValue("delete")),
-                      onTap: () async {
-                        Navigator.pop(context);
-                        await _avatarRepo
-                            .deleteAvatar(_allAvatars[swipePosition]);
-                        setState(() {});
-                      },
-                    )),
-                ])
-      ]),
       body: Container(
         child: StreamBuilder<List<Avatar>>(
             stream: _avatarRepo.getAvatar(widget.uid, false),
@@ -332,6 +311,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       _mediaCache.set("${currentPosition + shift + j}", mediaList[j]);
     }
   }
+
   Widget buildAppBar(int currentPosition, totalLength) {
     return AppBar(
       leading: _routingService.backButtonLeading(),

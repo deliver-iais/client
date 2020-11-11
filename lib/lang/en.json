@@ -101,18 +101,16 @@
   "un_mute": "UnMute",
   "occurred_Error": "Occurred Error",
   "continue": "Continue",
-  "send_Contacts_message": "Dliver needs access to your contacts so that you can connect with your friend across all your device. your contacts will be continuously synced with Dliver's  heavily encrypted cloud servers.",
   "you": "you",
   "leftGroup": "Left Group",
   "leftChannel": "Left Channel",
   "deleteGroup": "Delete Group",
   "deleteChannel": "Delete Channel",
   "saved_message": "Saved Message",
-  "send_Contacts_message": "Dliver needs access to your contacts so that you can connect with your friend across all your device. your contacts will be continuously synced with Dliver's  heavily encrypted cloud servers.",
+  "send_Contacts_message": "Deliver needs access to your contacts so that you can connect with your friend across all your device. your contacts will be continuously synced with Dliver's  heavily encrypted cloud servers.",
   "connecting": "connecting",
   "UnreadMessages": "Unread Messages",
-  "updating": "updating"
-  "saved_message": "Saved Message",
+  "updating": "updating",
   "contactNotExit": "Contact not Exist",
   "contactAdd": "Contact Add in Contacts"
 }
