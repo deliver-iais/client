@@ -45,8 +45,6 @@ class CoreServices {
 
   int _backoffTime = MIN_BACKOFF_TIME;
 
-  StreamController<MessageByClient> streamController = StreamController();
-
   BehaviorSubject<ConnectionStatus> connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Disconnected);
 
@@ -184,7 +182,6 @@ class CoreServices {
   }
 
   sendMessage(MessageByClient message) {
- //   streamController.add(message);
 
     _clientPacket.add(ClientPacket()
       ..message = message
