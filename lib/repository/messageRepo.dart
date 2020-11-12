@@ -79,21 +79,21 @@ class MessageRepo {
           GetAllUserRoomMetaReq(),
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      //   Map<String,int>
+      print(getAllUserRoomMetaRes.roomsMeta);
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
         var room =
-            await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.string) ??
-                Room(
-                    roomId: userRoomMeta.roomUid.getString(),
-                    lastMessageId: -1,
-                    lastMessageDbId: -1);
-        if ((room.lastMessageId ?? -1) < userRoomMeta.lastMessageId.toInt()) {
+            await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.string);
+
+        if (room == null ||
+            (room.lastMessageId ?? -1) < userRoomMeta.lastMessageId.toInt()) {
           try {
             var fetchMessagesRes = await _queryServiceClient.fetchMessages(
                 FetchMessagesReq()
-                  ..roomUid = room.roomId.uid
-                  ..pointer = Int64(200)
+                  ..roomUid = userRoomMeta.roomUid
+                  ..pointer = userRoomMeta.lastMessageId
                   ..type = FetchMessagesReq_Type.FORWARD_FETCH
-                  ..limit = 50,
+                  ..limit = 1,
                 options: CallOptions(metadata: {
                   'accessToken': await _accountRepo.getAccessToken()
                 }));
@@ -101,15 +101,12 @@ class MessageRepo {
                 await _saveFetchMessages(fetchMessagesRes.messages);
 
             print("messages $messages");
-
-            Message lastMessage = messages.reduce(
-                (value, element) => value.id > element.id ? value : element);
-
-            // TODO if there is Pending Message this line has a bug!!!
-            print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-            await _roomDao.insertRoom(room.copyWith(
-                lastMessageId: lastMessage.id.toInt(),
-                lastMessageDbId: lastMessage.dbId));
+            // TODO if there is Pending Message this line has a bug!!
+            room = Room(
+                roomId: userRoomMeta.roomUid.getString(),
+                lastMessageId: userRoomMeta.lastMessageId.toInt(),
+                lastMessageDbId: messages[0].dbId);
+            _roomDao.insertRoom(room);
           } catch (e) {
             print(
                 "EXCEPTIOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNNNNNNNNNN");
@@ -405,7 +402,7 @@ class MessageRepo {
     for (var m in messages) {
       f[m.id] = m;
     }
-    if(f.containsKey(id)){
+    if (f.containsKey(id)) {
       return f.values.toList();
     }
     if (!f.values.toList().any((element) => element.id == id)) {
@@ -437,7 +434,6 @@ class MessageRepo {
     for (messagePb.Message message in messages) {
       msgList.add(await _coreServices.saveMessageInMessagesDB(message));
     }
-
     return msgList;
   }
 

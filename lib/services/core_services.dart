@@ -17,6 +17,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:get_it/get_it.dart';
 
@@ -235,11 +236,12 @@ class CoreServices {
   }
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
+    print(messageDeliveryAck.toString());
+
     var roomId = messageDeliveryAck.to.getString();
     var packetId = messageDeliveryAck.packetId;
     var id = messageDeliveryAck.id.toInt();
     var time = messageDeliveryAck.time.toInt();
-
     await _messageDao.updateMessageId(roomId, packetId, id, time);
     await _roomDao.updateRoomWithAckMessage(roomId, id);
     await _lastSeenDao.updateLastSeen(roomId, id);
@@ -247,10 +249,9 @@ class CoreServices {
   }
 
   _saveIncomingMessage(Message message) async {
+    print(message.toString());
     var msg = await saveMessageInMessagesDB(message);
-
-    bool isCurrentUser = message.from.equals(_accountRepo.currentUserUid);
-
+    bool isCurrentUser = message.from.node.contains(_accountRepo.currentUserUid.node);
     var roomUid = isCurrentUser
         ? message.to
         : (message.to.category == Categories.USER ? message.from : message.to);
@@ -269,6 +270,7 @@ class CoreServices {
   }
 
   saveMessageInMessagesDB(Message message) async {
+    print(message.text.text);
     M.Message msg = M.Message(
         id: message.id.toInt(),
         roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
@@ -287,9 +289,9 @@ class CoreServices {
         encrypted: message.encrypted,
         type: getMessageType(message.whichType()));
 
+
     int dbId = await _messageDao.insertMessage(msg);
 
-    print("MessageId: ${msg.id}");
     return msg.copyWith(dbId: dbId);
   }
 
