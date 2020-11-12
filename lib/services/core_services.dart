@@ -290,7 +290,6 @@ class CoreServices {
     int dbId = await _messageDao.insertMessage(msg);
 
     print("MessageId: ${msg.id}");
-
     return msg.copyWith(dbId: dbId);
   }
 
@@ -305,7 +304,7 @@ class CoreServices {
       json = {
         "uuid": message.file.uuid,
         "size": message.file.size.toInt(),
-        "type": message.file.type,
+        "type": findType(message.file.name),
         "name": message.file.name,
         "caption": message.file.caption,
         "width": message.file.width.toInt(),

@@ -49,6 +49,8 @@ class MessageRepo {
 
   static int id = 0;
 
+  Map<String, int> fetchMessageId = Map();
+
   // ignore: non_constant_identifier_names
   final int MAX_REMAINING_RETRIES = 3;
   static ClientChannel _clientChannel = ClientChannel("172.16.111.189",
@@ -109,7 +111,8 @@ class MessageRepo {
                 lastMessageId: lastMessage.id.toInt(),
                 lastMessageDbId: lastMessage.dbId));
           } catch (e) {
-            print("EXCEPTIOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNNNNNNNNNN");
+            print(
+                "EXCEPTIOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNNNNNNNNNN");
             print(e);
           }
         }
@@ -342,7 +345,8 @@ class MessageRepo {
   }
 
   _sendTextMessage(Message message) async {
-    clientMessage.Text messageText = clientMessage.Text()..text = jsonDecode(message.json).text;
+    clientMessage.Text messageText = clientMessage.Text()
+      ..text = jsonDecode(message.json)["text"];
     clientMessage.MessageByClient messageByClient =
         clientMessage.MessageByClient()
           ..packetId = message.packetId
@@ -396,22 +400,35 @@ class MessageRepo {
 
   Future<List<Message>> getPage(int page, String roomId, int id,
       {int pageSize = 50}) async {
-    // print("MESSAGE IDDDDDDDDDDDDDDDDDDDDD: $id");
+    Map<int, Message> f = Map();
     var messages = await _messageDao.getPage(roomId, page);
-    if (!messages.any((element) => element.id == id)) {
-      var fetchMessagesRes = await _queryServiceClient.fetchMessages(
-          FetchMessagesReq()
-            ..roomUid = roomId.uid
-            ..pointer = Int64(page * pageSize)
-            ..type = FetchMessagesReq_Type.FORWARD_FETCH
-            ..limit = pageSize,
-          options: CallOptions(
-              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      print(
-          "MESSAGE $id IDDDDDDDDDDDDDDDDDDDDD fetch result: ${fetchMessagesRes.messages.length}");
-      return await _saveFetchMessages(fetchMessagesRes.messages);
+    for (var m in messages) {
+      f[m.id] = m;
     }
-    return messages;
+    if(f.containsKey(id)){
+      return f.values.toList();
+    }
+    if (!f.values.toList().any((element) => element.id == id)) {
+      if (fetchMessageId[roomId] == null ||
+          (fetchMessageId[roomId] - id).abs() > 49) {
+        fetchMessageId[roomId] = id;
+        var fetchMessagesRes = await _queryServiceClient.fetchMessages(
+            FetchMessagesReq()
+              ..roomUid = roomId.uid
+              ..pointer = Int64(page * pageSize)
+              ..type = FetchMessagesReq_Type.FORWARD_FETCH
+              ..limit = pageSize,
+            options: CallOptions(metadata: {
+              'accessToken': await _accountRepo.getAccessToken()
+            }));
+        print(
+            "MESSAGE $id IDDDDDDDDDDDDDDDDDDDDD fetch result: ${fetchMessagesRes.messages.length}");
+        return await _saveFetchMessages(fetchMessagesRes.messages);
+      } else {
+        print("###################################==$page");
+      }
+    }
+    return f.values.toList();
   }
 
   Future<List<Message>> _saveFetchMessages(

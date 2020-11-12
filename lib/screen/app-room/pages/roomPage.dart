@@ -213,13 +213,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               FutureBuilder<LastSeen>(
                   future: lastSeenDao.getByRoomId(widget.roomId),
                   builder: (context, lastSeen$) {
-                    _lastShowedMessageId = lastSeen$.data?.messageId ?? 200;
-
-                    if (lastSeen$.data == null) {
-                      return Expanded(
-                        child: Container(),
-                      );
-                    }
+                    _lastShowedMessageId = lastSeen$.data?.messageId ?? 0;
+//
+//                    if (lastSeen$.data == null) {
+//                      return Expanded(
+//                        child: Container(),
+//                      );
+//                    }
 
                     return StreamBuilder<List<PendingMessage>>(
                         stream: _pendingMessageDao.getByRoomId(widget.roomId),
@@ -285,7 +285,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                 : _getMessageAndPreviousMessage(
                                                     index),
                                             builder: (context, messagesFuture) {
-                                              if (messagesFuture.hasData) {
+                                              if (messagesFuture.hasData &&
+                                                  messagesFuture.data[0] !=
+                                                      null &&
+                                                  messagesFuture.data[0].time !=
+                                                      null) {
                                                 var messages =
                                                     messagesFuture.data;
                                                 if (messages.length == 0) {
@@ -305,7 +309,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                 newTime = false;
                                                 if (index == 0)
                                                   newTime = true;
-                                                else if (messages.length > 1) {
+                                                else if (messages.length > 1 &&
+                                                    messages[1] != null) {
                                                   if (messages[1].time.day !=
                                                           day ||
                                                       messages[1].time.month !=
