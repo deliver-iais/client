@@ -28,6 +28,15 @@ class MediaQueryRepo {
 
   var mediaServices = QueryServiceClient(clientChannel);
 
+   getMediaMetaData(Uid uid) async{
+    var getMediaMetaDataReq = GetMediaMetadataReq();
+    getMediaMetaDataReq..with_1 = uid;
+   var mediaResponse= await mediaServices.getMediaMetadata(getMediaMetaDataReq,
+        options: CallOptions(
+            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+   mediaResponse.allAudiosCount.toInt();
+  }
+
   fetchMedias(
       Uid roomUid,
       String pointer,
