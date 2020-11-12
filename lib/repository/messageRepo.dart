@@ -77,7 +77,6 @@ class MessageRepo {
           GetAllUserRoomMetaReq(),
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      print("FOOOOOOOOOOOOOR: $getAllUserRoomMetaRes");
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
         var room =
             await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.string) ??
@@ -85,15 +84,14 @@ class MessageRepo {
                     roomId: userRoomMeta.roomUid.getString(),
                     lastMessageId: -1,
                     lastMessageDbId: -1);
-        print("FOOOOOOOOOOOOOR: $room $userRoomMeta");
-        if (room.lastMessageId < userRoomMeta.lastMessageId.toInt()) {
+        if ((room.lastMessageId ?? -1) < userRoomMeta.lastMessageId.toInt()) {
           try {
             var fetchMessagesRes = await _queryServiceClient.fetchMessages(
                 FetchMessagesReq()
                   ..roomUid = room.roomId.uid
-                  ..pointer = userRoomMeta.lastMessageId
-                  ..type = FetchMessagesReq_Type.BACKWARD_FETCH
-                  ..limit = 5,
+                  ..pointer = Int64(200)
+                  ..type = FetchMessagesReq_Type.FORWARD_FETCH
+                  ..limit = 50,
                 options: CallOptions(metadata: {
                   'accessToken': await _accountRepo.getAccessToken()
                 }));
@@ -106,6 +104,7 @@ class MessageRepo {
                 (value, element) => value.id > element.id ? value : element);
 
             // TODO if there is Pending Message this line has a bug!!!
+            print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
             await _roomDao.insertRoom(room.copyWith(
                 lastMessageId: lastMessage.id.toInt(),
                 lastMessageDbId: lastMessage.dbId));
@@ -343,7 +342,7 @@ class MessageRepo {
   }
 
   _sendTextMessage(Message message) async {
-    clientMessage.Text messageText = clientMessage.Text()..text = message.json;
+    clientMessage.Text messageText = clientMessage.Text()..text = jsonDecode(message.json).text;
     clientMessage.MessageByClient messageByClient =
         clientMessage.MessageByClient()
           ..packetId = message.packetId
