@@ -61,10 +61,8 @@ class CoreServices {
   var _mucRepo = GetIt.I.get<MucRepo>();
 
   initStreamConnection() async {
-    _startStream();
-
-    _startCheckerTimer();
-
+    await _startStream();
+    await _startCheckerTimer();
     _connectionStatus.distinct().listen((event) => connectionStatus.add(event));
   }
 
@@ -239,10 +237,10 @@ class CoreServices {
     var roomId = messageDeliveryAck.to.getString();
     var packetId = messageDeliveryAck.packetId;
     var id = messageDeliveryAck.id.toInt();
-    var time = messageDeliveryAck.time.toInt();
+    var time = messageDeliveryAck.time.toInt() ??
+        DateTime.now().millisecondsSinceEpoch;
     _messageDao.updateMessageId(roomId, packetId, id, time);
     _roomDao.insertRoom(M.Room(roomId: roomId, lastMessageId: id));
-    //  await _roomDao.updateRoomWithAckMessage(roomId, id);
     _lastSeenDao.updateLastSeen(roomId, id);
     _pendingMessageDao.deletePendingMessage(packetId);
   }
@@ -303,7 +301,7 @@ class CoreServices {
       json = {
         "uuid": message.file.uuid,
         "size": message.file.size.toInt(),
-        "type": findType(message.file.name),
+        "type": message.file.type,
         "name": message.file.name,
         "caption": message.file.caption,
         "width": message.file.width.toInt(),

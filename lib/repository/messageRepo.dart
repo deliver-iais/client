@@ -72,6 +72,7 @@ class MessageRepo {
   }
 
   updating() async {
+  ///  sendPendingMessage();
     updatingStatus.add(TitleStatusConditions.Updating);
     print("UPDATTTTTTTTTTTTTTTTTTTTTTTTTTTTINNNNNNNNNNNNGGGGGGGGGGGG");
     try {
@@ -79,7 +80,6 @@ class MessageRepo {
           GetAllUserRoomMetaReq(),
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      //   Map<String,int>
       print(getAllUserRoomMetaRes.roomsMeta);
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
         print(userRoomMeta);
@@ -93,7 +93,7 @@ class MessageRepo {
                 FetchMessagesReq()
                   ..roomUid = userRoomMeta.roomUid
                   ..pointer = userRoomMeta.lastMessageId
-                  ..type = FetchMessagesReq_Type.FORWARD_FETCH
+                  ..type = FetchMessagesReq_Type.BACKWARD_FETCH
                   ..limit = 1,
                 options: CallOptions(metadata: {
                   'accessToken': await _accountRepo.getAccessToken()
@@ -148,18 +148,6 @@ class MessageRepo {
     await _savePendingMessage(dbId, roomId.string, SendingStatus.PENDING,
         MAX_REMAINING_RETRIES, message);
     await _sendTextMessage(message);
-    // await Future.delayed(Duration(seconds: 20)).whenComplete(() async {
-    //   //TODO
-    //   await _messageDao.updateMessage(
-    //       message.copyWith(dbId: dbId, id: id, time: DateTime.now()));
-    //   await _updateRoomLastMessage(roomId.string, dbId, id: id);
-    //
-    //   await _lastSeenDao.updateLastSeen(message.roomId, id);
-    //
-    //   await _pendingMessageDao.deletePendingMessage(dbId);
-    //
-    //   id++;
-    // });
   }
 
   String findType(String path) {
@@ -244,13 +232,13 @@ class MessageRepo {
   sendPendingMessage() {
     _pendingMessageDao.watchAllMessages().listen((event) {
       for (PendingMessage pendingMessage in event) {
-        if (pendingMessage.remainingRetries > 0) {
+        if (pendingMessage.remainingRetries == 3) {
           switch (pendingMessage.status) {
             case SendingStatus.SENDING_FILE:
               _messageDao
                   .getByDbId(pendingMessage.messageDbId)
                   .listen((message) {
-                //  _sendFileMessage(message, jsonDecode(message.json)["path"]);
+                 // _sendFileMessage(message, jsonDecode(message.json)["path"]);
               });
               _updatePendingMessage(pendingMessage);
 
@@ -259,7 +247,7 @@ class MessageRepo {
               _messageDao
                   .getByDbId(pendingMessage.messageDbId)
                   .listen((message) {
-                _sendTextMessage(message);
+              _sendTextMessage(message);
               });
               _updatePendingMessage(pendingMessage);
               break;
@@ -414,8 +402,8 @@ class MessageRepo {
         var fetchMessagesRes = await _queryServiceClient.fetchMessages(
             FetchMessagesReq()
               ..roomUid = roomId.uid
-              ..pointer = Int64(page * pageSize)
-              ..type = FetchMessagesReq_Type.FORWARD_FETCH
+              ..pointer = Int64(id)
+              ..type = FetchMessagesReq_Type.BACKWARD_FETCH
               ..limit = pageSize,
             options: CallOptions(metadata: {
               'accessToken': await _accountRepo.getAccessToken()
@@ -439,23 +427,4 @@ class MessageRepo {
     return msgList;
   }
 
-  receiveMessage(String a) async {
-    for (int i = 0; i < 20; i++) {
-      int k = await _messageDao.insertMessage(Message(
-        packetId: "a:${DateTime.now().microsecondsSinceEpoch.toString()}",
-        roomId: a,
-        from: a,
-        to: _accountRepo.currentUserUid.getString(),
-        time: DateTime.now(),
-        id: id,
-        edited: false,
-        encrypted: false,
-        replyToId: -1,
-        type: MessageType.TEXT,
-        json: jsonEncode({"text": 'aaaa $id'}),
-      ));
-      await _roomDao.updateRoomLastMessage(a, k, newMessageId: id);
-      id++;
-    }
-  }
 }

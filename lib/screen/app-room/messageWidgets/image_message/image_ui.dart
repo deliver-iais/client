@@ -115,19 +115,20 @@ class _ImageUiState extends State<ImageUi> {
             }
             //pending
           } else {
+            String path = (jsonDecode(widget.message.json))['path'];
             return FutureBuilder<File>(
                 future: fileRepo.getFileIfExist(image.uuid, image.name),
                 builder: (context, file) {
-                  if (file.hasData && file.data != null) {
+                  if (file.hasData && file.data != null || path != null) {
                     return Stack(
                       alignment: Alignment.center,
                       children: [
                         GestureDetector(
                           onTap: () {
-                            OpenFile.open(file.data.path);
+                            OpenFile.open(file.data.path??path);
                           },
                           child: Image.file(
-                            file.data,
+                            file.data ?? File(path),
                             width: width,
                             height: height,
                             fit: BoxFit.fill,
@@ -173,7 +174,7 @@ class _ImageUiState extends State<ImageUi> {
                                 });
                           } else
                             return CircularProgressIndicator();
-                        },
+    },
                       );
                     }
                   }
