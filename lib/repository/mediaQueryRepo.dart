@@ -28,33 +28,14 @@ class MediaQueryRepo {
 
   var mediaServices = QueryServiceClient(clientChannel);
 
-   getMediaMetaData(Uid uid) async{
+  Future<List<int>> getMediaMetaData(Uid uid) async {
+    int imageCount;
     var getMediaMetaDataReq = GetMediaMetadataReq();
     getMediaMetaDataReq..with_1 = uid;
-   var mediaResponse= await mediaServices.getMediaMetadata(getMediaMetaDataReq,
+    var mediaResponse = await mediaServices.getMediaMetadata(
+        getMediaMetaDataReq,
         options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-   mediaResponse.allAudiosCount.toInt();
-  }
-
-  fetchMedias(
-      Uid roomUid,
-      String pointer,
-      int year,
-      FetchMediasReq_MediaType mediaType,
-      FetchMediasReq_FetchingDirectionType fetchingDirectionType,
-      int limit) async {
-    var getMediaReq = FetchMediasReq();
-    getMediaReq..roomUid = roomUid;
-     getMediaReq..pointer = Int64.parseInt(pointer);
-    getMediaReq..year = year;
-    getMediaReq..mediaType = mediaType;
-    getMediaReq..fetchingDirectionType = fetchingDirectionType;
-    getMediaReq..limit = limit;
-    var getMediasRes = await mediaServices.fetchMedias(getMediaReq,
-        options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-    await _saveFetchedMedias(getMediasRes.medias, roomUid);
   }
 
   _saveFetchedMedias(List<MediaObject.Media> getMedias, Uid roomUid) async {
@@ -93,6 +74,31 @@ class MediaQueryRepo {
     } else {
       return MediaType.NOT_SET;
     }
+  }
+
+  getMedias(
+      String roomId,
+      String pointer,
+      int year,
+      FetchMediasReq_MediaType mediaType,
+      FetchMediasReq_FetchingDirectionType fetchingDirectionType,
+      int limit) async {
+    var medias = await _mediaDao.getByRoomIdAndType(roomId,mediaType);
+    if (medias.length == 0 || medias.length < limit) {
+      var getMediaReq = FetchMediasReq();
+      getMediaReq..roomUid = roomId.uid;
+      getMediaReq..pointer = Int64.parseInt(pointer);
+      getMediaReq..year = year;
+      getMediaReq..mediaType = mediaType;
+      getMediaReq..fetchingDirectionType = fetchingDirectionType;
+      getMediaReq..limit = limit;
+      var getMediasRes = await mediaServices.fetchMedias(getMediaReq,
+          options: CallOptions(
+              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      await _saveFetchedMedias(getMediasRes.medias, roomId.uid);
+      medias = await _mediaDao.getByRoomIdAndType(roomId,);
+    }
+    return medias;
   }
 
   Future<List<Media>> getMediaQuery(String roomId) async {

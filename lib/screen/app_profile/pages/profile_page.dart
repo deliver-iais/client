@@ -51,7 +51,9 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    _mediaQueryRepo.fetchMedias(widget.userUid, DateTime.now().microsecondsSinceEpoch.toString(),2020, FetchMediasReq_MediaType.FILES, FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH, 50);
+    // _mediaQueryRepo.fetchMedias(widget.userUid, DateTime.now().microsecondsSinceEpoch.toString(),2020, FetchMediasReq_MediaType.FILES, FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH, 50);
+    // var x=_mediaQueryRepo.getMediaMetaData(widget.userUid);
+
     return Scaffold(
         body: DefaultTabController(
             length: widget.userUid.category == Categories.USER ? 3 : 4,

@@ -13,26 +13,37 @@ class MediaDao extends DatabaseAccessor<Database> with _$MediaDaoMixin {
   Future insertQueryMedia(Media media) =>
       into(medias).insertOnConflictUpdate(media);
 
-  Future<List<Media>> getByRoomId(String roomId) {
-    return (select(medias)..where((media) => media.roomId.equals(roomId)))
+  Future<List<Media>> getByRoomIdAndType(String roomId,int type) {
+    return (select(medias)
+          ..orderBy([
+            (medias) => OrderingTerm(
+                expression: medias.createdOn, mode: OrderingMode.desc)
+          ])
+          ..where((media) => media.roomId.equals(roomId) &
+          media.type.equals(type)))
         .get();
   }
+
+  // Future<List<Media>> getByRoomId(String roomId) {
+  //   return (select(medias)..where((media) => media.roomId.equals(roomId)))
+  //       .get();
+  // }
 
   Future<List<Media>> getAll() {
     select(medias).get();
   }
 
   Future<List<Media>> getMediaAround(String roomId, int offset) {
-    if(offset-1<0){
+    if (offset - 1 < 0) {
       return (select(medias)
-        ..where((media) => media.roomId.equals(roomId))..limit(2,offset: offset))
+            ..where((media) => media.roomId.equals(roomId))
+            ..limit(2, offset: offset))
+          .get();
+    } else {
+      return (select(medias)
+            ..where((media) => media.roomId.equals(roomId))
+            ..limit(3, offset: offset - 1))
           .get();
     }
-    else {
-      return (select(medias)
-        ..where((media) => media.roomId.equals(roomId))..limit(3,offset: offset-1))
-          .get();
-    }
-
   }
 }
