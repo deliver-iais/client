@@ -236,22 +236,22 @@ class CoreServices {
   }
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
-    print(messageDeliveryAck.toString());
-
     var roomId = messageDeliveryAck.to.getString();
     var packetId = messageDeliveryAck.packetId;
     var id = messageDeliveryAck.id.toInt();
     var time = messageDeliveryAck.time.toInt();
-    await _messageDao.updateMessageId(roomId, packetId, id, time);
-    await _roomDao.updateRoomWithAckMessage(roomId, id);
-    await _lastSeenDao.updateLastSeen(roomId, id);
-    await _pendingMessageDao.deletePendingMessage(packetId);
+    _messageDao.updateMessageId(roomId, packetId, id, time);
+    _roomDao.insertRoom(M.Room(roomId: roomId, lastMessageId: id));
+    //  await _roomDao.updateRoomWithAckMessage(roomId, id);
+    _lastSeenDao.updateLastSeen(roomId, id);
+    _pendingMessageDao.deletePendingMessage(packetId);
   }
 
   _saveIncomingMessage(Message message) async {
     print(message.toString());
     var msg = await saveMessageInMessagesDB(message);
-    bool isCurrentUser = message.from.node.contains(_accountRepo.currentUserUid.node);
+    bool isCurrentUser =
+        message.from.node.contains(_accountRepo.currentUserUid.node);
     var roomUid = isCurrentUser
         ? message.to
         : (message.to.category == Categories.USER ? message.from : message.to);
@@ -289,7 +289,6 @@ class CoreServices {
         encrypted: message.encrypted,
         type: getMessageType(message.whichType()));
 
-
     int dbId = await _messageDao.insertMessage(msg);
 
     return msg.copyWith(dbId: dbId);
@@ -299,9 +298,7 @@ class CoreServices {
     var type = findFetchMessageType(message);
     var json = Object();
     if (type == MessageType.TEXT)
-      json = {
-        "text": message.text.text
-      };
+      json = {"text": message.text.text};
     else if (type == MessageType.FILE)
       json = {
         "uuid": message.file.uuid,

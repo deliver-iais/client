@@ -82,6 +82,7 @@ class MessageRepo {
       //   Map<String,int>
       print(getAllUserRoomMetaRes.roomsMeta);
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
+        print(userRoomMeta);
         var room =
             await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.string);
 
@@ -361,6 +362,7 @@ class MessageRepo {
     File file = File()
       ..name = fileInfo.name
       ..uuid = fileInfo.uuid
+      ..type  =  findType(fileInfo.name)
       ..caption = jsonDecode(message.json)["caption"];
 
     clientMessage.MessageByClient messageByClient =

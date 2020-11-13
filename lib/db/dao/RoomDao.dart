@@ -32,14 +32,16 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
                 newMessageId != null ? Value(newMessageId) : Value.absent()));
   }
 
-  Future<int> updateRoomWithAckMessage(String roomId, int ackId) async {
-    return (update(rooms)
-          ..where((t) =>
-              t.roomId.equals(roomId) &
-              t.lastMessageId.isSmallerThanValue(ackId)))
-        .write(RoomsCompanion(
-            lastMessageId:
-                ackId != null ? Value(ackId) : Value.absent()));
+  updateRoomWithAckMessage(String roomId, int ackId) {
+
+
+//    return (update(rooms)
+//          ..where((t) =>
+//              t.roomId.equals(roomId) &
+//              t.lastMessageId.isSmallerThanValue(ackId)))
+//        .write(RoomsCompanion(
+//            lastMessageId:
+//                ackId != null ? Value(ackId) : Value.absent()));
   }
 
 //TODO need to edit

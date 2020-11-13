@@ -288,7 +288,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                               if (messagesFuture.hasData &&
                                                   messagesFuture.data[0] !=
                                                       null &&
-                                                  messagesFuture.data[0].time !=
+                                                  messagesFuture.data[0] !=
                                                       null) {
                                                 var messages =
                                                     messagesFuture.data;
