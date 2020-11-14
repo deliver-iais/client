@@ -74,7 +74,6 @@ dependencies:
   vibration: 1.4.0 # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
   dcache: 0.3.0
 
-  pagination: 0.1.0
 
   sqflite_common_ffi: 1.1.0+1
 

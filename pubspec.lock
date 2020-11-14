@@ -746,13 +746,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.9.3"
-  pagination:
-    dependency: "direct main"
-    description:
-      name: pagination
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.0"
   path:
     dependency: "direct main"
     description:

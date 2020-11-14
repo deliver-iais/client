@@ -225,7 +225,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                                   } else {
                                                     messageRepo.sendTextMessage(
                                                       currentRoom.roomId.uid,
-                                                      controller.text,
+                                                      controller.text,roomLastMesssgaeId: widget.currentRoom.lastMessageId
+
                                                     );
                                                   }
 
