@@ -72,7 +72,6 @@ class MessageRepo {
   }
 
   updating() async {
-  ///  sendPendingMessage();
     updatingStatus.add(TitleStatusConditions.Updating);
     print("UPDATTTTTTTTTTTTTTTTTTTTTTTTTTTTINNNNNNNNNNNNGGGGGGGGGGGG");
     try {
