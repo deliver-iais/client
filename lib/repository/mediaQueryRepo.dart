@@ -1,8 +1,11 @@
+import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/fetchingDirectionType.dart';
 import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -20,6 +23,8 @@ class MediaQueryRepo {
   int count;
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _mediaDao = GetIt.I.get<MediaDao>();
+  var _fileRepo = GetIt.I.get<FileRepo>();
+  var _messageRepo = GetIt.I.get<MessageRepo>();
 
   static ClientChannel clientChannel = ClientChannel(
       ServicesDiscoveryRepo().mediaConnection.host,
@@ -36,6 +41,8 @@ class MediaQueryRepo {
         getMediaMetaDataReq,
         options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+    mediaResponse.allImagesCount;
+    mediaResponse.allLinksCount;
   }
 
   _saveFetchedMedias(List<MediaObject.Media> getMedias, Uid roomUid) async {
@@ -83,7 +90,20 @@ class MediaQueryRepo {
       FetchMediasReq_MediaType mediaType,
       FetchMediasReq_FetchingDirectionType fetchingDirectionType,
       int limit) async {
-    var medias = await _mediaDao.getByRoomIdAndType(roomId,mediaType);
+    // MediaType type;
+    // if (mediaType == FetchMediasReq_MediaType.MULTI_MEDIA ||
+    //     mediaType == FetchMediasReq_MediaType.FILES ||
+    //     mediaType == FetchMediasReq_MediaType.AUDIOS ||
+    //     mediaType == FetchMediasReq_MediaType.DOCUMENTS) {
+    //   type = MediaType.FILE;
+    // } else if (mediaType == FetchMediasReq_MediaType.LINKS) {
+    //   type = MediaType.LINK;
+    // }
+    // else {
+    //   type = MediaType.NOT_SET;
+    // }
+    var medias = await _mediaDao.getByRoomIdAndType(roomId);
+    String type;
     if (medias.length == 0 || medias.length < limit) {
       var getMediaReq = FetchMediasReq();
       getMediaReq..roomUid = roomId.uid;
@@ -96,8 +116,16 @@ class MediaQueryRepo {
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       await _saveFetchedMedias(getMediasRes.medias, roomId.uid);
-      medias = await _mediaDao.getByRoomIdAndType(roomId,);
+      medias = await _mediaDao.getByRoomIdAndType(
+        roomId
+      );
     }
+    medias.forEach((element) async{
+   var file= await  _fileRepo.getFile(element.fileId, element.fileName);
+   type = _messageRepo.findType(file.path);
+
+    });
+
     return medias;
   }
 
