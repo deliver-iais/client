@@ -17,6 +17,7 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/f
 import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/chatTime.dart';
+import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/custom_context_menu.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
@@ -63,6 +64,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   LastSeenDao _lastSeenDao = GetIt.I.get<LastSeenDao>();
   PendingMessageDao _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   RoutingService _routingService = GetIt.I.get<RoutingService>();
+  var _notificationServices = GetIt.I.get<NotificationServices>();
   bool _selectMultiMessage = false;
   Map<String, Message> _selectedMessages = Map();
   var _roomRepo = GetIt.I.get<RoomRepo>();
@@ -156,6 +158,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void initState() {
+    _notificationServices.reset(widget.roomId);
 //    _scrollSubject.listen((value) {
 //      setState(() {
 //        _scrollPhysics = value;
