@@ -243,9 +243,8 @@ class MessageRepo {
       if (pendingMessage.remainingRetries >0) {
         switch (pendingMessage.status) {
           case SendingStatus.SENDING_FILE:
-            _messageDao.getByDbId(pendingMessage.messageDbId).listen((message) {
-              // _sendFileMessage(message, jsonDecode(message.json)["path"]);
-            });
+            Message message = await _messageDao.getPendingMessage(pendingMessage.messageDbId);
+          //  await _sendFileMessage(message);
             _updatePendingMessage(pendingMessage);
 
             break;
