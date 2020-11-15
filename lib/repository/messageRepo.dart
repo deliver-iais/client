@@ -118,6 +118,7 @@ class MessageRepo {
       print(e);
     }
     updatingStatus.add(TitleStatusConditions.Normal);
+    sendPendingMessage();
   }
 
   reconnecting() {}
@@ -129,7 +130,6 @@ class MessageRepo {
       await insertRoomAndLastSeen((roomId.string));
     }
     var room = await _roomDao.getByRoomIdFuture(roomId.string);
-    int r = room.lastMessageId;
     Message message = Message(
       roomId: roomId.string,
       packetId: packetId,
@@ -144,7 +144,6 @@ class MessageRepo {
       json: jsonEncode({"text": text}),
     );
     int dbId = await _messageDao.insertMessage(message);
-
 
     _updateRoomLastMessage(
       roomId.string,
@@ -237,32 +236,27 @@ class MessageRepo {
     }
   }
 
-  sendPendingMessage() {
-    _pendingMessageDao.watchAllMessages().listen((event) {
-      for (PendingMessage pendingMessage in event) {
-        if (pendingMessage.remainingRetries == 3) {
-          switch (pendingMessage.status) {
-            case SendingStatus.SENDING_FILE:
-              _messageDao
-                  .getByDbId(pendingMessage.messageDbId)
-                  .listen((message) {
-                // _sendFileMessage(message, jsonDecode(message.json)["path"]);
-              });
-              _updatePendingMessage(pendingMessage);
+  sendPendingMessage() async {
+    List<PendingMessage> pendingMessages =
+        await _pendingMessageDao.watchAllMessages();
+    for (var pendingMessage in pendingMessages) {
+      if (pendingMessage.remainingRetries >0) {
+        switch (pendingMessage.status) {
+          case SendingStatus.SENDING_FILE:
+            _messageDao.getByDbId(pendingMessage.messageDbId).listen((message) {
+              // _sendFileMessage(message, jsonDecode(message.json)["path"]);
+            });
+            _updatePendingMessage(pendingMessage);
 
-              break;
-            case SendingStatus.PENDING:
-              _messageDao
-                  .getByDbId(pendingMessage.messageDbId)
-                  .listen((message) {
-                _sendTextMessage(message);
-              });
-              _updatePendingMessage(pendingMessage);
-              break;
-          }
+            break;
+          case SendingStatus.PENDING:
+            Message message = await _messageDao.getPendingMessage(pendingMessage.messageDbId);
+            await _sendTextMessage(message);
+            _updatePendingMessage(pendingMessage);
+            break;
         }
       }
-    });
+    }
   }
 
   _savePendingMessage(int dbId, String roomId, SendingStatus status,
@@ -287,7 +281,7 @@ class MessageRepo {
 
   insertRoomAndLastSeen(String roomId) async {
     try {
-     // await _lastSeenDao.insertLastSeen(LastSeen(roomId: roomId));
+      // await _lastSeenDao.insertLastSeen(LastSeen(roomId: roomId));
       await _roomDao
           .insertRoom(Room(roomId: roomId, mentioned: false, mute: false));
     } catch (e) {}
