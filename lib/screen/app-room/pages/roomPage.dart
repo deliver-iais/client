@@ -281,7 +281,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                       null)
                                                   ? true
                                                   : _itemCount >
-                                                      currentRoom.lastMessageId;
+                                                      currentRoom.lastMessageId && index<pendingMessages.length;
 
                                           return FutureBuilder<List<Message>>(
                                             future: isPendingMessage
@@ -289,7 +289,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                     pendingMessages[pendingMessages.length-1-index]
                                                         .messageDbId)
                                                 : _getMessageAndPreviousMessage(
-                                                    currentRoom.lastMessageId -
+                                                    currentRoom.lastMessageId+pendingMessages.length-
                                                         index),
                                             builder: (context, messagesFuture) {
                                               if (messagesFuture.hasData &&
@@ -546,7 +546,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                     ),
                                                   ));
                                                 }
-                                                return Container(height: 20);
+                                                return Container(height: MediaQuery.of(context).size.height);
                                               }
                                             },
                                           );
