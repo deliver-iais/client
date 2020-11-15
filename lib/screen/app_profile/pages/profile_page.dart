@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/models/memberType.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
+import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -43,17 +46,16 @@ class _ProfilePageState extends State<ProfilePage> {
   List<String> mediaUrls = [];
  var mediasLength;
   Room currentRoomId;
+  List<Media> _fetchedMedia;
 
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
+  var _fileRepo = GetIt.I.get<FileRepo>();
 
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    // _mediaQueryRepo.fetchMedias(widget.userUid, DateTime.now().microsecondsSinceEpoch.toString(),2020, FetchMediasReq_MediaType.FILES, FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH, 50);
-    // var x=_mediaQueryRepo.getMediaMetaData(widget.userUid);
-
     return Scaffold(
         body: DefaultTabController(
             length: widget.userUid.category == Categories.USER ? 3 : 4,
@@ -354,44 +356,42 @@ class _ProfilePageState extends State<ProfilePage> {
                   ];
                 },
                 body: FutureBuilder<List<Media>>(
-                  future: _mediaQueryRepo.getMediaQuery("p.asghari"),
+                  future:  _mediaQueryRepo.getMedias(widget.userUid.string, DateTime.now().microsecondsSinceEpoch.toString(),2020, FetchMediasReq_MediaType.IMAGES, FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH, 50),
                   builder: (BuildContext context,
                       AsyncSnapshot<List<Media>> snapshot) {
                     if (snapshot.hasData && snapshot.data.length != null) {
-                      return Center();
-                    //   for (int i = 0; i < snapshot.data.length; i++) {
-                    //     _mediaUrls.add(snapshot.data[i].mediaUrl);
-                    //   }
-                    //   return Container(
-                    //       child: TabBarView(children: [
-                    //     if (widget.userUid.category != Categories.USER)
-                    //       SingleChildScrollView(
-                    //         child: Column(children: [
-                    //           MucMemberWidget(
-                    //             mucUid: widget.userUid,
-                    //           ),
-                    //         ]),
-                    //       ),
-                    //     mediaWidget(snapshot.data),
-                    //     ListView(
-                    //       padding: EdgeInsets.zero,
-                    //       children: <Widget>[
-                    //         Text("File"),
-                    //         Text("File"),
-                    //         Text("File"),
-                    //         Text("File"),
-                    //         Text("File"),
-                    //       ],
-                    //     ),
-                    //     ListView(),
-                    //   ]));
+                     _fetchedMedia = snapshot.data;
+                      return Container(
+                          child: TabBarView(children: [
+                            if (widget.userUid.category != Categories.USER)
+                              SingleChildScrollView(
+                                child: Column(children: [
+                                  MucMemberWidget(
+                                    mucUid: widget.userUid,
+                                  ),
+                                ]),
+                              ),
+                            mediaWidget(snapshot.data),
+                            ListView(
+                              padding: EdgeInsets.zero,
+                              children: <Widget>[
+                                Text("File"),
+                                Text("File"),
+                                Text("File"),
+                                Text("File"),
+                                Text("File"),
+                              ],
+                            ),
+                            ListView(),
+                          ]));
                     } else {
                       return Text("...");
                     }
                   },
-                )
-            )));
+                ))));
   }
+
+
 
   Widget mediaWidget(List<Media> medias) {
     return GridView.builder(
@@ -404,32 +404,59 @@ class _ProfilePageState extends State<ProfilePage> {
           //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
         ),
         itemBuilder: (context, position) {
-          return GestureDetector(
-            onTap: () {
-              _routingService.openShowAllMedia(
-                mediaPosition: position,
-                heroTag: "btn$position",
-                mediasLength: medias.length,
-              );
-            },
-           child: Hero(
-                tag: "btn$position",
-                child: Container(
+
+          var fileId = jsonDecode(medias[position].json)["uuid"];
+          var fileName = jsonDecode(medias[position].json)["name"];
+          return FutureBuilder(
+            future: _fileRepo.getFile(fileId, fileName),
+            builder:
+            (BuildContext c, AsyncSnapshot snaps) {
+              if (snaps.hasData &&
+                 snaps.data != null &&
+                     snaps.connectionState ==
+                   ConnectionState.done) {
+               return Container(
                   decoration: new BoxDecoration(
                     image: new DecorationImage(
-                        // image: new NetworkImage(
-                        //   medias[position].mediaUrl,
-                        //    //imageList[position],
-                        // ),
-                        fit: BoxFit.cover),
-                    border: Border.all(
-                      width: 1,
-                      color: ExtraTheme.of(context).secondColor,
+                      image: Image.file(
+                        snaps.data,
+                      ).image,
+                      fit: BoxFit.cover,
                     ),
+                      border: Border.all(
+                        width: 1,
+                        color: ExtraTheme.of(context).secondColor,
                   ),
-                ), // transitionOnUserGestures: true,
-
-            ),
+                ));
+              }
+            }
+            // child: GestureDetector(
+            //   // onTap: () {
+            //   //   _routingService.openShowAllMedia(
+            //   //     mediaPosition: position,
+            //   //     heroTag: "btn$position",
+            //   //     mediasLength: medias.length,
+            //   //   );
+            //   // },
+            //  child: Hero(
+            //       tag: "btn$position",
+            //       child: Container(
+            //         decoration: new BoxDecoration(
+            //           image: new DecorationImage(
+            //               // image: new NetworkImage(
+            //               //   medias[position].mediaUrl,
+            //               //    //imageList[position],
+            //               // ),
+            //               fit: BoxFit.cover),
+            //           border: Border.all(
+            //             width: 1,
+            //             color: ExtraTheme.of(context).secondColor,
+            //           ),
+            //         ),
+            //       ), // transitionOnUserGestures: true,
+            //
+            //   ),
+            // ),
           );
         });
   }
