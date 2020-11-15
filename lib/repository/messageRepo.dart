@@ -383,7 +383,7 @@ class MessageRepo {
     }
     return lastMessageDbId;
   }
-
+//TODO FINDJSON
   MessageType findFetchMessageType(messagePb.Message message) {
     if (message.hasText())
       return MessageType.TEXT;

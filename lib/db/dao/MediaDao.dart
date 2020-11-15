@@ -14,7 +14,7 @@ class MediaDao extends DatabaseAccessor<Database> with _$MediaDaoMixin {
   Future insertQueryMedia(Media media) =>
       into(medias).insertOnConflictUpdate(media);
 
-  Future<List<Media>> getByRoomIdAndType(String roomId) {
+  Future<List<Media>> getByRoomId(String roomId) {
     return (select(medias)
           ..orderBy([
             (medias) => OrderingTerm(

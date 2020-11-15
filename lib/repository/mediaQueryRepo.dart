@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/database.dart';
@@ -34,7 +36,6 @@ class MediaQueryRepo {
   var mediaServices = QueryServiceClient(clientChannel);
 
   Future<List<int>> getMediaMetaData(Uid uid) async {
-    int imageCount;
     var getMediaMetaDataReq = GetMediaMetadataReq();
     getMediaMetaDataReq..with_1 = uid;
     var mediaResponse = await mediaServices.getMediaMetadata(
@@ -45,65 +46,14 @@ class MediaQueryRepo {
     mediaResponse.allLinksCount;
   }
 
-  _saveFetchedMedias(List<MediaObject.Media> getMedias, Uid roomUid) async {
-    for (MediaObject.Media media in getMedias) {
-      MediaType type = findFetchedMediaType(media);
-      if (type == MediaType.FILE) {
-        await _mediaDao.insertQueryMedia(
-          Media(
-              createdOn: media.createdOn.toInt(),
-              createdBy: media.createdBy.string,
-              messageId: media.messageId.toInt(),
-              type: type,
-              roomId: roomUid.string,
-              fileName: media.file.name,
-              fileId: media.file.uuid),
-        );
-      } else if (type == MediaType.LINK) {
-        await _mediaDao.insertQueryMedia(
-          Media(
-              createdOn: media.createdOn.toInt(),
-              createdBy: media.createdBy.string,
-              messageId: media.messageId.toInt(),
-              type: type,
-              roomId: roomUid.string,
-              linkAddress: media.link),
-        );
-      }
-    }
-  }
-
-  MediaType findFetchedMediaType(MediaObject.Media media) {
-    if (media.hasFile()) {
-      return MediaType.FILE;
-    } else if (media.hasLink()) {
-      return MediaType.LINK;
-    } else {
-      return MediaType.NOT_SET;
-    }
-  }
-
-  getMedias(
+  Future<List<Media>> getMedias(
       String roomId,
       String pointer,
       int year,
       FetchMediasReq_MediaType mediaType,
       FetchMediasReq_FetchingDirectionType fetchingDirectionType,
       int limit) async {
-    // MediaType type;
-    // if (mediaType == FetchMediasReq_MediaType.MULTI_MEDIA ||
-    //     mediaType == FetchMediasReq_MediaType.FILES ||
-    //     mediaType == FetchMediasReq_MediaType.AUDIOS ||
-    //     mediaType == FetchMediasReq_MediaType.DOCUMENTS) {
-    //   type = MediaType.FILE;
-    // } else if (mediaType == FetchMediasReq_MediaType.LINKS) {
-    //   type = MediaType.LINK;
-    // }
-    // else {
-    //   type = MediaType.NOT_SET;
-    // }
-    var medias = await _mediaDao.getByRoomIdAndType(roomId);
-    String type;
+    var medias = await _mediaDao.getByRoomId(roomId);
     if (medias.length == 0 || medias.length < limit) {
       var getMediaReq = FetchMediasReq();
       getMediaReq..roomUid = roomId.uid;
@@ -115,18 +65,45 @@ class MediaQueryRepo {
       var getMediasRes = await mediaServices.fetchMedias(getMediaReq,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      await _saveFetchedMedias(getMediasRes.medias, roomId.uid);
-      medias = await _mediaDao.getByRoomIdAndType(
-        roomId
-      );
+      await _saveFetchedMedias(getMediasRes.medias, roomId.uid, mediaType);
+      medias = await _mediaDao.getByRoomId(roomId);
     }
-    medias.forEach((element) async{
-   var file= await  _fileRepo.getFile(element.fileId, element.fileName);
-   type = _messageRepo.findType(file.path);
-
-    });
-
     return medias;
+  }
+
+  _saveFetchedMedias(List<MediaObject.Media> getMedias, Uid roomUid,
+      FetchMediasReq_MediaType mediaType) async {
+    for (MediaObject.Media media in getMedias) {
+      MediaType type = findFetchedMediaType(mediaType);
+      String json = findFetchedMediaJson(media);
+      await _mediaDao.insertQueryMedia(Media(
+          createdOn: media.createdOn.toInt(),
+          createdBy: media.createdBy.string,
+          messageId: media.messageId.toInt(),
+          type: type,
+          roomId: roomUid.string,
+          json: json));
+    }
+  }
+
+  MediaType findFetchedMediaType(FetchMediasReq_MediaType mediaType) {
+    MediaType type;
+    if (mediaType == FetchMediasReq_MediaType.IMAGES) {
+      type = MediaType.IMAGE;
+    } else if (mediaType == FetchMediasReq_MediaType.VIDEOS) {
+      type = MediaType.VIDEO;
+    } else if (mediaType == FetchMediasReq_MediaType.FILES) {
+      type = MediaType.FILE;
+    } else if (mediaType == FetchMediasReq_MediaType.AUDIOS) {
+      type = MediaType.AUDIO;
+    } else if (mediaType == FetchMediasReq_MediaType.MUSICS) {
+      type = MediaType.MUSIC;
+    } else if (mediaType == FetchMediasReq_MediaType.DOCUMENTS) {
+      type = MediaType.DOCUMENT;
+    } else if (mediaType == FetchMediasReq_MediaType.LINKS) {
+      type = MediaType.LINK;
+    } else
+      type = MediaType.NOT_SET;
   }
 
   Future<List<Media>> getMediaQuery(String roomId) async {
@@ -142,5 +119,24 @@ class MediaQueryRepo {
   Future<List<Media>> getAllMedia() async {
     allMedia = await _mediaQueriesDao.getAll();
     return allMedia;
+  }
+
+  String findFetchedMediaJson(MediaObject.Media media) {
+    var json = Object();
+    if (media.hasLink()) {
+      json = {"url": media.link};
+    } else if (media.hasFile()) {
+      json = {
+        "uuid": media.file.uuid,
+        "size": media.file.size,
+        "type": media.file.type,
+        "name": media.file.name,
+        "caption": media.file.caption,
+        "width": media.file.width,
+        "height": media.file.height,
+        "duration": media.file.duration
+      };
+    }
+    return jsonEncode(json);
   }
 }
