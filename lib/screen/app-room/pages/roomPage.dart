@@ -72,6 +72,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   int _lastShowedMessageId = -1;
   ScrollController _scrollController;
   int _itemCount;
+
   ScrollPhysics _scrollPhysics = AlwaysScrollableScrollPhysics();
   Subject<ScrollPhysics> _scrollSubject =
       BehaviorSubject.seeded(AlwaysScrollableScrollPhysics());
@@ -324,10 +325,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                         currentRoom
                                                             .lastMessageId);
                                                 }
+
                                                 newTime = false;
-                                                if (index == 0)
-                                                  newTime = true;
-                                                else if (messages.length > 1 &&
+                                                if (messages.length > 1 &&
                                                     messages[1] != null) {
                                                   if (messages[1].time.day !=
                                                           day ||

@@ -11,7 +11,9 @@ import 'package:deliver_flutter/db/database.dart' as M;
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
@@ -59,6 +61,7 @@ class CoreServices {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _mucRepo = GetIt.I.get<MucRepo>();
+  var _notificationServices = GetIt.I.get<NotificationServices>();
 
   initStreamConnection() async {
     await _startStream();
@@ -260,11 +263,16 @@ class CoreServices {
           lastMessageId: message.id.toInt(),
           lastMessageDbId: msg.dbId),
     );
+    var roomName = await RoomRepo().getRoomDisplayName(message.from);
+    _notificationServices.showNotification(msg,roomName);
+
+
 
     // TODO remove later on if Add User to group message feature is implemented
     if (message.to.category != Categories.USER) {
       _mucRepo.saveMucInfo(message.to);
     }
+
   }
 
   saveMessageInMessagesDB(Message message) async {

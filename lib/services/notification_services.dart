@@ -1,14 +1,16 @@
-import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'dart:convert';
+
+
+import 'package:deliver_flutter/db/database.dart' as db;
+import 'package:deliver_flutter/models/messageType.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 
 class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   NotificationDetails _notificationDetails;
 
-  Map<int, String> notificationMessage = Map();
+  Map<String , String> notificationMessage = Map();
 
   NotificationServices() {
     var androidNotificationSetting =
@@ -39,25 +41,24 @@ class NotificationServices {
     // );
   }
 
-  cancelNotification(int notificationId) {
+  cancelNotification( notificationId) {
     flutterLocalNotificationsPlugin.cancel(notificationId);
   }
 
-  cancelAllNotification(int notificationId) {
-    notificationMessage[notificationId] = "";
+  cancelAllNotification(String roomId) {
+    notificationMessage[roomId] = "";
     flutterLocalNotificationsPlugin.cancelAll();
   }
 
   showTextNotification(int notificationId, String roomId, String roomName,
       String messageBody) async {
-    if (notificationMessage[notificationId] == null) {
-      notificationMessage[notificationId] = "";
+    if (notificationMessage[roomId] == null) {
+      notificationMessage[roomId] = "";
     }
-    print(notificationMessage[notificationId]);
-    notificationMessage[notificationId] =
-        notificationMessage[notificationId] + "\n" + messageBody;
+    notificationMessage[roomId] =
+        notificationMessage[roomId] + "\n" + messageBody;
     var bigTextStyleInformation =
-        BigTextStyleInformation(notificationMessage[notificationId]);
+        BigTextStyleInformation(notificationMessage[roomId]);
     var androidNotificationDetails = new AndroidNotificationDetails(
         'channel_ID', 'cs', 'desc',
         styleInformation: bigTextStyleInformation);
@@ -90,5 +91,13 @@ class NotificationServices {
     await flutterLocalNotificationsPlugin.show(
         notificationId, roomName, imagePath, _notificationDetails,
         payload: roomId);
+  }
+
+  void showNotification(db.Message message,String roomName) async {
+    cancelNotification(message.id-1);
+    switch(message.type){
+      case MessageType.TEXT:
+        showTextNotification(message.id, message.from,roomName, jsonDecode(message.json)['text']);
+    }
   }
 }
