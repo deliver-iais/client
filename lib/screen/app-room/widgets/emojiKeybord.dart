@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:emojis/emoji.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -122,7 +123,7 @@ class _Emojikeybord extends State<EmojiKeybord> {
         ),
         Expanded(
           child: GridView.count(
-            crossAxisCount: 7,
+            crossAxisCount:isDesktop()?25: 7,
             children: List.generate(emojis.length, (index) {
               return GestureDetector(
                 onTap: () {

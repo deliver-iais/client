@@ -21,7 +21,6 @@ class _VerificationPageState extends State<VerificationPage> {
   bool _showError = false;
   String _verificationCode;
   AppLocalization _appLocalization;
-  var coreServices = GetIt.I.get<CoreServices>();
 
   final FocusNode focusNode = FocusNode();
 
@@ -63,7 +62,6 @@ class _VerificationPageState extends State<VerificationPage> {
   }
 
   _navigationToHome() async {
-    coreServices.setCoreSetting();
     ExtendedNavigator.of(context).pushAndRemoveUntil(
       Routes.homePage,
       (_) => false,

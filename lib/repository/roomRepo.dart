@@ -1,6 +1,6 @@
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
-import 'package:deliver_flutter/db/dao/GroupDao.dart';
+import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/localSearchResult.dart';
@@ -15,7 +15,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 class RoomRepo {
   Cache _roomNameCache =
       LruCache<String, String>(storage: SimpleStorage(size: 40));
-  var _mucDao = GetIt.I.get<GroupDao>();
+  var _mucDao = GetIt.I.get<MucDao>();
   var _contactDao = GetIt.I.get<ContactDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
@@ -24,7 +24,7 @@ class RoomRepo {
     switch (uid.category) {
       case Categories.USER:
         String name = await _roomNameCache.get(uid.string);
-        if (name != null) {
+        if (name != null && !name.contains("null")) {
           return name;
         } else {
           var contact = await _contactDao.getContactByUid(uid.string);

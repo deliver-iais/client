@@ -15,7 +15,6 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   var loggedInStatus;
-  var _coreServices = GetIt.I.get<CoreServices>();
   AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
   int attempts = 0;
 
@@ -59,7 +58,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToHomePage() async {
-    _coreServices.setCoreSetting();
     bool setUserName = await _accountRepo.usernameIsSet();
     if (setUserName) {
       ExtendedNavigator.of(context).pushAndRemoveUntil(

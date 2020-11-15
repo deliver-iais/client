@@ -50,7 +50,7 @@ class ChatItem extends StatelessWidget {
               ? null
               : Border.all(color: Theme.of(context).dividerColor),
           borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
-      height: 60,
+      height: 66,
       child: Row(
         children: <Widget>[
           Padding(

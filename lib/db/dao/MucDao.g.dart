@@ -1,11 +1,11 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'GroupDao.dart';
+part of 'MucDao.dart';
 
 // **************************************************************************
 // DaoGenerator
 // **************************************************************************
 
-mixin _$GroupDaoMixin on DatabaseAccessor<Database> {
+mixin _$MucDaoMixin on DatabaseAccessor<Database> {
   $MucsTable get mucs => attachedDatabase.mucs;
 }

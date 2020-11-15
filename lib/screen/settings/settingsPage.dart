@@ -26,15 +26,26 @@ import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   SettingsPage({Key key}) : super(key: key);
 
+  @override
+  _SettingsPageState createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
   final _uxService = GetIt.I.get<UxService>();
+
   final _accountRepo = GetIt.I.get<AccountRepo>();
+
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
+
   final _routingService = GetIt.I.get<RoutingService>();
-  var _notification = false;
+
+  bool _uploadNewAvatar = false;
+  String _newAvatarPath = "";
 
   bool _getTheme() {
     if (_uxService.theme == DarkTheme) {
@@ -65,7 +76,14 @@ class SettingsPage extends StatelessWidget {
       path = result.path;
     }
     if (path != null) {
-      await _avatarRepo.uploadAvatar(File(path),_accountRepo.currentUserUid);
+      setState(() {
+        _newAvatarPath = path;
+        _uploadNewAvatar = true;
+      });
+      await _avatarRepo.uploadAvatar(File(path), _accountRepo.currentUserUid);
+      setState(() {
+        _uploadNewAvatar = false;
+      });
     }
   }
 
@@ -86,6 +104,8 @@ class SettingsPage extends StatelessWidget {
         body: FluidContainerWidget(
           child: ListView(children: [
             ProfileAvatarCard(
+              uploadNewAvatar: _uploadNewAvatar,
+              newAvatarPath: _newAvatarPath,
               userUid: _accountRepo.currentUserUid,
               buttons: [
                 MaterialButton(
@@ -99,7 +119,10 @@ class SettingsPage extends StatelessWidget {
                 ),
                 MaterialButton(
                   color: Theme.of(context).buttonColor,
-                  onPressed: () {},
+                  onPressed: () {
+                    _routingService
+                        .openRoom(_accountRepo.currentUserUid.string);
+                  },
                   shape: CircleBorder(),
                   child: Icon(Icons.bookmark),
                   padding: const EdgeInsets.all(20),
@@ -130,7 +153,7 @@ class SettingsPage extends StatelessWidget {
                           AsyncSnapshot<Account> snapshot) {
                         if (snapshot.data != null) {
                           return Text(
-                            snapshot.data.userName??"",
+                            snapshot.data.userName ?? "",
                             style: TextStyle(
                                 color: ExtraTheme.of(context).text,
                                 fontSize: 13),
@@ -141,7 +164,9 @@ class SettingsPage extends StatelessWidget {
                       },
                     ),
                     IconButton(
-                        icon: Icon(Icons.navigate_next), onPressed: () {}),
+                        icon: Icon(Icons.navigate_next), onPressed: () {
+                      _routingService.openAccountSettings();
+                    }),
                   ],
                 )),
             settingsRow(
@@ -187,12 +212,31 @@ class SettingsPage extends StatelessWidget {
             settingsRow(context,
                 iconData: Icons.notifications_active,
                 title: appLocalization.getTraslateValue("notification"),
-                child: Switch(
-                  value: _notification,
-                  onChanged: (newNotifState) {
-                    _notification = newNotifState;
-                  },
-                )),
+                child: FutureBuilder<String>(
+                    future: _accountRepo.notification,
+                    builder: (c, notif) {
+                      if (notif.hasData && notif.data != null) {
+                        bool notification =
+                            notif.data.contains("true") ? true : false;
+                        return Switch(
+                          value: notification,
+                          onChanged: (newNotifState) {
+                            _accountRepo
+                                .setNotificationState(newNotifState.toString());
+                            setState(() {});
+                          },
+                        );
+                      } else {
+                        return Switch(
+                          value: true,
+                          onChanged: (newNotifState) {
+                            _accountRepo
+                                .setNotificationState(newNotifState.toString());
+                            setState(() {});
+                          },
+                        );
+                      }
+                    })),
             settingsRow(context,
                 iconData: Icons.language,
                 title: appLocalization.getTraslateValue("changeLanguage"),

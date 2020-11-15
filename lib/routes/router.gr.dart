@@ -12,7 +12,6 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 import '../screen/app-contacts/widgets/new_Contact.dart';
-import '../screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import '../screen/app-room/pages/roomPage.dart';
 import '../screen/app-room/widgets/showImage_Widget.dart';
 import '../screen/home/pages/home_page.dart';
@@ -30,7 +29,6 @@ class Routes {
   static const String verificationPage = '/verification-page';
   static const String homePage = '/home-page';
   static const String showImagePage = '/show-image-page';
-  static const String selectionToForwardPage = '/selection-to-forward-page';
   static const String newContact = '/new-contact';
   static const String accountSettings = '/account-settings';
   static const String roomPage = '/room-page';
@@ -42,7 +40,6 @@ class Routes {
     verificationPage,
     homePage,
     showImagePage,
-    selectionToForwardPage,
     newContact,
     accountSettings,
     roomPage,
@@ -60,7 +57,6 @@ class Router extends RouterBase {
     RouteDef(Routes.verificationPage, page: VerificationPage),
     RouteDef(Routes.homePage, page: HomePage),
     RouteDef(Routes.showImagePage, page: ShowImagePage),
-    RouteDef(Routes.selectionToForwardPage, page: SelectionToForwardPage),
     RouteDef(Routes.newContact, page: NewContact),
     RouteDef(Routes.accountSettings, page: AccountSettings),
     RouteDef(Routes.roomPage, page: RoomPage),
@@ -117,18 +113,6 @@ class Router extends RouterBase {
           key: args.key,
           imageFile: args.imageFile,
           contactUid: args.contactUid,
-        ),
-        settings: data,
-      );
-    },
-    SelectionToForwardPage: (data) {
-      final args = data.getArgs<SelectionToForwardPageArguments>(
-        orElse: () => SelectionToForwardPageArguments(),
-      );
-      return MaterialPageRoute<dynamic>(
-        builder: (context) => SelectionToForwardPage(
-          key: args.key,
-          forwardedMessages: args.forwardedMessages,
         ),
         settings: data,
       );
@@ -204,13 +188,6 @@ class ShowImagePageArguments {
   final File imageFile;
   final Uid contactUid;
   ShowImagePageArguments({this.key, this.imageFile, this.contactUid});
-}
-
-/// SelectionToForwardPage arguments holder class
-class SelectionToForwardPageArguments {
-  final Key key;
-  final List<dynamic> forwardedMessages;
-  SelectionToForwardPageArguments({this.key, this.forwardedMessages});
 }
 
 /// NewContact arguments holder class

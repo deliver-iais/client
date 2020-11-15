@@ -41,35 +41,41 @@ class _SendingFileCircularIndicatorState
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        StreamBuilder<double>(
-            stream: fileService.filesUploadStatus[widget.file.uuid],
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return CircularPercentIndicator(
-                  radius: 55.0,
-                  lineWidth: 5.0,
-                  percent: snapshot.data,
-                  progressColor: Colors.blue,
-                );
-              } else {
-                return SizedBox.shrink();
-              }
-            }),
-        IconButton(
-          padding: EdgeInsets.only(top: 8, left: 5),
-          alignment: Alignment.center,
-          icon: Icon(
-            Icons.close,
-            color: widget.isMedia
-                ? Theme.of(context).accentColor
-                : Theme.of(context).primaryColor,
-            size: 38,
+    if(widget.file != null){
+      return Stack(
+        children: [
+          StreamBuilder<double>(
+              stream: fileService.filesUploadStatus[widget.file.uuid],
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return CircularPercentIndicator(
+                    radius: 55.0,
+                    lineWidth: 5.0,
+                    percent: snapshot.data,
+                    progressColor: Colors.blue,
+                  );
+                } else {
+                  return SizedBox.shrink();
+                }
+              }),
+          IconButton(
+            padding: EdgeInsets.only(top: 8, left: 5),
+            alignment: Alignment.center,
+            icon: Icon(
+              Icons.close,
+              color: widget.isMedia
+                  ? Theme.of(context).accentColor
+                  : Theme.of(context).primaryColor,
+              size: 38,
+            ),
+            onPressed: null,
           ),
-          onPressed: null,
-        ),
-      ],
-    );
+        ],
+      );
+    }else{
+      return SizedBox.shrink();
+    }
+
+
   }
 }

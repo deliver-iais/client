@@ -4512,8 +4512,8 @@ abstract class _$Database extends GeneratedDatabase {
       _sharedPreferencesDao ??= SharedPreferencesDao(this as Database);
   MemberDao _memberDao;
   MemberDao get memberDao => _memberDao ??= MemberDao(this as Database);
-  GroupDao _groupDao;
-  GroupDao get groupDao => _groupDao ??= GroupDao(this as Database);
+  MucDao _mucDao;
+  MucDao get mucDao => _mucDao ??= MucDao(this as Database);
   LastSeenDao _lastSeenDao;
   LastSeenDao get lastSeenDao => _lastSeenDao ??= LastSeenDao(this as Database);
   @override

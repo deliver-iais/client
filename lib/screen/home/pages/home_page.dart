@@ -2,8 +2,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
+import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
@@ -17,11 +19,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _coreServices = GetIt.I.get<CoreServices>();
 
   @override
   void initState() {
     checkIfUsernameIsSet();
     checkShareFile(context);
+    _coreServices.initStreamConnection();
   }
 
   checkShareFile(BuildContext context) {

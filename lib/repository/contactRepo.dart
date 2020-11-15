@@ -1,11 +1,11 @@
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart' as myContact;
-import 'package:deliver_flutter/repository/roomRepo.dart';
 
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:contacts_service/contacts_service.dart' as OsContact;
 import 'package:deliver_flutter/services/check_permissions_service.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -34,6 +34,7 @@ class ContactRepo {
 
   var _checkPermission = GetIt.I.get<CheckPermissionsService>();
 
+
   static ClientChannel clientChannel = ClientChannel(
       servicesDiscoveryRepo.contactServices.host,
       port: servicesDiscoveryRepo.contactServices.port,
@@ -41,7 +42,7 @@ class ContactRepo {
   var contactServices = ContactServiceClient(clientChannel);
 
   syncContacts() async {
-    if (await _checkPermission.checkContactPermission()) {
+    if (await _checkPermission.checkContactPermission() || isDesktop()) {
       List<Contact> contacts = new List();
 
       if (kDebugMode) {
@@ -89,26 +90,27 @@ class ContactRepo {
               isBlock: false));
         }
       }
+      if (!isDesktop()) {
+        Iterable<OsContact.Contact> phoneContacts =
+            await OsContact.ContactsService.getContacts();
 
-      Iterable<OsContact.Contact> phoneContacts =
-          await OsContact.ContactsService.getContacts();
+        for (OsContact.Contact phoneContact in phoneContacts) {
+          try {
+            String contactPhoneNumber = phoneContact.phones.first.value
+                .toString()
+                .replaceAll(' ', '')
+                .replaceAll('+', '')
+                .replaceAll('(', '')
+                .replaceAll(')', '')
+                .replaceAll('-', '');
 
-      for (OsContact.Contact phoneContact in phoneContacts) {
-        try {
-          String contactPhoneNumber = phoneContact.phones.first.value
-              .toString()
-              .replaceAll(' ', '')
-              .replaceAll('+', '')
-              .replaceAll('(', '')
-              .replaceAll(')', '')
-              .replaceAll('-', '');
-
-          Contact contact = Contact()
-            ..lastName = phoneContact.displayName
-            ..phoneNumber = _getPhoneNumber(contactPhoneNumber);
-          contacts.add(contact);
-        } catch (e) {
-          print("ContactRepo");
+            Contact contact = Contact()
+              ..lastName = phoneContact.displayName
+              ..phoneNumber = _getPhoneNumber(contactPhoneNumber);
+            contacts.add(contact);
+          } catch (e) {
+            print("ContactRepo");
+          }
         }
       }
       sendContacts(contacts);
@@ -161,19 +163,19 @@ class ContactRepo {
         GetContactListUsersReq(),
         options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+
     for (var contact in result.userList) {
       _contactDao.insetContact(myContact.Contact(
         uid: contact.uid.string,
         phoneNumber: contact.phoneNumber.nationalNumber.toString(),
-        firstName: contact.firstName,
-        lastName: contact.lastName,
         username: contact.username,
         isMute: true,
         isBlock: false,
       ));
       if (contact.uid != null) {
         _roomDao.insertRoom(myContact.Room(
-            roomId: contact.uid.string, mentioned: false, mute: false));
+            roomId: contact.uid.string,
+            mute: false));
       }
     }
 

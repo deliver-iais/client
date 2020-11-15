@@ -53,9 +53,7 @@ class _MessageHeaderState extends State<MessageHeader> {
                         : CrossAxisAlignment.start,
                     children: <Widget>[
                       CircularFileStatusIndicator(
-                        isExist: widget.message.from !=
-                                _accountRpo.currentUserUid.string &&
-                            isExist.data | isDownloaded == true,
+                        isExist: isExist.data,
                         sendingStatus: pendingMessage.data != null
                             ? pendingMessage.data.status
                             : null,

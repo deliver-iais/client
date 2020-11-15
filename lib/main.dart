@@ -26,7 +26,6 @@ import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
-import 'package:deliver_flutter/services/mode_checker.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
@@ -45,7 +44,7 @@ import 'package:sms_autofill/sms_autofill.dart';
 import 'package:window_size/window_size.dart';
 import 'db/dao/LastSeenDao.dart';
 import 'db/dao/MessageDao.dart';
-import 'db/dao/GroupDao.dart';
+import 'db/dao/MucDao.dart';
 import 'db/dao/RoomDao.dart';
 import 'repository/mucRepo.dart';
 import 'repository/servicesDiscoveryRepo.dart';
@@ -63,7 +62,7 @@ void setupDB() {
   getIt.registerSingleton<PendingMessageDao>(db.pendingMessageDao);
   getIt.registerSingleton<LastAvatarDao>(db.lastAvatarDao);
   getIt.registerSingleton<SharedPreferencesDao>(db.sharedPreferencesDao);
-  getIt.registerSingleton<GroupDao>(db.groupDao);
+  getIt.registerSingleton<MucDao>(db.mucDao);
   getIt.registerSingleton<MemberDao>(db.memberDao);
   getIt.registerSingleton<LastSeenDao>(db.lastSeenDao);
 }
@@ -75,17 +74,17 @@ void setupRepositories() {
   getIt.registerSingleton<AccountRepo>(AccountRepo());
   getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
-  getIt.registerSingleton<ModeChecker>(ModeChecker());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<NotificationServices>(NotificationServices());
+  getIt.registerSingleton<MucServices>(MucServices());
+  getIt.registerSingleton<MucRepo>(MucRepo());
   getIt.registerSingleton<CoreServices>(CoreServices());
   getIt.registerSingleton<MessageRepo>(MessageRepo());
-  getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<ContactRepo>(ContactRepo());
   getIt.registerSingleton<RoomRepo>(RoomRepo());
-  getIt.registerSingleton<MucRepo>(MucRepo());
+
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
   getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());
 

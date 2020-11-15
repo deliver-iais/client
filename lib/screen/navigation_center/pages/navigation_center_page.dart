@@ -15,6 +15,7 @@ import 'package:deliver_flutter/screen/navigation_center/widgets/searchBox.dart'
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -150,12 +151,17 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   _searchMode
                       ? searchResult()
                       : Expanded(
-                          child: AnimatedSwitcher(
-                            duration: Duration(milliseconds: 150),
-                            child: (tab == NavigationTabs.Chats)
-                                ? ChatsPage(key: ValueKey("ChatsPage"))
-                                : ContactsPage(key: ValueKey("ContactsPage")),
-                          ),
+                          child: isDesktop() && !kDebugMode
+                              ? (tab == NavigationTabs.Chats)
+                                  ? ChatsPage(key: ValueKey("ChatsPage"))
+                                  : ContactsPage(key: ValueKey("ContactsPage"))
+                              : AnimatedSwitcher(
+                                  duration: Duration(milliseconds: 150),
+                                  child: (tab == NavigationTabs.Chats)
+                                      ? ChatsPage(key: ValueKey("ChatsPage"))
+                                      : ContactsPage(
+                                          key: ValueKey("ContactsPage")),
+                                ),
                         )
                 ],
               ),
@@ -277,7 +283,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         child: Text(
                             appLocalization.getTraslateValue("newContact")),
                         onTap: () {
-                          _routingService.openCreateNewContactPage();
+                          ExtendedNavigator.of(context).popAndPush(Routes.newContact);
                         },
                       )),
                     ]),

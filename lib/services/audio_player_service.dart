@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:deliver_flutter/theme/constants.dart';
+import 'package:open_file/open_file.dart';
+import 'package:rxdart/rxdart.dart';
 
 class AudioPlayerService {
   AudioPlayer audioPlayer;
@@ -19,6 +22,8 @@ class AudioPlayerService {
   Stream<bool> get isOn => _audioPlayerController.stream;
 
   Map<String, StreamController<AudioPlayerState>> _audioPlayerStateController;
+
+  String CURRENT_AUDIO_ID = "";
 
   Stream<AudioPlayerState> audioPlayerState(String audioId) {
     try {
@@ -77,20 +82,30 @@ class AudioPlayerService {
   }
 
   void onPlay(String path, String uuid, String name) {
-    setAudioDetails("Description", path, name, uuid);
-    isPlaying = true;
-    _audioPlayerController.add(true);
-    _audioPlayerStateController[uuid].add(AudioPlayerState.PLAYING);
-    this.audioPlayer.play(path, isLocal: true);
+    if (isDesktop()) {
+      OpenFile.open(path);
+    } else {
+      CURRENT_AUDIO_ID = uuid;
+      _audioPlayerStateController.keys.forEach((element) {
+        _audioPlayerStateController[element].add(AudioPlayerState.STOPPED);
+      });
+      setAudioDetails("Description", path, name, uuid);
+      isPlaying = true;
+      _audioPlayerController.add(true);
+      _audioPlayerStateController[uuid].add(AudioPlayerState.PLAYING);
+      this.audioPlayer.play(path, isLocal: true);
+    }
   }
 
   onPause(String audioId) {
+    CURRENT_AUDIO_ID = "";
     isPlaying = false;
     _audioPlayerStateController[audioId].add(AudioPlayerState.PAUSED);
     this.audioPlayer.pause();
   }
 
   onStop(String audioId) {
+    CURRENT_AUDIO_ID = "";
     resetAudioPlayerService();
     _audioPlayerController.add(false);
     _audioPlayerStateController[audioId].add(AudioPlayerState.STOPPED);
