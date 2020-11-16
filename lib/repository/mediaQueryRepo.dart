@@ -65,6 +65,7 @@ class MediaQueryRepo {
       var getMediasRes = await mediaServices.fetchMedias(getMediaReq,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      print("mediaaaaaaaaaaaa${getMediasRes.medias.length}");
       await _saveFetchedMedias(getMediasRes.medias, roomId.uid, mediaType);
       medias = await _mediaDao.getByRoomIdAndType(roomId,mediaType.value);
     }

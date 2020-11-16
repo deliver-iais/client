@@ -4,7 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/mediaType.dart';
-import 'package:deliver_flutter/models/memberType.dart';
+//import 'package:deliver_flutter/models/memberType.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
