@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:moor/moor.dart';
 
 class MediasMetaData extends Table {
@@ -10,5 +11,6 @@ class MediasMetaData extends Table {
   IntColumn get audiosCount => integer()();
   IntColumn get musicsCount => integer()();
   IntColumn get linkCount => integer()();
+  IntColumn get lastRequestTime => integer()();
 
 }
