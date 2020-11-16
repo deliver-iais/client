@@ -356,7 +356,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ];
                 },
                 body: FutureBuilder<List<Media>>(
-                  future:  _mediaQueryRepo.getMedias(widget.userUid.string, DateTime.now().microsecondsSinceEpoch.toString(),2020, FetchMediasReq_MediaType.IMAGES, FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH, 50),
+                  future:  _mediaQueryRepo.getMedias(widget.userUid.string, DateTime.now().microsecondsSinceEpoch,2020, FetchMediasReq_MediaType.IMAGES, FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH, 50),
                   builder: (BuildContext context,
                       AsyncSnapshot<List<Media>> snapshot) {
                     if (snapshot.hasData && snapshot.data.length != null) {

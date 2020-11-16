@@ -4457,6 +4457,535 @@ class $LastSeensTable extends LastSeens
   }
 }
 
+class MediasMetaDataData extends DataClass
+    implements Insertable<MediasMetaDataData> {
+  final String roomId;
+  final int imagesCount;
+  final int videosCount;
+  final int filesCount;
+  final int documentsCount;
+  final int audiosCount;
+  final int musicsCount;
+  final int linkCount;
+  MediasMetaDataData(
+      {@required this.roomId,
+      @required this.imagesCount,
+      @required this.videosCount,
+      @required this.filesCount,
+      @required this.documentsCount,
+      @required this.audiosCount,
+      @required this.musicsCount,
+      @required this.linkCount});
+  factory MediasMetaDataData.fromData(
+      Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    final intType = db.typeSystem.forDartType<int>();
+    return MediasMetaDataData(
+      roomId:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
+      imagesCount: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}images_count']),
+      videosCount: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}videos_count']),
+      filesCount: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}files_count']),
+      documentsCount: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}documents_count']),
+      audiosCount: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}audios_count']),
+      musicsCount: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}musics_count']),
+      linkCount:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}link_count']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || roomId != null) {
+      map['room_id'] = Variable<String>(roomId);
+    }
+    if (!nullToAbsent || imagesCount != null) {
+      map['images_count'] = Variable<int>(imagesCount);
+    }
+    if (!nullToAbsent || videosCount != null) {
+      map['videos_count'] = Variable<int>(videosCount);
+    }
+    if (!nullToAbsent || filesCount != null) {
+      map['files_count'] = Variable<int>(filesCount);
+    }
+    if (!nullToAbsent || documentsCount != null) {
+      map['documents_count'] = Variable<int>(documentsCount);
+    }
+    if (!nullToAbsent || audiosCount != null) {
+      map['audios_count'] = Variable<int>(audiosCount);
+    }
+    if (!nullToAbsent || musicsCount != null) {
+      map['musics_count'] = Variable<int>(musicsCount);
+    }
+    if (!nullToAbsent || linkCount != null) {
+      map['link_count'] = Variable<int>(linkCount);
+    }
+    return map;
+  }
+
+  MediasMetaDataCompanion toCompanion(bool nullToAbsent) {
+    return MediasMetaDataCompanion(
+      roomId:
+          roomId == null && nullToAbsent ? const Value.absent() : Value(roomId),
+      imagesCount: imagesCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imagesCount),
+      videosCount: videosCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(videosCount),
+      filesCount: filesCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(filesCount),
+      documentsCount: documentsCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(documentsCount),
+      audiosCount: audiosCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audiosCount),
+      musicsCount: musicsCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(musicsCount),
+      linkCount: linkCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(linkCount),
+    );
+  }
+
+  factory MediasMetaDataData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return MediasMetaDataData(
+      roomId: serializer.fromJson<String>(json['roomId']),
+      imagesCount: serializer.fromJson<int>(json['imagesCount']),
+      videosCount: serializer.fromJson<int>(json['videosCount']),
+      filesCount: serializer.fromJson<int>(json['filesCount']),
+      documentsCount: serializer.fromJson<int>(json['documentsCount']),
+      audiosCount: serializer.fromJson<int>(json['audiosCount']),
+      musicsCount: serializer.fromJson<int>(json['musicsCount']),
+      linkCount: serializer.fromJson<int>(json['linkCount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'roomId': serializer.toJson<String>(roomId),
+      'imagesCount': serializer.toJson<int>(imagesCount),
+      'videosCount': serializer.toJson<int>(videosCount),
+      'filesCount': serializer.toJson<int>(filesCount),
+      'documentsCount': serializer.toJson<int>(documentsCount),
+      'audiosCount': serializer.toJson<int>(audiosCount),
+      'musicsCount': serializer.toJson<int>(musicsCount),
+      'linkCount': serializer.toJson<int>(linkCount),
+    };
+  }
+
+  MediasMetaDataData copyWith(
+          {String roomId,
+          int imagesCount,
+          int videosCount,
+          int filesCount,
+          int documentsCount,
+          int audiosCount,
+          int musicsCount,
+          int linkCount}) =>
+      MediasMetaDataData(
+        roomId: roomId ?? this.roomId,
+        imagesCount: imagesCount ?? this.imagesCount,
+        videosCount: videosCount ?? this.videosCount,
+        filesCount: filesCount ?? this.filesCount,
+        documentsCount: documentsCount ?? this.documentsCount,
+        audiosCount: audiosCount ?? this.audiosCount,
+        musicsCount: musicsCount ?? this.musicsCount,
+        linkCount: linkCount ?? this.linkCount,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('MediasMetaDataData(')
+          ..write('roomId: $roomId, ')
+          ..write('imagesCount: $imagesCount, ')
+          ..write('videosCount: $videosCount, ')
+          ..write('filesCount: $filesCount, ')
+          ..write('documentsCount: $documentsCount, ')
+          ..write('audiosCount: $audiosCount, ')
+          ..write('musicsCount: $musicsCount, ')
+          ..write('linkCount: $linkCount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(
+      roomId.hashCode,
+      $mrjc(
+          imagesCount.hashCode,
+          $mrjc(
+              videosCount.hashCode,
+              $mrjc(
+                  filesCount.hashCode,
+                  $mrjc(
+                      documentsCount.hashCode,
+                      $mrjc(
+                          audiosCount.hashCode,
+                          $mrjc(
+                              musicsCount.hashCode, linkCount.hashCode))))))));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is MediasMetaDataData &&
+          other.roomId == this.roomId &&
+          other.imagesCount == this.imagesCount &&
+          other.videosCount == this.videosCount &&
+          other.filesCount == this.filesCount &&
+          other.documentsCount == this.documentsCount &&
+          other.audiosCount == this.audiosCount &&
+          other.musicsCount == this.musicsCount &&
+          other.linkCount == this.linkCount);
+}
+
+class MediasMetaDataCompanion extends UpdateCompanion<MediasMetaDataData> {
+  final Value<String> roomId;
+  final Value<int> imagesCount;
+  final Value<int> videosCount;
+  final Value<int> filesCount;
+  final Value<int> documentsCount;
+  final Value<int> audiosCount;
+  final Value<int> musicsCount;
+  final Value<int> linkCount;
+  const MediasMetaDataCompanion({
+    this.roomId = const Value.absent(),
+    this.imagesCount = const Value.absent(),
+    this.videosCount = const Value.absent(),
+    this.filesCount = const Value.absent(),
+    this.documentsCount = const Value.absent(),
+    this.audiosCount = const Value.absent(),
+    this.musicsCount = const Value.absent(),
+    this.linkCount = const Value.absent(),
+  });
+  MediasMetaDataCompanion.insert({
+    @required String roomId,
+    @required int imagesCount,
+    @required int videosCount,
+    @required int filesCount,
+    @required int documentsCount,
+    @required int audiosCount,
+    @required int musicsCount,
+    @required int linkCount,
+  })  : roomId = Value(roomId),
+        imagesCount = Value(imagesCount),
+        videosCount = Value(videosCount),
+        filesCount = Value(filesCount),
+        documentsCount = Value(documentsCount),
+        audiosCount = Value(audiosCount),
+        musicsCount = Value(musicsCount),
+        linkCount = Value(linkCount);
+  static Insertable<MediasMetaDataData> custom({
+    Expression<String> roomId,
+    Expression<int> imagesCount,
+    Expression<int> videosCount,
+    Expression<int> filesCount,
+    Expression<int> documentsCount,
+    Expression<int> audiosCount,
+    Expression<int> musicsCount,
+    Expression<int> linkCount,
+  }) {
+    return RawValuesInsertable({
+      if (roomId != null) 'room_id': roomId,
+      if (imagesCount != null) 'images_count': imagesCount,
+      if (videosCount != null) 'videos_count': videosCount,
+      if (filesCount != null) 'files_count': filesCount,
+      if (documentsCount != null) 'documents_count': documentsCount,
+      if (audiosCount != null) 'audios_count': audiosCount,
+      if (musicsCount != null) 'musics_count': musicsCount,
+      if (linkCount != null) 'link_count': linkCount,
+    });
+  }
+
+  MediasMetaDataCompanion copyWith(
+      {Value<String> roomId,
+      Value<int> imagesCount,
+      Value<int> videosCount,
+      Value<int> filesCount,
+      Value<int> documentsCount,
+      Value<int> audiosCount,
+      Value<int> musicsCount,
+      Value<int> linkCount}) {
+    return MediasMetaDataCompanion(
+      roomId: roomId ?? this.roomId,
+      imagesCount: imagesCount ?? this.imagesCount,
+      videosCount: videosCount ?? this.videosCount,
+      filesCount: filesCount ?? this.filesCount,
+      documentsCount: documentsCount ?? this.documentsCount,
+      audiosCount: audiosCount ?? this.audiosCount,
+      musicsCount: musicsCount ?? this.musicsCount,
+      linkCount: linkCount ?? this.linkCount,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (roomId.present) {
+      map['room_id'] = Variable<String>(roomId.value);
+    }
+    if (imagesCount.present) {
+      map['images_count'] = Variable<int>(imagesCount.value);
+    }
+    if (videosCount.present) {
+      map['videos_count'] = Variable<int>(videosCount.value);
+    }
+    if (filesCount.present) {
+      map['files_count'] = Variable<int>(filesCount.value);
+    }
+    if (documentsCount.present) {
+      map['documents_count'] = Variable<int>(documentsCount.value);
+    }
+    if (audiosCount.present) {
+      map['audios_count'] = Variable<int>(audiosCount.value);
+    }
+    if (musicsCount.present) {
+      map['musics_count'] = Variable<int>(musicsCount.value);
+    }
+    if (linkCount.present) {
+      map['link_count'] = Variable<int>(linkCount.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MediasMetaDataCompanion(')
+          ..write('roomId: $roomId, ')
+          ..write('imagesCount: $imagesCount, ')
+          ..write('videosCount: $videosCount, ')
+          ..write('filesCount: $filesCount, ')
+          ..write('documentsCount: $documentsCount, ')
+          ..write('audiosCount: $audiosCount, ')
+          ..write('musicsCount: $musicsCount, ')
+          ..write('linkCount: $linkCount')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MediasMetaDataTable extends MediasMetaData
+    with TableInfo<$MediasMetaDataTable, MediasMetaDataData> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $MediasMetaDataTable(this._db, [this._alias]);
+  final VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
+  GeneratedTextColumn _roomId;
+  @override
+  GeneratedTextColumn get roomId => _roomId ??= _constructRoomId();
+  GeneratedTextColumn _constructRoomId() {
+    return GeneratedTextColumn(
+      'room_id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _imagesCountMeta =
+      const VerificationMeta('imagesCount');
+  GeneratedIntColumn _imagesCount;
+  @override
+  GeneratedIntColumn get imagesCount =>
+      _imagesCount ??= _constructImagesCount();
+  GeneratedIntColumn _constructImagesCount() {
+    return GeneratedIntColumn(
+      'images_count',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _videosCountMeta =
+      const VerificationMeta('videosCount');
+  GeneratedIntColumn _videosCount;
+  @override
+  GeneratedIntColumn get videosCount =>
+      _videosCount ??= _constructVideosCount();
+  GeneratedIntColumn _constructVideosCount() {
+    return GeneratedIntColumn(
+      'videos_count',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _filesCountMeta = const VerificationMeta('filesCount');
+  GeneratedIntColumn _filesCount;
+  @override
+  GeneratedIntColumn get filesCount => _filesCount ??= _constructFilesCount();
+  GeneratedIntColumn _constructFilesCount() {
+    return GeneratedIntColumn(
+      'files_count',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _documentsCountMeta =
+      const VerificationMeta('documentsCount');
+  GeneratedIntColumn _documentsCount;
+  @override
+  GeneratedIntColumn get documentsCount =>
+      _documentsCount ??= _constructDocumentsCount();
+  GeneratedIntColumn _constructDocumentsCount() {
+    return GeneratedIntColumn(
+      'documents_count',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _audiosCountMeta =
+      const VerificationMeta('audiosCount');
+  GeneratedIntColumn _audiosCount;
+  @override
+  GeneratedIntColumn get audiosCount =>
+      _audiosCount ??= _constructAudiosCount();
+  GeneratedIntColumn _constructAudiosCount() {
+    return GeneratedIntColumn(
+      'audios_count',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _musicsCountMeta =
+      const VerificationMeta('musicsCount');
+  GeneratedIntColumn _musicsCount;
+  @override
+  GeneratedIntColumn get musicsCount =>
+      _musicsCount ??= _constructMusicsCount();
+  GeneratedIntColumn _constructMusicsCount() {
+    return GeneratedIntColumn(
+      'musics_count',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _linkCountMeta = const VerificationMeta('linkCount');
+  GeneratedIntColumn _linkCount;
+  @override
+  GeneratedIntColumn get linkCount => _linkCount ??= _constructLinkCount();
+  GeneratedIntColumn _constructLinkCount() {
+    return GeneratedIntColumn(
+      'link_count',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [
+        roomId,
+        imagesCount,
+        videosCount,
+        filesCount,
+        documentsCount,
+        audiosCount,
+        musicsCount,
+        linkCount
+      ];
+  @override
+  $MediasMetaDataTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'medias_meta_data';
+  @override
+  final String actualTableName = 'medias_meta_data';
+  @override
+  VerificationContext validateIntegrity(Insertable<MediasMetaDataData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('room_id')) {
+      context.handle(_roomIdMeta,
+          roomId.isAcceptableOrUnknown(data['room_id'], _roomIdMeta));
+    } else if (isInserting) {
+      context.missing(_roomIdMeta);
+    }
+    if (data.containsKey('images_count')) {
+      context.handle(
+          _imagesCountMeta,
+          imagesCount.isAcceptableOrUnknown(
+              data['images_count'], _imagesCountMeta));
+    } else if (isInserting) {
+      context.missing(_imagesCountMeta);
+    }
+    if (data.containsKey('videos_count')) {
+      context.handle(
+          _videosCountMeta,
+          videosCount.isAcceptableOrUnknown(
+              data['videos_count'], _videosCountMeta));
+    } else if (isInserting) {
+      context.missing(_videosCountMeta);
+    }
+    if (data.containsKey('files_count')) {
+      context.handle(
+          _filesCountMeta,
+          filesCount.isAcceptableOrUnknown(
+              data['files_count'], _filesCountMeta));
+    } else if (isInserting) {
+      context.missing(_filesCountMeta);
+    }
+    if (data.containsKey('documents_count')) {
+      context.handle(
+          _documentsCountMeta,
+          documentsCount.isAcceptableOrUnknown(
+              data['documents_count'], _documentsCountMeta));
+    } else if (isInserting) {
+      context.missing(_documentsCountMeta);
+    }
+    if (data.containsKey('audios_count')) {
+      context.handle(
+          _audiosCountMeta,
+          audiosCount.isAcceptableOrUnknown(
+              data['audios_count'], _audiosCountMeta));
+    } else if (isInserting) {
+      context.missing(_audiosCountMeta);
+    }
+    if (data.containsKey('musics_count')) {
+      context.handle(
+          _musicsCountMeta,
+          musicsCount.isAcceptableOrUnknown(
+              data['musics_count'], _musicsCountMeta));
+    } else if (isInserting) {
+      context.missing(_musicsCountMeta);
+    }
+    if (data.containsKey('link_count')) {
+      context.handle(_linkCountMeta,
+          linkCount.isAcceptableOrUnknown(data['link_count'], _linkCountMeta));
+    } else if (isInserting) {
+      context.missing(_linkCountMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  @override
+  MediasMetaDataData map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return MediasMetaDataData.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $MediasMetaDataTable createAlias(String alias) {
+    return $MediasMetaDataTable(_db, alias);
+  }
+}
+
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $MessagesTable _messages;
@@ -4487,6 +5016,9 @@ abstract class _$Database extends GeneratedDatabase {
   $MucsTable get mucs => _mucs ??= $MucsTable(this);
   $LastSeensTable _lastSeens;
   $LastSeensTable get lastSeens => _lastSeens ??= $LastSeensTable(this);
+  $MediasMetaDataTable _mediasMetaData;
+  $MediasMetaDataTable get mediasMetaData =>
+      _mediasMetaData ??= $MediasMetaDataTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
@@ -4516,6 +5048,9 @@ abstract class _$Database extends GeneratedDatabase {
   MucDao get mucDao => _mucDao ??= MucDao(this as Database);
   LastSeenDao _lastSeenDao;
   LastSeenDao get lastSeenDao => _lastSeenDao ??= LastSeenDao(this as Database);
+  MediaMetaDataDao _mediaMetaDataDao;
+  MediaMetaDataDao get mediaMetaDataDao =>
+      _mediaMetaDataDao ??= MediaMetaDataDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
@@ -4532,6 +5067,7 @@ abstract class _$Database extends GeneratedDatabase {
         sharedPreferences,
         members,
         mucs,
-        lastSeens
+        lastSeens,
+        mediasMetaData
       ];
 }

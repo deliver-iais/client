@@ -48,16 +48,17 @@ class MediaQueryRepo {
 
   Future<List<Media>> getMedias(
       String roomId,
-      String pointer,
+      int pointer,
       int year,
       FetchMediasReq_MediaType mediaType,
       FetchMediasReq_FetchingDirectionType fetchingDirectionType,
       int limit) async {
+    print("rooooooooooooooooom${roomId.uid}");
     var medias = await _mediaDao.getByRoomIdAndType(roomId,mediaType.value);
     if (medias.length == 0 || medias.length < limit) {
       var getMediaReq = FetchMediasReq();
       getMediaReq..roomUid = roomId.uid;
-      getMediaReq..pointer = Int64.parseInt(pointer);
+      getMediaReq..pointer = Int64(pointer);
       getMediaReq..year = year;
       getMediaReq..mediaType = mediaType;
       getMediaReq..fetchingDirectionType = fetchingDirectionType;
