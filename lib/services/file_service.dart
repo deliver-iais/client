@@ -59,6 +59,7 @@ class FileService {
     BehaviorSubject<double> behaviorSubject = BehaviorSubject();
     var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
       behaviorSubject.add((i / j));
+      print((i / j));
       filesDownloadStatus[uuid] = behaviorSubject;
     }, options: Options(responseType: ResponseType.bytes));
     final file = await _localFile(uuid,filename.split('.').last);
