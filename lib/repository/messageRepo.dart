@@ -174,6 +174,7 @@ class MessageRepo {
       String forwardedMessageBody}) async {
     List<Message> messageList = new List();
     List<String> uploadKeyList = new List();
+    List<int> messagesDbId = new List();
     // TODO refactored needed
     if (id == 0) {
       await insertRoomAndLastSeen((roomId.string));
@@ -199,19 +200,11 @@ class MessageRepo {
           type: MessageType.FILE,
           json: forwardedMessageBody != null
               ? forwardedMessageBody
-              : jsonEncode({
-                  "uuid": uploadKey,
-                  "size": 0,
-                  "type": type,
-                  "path": path,
-                  "name": path.split('/').last,
-                  "caption": caption ?? "",
-                  "width": type == 'image' || type == 'video' ? 200 : 0,
-                  "height": type == 'image' || type == 'video' ? 100 : 0,
-                  "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
-                }));
+              : _generateFileMessage(
+                  uuid: uploadKey, path: path, caption: caption, type: type));
       messageList.add(message);
       int dbId = await _messageDao.insertMessage(message);
+      messagesDbId.add(dbId);
       await _updateRoomLastMessage(
         roomId.string,
         dbId,
@@ -226,6 +219,15 @@ class MessageRepo {
           LocalFile.File(filesPath[i]),
           uploadKey: uploadKeyList[i],
         );
+        _messageDao.updateMessageBody(
+            messageList[i].roomId,
+            messagesDbId[i],
+            _generateFileMessage(
+              uuid: fileInfo.uuid,
+              path: fileInfo.path,
+              caption: jsonDecode(messageList[i].json)["caption"],
+              type: jsonDecode(messageList[i].json)["type"],
+            ));
         _sendFileMessage(messageList[i], fileInfo: fileInfo);
       }
     } else {
@@ -240,16 +242,18 @@ class MessageRepo {
     List<PendingMessage> pendingMessages =
         await _pendingMessageDao.watchAllMessages();
     for (var pendingMessage in pendingMessages) {
-      if (pendingMessage.remainingRetries >0) {
+      if (pendingMessage.remainingRetries > 0) {
         switch (pendingMessage.status) {
           case SendingStatus.SENDING_FILE:
-            Message message = await _messageDao.getPendingMessage(pendingMessage.messageDbId);
-          //  await _sendFileMessage(message);
+            Message message =
+                await _messageDao.getPendingMessage(pendingMessage.messageDbId);
+            //  await _sendFileMessage(message);
             _updatePendingMessage(pendingMessage);
 
             break;
           case SendingStatus.PENDING:
-            Message message = await _messageDao.getPendingMessage(pendingMessage.messageDbId);
+            Message message =
+                await _messageDao.getPendingMessage(pendingMessage.messageDbId);
             await _sendTextMessage(message);
             _updatePendingMessage(pendingMessage);
             break;
@@ -429,5 +433,24 @@ class MessageRepo {
       msgList.add(await _coreServices.saveMessageInMessagesDB(message));
     }
     return msgList;
+  }
+
+  String _generateFileMessage({
+    String uuid,
+    String type,
+    String path,
+    String caption,
+  }) {
+    return jsonEncode({
+      "uuid": uuid,
+      "size": 0,
+      "type": type,
+      "path": path,
+      "name": path.split('/').last,
+      "caption": caption ?? "",
+      "width": type == 'image' || type == 'video' ? 200 : 0,
+      "height": type == 'image' || type == 'video' ? 100 : 0,
+      "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
+    });
   }
 }

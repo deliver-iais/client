@@ -33,6 +33,16 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
     );
   }
 
+  updateMessageBody(String roomId, int dbId, String json) {
+    (update(messages)
+      ..where((t) => t.roomId.equals(roomId) & t.dbId.equals(dbId)))
+        .write(
+      MessagesCompanion(
+        json: Value(json),
+      ),
+    );
+  }
+
   Future deleteMessage(Message message) => delete(messages).delete(message);
 
   Future updateMessage(Message updatedMessage) =>

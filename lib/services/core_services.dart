@@ -30,7 +30,7 @@ import 'package:rxdart/rxdart.dart';
 
 enum ConnectionStatus { Connected, Disconnected }
 
-const MIN_BACKOFF_TIME = 4;
+const MIN_BACKOFF_TIME = 1;
 const MAX_BACKOFF_TIME = 32;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
@@ -76,11 +76,11 @@ class CoreServices {
     Timer(new Duration(seconds: _backoffTime), () {
       print("timer");
       if (!_responseChecked) {
-        print("not respond");
         if (_backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO)
-          _backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
         _connectionStatus.add(ConnectionStatus.Disconnected);
         _startStream();
+      }else{
+        _backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
       }
       _startCheckerTimer();
     });
@@ -93,11 +93,6 @@ class CoreServices {
   }
 
   _startStream() async {
-    // try {
-    //   await _clientPacket.close();
-    //   await _responseStream.cancel();
-    // } catch (e) {}
-
     try {
       _clientPacket = StreamController<ClientPacket>();
       _responseStream = _grpcCoreService.establishStream(
