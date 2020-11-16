@@ -74,6 +74,8 @@ dependencies:
   vibration: 1.4.0 # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
   dcache: 0.3.0
 
+  image_size_getter: 0.2.1
+
 
   sqflite_common_ffi: 1.1.0+1
 

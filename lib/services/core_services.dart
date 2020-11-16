@@ -232,6 +232,7 @@ class CoreServices {
   }
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
+    print(messageDeliveryAck.toString());
     var roomId = messageDeliveryAck.to.getString();
     var packetId = messageDeliveryAck.packetId;
     var id = messageDeliveryAck.id.toInt();

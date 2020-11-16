@@ -11,6 +11,7 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
 
@@ -32,6 +33,8 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
+import 'package:image_size_getter/file_input.dart';
+import 'package:image_size_getter/image_size_getter.dart';
 import 'package:rxdart/rxdart.dart';
 
 enum TitleStatusConditions { Disconnected, Updating, Normal }
@@ -157,7 +160,7 @@ class MessageRepo {
   String findType(String path) {
     Fimber.d('path is ' + path);
     String postfix = path.split('.').last;
-    if (postfix == 'png' || postfix == 'jpg' || postfix == 'jpeg')
+    if (postfix == 'png' || postfix == 'jpg' || postfix == 'jpeg' || postfix == 'jfif' )
       return 'image';
     else if (postfix == 'mp4')
       return 'video';
@@ -180,6 +183,7 @@ class MessageRepo {
       await insertRoomAndLastSeen((roomId.string));
     }
     for (var path in filesPath) {
+      final size = ImageSizeGetter.getSize(FileInput(LocalFile.File(path)));
       String packetId = _getPacketId();
       String type;
       type = forwardedMessageBody != null
@@ -201,7 +205,7 @@ class MessageRepo {
           json: forwardedMessageBody != null
               ? forwardedMessageBody
               : _generateFileMessage(
-                  uuid: uploadKey, path: path, caption: caption, type: type));
+                  uuid: uploadKey, path: path, caption: caption, type: type,size:size ));
       messageList.add(message);
       int dbId = await _messageDao.insertMessage(message);
       messagesDbId.add(dbId);
@@ -219,6 +223,7 @@ class MessageRepo {
           LocalFile.File(filesPath[i]),
           uploadKey: uploadKeyList[i],
         );
+        final size = ImageSizeGetter.getSize(FileInput(LocalFile.File(filesPath[i])));
         _messageDao.updateMessageBody(
             messageList[i].roomId,
             messagesDbId[i],
@@ -227,8 +232,9 @@ class MessageRepo {
               path: fileInfo.path,
               caption: jsonDecode(messageList[i].json)["caption"],
               type: jsonDecode(messageList[i].json)["type"],
+              size: size
             ));
-        _sendFileMessage(messageList[i], fileInfo: fileInfo);
+        _sendFileMessage(messageList[i], fileInfo: fileInfo,size: size);
       }
     } else {
       _sendFileMessage(messageList[0],
@@ -354,10 +360,12 @@ class MessageRepo {
     await _coreServices.sendMessage(messageByClient);
   }
 
-  _sendFileMessage(Message message, {FileInfo fileInfo}) async {
+  _sendFileMessage(Message message, {FileInfo fileInfo,Size size}) async {
     File file = File()
       ..name = fileInfo.name
       ..uuid = fileInfo.uuid
+      ..width = size.width
+      ..height  =size.height
       ..type = findType(fileInfo.name)
       ..caption = jsonDecode(message.json)["caption"];
 
@@ -440,6 +448,7 @@ class MessageRepo {
     String type,
     String path,
     String caption,
+    Size size
   }) {
     return jsonEncode({
       "uuid": uuid,
@@ -448,8 +457,8 @@ class MessageRepo {
       "path": path,
       "name": path.split('/').last,
       "caption": caption ?? "",
-      "width": type == 'image' || type == 'video' ? 200 : 0,
-      "height": type == 'image' || type == 'video' ? 100 : 0,
+      "width":  type == 'image' ?size.width: type == 'video' ? 200 : 0,
+      "height": type == 'image'?size.height: type == 'video' ? 100 : 0,
       "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
     });
   }

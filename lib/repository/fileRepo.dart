@@ -8,6 +8,8 @@ import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
 import 'package:fimber/fimber.dart';
 
 import 'package:get_it/get_it.dart';
+import 'package:image_size_getter/file_input.dart';
+import 'package:image_size_getter/image_size_getter.dart';
 
 class FileRepo {
   var _fileDao = GetIt.I.get<FileDao>();
@@ -28,6 +30,7 @@ class FileRepo {
 
   Future<FileInfo> uploadFile(File file,{String uploadKey}) async {
     var value = await _fileService.uploadFile(file.path,uploadKey:uploadKey);
+    print(value.toString());
     FileInfo savedFile = await saveFileInfo(
         jsonDecode(value.toString())["uuid"],
         file,

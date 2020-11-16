@@ -249,7 +249,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   if (currentRoom.lastMessageId == null) {
                                     _itemCount = pendingMessages.length;
                                   } else {
-                                    _itemCount = currentRoom.lastMessageId +
+                                    _itemCount = currentRoom.lastMessageId +1+
                                         pendingMessages.length;
                                   }
                                   int month;
@@ -349,7 +349,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                         ? ChatTime(
                                                             t: messages[0].time)
                                                         : Container(),
-                                                    _lastShowedMessageId ==
+                                                   currentRoom.lastMessageId!= null? _lastShowedMessageId ==
                                                                 currentRoom
                                                                         .lastMessageId -1-
                                                                     index &&
@@ -374,7 +374,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                       .primaryColor),
                                                             ),
                                                           )
-                                                        : Container(),
+                                                        : Container():SizedBox.shrink(),
                                                     messages[0].type !=
                                                             MessageType
                                                                 .PERSISTENT_EVENT
