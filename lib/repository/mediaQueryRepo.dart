@@ -70,16 +70,30 @@ int lastTime;
       FetchMediasReq_MediaType mediaType,
       int limit) async {
 
-   int imageCount;
-  //TODO:for another type if this way is correct.
+     int specialMediaCount;
      if(mediaType==MediaType.IMAGE){
-       await getMediaMetaDataFromServer(roomId.uid,pointer).then((value) => imageCount=value.allImagesCount.toInt());
+       await getMediaMetaDataFromServer(roomId.uid,pointer).then((value) => specialMediaCount=value.allImagesCount.toInt());
+     }else if(mediaType==MediaType.LINK){
+       await getMediaMetaDataFromServer(roomId.uid, pointer).then((value)=> specialMediaCount = value.allLinksCount.toInt());
      }
 
-    await _mediaMetaDataDao.getMetaByRoomId(roomId).then((value) =>lastTime= value.lastRequestTime);
-     
     var medias = await _mediaDao.getByRoomIdAndType(roomId, mediaType.value);
-    if ( medias.length<imageCount) {
+     if(medias.length==0){
+       var getMediaReq = FetchMediasReq();
+       getMediaReq..roomUid = roomId.uid;
+       getMediaReq..pointer = Int64(pointer);
+       getMediaReq..year = year;
+       getMediaReq..mediaType = mediaType;
+       getMediaReq..fetchingDirectionType = FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH;
+       getMediaReq..limit = limit;
+       var getMediasRes = await mediaServices.fetchMedias(getMediaReq,
+           options: CallOptions(
+               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+       await _saveFetchedMedias(getMediasRes.medias, roomId.uid, mediaType);
+       medias = await _mediaDao.getByRoomIdAndType(roomId, mediaType.value);
+     }
+   else if ( medias.length<specialMediaCount) {
+      await _mediaMetaDataDao.getMetaByRoomId(roomId).then((value) =>lastTime= value.lastRequestTime);
       pointer = lastTime;
       var getMediaReq = FetchMediasReq();
       getMediaReq..roomUid = roomId.uid;
@@ -87,20 +101,6 @@ int lastTime;
       getMediaReq..year = year;
       getMediaReq..mediaType = mediaType;
       getMediaReq..fetchingDirectionType = FetchMediasReq_FetchingDirectionType.FORWARD_FETCH;
-      getMediaReq..limit = limit;
-      var getMediasRes = await mediaServices.fetchMedias(getMediaReq,
-          options: CallOptions(
-              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      print("mediaaaaaaaaaaaa${getMediasRes.medias.length}");
-      await _saveFetchedMedias(getMediasRes.medias, roomId.uid, mediaType);
-      medias = await _mediaDao.getByRoomIdAndType(roomId, mediaType.value);
-    } else if(medias.length==0){
-      var getMediaReq = FetchMediasReq();
-      getMediaReq..roomUid = roomId.uid;
-      getMediaReq..pointer = Int64(pointer);
-      getMediaReq..year = year;
-      getMediaReq..mediaType = mediaType;
-      getMediaReq..fetchingDirectionType = FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH;
       getMediaReq..limit = limit;
       var getMediasRes = await mediaServices.fetchMedias(getMediaReq,
           options: CallOptions(

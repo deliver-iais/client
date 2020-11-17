@@ -355,13 +355,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ];
                 },
-                body: FutureBuilder<List<Media>>(
-                  future:  _mediaQueryRepo.getMedias(widget.userUid.string, DateTime.now().microsecondsSinceEpoch,2020, FetchMediasReq_MediaType.IMAGES, 50),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<List<Media>> snapshot) {
-                    if (snapshot.hasData && snapshot.data.length != null) {
-                     _fetchedMedia = snapshot.data;
-                      return Container(
+                body:
+                       Container(
                           child: TabBarView(children: [
                             if (widget.userUid.category != Categories.USER)
                               SingleChildScrollView(
@@ -371,7 +366,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                 ]),
                               ),
-                            mediaWidget(snapshot.data),
+                            mediaWidget(widget.userUid,_mediaQueryRepo,_fileRepo),
                             ListView(
                               padding: EdgeInsets.zero,
                               children: <Widget>[
@@ -382,22 +377,24 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Text("File"),
                               ],
                             ),
-                            ListView(),
-                          ]));
-                    } else {
-                      return Text("...");
+                            linkWidget(widget.userUid,_mediaQueryRepo),
+                          ])))));
                     }
-                  },
-                ))));
   }
 
 
 
-  Widget mediaWidget(List<Media> medias) {
-    return GridView.builder(
+  Widget mediaWidget(Uid userUid ,MediaQueryRepo mediaQueryRepo ,FileRepo fileRepo) {
+    return FutureBuilder<List<Media>>(
+        future:  mediaQueryRepo.getMedias(userUid.string, DateTime.now().microsecondsSinceEpoch,2020, FetchMediasReq_MediaType.IMAGES, 50),
+    builder: (BuildContext context,
+    AsyncSnapshot<List<Media>> snapshot) {
+    if (snapshot.hasData && snapshot.data.length != null) {
+    //_fetchedMedia = snapshot.data;
+     return GridView.builder(
         shrinkWrap: true,
         padding: EdgeInsets.zero,
-        itemCount: medias.length,
+        itemCount: snapshot.data.length,
         scrollDirection: Axis.vertical,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
@@ -405,10 +402,10 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         itemBuilder: (context, position) {
 
-          var fileId = jsonDecode(medias[position].json)["uuid"];
-          var fileName = jsonDecode(medias[position].json)["name"];
+          var fileId = jsonDecode(snapshot.data[position].json)["uuid"];
+          var fileName = jsonDecode(snapshot.data[position].json)["name"];
           return FutureBuilder(
-            future: _fileRepo.getFile(fileId, fileName),
+            future: fileRepo.getFile(fileId, fileName),
             builder:
             (BuildContext c, AsyncSnapshot snaps) {
               if (snaps.hasData &&
@@ -458,7 +455,32 @@ class _ProfilePageState extends State<ProfilePage> {
             //   ),
             // ),
           );
+        });}
+    else {
+      return Text("...");
+    }
         });
+  }
+
+  Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo){
+   return FutureBuilder<List<Media>>(
+        future:  mediaQueryRepo.getMedias(userUid.string, DateTime.now().microsecondsSinceEpoch,2020, FetchMediasReq_MediaType.LINKS, 50),
+    builder: (BuildContext context,
+    AsyncSnapshot<List<Media>> snapshot) {
+    if (snapshot.hasData && snapshot.data.length != null) {
+      return ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          Text("File"),
+          Text("File"),
+          Text("File"),
+          Text("File"),
+          Text("File"),
+        ],
+      );
+    }
+    });
+
   }
 
   Widget _showUsername(String username) {
@@ -473,7 +495,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-}
+
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   _SliverAppBarDelegate({
