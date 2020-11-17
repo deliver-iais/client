@@ -10,7 +10,6 @@ import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:file_chooser/file_chooser.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/db/database.dart';
@@ -69,7 +68,6 @@ class _InputMessageWidget extends State<InputMessage> {
     if (isDesktop()) {
       _attachFileInWindowsMode();
     } else {
-   //   attachImage();
       showModalBottomSheet(
           context: context,
           isScrollControlled: true,
@@ -402,14 +400,5 @@ class _InputMessageWidget extends State<InputMessage> {
     if (result.paths != null) {
       messageRepo.sendFileMessage(currentRoom.roomId.uid, result.paths);
     }
-  }
-  void attachImage()async {
-    FilePickerResult result = await FilePicker.platform.pickFiles(allowMultiple: true);
-    if(result.paths != null){
-      messageRepo.sendFileMessage(currentRoom.roomId.uid,result.paths);
-
-    }
-
-
   }
 }

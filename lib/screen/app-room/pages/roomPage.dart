@@ -111,26 +111,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     if (msg != null) {
       return msg;
     }
-
     int page = (id / PAGE_SIZE).floor();
-//    Future.delayed(Duration.zero,
-//            () async {
-//          setState(() {
-//            _scrollPhysics =
-//                NeverScrollableScrollPhysics();
-//          });
-//        });
     List<Message> messages = await _messageRepo.getPage(page, roomId, id);
     for (int i = 0; i < messages.length; i = i + 1) {
       _cache.set(messages[i].id, messages[i]);
     }
-//    Future.delayed(Duration.zero,
-//            () async {
-//          setState(() {
-//            _scrollPhysics =
-//                AlwaysScrollableScrollPhysics();
-//          });
-//        });
     return _cache.get(id);
   }
 
@@ -279,7 +264,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                     _lastShowedMessageId -
                                                     1
                                                 : 0,
-                                        initialAlignment: 0,
+                                        initialAlignment: 1,
                                         physics: _scrollPhysics,
                                         reverse: true,
                                         itemScrollController:

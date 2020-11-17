@@ -76,7 +76,6 @@ dependencies:
 
   image_size_getter: 0.2.1
 
-  file_picker: 2.0.13
 
 
   sqflite_common_ffi: 1.1.0+1
@@ -114,7 +113,7 @@ dependencies:
 
   flutter_icons: 1.1.0
 
-  device_info: 0.4.2+8
+  device_info: 1.0.0
 
 
 
