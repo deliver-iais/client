@@ -151,7 +151,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   _searchMode
                       ? searchResult()
                       : Expanded(
-                          child: isDesktop() && !kDebugMode
+                          child: isDesktop() || !kDebugMode
                               ? (tab == NavigationTabs.Chats)
                                   ? ChatsPage(key: ValueKey("ChatsPage"))
                                   : ContactsPage(key: ValueKey("ContactsPage"))

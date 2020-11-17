@@ -364,8 +364,8 @@ class MessageRepo {
     File file = File()
       ..name = fileInfo.name
       ..uuid = fileInfo.uuid
-      ..width = size.width
-      ..height  =size.height
+      ..width = size.width!=0?size.width:200
+      ..height  =size.height!=0?size.height:200
       ..type = findType(fileInfo.name)
       ..caption = jsonDecode(message.json)["caption"];
 
@@ -457,8 +457,8 @@ class MessageRepo {
       "path": path,
       "name": path.split('/').last,
       "caption": caption ?? "",
-      "width":  type == 'image' ?size.width: type == 'video' ? 200 : 0,
-      "height": type == 'image'?size.height: type == 'video' ? 100 : 0,
+      "width":  type == 'image' ?size.width!= 0?size.width:200: type == 'video' ? 200 : 0,
+      "height": type == 'image'?size.height!=0?size.height:200: type == 'video' ? 100 : 0,
       "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
     });
   }

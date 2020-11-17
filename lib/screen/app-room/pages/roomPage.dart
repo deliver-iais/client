@@ -113,10 +113,24 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     }
 
     int page = (id / PAGE_SIZE).floor();
+//    Future.delayed(Duration.zero,
+//            () async {
+//          setState(() {
+//            _scrollPhysics =
+//                NeverScrollableScrollPhysics();
+//          });
+//        });
     List<Message> messages = await _messageRepo.getPage(page, roomId, id);
     for (int i = 0; i < messages.length; i = i + 1) {
       _cache.set(messages[i].id, messages[i]);
     }
+//    Future.delayed(Duration.zero,
+//            () async {
+//          setState(() {
+//            _scrollPhysics =
+//                AlwaysScrollableScrollPhysics();
+//          });
+//        });
     return _cache.get(id);
   }
 
@@ -159,11 +173,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   void initState() {
     _notificationServices.reset(widget.roomId);
-//    _scrollSubject.listen((value) {
-//      setState(() {
-//        _scrollPhysics = value;
-//      });
-//    });
     _isMuc = widget.roomId.uid.category == Categories.GROUP ||
             widget.roomId.uid.category == Categories.PUBLIC_CHANNEL
         ? true
@@ -249,7 +258,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   if (currentRoom.lastMessageId == null) {
                                     _itemCount = pendingMessages.length;
                                   } else {
-                                    _itemCount = currentRoom.lastMessageId +1+
+                                    _itemCount = currentRoom.lastMessageId +
+                                        1 +
                                         pendingMessages.length;
                                   }
                                   int month;
@@ -265,10 +275,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                         itemCount: _itemCount,
                                         initialScrollIndex:
                                             _lastShowedMessageId != -1
-                                                ? _itemCount-
-                                                    _lastShowedMessageId-1
+                                                ? _itemCount -
+                                                    _lastShowedMessageId -
+                                                    1
                                                 : 0,
-                                        initialAlignment: 0.0,
+                                        initialAlignment: 0,
                                         physics: _scrollPhysics,
                                         reverse: true,
                                         itemScrollController:
@@ -308,9 +319,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                     49) {
                                                   _currentMessageSearchId = -1;
                                                 }
-                                                _scrollSubject.add(
-                                                    AlwaysScrollableScrollPhysics());
-
                                                 var messages =
                                                     messagesFuture.data;
                                                 if (messages.length == 0) {
@@ -349,32 +357,38 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                         ? ChatTime(
                                                             t: messages[0].time)
                                                         : Container(),
-                                                   currentRoom.lastMessageId!= null? _lastShowedMessageId ==
-                                                                currentRoom
-                                                                        .lastMessageId -1-
-                                                                    index &&
-                                                            !(messages[0]
-                                                                .from
-                                                                .isSameEntity(
-                                                                    _accountRepo
-                                                                        .currentUserUid))
-                                                        ? Container(
-                                                            width:
-                                                                double.infinity,
-                                                            alignment: Alignment
-                                                                .center,
-                                                            color: Colors.white,
-                                                            child: Text(
-                                                              _appLocalization
-                                                                  .getTraslateValue(
-                                                                      "UnreadMessages"),
-                                                              style: TextStyle(
-                                                                  color: Theme.of(
-                                                                          context)
-                                                                      .primaryColor),
-                                                            ),
-                                                          )
-                                                        : Container():SizedBox.shrink(),
+                                                    currentRoom.lastMessageId !=
+                                                            null
+                                                        ? _lastShowedMessageId ==
+                                                                    currentRoom
+                                                                            .lastMessageId -
+                                                                        1 -
+                                                                        index &&
+                                                                !(messages[0]
+                                                                    .from
+                                                                    .isSameEntity(
+                                                                        _accountRepo
+                                                                            .currentUserUid))
+                                                            ? Container(
+                                                                width: double
+                                                                    .infinity,
+                                                                alignment:
+                                                                    Alignment
+                                                                        .center,
+                                                                color: Colors
+                                                                    .white,
+                                                                child: Text(
+                                                                  _appLocalization
+                                                                      .getTraslateValue(
+                                                                          "UnreadMessages"),
+                                                                  style: TextStyle(
+                                                                      color: Theme.of(
+                                                                              context)
+                                                                          .primaryColor),
+                                                                ),
+                                                              )
+                                                            : Container()
+                                                        : SizedBox.shrink(),
                                                     messages[0].type !=
                                                             MessageType
                                                                 .PERSISTENT_EVENT
@@ -539,13 +553,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                   ],
                                                 );
                                               } else {
-                                                _scrollSubject.add(
-                                                    NeverScrollableScrollPhysics());
                                                 if (_currentMessageSearchId ==
                                                     -1) {
                                                   _currentMessageSearchId =
                                                       index;
                                                   return Container(
+                                                    height: 60,
                                                       child: Center(
                                                     child:
                                                         CircularProgressIndicator(
@@ -555,10 +568,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                   ));
                                                 }
                                                 return Container(
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                            .size
-                                                            .height);
+                                                  height: 60,
+                                                  width: 20,
+                                                );
                                               }
                                             },
                                           );

@@ -80,14 +80,16 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                     radius: 45.0,
                                     lineWidth: 4.0,
                                     percent: snapshot.data,
-                                    progressColor: Colors.blue,
+                                    center: Icon(Icons.arrow_downward),
+                                    progressColor: Colors.black,
                                   );
                                 } else {
                                   return CircularPercentIndicator(
                                     radius: 45.0,
                                     lineWidth: 4.0,
                                     percent: 0.1,
-                                    progressColor: Colors.blue,
+                                    center: Icon(Icons.arrow_downward),
+                                    progressColor: Colors.black,
                                   );
                                   ;
                                 }
