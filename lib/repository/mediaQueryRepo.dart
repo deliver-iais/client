@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:html';
 
+import 'package:deliver_flutter/db/MediaMetaData.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
@@ -39,7 +41,7 @@ int lastTime;
 
   var mediaServices = QueryServiceClient(clientChannel);
 
-  getMediaMetaDataFromServer(Uid uid ,int lastReqTime) async {
+  getMediasCountFromServer(Uid uid) async {
     var getMediaMetaDataReq = GetMediaMetadataReq();
     getMediaMetaDataReq..with_1 = uid;
     var mediaResponse = await mediaServices.getMediaMetadata(
@@ -47,10 +49,10 @@ int lastTime;
         options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
     // return mediaResponse;
-    insertMediaMetaData(uid,mediaResponse,lastReqTime);
+    insertMediaMetaData(uid,mediaResponse);
   }
 
-  insertMediaMetaData(Uid uid ,queryObject.GetMediaMetadataRes mediaResponse , int lasRequestTime) async{
+  insertMediaMetaData(Uid uid ,queryObject.GetMediaMetadataRes mediaResponse) async{
     await _mediaMetaDataDao.insertMetaData(MediasMetaDataData(
         roomId: uid.string,
         imagesCount: mediaResponse.allImagesCount.toInt(),
@@ -60,55 +62,52 @@ int lastTime;
         audiosCount: mediaResponse.allAudiosCount.toInt(),
         musicsCount: mediaResponse.allMusicsCount.toInt(),
         linkCount: mediaResponse.allLinksCount.toInt(),
-        lastRequestTime: lasRequestTime));
+       ));
   }
+  Future<MediasMetaDataData> getMediasCountFromDB(String roomId) async{
+    var mediaMeta = await _mediaMetaDataDao.getMediasCountByRoomId(roomId);
+    return mediaMeta;
+   }
 
   Future<List<Media>> getMedias(
       String roomId,
-      int pointer,
       int year,
       FetchMediasReq_MediaType mediaType,
-      int limit) async {
+      int pageSize,int position) async {
 
-     int specialMediaCount;
-     if(mediaType==MediaType.IMAGE){
-       await getMediaMetaDataFromServer(roomId.uid,pointer).then((value) => specialMediaCount=value.allImagesCount.toInt());
-     }else if(mediaType==MediaType.LINK){
-       await getMediaMetaDataFromServer(roomId.uid, pointer).then((value)=> specialMediaCount = value.allLinksCount.toInt());
-     }
+    await getMediasCountFromServer(roomId.uid);
 
-    var medias = await _mediaDao.getByRoomIdAndType(roomId, mediaType.value);
+    var medias = await _mediaDao.getByRoomIdAndType(roomId, mediaType.value,pageSize,position);
      if(medias.length==0){
+       int pointer = DateTime.now().microsecondsSinceEpoch;
        var getMediaReq = FetchMediasReq();
        getMediaReq..roomUid = roomId.uid;
        getMediaReq..pointer = Int64(pointer);
        getMediaReq..year = year;
        getMediaReq..mediaType = mediaType;
        getMediaReq..fetchingDirectionType = FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH;
-       getMediaReq..limit = limit;
+       getMediaReq..limit = pageSize;
        var getMediasRes = await mediaServices.fetchMedias(getMediaReq,
            options: CallOptions(
                metadata: {'accessToken': await _accountRepo.getAccessToken()}));
        await _saveFetchedMedias(getMediasRes.medias, roomId.uid, mediaType);
-       medias = await _mediaDao.getByRoomIdAndType(roomId, mediaType.value);
-     }
-   else if ( medias.length<specialMediaCount) {
-      await _mediaMetaDataDao.getMetaByRoomId(roomId).then((value) =>lastTime= value.lastRequestTime);
-      pointer = lastTime;
+       medias = await _mediaDao.getByRoomIdAndType(roomId, mediaType.value,pageSize,position);
+     } else if(medias.length < pageSize){
+      int pointer= medias.first.createdOn;
       var getMediaReq = FetchMediasReq();
       getMediaReq..roomUid = roomId.uid;
       getMediaReq..pointer = Int64(pointer);
       getMediaReq..year = year;
       getMediaReq..mediaType = mediaType;
       getMediaReq..fetchingDirectionType = FetchMediasReq_FetchingDirectionType.FORWARD_FETCH;
-      getMediaReq..limit = limit;
+      getMediaReq..limit = pageSize;
       var getMediasRes = await mediaServices.fetchMedias(getMediaReq,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      print("mediaaaaaaaaaaaa${getMediasRes.medias.length}");
       await _saveFetchedMedias(getMediasRes.medias, roomId.uid, mediaType);
-      medias = await _mediaDao.getByRoomIdAndType(roomId, mediaType.value);
-    }
+      medias = await _mediaDao.getByRoomIdAndType(roomId, mediaType.value,pageSize,position);
+     }
+
     return medias;
   }
 

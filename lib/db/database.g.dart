@@ -4467,7 +4467,6 @@ class MediasMetaDataData extends DataClass
   final int audiosCount;
   final int musicsCount;
   final int linkCount;
-  final int lastRequestTime;
   MediasMetaDataData(
       {@required this.roomId,
       @required this.imagesCount,
@@ -4476,8 +4475,7 @@ class MediasMetaDataData extends DataClass
       @required this.documentsCount,
       @required this.audiosCount,
       @required this.musicsCount,
-      @required this.linkCount,
-      @required this.lastRequestTime});
+      @required this.linkCount});
   factory MediasMetaDataData.fromData(
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
@@ -4501,8 +4499,6 @@ class MediasMetaDataData extends DataClass
           .mapFromDatabaseResponse(data['${effectivePrefix}musics_count']),
       linkCount:
           intType.mapFromDatabaseResponse(data['${effectivePrefix}link_count']),
-      lastRequestTime: intType
-          .mapFromDatabaseResponse(data['${effectivePrefix}last_request_time']),
     );
   }
   @override
@@ -4532,9 +4528,6 @@ class MediasMetaDataData extends DataClass
     if (!nullToAbsent || linkCount != null) {
       map['link_count'] = Variable<int>(linkCount);
     }
-    if (!nullToAbsent || lastRequestTime != null) {
-      map['last_request_time'] = Variable<int>(lastRequestTime);
-    }
     return map;
   }
 
@@ -4563,9 +4556,6 @@ class MediasMetaDataData extends DataClass
       linkCount: linkCount == null && nullToAbsent
           ? const Value.absent()
           : Value(linkCount),
-      lastRequestTime: lastRequestTime == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastRequestTime),
     );
   }
 
@@ -4581,7 +4571,6 @@ class MediasMetaDataData extends DataClass
       audiosCount: serializer.fromJson<int>(json['audiosCount']),
       musicsCount: serializer.fromJson<int>(json['musicsCount']),
       linkCount: serializer.fromJson<int>(json['linkCount']),
-      lastRequestTime: serializer.fromJson<int>(json['lastRequestTime']),
     );
   }
   @override
@@ -4596,7 +4585,6 @@ class MediasMetaDataData extends DataClass
       'audiosCount': serializer.toJson<int>(audiosCount),
       'musicsCount': serializer.toJson<int>(musicsCount),
       'linkCount': serializer.toJson<int>(linkCount),
-      'lastRequestTime': serializer.toJson<int>(lastRequestTime),
     };
   }
 
@@ -4608,8 +4596,7 @@ class MediasMetaDataData extends DataClass
           int documentsCount,
           int audiosCount,
           int musicsCount,
-          int linkCount,
-          int lastRequestTime}) =>
+          int linkCount}) =>
       MediasMetaDataData(
         roomId: roomId ?? this.roomId,
         imagesCount: imagesCount ?? this.imagesCount,
@@ -4619,7 +4606,6 @@ class MediasMetaDataData extends DataClass
         audiosCount: audiosCount ?? this.audiosCount,
         musicsCount: musicsCount ?? this.musicsCount,
         linkCount: linkCount ?? this.linkCount,
-        lastRequestTime: lastRequestTime ?? this.lastRequestTime,
       );
   @override
   String toString() {
@@ -4631,8 +4617,7 @@ class MediasMetaDataData extends DataClass
           ..write('documentsCount: $documentsCount, ')
           ..write('audiosCount: $audiosCount, ')
           ..write('musicsCount: $musicsCount, ')
-          ..write('linkCount: $linkCount, ')
-          ..write('lastRequestTime: $lastRequestTime')
+          ..write('linkCount: $linkCount')
           ..write(')'))
         .toString();
   }
@@ -4651,9 +4636,7 @@ class MediasMetaDataData extends DataClass
                       $mrjc(
                           audiosCount.hashCode,
                           $mrjc(
-                              musicsCount.hashCode,
-                              $mrjc(linkCount.hashCode,
-                                  lastRequestTime.hashCode)))))))));
+                              musicsCount.hashCode, linkCount.hashCode))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -4665,8 +4648,7 @@ class MediasMetaDataData extends DataClass
           other.documentsCount == this.documentsCount &&
           other.audiosCount == this.audiosCount &&
           other.musicsCount == this.musicsCount &&
-          other.linkCount == this.linkCount &&
-          other.lastRequestTime == this.lastRequestTime);
+          other.linkCount == this.linkCount);
 }
 
 class MediasMetaDataCompanion extends UpdateCompanion<MediasMetaDataData> {
@@ -4678,7 +4660,6 @@ class MediasMetaDataCompanion extends UpdateCompanion<MediasMetaDataData> {
   final Value<int> audiosCount;
   final Value<int> musicsCount;
   final Value<int> linkCount;
-  final Value<int> lastRequestTime;
   const MediasMetaDataCompanion({
     this.roomId = const Value.absent(),
     this.imagesCount = const Value.absent(),
@@ -4688,7 +4669,6 @@ class MediasMetaDataCompanion extends UpdateCompanion<MediasMetaDataData> {
     this.audiosCount = const Value.absent(),
     this.musicsCount = const Value.absent(),
     this.linkCount = const Value.absent(),
-    this.lastRequestTime = const Value.absent(),
   });
   MediasMetaDataCompanion.insert({
     @required String roomId,
@@ -4699,7 +4679,6 @@ class MediasMetaDataCompanion extends UpdateCompanion<MediasMetaDataData> {
     @required int audiosCount,
     @required int musicsCount,
     @required int linkCount,
-    @required int lastRequestTime,
   })  : roomId = Value(roomId),
         imagesCount = Value(imagesCount),
         videosCount = Value(videosCount),
@@ -4707,8 +4686,7 @@ class MediasMetaDataCompanion extends UpdateCompanion<MediasMetaDataData> {
         documentsCount = Value(documentsCount),
         audiosCount = Value(audiosCount),
         musicsCount = Value(musicsCount),
-        linkCount = Value(linkCount),
-        lastRequestTime = Value(lastRequestTime);
+        linkCount = Value(linkCount);
   static Insertable<MediasMetaDataData> custom({
     Expression<String> roomId,
     Expression<int> imagesCount,
@@ -4718,7 +4696,6 @@ class MediasMetaDataCompanion extends UpdateCompanion<MediasMetaDataData> {
     Expression<int> audiosCount,
     Expression<int> musicsCount,
     Expression<int> linkCount,
-    Expression<int> lastRequestTime,
   }) {
     return RawValuesInsertable({
       if (roomId != null) 'room_id': roomId,
@@ -4729,7 +4706,6 @@ class MediasMetaDataCompanion extends UpdateCompanion<MediasMetaDataData> {
       if (audiosCount != null) 'audios_count': audiosCount,
       if (musicsCount != null) 'musics_count': musicsCount,
       if (linkCount != null) 'link_count': linkCount,
-      if (lastRequestTime != null) 'last_request_time': lastRequestTime,
     });
   }
 
@@ -4741,8 +4717,7 @@ class MediasMetaDataCompanion extends UpdateCompanion<MediasMetaDataData> {
       Value<int> documentsCount,
       Value<int> audiosCount,
       Value<int> musicsCount,
-      Value<int> linkCount,
-      Value<int> lastRequestTime}) {
+      Value<int> linkCount}) {
     return MediasMetaDataCompanion(
       roomId: roomId ?? this.roomId,
       imagesCount: imagesCount ?? this.imagesCount,
@@ -4752,7 +4727,6 @@ class MediasMetaDataCompanion extends UpdateCompanion<MediasMetaDataData> {
       audiosCount: audiosCount ?? this.audiosCount,
       musicsCount: musicsCount ?? this.musicsCount,
       linkCount: linkCount ?? this.linkCount,
-      lastRequestTime: lastRequestTime ?? this.lastRequestTime,
     );
   }
 
@@ -4783,9 +4757,6 @@ class MediasMetaDataCompanion extends UpdateCompanion<MediasMetaDataData> {
     if (linkCount.present) {
       map['link_count'] = Variable<int>(linkCount.value);
     }
-    if (lastRequestTime.present) {
-      map['last_request_time'] = Variable<int>(lastRequestTime.value);
-    }
     return map;
   }
 
@@ -4799,8 +4770,7 @@ class MediasMetaDataCompanion extends UpdateCompanion<MediasMetaDataData> {
           ..write('documentsCount: $documentsCount, ')
           ..write('audiosCount: $audiosCount, ')
           ..write('musicsCount: $musicsCount, ')
-          ..write('linkCount: $linkCount, ')
-          ..write('lastRequestTime: $lastRequestTime')
+          ..write('linkCount: $linkCount')
           ..write(')'))
         .toString();
   }
@@ -4917,20 +4887,6 @@ class $MediasMetaDataTable extends MediasMetaData
     );
   }
 
-  final VerificationMeta _lastRequestTimeMeta =
-      const VerificationMeta('lastRequestTime');
-  GeneratedIntColumn _lastRequestTime;
-  @override
-  GeneratedIntColumn get lastRequestTime =>
-      _lastRequestTime ??= _constructLastRequestTime();
-  GeneratedIntColumn _constructLastRequestTime() {
-    return GeneratedIntColumn(
-      'last_request_time',
-      $tableName,
-      false,
-    );
-  }
-
   @override
   List<GeneratedColumn> get $columns => [
         roomId,
@@ -4940,8 +4896,7 @@ class $MediasMetaDataTable extends MediasMetaData
         documentsCount,
         audiosCount,
         musicsCount,
-        linkCount,
-        lastRequestTime
+        linkCount
       ];
   @override
   $MediasMetaDataTable get asDslTable => this;
@@ -5013,14 +4968,6 @@ class $MediasMetaDataTable extends MediasMetaData
           linkCount.isAcceptableOrUnknown(data['link_count'], _linkCountMeta));
     } else if (isInserting) {
       context.missing(_linkCountMeta);
-    }
-    if (data.containsKey('last_request_time')) {
-      context.handle(
-          _lastRequestTimeMeta,
-          lastRequestTime.isAcceptableOrUnknown(
-              data['last_request_time'], _lastRequestTimeMeta));
-    } else if (isInserting) {
-      context.missing(_lastRequestTimeMeta);
     }
     return context;
   }

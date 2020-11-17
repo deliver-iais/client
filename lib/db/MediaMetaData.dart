@@ -11,6 +11,4 @@ class MediasMetaData extends Table {
   IntColumn get audiosCount => integer()();
   IntColumn get musicsCount => integer()();
   IntColumn get linkCount => integer()();
-  IntColumn get lastRequestTime => integer()();
-
 }

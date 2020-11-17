@@ -14,7 +14,7 @@ class MediaMetaDataDao extends DatabaseAccessor<Database> with _$MediaMetaDataDa
   Future insertMetaData(MediasMetaDataData media) =>
     into(mediasMetaData).insertOnConflictUpdate(media);
 
-  Future<MediasMetaDataData> getMetaByRoomId(String roomId) {
+  Future<MediasMetaDataData> getMediasCountByRoomId(String roomId) {
     return (select(mediasMetaData)
       ..where((meta) => meta.roomId.equals(roomId))).getSingle();
   }

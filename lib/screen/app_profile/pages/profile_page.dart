@@ -52,10 +52,12 @@ class _ProfilePageState extends State<ProfilePage> {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
-
+  int imageCount;
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
+    _mediaQueryRepo.getMediasCountFromDB(widget.userUid.string).then((value) => imageCount=value.imagesCount);
+
     return Scaffold(
         body: DefaultTabController(
             length: widget.userUid.category == Categories.USER ? 3 : 4,
@@ -366,7 +368,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                 ]),
                               ),
-                            mediaWidget(widget.userUid,_mediaQueryRepo,_fileRepo),
+                            mediaWidget(widget.userUid,_mediaQueryRepo,_fileRepo,imageCount),
                             ListView(
                               padding: EdgeInsets.zero,
                               children: <Widget>[
@@ -384,17 +386,18 @@ class _ProfilePageState extends State<ProfilePage> {
 
 
 
-  Widget mediaWidget(Uid userUid ,MediaQueryRepo mediaQueryRepo ,FileRepo fileRepo) {
+  Widget mediaWidget(Uid userUid ,MediaQueryRepo mediaQueryRepo ,FileRepo fileRepo,int imageCount) {
     return FutureBuilder<List<Media>>(
-        future:  mediaQueryRepo.getMedias(userUid.string, DateTime.now().microsecondsSinceEpoch,2020, FetchMediasReq_MediaType.IMAGES, 50),
+        future:  mediaQueryRepo.getMedias(userUid.string,2020, FetchMediasReq_MediaType.IMAGES, 50),
     builder: (BuildContext context,
     AsyncSnapshot<List<Media>> snapshot) {
     if (snapshot.hasData && snapshot.data.length != null) {
     //_fetchedMedia = snapshot.data;
+
      return GridView.builder(
         shrinkWrap: true,
         padding: EdgeInsets.zero,
-        itemCount: snapshot.data.length,
+        itemCount:imageCount ,
         scrollDirection: Axis.vertical,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
