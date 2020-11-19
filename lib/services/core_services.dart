@@ -77,9 +77,9 @@ class CoreServices {
       print("timer");
       if (!_responseChecked) {
         if (_backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO)
-        _connectionStatus.add(ConnectionStatus.Disconnected);
+          _connectionStatus.add(ConnectionStatus.Disconnected);
         _startStream();
-      }else{
+      } else {
         _backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
       }
       _startCheckerTimer();
@@ -122,7 +122,7 @@ class CoreServices {
             break;
           case ServerPacket_Type.liveLocationStatusChanged:
             break;
-          case ServerPacket_Type.notSet:
+          case ServerPacket_Type.message:
             break;
           case ServerPacket_Type.pong:
             break;
@@ -260,19 +260,47 @@ class CoreServices {
           lastMessageDbId: msg.dbId),
     );
     var roomName = await RoomRepo().getRoomDisplayName(message.from);
-    _notificationServices.showNotification(msg,roomName);
-
-
+    _notificationServices.showNotification(msg, roomName);
 
     // TODO remove later on if Add User to group message feature is implemented
     if (message.to.category != Categories.USER) {
       _mucRepo.saveMucInfo(message.to);
     }
-
   }
 
   saveMessageInMessagesDB(Message message) async {
     print(message.text.text);
+    if (message.whichType() == MessageType.PERSISTENT_EVENT) {
+      switch (message.persistEvent.whichType()) {
+        case PersistentEvent_Type.mucSpecificPersistentEvent:
+          switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
+            case MucSpecificPersistentEvent_Issue.ADD_USER:
+              M.Message msg = M.Message(
+                  id: message.id.toInt(),
+                  roomId: message.from.string,
+                  packetId: message.packetId,
+                  time:
+                      DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
+                  to: message.to.string,
+                  from: message.from.string,
+                  json: messageToJson(message),
+                  type: getMessageType(message.whichType()));
+              break;
+          }
+          break;
+        case PersistentEvent_Type.messageManipulationPersistentEvent:
+          message.persistEvent.messageManipulationPersistentEvent.action;
+
+          // TODO: Handle this case.
+          break;
+        case PersistentEvent_Type.adminSpecificPersistentEvent:
+          // TODO: Handle this case.
+          break;
+        case PersistentEvent_Type.notSet:
+          // TODO: Handle this case.
+          break;
+      }
+    }
     M.Message msg = M.Message(
         id: message.id.toInt(),
         roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
@@ -322,7 +350,25 @@ class CoreServices {
         "height": message.sticker.height.toInt()
       };
     else if (type == MessageType.PERSISTENT_EVENT)
-      json = {"type": message.persistEvent}; //TODO edit this
+      switch (message.persistEvent.whichType()) {
+        case PersistentEvent_Type.mucSpecificPersistentEvent:
+          json = {
+            "type": message.persistEvent.mucSpecificPersistentEvent.issue.name,
+            "issuer":
+                message.persistEvent.mucSpecificPersistentEvent.issuer.string,
+            "assignee":
+                message.persistEvent.mucSpecificPersistentEvent.assignee.string
+          };
+          break;
+        case PersistentEvent_Type.messageManipulationPersistentEvent:
+          break;
+        case PersistentEvent_Type.adminSpecificPersistentEvent:
+          // TODO: Handle this case.
+          break;
+        case PersistentEvent_Type.notSet:
+          // TODO: Handle this case.
+          break;
+      }
     else if (type == MessageType.POLL)
       json = {
         "uuid": message.poll.uuid,

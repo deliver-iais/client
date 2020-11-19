@@ -56,7 +56,6 @@ class MucRepo {
     List<Member> members = new List();
     for (MucPro.Member member in result) {
       members.add(Member(
-          memberUid: member.memberUid.string,
           mucUid: groupUid.string,
           role: getLocalRole(member.role)));
     }
@@ -68,7 +67,6 @@ class MucRepo {
     List<Member> members = new List();
     for (MucPro.Member member in result) {
       members.add(Member(
-          memberUid: member.memberUid.string,
           mucUid: channelUid.string,
           role: getLocalRole(member.role)));
     }
@@ -125,8 +123,7 @@ class MucRepo {
 
   changeGroupMemberRole(Member groupMember) async {
     MucPro.Member member = MucPro.Member()
-      ..mucUid = groupMember.mucUid.uid
-      ..memberUid = groupMember.memberUid.uid
+    ..uid = groupMember.memberUid.uid
       ..role = getRole(groupMember.role);
     bool result = await mucServices.changeGroupRole(member);
     if (result) {
@@ -136,8 +133,7 @@ class MucRepo {
 
   changeChannelMemberRole(Member channelMember) async {
     MucPro.Member member = MucPro.Member()
-      ..mucUid = channelMember.mucUid.uid
-      ..memberUid = channelMember.memberUid.uid
+      ..uid = channelMember.memberUid.uid
       ..role = getRole(channelMember.role);
     var result = await mucServices.changeGroupRole(member);
 
@@ -170,12 +166,11 @@ class MucRepo {
     List<MucPro.Member> members = List();
     for (Member member in groupMember) {
       members.add(MucPro.Member()
-        ..mucUid = member.mucUid.uid
-        ..memberUid = member.memberUid.uid
+        ..uid = member.memberUid.uid
         ..role = getRole(member.role));
     }
 
-    bool result = await mucServices.kickGroupMembers(members);
+    bool result = await mucServices.kickGroupMembers(members,groupMember[0].mucUid.uid);
 
     if (result) {
       for (Member member in groupMember) _memberDao.deleteMember(member);
@@ -186,11 +181,10 @@ class MucRepo {
     List<MucPro.Member> members = List();
     for (Member member in channelMember) {
       members.add(MucPro.Member()
-        ..mucUid = member.mucUid.uid
-        ..memberUid = member.memberUid.uid
+        ..uid = member.memberUid.uid
         ..role = getRole(member.role));
     }
-    var result = await mucServices.kickChannelMembers(members);
+    var result = await mucServices.kickChannelMembers(members,channelMember[0].mucUid.uid);
     if (result) {
       for (Member member in channelMember) _memberDao.deleteMember(member);
     }
@@ -198,37 +192,33 @@ class MucRepo {
 
   banGroupMember(Member groupMember) async {
     MucPro.Member member = MucPro.Member()
-      ..mucUid = groupMember.mucUid.uid
-      ..memberUid = groupMember.memberUid.uid
+      ..uid = groupMember.memberUid.uid
       ..role = getRole(groupMember.role);
-    var result = await mucServices.banGroupMember(member);
+    var result = await mucServices.banGroupMember(member,groupMember.mucUid.uid);
     //todo change databse
   }
 
   banChannelMember(Member channelMember) async {
     MucPro.Member member = MucPro.Member()
-      ..mucUid = channelMember.mucUid.uid
-      ..memberUid = channelMember.memberUid.uid
+      ..uid = channelMember.memberUid.uid
       ..role = getRole(channelMember.role);
-    var result = await mucServices.unbanChannelMember(member);
+    var result = await mucServices.unbanChannelMember(member,channelMember.mucUid.uid);
     //todo change databse
   }
 
   unBanGroupMember(Member groupMember) async {
     MucPro.Member member = MucPro.Member()
-      ..mucUid = groupMember.mucUid.uid
-      ..memberUid = groupMember.memberUid.uid
+      ..uid = groupMember.memberUid.uid
       ..role = getRole(groupMember.role);
-    var result = await mucServices.banGroupMember(member);
+    var result = await mucServices.banGroupMember(member,groupMember.mucUid.uid);
     //todo change databse
   }
 
   unBanChannelMember(Member channelMember) async {
     MucPro.Member member = MucPro.Member()
-      ..mucUid = channelMember.mucUid.uid
-      ..memberUid = channelMember.memberUid.uid
+      ..uid = channelMember.memberUid.uid
       ..role = getRole(channelMember.role);
-    var result = await mucServices.unbanChannelMember(member);
+    var result = await mucServices.unbanChannelMember(member,channelMember.mucUid.uid);
     //todo change databse
   }
 
@@ -293,13 +283,12 @@ class MucRepo {
       List<MucPro.Member> members = new List();
       for (Uid uid in memberUids) {
         members.add(MucPro.Member()
-          ..memberUid = uid
-          ..mucUid = mucUid
+          ..uid = uid
           ..role = MucPro.Role.MEMBER);
       }
 
       if (mucUid.category == Categories.GROUP) {
-        usersAdd = await mucServices.addGroupMembers(members);
+        usersAdd = await mucServices.addGroupMembers(members,mucUid);
       } else {
         usersAdd = await mucServices.addChannelMembers(members);
       }
