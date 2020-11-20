@@ -527,10 +527,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                     .center,
                                                             children: [
                                                               PersistentEventMessage(
-                                                                  content:
+                                                                  message:
                                                                       messages[
-                                                                              0]
-                                                                          .json),
+                                                                          0]),
                                                             ],
                                                           ),
                                                   ],
@@ -541,14 +540,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                   _currentMessageSearchId =
                                                       index;
                                                   return Container(
-                                                    height: 60,
+                                                      height: 60,
                                                       child: Center(
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                      backgroundColor:
-                                                          Colors.blue,
-                                                    ),
-                                                  ));
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                          backgroundColor:
+                                                              Colors.blue,
+                                                        ),
+                                                      ));
                                                 }
                                                 return Container(
                                                   height: 60,

@@ -115,5 +115,13 @@
   "connected": "ارتباط برقرار شد",
   "contactNotExit": "مخاطب وجود ندارد.",
   "contactAdd": "مخاطب اضافه شد.",
-  "new_contact_add": "وارد دلیور شد."
+  "new_contact_add": "وارد دلیور شد.",
+  "add_user_to_muc": "را به کروه اضافه کرد.",
+  "change_avatar_muc": "عکس گروه را تغیر داد.",
+  "create_muc": " گروه را ساخت.",
+  "leave_muc": "گروه را تر ک کرد.",
+  "change_muc_name": "نام گروه را تغییر داد.",
+  "pin_message": "پیام را پین کرد. ",
+  "kick_from_muc": "از گروه حذف کرد."
+
 }

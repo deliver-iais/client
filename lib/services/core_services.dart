@@ -270,31 +270,27 @@ class CoreServices {
 
   saveMessageInMessagesDB(Message message) async {
     print(message.text.text);
-    if (message.whichType() == MessageType.PERSISTENT_EVENT) {
-      _savePersistEventMessage(message);
-    } else {
-      M.Message msg = M.Message(
-          id: message.id.toInt(),
-          roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
-              ? message.to.string
-              : message.to.category == Categories.USER
-                  ? message.from.string
-                  : message.to.string,
-          packetId: message.packetId,
-          time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
-          to: message.to.string,
-          from: message.from.string,
-          replyToId: message.replyToId.toInt(),
-          forwardedFrom: message.forwardFrom.string,
-          json: messageToJson(message),
-          edited: message.edited,
-          encrypted: message.encrypted,
-          type: getMessageType(message.whichType()));
+    M.Message msg = M.Message(
+        id: message.id.toInt(),
+        roomId: message.whichType() == Message_Type.persistEvent?message.from.string: message.from.node.contains(_accountRepo.currentUserUid.node)
+            ? message.to.string
+            : message.to.category == Categories.USER
+                ? message.from.string
+                : message.to.string,
+        packetId: message.packetId,
+        time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
+        to: message.to.string,
+        from: message.from.string,
+        replyToId: message.replyToId.toInt(),
+        forwardedFrom: message.forwardFrom.string,
+        json: messageToJson(message),
+        edited: message.edited,
+        encrypted: message.encrypted,
+        type: getMessageType(message.whichType()));
 
-      int dbId = await _messageDao.insertMessage(msg);
+    int dbId = await _messageDao.insertMessage(msg);
 
-      return msg.copyWith(dbId: dbId);
-    }
+    return msg.copyWith(dbId: dbId);
   }
 
   String messageToJson(Message message) {
@@ -327,7 +323,8 @@ class CoreServices {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
           json = {
             "type": "MUC_EVENT",
-            "issueType":getIssueType(message.persistEvent.mucSpecificPersistentEvent.issue),
+            "issueType": getIssueType(
+                message.persistEvent.mucSpecificPersistentEvent.issue),
             "issuer":
                 message.persistEvent.mucSpecificPersistentEvent.issuer.string,
             "assignee":
@@ -335,17 +332,14 @@ class CoreServices {
           };
           break;
         case PersistentEvent_Type.messageManipulationPersistentEvent:
-        //todo
+          //todo
           break;
         case PersistentEvent_Type.adminSpecificPersistentEvent:
-          switch(message.persistEvent.adminSpecificPersistentEvent.event){
+          switch (message.persistEvent.adminSpecificPersistentEvent.event) {
             case AdminSpecificPersistentEvent_Event.NEW_CONTACT_ADDED:
-              json = {
-                "type": "ADMIN_EVENT"
-              };
+              json = {"type": "ADMIN_EVENT"};
               break;
           }
-
 
           break;
         case PersistentEvent_Type.notSet:
@@ -399,11 +393,10 @@ class CoreServices {
         from: message.from.string,
         json: messageToJson(message),
         type: getMessageType(message.whichType()));
-
   }
 
- String  getIssueType(MucSpecificPersistentEvent_Issue issue) {
-    switch(issue){
+  String getIssueType(MucSpecificPersistentEvent_Issue issue) {
+    switch (issue) {
       case MucSpecificPersistentEvent_Issue.ADD_USER:
         return "ADD_USER";
         break;
@@ -426,5 +419,5 @@ class CoreServices {
         return "KICK_USER";
         break;
     }
- }
+  }
 }
