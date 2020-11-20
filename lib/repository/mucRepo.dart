@@ -57,6 +57,7 @@ class MucRepo {
     for (MucPro.Member member in result) {
       members.add(Member(
           mucUid: groupUid.string,
+          memberUid: member.uid.string,
           role: getLocalRole(member.role)));
     }
     insertUserInDb(groupUid, members);
@@ -68,6 +69,7 @@ class MucRepo {
     for (MucPro.Member member in result) {
       members.add(Member(
           mucUid: channelUid.string,
+          memberUid: member.uid.string,
           role: getLocalRole(member.role)));
     }
     insertUserInDb(channelUid, members);
@@ -307,11 +309,12 @@ class MucRepo {
     }
   }
 
-  insertUserInDb(Uid mucUid, List<Member> members) {
+  insertUserInDb(Uid mucUid, List<Member> members){
     for (Member member in members) {
       _memberDao.insertMember(member);
     }
-    _mucDao.insertMuc(Muc(uid: mucUid.string, members: members.length));
+
+    _mucDao.updateMuc(mucUid.string,members.length);
   }
 
   String _getPacketId() {
