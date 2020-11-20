@@ -114,5 +114,6 @@
   "disconnected": "قطع ارتباط",
   "connected": "ارتباط برقرار شد",
   "contactNotExit": "مخاطب وجود ندارد.",
-  "contactAdd": "مخاطب اضافه شد."
+  "contactAdd": "مخاطب اضافه شد.",
+  "new_contact_add": "وارد دلیور شد."
 }

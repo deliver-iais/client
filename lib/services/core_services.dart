@@ -271,57 +271,30 @@ class CoreServices {
   saveMessageInMessagesDB(Message message) async {
     print(message.text.text);
     if (message.whichType() == MessageType.PERSISTENT_EVENT) {
-      switch (message.persistEvent.whichType()) {
-        case PersistentEvent_Type.mucSpecificPersistentEvent:
-          switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
-            case MucSpecificPersistentEvent_Issue.ADD_USER:
-              M.Message msg = M.Message(
-                  id: message.id.toInt(),
-                  roomId: message.from.string,
-                  packetId: message.packetId,
-                  time:
-                      DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
-                  to: message.to.string,
-                  from: message.from.string,
-                  json: messageToJson(message),
-                  type: getMessageType(message.whichType()));
-              break;
-          }
-          break;
-        case PersistentEvent_Type.messageManipulationPersistentEvent:
-          message.persistEvent.messageManipulationPersistentEvent.action;
+      _savePersistEventMessage(message);
+    } else {
+      M.Message msg = M.Message(
+          id: message.id.toInt(),
+          roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
+              ? message.to.string
+              : message.to.category == Categories.USER
+                  ? message.from.string
+                  : message.to.string,
+          packetId: message.packetId,
+          time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
+          to: message.to.string,
+          from: message.from.string,
+          replyToId: message.replyToId.toInt(),
+          forwardedFrom: message.forwardFrom.string,
+          json: messageToJson(message),
+          edited: message.edited,
+          encrypted: message.encrypted,
+          type: getMessageType(message.whichType()));
 
-          // TODO: Handle this case.
-          break;
-        case PersistentEvent_Type.adminSpecificPersistentEvent:
-          // TODO: Handle this case.
-          break;
-        case PersistentEvent_Type.notSet:
-          // TODO: Handle this case.
-          break;
-      }
+      int dbId = await _messageDao.insertMessage(msg);
+
+      return msg.copyWith(dbId: dbId);
     }
-    M.Message msg = M.Message(
-        id: message.id.toInt(),
-        roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
-            ? message.to.string
-            : message.to.category == Categories.USER
-                ? message.from.string
-                : message.to.string,
-        packetId: message.packetId,
-        time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
-        to: message.to.string,
-        from: message.from.string,
-        replyToId: message.replyToId.toInt(),
-        forwardedFrom: message.forwardFrom.string,
-        json: messageToJson(message),
-        edited: message.edited,
-        encrypted: message.encrypted,
-        type: getMessageType(message.whichType()));
-
-    int dbId = await _messageDao.insertMessage(msg);
-
-    return msg.copyWith(dbId: dbId);
   }
 
   String messageToJson(Message message) {
@@ -353,7 +326,8 @@ class CoreServices {
       switch (message.persistEvent.whichType()) {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
           json = {
-            "type": message.persistEvent.mucSpecificPersistentEvent.issue.name,
+            "type": "MUC_EVENT",
+            "issueType":getIssueType(message.persistEvent.mucSpecificPersistentEvent.issue),
             "issuer":
                 message.persistEvent.mucSpecificPersistentEvent.issuer.string,
             "assignee":
@@ -361,9 +335,18 @@ class CoreServices {
           };
           break;
         case PersistentEvent_Type.messageManipulationPersistentEvent:
+        //todo
           break;
         case PersistentEvent_Type.adminSpecificPersistentEvent:
-          // TODO: Handle this case.
+          switch(message.persistEvent.adminSpecificPersistentEvent.event){
+            case AdminSpecificPersistentEvent_Event.NEW_CONTACT_ADDED:
+              json = {
+                "type": "ADMIN_EVENT"
+              };
+              break;
+          }
+
+
           break;
         case PersistentEvent_Type.notSet:
           // TODO: Handle this case.
@@ -405,4 +388,43 @@ class CoreServices {
     else
       return MessageType.NOT_SET;
   }
+
+  void _savePersistEventMessage(Message message) {
+    M.Message msg = M.Message(
+        id: message.id.toInt(),
+        roomId: message.from.string,
+        packetId: message.packetId,
+        time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
+        to: message.to.string,
+        from: message.from.string,
+        json: messageToJson(message),
+        type: getMessageType(message.whichType()));
+
+  }
+
+ String  getIssueType(MucSpecificPersistentEvent_Issue issue) {
+    switch(issue){
+      case MucSpecificPersistentEvent_Issue.ADD_USER:
+        return "ADD_USER";
+        break;
+      case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
+        return "AVATAR_CHANGED";
+        break;
+      case MucSpecificPersistentEvent_Issue.MUC_CREATED:
+        return "MUC_CREATED";
+        break;
+      case MucSpecificPersistentEvent_Issue.LEAVE_USER:
+        return "LEAVE_USER";
+        break;
+      case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
+        return "NAME_CHANGED";
+        break;
+      case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
+        return "PIN_MESSAGE";
+        break;
+      case MucSpecificPersistentEvent_Issue.KICK_USER:
+        return "KICK_USER";
+        break;
+    }
+ }
 }

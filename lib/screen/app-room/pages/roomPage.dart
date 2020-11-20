@@ -76,8 +76,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   int _itemCount;
 
   ScrollPhysics _scrollPhysics = AlwaysScrollableScrollPhysics();
-  Subject<ScrollPhysics> _scrollSubject =
-      BehaviorSubject.seeded(AlwaysScrollableScrollPhysics());
 
   AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
 
