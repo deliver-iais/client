@@ -16,10 +16,11 @@ class FileRepo {
   var _fileService = GetIt.I.get<FileService>();
 
   Future<FileInfo> saveFileInfo(
-      String fileId, File file, String name, String compressionSize) async {
+      String fileId, File file, String name,String type, String compressionSize) async {
     FileInfo fileInfo = FileInfo(
       uuid: fileId,
       path: file.path,
+      type: type,
       name: name,
       compressionSize: compressionSize,
     );
@@ -33,7 +34,7 @@ class FileRepo {
     print(value.toString());
     FileInfo savedFile = await saveFileInfo(
         jsonDecode(value.toString())["uuid"],
-        file,
+        file,jsonDecode(value.toString())["uuid"],
         jsonDecode(value.toString())["name"],
         "real");
     return savedFile;
@@ -73,7 +74,7 @@ class FileRepo {
 
     var downloadedFile =
         await _fileService.getFile(uuid, filename, size: thumbnailSize);
-    await saveFileInfo(uuid, downloadedFile, filename,
+    await saveFileInfo(uuid, downloadedFile, filename,"",
         thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
     return downloadedFile;
   }

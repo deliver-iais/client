@@ -366,7 +366,7 @@ class MessageRepo {
       ..uuid = fileInfo.uuid
       ..width = size.width!=0?size.width:200
       ..height  =size.height!=0?size.height:200
-      ..type = findType(fileInfo.name)
+      ..type = fileInfo.type
       ..caption = jsonDecode(message.json)["caption"];
 
     clientMessage.MessageByClient messageByClient =

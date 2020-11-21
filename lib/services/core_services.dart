@@ -269,7 +269,7 @@ class CoreServices {
   }
 
   saveMessageInMessagesDB(Message message) async {
-    print(message.text.text);
+    print(message.toString());
     M.Message msg = M.Message(
         id: message.id.toInt(),
         roomId: message.whichType() == Message_Type.persistEvent?message.from.string: message.from.node.contains(_accountRepo.currentUserUid.node)

@@ -9,6 +9,8 @@ class FileInfos extends Table {
 
   TextColumn get name => text()();
 
+  TextColumn get type =>text()();
+
   @override
   Set<Column> get primaryKey => {uuid, compressionSize};
 }
