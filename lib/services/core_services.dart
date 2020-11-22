@@ -201,8 +201,7 @@ class CoreServices {
             : roomId = seen.from;
         break;
       case Categories.GROUP:
-      case Categories.PRIVATE_CHANNEL:
-      case Categories.PUBLIC_CHANNEL:
+      case Categories.CHANNEL:
       case Categories.BOT:
         roomId = seen.to;
         break;

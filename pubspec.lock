@@ -271,11 +271,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.5.5"
-      resolved-ref: "4b6048b87b55111e6c7adba83f1fff3763b42b2a"
+      ref: "tags/v1.6.0"
+      resolved-ref: ed07c8c66ab25c7dd4fed1c6b086865916053071
       url: "https://gitlab.iais.co/deliver/protocol/pub-dart-artifactory.git"
     source: git
-    version: "1.5.5"
+    version: "1.6.0"
   device_info:
     dependency: "direct main"
     description:

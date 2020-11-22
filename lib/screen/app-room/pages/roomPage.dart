@@ -157,14 +157,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   void initState() {
     _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.uid.category == Categories.GROUP ||
-            widget.roomId.uid.category == Categories.PUBLIC_CHANNEL
+            widget.roomId.uid.category == Categories.CHANNEL
         ? true
         : false;
     _waitingForForwardedMessage = widget.forwardedMessages != null
         ? widget.forwardedMessages.length > 0
         : false;
     sendInputSharedFile();
-    if (widget.roomId.uid.category == Categories.PUBLIC_CHANNEL) {
+    if (widget.roomId.uid.category == Categories.CHANNEL) {
       _checkChannelRole();
     }
     //TODO check

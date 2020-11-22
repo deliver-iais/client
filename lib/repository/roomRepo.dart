@@ -38,8 +38,7 @@ class RoomRepo {
         break;
 
       case Categories.GROUP:
-      case Categories.PRIVATE_CHANNEL:
-      case Categories.PUBLIC_CHANNEL:
+      case Categories.CHANNEL:
         String name = _roomNameCache.get(uid.string);
         if (name != null) {
           return name;
