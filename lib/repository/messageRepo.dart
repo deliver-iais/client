@@ -14,6 +14,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
@@ -37,6 +38,8 @@ import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:rxdart/rxdart.dart';
 
+import 'mucRepo.dart';
+
 enum TitleStatusConditions { Disconnected, Updating, Normal }
 
 class MessageRepo {
@@ -47,6 +50,7 @@ class MessageRepo {
   AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
   FileRepo _fileRepo = GetIt.I.get<FileRepo>();
   CoreServices _coreServices = GetIt.I.get<CoreServices>();
+  var _mucRepo = GetIt.I.get<MucRepo>();
   BehaviorSubject<TitleStatusConditions> updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
 
@@ -105,6 +109,9 @@ class MessageRepo {
 
             print("messages $messages");
             // TODO if there is Pending Message this line has a bug!!
+            if(userRoomMeta.roomUid.category != Categories.USER){
+              _mucRepo.saveMucInfo(userRoomMeta.roomUid);
+            }
             room = Room(
                 roomId: userRoomMeta.roomUid.getString(),
                 lastMessageId: userRoomMeta.lastMessageId.toInt(),
@@ -132,7 +139,6 @@ class MessageRepo {
     if (id == 0) {
       await insertRoomAndLastSeen((roomId.string));
     }
-    var room = await _roomDao.getByRoomIdFuture(roomId.string);
     Message message = Message(
       roomId: roomId.string,
       packetId: packetId,

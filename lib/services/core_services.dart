@@ -383,17 +383,6 @@ class CoreServices {
       return MessageType.NOT_SET;
   }
 
-  void _savePersistEventMessage(Message message) {
-    M.Message msg = M.Message(
-        id: message.id.toInt(),
-        roomId: message.from.string,
-        packetId: message.packetId,
-        time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
-        to: message.to.string,
-        from: message.from.string,
-        json: messageToJson(message),
-        type: getMessageType(message.whichType()));
-  }
 
   String getIssueType(MucSpecificPersistentEvent_Issue issue) {
     switch (issue) {
