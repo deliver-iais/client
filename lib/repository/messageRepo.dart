@@ -409,15 +409,15 @@ class MessageRepo {
 
   Future<List<Message>> getPage(int page, String roomId, int id,
       {int pageSize = 50}) async {
-    Map<int, Message> f = Map();
+    Map<int, Message> dbMessage = Map();
     var messages = await _messageDao.getPage(roomId, page);
-    for (var m in messages) {
-      f[m.id] = m;
+    for (var message in messages) {
+      dbMessage[message.id] = message;
     }
-    if (f.containsKey(id)) {
-      return f.values.toList();
+    if (dbMessage.containsKey(id)) {
+      return dbMessage.values.toList();
     }
-    if (!f.values.toList().any((element) => element.id == id)) {
+    if (!dbMessage.values.toList().any((element) => element.id == id)) {
       if (fetchMessageId[roomId] == null ||
           (fetchMessageId[roomId] - id).abs() > 49) {
         fetchMessageId[roomId] = id;
@@ -437,7 +437,7 @@ class MessageRepo {
         print("###################################==$page");
       }
     }
-    return f.values.toList();
+    return dbMessage.values.toList();
   }
 
   Future<List<Message>> _saveFetchMessages(
