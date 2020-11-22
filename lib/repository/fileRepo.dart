@@ -34,7 +34,7 @@ class FileRepo {
     print(value.toString());
     FileInfo savedFile = await saveFileInfo(
         jsonDecode(value.toString())["uuid"],
-        file,jsonDecode(value.toString())["uuid"],
+        file,jsonDecode(value.toString())["type"],
         jsonDecode(value.toString())["name"],
         "real");
     return savedFile;
