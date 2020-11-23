@@ -124,9 +124,6 @@
   "pin_message": "pin Message ",
   "kick_from_muc": "kick From Group",
   "create_channel": "create Channel",
-  "create_group": "Create Group"
-
-
-
-
+  "create_group": "Create Group",
+  "change_channel_avatar": "Change Channel Avatar"
 }

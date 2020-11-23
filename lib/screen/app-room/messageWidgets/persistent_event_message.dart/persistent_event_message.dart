@@ -88,9 +88,13 @@ class PersistentEventMessage extends StatelessWidget {
           case "ADD_USER":
             return "$issuerName  ${_appLocalization.getTraslateValue("add_user_to_muc")} ${assigneeName}";
           case "AVATAR_CHANGED":
-            return "$issuerName  ${_appLocalization.getTraslateValue("change_avatar_muc")}";
+            return message.from.uid.category == Categories.CHANNEL
+                ? "$issuerName  ${_appLocalization.getTraslateValue("change_channel_avatar")}"
+                : "$issuerName  ${_appLocalization.getTraslateValue("change_group_avatar")}";
           case "MUC_CREATED":
-            return message.from.uid.category == Categories.CHANNEL ?"$issuerName  ${_appLocalization.getTraslateValue("create_channel")}": "$issuerName  ${_appLocalization.getTraslateValue("create_group")}";
+            return message.from.uid.category == Categories.CHANNEL
+                ? "$issuerName  ${_appLocalization.getTraslateValue("create_channel")}"
+                : "$issuerName  ${_appLocalization.getTraslateValue("create_group")}";
           case "LEAVE_USER":
             return "$issuerName  ${_appLocalization.getTraslateValue("leave_muc")}";
           case "NAME_CHANGED":
