@@ -524,7 +524,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                               PersistentEventMessage(
                                                                   message:
                                                                       messages[
-                                                                          0]),
+                                                                          0],showLastMessaeg: false,),
                                                             ],
                                                           ),
                                                   ],

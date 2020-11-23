@@ -1,4 +1,5 @@
 import 'package:dcache/dcache.dart';
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
@@ -10,6 +11,7 @@ import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
@@ -22,12 +24,10 @@ class RoomRepo {
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
-  Future<String> getRoomDisplayName(Uid uid) async {
+  Future<String> getRoomDisplayName(Uid uid,) async {
+
     switch (uid.category) {
       case Categories.USER:
-        if (uid.equals(_accountRepo.currentUserUid)) {
-          return "You";
-        }
         String name = await _roomNameCache.get(uid.string);
         if (name != null && !name.contains("null")) {
           return name;

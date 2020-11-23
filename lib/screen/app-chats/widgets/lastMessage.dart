@@ -6,6 +6,7 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -31,7 +32,7 @@ class LastMessage extends StatelessWidget {
     String oneLine = message.type == MessageType.TEXT
         ? (message.json.toText().text.split('\n'))[0]
         : message.type == MessageType.PERSISTENT_EVENT
-            ? jsonDecode(message.json)["text"]
+            ? jsonDecode(message.json)["type"]
             : 'File';
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
     print(message.type);
@@ -75,22 +76,25 @@ class LastMessage extends StatelessWidget {
       );
     }
 
-    return Container(
-      width: 230,
-      child: Text(
-        data,
-        maxLines: 1,
-        textDirection: td,
-        overflow: TextOverflow.ellipsis,
-        softWrap: false,
-        style: TextStyle(
-          color: message.type == MessageType.PERSISTENT_EVENT
-              ? Theme.of(context).primaryColor
-              : ExtraTheme.of(context).infoChat,
-          fontSize: 13,
-        ),
-      ),
-    );
+    return message.type == MessageType.PERSISTENT_EVENT
+        ? PersistentEventMessage(
+            message: message,
+            showLastMessaeg: true,
+          )
+        : Container(
+            width: 230,
+            child: Text(
+              data,
+              maxLines: 1,
+              textDirection: td,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
+              style: TextStyle(
+                color: ExtraTheme.of(context).infoChat,
+                fontSize: 13,
+              ),
+            ),
+          );
   }
 
   Widget _fromDisplayName(String from, BuildContext context) {

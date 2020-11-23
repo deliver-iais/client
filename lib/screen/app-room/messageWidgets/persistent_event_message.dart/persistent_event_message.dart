@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
@@ -10,11 +11,14 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class PersistentEventMessage extends StatelessWidget {
   final Message message;
+  final bool showLastMessaeg;
 
-  PersistentEventMessage({Key key, this.message}) : super(key: key);
+  PersistentEventMessage({Key key, this.message, this.showLastMessaeg})
+      : super(key: key);
 
   var _roomRepo = GetIt.I.get<RoomRepo>();
   AppLocalization _appLocalization;
+  var _accountRepo = GetIt.I.get<AccountRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +27,9 @@ class PersistentEventMessage extends StatelessWidget {
       padding: const EdgeInsets.all(2.0),
       child: Container(
         decoration: BoxDecoration(
-          color: ExtraTheme.of(context).details,
+          color: showLastMessaeg
+              ? Theme.of(context).backgroundColor
+              : ExtraTheme.of(context).details,
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         child: Padding(
@@ -36,8 +42,7 @@ class PersistentEventMessage extends StatelessWidget {
                   return Text(
                     s.data,
                     style: TextStyle(
-                        color: ExtraTheme.of(context).secondColor,
-                        fontSize: 12),
+                        color: ExtraTheme.of(context).infoChat, fontSize: 12),
                   );
                 } else {
                   return Text(
@@ -68,8 +73,12 @@ class PersistentEventMessage extends StatelessWidget {
         String issuerName = "";
         String assigneeName = "";
         try {
-          issuerName = await _roomRepo.getRoomDisplayName(issuer.uid);
-          assigneeName = await _roomRepo.getRoomDisplayName(assignee.uid);
+          issuerName = issuer.contains(_accountRepo.currentUserUid.string)
+              ? _appLocalization.getTraslateValue("you")
+              : await _roomRepo.getRoomDisplayName(issuer.uid);
+          assigneeName = assignee.contains(_accountRepo.currentUserUid.string)
+              ? _appLocalization.getTraslateValue("you")
+              : await _roomRepo.getRoomDisplayName(assignee.uid);
         } catch (e) {
           print("*********************************---");
           print(e);
@@ -77,7 +86,7 @@ class PersistentEventMessage extends StatelessWidget {
 
         switch (issueType) {
           case "ADD_USER":
-            return "$issuerName ، ${assigneeName} ${_appLocalization.getTraslateValue("add_user_to_muc")}";
+            return "$issuerName  ${_appLocalization.getTraslateValue("add_user_to_muc")} ${assigneeName}";
           case "AVATAR_CHANGED":
             return "$issuerName  ${_appLocalization.getTraslateValue("change_avatar_muc")}";
           case "MUC_CREATED":
