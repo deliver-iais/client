@@ -86,42 +86,45 @@ class MessageRepo {
           GetAllUserRoomMetaReq(),
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
       print(getAllUserRoomMetaRes.roomsMeta);
+      print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
+        print("------------------------------------");
         print(userRoomMeta);
         var room =
             await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.string);
 
-        if (room == null ||
-            (room.lastMessageId ?? -1) < userRoomMeta.lastMessageId.toInt()) {
-          try {
-            var fetchMessagesRes = await _queryServiceClient.fetchMessages(
-                FetchMessagesReq()
-                  ..roomUid = userRoomMeta.roomUid
-                  ..pointer = userRoomMeta.lastMessageId
-                  ..type = FetchMessagesReq_Type.BACKWARD_FETCH
-                  ..limit = 1,
-                options: CallOptions(metadata: {
-                  'accessToken': await _accountRepo.getAccessToken()
-                }));
-            List<Message> messages =
-                await _saveFetchMessages(fetchMessagesRes.messages);
+        print("room: $room");
 
-            print("messages $messages");
-            // TODO if there is Pending Message this line has a bug!!
-            if(userRoomMeta.roomUid.category != Categories.USER){
-              _mucRepo.saveMucInfo(userRoomMeta.roomUid);
-            }
-            room = Room(
-                roomId: userRoomMeta.roomUid.getString(),
-                lastMessageId: userRoomMeta.lastMessageId.toInt(),
-                lastMessageDbId: messages[0].dbId);
-            _roomDao.insertRoom(room);
-          } catch (e) {
-            print(
-                "EXCEPTIOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNNNNNNNNNN");
-            print(e);
+        try {
+          var fetchMessagesRes = await _queryServiceClient.fetchMessages(
+              FetchMessagesReq()
+                ..roomUid = userRoomMeta.roomUid
+                ..pointer = userRoomMeta.lastMessageId
+                ..type = FetchMessagesReq_Type.BACKWARD_FETCH
+                ..limit = 1,
+              options: CallOptions(timeout: Duration(seconds: 1), metadata: {
+                'accessToken': await _accountRepo.getAccessToken()
+              }));
+          List<Message> messages =
+              await _saveFetchMessages(fetchMessagesRes.messages);
+
+          print("messages $messages");
+          print("------------------------------------");
+          // TODO if there is Pending Message this line has a bug!!
+          if (userRoomMeta.roomUid.category != Categories.USER) {
+            _mucRepo.saveMucInfo(userRoomMeta.roomUid);
           }
+          room = Room(
+              roomId: userRoomMeta.roomUid.getString(),
+              lastMessageId: userRoomMeta.lastMessageId.toInt(),
+              lastMessageDbId: messages[0].dbId);
+          _roomDao.insertRoom(room);
+        } catch (e) {
+          print(
+              "EXCEPTIOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNNNNNNNNNN");
+          print(e);
         }
       }
     } catch (e) {
@@ -166,7 +169,10 @@ class MessageRepo {
   String findType(String path) {
     Fimber.d('path is ' + path);
     String postfix = path.split('.').last;
-    if (postfix == 'png' || postfix == 'jpg' || postfix == 'jpeg' || postfix == 'jfif' )
+    if (postfix == 'png' ||
+        postfix == 'jpg' ||
+        postfix == 'jpeg' ||
+        postfix == 'jfif')
       return 'image';
     else if (postfix == 'mp4')
       return 'video';
@@ -211,7 +217,11 @@ class MessageRepo {
           json: forwardedMessageBody != null
               ? forwardedMessageBody
               : _generateFileMessage(
-                  uuid: uploadKey, path: path, caption: caption, type: type,size:size ));
+                  uuid: uploadKey,
+                  path: path,
+                  caption: caption,
+                  type: type,
+                  size: size));
       messageList.add(message);
       int dbId = await _messageDao.insertMessage(message);
       messagesDbId.add(dbId);
@@ -229,18 +239,18 @@ class MessageRepo {
           LocalFile.File(filesPath[i]),
           uploadKey: uploadKeyList[i],
         );
-        final size = ImageSizeGetter.getSize(FileInput(LocalFile.File(filesPath[i])));
+        final size =
+            ImageSizeGetter.getSize(FileInput(LocalFile.File(filesPath[i])));
         _messageDao.updateMessageBody(
             messageList[i].roomId,
             messagesDbId[i],
             _generateFileMessage(
-              uuid: fileInfo.uuid,
-              path: fileInfo.path,
-              caption: jsonDecode(messageList[i].json)["caption"],
-              type: jsonDecode(messageList[i].json)["type"],
-              size: size
-            ));
-        _sendFileMessage(messageList[i], fileInfo: fileInfo,size: size);
+                uuid: fileInfo.uuid,
+                path: fileInfo.path,
+                caption: jsonDecode(messageList[i].json)["caption"],
+                type: jsonDecode(messageList[i].json)["type"],
+                size: size));
+        _sendFileMessage(messageList[i], fileInfo: fileInfo, size: size);
       }
     } else {
       _sendFileMessage(messageList[0],
@@ -366,12 +376,12 @@ class MessageRepo {
     await _coreServices.sendMessage(messageByClient);
   }
 
-  _sendFileMessage(Message message, {FileInfo fileInfo,Size size}) async {
+  _sendFileMessage(Message message, {FileInfo fileInfo, Size size}) async {
     File file = File()
       ..name = fileInfo.name
       ..uuid = fileInfo.uuid
-      ..width = size.width!=0?size.width:200
-      ..height  =size.height!=0?size.height:200
+      ..width = size.width != 0 ? size.width : 200
+      ..height = size.height != 0 ? size.height : 200
       ..type = fileInfo.type
       ..caption = jsonDecode(message.json)["caption"];
 
@@ -449,13 +459,8 @@ class MessageRepo {
     return msgList;
   }
 
-  String _generateFileMessage({
-    String uuid,
-    String type,
-    String path,
-    String caption,
-    Size size
-  }) {
+  String _generateFileMessage(
+      {String uuid, String type, String path, String caption, Size size}) {
     return jsonEncode({
       "uuid": uuid,
       "size": 0,
@@ -463,8 +468,20 @@ class MessageRepo {
       "path": path,
       "name": path.split('/').last,
       "caption": caption ?? "",
-      "width":  type == 'image' ?size.width!= 0?size.width:200: type == 'video' ? 200 : 0,
-      "height": type == 'image'?size.height!=0?size.height:200: type == 'video' ? 100 : 0,
+      "width": type == 'image'
+          ? size.width != 0
+              ? size.width
+              : 200
+          : type == 'video'
+              ? 200
+              : 0,
+      "height": type == 'image'
+          ? size.height != 0
+              ? size.height
+              : 200
+          : type == 'video'
+              ? 100
+              : 0,
       "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
     });
   }

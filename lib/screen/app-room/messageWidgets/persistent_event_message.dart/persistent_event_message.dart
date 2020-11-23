@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -16,6 +15,7 @@ class PersistentEventMessage extends StatelessWidget {
 
   var _roomRepo = GetIt.I.get<RoomRepo>();
   AppLocalization _appLocalization;
+
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
@@ -27,63 +27,73 @@ class PersistentEventMessage extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-          child: FutureBuilder(
-            future: getMessage(message.json),
-            builder: (c,s){
-              return Text(
-              s.data,
-                style: TextStyle(
-                    color: ExtraTheme.of(context).secondColor, fontSize: 12),
-              );
-            },
-          )
-        ),
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+            child: FutureBuilder(
+              future: getMessage(message.json),
+              builder: (c, s) {
+                print(s.data);
+                if (s.hasData) {
+                  return Text(
+                    s.data,
+                    style: TextStyle(
+                        color: ExtraTheme.of(context).secondColor,
+                        fontSize: 12),
+                  );
+                } else {
+                  return Text(
+                    "...",
+                    style: TextStyle(
+                        color: ExtraTheme.of(context).secondColor,
+                        fontSize: 12),
+                  );
+                }
+              },
+            )),
       ),
     );
   }
 
-  Future<String> getMessage(String content) async{
+  Future<String> getMessage(String content) async {
     String type = jsonDecode(content)["type"];
-    switch(type){
+    print(content);
+    switch (type) {
       case "ADMIN_EVENT":
         String user = await _roomRepo.getRoomDisplayName(message.from.uid);
-        return " $user ${_appLocalization.getTraslateValue("new_contact_add")}" ;
-        break;
+        return "$user ${_appLocalization.getTraslateValue("new_contact_add")}";
       case "MUC_EVENT":
         String issueType = jsonDecode(content)["issueType"];
+        print(issueType);
         String issuer = jsonDecode(content)["issuer"];
-         String assignee = jsonDecode(content)["assignee"];
-        String issuerName = await _roomRepo.getRoomDisplayName(issuer.uid);
-        String assigneeName = await _roomRepo.getRoomDisplayName(assignee.uid);
+        String assignee = jsonDecode(content)["assignee"];
+        String issuerName = "";
+        String assigneeName = "";
+        try {
+          issuerName = await _roomRepo.getRoomDisplayName(issuer.uid);
+          assigneeName = await _roomRepo.getRoomDisplayName(assignee.uid);
+        } catch (e) {
+          print("*********************************---");
+          print(e);
+        }
 
-        switch(issueType){
+        switch (issueType) {
           case "ADD_USER":
             return "$issuerName ، ${assigneeName} ${_appLocalization.getTraslateValue("add_user_to_muc")}";
-            break;
           case "AVATAR_CHANGED":
             return "$issuerName  ${_appLocalization.getTraslateValue("change_avatar_muc")}";
-            break;
           case "MUC_CREATED":
-            return  "$issuerName  ${_appLocalization.getTraslateValue("create_muc")}";
-            break;
+            return "$issuerName  ${_appLocalization.getTraslateValue("create_muc")}";
           case "LEAVE_USER":
             return "$issuerName  ${_appLocalization.getTraslateValue("leave_muc")}";
-            break;
           case "NAME_CHANGED":
             return "$issuerName  ${_appLocalization.getTraslateValue("change_muc_name")}";
-            break;
           case "PIN_MESSAGE":
             return "$issuerName  ${_appLocalization.getTraslateValue("pin_message")}";
-            break;
           case "KICK_USER":
             return "$issuerName ، ${assigneeName} ${_appLocalization.getTraslateValue("kick_from_muc")}";
         }
 
-        return"";
-       break;
-
+        return "";
+        break;
     }
-
   }
 }

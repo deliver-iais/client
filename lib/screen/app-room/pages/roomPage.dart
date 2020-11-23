@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
@@ -11,8 +10,6 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/circular_file_status_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/forward_widget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/operation_on_message_entry.dart';
@@ -32,7 +29,6 @@ import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/shared/userAppBar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
@@ -72,7 +68,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   AppLocalization _appLocalization;
   var _memberRepo = GetIt.I.get<MemberRepo>();
   int _lastShowedMessageId = -1;
-  ScrollController _scrollController;
   int _itemCount;
 
   ScrollPhysics _scrollPhysics = AlwaysScrollableScrollPhysics();

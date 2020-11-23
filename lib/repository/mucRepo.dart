@@ -291,7 +291,7 @@ class MucRepo {
       if (mucUid.category == Categories.GROUP) {
         usersAdd = await mucServices.addGroupMembers(members,mucUid);
       } else {
-        usersAdd = await mucServices.addChannelMembers(members);
+        usersAdd = await mucServices.addChannelMembers(members, mucUid);
       }
 
       if (usersAdd) {

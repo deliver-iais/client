@@ -74,7 +74,6 @@ class CoreServices {
     _responseChecked = false;
 
     Timer(new Duration(seconds: _backoffTime), () {
-      print("timer");
       if (!_responseChecked) {
         if (_backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO)
           _connectionStatus.add(ConnectionStatus.Disconnected);
@@ -125,6 +124,9 @@ class CoreServices {
           case ServerPacket_Type.message:
             break;
           case ServerPacket_Type.pong:
+            break;
+          case ServerPacket_Type.notSet:
+            // TODO: Handle this case.
             break;
         }
       });
@@ -231,7 +233,6 @@ class CoreServices {
   }
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
-    print(messageDeliveryAck.toString());
     var roomId = messageDeliveryAck.to.getString();
     var packetId = messageDeliveryAck.packetId;
     var id = messageDeliveryAck.id.toInt();
@@ -244,7 +245,6 @@ class CoreServices {
   }
 
   _saveIncomingMessage(Message message) async {
-    print(message.toString());
     var msg = await saveMessageInMessagesDB(message);
     bool isCurrentUser =
         message.from.node.contains(_accountRepo.currentUserUid.node);
@@ -268,7 +268,6 @@ class CoreServices {
   }
 
   saveMessageInMessagesDB(Message message) async {
-    print(message.toString());
     M.Message msg = M.Message(
         id: message.id.toInt(),
         roomId: message.whichType() == Message_Type.persistEvent?message.from.string: message.from.node.contains(_accountRepo.currentUserUid.node)

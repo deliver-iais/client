@@ -21,7 +21,6 @@ class LastMessage extends StatelessWidget {
   LastMessage({Key key, this.message}) : super(key: key);
 
   var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _contactRepo = GetIt.I.get<ContactRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   @override
@@ -34,6 +33,9 @@ class LastMessage extends StatelessWidget {
         : message.type == MessageType.PERSISTENT_EVENT
             ? jsonDecode(message.json)["text"]
             : 'File';
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+    print(message.type);
+    print(oneLine);
     if (oneLine.isPersian()) {
       td = TextDirection.rtl;
     } else

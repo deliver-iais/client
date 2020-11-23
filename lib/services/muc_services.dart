@@ -36,13 +36,13 @@ class MucServices {
     }
   }
 
-  Future<bool> addGroupMembers(List<Member> members,Uid groupUid) async {
+  Future<bool> addGroupMembers(List<Member> members, Uid groupUid) async {
     GroupServices.AddMembersReq addMemberRequest =
         GroupServices.AddMembersReq();
     for (Member member in members) {
       addMemberRequest.members.add(member);
     }
-    addMemberRequest..group =groupUid;
+    addMemberRequest..group = groupUid;
     try {
       await groupServices.addMembers(addMemberRequest,
           options: CallOptions(
@@ -107,7 +107,7 @@ class MucServices {
     }
   }
 
-  Future<bool> kickGroupMembers(List<Member> members,Uid groupUid) async {
+  Future<bool> kickGroupMembers(List<Member> members, Uid groupUid) async {
     var kickMembersReq = GroupServices.KickMembersReq();
     for (Member member in members) {
       kickMembersReq.members.add(member.uid);
@@ -125,7 +125,7 @@ class MucServices {
     }
   }
 
-  Future<bool> banGroupMember(Member member,Uid mucUid) async {
+  Future<bool> banGroupMember(Member member, Uid mucUid) async {
     try {
       await groupServices.banMember(
           GroupServices.BanMemberReq()
@@ -140,7 +140,7 @@ class MucServices {
     }
   }
 
-  Future<bool> unbanGroupMember(Member member,Uid mucUid) async {
+  Future<bool> unbanGroupMember(Member member, Uid mucUid) async {
     try {
       await groupServices.unbanMember(
           GroupServices.UnbanMemberReq()
@@ -185,13 +185,14 @@ class MucServices {
     return request.uid;
   }
 
-  Future<bool> addChannelMembers(List<Member> members) async {
+  Future<bool> addChannelMembers(List<Member> members, Uid mucUid) async {
     try {
       ChannelServices.AddMembersReq addMemberRequest =
           ChannelServices.AddMembersReq();
       for (Member member in members) {
         addMemberRequest.members.add(member);
       }
+      addMemberRequest..channel = mucUid;
       await channelServices.addMembers(addMemberRequest,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
@@ -255,7 +256,7 @@ class MucServices {
     }
   }
 
-  Future<bool> kickChannelMembers(List<Member> members,Uid channelUid) async {
+  Future<bool> kickChannelMembers(List<Member> members, Uid channelUid) async {
     var kickMembersReq = ChannelServices.KickMembersReq();
     for (Member member in members) {
       kickMembersReq.members.add(member.uid);
@@ -271,7 +272,7 @@ class MucServices {
     }
   }
 
-  Future<bool> banChannelMember(Member member,Uid channelUid) async {
+  Future<bool> banChannelMember(Member member, Uid channelUid) async {
     try {
       await channelServices.banMember(
           ChannelServices.BanMemberReq()
@@ -285,7 +286,7 @@ class MucServices {
     }
   }
 
-  Future<bool> unbanChannelMember(Member member,Uid channelUid) async {
+  Future<bool> unbanChannelMember(Member member, Uid channelUid) async {
     try {
       await channelServices.unbanMember(
           ChannelServices.UnbanMemberReq()
