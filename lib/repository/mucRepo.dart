@@ -126,7 +126,7 @@ class MucRepo {
     MucPro.Member member = MucPro.Member()
     ..uid = groupMember.memberUid.uid
       ..role = getRole(groupMember.role);
-    bool result = await mucServices.changeGroupRole(member);
+    bool result = await mucServices.changeGroupRole(member,groupMember.mucUid.uid);
     if (result) {
       _memberDao.insertMember(groupMember);
     }
@@ -136,8 +136,7 @@ class MucRepo {
     MucPro.Member member = MucPro.Member()
       ..uid = channelMember.memberUid.uid
       ..role = getRole(channelMember.role);
-    var result = await mucServices.changeGroupRole(member);
-
+    var result = await mucServices.changeCahnnelRole(member, channelMember.mucUid.uid);
     if (result) {
       _memberDao.insertMember(channelMember);
     }

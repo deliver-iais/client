@@ -5,6 +5,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -80,7 +81,6 @@ class PersistentEventMessage extends StatelessWidget {
               ? _appLocalization.getTraslateValue("you")
               : await _roomRepo.getRoomDisplayName(assignee.uid);
         } catch (e) {
-          print("*********************************---");
           print(e);
         }
 
@@ -90,7 +90,7 @@ class PersistentEventMessage extends StatelessWidget {
           case "AVATAR_CHANGED":
             return "$issuerName  ${_appLocalization.getTraslateValue("change_avatar_muc")}";
           case "MUC_CREATED":
-            return "$issuerName  ${_appLocalization.getTraslateValue("create_muc")}";
+            return message.from.uid.category == Categories.CHANNEL ?"$issuerName  ${_appLocalization.getTraslateValue("create_channel")}": "$issuerName  ${_appLocalization.getTraslateValue("create_group")}";
           case "LEAVE_USER":
             return "$issuerName  ${_appLocalization.getTraslateValue("leave_muc")}";
           case "NAME_CHANGED":

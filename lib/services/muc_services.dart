@@ -74,10 +74,10 @@ class MucServices {
     }
   }
 
-  Future<bool> changeGroupRole(Member member) async {
+  Future<bool> changeGroupRole(Member member,Uid group) async {
     try {
       await groupServices.changeRole(
-          GroupServices.ChangeRoleReq()..member = member,
+          GroupServices.ChangeRoleReq()..member = member..group=group,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;
@@ -223,10 +223,10 @@ class MucServices {
     }
   }
 
-  Future<bool> changeCahnnelRole(Member member) async {
+  Future<bool> changeCahnnelRole(Member member,Uid channel) async {
     try {
       await channelServices.changeRole(
-          ChannelServices.ChangeRoleReq()..member = member,
+          ChannelServices.ChangeRoleReq()..member = member..channel = channel,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;

@@ -122,6 +122,8 @@
   "leave_muc": "گروه را تر ک کرد.",
   "change_muc_name": "نام گروه را تغییر داد.",
   "pin_message": "پیام را پین کرد. ",
-  "kick_from_muc": "از گروه حذف کرد."
+  "kick_from_muc": "از گروه حذف کرد.",
+  "create_channel": "کانال  را ایجاد کرد",
+  "create_group": "گروه را ساخت."
 
 }

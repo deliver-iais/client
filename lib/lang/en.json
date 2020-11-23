@@ -122,7 +122,9 @@
   "leave_muc": "Leave the Group",
   "change_muc_name": "change Group Name",
   "pin_message": "pin Message ",
-  "kick_from_muc": "kick From Group"
+  "kick_from_muc": "kick From Group",
+  "create_channel": "create Channel",
+  "create_group": "Create Group"
 
 
 
