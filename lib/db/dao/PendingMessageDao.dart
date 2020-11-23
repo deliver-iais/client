@@ -12,15 +12,15 @@ class PendingMessageDao extends DatabaseAccessor<Database>
 
   PendingMessageDao(this.database) : super(database);
 
-  Stream<List<PendingMessage>> watchAllMessages() =>
-      select(pendingMessages).watch();
+  Future<List<PendingMessage>> watchAllMessages() =>
+      select(pendingMessages).get();
 
   Future<int> insertPendingMessage(PendingMessage newPendingMessage) =>
       into(pendingMessages).insertOnConflictUpdate(newPendingMessage);
 
-  Future deletePendingMessage(int dbId) async {
+  Future deletePendingMessage(String packetId) async {
     var q = await (select(pendingMessages)
-          ..where((pm) => pm.messageDbId.equals(dbId)))
+          ..where((pm) => pm.messagePacketId.equals(packetId)))
         .getSingle();
     delete(pendingMessages).delete(q);
   }

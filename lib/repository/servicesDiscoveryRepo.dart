@@ -16,20 +16,17 @@ class ServicesDiscoveryRepo {
     ..host = "172.16.111.189"
     ..port = 30000;
 
-
   ConnectionDetails fireBaseServices = ConnectionDetails()
     ..host = "172.16.111.189"
     ..port = 30000;
-
 
   ConnectionDetails mucServices = ConnectionDetails()
     ..host = "172.16.111.189"
     ..port = 30101;
 
   ConnectionDetails coreService = ConnectionDetails()
-  ..host = "172.16.111.189"
-  ..port = 30100;
-
+    ..host = "172.16.111.189"
+    ..port = 30100;
 }
 
 class ConnectionDetails {

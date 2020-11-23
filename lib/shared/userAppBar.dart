@@ -1,18 +1,12 @@
 import 'dart:ui';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/dao/GroupDao.dart';
-import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/models/app_mode.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/services/mode_checker.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/title_status.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -24,9 +18,7 @@ class UserAppbar extends StatelessWidget {
 
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _contactRepo = GetIt.I.get<ContactRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _modeChecker = GetIt.I.get<ModeChecker>();
   AppLocalization _appLocalization;
 
   @override
@@ -59,15 +51,9 @@ class UserAppbar extends StatelessWidget {
                                 snapshot.data,
                                 style: TextStyle(fontSize: 14),
                               ),
-                              //       Text("last seen",style: TextStyle(fontSize: 12),) //todo last seen
-                              StreamBuilder<AppMode>(
-                                  stream: _modeChecker.appMode,
-                                  builder: (context, mode) {
-                                    return mode.data != AppMode.STABLE
-                                        ? Text(_appLocalization
-                                            .getTraslateValue("connecting"))
-                                        : Container();
-                                  }),
+                              TitleStatus(
+                                  // normalConditionWidget: Text("last seen",style: TextStyle(fontSize: 12),) //todo last seen,
+                                  )
                             ],
                           );
                         } else {

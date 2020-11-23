@@ -36,12 +36,13 @@ class MucServices {
     }
   }
 
-  Future<bool> addGroupMembers(List<Member> members) async {
+  Future<bool> addGroupMembers(List<Member> members, Uid groupUid) async {
     GroupServices.AddMembersReq addMemberRequest =
         GroupServices.AddMembersReq();
     for (Member member in members) {
       addMemberRequest.members.add(member);
     }
+    addMemberRequest..group = groupUid;
     try {
       await groupServices.addMembers(addMemberRequest,
           options: CallOptions(
@@ -73,10 +74,10 @@ class MucServices {
     }
   }
 
-  Future<bool> changeGroupRole(Member member) async {
+  Future<bool> changeGroupRole(Member member,Uid group) async {
     try {
       await groupServices.changeRole(
-          GroupServices.ChangeRoleReq()..member = member,
+          GroupServices.ChangeRoleReq()..member = member..group=group,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;
@@ -106,12 +107,12 @@ class MucServices {
     }
   }
 
-  Future<bool> kickGroupMembers(List<Member> members) async {
+  Future<bool> kickGroupMembers(List<Member> members, Uid groupUid) async {
     var kickMembersReq = GroupServices.KickMembersReq();
     for (Member member in members) {
-      kickMembersReq.members.add(member.memberUid);
+      kickMembersReq.members.add(member.uid);
     }
-    kickMembersReq.group = members[0].mucUid;
+    kickMembersReq.group = groupUid;
     try {
       await groupServices.kickMembers(kickMembersReq,
           options: CallOptions(
@@ -124,12 +125,12 @@ class MucServices {
     }
   }
 
-  Future<bool> banGroupMember(Member member) async {
+  Future<bool> banGroupMember(Member member, Uid mucUid) async {
     try {
       await groupServices.banMember(
           GroupServices.BanMemberReq()
-            ..member = member.memberUid
-            ..group = member.mucUid,
+            ..member = member.uid
+            ..group = mucUid,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;
@@ -139,12 +140,12 @@ class MucServices {
     }
   }
 
-  Future<bool> unbanGroupMember(Member member) async {
+  Future<bool> unbanGroupMember(Member member, Uid mucUid) async {
     try {
       await groupServices.unbanMember(
           GroupServices.UnbanMemberReq()
-            ..member = member.memberUid
-            ..group = member.mucUid,
+            ..member = member.uid
+            ..group = mucUid,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;
@@ -184,13 +185,14 @@ class MucServices {
     return request.uid;
   }
 
-  Future<bool> addChannelMembers(List<Member> members) async {
+  Future<bool> addChannelMembers(List<Member> members, Uid mucUid) async {
     try {
       ChannelServices.AddMembersReq addMemberRequest =
           ChannelServices.AddMembersReq();
       for (Member member in members) {
         addMemberRequest.members.add(member);
       }
+      addMemberRequest..channel = mucUid;
       await channelServices.addMembers(addMemberRequest,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
@@ -221,10 +223,10 @@ class MucServices {
     }
   }
 
-  Future<bool> changeCahnnelRole(Member member) async {
+  Future<bool> changeCahnnelRole(Member member,Uid channel) async {
     try {
       await channelServices.changeRole(
-          ChannelServices.ChangeRoleReq()..member = member,
+          ChannelServices.ChangeRoleReq()..member = member..channel = channel,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;
@@ -254,12 +256,12 @@ class MucServices {
     }
   }
 
-  Future<bool> kickChannelMembers(List<Member> members) async {
+  Future<bool> kickChannelMembers(List<Member> members, Uid channelUid) async {
     var kickMembersReq = ChannelServices.KickMembersReq();
     for (Member member in members) {
-      kickMembersReq.members.add(member.memberUid);
+      kickMembersReq.members.add(member.uid);
     }
-    kickMembersReq..channel = members[0].mucUid;
+    kickMembersReq..channel = channelUid;
     try {
       await channelServices.kickMembers(kickMembersReq,
           options: CallOptions(
@@ -270,12 +272,12 @@ class MucServices {
     }
   }
 
-  Future<bool> banChannelMember(Member member) async {
+  Future<bool> banChannelMember(Member member, Uid channelUid) async {
     try {
       await channelServices.banMember(
           ChannelServices.BanMemberReq()
-            ..member = member.memberUid
-            ..channel = member.mucUid,
+            ..member = member.uid
+            ..channel = channelUid,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;
@@ -284,12 +286,12 @@ class MucServices {
     }
   }
 
-  Future<bool> unbanChannelMember(Member member) async {
+  Future<bool> unbanChannelMember(Member member, Uid channelUid) async {
     try {
       await channelServices.unbanMember(
           ChannelServices.UnbanMemberReq()
-            ..member = member.memberUid
-            ..channel = member.mucUid,
+            ..member = member.uid
+            ..channel = channelUid,
           options: CallOptions(
               metadata: {'accessToken': await accountRepo.getAccessToken()}));
       return true;

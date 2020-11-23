@@ -2,13 +2,13 @@ import 'package:moor/moor.dart';
 import '../Mucs.dart';
 import '../database.dart';
 
-part 'GroupDao.g.dart';
+part 'MucDao.g.dart';
 
 @UseDao(tables: [Mucs])
-class GroupDao extends DatabaseAccessor<Database> with _$GroupDaoMixin {
+class MucDao extends DatabaseAccessor<Database> with _$MucDaoMixin {
   final Database database;
 
-  GroupDao(this.database) : super(database);
+  MucDao(this.database) : super(database);
 
   Stream watchAllmucs() => select(mucs).watch();
 
@@ -17,8 +17,14 @@ class GroupDao extends DatabaseAccessor<Database> with _$GroupDaoMixin {
 
   Future deleteMuc(Muc muc) => delete(mucs).delete(muc);
 
-  Future updateMuc(Muc updatedMuc) =>
-      update(mucs).replace(updatedMuc);
+  Future updateMuc(String  mucUid,int members) =>
+      (update(mucs)
+        ..where((t) => t.uid.equals(mucUid)))
+          .write(
+        MucsCompanion(
+            members: Value(members)
+        ),
+      );
 
   Stream<Muc> getByUid(String uid) {
     return (select(mucs)..where((muc) => muc.uid.equals(uid)))

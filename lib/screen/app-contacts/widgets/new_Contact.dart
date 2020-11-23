@@ -29,16 +29,17 @@ class NewContact extends StatefulWidget {
 }
 
 class _NewContactState extends State<NewContact> {
-  p.PhoneNumber _phoneNumber;
+  p.PhoneNumber _phoneNumber = p.PhoneNumber();
 
   AppLocalization _appLocalization;
 
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _routingService = GetIt.I.get<RoutingService>();
 
-  String _firstName;
-  String _lastName;
+  String _firstName="";
+  String _lastName="";
   bool _userExist = false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +47,9 @@ class _NewContactState extends State<NewContact> {
     _appLocalization = AppLocalization.of(context);
     return Scaffold(
       appBar: AppBar(
-        leading: _routingService.backButtonLeading(),
+       leading:IconButton(icon:Icon( Icons.chevron_left),onPressed: (){
+         Navigator.pop(context);
+       },),
         actions: [
           IconButton(
               icon: Icon(Icons.check),
@@ -70,12 +73,14 @@ class _NewContactState extends State<NewContact> {
                   }
                 }
                 showResult();
-                Navigator.pop(context);
+               Navigator.pop(context);
               })
         ],
       ),
-      body: FluidContainerWidget(
-        child: Column(
+      body:
+      FluidContainerWidget(
+        child:
+        Column(
           children: [
             SizedBox(
               height: 20,
@@ -133,17 +138,17 @@ class _NewContactState extends State<NewContact> {
                   ),
                 ),
               ),
-              // validator: (value) =>
-              //     value.length != 10 || (value.length > 0 && value[0] == '0')
-              //         ? _appLocalization.getTraslateValue("invalid_mobile_number")
-              //         : null,
-              // onChanged: (ph) {
-              //   _phoneNumber = ph;
-              // },
-              // onSubmitted: (p) {
-              //   _phoneNumber = p;
-              //   // checkAndGoNext();
-              // },
+               validator: (value) =>
+                   value.length != 10 || (value.length > 0 && value[0] == '0')
+                       ? _appLocalization.getTraslateValue("invalid_mobile_number")
+                       : null,
+               onChanged: (ph) {
+                 _phoneNumber = ph;
+               },
+               onSubmitted: (p) {
+                 _phoneNumber = p;
+                 // checkAndGoNext();
+               },
             ),
           ],
         ),

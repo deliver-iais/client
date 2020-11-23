@@ -61,11 +61,13 @@ class AvatarRepo {
         compressionSize: "",
         path: '',
       );
-      Avatar a =
+      Avatar newAvatar =
           await saveAvatarInfo(fakeFileInfo, userUid, avatar.createdOn.toInt());
       lastAvatar = lastAvatar != null
-          ? (a.createdOn > lastAvatar.createdOn ? a : lastAvatar)
-          : a;
+          ? (newAvatar.createdOn > lastAvatar.createdOn
+              ? newAvatar
+              : lastAvatar)
+          : newAvatar;
     }
     updateLastUpdateAvatarTime(userUid.getString(), lastAvatar);
   }
@@ -81,6 +83,9 @@ class AvatarRepo {
   }
 
   Future<bool> needsUpdate(Uid userUid) async {
+    if (userUid == _accountRepo.currentUserUid) {
+      return true;
+    }
     int nowTime = DateTime.now().millisecondsSinceEpoch;
 
     var key = "${userUid.category}-${userUid.node}";
@@ -145,12 +150,11 @@ class AvatarRepo {
       int createdOn = DateTime.now().millisecondsSinceEpoch;
       _setAvatarAtServer(fileInfo, createdOn, uid);
       Avatar avatar = Avatar(
-          uid: _accountRepo.currentUserUid.getString(),
+          uid: uid.string,
           createdOn: createdOn,
           fileId: fileInfo.uuid,
           fileName: fileInfo.name);
-      updateLastUpdateAvatarTime(
-          _accountRepo.currentUserUid.getString(), avatar);
+      updateLastUpdateAvatarTime(uid.string, avatar);
       return avatar;
     } else {
       return null;

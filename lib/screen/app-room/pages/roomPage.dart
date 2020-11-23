@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
@@ -11,11 +10,11 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/forward_widget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/chatTime.dart';
+import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/custom_context_menu.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
@@ -61,18 +60,24 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   LastSeenDao _lastSeenDao = GetIt.I.get<LastSeenDao>();
   PendingMessageDao _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   RoutingService _routingService = GetIt.I.get<RoutingService>();
+  var _notificationServices = GetIt.I.get<NotificationServices>();
   bool _selectMultiMessage = false;
   Map<String, Message> _selectedMessages = Map();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _roomDao = GetIt.I.get<RoomDao>();
   AppLocalization _appLocalization;
   var _memberRepo = GetIt.I.get<MemberRepo>();
-  int _lastShowedMessageId;
-  ScrollController _scrollController;
+  int _lastShowedMessageId = -1;
   int _itemCount;
 
+  ScrollPhysics _scrollPhysics = AlwaysScrollableScrollPhysics();
+
+  AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
+
+  int _currentMessageSearchId = -1;
+
   // TODO should be implemented
-  bool _disableScrolling = false;
+
   final ItemScrollController _itemScrollController = ItemScrollController();
 
   Subject<int> _lastSeenSubject = BehaviorSubject.seeded(-1);
@@ -81,7 +86,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
 
   // TODO, get previous message
-  _getPendingMessage(dbId) async {
+  Future<List<Message>> _getPendingMessage(dbId) async {
     return [await _messageRepo.getPendingMessage(dbId)];
   }
 
@@ -91,9 +96,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     String roomId = widget.roomId;
     List<Message> result = [await getMessage(id, roomId)];
 
-    if (id > 0) {
-      result.add(await getMessage(id - 1, roomId));
-    }
     return result;
   }
 
@@ -103,11 +105,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       return msg;
     }
     int page = (id / PAGE_SIZE).floor();
-    List<Message> messages = await _messageRepo.getPage(page, roomId);
+    List<Message> messages = await _messageRepo.getPage(page, roomId, id);
     for (int i = 0; i < messages.length; i = i + 1) {
       _cache.set(messages[i].id, messages[i]);
     }
-    return messages[id - page * PAGE_SIZE];
+    return _cache.get(id);
   }
 
   void resetRoomPageDetails() {
@@ -141,35 +143,34 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _waitingForForwardedMessage = false;
         } else if (opr == OperationOnMessage.FORWARD) {
           _replyedMessage = null;
-          ExtendedNavigator.root.push(Routes.selectionToForwardPage,
-              arguments: SelectionToForwardPageArguments(
-                  forwardedMessages: List<Message>.filled(1, message)));
+          _routingService.openSelectForwardMessage([message]);
         }
       });
     });
   }
 
   void initState() {
+    _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.uid.category == Categories.GROUP ||
-            widget.roomId.uid.category == Categories.PUBLIC_CHANNEL
+            widget.roomId.uid.category == Categories.CHANNEL
         ? true
         : false;
     _waitingForForwardedMessage = widget.forwardedMessages != null
         ? widget.forwardedMessages.length > 0
         : false;
     sendInputSharedFile();
-    if (widget.roomId.uid.category == Categories.PUBLIC_CHANNEL) {
+    if (widget.roomId.uid.category == Categories.CHANNEL) {
       _checkChannelRole();
     }
     //TODO check
     _lastSeenSubject.listen((event) {
       if (event != null && _lastShowedMessageId < event) {
-        _lastSeenDao.updateLastSeen(widget.roomId, event);
+        _lastSeenDao
+            .insertLastSeen(LastSeen(roomId: widget.roomId, messageId: event));
         _messageRepo.sendSeenMessage(
             event, widget.roomId.uid, widget.roomId.uid);
       }
     });
-
     super.initState();
   }
 
@@ -183,8 +184,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _appLocalization = AppLocalization.of(context);
     _maxWidth = MediaQuery.of(context).size.width * 0.7;
     var deviceHeight = MediaQuery.of(context).size.height;
-    AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
-    LastSeenDao lastSeenDao = GetIt.I.get<LastSeenDao>();
+
     return StreamBuilder<bool>(
       stream: audioPlayerService.isOn,
       builder: (context, snapshot) {
@@ -211,16 +211,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           body: Column(
             children: <Widget>[
               FutureBuilder<LastSeen>(
-                  future: lastSeenDao.getByRoomId(widget.roomId),
-                  builder: (context, lastSeen$) {
-                    _lastShowedMessageId = lastSeen$.data?.messageId ?? 0;
-
-                    if (lastSeen$.data == null) {
-                      return Expanded(
-                        child: Container(),
-                      );
+                  future: _lastSeenDao.getByRoomId(widget.roomId),
+                  builder: (context, lastSeen) {
+                    if (lastSeen.data != null) {
+                      _lastShowedMessageId = lastSeen.data.messageId;
                     }
-
                     return StreamBuilder<List<PendingMessage>>(
                         stream: _pendingMessageDao.getByRoomId(widget.roomId),
                         builder: (context, pendingMessagesStream) {
@@ -234,9 +229,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                               builder: (context, currentRoomStream) {
                                 if (currentRoomStream.hasData) {
                                   Room currentRoom = currentRoomStream.data;
-                                  if (pendingMessages.length > 0) {
-                                    _lastShowedMessageId =
-                                        currentRoom.lastMessageId ?? 0;
+                                  if (currentRoom.lastMessageId ==
+                                      _lastShowedMessageId) {
+                                    _lastShowedMessageId = -1;
                                   }
                                   if (currentRoom.lastMessageId == null) {
                                     _itemCount = pendingMessages.length;
@@ -245,7 +240,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                         1 +
                                         pendingMessages.length;
                                   }
-
                                   int month;
                                   int day;
                                   // TODO check day on 00:00
@@ -258,34 +252,51 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                       child: ScrollablePositionedList.builder(
                                         itemCount: _itemCount,
                                         initialScrollIndex:
-                                            pendingMessages.length > 0
-                                                ? _itemCount - 1
-                                                : _lastShowedMessageId,
-                                        initialAlignment: 0.0,
-                                        // reverse: true,
+                                            _lastShowedMessageId != -1
+                                                ? _itemCount -
+                                                    _lastShowedMessageId -
+                                                    1
+                                                : 0,
+                                        initialAlignment: 1,
+                                        physics: _scrollPhysics,
+                                        reverse: true,
                                         itemScrollController:
                                             _itemScrollController,
                                         itemBuilder: (context, index) {
-                                          bool isPendingMessage =
-                                              (currentRoom.lastMessageId ==
-                                                      null)
-                                                  ? true
-                                                  : index >
-                                                      currentRoom.lastMessageId;
+                                          bool isPendingMessage = (currentRoom
+                                                      .lastMessageId ==
+                                                  null)
+                                              ? true
+                                              : _itemCount >
+                                                      currentRoom
+                                                          .lastMessageId &&
+                                                  index <
+                                                      pendingMessages.length;
 
                                           return FutureBuilder<List<Message>>(
                                             future: isPendingMessage
                                                 ? _getPendingMessage(
-                                                    pendingMessages[index -
-                                                            1 -
-                                                            (currentRoom
-                                                                    .lastMessageId ??
-                                                                -1)]
+                                                    pendingMessages[
+                                                            pendingMessages
+                                                                    .length -
+                                                                1 -
+                                                                index]
                                                         .messageDbId)
                                                 : _getMessageAndPreviousMessage(
-                                                    index),
+                                                    currentRoom.lastMessageId +
+                                                        pendingMessages.length -
+                                                        index),
                                             builder: (context, messagesFuture) {
-                                              if (messagesFuture.hasData) {
+                                              if (messagesFuture.hasData &&
+                                                  messagesFuture.data[0] !=
+                                                      null &&
+                                                  messagesFuture.data[0] !=
+                                                      null) {
+                                                if (index -
+                                                        _currentMessageSearchId >
+                                                    49) {
+                                                  _currentMessageSearchId = -1;
+                                                }
                                                 var messages =
                                                     messagesFuture.data;
                                                 if (messages.length == 0) {
@@ -299,13 +310,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                       .from
                                                       .isSameEntity(_accountRepo
                                                           .currentUserUid)))
-                                                    _lastSeenSubject
-                                                        .add(messages[0].id);
+                                                    _lastSeenSubject.add(
+                                                        currentRoom
+                                                            .lastMessageId);
                                                 }
+
                                                 newTime = false;
-                                                if (index == 0)
-                                                  newTime = true;
-                                                else if (messages.length > 1) {
+                                                if (messages.length > 1 &&
+                                                    messages[1] != null) {
                                                   if (messages[1].time.day !=
                                                           day ||
                                                       messages[1].time.month !=
@@ -323,30 +335,38 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                         ? ChatTime(
                                                             t: messages[0].time)
                                                         : Container(),
-                                                    (index - _lastShowedMessageId) ==
-                                                                1 &&
-                                                            !(messages[0]
-                                                                .from
-                                                                .isSameEntity(
-                                                                    _accountRepo
-                                                                        .currentUserUid))
-                                                        ? Container(
-                                                            width:
-                                                                double.infinity,
-                                                            alignment: Alignment
-                                                                .center,
-                                                            color: Colors.white,
-                                                            child: Text(
-                                                              _appLocalization
-                                                                  .getTraslateValue(
-                                                                      "UnreadMessages"),
-                                                              style: TextStyle(
-                                                                  color: Theme.of(
-                                                                          context)
-                                                                      .primaryColor),
-                                                            ),
-                                                          )
-                                                        : Container(),
+                                                    currentRoom.lastMessageId !=
+                                                            null
+                                                        ? _lastShowedMessageId ==
+                                                                    currentRoom
+                                                                            .lastMessageId -
+                                                                        1 -
+                                                                        index &&
+                                                                !(messages[0]
+                                                                    .from
+                                                                    .isSameEntity(
+                                                                        _accountRepo
+                                                                            .currentUserUid))
+                                                            ? Container(
+                                                                width: double
+                                                                    .infinity,
+                                                                alignment:
+                                                                    Alignment
+                                                                        .center,
+                                                                color: Colors
+                                                                    .white,
+                                                                child: Text(
+                                                                  _appLocalization
+                                                                      .getTraslateValue(
+                                                                          "UnreadMessages"),
+                                                                  style: TextStyle(
+                                                                      color: Theme.of(
+                                                                              context)
+                                                                          .primaryColor),
+                                                                ),
+                                                              )
+                                                            : Container()
+                                                        : SizedBox.shrink(),
                                                     messages[0].type !=
                                                             MessageType
                                                                 .PERSISTENT_EVENT
@@ -502,19 +522,32 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                     .center,
                                                             children: [
                                                               PersistentEventMessage(
-                                                                  content:
+                                                                  message:
                                                                       messages[
-                                                                              0]
-                                                                          .json),
+                                                                          0],showLastMessaeg: false,),
                                                             ],
                                                           ),
                                                   ],
                                                 );
                                               } else {
+                                                if (_currentMessageSearchId ==
+                                                    -1) {
+                                                  _currentMessageSearchId =
+                                                      index;
+                                                  return Container(
+                                                      height: 60,
+                                                      child: Center(
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                          backgroundColor:
+                                                              Colors.blue,
+                                                        ),
+                                                      ));
+                                                }
                                                 return Container(
-                                                    height: deviceHeight,
-                                                    child:
-                                                        CircularProgressIndicator()); //TODO
+                                                  height: 60,
+                                                  width: 20,
+                                                );
                                               }
                                             },
                                           );
@@ -674,10 +707,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     size: 30,
                   ),
                   onPressed: () {
-                    ExtendedNavigator.root.push(Routes.selectionToForwardPage,
-                        arguments: SelectionToForwardPageArguments(
-                            forwardedMessages:
-                                _selectedMessages.values.toList()));
+                    _routingService.openSelectForwardMessage(
+                        _selectedMessages.values.toList());
                     _selectedMessages.clear();
                   })
             ],

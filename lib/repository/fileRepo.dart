@@ -8,16 +8,19 @@ import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
 import 'package:fimber/fimber.dart';
 
 import 'package:get_it/get_it.dart';
+import 'package:image_size_getter/file_input.dart';
+import 'package:image_size_getter/image_size_getter.dart';
 
 class FileRepo {
   var _fileDao = GetIt.I.get<FileDao>();
   var _fileService = GetIt.I.get<FileService>();
 
   Future<FileInfo> saveFileInfo(
-      String fileId, File file, String name, String compressionSize) async {
+      String fileId, File file, String name,String type, String compressionSize) async {
     FileInfo fileInfo = FileInfo(
       uuid: fileId,
       path: file.path,
+      type: type,
       name: name,
       compressionSize: compressionSize,
     );
@@ -28,9 +31,10 @@ class FileRepo {
 
   Future<FileInfo> uploadFile(File file,{String uploadKey}) async {
     var value = await _fileService.uploadFile(file.path,uploadKey:uploadKey);
+    print(value.toString());
     FileInfo savedFile = await saveFileInfo(
         jsonDecode(value.toString())["uuid"],
-        file,
+        file,jsonDecode(value.toString())["type"],
         jsonDecode(value.toString())["name"],
         "real");
     return savedFile;
@@ -70,7 +74,7 @@ class FileRepo {
 
     var downloadedFile =
         await _fileService.getFile(uuid, filename, size: thumbnailSize);
-    await saveFileInfo(uuid, downloadedFile, filename,
+    await saveFileInfo(uuid, downloadedFile, filename,"",
         thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
     return downloadedFile;
   }

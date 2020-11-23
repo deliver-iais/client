@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class MediaDetailsPage extends StatefulWidget {
   String heroTag;
@@ -193,7 +194,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             if (media == null) {
               widget.heroTag = "btn$i";
               return FutureBuilder(
-                  future: _mediaQueryRepo.getMediaAround("p.asghari", i),
+                  future: _mediaQueryRepo.getMediaAround(widget.uid.string, i),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData || snapshot.data == null) {
                       return Center();
@@ -310,6 +311,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       _mediaCache.set("${currentPosition + shift + j}", mediaList[j]);
     }
   }
+
   Widget buildAppBar(int currentPosition, totalLength) {
     return AppBar(
       leading: _routingService.backButtonLeading(),

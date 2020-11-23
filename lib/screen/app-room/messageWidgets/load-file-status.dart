@@ -37,109 +37,103 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
     return StreamBuilder<PendingMessage>(
         stream: pendingMessageDao.getByMessageDbId(widget.dbId),
         builder: (context, pendingMessage) {
-          if (pendingMessage.hasData) {
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Stack(
-                  children: <Widget>[
-                    pendingMessage.data != null
-                        ? pendingMessage.data.status ==
-                                SendingStatus.SENDING_FILE
-                            ? StreamBuilder<double>(
-                                stream: fileService
-                                    .filesUploadStatus[widget.file.uuid],
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    return CircularPercentIndicator(
-                                      radius: 55.0,
-                                      lineWidth: 4.0,
-                                      percent: snapshot.data,
-                                      progressColor: Colors.black,
-                                    );
-                                  } else {
-                                    return CircularPercentIndicator(
-                                      radius: 55.0,
-                                      lineWidth: 4.0,
-                                      percent: 0.01,
-                                      progressColor: Colors.black,
-                                    );
-                                  }
-                                })
-                            : SendingFileCircularIndicator(
-                                loadProgress: 0.9,
-                                isMedia: false,
-                              )
-                        : Container(),
-                    startDownload
-                        ? Container(
-                            child: StreamBuilder<double>(
-                                stream: fileService
-                                    .filesDownloadStatus[widget.file.uuid],
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData &&
-                                      snapshot.data != null) {
-                                    return CircularPercentIndicator(
-                                      radius: 45.0,
-                                      lineWidth: 4.0,
-                                      percent: snapshot.data,
-                                      progressColor: Colors.blue,
-                                    );
-                                  } else {
-                                    return SizedBox.shrink();
-                                  }
-                                }))
-                        : Padding(
-                            padding: EdgeInsets.only(left: 5, top: 7),
-                            child: Container(
-                              width: 45,
-                              height: 45,
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: ExtraTheme.of(context).text),
-                              child: pendingMessage.data != null
-                                  ? IconButton(
-                                      padding: EdgeInsets.all(0),
-                                      icon: Icon(
-                                        pendingMessage.data != null
-                                            ? Icons.arrow_upward
-                                            : Icons.arrow_downward,
-                                        color: Theme.of(context).primaryColor,
-                                        size: 33,
-                                      ),
-                                      onPressed: () {
-                                        widget.onPressed(
-                                            widget.file.uuid, widget.file.name);
-                                        setState(() {
-                                          startDownload = true;
-                                        });
-                                      },
-                                    )
-                                  : IconButton(
-                                      padding: EdgeInsets.all(0),
-                                      alignment: Alignment.center,
-                                      icon: Icon(
-                                        Icons.clear,
-                                        color: Theme.of(context).primaryColor,
-                                        size: 35,
-                                      ),
-                                      onPressed: () {
-                                        pendingMessageDao
-                                            .deletePendingMessage(widget.dbId);
-                                      },
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Stack(
+                children: <Widget>[
+                  pendingMessage.data != null
+                      ? pendingMessage.data.status == SendingStatus.SENDING_FILE
+                          ? StreamBuilder<double>(
+                              stream: fileService
+                                  .filesUploadStatus[widget.file.uuid],
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  return CircularPercentIndicator(
+                                    radius: 55.0,
+                                    lineWidth: 4.0,
+                                    percent: snapshot.data,
+                                    progressColor: Colors.black,
+                                  );
+                                } else {
+                                  return CircularPercentIndicator(
+                                    radius: 55.0,
+                                    lineWidth: 4.0,
+                                    percent: 0.01,
+                                    progressColor: Colors.black,
+                                  );
+                                }
+                              })
+                          : SendingFileCircularIndicator(
+                              loadProgress: 0.9,
+                              isMedia: false,
+                            )
+                      : Container(),
+                  startDownload
+                      ? Container(
+                          child: StreamBuilder<double>(
+                              stream: fileService
+                                  .filesDownloadStatus[widget.file.uuid],
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData && snapshot.data != null) {
+                                  return CircularPercentIndicator(
+                                    radius: 45.0,
+                                    lineWidth: 4.0,
+                                    percent: snapshot.data,
+                                    center: Icon(Icons.arrow_downward),
+                                    progressColor: Colors.black,
+                                  );
+                                } else {
+                                  return CircularPercentIndicator(
+                                    radius: 45.0,
+                                    lineWidth: 4.0,
+                                    percent: 0.1,
+                                    center: Icon(Icons.arrow_downward),
+                                    progressColor: Colors.black,
+                                  );
+                                  ;
+                                }
+                              }))
+                      : Padding(
+                          padding: EdgeInsets.only(left: 5, top: 7),
+                          child: Container(
+                            width: 45,
+                            height: 45,
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: ExtraTheme.of(context).text),
+                            child: pendingMessage.data != null
+                                ? IconButton(
+                                    padding: EdgeInsets.all(0),
+                                    icon: Icon(
+                                      Icons.arrow_upward,
+                                      color: Theme.of(context).primaryColor,
+                                      size: 33,
                                     ),
-                            ),
-                          )
-                  ],
-                ),
-              ],
-            );
-          } else {
-            return PlayAudioStatus(
-              file: widget.file,
-              dbId: widget.dbId,
-            );
-          }
+                                    onPressed: () {},
+                                  )
+                                : IconButton(
+                                    padding: EdgeInsets.all(0),
+                                    alignment: Alignment.center,
+                                    icon: Icon(
+                                      Icons.arrow_downward,
+                                      color: Theme.of(context).primaryColor,
+                                      size: 35,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        startDownload = true;
+                                      });
+                                      widget.onPressed(
+                                          widget.file.uuid, widget.file.name);
+                                    },
+                                  ),
+                          ),
+                        )
+                ],
+              ),
+            ],
+          );
         });
     //TODO animation to change icon????
   }

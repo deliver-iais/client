@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:moor/moor.dart';
 import 'package:rxdart/streams.dart';
 import '../Messages.dart';
@@ -14,8 +15,33 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
 
   Stream watchAllMessages() => select(messages).watch();
 
+  Future insertBulk(List<Message> messages) {
+
+  }
+
   Future<int> insertMessage(Message newMessage) =>
       into(messages).insertOnConflictUpdate(newMessage);
+
+  Future<int> updateMessageId(String roomId, String packetID, int id, int time) {
+    (update(messages)
+          ..where((t) => t.roomId.equals(roomId) & t.packetId.equals(packetID)))
+        .write(
+      MessagesCompanion(
+        id: Value(id),
+        time: Value(DateTime.fromMillisecondsSinceEpoch(time))
+      ),
+    );
+  }
+
+  updateMessageBody(String roomId, int dbId, String json) {
+    (update(messages)
+      ..where((t) => t.roomId.equals(roomId) & t.dbId.equals(dbId)))
+        .write(
+      MessagesCompanion(
+        json: Value(json),
+      ),
+    );
+  }
 
   Future deleteMessage(Message message) => delete(messages).delete(message);
 
@@ -37,8 +63,9 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
         .watchSingle();
   }
 
-  Future<List<Message>> getPage(String roomId, int page, {int pageSize = 50}) async {
-    return await (select(messages)
+  Future<List<Message>> getPage(String roomId, int page,
+      {int pageSize = 50}) async {
+    return (select(messages)
           ..where((m) =>
               m.roomId.equals(roomId) &
               m.id.isBetweenValues(page * pageSize, (page + 1) * pageSize)))

@@ -1781,11 +1781,13 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
   final String compressionSize;
   final String path;
   final String name;
+  final String type;
   FileInfo(
       {@required this.uuid,
       @required this.compressionSize,
       @required this.path,
-      @required this.name});
+      @required this.name,
+      @required this.type});
   factory FileInfo.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -1796,6 +1798,7 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
           .mapFromDatabaseResponse(data['${effectivePrefix}compression_size']),
       path: stringType.mapFromDatabaseResponse(data['${effectivePrefix}path']),
       name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      type: stringType.mapFromDatabaseResponse(data['${effectivePrefix}type']),
     );
   }
   @override
@@ -1813,6 +1816,9 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
     if (!nullToAbsent || name != null) {
       map['name'] = Variable<String>(name);
     }
+    if (!nullToAbsent || type != null) {
+      map['type'] = Variable<String>(type);
+    }
     return map;
   }
 
@@ -1824,6 +1830,7 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
           : Value(compressionSize),
       path: path == null && nullToAbsent ? const Value.absent() : Value(path),
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      type: type == null && nullToAbsent ? const Value.absent() : Value(type),
     );
   }
 
@@ -1835,6 +1842,7 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
       compressionSize: serializer.fromJson<String>(json['compressionSize']),
       path: serializer.fromJson<String>(json['path']),
       name: serializer.fromJson<String>(json['name']),
+      type: serializer.fromJson<String>(json['type']),
     );
   }
   @override
@@ -1845,16 +1853,22 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
       'compressionSize': serializer.toJson<String>(compressionSize),
       'path': serializer.toJson<String>(path),
       'name': serializer.toJson<String>(name),
+      'type': serializer.toJson<String>(type),
     };
   }
 
   FileInfo copyWith(
-          {String uuid, String compressionSize, String path, String name}) =>
+          {String uuid,
+          String compressionSize,
+          String path,
+          String name,
+          String type}) =>
       FileInfo(
         uuid: uuid ?? this.uuid,
         compressionSize: compressionSize ?? this.compressionSize,
         path: path ?? this.path,
         name: name ?? this.name,
+        type: type ?? this.type,
       );
   @override
   String toString() {
@@ -1862,14 +1876,17 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
           ..write('uuid: $uuid, ')
           ..write('compressionSize: $compressionSize, ')
           ..write('path: $path, ')
-          ..write('name: $name')
+          ..write('name: $name, ')
+          ..write('type: $type')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(uuid.hashCode,
-      $mrjc(compressionSize.hashCode, $mrjc(path.hashCode, name.hashCode))));
+  int get hashCode => $mrjf($mrjc(
+      uuid.hashCode,
+      $mrjc(compressionSize.hashCode,
+          $mrjc(path.hashCode, $mrjc(name.hashCode, type.hashCode)))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -1877,7 +1894,8 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
           other.uuid == this.uuid &&
           other.compressionSize == this.compressionSize &&
           other.path == this.path &&
-          other.name == this.name);
+          other.name == this.name &&
+          other.type == this.type);
 }
 
 class FileInfosCompanion extends UpdateCompanion<FileInfo> {
@@ -1885,32 +1903,38 @@ class FileInfosCompanion extends UpdateCompanion<FileInfo> {
   final Value<String> compressionSize;
   final Value<String> path;
   final Value<String> name;
+  final Value<String> type;
   const FileInfosCompanion({
     this.uuid = const Value.absent(),
     this.compressionSize = const Value.absent(),
     this.path = const Value.absent(),
     this.name = const Value.absent(),
+    this.type = const Value.absent(),
   });
   FileInfosCompanion.insert({
     @required String uuid,
     @required String compressionSize,
     @required String path,
     @required String name,
+    @required String type,
   })  : uuid = Value(uuid),
         compressionSize = Value(compressionSize),
         path = Value(path),
-        name = Value(name);
+        name = Value(name),
+        type = Value(type);
   static Insertable<FileInfo> custom({
     Expression<String> uuid,
     Expression<String> compressionSize,
     Expression<String> path,
     Expression<String> name,
+    Expression<String> type,
   }) {
     return RawValuesInsertable({
       if (uuid != null) 'uuid': uuid,
       if (compressionSize != null) 'compression_size': compressionSize,
       if (path != null) 'path': path,
       if (name != null) 'name': name,
+      if (type != null) 'type': type,
     });
   }
 
@@ -1918,12 +1942,14 @@ class FileInfosCompanion extends UpdateCompanion<FileInfo> {
       {Value<String> uuid,
       Value<String> compressionSize,
       Value<String> path,
-      Value<String> name}) {
+      Value<String> name,
+      Value<String> type}) {
     return FileInfosCompanion(
       uuid: uuid ?? this.uuid,
       compressionSize: compressionSize ?? this.compressionSize,
       path: path ?? this.path,
       name: name ?? this.name,
+      type: type ?? this.type,
     );
   }
 
@@ -1942,6 +1968,9 @@ class FileInfosCompanion extends UpdateCompanion<FileInfo> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
     return map;
   }
 
@@ -1951,7 +1980,8 @@ class FileInfosCompanion extends UpdateCompanion<FileInfo> {
           ..write('uuid: $uuid, ')
           ..write('compressionSize: $compressionSize, ')
           ..write('path: $path, ')
-          ..write('name: $name')
+          ..write('name: $name, ')
+          ..write('type: $type')
           ..write(')'))
         .toString();
   }
@@ -2012,8 +2042,21 @@ class $FileInfosTable extends FileInfos
     );
   }
 
+  final VerificationMeta _typeMeta = const VerificationMeta('type');
+  GeneratedTextColumn _type;
   @override
-  List<GeneratedColumn> get $columns => [uuid, compressionSize, path, name];
+  GeneratedTextColumn get type => _type ??= _constructType();
+  GeneratedTextColumn _constructType() {
+    return GeneratedTextColumn(
+      'type',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns =>
+      [uuid, compressionSize, path, name, type];
   @override
   $FileInfosTable get asDslTable => this;
   @override
@@ -2050,6 +2093,12 @@ class $FileInfosTable extends FileInfos
           _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type'], _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
     }
     return context;
   }
@@ -4621,8 +4670,8 @@ abstract class _$Database extends GeneratedDatabase {
       _sharedPreferencesDao ??= SharedPreferencesDao(this as Database);
   MemberDao _memberDao;
   MemberDao get memberDao => _memberDao ??= MemberDao(this as Database);
-  GroupDao _groupDao;
-  GroupDao get groupDao => _groupDao ??= GroupDao(this as Database);
+  MucDao _mucDao;
+  MucDao get mucDao => _mucDao ??= MucDao(this as Database);
   LastSeenDao _lastSeenDao;
   LastSeenDao get lastSeenDao => _lastSeenDao ??= LastSeenDao(this as Database);
   @override

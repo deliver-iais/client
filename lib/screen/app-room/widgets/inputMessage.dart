@@ -16,6 +16,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:flutter_timer/flutter_timer.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:random_string/random_string.dart';
 import 'package:vibration/vibration.dart';
 import 'package:ext_storage/ext_storage.dart';
@@ -225,7 +226,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                                   } else {
                                                     messageRepo.sendTextMessage(
                                                       currentRoom.roomId.uid,
-                                                      controller.text,
+                                                      controller.text,roomLastMesssgaeId: widget.currentRoom.lastMessageId
+
                                                     );
                                                   }
 
@@ -393,10 +395,10 @@ class _InputMessageWidget extends State<InputMessage> {
 
   _attachFileInWindowsMode() async {
     final result = await showOpenPanel(
-      allowsMultipleSelection: false,
+      allowsMultipleSelection: true,
     );
-    if (result.paths.isNotEmpty) {
-      _messageRepo.sendFileMessage(currentRoom.roomId.uid, [result.paths[0]]);
+    if (result.paths != null) {
+      messageRepo.sendFileMessage(currentRoom.roomId.uid, result.paths);
     }
   }
 }

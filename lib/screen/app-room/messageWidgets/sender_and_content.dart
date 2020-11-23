@@ -21,8 +21,12 @@ class SenderAndContent extends StatelessWidget {
   String generateTitle() {
     List<String> names = List<String>();
     for (var i = 0; i < messages.length; i++) {
-      if (!names.contains(messages[i].from.length>3?messages[i].from.substring(0, 3):messages[i].from))
-        names.add(messages[i].from.length>3?messages[i].from.substring(0, 3):messages[i].from);
+      if (!names.contains(messages[i].from.length > 3
+          ? messages[i].from.substring(0, 3)
+          : messages[i].from))
+        names.add(messages[i].from.length > 3
+            ? messages[i].from.substring(0, 3)
+            : messages[i].from);
     }
     String title = names[0];
     for (var i = 1; i < names.length; i++) {
@@ -38,7 +42,10 @@ class SenderAndContent extends StatelessWidget {
     String content = messages.length > 1
         ? '${messages.length} ' +
             appLocalization.getTraslateValue("ForwardedMessages")
-        : (jsonDecode(messages[0].json))["text"];
+        : messages[0].type == MessageType.TEXT
+            ? (jsonDecode(messages[0].json))["text"]
+            : "File";
+
     return Container(
       width: 200,
       child: Column(
@@ -47,7 +54,7 @@ class SenderAndContent extends StatelessWidget {
           FutureBuilder<String>(
               future: _roomRepo.getRoomDisplayName(messages[0].from.uid),
               builder: (ctx, AsyncSnapshot<String> s) {
-                if (s.hasData && s.data != null ) {
+                if (s.hasData && s.data != null) {
                   return Text(
                     s.data,
                     style: TextStyle(

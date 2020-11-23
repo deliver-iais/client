@@ -1,30 +1,38 @@
 import 'package:dcache/dcache.dart';
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
-import 'package:deliver_flutter/db/dao/GroupDao.dart';
+import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/localSearchResult.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class RoomRepo {
   Cache _roomNameCache =
       LruCache<String, String>(storage: SimpleStorage(size: 40));
-  var _mucDao = GetIt.I.get<GroupDao>();
+  var _mucDao = GetIt.I.get<MucDao>();
   var _contactDao = GetIt.I.get<ContactDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
+  var _accountRepo = GetIt.I.get<AccountRepo>();
 
-  Future<String> getRoomDisplayName(Uid uid) async {
+  Future<String> getRoomDisplayName(Uid uid,) async {
+
     switch (uid.category) {
+      case Categories.SYSTEM:
+        return "Deliver";
+        break;
       case Categories.USER:
         String name = await _roomNameCache.get(uid.string);
-        if (name != null) {
+        if (name != null && !name.contains("null")) {
           return name;
         } else {
           var contact = await _contactDao.getContactByUid(uid.string);
@@ -38,8 +46,7 @@ class RoomRepo {
         break;
 
       case Categories.GROUP:
-      case Categories.PRIVATE_CHANNEL:
-      case Categories.PUBLIC_CHANNEL:
+      case Categories.CHANNEL:
         String name = _roomNameCache.get(uid.string);
         if (name != null) {
           return name;

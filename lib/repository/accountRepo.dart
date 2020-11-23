@@ -15,6 +15,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:device_info/device_info.dart';
 
+
 import 'package:get_it/get_it.dart';
 
 import 'package:grpc/grpc.dart';
@@ -30,6 +31,7 @@ const PASSWORD = "password";
 const EMAIL = "email";
 const DESCRIPTION = "description";
 const PHONE_NUMBER = "phoneNumber";
+const NOTIFICATION = "notification";
 
 class AccountRepo {
   // TODO add account name protocol to server
@@ -259,4 +261,10 @@ class AccountRepo {
     _prefs.set(PHONE_NUMBER,
         "${this.phoneNumber.countryCode}${this.phoneNumber.nationalNumber}");
   }
+
+  setNotificationState(String notif) {
+    _prefs.set(NOTIFICATION, notif);
+  }
+
+  Future<String> get notification => _prefs.get(NOTIFICATION);
 }

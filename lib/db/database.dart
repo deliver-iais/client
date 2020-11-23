@@ -6,14 +6,13 @@ import 'package:deliver_flutter/db/SharedPreferences.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
-import 'package:deliver_flutter/db/dao/GroupDao.dart';
+import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/LastAvatarDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/models/messageType.dart';
-import 'package:deliver_flutter/models/memberType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/models/role.dart';
 import 'package:moor/ffi.dart';
@@ -64,7 +63,7 @@ part 'database.g.dart';
   MediaDao,
   SharedPreferencesDao,
   MemberDao,
-  GroupDao,
+  MucDao,
   LastSeenDao,
 ])
 class Database extends _$Database {
@@ -75,7 +74,7 @@ class Database extends _$Database {
           }
           final dbFolder = await getApplicationDocumentsDirectory();
           final file = File(p.join(dbFolder.path, 'db.sqlite'));
-          return VmDatabase(file, logStatements: true);
+          return VmDatabase(file);
         }));
 
   @override

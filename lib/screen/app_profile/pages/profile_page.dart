@@ -1,20 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/memberType.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
-import 'package:deliver_flutter/repository/memberRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/group_Ui_widget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/memberWidget.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -348,7 +341,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ];
                 },
                 body: FutureBuilder<List<Media>>(
-                  future: _mediaQueryRepo.getMediaQuery("p.asghari"),
+                  future: _mediaQueryRepo.getMediaQuery(widget.userUid.string),
                   builder: (BuildContext context,
                       AsyncSnapshot<List<Media>> snapshot) {
                     if (snapshot.hasData && snapshot.data.length != null) {
@@ -397,13 +390,6 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         itemBuilder: (context, position) {
           return GestureDetector(
-            onTap: () {
-              _routingService.openShowAllMedia(
-                mediaPosition: position,
-                heroTag: "btn$position",
-                mediasLength: medias.length,
-              );
-            },
            child: Hero(
                 tag: "btn$position",
                 child: Container(
