@@ -15,24 +15,24 @@ class ContactPic extends StatelessWidget {
     return Stack(
       children: <Widget>[
         CircleAvatarWidget(this.uid , 24),
-        Positioned(
-          child: Container(
-            width: 12.0,
-            height: 12.0,
-            decoration: new BoxDecoration(
-              color: this.isOnline
-                  ? Colors.green
-                  : ExtraTheme.of(context).secondColor,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.black,
-                width: 2,
-              ),
-            ),
-          ),
-          top: 32.0,
-          right: 4.0,
-        ),
+        // Positioned(
+        //   child: Container(
+        //     width: 12.0,
+        //     height: 12.0,
+        //     decoration: new BoxDecoration(
+        //       color: this.isOnline
+        //           ? Colors.green
+        //           : ExtraTheme.of(context).secondColor,
+        //       shape: BoxShape.circle,
+        //       border: Border.all(
+        //         color: Colors.black,
+        //         width: 2,
+        //       ),
+        //     ),
+        //   ),
+        //   top: 32.0,
+        //   right: 4.0,
+        // ),
       ],
     );
   }

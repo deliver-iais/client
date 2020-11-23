@@ -76,11 +76,11 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
           if (images.hasData) {
             return GridView.builder(
                 controller: widget.scrollController,
-                itemCount: images.data.length,
+                itemCount: images.data.length+1,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3),
                 itemBuilder: (context, index) {
-                  var image = images.data[index];
+                  var image = index>0?images.data[index-1]:null;
                   if (index <= 0) {
                     return Container(
                       width: 50,

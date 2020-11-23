@@ -27,6 +27,8 @@ class RoomRepo {
   Future<String> getRoomDisplayName(Uid uid,) async {
 
     switch (uid.category) {
+      case Categories.SYSTEM:
+        return "Deliver";
       case Categories.USER:
         String name = await _roomNameCache.get(uid.string);
         if (name != null && !name.contains("null")) {
