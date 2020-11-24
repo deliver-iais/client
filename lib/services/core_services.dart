@@ -11,7 +11,9 @@ import 'package:deliver_flutter/db/database.dart' as M;
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
@@ -28,7 +30,7 @@ import 'package:rxdart/rxdart.dart';
 
 enum ConnectionStatus { Connected, Disconnected }
 
-const MIN_BACKOFF_TIME = 4;
+const MIN_BACKOFF_TIME = 1;
 const MAX_BACKOFF_TIME = 32;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
@@ -59,6 +61,7 @@ class CoreServices {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _mucRepo = GetIt.I.get<MucRepo>();
+  var _notificationServices = GetIt.I.get<NotificationServices>();
 
   initStreamConnection() async {
     await _startStream();
@@ -71,13 +74,12 @@ class CoreServices {
     _responseChecked = false;
 
     Timer(new Duration(seconds: _backoffTime), () {
-      print("timer");
       if (!_responseChecked) {
-        print("not respond");
         if (_backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO)
-          _backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
-        _connectionStatus.add(ConnectionStatus.Disconnected);
+          _connectionStatus.add(ConnectionStatus.Disconnected);
         _startStream();
+      } else {
+        _backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
       }
       _startCheckerTimer();
     });
@@ -90,11 +92,6 @@ class CoreServices {
   }
 
   _startStream() async {
-    // try {
-    //   await _clientPacket.close();
-    //   await _responseStream.cancel();
-    // } catch (e) {}
-
     try {
       _clientPacket = StreamController<ClientPacket>();
       _responseStream = _grpcCoreService.establishStream(
@@ -124,9 +121,12 @@ class CoreServices {
             break;
           case ServerPacket_Type.liveLocationStatusChanged:
             break;
-          case ServerPacket_Type.notSet:
+          case ServerPacket_Type.message:
             break;
           case ServerPacket_Type.pong:
+            break;
+          case ServerPacket_Type.notSet:
+            // TODO: Handle this case.
             break;
         }
       });
@@ -203,8 +203,7 @@ class CoreServices {
             : roomId = seen.from;
         break;
       case Categories.GROUP:
-      case Categories.PRIVATE_CHANNEL:
-      case Categories.PUBLIC_CHANNEL:
+      case Categories.CHANNEL:
       case Categories.BOT:
         roomId = seen.to;
         break;
@@ -246,7 +245,6 @@ class CoreServices {
   }
 
   _saveIncomingMessage(Message message) async {
-    print(message.toString());
     var msg = await saveMessageInMessagesDB(message);
     bool isCurrentUser =
         message.from.node.contains(_accountRepo.currentUserUid.node);
@@ -260,6 +258,8 @@ class CoreServices {
           lastMessageId: message.id.toInt(),
           lastMessageDbId: msg.dbId),
     );
+    var roomName = await RoomRepo().getRoomDisplayName(message.from);
+    _notificationServices.showNotification(msg, roomName);
 
     // TODO remove later on if Add User to group message feature is implemented
     if (message.to.category != Categories.USER) {
@@ -268,10 +268,9 @@ class CoreServices {
   }
 
   saveMessageInMessagesDB(Message message) async {
-    print(message.text.text);
     M.Message msg = M.Message(
         id: message.id.toInt(),
-        roomId: message.from.node.contains(_accountRepo.currentUserUid.node)
+        roomId: message.whichType() == Message_Type.persistEvent?message.from.string: message.from.node.contains(_accountRepo.currentUserUid.node)
             ? message.to.string
             : message.to.category == Categories.USER
                 ? message.from.string
@@ -318,7 +317,33 @@ class CoreServices {
         "height": message.sticker.height.toInt()
       };
     else if (type == MessageType.PERSISTENT_EVENT)
-      json = {"type": message.persistEvent}; //TODO edit this
+      switch (message.persistEvent.whichType()) {
+        case PersistentEvent_Type.mucSpecificPersistentEvent:
+          json = {
+            "type": "MUC_EVENT",
+            "issueType": getIssueType(
+                message.persistEvent.mucSpecificPersistentEvent.issue),
+            "issuer":
+                message.persistEvent.mucSpecificPersistentEvent.issuer.string,
+            "assignee":
+                message.persistEvent.mucSpecificPersistentEvent.assignee.string
+          };
+          break;
+        case PersistentEvent_Type.messageManipulationPersistentEvent:
+          //todo
+          break;
+        case PersistentEvent_Type.adminSpecificPersistentEvent:
+          switch (message.persistEvent.adminSpecificPersistentEvent.event) {
+            case AdminSpecificPersistentEvent_Event.NEW_CONTACT_ADDED:
+              json = {"type": "ADMIN_EVENT"};
+              break;
+          }
+
+          break;
+        case PersistentEvent_Type.notSet:
+          // TODO: Handle this case.
+          break;
+      }
     else if (type == MessageType.POLL)
       json = {
         "uuid": message.poll.uuid,
@@ -354,5 +379,32 @@ class CoreServices {
       return MessageType.LOCATION;
     else
       return MessageType.NOT_SET;
+  }
+
+
+  String getIssueType(MucSpecificPersistentEvent_Issue issue) {
+    switch (issue) {
+      case MucSpecificPersistentEvent_Issue.ADD_USER:
+        return "ADD_USER";
+        break;
+      case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
+        return "AVATAR_CHANGED";
+        break;
+      case MucSpecificPersistentEvent_Issue.MUC_CREATED:
+        return "MUC_CREATED";
+        break;
+      case MucSpecificPersistentEvent_Issue.LEAVE_USER:
+        return "LEAVE_USER";
+        break;
+      case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
+        return "NAME_CHANGED";
+        break;
+      case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
+        return "PIN_MESSAGE";
+        break;
+      case MucSpecificPersistentEvent_Issue.KICK_USER:
+        return "KICK_USER";
+        break;
+    }
   }
 }

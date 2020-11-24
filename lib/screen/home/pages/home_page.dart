@@ -3,6 +3,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/core_services.dart';
+import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -20,9 +21,11 @@ class _HomePageState extends State<HomePage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
+  var _notificationServices = GetIt.I.get<NotificationServices>();
 
   @override
   void initState() {
+    _notificationServices.reset("");
     checkIfUsernameIsSet();
     checkShareFile(context);
     _coreServices.initStreamConnection();

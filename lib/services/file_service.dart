@@ -91,6 +91,6 @@ class FileService {
       "file": await MultipartFile.fromFile(filePath),
     });
 
-    return _dio.post("/upload", data: formData);
+    return _dio.post("/upload", data: formData,);
   }
 }

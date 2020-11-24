@@ -11,8 +11,10 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
@@ -32,7 +34,11 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
+import 'package:image_size_getter/file_input.dart';
+import 'package:image_size_getter/image_size_getter.dart';
 import 'package:rxdart/rxdart.dart';
+
+import 'mucRepo.dart';
 
 enum TitleStatusConditions { Disconnected, Updating, Normal }
 
@@ -44,6 +50,7 @@ class MessageRepo {
   AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
   FileRepo _fileRepo = GetIt.I.get<FileRepo>();
   CoreServices _coreServices = GetIt.I.get<CoreServices>();
+  var _mucRepo = GetIt.I.get<MucRepo>();
   BehaviorSubject<TitleStatusConditions> updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
 
@@ -72,7 +79,6 @@ class MessageRepo {
   }
 
   updating() async {
-  ///  sendPendingMessage();
     updatingStatus.add(TitleStatusConditions.Updating);
     print("UPDATTTTTTTTTTTTTTTTTTTTTTTTTTTTINNNNNNNNNNNNGGGGGGGGGGGG");
     try {
@@ -80,51 +86,58 @@ class MessageRepo {
           GetAllUserRoomMetaReq(),
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
       print(getAllUserRoomMetaRes.roomsMeta);
+      print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
+        print("------------------------------------");
         print(userRoomMeta);
         var room =
             await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.string);
 
-        if (room == null ||
-            (room.lastMessageId ?? -1) < userRoomMeta.lastMessageId.toInt()) {
-          try {
-            var fetchMessagesRes = await _queryServiceClient.fetchMessages(
-                FetchMessagesReq()
-                  ..roomUid = userRoomMeta.roomUid
-                  ..pointer = userRoomMeta.lastMessageId
-                  ..type = FetchMessagesReq_Type.BACKWARD_FETCH
-                  ..limit = 1,
-                options: CallOptions(metadata: {
-                  'accessToken': await _accountRepo.getAccessToken()
-                }));
-            List<Message> messages =
-                await _saveFetchMessages(fetchMessagesRes.messages);
+        print("room: $room");
 
-            print("messages $messages");
-            // TODO if there is Pending Message this line has a bug!!
-            room = Room(
-                roomId: userRoomMeta.roomUid.getString(),
-                lastMessageId: userRoomMeta.lastMessageId.toInt(),
-                lastMessageDbId: messages[0].dbId);
-            _roomDao.insertRoom(room);
-          } catch (e) {
-            print(
-                "EXCEPTIOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNNNNNNNNNN");
-            print(e);
+        try {
+          var fetchMessagesRes = await _queryServiceClient.fetchMessages(
+              FetchMessagesReq()
+                ..roomUid = userRoomMeta.roomUid
+                ..pointer = userRoomMeta.lastMessageId
+                ..type = FetchMessagesReq_Type.BACKWARD_FETCH
+                ..limit = 1,
+              options: CallOptions(timeout: Duration(seconds: 1), metadata: {
+                'accessToken': await _accountRepo.getAccessToken()
+              }));
+          List<Message> messages =
+              await _saveFetchMessages(fetchMessagesRes.messages);
+
+          print("messages $messages");
+          print("------------------------------------");
+          // TODO if there is Pending Message this line has a bug!!
+          if (userRoomMeta.roomUid.category != Categories.USER) {
+            _mucRepo.saveMucInfo(userRoomMeta.roomUid);
           }
+          room = Room(
+              roomId: userRoomMeta.roomUid.getString(),
+              lastMessageId: userRoomMeta.lastMessageId.toInt(),
+              lastMessageDbId: messages[0].dbId);
+          _roomDao.insertRoom(room);
+        } catch (e) {
+          print(
+              "EXCEPTIOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNNNNNNNNNN");
+          print(e);
         }
       }
     } catch (e) {
       print(e);
     }
     updatingStatus.add(TitleStatusConditions.Normal);
+    sendPendingMessage();
   }
 
   reconnecting() {}
 
   sendTextMessage(Uid roomId, String text,
-      {int replyId, String forwardedFrom}) async {
+      {int replyId, String forwardedFrom, int roomLastMesssgaeId}) async {
     String packetId = _getPacketId();
     if (id == 0) {
       await insertRoomAndLastSeen((roomId.string));
@@ -144,8 +157,11 @@ class MessageRepo {
     );
     int dbId = await _messageDao.insertMessage(message);
 
-    await _updateRoomLastMessage(roomId.string, dbId);
-    await _savePendingMessage(dbId, roomId.string, SendingStatus.PENDING,
+    _updateRoomLastMessage(
+      roomId.string,
+      dbId,
+    );
+    _savePendingMessage(dbId, roomId.string, SendingStatus.PENDING,
         MAX_REMAINING_RETRIES, message);
     await _sendTextMessage(message);
   }
@@ -153,7 +169,10 @@ class MessageRepo {
   String findType(String path) {
     Fimber.d('path is ' + path);
     String postfix = path.split('.').last;
-    if (postfix == 'png' || postfix == 'jpg' || postfix == 'jpeg')
+    if (postfix == 'png' ||
+        postfix == 'jpg' ||
+        postfix == 'jpeg' ||
+        postfix == 'jfif')
       return 'image';
     else if (postfix == 'mp4')
       return 'video';
@@ -170,11 +189,13 @@ class MessageRepo {
       String forwardedMessageBody}) async {
     List<Message> messageList = new List();
     List<String> uploadKeyList = new List();
+    List<int> messagesDbId = new List();
     // TODO refactored needed
     if (id == 0) {
       await insertRoomAndLastSeen((roomId.string));
     }
     for (var path in filesPath) {
+      final size = ImageSizeGetter.getSize(FileInput(LocalFile.File(path)));
       String packetId = _getPacketId();
       String type;
       type = forwardedMessageBody != null
@@ -195,20 +216,19 @@ class MessageRepo {
           type: MessageType.FILE,
           json: forwardedMessageBody != null
               ? forwardedMessageBody
-              : jsonEncode({
-                  "uuid": uploadKey,
-                  "size": 0,
-                  "type": type,
-                  "path": path,
-                  "name": path.split('/').last,
-                  "caption": caption ?? "",
-                  "width": type == 'image' || type == 'video' ? 200 : 0,
-                  "height": type == 'image' || type == 'video' ? 100 : 0,
-                  "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
-                }));
+              : _generateFileMessage(
+                  uuid: uploadKey,
+                  path: path,
+                  caption: caption,
+                  type: type,
+                  size: size));
       messageList.add(message);
       int dbId = await _messageDao.insertMessage(message);
-      await _updateRoomLastMessage(roomId.string, dbId);
+      messagesDbId.add(dbId);
+      await _updateRoomLastMessage(
+        roomId.string,
+        dbId,
+      );
       await _savePendingMessage(dbId, roomId.string, SendingStatus.SENDING_FILE,
           MAX_REMAINING_RETRIES, message);
     }
@@ -219,7 +239,18 @@ class MessageRepo {
           LocalFile.File(filesPath[i]),
           uploadKey: uploadKeyList[i],
         );
-        _sendFileMessage(messageList[i], fileInfo: fileInfo);
+        final size =
+            ImageSizeGetter.getSize(FileInput(LocalFile.File(filesPath[i])));
+        _messageDao.updateMessageBody(
+            messageList[i].roomId,
+            messagesDbId[i],
+            _generateFileMessage(
+                uuid: fileInfo.uuid,
+                path: fileInfo.path,
+                caption: jsonDecode(messageList[i].json)["caption"],
+                type: jsonDecode(messageList[i].json)["type"],
+                size: size));
+        _sendFileMessage(messageList[i], fileInfo: fileInfo, size: size);
       }
     } else {
       _sendFileMessage(messageList[0],
@@ -229,32 +260,28 @@ class MessageRepo {
     }
   }
 
-  sendPendingMessage() {
-    _pendingMessageDao.watchAllMessages().listen((event) {
-      for (PendingMessage pendingMessage in event) {
-        if (pendingMessage.remainingRetries == 3) {
-          switch (pendingMessage.status) {
-            case SendingStatus.SENDING_FILE:
-              _messageDao
-                  .getByDbId(pendingMessage.messageDbId)
-                  .listen((message) {
-                 // _sendFileMessage(message, jsonDecode(message.json)["path"]);
-              });
-              _updatePendingMessage(pendingMessage);
+  sendPendingMessage() async {
+    List<PendingMessage> pendingMessages =
+        await _pendingMessageDao.watchAllMessages();
+    for (var pendingMessage in pendingMessages) {
+      if (pendingMessage.remainingRetries > 0) {
+        switch (pendingMessage.status) {
+          case SendingStatus.SENDING_FILE:
+            Message message =
+                await _messageDao.getPendingMessage(pendingMessage.messageDbId);
+            //  await _sendFileMessage(message);
+            _updatePendingMessage(pendingMessage);
 
-              break;
-            case SendingStatus.PENDING:
-              _messageDao
-                  .getByDbId(pendingMessage.messageDbId)
-                  .listen((message) {
-              _sendTextMessage(message);
-              });
-              _updatePendingMessage(pendingMessage);
-              break;
-          }
+            break;
+          case SendingStatus.PENDING:
+            Message message =
+                await _messageDao.getPendingMessage(pendingMessage.messageDbId);
+            await _sendTextMessage(message);
+            _updatePendingMessage(pendingMessage);
+            break;
         }
       }
-    });
+    }
   }
 
   _savePendingMessage(int dbId, String roomId, SendingStatus status,
@@ -268,7 +295,7 @@ class MessageRepo {
       details: message.json,
       status: status,
     );
-    return await _pendingMessageDao.insertPendingMessage(pendingMessage);
+    _pendingMessageDao.insertPendingMessage(pendingMessage);
   }
 
   sendSeenMessage(int messageId, Uid to, Uid roomId) {
@@ -278,14 +305,17 @@ class MessageRepo {
   }
 
   insertRoomAndLastSeen(String roomId) async {
-    await _lastSeenDao.insertLastSeen(LastSeen(roomId: roomId));
-    await _roomDao
-        .insertRoom(Room(roomId: roomId, mentioned: false, mute: false));
+    try {
+      // await _lastSeenDao.insertLastSeen(LastSeen(roomId: roomId));
+      await _roomDao
+          .insertRoom(Room(roomId: roomId, mentioned: false, mute: false));
+    } catch (e) {}
   }
 
   _updateRoomLastMessage(String roomId, int dbId, {int id}) async {
     if (id != null)
-      await _roomDao.updateRoomLastMessage(roomId, dbId, newMessageId: id);
+      await _roomDao.insertRoom(
+          Room(roomId: roomId, lastMessageDbId: dbId, lastMessageId: id));
     else
       await _roomDao.updateRoomLastMessage(roomId, dbId);
   }
@@ -346,11 +376,13 @@ class MessageRepo {
     await _coreServices.sendMessage(messageByClient);
   }
 
-  _sendFileMessage(Message message, {FileInfo fileInfo}) async {
+  _sendFileMessage(Message message, {FileInfo fileInfo, Size size}) async {
     File file = File()
       ..name = fileInfo.name
       ..uuid = fileInfo.uuid
-      ..type  =  findType(fileInfo.name)
+      ..width = size.width != 0 ? size.width : 200
+      ..height = size.height != 0 ? size.height : 200
+      ..type = fileInfo.type
       ..caption = jsonDecode(message.json)["caption"];
 
     clientMessage.MessageByClient messageByClient =
@@ -387,15 +419,15 @@ class MessageRepo {
 
   Future<List<Message>> getPage(int page, String roomId, int id,
       {int pageSize = 50}) async {
-    Map<int, Message> f = Map();
+    Map<int, Message> dbMessage = Map();
     var messages = await _messageDao.getPage(roomId, page);
-    for (var m in messages) {
-      f[m.id] = m;
+    for (var message in messages) {
+      dbMessage[message.id] = message;
     }
-    if (f.containsKey(id)) {
-      return f.values.toList();
+    if (dbMessage.containsKey(id)) {
+      return dbMessage.values.toList();
     }
-    if (!f.values.toList().any((element) => element.id == id)) {
+    if (!dbMessage.values.toList().any((element) => element.id == id)) {
       if (fetchMessageId[roomId] == null ||
           (fetchMessageId[roomId] - id).abs() > 49) {
         fetchMessageId[roomId] = id;
@@ -415,7 +447,7 @@ class MessageRepo {
         print("###################################==$page");
       }
     }
-    return f.values.toList();
+    return dbMessage.values.toList();
   }
 
   Future<List<Message>> _saveFetchMessages(
@@ -426,87 +458,31 @@ class MessageRepo {
     }
     return msgList;
   }
-//TODO FINDJSON
-  MessageType findFetchMessageType(messagePb.Message message) {
-    if (message.hasText())
-      return MessageType.TEXT;
-    else if (message.hasFile())
-      return MessageType.FILE;
-    else if (message.hasForm())
-      return MessageType.FORM;
-    else if (message.hasSticker())
-      return MessageType.STICKER;
-    else if (message.hasPersistEvent())
-      return MessageType.PERSISTENT_EVENT;
-    else if (message.hasPoll())
-      return MessageType.POLL;
-    else if (message.hasLiveLocation())
-      return MessageType.LIVE_LOCATION;
-    else if (message.hasLocation())
-      return MessageType.LOCATION;
-    else
-      return MessageType.NOT_SET;
-  }
 
-  String findFetchMessageJson(messagePb.Message message, MessageType type) {
-    var json = Object();
-    if (type == MessageType.TEXT)
-      json = {"text": message.text};
-    else if (type == MessageType.FILE)
-      json = {
-        "uuid": message.file.uuid,
-        "size": message.file.size,
-        "type": message.file.type,
-        "name": message.file.name,
-        "caption": message.file.caption,
-        "width": message.file.width,
-        "height": message.file.height,
-        "duration": message.file.duration
-      };
-    else if (type == MessageType.FORM)
-      json = {"uuid": message.form.uuid, "title": message.form.title};
-    else if (type == MessageType.STICKER)
-      json = {
-        "uuid": message.sticker.uuid,
-        "id": message.sticker.id,
-        "width": message.sticker.width,
-        "height": message.sticker.height
-      };
-    else if (type == MessageType.PERSISTENT_EVENT)
-      json = {"type": message.persistEvent}; //TODO edit this
-    else if (type == MessageType.POLL)
-      json = {
-        "uuid": message.poll.uuid,
-        "title": message.poll.title,
-        "number_of_options": message.poll.numberOfOptions
-      };
-    else if (type == MessageType.LOCATION)
-      json = {
-        "latitude": message.location.latitude,
-        "longitude": message.location.longitude
-      };
-    else if (type == MessageType.LIVE_LOCATION)
-      json = {"uuid": message.liveLocation.uuid};
-    return jsonEncode(json);
-  }
-
-  receiveMessage(String a) async {
-    for (int i = 0; i < 20; i++) {
-      int k = await _messageDao.insertMessage(Message(
-        packetId: "a:${DateTime.now().microsecondsSinceEpoch.toString()}",
-        roomId: a,
-        from: a,
-        to: _accountRepo.currentUserUid.getString(),
-        time: DateTime.now(),
-        id: id,
-        edited: false,
-        encrypted: false,
-        replyToId: -1,
-        type: MessageType.TEXT,
-        json: jsonEncode({"text": 'aaaa $id'}),
-      ));
-      await _roomDao.updateRoomLastMessage(a, k, newMessageId: id);
-      id++;
-    }
+  String _generateFileMessage(
+      {String uuid, String type, String path, String caption, Size size}) {
+    return jsonEncode({
+      "uuid": uuid,
+      "size": 0,
+      "type": type,
+      "path": path,
+      "name": path.split('/').last,
+      "caption": caption ?? "",
+      "width": type == 'image'
+          ? size.width != 0
+              ? size.width
+              : 200
+          : type == 'video'
+              ? 200
+              : 0,
+      "height": type == 'image'
+          ? size.height != 0
+              ? size.height
+              : 200
+          : type == 'video'
+              ? 100
+              : 0,
+      "duration": type == 'audio' || type == 'video' ? 17.0 : 0.0,
+    });
   }
 }

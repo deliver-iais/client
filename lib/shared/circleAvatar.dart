@@ -10,6 +10,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/shared/methods/colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -27,7 +28,6 @@ class CircleAvatarWidget extends StatelessWidget {
   final _fileRepo = GetIt.I.get<FileRepo>();
 
   var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _contactRepo = GetIt.I.get<ContactRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   CircleAvatarWidget(this.contactUid, this.radius,
@@ -57,14 +57,19 @@ class CircleAvatarWidget extends StatelessWidget {
     return CircleAvatar(
       radius: radius,
       backgroundColor: colorFor(contactUid.getString()),
-      child: showAsStreamOfAvatar
-          ? StreamBuilder<LastAvatar>(
-              stream:
-                  _avatarRepo.getLastAvatarStream(contactUid, forceToUpdate),
-              builder: this.builder)
-          : FutureBuilder<LastAvatar>(
-              future: _avatarRepo.getLastAvatar(contactUid, forceToUpdate),
-              builder: this.builder),
+      child: contactUid.category == Categories.SYSTEM
+          ? Image(
+              image: AssetImage(
+                  'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
+            )
+          : showAsStreamOfAvatar
+              ? StreamBuilder<LastAvatar>(
+                  stream: _avatarRepo.getLastAvatarStream(
+                      contactUid, forceToUpdate),
+                  builder: this.builder)
+              : FutureBuilder<LastAvatar>(
+                  future: _avatarRepo.getLastAvatar(contactUid, forceToUpdate),
+                  builder: this.builder),
     );
   }
 

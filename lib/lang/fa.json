@@ -114,5 +114,17 @@
   "disconnected": "قطع ارتباط",
   "connected": "ارتباط برقرار شد",
   "contactNotExit": "مخاطب وجود ندارد.",
-  "contactAdd": "مخاطب اضافه شد."
+  "contactAdd": "مخاطب اضافه شد.",
+  "new_contact_add": "وارد دلیور شد.",
+  "add_user_to_muc": "اضافه کرد.",
+  "change_group_avatar": "عکس گروه را تغیر داد.",
+  "change_channel_avatar": "عکس کانال را تغییر داد.",
+  "create_muc": " گروه را ساخت.",
+  "leave_muc": "گروه را تر ک کرد.",
+  "change_muc_name": "نام گروه را تغییر داد.",
+  "pin_message": "پیام را پین کرد. ",
+  "kick_from_muc": "از گروه حذف کرد.",
+  "create_channel": "کانال  را ایجاد کرد",
+  "create_group": "گروه را ساخت."
+
 }

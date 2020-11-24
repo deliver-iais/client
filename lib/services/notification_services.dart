@@ -1,14 +1,18 @@
-import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'dart:convert';
+
+import 'package:deliver_flutter/db/database.dart' as db;
+import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get_it/get_it.dart';
 
 class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   NotificationDetails _notificationDetails;
+  var _routinServices = GetIt.I.get<RoutingService>();
+  String _currentRoomId;
 
-  Map<int, String> notificationMessage = Map();
+  Map<String, String> _notificationMessage = Map();
 
   NotificationServices() {
     var androidNotificationSetting =
@@ -31,33 +35,27 @@ class NotificationServices {
       int id, String title, String body, String payload) async {}
 
   gotoRoomPage(String roomId) {
-    // ExtendedNavigator.root.push(
-    //   Routes.roomPage,
-    //   arguments: RoomPageArguments(
-    //     roomId: roomId,
-    //   ),
-    // );
+    _routinServices.openRoom(roomId);
   }
 
-  cancelNotification(int notificationId) {
+  cancelNotification(notificationId) {
     flutterLocalNotificationsPlugin.cancel(notificationId);
   }
 
-  cancelAllNotification(int notificationId) {
-    notificationMessage[notificationId] = "";
+  cancelAllNotification(String roomId) {
+    _notificationMessage[roomId] = "";
     flutterLocalNotificationsPlugin.cancelAll();
   }
 
   showTextNotification(int notificationId, String roomId, String roomName,
       String messageBody) async {
-    if (notificationMessage[notificationId] == null) {
-      notificationMessage[notificationId] = "";
+    if (_notificationMessage[roomId] == null) {
+      _notificationMessage[roomId] = "";
     }
-    print(notificationMessage[notificationId]);
-    notificationMessage[notificationId] =
-        notificationMessage[notificationId] + "\n" + messageBody;
+    _notificationMessage[roomId] =
+        _notificationMessage[roomId] + "\n" + messageBody;
     var bigTextStyleInformation =
-        BigTextStyleInformation(notificationMessage[notificationId]);
+        BigTextStyleInformation(_notificationMessage[roomId]);
     var androidNotificationDetails = new AndroidNotificationDetails(
         'channel_ID', 'cs', 'desc',
         styleInformation: bigTextStyleInformation);
@@ -90,5 +88,20 @@ class NotificationServices {
     await flutterLocalNotificationsPlugin.show(
         notificationId, roomName, imagePath, _notificationDetails,
         payload: roomId);
+  }
+
+  void showNotification(db.Message message, String roomName) async {
+    if (_currentRoomId == null || !_currentRoomId.contains(message.from))
+      cancelNotification(message.id - 1);
+    switch (message.type) {
+      case MessageType.TEXT:
+        showTextNotification(message.id, message.from, roomName,
+            jsonDecode(message.json)['text']);
+    }
+  }
+
+  void reset(String roomId) {
+    _currentRoomId = roomId;
+    _notificationMessage[roomId] = "";
   }
 }

@@ -12,8 +12,8 @@ class PendingMessageDao extends DatabaseAccessor<Database>
 
   PendingMessageDao(this.database) : super(database);
 
-  Stream<List<PendingMessage>> watchAllMessages() =>
-      select(pendingMessages).watch();
+  Future<List<PendingMessage>> watchAllMessages() =>
+      select(pendingMessages).get();
 
   Future<int> insertPendingMessage(PendingMessage newPendingMessage) =>
       into(pendingMessages).insertOnConflictUpdate(newPendingMessage);

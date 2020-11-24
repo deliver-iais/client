@@ -79,6 +79,8 @@ void setupRepositories() {
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
+  getIt.registerSingleton<CreateMucService>(CreateMucService());
+  getIt.registerSingleton<RoutingService>(RoutingService());
   getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<MucRepo>(MucRepo());
@@ -94,8 +96,6 @@ void setupRepositories() {
 
   getIt.registerSingleton<MemberRepo>(MemberRepo());
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
-  getIt.registerSingleton<CreateMucService>(CreateMucService());
-  getIt.registerSingleton<RoutingService>(RoutingService());
 }
 
 setupFlutterNotification() async {

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -27,7 +30,6 @@ class _MessageHeaderState extends State<MessageHeader> {
   double loadProgress = 0.0;
   PendingMessageDao pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var fileRepo = GetIt.I.get<FileRepo>();
-  var _accountRpo = GetIt.I.get<AccountRepo>();
 
   download(String uuid, String name) async {
     await GetIt.I.get<FileRepo>().getFile(uuid, name);
