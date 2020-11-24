@@ -53,10 +53,16 @@ class _ProfilePageState extends State<ProfilePage> {
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
   int imageCount;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _mediaQueryRepo.allMediasTypeCount(widget.userUid,MediaType.IMAGE).then((value) => imageCount=value);
+  }
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    _mediaQueryRepo.getMediasCountFromDB(widget.userUid.string).then((value) => imageCount=value.imagesCount);
 
     return Scaffold(
         body: DefaultTabController(
@@ -339,6 +345,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     text: appLocalization
                                         .getTraslateValue("members"),
                                   ),
+                                if(imageCount!=0)
                                 Tab(
                                   text:
                                       appLocalization.getTraslateValue("media"),
@@ -368,6 +375,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                 ]),
                               ),
+                            if(imageCount!=0)
                             mediaWidget(widget.userUid,_mediaQueryRepo,_fileRepo,imageCount),
                             ListView(
                               padding: EdgeInsets.zero,
@@ -379,7 +387,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Text("File"),
                               ],
                             ),
-                            linkWidget(widget.userUid,_mediaQueryRepo),
+                            ListView(
+                              padding: EdgeInsets.zero,
+                              children: <Widget>[
+                                Text("File"),
+                                Text("File"),
+                                Text("File"),
+                                Text("File"),
+                                Text("File"),
+                              ],
+                            ),
+                           // linkWidget(widget.userUid,_mediaQueryRepo),
                           ])))));
                     }
   }
@@ -387,49 +405,91 @@ class _ProfilePageState extends State<ProfilePage> {
 
 
   Widget mediaWidget(Uid userUid ,MediaQueryRepo mediaQueryRepo ,FileRepo fileRepo,int imageCount) {
-    return FutureBuilder<List<Media>>(
-        future:  mediaQueryRepo.getMedias(userUid.string,2020, FetchMediasReq_MediaType.IMAGES, 50),
-    builder: (BuildContext context,
-    AsyncSnapshot<List<Media>> snapshot) {
-    if (snapshot.hasData && snapshot.data.length != null) {
-    //_fetchedMedia = snapshot.data;
-
-     return GridView.builder(
+    return StreamBuilder(
+      stream: mediaQueryRepo.allMediasTypeInDBCount(userUid, FetchMediasReq_MediaType.IMAGES) ,
+     builder:  (context, snap){
+      if(snap.hasData && snap.data!=0){
+      return GridView.builder(
         shrinkWrap: true,
         padding: EdgeInsets.zero,
-        itemCount:imageCount ,
+        itemCount: snap.data,
         scrollDirection: Axis.vertical,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
         ),
         itemBuilder: (context, position) {
-
-          var fileId = jsonDecode(snapshot.data[position].json)["uuid"];
-          var fileName = jsonDecode(snapshot.data[position].json)["name"];
           return FutureBuilder(
-            future: fileRepo.getFile(fileId, fileName),
-            builder:
-            (BuildContext c, AsyncSnapshot snaps) {
-              if (snaps.hasData &&
-                 snaps.data != null &&
-                     snaps.connectionState ==
-                   ConnectionState.done) {
-               return Container(
-                  decoration: new BoxDecoration(
-                    image: new DecorationImage(
-                      image: Image.file(
-                        snaps.data,
-                      ).image,
-                      fit: BoxFit.cover,
-                    ),
-                      border: Border.all(
-                        width: 1,
-                        color: ExtraTheme.of(context).secondColor,
-                  ),
-                ));
+            future: mediaQueryRepo.getMedia(position, userUid,FetchMediasReq_MediaType.IMAGES),
+            builder:  (BuildContext c, AsyncSnapshot snaps) {
+              if (snaps.hasData && snaps.data != null && snaps.connectionState == ConnectionState.done) {
+                if(position>=snaps.data-10){
+                  mediaQueryRepo.fetchMoreMedia(userUid, FetchMediasReq_MediaType.IMAGES);
+                }
+                var fileId = jsonDecode(snaps.data.json)["uuid"];
+                var fileName = jsonDecode(snaps.data.json)["name"];
+                return FutureBuilder(
+                  future: fileRepo.getFile(fileId, fileName),
+                  builder:
+                  (BuildContext c, AsyncSnapshot snaps) {
+                    if (snaps.hasData &&
+                       snaps.data != null &&
+                           snaps.connectionState ==
+                         ConnectionState.done) {
+                     return Container(
+                        decoration: new BoxDecoration(
+                          image: new DecorationImage(
+                            image: Image.file(
+                              snaps.data,
+                            ).image,
+                            fit: BoxFit.cover,
+                          ),
+                            border: Border.all(
+                              width: 1,
+                              color: ExtraTheme.of(context).secondColor,
+                        ),
+                      ));
+                    }else{
+                      return Container(width: 100,height: 100,);
+                    }
+                  });
+              }else{
+                return Container(width: 100,height: 100,);
               }
+            });});
+              }else if(snap.data == 0){
+                mediaQueryRepo.getLastMediasList(userUid.string, FetchMediasReq_MediaType.IMAGES);
+              }else{
+                return Container(width: 100,height: 100,);
+
             }
+            },
+          );
+          // var fileId = jsonDecode(snapshot.data[position].json)["uuid"];
+          // var fileName = jsonDecode(snapshot.data[position].json)["name"];
+          // return FutureBuilder(
+          //   future: fileRepo.getFile(fileId, fileName),
+          //   builder:
+          //   (BuildContext c, AsyncSnapshot snaps) {
+          //     if (snaps.hasData &&
+          //        snaps.data != null &&
+          //            snaps.connectionState ==
+          //          ConnectionState.done) {
+          //      return Container(
+          //         decoration: new BoxDecoration(
+          //           image: new DecorationImage(
+          //             image: Image.file(
+          //               snaps.data,
+          //             ).image,
+          //             fit: BoxFit.cover,
+          //           ),
+          //             border: Border.all(
+          //               width: 1,
+          //               color: ExtraTheme.of(context).secondColor,
+          //         ),
+          //       ));
+          //     }
+          //   }
             // child: GestureDetector(
             //   // onTap: () {
             //   //   _routingService.openShowAllMedia(
@@ -457,34 +517,34 @@ class _ProfilePageState extends State<ProfilePage> {
             //
             //   ),
             // ),
-          );
-        });}
-    else {
-      return Text("...");
-    }
-        });
-  }
+          //);
+        }
+  //   else {
+  //     return Text("...");
+  //
+  //
+  // }
 
-  Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo){
-   return FutureBuilder<List<Media>>(
-        future:  mediaQueryRepo.getMedias(userUid.string, DateTime.now().microsecondsSinceEpoch,2020, FetchMediasReq_MediaType.LINKS, 50),
-    builder: (BuildContext context,
-    AsyncSnapshot<List<Media>> snapshot) {
-    if (snapshot.hasData && snapshot.data.length != null) {
-      return ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          Text("File"),
-          Text("File"),
-          Text("File"),
-          Text("File"),
-          Text("File"),
-        ],
-      );
-    }
-    });
-
-  }
+  // Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo){
+  //  return FutureBuilder<List<Media>>(
+  //       future:  mediaQueryRepo.getLastMediasList(userUid.string, DateTime.now().microsecondsSinceEpoch,2020, FetchMediasReq_MediaType.LINKS, 50),
+  //   builder: (BuildContext context,
+  //   AsyncSnapshot<List<Media>> snapshot) {
+  //   if (snapshot.hasData && snapshot.data.length != null) {
+  //     return ListView(
+  //       padding: EdgeInsets.zero,
+  //       children: <Widget>[
+  //         Text("File"),
+  //         Text("File"),
+  //         Text("File"),
+  //         Text("File"),
+  //         Text("File"),
+  //       ],
+  //     );
+  //   }
+  //   });
+  //
+  // }
 
   Widget _showUsername(String username) {
     return Padding(
@@ -529,4 +589,5 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
         minHeight != oldDelegate.minHeight ||
         child != oldDelegate.child;
   }
+
 }
