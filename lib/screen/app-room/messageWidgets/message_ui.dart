@@ -10,9 +10,15 @@ class MessageUi extends StatefulWidget {
   final Message message;
   final double maxWidth;
   final Function lastCross;
+  final bool isSender;
   final CrossAxisAlignment last;
   const MessageUi(
-      {Key key, this.message, this.maxWidth, this.lastCross, this.last})
+      {Key key,
+      this.message,
+      this.maxWidth,
+      this.lastCross,
+      this.isSender,
+      this.last})
       : super(key: key);
 
   @override
@@ -27,23 +33,31 @@ class _MessageUiState extends State<MessageUi> {
       crossAxisAlignment: widget.last,
       children: <Widget>[
         type == 'image'
-            ? ImageUi(message: widget.message, maxWidth: widget.maxWidth)
+            ? ImageUi(
+                message: widget.message,
+                maxWidth: widget.maxWidth,
+                isSender: widget.isSender)
             : type == 'video'
                 ? VideoMessage(
                     message: widget.message,
                     maxWidth: widget.maxWidth,
-                  )
+                    isSender: widget.isSender)
                 : MessageHeader(
-                    message: widget.message, maxWidth: widget.maxWidth),
-       widget.message.json.toFile().caption.isNotEmpty? Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          child: TextUi(
-            content: widget.message.json.toFile().caption,
-            maxWidth: widget.maxWidth,
-            lastCross: widget.lastCross,
-            isCaption: true,
-          ),
-        ):SizedBox.shrink()
+                    message: widget.message,
+                    maxWidth: widget.maxWidth,
+                    isSender: widget.isSender),
+        widget.message.json.toFile().caption.isNotEmpty
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                child: TextUi(
+                  message: widget.message,
+                  maxWidth: widget.maxWidth,
+                  lastCross: widget.lastCross,
+                  isSender: widget.isSender,
+                  isCaption: true,
+                ),
+              )
+            : SizedBox.shrink()
       ],
     );
   }

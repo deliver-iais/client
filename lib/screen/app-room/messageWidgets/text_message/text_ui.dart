@@ -1,24 +1,35 @@
 import 'dart:convert';
+import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
+import 'package:deliver_flutter/shared/seenStatus.dart';
 
 import 'package:flutter/material.dart';
+import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
 class TextUi extends StatelessWidget {
-  final String content;
+  final Message message;
   final double maxWidth;
   final Function lastCross;
+  final bool isSender;
   final bool isCaption;
   const TextUi(
-      {Key key, this.content, this.maxWidth, this.lastCross, this.isCaption})
+      {Key key,
+      this.message,
+      this.maxWidth,
+      this.lastCross,
+      this.isSender,
+      this.isCaption})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container(
         margin: EdgeInsets.only(left: 8),
-        child: Column(children: textMessages(this.content)));
+        child: Column(children: textMessages()));
   }
 
-  List<Widget> textMessages(String content) {
+  List<Widget> textMessages() {
+    String content = this.message.json.toText().text;
     List<String> lines = LineSplitter().convert(content);
     List<Widget> texts = [];
     texts.add(disjointThenJoin(preProcess(lines)));
@@ -41,7 +52,8 @@ class TextUi extends StatelessWidget {
           ? CrossAxisAlignment.end
           : CrossAxisAlignment.start);
     //max lenght
-    var joint = blocks[idx].build(this.maxWidth);
+    var joint = blocks[idx].build(
+        this.maxWidth, this.message, idx == (blocks.length - 1), this.isSender);
 
     for (var i = 1; i <= idx; i++) {
       joint = Column(
@@ -53,12 +65,13 @@ class TextUi extends StatelessWidget {
                 ? CrossAxisAlignment.start
                 : CrossAxisAlignment.end),
         children: <Widget>[
-          blocks[idx - i].build(this.maxWidth),
+          blocks[idx - i].build(this.maxWidth, this.message,
+              i == (blocks.length - 1), this.isSender),
           joint,
         ],
       );
     }
-
+    print('idx, $idx, length: ${blocks.length}');
     for (var i = 1; i < blocks.length - idx; i++) {
       joint = Column(
         crossAxisAlignment: blocks[idx].isRtl
@@ -70,23 +83,23 @@ class TextUi extends StatelessWidget {
                 : CrossAxisAlignment.end),
         children: <Widget>[
           joint,
-          blocks[idx + i].build(this.maxWidth),
+          blocks[idx + i].build(this.maxWidth, this.message,
+              i == (blocks.length - 1), this.isSender),
         ],
       );
     }
-
     return joint;
   }
 }
 
 List<TextBlock> preProcess(List<String> texts) {
-  bool currnetLng = texts[0].isPersian();
+  bool currentLng = texts[0].isPersian();
   List<TextBlock> blocks = [TextBlock.withFirstText(texts[0])];
   for (var i = 1; i < texts.length; i++) {
-    if (currnetLng == texts[i].isPersian()) {
+    if (currentLng == texts[i].isPersian()) {
       blocks.last.add(texts[i]);
     } else {
-      currnetLng = !currnetLng;
+      currentLng = !currentLng;
       blocks.add(TextBlock.withFirstText(texts[i]));
     }
   }
@@ -111,24 +124,50 @@ class TextBlock {
     texts.add(t);
   }
 
-  build(double maxWidth) {
+  build(double maxWidth, Message message, bool isLastBlock, bool isSender) {
     return Column(
         crossAxisAlignment:
             isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: <Widget>[for (var i in texts) _t(_textWidget(i), maxWidth)]);
+        children: <Widget>[
+          for (var i in texts)
+            _t(_textWidget(i, message, isLastBlock, isSender), maxWidth)
+        ]);
   }
 }
 
-Widget _textWidget(String text) {
+Widget _textWidget(
+    String text, Message message, bool isLastBlock, bool isSender) {
   if (text.isPersian()) {
     return Text(text,
         textDirection: TextDirection.rtl, textAlign: TextAlign.justify);
   }
-  return Text(text, textAlign: TextAlign.justify);
+
+  return Wrap(
+    alignment: WrapAlignment.end,
+    crossAxisAlignment: WrapCrossAlignment.start,
+    children: [
+      Text(text, textAlign: TextAlign.justify),
+      isLastBlock
+          ? Padding(
+              padding: const EdgeInsets.only(left: 8.0, top: 5),
+              child: MsgTime(
+                time: message.time,
+              ),
+            )
+          : Container(),
+      (isLastBlock & isSender)
+          ? Padding(
+              padding: const EdgeInsets.only(left: 3.0, top: 5),
+              child: SeenStatus(message),
+            )
+          : Container(),
+    ],
+  );
 }
 
 Widget _t(Widget text, double maxWidth) {
   return Row(
+    crossAxisAlignment: CrossAxisAlignment.end,
     children: <Widget>[
       Container(
           constraints: BoxConstraints.loose(Size.fromWidth(maxWidth)),

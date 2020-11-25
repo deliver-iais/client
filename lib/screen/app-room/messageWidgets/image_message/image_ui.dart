@@ -10,6 +10,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/circular_file_status_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/image_message/filtered_image.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/sending_file_circular_indicator.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
@@ -22,8 +23,10 @@ import 'package:open_file/open_file.dart';
 class ImageUi extends StatefulWidget {
   final Message message;
   final double maxWidth;
+  final bool isSender;
 
-  const ImageUi({Key key, this.message, this.maxWidth}) : super(key: key);
+  const ImageUi({Key key, this.message, this.maxWidth, this.isSender})
+      : super(key: key);
 
   @override
   _ImageUiState createState() => _ImageUiState();
@@ -34,6 +37,7 @@ class _ImageUiState extends State<ImageUi> {
   bool isDownloaded;
   double width;
   double height;
+  bool showTime;
 
   @override
   void initState() {
@@ -75,12 +79,15 @@ class _ImageUiState extends State<ImageUi> {
                     isMedia: true,
                     file: image,
                   ),
+                  image.caption.isEmpty
+                      ? TimeAndSeenStatus(widget.message, widget.isSender, true)
+                      : Container()
                 ],
               );
             } else {
               return FutureBuilder<File>(
                   future: fileRepo.getFileIfExist(image.uuid, image.name),
-                  builder: (contex, file) {
+                  builder: (context, file) {
                     if (file.hasData && file != null) {
                       return Stack(
                         alignment: Alignment.center,
@@ -103,6 +110,10 @@ class _ImageUiState extends State<ImageUi> {
                                   : 0.8,
                               isMedia: true,
                               file: image),
+                          image.caption.isEmpty
+                              ? TimeAndSeenStatus(
+                                  widget.message, widget.isSender, true)
+                              : Container()
                         ],
                       );
                     } else {
@@ -119,21 +130,43 @@ class _ImageUiState extends State<ImageUi> {
                 future: fileRepo.getFileIfExist(image.uuid, image.name),
                 builder: (context, file) {
                   if (file.hasData && file.data != null) {
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            OpenFile.open(file.data.path);
-                          },
-                          child: Image.file(
-                            file.data,
-                            width: width,
-                            height: height,
-                            fit: BoxFit.fill,
+                    return MouseRegion(
+                      onEnter: (PointerEvent details) {
+                        if (isDesktop()) {
+                          setState(() {
+                            showTime = true;
+                          });
+                        }
+                      },
+                      onExit: (PointerEvent details) {
+                        if (isDesktop()) {
+                          setState(() {
+                            showTime = false;
+                          });
+                        }
+                      },
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              OpenFile.open(file.data.path);
+                            },
+                            child: Image.file(
+                              file.data,
+                              width: width,
+                              height: height,
+                              fit: BoxFit.fill,
+                            ),
                           ),
-                        ),
-                      ],
+                          image.caption.isEmpty
+                              ? (!isDesktop()) | (isDesktop() & showTime)
+                                  ? showTime
+                                  : TimeAndSeenStatus(
+                                      widget.message, widget.isSender, true)
+                              : Container(),
+                        ],
+                      ),
                     );
                   } else {
                     if (isDesktop()) {
@@ -159,18 +192,26 @@ class _ImageUiState extends State<ImageUi> {
                             thumbnailSize: ThumbnailSize.medium),
                         builder: (context, file) {
                           if (file.hasData) {
-                            return FilteredImage(
-                                uuid: image.uuid,
-                                name: image.name,
-                                path: '',
-                                sended: true,
-                                width: width,
-                                height: height,
-                                onPressed: () async {
-                                  await fileRepo.getFile(
-                                      image.uuid, image.name);
-                                  setState(() {});
-                                });
+                            return Stack(
+                              children: [
+                                FilteredImage(
+                                    uuid: image.uuid,
+                                    name: image.name,
+                                    path: '',
+                                    sended: true,
+                                    width: width,
+                                    height: height,
+                                    onPressed: () async {
+                                      await fileRepo.getFile(
+                                          image.uuid, image.name);
+                                      setState(() {});
+                                    }),
+                                image.caption.isEmpty
+                                    ? TimeAndSeenStatus(
+                                        widget.message, widget.isSender, true)
+                                    : Container()
+                              ],
+                            );
                           } else
                             return CircularProgressIndicator();
                         },

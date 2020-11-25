@@ -34,7 +34,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-const int PAGE_SIZE = 50;
+const int PAGE_SIZE = 40;
 
 class RoomPage extends StatefulWidget {
   final String roomId;
@@ -94,9 +94,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   // Check print before return result result not working future builder, why?!
   Future<List<Message>> _getMessageAndPreviousMessage(int id) async {
     String roomId = widget.roomId;
-    List<Message> result = [await getMessage(id, roomId)];
-
-    return result;
+    var m1 = await getMessage(id, roomId);
+    if (id == 0) {
+      return [m1];
+    } else {
+      var m2 = await getMessage(id - 1, roomId);
+      return [m1, m2];
+    }
   }
 
   Future<Message> getMessage(int id, String roomId) async {
@@ -105,11 +109,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       return msg;
     }
     int page = (id / PAGE_SIZE).floor();
-    List<Message> messages = await _messageRepo.getPage(page, roomId, id);
+    List<Message> messages =
+        await _messageRepo.getPage(page, roomId, id, pageSize: PAGE_SIZE);
     for (int i = 0; i < messages.length; i = i + 1) {
+      if (messages[i].id == id) {
+        msg = messages[i];
+      }
       _cache.set(messages[i].id, messages[i]);
     }
-    return _cache.get(id);
+    return msg;
   }
 
   void resetRoomPageDetails() {
@@ -287,9 +295,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                         pendingMessages.length -
                                                         index),
                                             builder: (context, messagesFuture) {
+                                              print(
+                                                  'message future ${messagesFuture.data}');
                                               if (messagesFuture.hasData &&
-                                                  messagesFuture.data[0] !=
-                                                      null &&
                                                   messagesFuture.data[0] !=
                                                       null) {
                                                 if (index -
@@ -418,16 +426,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                               CrossAxisAlignment.end,
                                                                           children: <
                                                                               Widget>[
-                                                                            Padding(
-                                                                              padding: const EdgeInsets.only(bottom: 8.0),
-                                                                              child: SeenStatus(messages[0]),
-                                                                            ),
-                                                                            Padding(
-                                                                              padding: const EdgeInsets.only(bottom: 8.0),
-                                                                              child: MsgTime(
-                                                                                time: messages[0].time,
-                                                                              ),
-                                                                            ),
                                                                             SentMessageBox(
                                                                               message: messages[0],
                                                                               maxWidth: _maxWidth,
@@ -501,15 +499,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                             widget.roomId.uid.category ==
                                                                                 Categories.GROUP,
                                                                       ),
-                                                                      Padding(
-                                                                        padding:
-                                                                            const EdgeInsets.only(bottom: 8.0),
-                                                                        child:
-                                                                            MsgTime(
-                                                                          time:
-                                                                              messages[0].time,
-                                                                        ),
-                                                                      ),
                                                                     ],
                                                                   ),
                                                                 )))
@@ -522,9 +511,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                     .center,
                                                             children: [
                                                               PersistentEventMessage(
-                                                                  message:
-                                                                      messages[
-                                                                          0],showLastMessaeg: false,),
+                                                                message:
+                                                                    messages[0],
+                                                                showLastMessaeg:
+                                                                    false,
+                                                              ),
                                                             ],
                                                           ),
                                                   ],
@@ -545,9 +536,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                       ));
                                                 }
                                                 return Container(
-                                                  height: 60,
-                                                  width: 20,
-                                                );
+                                                    height: 60,
+                                                    width: 20,
+                                                    child: Center(
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        backgroundColor:
+                                                            Colors.blue,
+                                                      ),
+                                                    ));
                                               }
                                             },
                                           );
