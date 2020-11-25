@@ -1,15 +1,20 @@
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/size_formater.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_ui.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
+import '../timeAndSeenStatus.dart';
+
 class VideoMessage extends StatefulWidget {
   final Message message;
   final double maxWidth;
+  final bool isSender;
 
-  const VideoMessage({Key key, this.message, this.maxWidth}) : super(key: key);
+  const VideoMessage({Key key, this.message, this.maxWidth, this.isSender})
+      : super(key: key);
 
   @override
   _VideoMessageState createState() => _VideoMessageState();
@@ -17,6 +22,7 @@ class VideoMessage extends StatefulWidget {
 
 class _VideoMessageState extends State<VideoMessage> {
   bool isDownloaded = false;
+  bool showTime;
   @override
   Widget build(BuildContext context) {
     File video = widget.message.json.toFile();
@@ -33,18 +39,55 @@ class _VideoMessageState extends State<VideoMessage> {
       width: video.width.toDouble(),
       height: video.height.toDouble(),
       color: Colors.black,
-      child: Stack(
-        alignment: Alignment.center,
-        children: isDownloaded
-            ? <Widget>[
-                VideoUi(video: video),
-                Positioned(
-                  child: Text(videoLength),
-                  top: 5,
-                  left: 5,
-                ),
-                Positioned(child: Icon(Icons.more_vert), top: 5, right: 0),
-                Container(
+      child: MouseRegion(
+        onEnter: (PointerEvent details) {
+          if (isDesktop()) {
+            setState(() {
+              showTime = true;
+            });
+          }
+        },
+        onExit: (PointerEvent details) {
+          if (isDesktop()) {
+            setState(() {
+              showTime = false;
+            });
+          }
+        },
+        child: Stack(
+          alignment: Alignment.center,
+          children: isDownloaded
+              ? <Widget>[
+                  VideoUi(video: video),
+                  Positioned(
+                    child: Text(videoLength),
+                    top: 5,
+                    left: 5,
+                  ),
+                  Positioned(child: Icon(Icons.more_vert), top: 5, right: 0),
+                  Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black.withOpacity(0.5),
+                      ),
+                      child: IconButton(
+                          icon: Icon(Icons.play_arrow), onPressed: () {}))
+                ]
+              : <Widget>[
+                  Positioned(
+                    child: Text(videoLength),
+                    top: 5,
+                    left: 5,
+                  ),
+                  Positioned(
+                    child: Text(sizeFormater(video.size.toInt())),
+                    top: 20,
+                    left: 5,
+                  ),
+                  Positioned(child: Icon(Icons.more_vert), top: 5, right: 0),
+                  Container(
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
@@ -52,37 +95,22 @@ class _VideoMessageState extends State<VideoMessage> {
                       color: Colors.black.withOpacity(0.5),
                     ),
                     child: IconButton(
-                        icon: Icon(Icons.play_arrow), onPressed: () {}))
-              ]
-            : <Widget>[
-                Positioned(
-                  child: Text(videoLength),
-                  top: 5,
-                  left: 5,
-                ),
-                Positioned(
-                  child: Text(sizeFormater(video.size.toInt())),
-                  top: 20,
-                  left: 5,
-                ),
-                Positioned(child: Icon(Icons.more_vert), top: 5, right: 0),
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.black.withOpacity(0.5),
+                      icon: Icon(Icons.file_download),
+                      onPressed: () {
+                        setState(() {
+                          isDownloaded = true;
+                        });
+                      },
+                    ),
                   ),
-                  child: IconButton(
-                    icon: Icon(Icons.file_download),
-                    onPressed: () {
-                      setState(() {
-                        isDownloaded = true;
-                      });
-                    },
-                  ),
-                )
-              ],
+                  video.caption.isEmpty
+                      ? (!isDesktop()) | (isDesktop() & showTime)
+                          ? showTime
+                          : TimeAndSeenStatus(
+                              widget.message, widget.isSender, true)
+                      : Container(),
+                ],
+        ),
       ),
     );
   }

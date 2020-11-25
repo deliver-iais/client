@@ -9,15 +9,18 @@ import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+
+import 'msgTime.dart';
 
 class BoxContent extends StatefulWidget {
   final Message message;
   final double maxWidth;
+  final bool isSender;
 
-  const BoxContent({Key key, this.message, this.maxWidth}) : super(key: key);
+  const BoxContent({Key key, this.message, this.maxWidth, this.isSender})
+      : super(key: key);
 
   @override
   _BoxContentState createState() => _BoxContentState();
@@ -95,9 +98,13 @@ class _BoxContentState extends State<BoxContent> {
         widget.message.type == MessageType.TEXT
             ? Padding(
                 padding: const EdgeInsets.only(right: 8.0, top: 8, bottom: 8),
-                child: TextUi(
-                  content: widget.message.json.toText().text,
+                child:
+                    // Wrap(
+                    //   children: [
+                    TextUi(
+                  message: widget.message,
                   maxWidth: widget.maxWidth,
+                  isSender: widget.isSender,
                   isCaption: false,
                 ),
               )
@@ -106,8 +113,9 @@ class _BoxContentState extends State<BoxContent> {
                     message: widget.message,
                     maxWidth: widget.maxWidth,
                     lastCross: initiaLastCross,
+                    isSender: widget.isSender,
                     last: last)
-                : Container()
+                : Container(),
       ],
     );
   }

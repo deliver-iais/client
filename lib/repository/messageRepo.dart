@@ -429,7 +429,7 @@ class MessageRepo {
     }
     if (!dbMessage.values.toList().any((element) => element.id == id)) {
       if (fetchMessageId[roomId] == null ||
-          (fetchMessageId[roomId] - id).abs() > 49) {
+          (fetchMessageId[roomId] - id).abs() > pageSize - 1) {
         fetchMessageId[roomId] = id;
         var fetchMessagesRes = await _queryServiceClient.fetchMessages(
             FetchMessagesReq()
