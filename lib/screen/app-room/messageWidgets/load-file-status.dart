@@ -35,7 +35,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<PendingMessage>(
-        stream: pendingMessageDao.getByMessageDbId(widget.dbId),
+        stream: pendingMessageDao.watchByMessageDbId(widget.dbId),
         builder: (context, pendingMessage) {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.end,

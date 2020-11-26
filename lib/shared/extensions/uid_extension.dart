@@ -47,5 +47,5 @@ extension StringUidExtension on String {
     }
   }
 
-  String getUid() => this.uid;
+  Uid getUid() => this.uid;
 }

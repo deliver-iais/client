@@ -19,6 +19,9 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
 
   }
 
+  Future<int> insertMessageCompanion(MessagesCompanion newMessage) =>
+      into(messages).insertOnConflictUpdate(newMessage);
+
   Future<int> insertMessage(Message newMessage) =>
       into(messages).insertOnConflictUpdate(newMessage);
 
@@ -33,11 +36,12 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
     );
   }
 
-  updateMessageBody(String roomId, int dbId, String json) {
+  updateMessageTimeAndJson(String roomId, int dbId, String json) {
     (update(messages)
       ..where((t) => t.roomId.equals(roomId) & t.dbId.equals(dbId)))
         .write(
       MessagesCompanion(
+        time: Value(DateTime.now()),
         json: Value(json),
       ),
     );

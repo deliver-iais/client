@@ -1,3 +1,5 @@
+import 'package:grpc/grpc.dart';
+
 class ServicesDiscoveryRepo {
   // todo  call services to get host and port for any microServices..
   ConnectionDetails avatarConnection = ConnectionDetails()
@@ -28,6 +30,12 @@ class ServicesDiscoveryRepo {
     ..host = "172.16.111.189"
     ..port = 30100;
 }
+
+final ClientChannel QueryClientChannel = ClientChannel(
+    "172.16.111.189",
+    port: 30101,
+    options: ChannelOptions(credentials: ChannelCredentials.insecure(),connectionTimeout: Duration(seconds: 2))
+);
 
 class ConnectionDetails {
   String host;

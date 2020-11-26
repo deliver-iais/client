@@ -55,7 +55,6 @@ class _NewContactState extends State<NewContact> {
               icon: Icon(Icons.check),
               iconSize: 30,
               onPressed: () async {
-                print(_phoneNumber.number);
                 PhoneNumber phoneNumber = PhoneNumber()
                   ..nationalNumber = Int64.parseInt(_phoneNumber.number)
                   ..countryCode = int.parse(_phoneNumber.countryCode);

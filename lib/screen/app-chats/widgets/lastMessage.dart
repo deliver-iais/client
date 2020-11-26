@@ -34,9 +34,6 @@ class LastMessage extends StatelessWidget {
         : message.type == MessageType.PERSISTENT_EVENT
             ? jsonDecode(message.json)["type"]
             : 'File';
-    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-    print(message.type);
-    print(oneLine);
     if (oneLine.isPersian()) {
       td = TextDirection.rtl;
     } else

@@ -5,6 +5,7 @@ import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
@@ -27,7 +28,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     _notificationServices.reset("");
     checkIfUsernameIsSet();
-    checkShareFile(context);
+    if (isAndroid()) {
+      checkShareFile(context);
+    }
     _coreServices.initStreamConnection();
   }
 
@@ -35,13 +38,12 @@ class _HomePageState extends State<HomePage> {
     ReceiveSharingIntent.getMediaStream().listen((List<SharedMediaFile> value) {
       if (value != null) {
         List<String> paths = List();
-        for(var path in value){
+        for (var path in value) {
           paths.add(path.path);
         }
         ExtendedNavigator.of(context).pushAndRemoveUntil(
-          Routes.shareInputFile,
-          (_) => false,arguments: ShareInputFileArguments(inputSharedFilePath: paths)
-        );
+            Routes.shareInputFile, (_) => false,
+            arguments: ShareInputFileArguments(inputSharedFilePath: paths));
       }
     });
   }

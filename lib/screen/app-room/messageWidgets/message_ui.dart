@@ -6,13 +6,14 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/vid
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
-class MessageUi extends StatefulWidget {
+class FileMessageUi extends StatefulWidget {
   final Message message;
   final double maxWidth;
   final Function lastCross;
   final bool isSender;
   final CrossAxisAlignment last;
-  const MessageUi(
+
+  const FileMessageUi(
       {Key key,
       this.message,
       this.maxWidth,
@@ -22,43 +23,51 @@ class MessageUi extends StatefulWidget {
       : super(key: key);
 
   @override
-  _MessageUiState createState() => _MessageUiState();
+  _FileMessageUiState createState() => _FileMessageUiState();
 }
 
-class _MessageUiState extends State<MessageUi> {
+class _FileMessageUiState extends State<FileMessageUi> {
   @override
   Widget build(BuildContext context) {
-    String type = widget.message.json.toFile().type;
+    var file = widget.message.json.toFile();
+    var type = file.type;
+    var caption = file.caption;
+
     return Column(
       crossAxisAlignment: widget.last,
       children: <Widget>[
-        type == 'image'
-            ? ImageUi(
-                message: widget.message,
-                maxWidth: widget.maxWidth,
-                isSender: widget.isSender)
-            : type == 'video'
-                ? VideoMessage(
-                    message: widget.message,
-                    maxWidth: widget.maxWidth,
-                    isSender: widget.isSender)
-                : MessageHeader(
-                    message: widget.message,
-                    maxWidth: widget.maxWidth,
-                    isSender: widget.isSender),
-        widget.message.json.toFile().caption.isNotEmpty
-            ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                child: TextUi(
-                  message: widget.message,
-                  maxWidth: widget.maxWidth,
-                  lastCross: widget.lastCross,
-                  isSender: widget.isSender,
-                  isCaption: true,
-                ),
-              )
-            : SizedBox.shrink()
+        _buildMainUi(type),
+        if (caption.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: TextUi(
+              message: widget.message,
+              maxWidth: widget.maxWidth,
+              lastCross: widget.lastCross,
+              isSender: widget.isSender,
+              isCaption: true,
+            ),
+          )
       ],
     );
+  }
+
+  Widget _buildMainUi(String type) {
+    if (type.contains('image')) {
+      return ImageUi(
+          message: widget.message,
+          maxWidth: widget.maxWidth,
+          isSender: widget.isSender);
+    } else if (type.contains('video')) {
+      return VideoMessage(
+          message: widget.message,
+          maxWidth: widget.maxWidth,
+          isSender: widget.isSender);
+    } else {
+      return UnknownFileUi(
+          message: widget.message,
+          maxWidth: widget.maxWidth,
+          isSender: widget.isSender);
+    }
   }
 }

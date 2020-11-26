@@ -4,15 +4,13 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
+import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -39,7 +37,6 @@ class CircleAvatarWidget extends StatelessWidget {
       hash = text.codeUnitAt(i) + ((hash << 5) - hash);
     }
     final finalHash = hash.abs() % (100);
-    print(finalHash * 0.01);
     var r = new Random(finalHash);
     return RandomColor(r).randomColor(
         colorHue: ColorHue.multiple(colorHues: [
@@ -79,7 +76,8 @@ class CircleAvatarWidget extends StatelessWidget {
         snapshot.data.fileId != null &&
         snapshot.data.fileName != null) {
       return FutureBuilder(
-        future: _fileRepo.getFile(snapshot.data.fileId, snapshot.data.fileName),
+        future: _fileRepo.getFile(snapshot.data.fileId, snapshot.data.fileName,
+            thumbnailSize: ThumbnailSize.small),
         builder: (BuildContext c, AsyncSnapshot snaps) {
           if (snaps.hasData) {
             return CircleAvatar(

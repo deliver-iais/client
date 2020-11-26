@@ -1778,27 +1778,24 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
 
 class FileInfo extends DataClass implements Insertable<FileInfo> {
   final String uuid;
-  final String compressionSize;
-  final String path;
   final String name;
-  final String type;
+  final String path;
+  final String compressionSize;
   FileInfo(
       {@required this.uuid,
-      @required this.compressionSize,
-      @required this.path,
       @required this.name,
-      @required this.type});
+      @required this.path,
+      @required this.compressionSize});
   factory FileInfo.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
     return FileInfo(
       uuid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uuid']),
+      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      path: stringType.mapFromDatabaseResponse(data['${effectivePrefix}path']),
       compressionSize: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}compression_size']),
-      path: stringType.mapFromDatabaseResponse(data['${effectivePrefix}path']),
-      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
-      type: stringType.mapFromDatabaseResponse(data['${effectivePrefix}type']),
     );
   }
   @override
@@ -1807,17 +1804,14 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
     if (!nullToAbsent || uuid != null) {
       map['uuid'] = Variable<String>(uuid);
     }
-    if (!nullToAbsent || compressionSize != null) {
-      map['compression_size'] = Variable<String>(compressionSize);
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
     }
     if (!nullToAbsent || path != null) {
       map['path'] = Variable<String>(path);
     }
-    if (!nullToAbsent || name != null) {
-      map['name'] = Variable<String>(name);
-    }
-    if (!nullToAbsent || type != null) {
-      map['type'] = Variable<String>(type);
+    if (!nullToAbsent || compressionSize != null) {
+      map['compression_size'] = Variable<String>(compressionSize);
     }
     return map;
   }
@@ -1825,12 +1819,11 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
   FileInfosCompanion toCompanion(bool nullToAbsent) {
     return FileInfosCompanion(
       uuid: uuid == null && nullToAbsent ? const Value.absent() : Value(uuid),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      path: path == null && nullToAbsent ? const Value.absent() : Value(path),
       compressionSize: compressionSize == null && nullToAbsent
           ? const Value.absent()
           : Value(compressionSize),
-      path: path == null && nullToAbsent ? const Value.absent() : Value(path),
-      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
-      type: type == null && nullToAbsent ? const Value.absent() : Value(type),
     );
   }
 
@@ -1839,10 +1832,9 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return FileInfo(
       uuid: serializer.fromJson<String>(json['uuid']),
-      compressionSize: serializer.fromJson<String>(json['compressionSize']),
-      path: serializer.fromJson<String>(json['path']),
       name: serializer.fromJson<String>(json['name']),
-      type: serializer.fromJson<String>(json['type']),
+      path: serializer.fromJson<String>(json['path']),
+      compressionSize: serializer.fromJson<String>(json['compressionSize']),
     );
   }
   @override
@@ -1850,106 +1842,88 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'uuid': serializer.toJson<String>(uuid),
-      'compressionSize': serializer.toJson<String>(compressionSize),
-      'path': serializer.toJson<String>(path),
       'name': serializer.toJson<String>(name),
-      'type': serializer.toJson<String>(type),
+      'path': serializer.toJson<String>(path),
+      'compressionSize': serializer.toJson<String>(compressionSize),
     };
   }
 
   FileInfo copyWith(
-          {String uuid,
-          String compressionSize,
-          String path,
-          String name,
-          String type}) =>
+          {String uuid, String name, String path, String compressionSize}) =>
       FileInfo(
         uuid: uuid ?? this.uuid,
-        compressionSize: compressionSize ?? this.compressionSize,
-        path: path ?? this.path,
         name: name ?? this.name,
-        type: type ?? this.type,
+        path: path ?? this.path,
+        compressionSize: compressionSize ?? this.compressionSize,
       );
   @override
   String toString() {
     return (StringBuffer('FileInfo(')
           ..write('uuid: $uuid, ')
-          ..write('compressionSize: $compressionSize, ')
-          ..write('path: $path, ')
           ..write('name: $name, ')
-          ..write('type: $type')
+          ..write('path: $path, ')
+          ..write('compressionSize: $compressionSize')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(
-      uuid.hashCode,
-      $mrjc(compressionSize.hashCode,
-          $mrjc(path.hashCode, $mrjc(name.hashCode, type.hashCode)))));
+  int get hashCode => $mrjf($mrjc(uuid.hashCode,
+      $mrjc(name.hashCode, $mrjc(path.hashCode, compressionSize.hashCode))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is FileInfo &&
           other.uuid == this.uuid &&
-          other.compressionSize == this.compressionSize &&
-          other.path == this.path &&
           other.name == this.name &&
-          other.type == this.type);
+          other.path == this.path &&
+          other.compressionSize == this.compressionSize);
 }
 
 class FileInfosCompanion extends UpdateCompanion<FileInfo> {
   final Value<String> uuid;
-  final Value<String> compressionSize;
-  final Value<String> path;
   final Value<String> name;
-  final Value<String> type;
+  final Value<String> path;
+  final Value<String> compressionSize;
   const FileInfosCompanion({
     this.uuid = const Value.absent(),
-    this.compressionSize = const Value.absent(),
-    this.path = const Value.absent(),
     this.name = const Value.absent(),
-    this.type = const Value.absent(),
+    this.path = const Value.absent(),
+    this.compressionSize = const Value.absent(),
   });
   FileInfosCompanion.insert({
     @required String uuid,
-    @required String compressionSize,
-    @required String path,
     @required String name,
-    @required String type,
+    @required String path,
+    @required String compressionSize,
   })  : uuid = Value(uuid),
-        compressionSize = Value(compressionSize),
-        path = Value(path),
         name = Value(name),
-        type = Value(type);
+        path = Value(path),
+        compressionSize = Value(compressionSize);
   static Insertable<FileInfo> custom({
     Expression<String> uuid,
-    Expression<String> compressionSize,
-    Expression<String> path,
     Expression<String> name,
-    Expression<String> type,
+    Expression<String> path,
+    Expression<String> compressionSize,
   }) {
     return RawValuesInsertable({
       if (uuid != null) 'uuid': uuid,
-      if (compressionSize != null) 'compression_size': compressionSize,
-      if (path != null) 'path': path,
       if (name != null) 'name': name,
-      if (type != null) 'type': type,
+      if (path != null) 'path': path,
+      if (compressionSize != null) 'compression_size': compressionSize,
     });
   }
 
   FileInfosCompanion copyWith(
       {Value<String> uuid,
-      Value<String> compressionSize,
-      Value<String> path,
       Value<String> name,
-      Value<String> type}) {
+      Value<String> path,
+      Value<String> compressionSize}) {
     return FileInfosCompanion(
       uuid: uuid ?? this.uuid,
-      compressionSize: compressionSize ?? this.compressionSize,
-      path: path ?? this.path,
       name: name ?? this.name,
-      type: type ?? this.type,
+      path: path ?? this.path,
+      compressionSize: compressionSize ?? this.compressionSize,
     );
   }
 
@@ -1959,17 +1933,14 @@ class FileInfosCompanion extends UpdateCompanion<FileInfo> {
     if (uuid.present) {
       map['uuid'] = Variable<String>(uuid.value);
     }
-    if (compressionSize.present) {
-      map['compression_size'] = Variable<String>(compressionSize.value);
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
     }
     if (path.present) {
       map['path'] = Variable<String>(path.value);
     }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
-    }
-    if (type.present) {
-      map['type'] = Variable<String>(type.value);
+    if (compressionSize.present) {
+      map['compression_size'] = Variable<String>(compressionSize.value);
     }
     return map;
   }
@@ -1978,10 +1949,9 @@ class FileInfosCompanion extends UpdateCompanion<FileInfo> {
   String toString() {
     return (StringBuffer('FileInfosCompanion(')
           ..write('uuid: $uuid, ')
-          ..write('compressionSize: $compressionSize, ')
-          ..write('path: $path, ')
           ..write('name: $name, ')
-          ..write('type: $type')
+          ..write('path: $path, ')
+          ..write('compressionSize: $compressionSize')
           ..write(')'))
         .toString();
   }
@@ -2004,15 +1974,13 @@ class $FileInfosTable extends FileInfos
     );
   }
 
-  final VerificationMeta _compressionSizeMeta =
-      const VerificationMeta('compressionSize');
-  GeneratedTextColumn _compressionSize;
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  GeneratedTextColumn _name;
   @override
-  GeneratedTextColumn get compressionSize =>
-      _compressionSize ??= _constructCompressionSize();
-  GeneratedTextColumn _constructCompressionSize() {
+  GeneratedTextColumn get name => _name ??= _constructName();
+  GeneratedTextColumn _constructName() {
     return GeneratedTextColumn(
-      'compression_size',
+      'name',
       $tableName,
       false,
     );
@@ -2030,33 +1998,22 @@ class $FileInfosTable extends FileInfos
     );
   }
 
-  final VerificationMeta _nameMeta = const VerificationMeta('name');
-  GeneratedTextColumn _name;
+  final VerificationMeta _compressionSizeMeta =
+      const VerificationMeta('compressionSize');
+  GeneratedTextColumn _compressionSize;
   @override
-  GeneratedTextColumn get name => _name ??= _constructName();
-  GeneratedTextColumn _constructName() {
+  GeneratedTextColumn get compressionSize =>
+      _compressionSize ??= _constructCompressionSize();
+  GeneratedTextColumn _constructCompressionSize() {
     return GeneratedTextColumn(
-      'name',
-      $tableName,
-      false,
-    );
-  }
-
-  final VerificationMeta _typeMeta = const VerificationMeta('type');
-  GeneratedTextColumn _type;
-  @override
-  GeneratedTextColumn get type => _type ??= _constructType();
-  GeneratedTextColumn _constructType() {
-    return GeneratedTextColumn(
-      'type',
+      'compression_size',
       $tableName,
       false,
     );
   }
 
   @override
-  List<GeneratedColumn> get $columns =>
-      [uuid, compressionSize, path, name, type];
+  List<GeneratedColumn> get $columns => [uuid, name, path, compressionSize];
   @override
   $FileInfosTable get asDslTable => this;
   @override
@@ -2074,13 +2031,11 @@ class $FileInfosTable extends FileInfos
     } else if (isInserting) {
       context.missing(_uuidMeta);
     }
-    if (data.containsKey('compression_size')) {
+    if (data.containsKey('name')) {
       context.handle(
-          _compressionSizeMeta,
-          compressionSize.isAcceptableOrUnknown(
-              data['compression_size'], _compressionSizeMeta));
+          _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
     } else if (isInserting) {
-      context.missing(_compressionSizeMeta);
+      context.missing(_nameMeta);
     }
     if (data.containsKey('path')) {
       context.handle(
@@ -2088,17 +2043,13 @@ class $FileInfosTable extends FileInfos
     } else if (isInserting) {
       context.missing(_pathMeta);
     }
-    if (data.containsKey('name')) {
+    if (data.containsKey('compression_size')) {
       context.handle(
-          _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
+          _compressionSizeMeta,
+          compressionSize.isAcceptableOrUnknown(
+              data['compression_size'], _compressionSizeMeta));
     } else if (isInserting) {
-      context.missing(_nameMeta);
-    }
-    if (data.containsKey('type')) {
-      context.handle(
-          _typeMeta, type.isAcceptableOrUnknown(data['type'], _typeMeta));
-    } else if (isInserting) {
-      context.missing(_typeMeta);
+      context.missing(_compressionSizeMeta);
     }
     return context;
   }
@@ -2745,24 +2696,19 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
   final String messagePacketId;
   final String roomId;
   final int remainingRetries;
-  final DateTime time;
   final SendingStatus status;
-  final String details;
   PendingMessage(
       {@required this.messageDbId,
       @required this.messagePacketId,
       @required this.roomId,
       @required this.remainingRetries,
-      @required this.time,
-      @required this.status,
-      this.details});
+      @required this.status});
   factory PendingMessage.fromData(
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
-    final dateTimeType = db.typeSystem.forDartType<DateTime>();
     return PendingMessage(
       messageDbId: intType
           .mapFromDatabaseResponse(data['${effectivePrefix}message_db_id']),
@@ -2772,12 +2718,8 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
       remainingRetries: intType
           .mapFromDatabaseResponse(data['${effectivePrefix}remaining_retries']),
-      time:
-          dateTimeType.mapFromDatabaseResponse(data['${effectivePrefix}time']),
       status: $PendingMessagesTable.$converter0.mapToDart(
           intType.mapFromDatabaseResponse(data['${effectivePrefix}status'])),
-      details:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}details']),
     );
   }
   @override
@@ -2795,15 +2737,9 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
     if (!nullToAbsent || remainingRetries != null) {
       map['remaining_retries'] = Variable<int>(remainingRetries);
     }
-    if (!nullToAbsent || time != null) {
-      map['time'] = Variable<DateTime>(time);
-    }
     if (!nullToAbsent || status != null) {
       final converter = $PendingMessagesTable.$converter0;
       map['status'] = Variable<int>(converter.mapToSql(status));
-    }
-    if (!nullToAbsent || details != null) {
-      map['details'] = Variable<String>(details);
     }
     return map;
   }
@@ -2821,12 +2757,8 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
       remainingRetries: remainingRetries == null && nullToAbsent
           ? const Value.absent()
           : Value(remainingRetries),
-      time: time == null && nullToAbsent ? const Value.absent() : Value(time),
       status:
           status == null && nullToAbsent ? const Value.absent() : Value(status),
-      details: details == null && nullToAbsent
-          ? const Value.absent()
-          : Value(details),
     );
   }
 
@@ -2838,9 +2770,7 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
       messagePacketId: serializer.fromJson<String>(json['messagePacketId']),
       roomId: serializer.fromJson<String>(json['roomId']),
       remainingRetries: serializer.fromJson<int>(json['remainingRetries']),
-      time: serializer.fromJson<DateTime>(json['time']),
       status: serializer.fromJson<SendingStatus>(json['status']),
-      details: serializer.fromJson<String>(json['details']),
     );
   }
   @override
@@ -2851,9 +2781,7 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
       'messagePacketId': serializer.toJson<String>(messagePacketId),
       'roomId': serializer.toJson<String>(roomId),
       'remainingRetries': serializer.toJson<int>(remainingRetries),
-      'time': serializer.toJson<DateTime>(time),
       'status': serializer.toJson<SendingStatus>(status),
-      'details': serializer.toJson<String>(details),
     };
   }
 
@@ -2862,17 +2790,13 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
           String messagePacketId,
           String roomId,
           int remainingRetries,
-          DateTime time,
-          SendingStatus status,
-          String details}) =>
+          SendingStatus status}) =>
       PendingMessage(
         messageDbId: messageDbId ?? this.messageDbId,
         messagePacketId: messagePacketId ?? this.messagePacketId,
         roomId: roomId ?? this.roomId,
         remainingRetries: remainingRetries ?? this.remainingRetries,
-        time: time ?? this.time,
         status: status ?? this.status,
-        details: details ?? this.details,
       );
   @override
   String toString() {
@@ -2881,9 +2805,7 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
           ..write('messagePacketId: $messagePacketId, ')
           ..write('roomId: $roomId, ')
           ..write('remainingRetries: $remainingRetries, ')
-          ..write('time: $time, ')
-          ..write('status: $status, ')
-          ..write('details: $details')
+          ..write('status: $status')
           ..write(')'))
         .toString();
   }
@@ -2893,12 +2815,8 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
       messageDbId.hashCode,
       $mrjc(
           messagePacketId.hashCode,
-          $mrjc(
-              roomId.hashCode,
-              $mrjc(
-                  remainingRetries.hashCode,
-                  $mrjc(time.hashCode,
-                      $mrjc(status.hashCode, details.hashCode)))))));
+          $mrjc(roomId.hashCode,
+              $mrjc(remainingRetries.hashCode, status.hashCode)))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -2907,9 +2825,7 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
           other.messagePacketId == this.messagePacketId &&
           other.roomId == this.roomId &&
           other.remainingRetries == this.remainingRetries &&
-          other.time == this.time &&
-          other.status == this.status &&
-          other.details == this.details);
+          other.status == this.status);
 }
 
 class PendingMessagesCompanion extends UpdateCompanion<PendingMessage> {
@@ -2917,48 +2833,37 @@ class PendingMessagesCompanion extends UpdateCompanion<PendingMessage> {
   final Value<String> messagePacketId;
   final Value<String> roomId;
   final Value<int> remainingRetries;
-  final Value<DateTime> time;
   final Value<SendingStatus> status;
-  final Value<String> details;
   const PendingMessagesCompanion({
     this.messageDbId = const Value.absent(),
     this.messagePacketId = const Value.absent(),
     this.roomId = const Value.absent(),
     this.remainingRetries = const Value.absent(),
-    this.time = const Value.absent(),
     this.status = const Value.absent(),
-    this.details = const Value.absent(),
   });
   PendingMessagesCompanion.insert({
     this.messageDbId = const Value.absent(),
     @required String messagePacketId,
     @required String roomId,
     @required int remainingRetries,
-    @required DateTime time,
     @required SendingStatus status,
-    this.details = const Value.absent(),
   })  : messagePacketId = Value(messagePacketId),
         roomId = Value(roomId),
         remainingRetries = Value(remainingRetries),
-        time = Value(time),
         status = Value(status);
   static Insertable<PendingMessage> custom({
     Expression<int> messageDbId,
     Expression<String> messagePacketId,
     Expression<String> roomId,
     Expression<int> remainingRetries,
-    Expression<DateTime> time,
     Expression<int> status,
-    Expression<String> details,
   }) {
     return RawValuesInsertable({
       if (messageDbId != null) 'message_db_id': messageDbId,
       if (messagePacketId != null) 'message_packet_id': messagePacketId,
       if (roomId != null) 'room_id': roomId,
       if (remainingRetries != null) 'remaining_retries': remainingRetries,
-      if (time != null) 'time': time,
       if (status != null) 'status': status,
-      if (details != null) 'details': details,
     });
   }
 
@@ -2967,17 +2872,13 @@ class PendingMessagesCompanion extends UpdateCompanion<PendingMessage> {
       Value<String> messagePacketId,
       Value<String> roomId,
       Value<int> remainingRetries,
-      Value<DateTime> time,
-      Value<SendingStatus> status,
-      Value<String> details}) {
+      Value<SendingStatus> status}) {
     return PendingMessagesCompanion(
       messageDbId: messageDbId ?? this.messageDbId,
       messagePacketId: messagePacketId ?? this.messagePacketId,
       roomId: roomId ?? this.roomId,
       remainingRetries: remainingRetries ?? this.remainingRetries,
-      time: time ?? this.time,
       status: status ?? this.status,
-      details: details ?? this.details,
     );
   }
 
@@ -2996,15 +2897,9 @@ class PendingMessagesCompanion extends UpdateCompanion<PendingMessage> {
     if (remainingRetries.present) {
       map['remaining_retries'] = Variable<int>(remainingRetries.value);
     }
-    if (time.present) {
-      map['time'] = Variable<DateTime>(time.value);
-    }
     if (status.present) {
       final converter = $PendingMessagesTable.$converter0;
       map['status'] = Variable<int>(converter.mapToSql(status.value));
-    }
-    if (details.present) {
-      map['details'] = Variable<String>(details.value);
     }
     return map;
   }
@@ -3016,9 +2911,7 @@ class PendingMessagesCompanion extends UpdateCompanion<PendingMessage> {
           ..write('messagePacketId: $messagePacketId, ')
           ..write('roomId: $roomId, ')
           ..write('remainingRetries: $remainingRetries, ')
-          ..write('time: $time, ')
-          ..write('status: $status, ')
-          ..write('details: $details')
+          ..write('status: $status')
           ..write(')'))
         .toString();
   }
@@ -3080,18 +2973,6 @@ class $PendingMessagesTable extends PendingMessages
     );
   }
 
-  final VerificationMeta _timeMeta = const VerificationMeta('time');
-  GeneratedDateTimeColumn _time;
-  @override
-  GeneratedDateTimeColumn get time => _time ??= _constructTime();
-  GeneratedDateTimeColumn _constructTime() {
-    return GeneratedDateTimeColumn(
-      'time',
-      $tableName,
-      false,
-    );
-  }
-
   final VerificationMeta _statusMeta = const VerificationMeta('status');
   GeneratedIntColumn _status;
   @override
@@ -3104,28 +2985,9 @@ class $PendingMessagesTable extends PendingMessages
     );
   }
 
-  final VerificationMeta _detailsMeta = const VerificationMeta('details');
-  GeneratedTextColumn _details;
   @override
-  GeneratedTextColumn get details => _details ??= _constructDetails();
-  GeneratedTextColumn _constructDetails() {
-    return GeneratedTextColumn(
-      'details',
-      $tableName,
-      true,
-    );
-  }
-
-  @override
-  List<GeneratedColumn> get $columns => [
-        messageDbId,
-        messagePacketId,
-        roomId,
-        remainingRetries,
-        time,
-        status,
-        details
-      ];
+  List<GeneratedColumn> get $columns =>
+      [messageDbId, messagePacketId, roomId, remainingRetries, status];
   @override
   $PendingMessagesTable get asDslTable => this;
   @override
@@ -3165,17 +3027,7 @@ class $PendingMessagesTable extends PendingMessages
     } else if (isInserting) {
       context.missing(_remainingRetriesMeta);
     }
-    if (data.containsKey('time')) {
-      context.handle(
-          _timeMeta, time.isAcceptableOrUnknown(data['time'], _timeMeta));
-    } else if (isInserting) {
-      context.missing(_timeMeta);
-    }
     context.handle(_statusMeta, const VerificationResult.success());
-    if (data.containsKey('details')) {
-      context.handle(_detailsMeta,
-          details.isAcceptableOrUnknown(data['details'], _detailsMeta));
-    }
     return context;
   }
 

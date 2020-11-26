@@ -46,7 +46,6 @@ class FileItem extends FileBasic {
         items.add(item);
       }
     }
-    print(items.length.toString());
     return items;
 
   }

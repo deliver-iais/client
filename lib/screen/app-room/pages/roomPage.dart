@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
@@ -27,6 +29,7 @@ import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/mucAppbarTitle.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/shared/userAppBar.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -191,6 +194,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
     _maxWidth = MediaQuery.of(context).size.width * 0.7;
+    if (isLarge(context)) {
+      _maxWidth =
+          (MediaQuery.of(context).size.width - navigationPanelSize()) * 0.7;
+    }
+
+    _maxWidth = min(_maxWidth, 300);
     var deviceHeight = MediaQuery.of(context).size.height;
 
     return StreamBuilder<bool>(
@@ -295,8 +304,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                         pendingMessages.length -
                                                         index),
                                             builder: (context, messagesFuture) {
-                                              print(
-                                                  'message future ${messagesFuture.data}');
                                               if (messagesFuture.hasData &&
                                                   messagesFuture.data[0] !=
                                                       null) {
@@ -427,10 +434,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                           children: <
                                                                               Widget>[
                                                                             SentMessageBox(
-                                                                              message: messages[0],
-                                                                              maxWidth: _maxWidth,
-                                                                              isGroup: widget.roomId.uid.category == Categories.GROUP,
-                                                                            ),
+                                                                                message: messages[0],
+                                                                                maxWidth: _maxWidth),
                                                                           ],
                                                                         ),
                                                                         if (_selectMultiMessage)
@@ -664,7 +669,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   sendInputSharedFile() async {
     if (widget.inputFilePath != null) {
       for (String path in widget.inputFilePath) {
-        _messageRepo.sendFileMessage(widget.roomId.uid, [path]);
+        _messageRepo.sendFileMessageDeprecated(widget.roomId.uid, [path]);
       }
     }
   }

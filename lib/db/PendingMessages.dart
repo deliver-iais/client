@@ -11,11 +11,7 @@ class PendingMessages extends Table {
 
   IntColumn get remainingRetries => integer()();
 
-  DateTimeColumn get time => dateTime()();
-
   IntColumn get status => intEnum<SendingStatus>()();
-
-  TextColumn get details => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {messageDbId};

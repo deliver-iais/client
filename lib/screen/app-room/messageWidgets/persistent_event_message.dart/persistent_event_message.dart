@@ -38,7 +38,6 @@ class PersistentEventMessage extends StatelessWidget {
             child: FutureBuilder(
               future: getMessage(message.json),
               builder: (c, s) {
-                print(s.data);
                 if (s.hasData) {
                   return Text(
                     s.data,
@@ -61,14 +60,12 @@ class PersistentEventMessage extends StatelessWidget {
 
   Future<String> getMessage(String content) async {
     String type = jsonDecode(content)["type"];
-    print(content);
     switch (type) {
       case "ADMIN_EVENT":
         String user = await _roomRepo.getRoomDisplayName(message.from.uid);
         return "$user ${_appLocalization.getTraslateValue("new_contact_add")}";
       case "MUC_EVENT":
         String issueType = jsonDecode(content)["issueType"];
-        print(issueType);
         String issuer = jsonDecode(content)["issuer"];
         String assignee = jsonDecode(content)["assignee"];
         String issuerName = "";
