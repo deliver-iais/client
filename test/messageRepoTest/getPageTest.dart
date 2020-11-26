@@ -29,6 +29,7 @@ void main() {
     test('getPage/page is in completer', () {
       // _completer is  private
     });
+
     test('getPage/page is in messageDao', () async {
       var messages = messagesList;
       messages.add(Message(id: 2));
@@ -37,6 +38,7 @@ void main() {
           .thenAnswer((_) async => messages);
       expect(await messageRepo.getPage(page, roomId, containsId), messages);
     });
+
     test('getPage/page is not in database and completer', () async {
       var messages = messagesList;
       messages.add(Message(id: 2));
@@ -50,8 +52,8 @@ void main() {
       // )).thenAnswer((_) => ResponseFuture<FetchMessagesRes>);
       expect(await messageRepo.getPage(page, roomId, containsId), messages);
     });
+    test(
+        'getPage/page is not in database and completer and server throws exception',
+        () {});
   });
 }
-//completer has page
-//completer doesnt have page but db have it
-//completer and db dont have page so get from server
