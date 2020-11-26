@@ -1,6 +1,6 @@
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/database.dart' as myContact;
+import 'package:deliver_flutter/db/database.dart' as Database;
 
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:contacts_service/contacts_service.dart' as OsContact;
@@ -21,11 +21,8 @@ import 'package:fixnum/fixnum.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 import 'accountRepo.dart';
-import 'messageRepo.dart';
 
 class ContactRepo {
-  static var servicesDiscoveryRepo = GetIt.I.get<ServicesDiscoveryRepo>();
-
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   var _contactDao = GetIt.I.get<ContactDao>();
@@ -34,12 +31,7 @@ class ContactRepo {
 
   var _checkPermission = GetIt.I.get<CheckPermissionsService>();
 
-
-  static ClientChannel clientChannel = ClientChannel(
-      servicesDiscoveryRepo.contactServices.host,
-      port: servicesDiscoveryRepo.contactServices.port,
-      options: ChannelOptions(credentials: ChannelCredentials.insecure()));
-  var contactServices = ContactServiceClient(clientChannel);
+  var contactServices = ContactServiceClient(ProfileServicesClientChannel);
 
   syncContacts() async {
     if (await _checkPermission.checkContactPermission() || isDesktop()) {
@@ -82,7 +74,7 @@ class ContactRepo {
           ..firstName = "Contact"
           ..lastName = "5");
         for (var contact in contacts) {
-          _contactDao.insetContact(myContact.Contact(
+          _contactDao.insertContact(Database.Contact(
               phoneNumber: contact.phoneNumber.nationalNumber.toString(),
               firstName: contact.firstName,
               lastName: contact.lastName,
@@ -136,6 +128,7 @@ class ContactRepo {
         phoneNumber.nationalNumber = Int64.parseInt(phone.substring(0, 10));
         return phoneNumber;
     }
+    throw Exception("Not Valid Number $phone");
   }
 
   Future<List<UserAsContact>> sendContacts(List<Contact> contacts) async {
@@ -165,17 +158,16 @@ class ContactRepo {
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
 
     for (var contact in result.userList) {
-      _contactDao.insetContact(myContact.Contact(
-        uid: contact.uid.string,
+      _contactDao.insertContact(Database.Contact(
+        uid: contact.uid != null ? contact.uid.asString() : null,
         phoneNumber: contact.phoneNumber.nationalNumber.toString(),
         username: contact.username,
         isMute: true,
         isBlock: false,
       ));
       if (contact.uid != null) {
-        _roomDao.insertRoom(myContact.Room(
-            roomId: contact.uid.string,
-            mute: false));
+        _roomDao.insertRoomCompanion(
+            Database.RoomsCompanion.insert(roomId: contact.uid.asString()));
       }
     }
 
@@ -189,7 +181,7 @@ class ContactRepo {
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
 
     for (var contact in result.contactList) {
-      _contactDao.insetContact(myContact.Contact(
+      _contactDao.insertContact(Database.Contact(
           phoneNumber: contact.phoneNumber.nationalNumber.toString(),
           firstName: contact.firstName,
           lastName: contact.lastName,
@@ -222,9 +214,9 @@ class ContactRepo {
     return result.userList;
   }
 
-  Future<myContact.Contact> getContact(Uid userUid) async {
-    myContact.Contact contact =
-        await _contactDao.getContactByUid(userUid.string);
+  Future<Database.Contact> getContact(Uid userUid) async {
+    Database.Contact contact =
+        await _contactDao.getContactByUid(userUid.asString());
     return contact;
   }
 }

@@ -15,13 +15,23 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
 
   Future<List<Room>> getAllRooms() => select(rooms).get();
 
+  @deprecated
   Future insertRoom(Room newRoom) {
     return into(rooms).insertOnConflictUpdate(newRoom);
   }
 
-  Future deleteRoom(Room room) => delete(rooms).delete(room);
+  Future<int> updateRoom(RoomsCompanion room) {
+    return (update(rooms)..where((t) => t.roomId.equals(room.roomId.value)))
+        .write(room);
+  }
 
-  Future updateRoom(Room updatedRoom) => update(rooms).replace(updatedRoom);
+  Future<int> insertRoomCompanion(RoomsCompanion newRoom) {
+    return into(rooms).insertOnConflictUpdate(newRoom);
+  }
+
+  Future<int> deleteRoom(String roomId) {
+    return (delete(rooms)..where((t) => t.roomId.equals(roomId))).go();
+  }
 
   updateRoomLastMessage(String roomId, int newDbId, {int newMessageId}) {
     (update(rooms)..where((t) => t.roomId.equals(roomId))).write(RoomsCompanion(

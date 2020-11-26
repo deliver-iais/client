@@ -33,11 +33,7 @@ class AvatarRepo {
   Cache avatarCache =
       LruCache<String, LastAvatar>(storage: SimpleStorage(size: 40));
 
-  static ClientChannel clientChannel = ClientChannel(
-      ServicesDiscoveryRepo().avatarConnection.host,
-      port: ServicesDiscoveryRepo().avatarConnection.port,
-      options: ChannelOptions(credentials: ChannelCredentials.insecure()));
-  var avatarServices = AvatarServiceClient(clientChannel);
+  var avatarServices = AvatarServiceClient(AvatarServicesClientChannel);
 
   fetchAvatar(Uid userUid, bool forceToUpdate) async {
     if (forceToUpdate || await needsUpdate(userUid)) {
@@ -61,7 +57,7 @@ class AvatarRepo {
               : lastAvatar)
           : newAvatar;
     }
-    updateLastUpdateAvatarTime(userUid.getString(), lastAvatar);
+    updateLastUpdateAvatarTime(userUid.asString(), lastAvatar);
   }
 
   updateLastUpdateAvatarTime(String userUid, Avatar avatar) {
@@ -91,7 +87,7 @@ class AvatarRepo {
     }
 
     LastAvatar lastAvatar =
-        await _lastAvatarDao.getLastAvatar(userUid.getString());
+        await _lastAvatarDao.getLastAvatar(userUid.asString());
 
     if (lastAvatar == null) {
       print("last avatar is null");
@@ -109,7 +105,7 @@ class AvatarRepo {
   Stream<List<Avatar>> getAvatar(Uid userUid, bool forceToUpdate) async* {
     await fetchAvatar(userUid, forceToUpdate);
 
-    yield* _avatarDao.getByUid(userUid.getString());
+    yield* _avatarDao.getByUid(userUid.asString());
   }
 
   Future<LastAvatar> getLastAvatar(Uid userUid, bool forceToUpdate) async {
@@ -121,7 +117,7 @@ class AvatarRepo {
       return ac;
     }
 
-    ac = await _lastAvatarDao.getLastAvatar(userUid.getString());
+    ac = await _lastAvatarDao.getLastAvatar(userUid.asString());
     avatarCache.set(key, ac);
     return ac;
   }
@@ -130,7 +126,7 @@ class AvatarRepo {
     fetchAvatar(userUid, forceToUpdate);
     var key = "${userUid.category}-${userUid.node}";
 
-    return _lastAvatarDao.getLastAvatarStream(userUid.getString()).map((la) {
+    return _lastAvatarDao.getLastAvatarStream(userUid.asString()).map((la) {
       avatarCache.set(key, la);
       return la;
     });
@@ -145,11 +141,11 @@ class AvatarRepo {
       int createdOn = DateTime.now().millisecondsSinceEpoch;
       _setAvatarAtServer(fileInfo, createdOn, uid);
       Avatar avatar = Avatar(
-          uid: uid.getString(),
+          uid: uid.asString(),
           createdOn: createdOn,
           fileId: fileInfo.uuid,
           fileName: fileInfo.name);
-      updateLastUpdateAvatarTime(uid.getString(), avatar);
+      updateLastUpdateAvatarTime(uid.asString(), avatar);
       return avatar;
     } else {
       return null;
@@ -159,7 +155,7 @@ class AvatarRepo {
   Future<Avatar> saveAvatarInfo(
       Uid userUid, int createdOn, String uuid, String name) async {
     Avatar avatar = Avatar(
-      uid: userUid.getString(),
+      uid: userUid.asString(),
       createdOn: createdOn,
       fileId: uuid,
       fileName: name,

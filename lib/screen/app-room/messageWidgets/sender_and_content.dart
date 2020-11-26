@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +12,9 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 class SenderAndContent extends StatelessWidget {
   final List<Message> messages;
   final bool inBox;
+  final _roomRepo = GetIt.I.get<RoomRepo>();
 
   SenderAndContent({Key key, this.messages, this.inBox}) : super(key: key);
-
-  var _roomRepo = GetIt.I.get<RoomRepo>();
 
   String generateTitle() {
     List<String> names = List<String>();
@@ -38,7 +36,6 @@ class SenderAndContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    String title = generateTitle();
     String content = messages.length > 1
         ? '${messages.length} ' +
             appLocalization.getTraslateValue("ForwardedMessages")

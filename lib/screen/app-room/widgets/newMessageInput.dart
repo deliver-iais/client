@@ -1,8 +1,6 @@
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/inputMessage.dart';
-import 'package:fimber/fimber.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -14,7 +12,7 @@ class NewMessageInput extends StatelessWidget {
   final Function resetRoomPageDetails;
   final bool waitingForForward;
   final Function sendForwardMessage;
-  var _roomDao = GetIt.I.get<RoomDao>();
+  final _roomDao = GetIt.I.get<RoomDao>();
 
   NewMessageInput(
       {Key key,

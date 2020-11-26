@@ -97,6 +97,31 @@ class NotificationServices {
       case MessageType.TEXT:
         showTextNotification(message.id, message.from, roomName,
             jsonDecode(message.json)['text']);
+        break;
+      case MessageType.FILE:
+        // TODO: Handle this case.
+        break;
+      case MessageType.STICKER:
+        // TODO: Handle this case.
+        break;
+      case MessageType.LOCATION:
+        // TODO: Handle this case.
+        break;
+      case MessageType.LIVE_LOCATION:
+        // TODO: Handle this case.
+        break;
+      case MessageType.POLL:
+        // TODO: Handle this case.
+        break;
+      case MessageType.FORM:
+        // TODO: Handle this case.
+        break;
+      case MessageType.PERSISTENT_EVENT:
+        // TODO: Handle this case.
+        break;
+      case MessageType.NOT_SET:
+        // TODO: Handle this case.
+        break;
     }
   }
 

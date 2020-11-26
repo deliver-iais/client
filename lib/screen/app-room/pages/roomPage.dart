@@ -19,7 +19,6 @@ import 'package:deliver_flutter/screen/app-room/widgets/chatTime.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/custom_context_menu.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/recievedMessageBox.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/reply_widgets/reply-widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/sendedMessageBox.dart';
@@ -27,7 +26,6 @@ import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/newMessageInput.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/mucAppbarTitle.dart';
-import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/shared/userAppBar.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -161,6 +159,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void initState() {
+    super.initState();
     _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.uid.category == Categories.GROUP ||
             widget.roomId.uid.category == Categories.CHANNEL
@@ -238,8 +237,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         builder: (context, pendingMessagesStream) {
                           var pendingMessages = pendingMessagesStream.hasData
                               ? pendingMessagesStream.data
-                              : List<PendingMessage>.filled(
-                                  0, PendingMessage());
+                              : [];
 
                           return StreamBuilder<Room>(
                               stream: _roomDao.getByRoomId(widget.roomId),
@@ -518,7 +516,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                               PersistentEventMessage(
                                                                 message:
                                                                     messages[0],
-                                                                showLastMessaeg:
+                                                                showLastMessage:
                                                                     false,
                                                               ),
                                                             ],
@@ -722,7 +720,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   _checkChannelRole() async {
     var hasPermissionInMuc = await _memberRepo.isMucAdminOrOwner(
-        _accountRepo.currentUserUid.string, widget.roomId);
+        _accountRepo.currentUserUid.asString(), widget.roomId);
     if (!hasPermissionInMuc) {
       setState(() {
         _hasPermissionToSendMessageInChannel = false;

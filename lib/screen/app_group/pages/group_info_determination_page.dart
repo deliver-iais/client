@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -36,9 +35,9 @@ class _MucInfoDeterminationPageState
 
   @override
   void initState() {
+    super.initState();
     controller = TextEditingController();
     idController = TextEditingController();
-    super.initState();
   }
 
   @override
@@ -172,7 +171,7 @@ class _MucInfoDeterminationPageState
                       controller.clear();
                     }
                     if(micUid !=null) {
-                      _routingService.openRoom(micUid.getString());
+                      _routingService.openRoom(micUid.asString());
                     }
                   },
                 ),

@@ -1,6 +1,7 @@
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
+// ignore: non_constant_identifier_names
 ThemeData DarkTheme = ThemeData(
         brightness: Brightness.dark,
         fontFamily: "Vazir",
@@ -32,6 +33,7 @@ ThemeData DarkTheme = ThemeData(
             labelColor: Color(0xFF2699FB),
             unselectedLabelColor: Colors.white));
 
+// ignore: non_constant_identifier_names
 ExtraThemeData DarkExtraTheme = ExtraThemeData(
   circleAvatarBackground: Color(0xFF2699FB),
   details: Color(0xFF9D9D9D),

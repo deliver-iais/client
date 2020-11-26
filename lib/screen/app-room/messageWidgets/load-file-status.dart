@@ -1,9 +1,6 @@
-import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/circular_file_status_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/sending_file_circular_indicator.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -11,9 +8,6 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:rxdart/rxdart.dart';
-
-import 'audio_message/play_audio_status.dart';
 
 class LoadFileStatus extends StatefulWidget {
   final File file;
@@ -91,7 +85,6 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                     center: Icon(Icons.arrow_downward),
                                     progressColor: Colors.black,
                                   );
-                                  ;
                                 }
                               }))
                       : Padding(

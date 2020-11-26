@@ -1,4 +1,3 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 import 'helper_classes.dart';
@@ -28,8 +27,8 @@ class _ShareBoxMusicState extends State<ShareBoxMusic> {
 
   @override
   void initState() {
-    _future = AudioItem.getAudios();
     super.initState();
+    _future = AudioItem.getAudios();
   }
 
   @override

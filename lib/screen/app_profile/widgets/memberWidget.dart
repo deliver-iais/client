@@ -36,10 +36,11 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   static const String CHANGE_ROLE = "changeRole";
   static const String DELETE = "delete";
   static const String BAN = "ban";
-  MucRole _myRoleInThisRoom ;
+  MucRole _myRoleInThisRoom;
 
   @override
   void initState() {
+    super.initState();
     _mucUid = widget.mucUid;
     _mucUid.category == Categories.GROUP
         ? _mucRepo.getGroupMembers(_mucUid)
@@ -51,7 +52,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
     _appLocalization = AppLocalization.of(context);
 
     return StreamBuilder<List<Member>>(
-        stream: _memberRepo.getMembers(_mucUid.string),
+        stream: _memberRepo.getMembers(_mucUid.asString()),
         builder: (BuildContext context, AsyncSnapshot<List<Member>> snapshot) {
           if (snapshot.hasData &&
               snapshot.data != null &&
@@ -77,7 +78,6 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                             builder: (BuildContext context,
                                 AsyncSnapshot<String> name) {
                               if (name.data != null) {
-
                                 return Text(
                                   name.data,
                                   overflow: TextOverflow.ellipsis,
@@ -86,7 +86,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                   ),
                                 );
                               } else if (member.memberUid.contains(
-                                  _accountRepo.currentUserUid.string)) {
+                                  _accountRepo.currentUserUid.asString())) {
                                 return FutureBuilder<Account>(
                                   future: _accountRepo.getAccount(),
                                   builder: (BuildContext context,
@@ -138,7 +138,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                         children: [
                           showMemberRole(member),
                           member.memberUid
-                                  .contains(_accountRepo.currentUserUid.string)
+                                  .contains(_accountRepo.currentUserUid.asString())
                               ? SizedBox(
                                   width: 50,
                                 )
@@ -209,6 +209,8 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
       case MucRole.MEMBER:
         return Text(_appLocalization.getTraslateValue("Member"),
             style: TextStyle(color: Colors.blue));
+      default:
+        return Text("");
     }
   }
 
@@ -249,8 +251,8 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
 
   obtainMyRole(List<Member> members) {
     for (Member member in members) {
-      if (member.memberUid.contains(_accountRepo.currentUserUid.string)) {
-          _myRoleInThisRoom = member.role;
+      if (member.memberUid.contains(_accountRepo.currentUserUid.asString())) {
+        _myRoleInThisRoom = member.role;
       }
     }
   }

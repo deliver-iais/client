@@ -1,5 +1,4 @@
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
-import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

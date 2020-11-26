@@ -10,7 +10,7 @@ class ContactDao extends DatabaseAccessor<Database> with _$ContactDaoMixin {
 
   ContactDao(this.database) : super(database);
 
-  Future insetContact(Contact contact) => into(contacts).insertOnConflictUpdate(contact);
+  Future insertContact(Contact contact) => into(contacts).insertOnConflictUpdate(contact);
 
   Future deleteAvatar(Contact contact) => delete(contacts).delete(contact);
 

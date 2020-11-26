@@ -1,14 +1,10 @@
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/models/muc_type.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
@@ -21,8 +17,6 @@ import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
-import 'package:dots_indicator/dots_indicator.dart';
 import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -62,6 +56,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 
   @override
   void initState() {
+    super.initState();
     if (widget.roomUid.category != Categories.USER) {
       _mucType = widget.roomUid.category == Categories.GROUP
           ? MucType.GROUP
@@ -74,9 +69,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 
   _checkPermissions() async {
     bool setAvatarper = await _memberRepo.isMucAdminOrOwner(
-        _accountRepo.currentUserUid.string, widget.roomUid.string);
+        _accountRepo.currentUserUid.asString(), widget.roomUid.asString());
     bool deleteMucPer = await _memberRepo.mucOwner(
-        _accountRepo.currentUserUid.string, widget.roomUid.string);
+        _accountRepo.currentUserUid.asString(), widget.roomUid.asString());
     setState(() {
       _setAvatarPermission = setAvatarper;
       _deleteMucPermission = deleteMucPer;

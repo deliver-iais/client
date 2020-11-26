@@ -38,8 +38,8 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
 
   @override
   void initState() {
-    _future = ImageItem.getImages();
     super.initState();
+    _future = ImageItem.getImages();
   }
 
   void cropAvatar(String imagePath) async {

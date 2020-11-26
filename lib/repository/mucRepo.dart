@@ -8,7 +8,6 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/role.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pb.dart' as MucPro;
@@ -32,7 +31,7 @@ class MucRepo {
     Uid groupUid = await mucServices.createNewGroup(groupName);
     if (groupUid != null) {
       sendMembers(groupUid, memberUids);
-      _insetToDb(groupUid, groupName, memberUids.length + 1);
+      _insertToDb(groupUid, groupName, memberUids.length + 1);
       return groupUid;
     }
     return null;
@@ -45,7 +44,7 @@ class MucRepo {
 
     if (channelUid != null) {
       sendMembers(channelUid, memberUids);
-      _insetToDb(channelUid, channelName, memberUids.length + 1);
+      _insertToDb(channelUid, channelName, memberUids.length + 1);
       return channelUid;
     }
     return null;
@@ -56,8 +55,8 @@ class MucRepo {
     List<Member> members = new List();
     for (MucPro.Member member in result) {
       members.add(Member(
-          mucUid: groupUid.string,
-          memberUid: member.uid.string,
+          mucUid: groupUid.asString(),
+          memberUid: member.uid.asString(),
           role: getLocalRole(member.role)));
     }
     insertUserInDb(groupUid, members);
@@ -68,8 +67,8 @@ class MucRepo {
     List<Member> members = new List();
     for (MucPro.Member member in result) {
       members.add(Member(
-          mucUid: channelUid.string,
-          memberUid: member.uid.string,
+          mucUid: channelUid.asString(),
+          memberUid: member.uid.asString(),
           role: getLocalRole(member.role)));
     }
     insertUserInDb(channelUid, members);
@@ -81,23 +80,24 @@ class MucRepo {
       MucPro.Group group = await getGroupInfo(mucUid);
       _mucDao.insertMuc(Muc(
           name: group.name,
-          uid: mucUid.string,
+          uid: mucUid.asString(),
           members: group.population.toInt()));
     } else {
       Channel channel = await getChannelInfo(mucUid);
       _mucDao.insertMuc(Muc(
           name: channel.name,
-          uid: mucUid.string,
+          uid: mucUid.asString(),
           members: channel.population.toInt()));
     }
   }
 
+  // TODO there is bugs in delete member, where is memberUid ?!?!?
   Future<bool> removeGroup(Uid groupUid) async {
     var result = await mucServices.removeGroup(groupUid);
     if (result) {
-      _mucDao.deleteMuc(Muc(uid: groupUid.string));
-      _roomDao.deleteRoom(Room(roomId: groupUid.string));
-      _memberDao.deleteMember(Member(mucUid: groupUid.string));
+      _mucDao.deleteMuc(groupUid.asString());
+      _roomDao.deleteRoom(groupUid.asString());
+      _memberDao.deleteAllMembers(groupUid.asString());
       return true;
     }
     return false;
@@ -106,8 +106,8 @@ class MucRepo {
   Future<bool> removeChannel(Uid channelUid) async {
     var result = await mucServices.removeChannel(channelUid);
     if (result) {
-      _mucDao.deleteMuc(channelUid.string);
-      _roomDao.deleteRoom(Room(roomId: channelUid.string));
+      _mucDao.deleteMuc(channelUid.asString());
+      _roomDao.deleteRoom(channelUid.asString());
       return true;
     }
     return false;
@@ -146,8 +146,8 @@ class MucRepo {
   Future<bool> leaveGroup(Uid groupUid) async {
     var result = await mucServices.leaveGroup(groupUid);
     if (result) {
-      _mucDao.deleteMuc(Muc(uid: groupUid.string));
-      _roomDao.deleteRoom(Room(roomId: groupUid.string));
+      _mucDao.deleteMuc(groupUid.asString());
+      _roomDao.deleteRoom(groupUid.asString());
       return true;
     }
     return false;
@@ -156,8 +156,8 @@ class MucRepo {
   Future<bool> leaveChannel(Uid channelUid) async {
     var result = await mucServices.leaveChannel(channelUid);
     if (result) {
-      _mucDao.deleteMuc(Muc(uid: channelUid.string));
-      _roomDao.deleteRoom(Room(roomId: channelUid.string));
+      _mucDao.deleteMuc(channelUid.asString());
+      _roomDao.deleteRoom(channelUid.asString());
       return true;
     }
     return false;
@@ -197,26 +197,23 @@ class MucRepo {
     MucPro.Member member = MucPro.Member()
       ..uid = groupMember.memberUid.uid
       ..role = getRole(groupMember.role);
-    var result =
-        await mucServices.banGroupMember(member, groupMember.mucUid.uid);
-    //todo change databse
+    await mucServices.banGroupMember(member, groupMember.mucUid.uid);
+    //todo change database
   }
 
   banChannelMember(Member channelMember) async {
     MucPro.Member member = MucPro.Member()
       ..uid = channelMember.memberUid.uid
       ..role = getRole(channelMember.role);
-    var result =
-        await mucServices.unbanChannelMember(member, channelMember.mucUid.uid);
-    //todo change databse
+    await mucServices.unbanChannelMember(member, channelMember.mucUid.uid);
+    //todo change database
   }
 
   unBanGroupMember(Member groupMember) async {
     MucPro.Member member = MucPro.Member()
       ..uid = groupMember.memberUid.uid
       ..role = getRole(groupMember.role);
-    var result =
-        await mucServices.banGroupMember(member, groupMember.mucUid.uid);
+    await mucServices.banGroupMember(member, groupMember.mucUid.uid);
     //todo change databse
   }
 
@@ -224,9 +221,8 @@ class MucRepo {
     MucPro.Member member = MucPro.Member()
       ..uid = channelMember.memberUid.uid
       ..role = getRole(channelMember.role);
-    var result =
-        await mucServices.unbanChannelMember(member, channelMember.mucUid.uid);
-    //todo change databse
+    await mucServices.unbanChannelMember(member, channelMember.mucUid.uid);
+    //todo change database
   }
 
   joinGroup(Uid groupUid) async {
@@ -234,8 +230,8 @@ class MucRepo {
     if (result) {
       MucPro.Group newGroup = await getGroupInfo(groupUid);
       getGroupMembers(groupUid);
-      _mucDao.insertMuc(
-          Muc(uid: groupUid.string, name: newGroup.name, info: newGroup.info));
+      _mucDao.insertMuc(Muc(
+          uid: groupUid.asString(), name: newGroup.name, info: newGroup.info));
     }
   }
 
@@ -245,7 +241,7 @@ class MucRepo {
       Channel newChannel = await getChannelInfo(channelUid);
       getChannelMembers(channelUid);
       _mucDao.insertMuc(Muc(
-          uid: channelUid.string,
+          uid: channelUid.asString(),
           name: newChannel.name,
           info: newChannel.info));
     }
@@ -253,35 +249,19 @@ class MucRepo {
 
   modifyGroup(Muc group) async {
     //todo is ......
-    var result = await mucServices.modifyGroup(MucPro.Group());
+    await mucServices.modifyGroup(MucPro.Group());
   }
 
   modifyChannel(Muc group) async {
     //todo is ......
-    var result = await mucServices.modifyGroup(MucPro.Group());
+    await mucServices.modifyGroup(MucPro.Group());
   }
 
-  _insetToDb(Uid mucUid, String mucName, int memberCount) async {
+  _insertToDb(Uid mucUid, String mucName, int memberCount) async {
     await _mucDao.insertMuc(
-        Muc(uid: mucUid.string, name: mucName, members: memberCount));
-    Room room = Room(roomId: mucUid.string, mute: false);
-    await _roomDao.insertRoom(room);
-    sendFirstMessage(mucUid, room);
-  }
-
-  sendFirstMessage(Uid groupUid, Room room) async {
-    var message = Message(
-        roomId: groupUid.string,
-        packetId: _getPacketId(),
-        time: DateTime.now(),
-        from: _accountRepo.currentUserUid.string,
-        to: groupUid.string,
-        type: MessageType.PERSISTENT_EVENT,
-        json: groupUid.category == Categories.GROUP
-            ? jsonEncode({"text": "You created the group"})
-            : jsonEncode({"text": "You created the channel"}));
-    var dbId = await messageDao.insertMessage(message);
-    await _roomDao.updateRoom(room.copyWith(lastMessageDbId: dbId));
+        Muc(uid: mucUid.asString(), name: mucName, members: memberCount));
+    await _roomDao
+        .insertRoomCompanion(RoomsCompanion.insert(roomId: mucUid.asString()));
   }
 
   Future<bool> sendMembers(Uid mucUid, List<Uid> memberUids) async {
@@ -319,7 +299,7 @@ class MucRepo {
       _memberDao.insertMember(member);
     }
 
-    _mucDao.updateMuc(mucUid.string, members.length);
+    _mucDao.updateMuc(mucUid.asString(), members.length);
   }
 
   String _getPacketId() {
@@ -337,6 +317,7 @@ class MucRepo {
       case MucRole.OWNER:
         return MucPro.Role.OWNER;
     }
+    return MucPro.Role.NONE;
   }
 
   MucRole getLocalRole(Role role) {
@@ -350,5 +331,6 @@ class MucRepo {
       case Role.OWNER:
         return MucRole.OWNER;
     }
+    throw Exception("Not Valid Role! $role");
   }
 }

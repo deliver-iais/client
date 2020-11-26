@@ -2,9 +2,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
 
 import 'package:deliver_flutter/screen/app_group/widgets/selective_contact.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
@@ -19,9 +17,9 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class SelectiveContactsList extends StatefulWidget {
-  Uid mucUid;
+  final Uid mucUid;
 
-  bool isChannel;
+  final bool isChannel;
 
   SelectiveContactsList({Key key, this.isChannel, this.mucUid})
       : super(key: key);
@@ -36,8 +34,6 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
   List<Contact> selectedList = [];
 
   var items;
-
-  var _accountRepo = GetIt.I.get<AccountRepo>();
 
   var _contactDao = GetIt.I.get<ContactDao>();
 

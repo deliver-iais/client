@@ -1,4 +1,3 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +15,10 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
   AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
   Duration currentPos;
   Duration dur;
+
   @override
   void initState() {
+    super.initState();
     if (audioPlayerService.audioUuid == widget.audioUuid) {
       currentPos = audioPlayerService.lastPos;
       dur = audioPlayerService.lastDur;

@@ -20,7 +20,7 @@ import 'package:intl/intl.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class ProfilePage extends StatefulWidget {
-  Uid userUid;
+  final Uid userUid;
 
   ProfilePage(this.userUid, {Key key}) : super(key: key);
 
@@ -135,7 +135,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ]),
                                   onTap: () {
                                     _routingService
-                                        .openRoom(widget.userUid.string);
+                                        .openRoom(widget.userUid.asString());
                                   },
                                 )),
                             Container(
@@ -169,7 +169,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       ),
                                       StreamBuilder<Room>(
                                         stream: _roomDao
-                                            .getByRoomId(widget.userUid.string),
+                                            .getByRoomId(widget.userUid.asString()),
                                         builder: (BuildContext context,
                                             AsyncSnapshot<Room> snapshot) {
                                           if (snapshot.data != null) {
@@ -182,7 +182,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 setState(() {
                                                   _roomDao.insertRoom(Room(
                                                       roomId:
-                                                          widget.userUid.string,
+                                                          widget.userUid.asString(),
                                                       mute: !newNotifState));
                                                 });
                                               },
@@ -341,7 +341,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ];
                 },
                 body: FutureBuilder<List<Media>>(
-                  future: _mediaQueryRepo.getMediaQuery(widget.userUid.string),
+                  future: _mediaQueryRepo.getMediaQuery(widget.userUid.asString()),
                   builder: (BuildContext context,
                       AsyncSnapshot<List<Media>> snapshot) {
                     if (snapshot.hasData && snapshot.data.length != null) {
