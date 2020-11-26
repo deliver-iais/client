@@ -44,7 +44,7 @@ class _ProfilePageState extends State<ProfilePage> {
   var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   List<String> _mediaUrls = [];
   List<String> mediaUrls = [];
- var mediasLength;
+  var mediasLength;
   Room currentRoomId;
   List<Media> _fetchedMedia;
 
@@ -54,12 +54,11 @@ class _ProfilePageState extends State<ProfilePage> {
   var _fileRepo = GetIt.I.get<FileRepo>();
   int imageCount;
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _mediaQueryRepo.allMediasTypeCount(widget.userUid,MediaType.IMAGE).then((value) => imageCount=value);
-  }
+  // Future<int> x() async{
+  //
+  //     imageCount= await _mediaQueryRepo.allMediasTypeCount(widget.userUid, MediaType.IMAGE);
+  //   return imageCount;
+  // }
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
@@ -71,10 +70,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 headerSliverBuilder:
                     (BuildContext context, bool innerBoxIsScrolled) {
                   return <Widget>[
-                        ProfileAvatar(
+                    ProfileAvatar(
                       innerBoxIsScrolled: innerBoxIsScrolled,
                       roomUid: widget.userUid,
-                      ),
+                    ),
                     widget.userUid.category == Categories.USER
                         ? SliverList(
                             delegate: SliverChildListDelegate([
@@ -317,7 +316,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         //                   "skyy1");
                                         //         },
                                         //       )
-                                           // : SizedBox.shrink(),
+                                        // : SizedBox.shrink(),
                                       ]);
                                     } else {
                                       return SizedBox.shrink();
@@ -345,11 +344,19 @@ class _ProfilePageState extends State<ProfilePage> {
                                     text: appLocalization
                                         .getTraslateValue("members"),
                                   ),
-                                if(imageCount!=0)
-                                Tab(
-                                  text:
-                                      appLocalization.getTraslateValue("media"),
-                                ),
+                               // FutureBuilder<bool>(
+                                 // future: _mediaQueryRepo.hasMedia(widget.userUid, FetchMediasReq_MediaType.IMAGES),
+                                 // builder:(builder,snap){
+                                   // if(snap.hasData && snap.data==true) {
+                                     // return
+                                  Tab(
+                                        text:
+                                        appLocalization.getTraslateValue(
+                                            "media"),
+                                      ),
+                                   // }} ,
+
+                               // ),
                                 Tab(
                                   text:
                                       appLocalization.getTraslateValue("file"),
@@ -364,201 +371,193 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ];
                 },
-                body:
-                       Container(
-                          child: TabBarView(children: [
-                            if (widget.userUid.category != Categories.USER)
-                              SingleChildScrollView(
-                                child: Column(children: [
-                                  MucMemberWidget(
-                                    mucUid: widget.userUid,
-                                  ),
-                                ]),
-                              ),
-                            if(imageCount!=0)
-                            mediaWidget(widget.userUid,_mediaQueryRepo,_fileRepo,imageCount),
-                            ListView(
-                              padding: EdgeInsets.zero,
-                              children: <Widget>[
-                                Text("File"),
-                                Text("File"),
-                                Text("File"),
-                                Text("File"),
-                                Text("File"),
-                              ],
-                            ),
-                            ListView(
-                              padding: EdgeInsets.zero,
-                              children: <Widget>[
-                                Text("File"),
-                                Text("File"),
-                                Text("File"),
-                                Text("File"),
-                                Text("File"),
-                              ],
-                            ),
-                           // linkWidget(widget.userUid,_mediaQueryRepo),
-                          ])))));
-                    }
-  }
-
-
-
-  Widget mediaWidget(Uid userUid ,MediaQueryRepo mediaQueryRepo ,FileRepo fileRepo,int imageCount) {
-    return StreamBuilder(
-      stream: mediaQueryRepo.allMediasTypeInDBCount(userUid, FetchMediasReq_MediaType.IMAGES) ,
-     builder:  (context, snap){
-      if(snap.hasData && snap.data!=0){
-      return GridView.builder(
-        shrinkWrap: true,
-        padding: EdgeInsets.zero,
-        itemCount: snap.data,
-        scrollDirection: Axis.vertical,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
-        ),
-        itemBuilder: (context, position) {
-          return FutureBuilder(
-            future: mediaQueryRepo.getMedia(position, userUid,FetchMediasReq_MediaType.IMAGES),
-            builder:  (BuildContext c, AsyncSnapshot snaps) {
-              if (snaps.hasData && snaps.data != null && snaps.connectionState == ConnectionState.done) {
-                if(position>=snaps.data-10){
-                  mediaQueryRepo.fetchMoreMedia(userUid, FetchMediasReq_MediaType.IMAGES);
-                }
-                var fileId = jsonDecode(snaps.data.json)["uuid"];
-                var fileName = jsonDecode(snaps.data.json)["name"];
-                return FutureBuilder(
-                  future: fileRepo.getFile(fileId, fileName),
-                  builder:
-                  (BuildContext c, AsyncSnapshot snaps) {
-                    if (snaps.hasData &&
-                       snaps.data != null &&
-                           snaps.connectionState ==
-                         ConnectionState.done) {
-                     return Container(
-                        decoration: new BoxDecoration(
-                          image: new DecorationImage(
-                            image: Image.file(
-                              snaps.data,
-                            ).image,
-                            fit: BoxFit.cover,
-                          ),
-                            border: Border.all(
-                              width: 1,
-                              color: ExtraTheme.of(context).secondColor,
+                body: Container(
+                    child: TabBarView(children: [
+                  if (widget.userUid.category != Categories.USER)
+                    SingleChildScrollView(
+                      child: Column(children: [
+                        MucMemberWidget(
+                          mucUid: widget.userUid,
                         ),
-                      ));
-                    }else{
-                      return Container(width: 100,height: 100,);
+                      ]),
+                    ),
+
+                 // FutureBuilder<bool>(
+                   // future: _mediaQueryRepo.hasMedia(widget.userUid, FetchMediasReq_MediaType.IMAGES),
+                   // builder: (context, snapshot) {
+                     // if(snapshot.hasData && snapshot.data==true){
+                     // return
+        mediaWidget(widget.userUid, _mediaQueryRepo, _fileRepo),
+                    //}}
+                  //),
+                  ListView(
+                    padding: EdgeInsets.zero,
+                    children: <Widget>[
+                      Text("File"),
+                      Text("File"),
+                      Text("File"),
+                      Text("File"),
+                      Text("File"),
+                    ],
+                  ),
+                  ListView(
+                    padding: EdgeInsets.zero,
+                    children: <Widget>[
+                      Text("File"),
+                      Text("File"),
+                      Text("File"),
+                      Text("File"),
+                      Text("File"),
+                    ],
+                  ),
+                  // linkWidget(widget.userUid,_mediaQueryRepo),
+                ])))));
+  }
+}
+
+Widget mediaWidget(Uid userUid, MediaQueryRepo mediaQueryRepo,
+    FileRepo fileRepo) {
+  return StreamBuilder(
+    stream: mediaQueryRepo.allMediasTypeInDBCount(
+        userUid, FetchMediasReq_MediaType.FILES),
+    builder: (context, snap) {
+      if (snap.hasData && snap.data != null) {
+        return GridView.builder(
+            shrinkWrap: true,
+            padding: EdgeInsets.zero,
+            itemCount: snap.data,
+            scrollDirection: Axis.vertical,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
+            ),
+            itemBuilder: (context, position) {
+              return FutureBuilder(
+                  future: mediaQueryRepo.getMedia(
+                      position, userUid, FetchMediasReq_MediaType.IMAGES),
+                  builder: (BuildContext c, AsyncSnapshot snaps) {
+                    if (snaps.hasData &&
+                        snaps.data != null &&
+                        snaps.connectionState == ConnectionState.done) {
+                      if (position >= snaps.data - 10) {
+                        mediaQueryRepo.fetchMoreMedia(
+                            userUid, FetchMediasReq_MediaType.IMAGES);
+                      }
+                      var fileId = jsonDecode(snaps.data.json)["uuid"];
+                      var fileName = jsonDecode(snaps.data.json)["name"];
+                      return FutureBuilder(
+                          future: fileRepo.getFile(fileId, fileName),
+                          builder: (BuildContext c, AsyncSnapshot snaps) {
+                            if (snaps.hasData &&
+                                snaps.data != null &&
+                                snaps.connectionState == ConnectionState.done) {
+                              return Container(
+                                  decoration: new BoxDecoration(
+                                image: new DecorationImage(
+                                  image: Image.file(
+                                    snaps.data,
+                                  ).image,
+                                  fit: BoxFit.cover,
+                                ),
+                                border: Border.all(
+                                  width: 1,
+                                  color: ExtraTheme.of(context).secondColor,
+                                ),
+                              ));
+                            } else {
+                              return Container(
+                                width: 100,
+                                height: 100,
+                              );
+                            }
+                          });
+                    } else {
+                      return Container(
+                        width: 100,
+                        height: 100,
+                      );
                     }
                   });
-              }else{
-                return Container(width: 100,height: 100,);
-              }
-            });});
-              }else if(snap.data == 0){
-                mediaQueryRepo.getLastMediasList(userUid.string, FetchMediasReq_MediaType.IMAGES);
-              }else{
-                return Container(width: 100,height: 100,);
+            });
+      }
+      // else if(snap.data == 0){
+      //             ()async{
+      //              await mediaQueryRepo.getLastMediasList(userUid.string, FetchMediasReq_MediaType.IMAGES);
+      //             };}
+      else {
+        return Container(
+          width: 100,
+          height: 100,
+        );
+      }
+    },
+  );
 
-            }
-            },
-          );
-          // var fileId = jsonDecode(snapshot.data[position].json)["uuid"];
-          // var fileName = jsonDecode(snapshot.data[position].json)["name"];
-          // return FutureBuilder(
-          //   future: fileRepo.getFile(fileId, fileName),
-          //   builder:
-          //   (BuildContext c, AsyncSnapshot snaps) {
-          //     if (snaps.hasData &&
-          //        snaps.data != null &&
-          //            snaps.connectionState ==
-          //          ConnectionState.done) {
-          //      return Container(
-          //         decoration: new BoxDecoration(
-          //           image: new DecorationImage(
-          //             image: Image.file(
-          //               snaps.data,
-          //             ).image,
-          //             fit: BoxFit.cover,
-          //           ),
-          //             border: Border.all(
-          //               width: 1,
-          //               color: ExtraTheme.of(context).secondColor,
-          //         ),
-          //       ));
-          //     }
-          //   }
-            // child: GestureDetector(
-            //   // onTap: () {
-            //   //   _routingService.openShowAllMedia(
-            //   //     mediaPosition: position,
-            //   //     heroTag: "btn$position",
-            //   //     mediasLength: medias.length,
-            //   //   );
-            //   // },
-            //  child: Hero(
-            //       tag: "btn$position",
-            //       child: Container(
-            //         decoration: new BoxDecoration(
-            //           image: new DecorationImage(
-            //               // image: new NetworkImage(
-            //               //   medias[position].mediaUrl,
-            //               //    //imageList[position],
-            //               // ),
-            //               fit: BoxFit.cover),
-            //           border: Border.all(
-            //             width: 1,
-            //             color: ExtraTheme.of(context).secondColor,
-            //           ),
-            //         ),
-            //       ), // transitionOnUserGestures: true,
-            //
-            //   ),
-            // ),
-          //);
-        }
-  //   else {
-  //     return Text("...");
+  // child: GestureDetector(
+  //   // onTap: () {
+  //   //   _routingService.openShowAllMedia(
+  //   //     mediaPosition: position,
+  //   //     heroTag: "btn$position",
+  //   //     mediasLength: medias.length,
+  //   //   );
+  //   // },
+  //  child: Hero(
+  //       tag: "btn$position",
+  //       child: Container(
+  //         decoration: new BoxDecoration(
+  //           image: new DecorationImage(
+  //               // image: new NetworkImage(
+  //               //   medias[position].mediaUrl,
+  //               //    //imageList[position],
+  //               // ),
+  //               fit: BoxFit.cover),
+  //           border: Border.all(
+  //             width: 1,
+  //             color: ExtraTheme.of(context).secondColor,
+  //           ),
+  //         ),
+  //       ), // transitionOnUserGestures: true,
   //
-  //
-  // }
+  //   ),
+  // ),
+  //);
+}
+//   else {
+//     return Text("...");
+//
+//
+// }
 
-  // Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo){
-  //  return FutureBuilder<List<Media>>(
-  //       future:  mediaQueryRepo.getLastMediasList(userUid.string, DateTime.now().microsecondsSinceEpoch,2020, FetchMediasReq_MediaType.LINKS, 50),
-  //   builder: (BuildContext context,
-  //   AsyncSnapshot<List<Media>> snapshot) {
-  //   if (snapshot.hasData && snapshot.data.length != null) {
-  //     return ListView(
-  //       padding: EdgeInsets.zero,
-  //       children: <Widget>[
-  //         Text("File"),
-  //         Text("File"),
-  //         Text("File"),
-  //         Text("File"),
-  //         Text("File"),
-  //       ],
-  //     );
-  //   }
-  //   });
-  //
-  // }
+// Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo){
+//  return FutureBuilder<List<Media>>(
+//       future:  mediaQueryRepo.getLastMediasList(userUid.string, DateTime.now().microsecondsSinceEpoch,2020, FetchMediasReq_MediaType.LINKS, 50),
+//   builder: (BuildContext context,
+//   AsyncSnapshot<List<Media>> snapshot) {
+//   if (snapshot.hasData && snapshot.data.length != null) {
+//     return ListView(
+//       padding: EdgeInsets.zero,
+//       children: <Widget>[
+//         Text("File"),
+//         Text("File"),
+//         Text("File"),
+//         Text("File"),
+//         Text("File"),
+//       ],
+//     );
+//   }
+//   });
+//
+// }
 
-  Widget _showUsername(String username) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
-      child: Text(
-        username!=null?"@$username":'',
-        style: TextStyle(
-          fontSize: 18.0,
-          color: Colors.blue
-        ),
-      ),
-    );
-  }
-
+Widget _showUsername(String username) {
+  return Padding(
+    padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+    child: Text(
+      username != null ? "@$username" : '',
+      style: TextStyle(fontSize: 18.0, color: Colors.blue),
+    ),
+  );
+}
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   _SliverAppBarDelegate({
@@ -589,5 +588,4 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
         minHeight != oldDelegate.minHeight ||
         child != oldDelegate.child;
   }
-
 }
