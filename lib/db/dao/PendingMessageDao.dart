@@ -12,7 +12,7 @@ class PendingMessageDao extends DatabaseAccessor<Database>
 
   PendingMessageDao(this.database) : super(database);
 
-  Future<List<PendingMessage>> watchAllMessages() =>
+  Future<List<PendingMessage>> getAllPendingMessages() =>
       select(pendingMessages).get();
 
   Future<int> insertPendingMessage(PendingMessage newPendingMessage) =>
@@ -28,9 +28,14 @@ class PendingMessageDao extends DatabaseAccessor<Database>
   Future updatePendingMessage(PendingMessage updatedPendingMessage) =>
       update(pendingMessages).replace(updatedPendingMessage);
 
-  Stream<PendingMessage> getByMessageDbId(int dbId) {
+  Stream<PendingMessage> watchByMessageDbId(int dbId) {
     return (select(pendingMessages)..where((pm) => pm.messageDbId.equals(dbId)))
         .watchSingle();
+  }
+
+  Future<PendingMessage> getByMessageDbId(int dbId) {
+    return (select(pendingMessages)..where((pm) => pm.messageDbId.equals(dbId)))
+        .getSingle();
   }
 
   Stream<List<PendingMessage>> getByRoomId(String roomId) {
@@ -42,9 +47,4 @@ class PendingMessageDao extends DatabaseAccessor<Database>
           ]))
         .watch();
   }
-  // Future<PendingMessage> getMessage(String messageId) {
-  //   return (select(pendingMessages)
-  //     ..where((pm) => pm.messageId.equals(messageId)))
-  //       .getSingle();
-  // }
 }

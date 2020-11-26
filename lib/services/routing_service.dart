@@ -266,7 +266,7 @@ class RoutingService {
       children: [
         Container(
             width: isLarge(context)
-                ? BREAKDOWN_SIZE / 2 + 84
+                ? navigationPanelSize()
                 : MediaQuery.of(context).size.width,
             child: isLarge(context)
                 ? _largePageNavigator(context)

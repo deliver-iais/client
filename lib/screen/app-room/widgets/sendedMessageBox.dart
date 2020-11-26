@@ -1,15 +1,12 @@
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/boxContent.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class SentMessageBox extends StatelessWidget {
   final Message message;
   final double maxWidth;
-  final isGroup;
 
-  const SentMessageBox({Key key, this.message, this.maxWidth, this.isGroup})
+  const SentMessageBox({Key key, this.message, this.maxWidth})
       : super(key: key);
 
   @override
@@ -29,11 +26,6 @@ class SentMessageBox extends StatelessWidget {
             ),
           ),
         ),
-        if (this.isGroup)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0, left: 2.0, right: 8.0),
-            child: CircleAvatarWidget(message.from.uid, 18),
-          ),
       ],
     );
   }

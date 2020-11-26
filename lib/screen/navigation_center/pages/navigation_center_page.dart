@@ -346,7 +346,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 if (snaps.hasData &&
                     snaps.data != null &&
                     snaps.data.length > 0) {
-                  print(snaps.data[0].firstName);
                   return Container(
                       child: Expanded(
                           child: SingleChildScrollView(

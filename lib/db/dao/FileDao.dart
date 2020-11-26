@@ -12,7 +12,7 @@ class FileDao extends DatabaseAccessor<Database> with _$FileDaoMixin {
 
   Future upsert(FileInfo file) => into(fileInfos).insertOnConflictUpdate(file);
 
-  Future deleteAvatar(FileInfo file) => delete(fileInfos).delete(file);
+  Future deleteFileInfo(FileInfo file) => delete(fileInfos).delete(file);
 
   Future<FileInfo> getFileInfo(id, size) {
     return (select(fileInfos)

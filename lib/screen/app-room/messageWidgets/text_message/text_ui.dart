@@ -13,6 +13,7 @@ class TextUi extends StatelessWidget {
   final Function lastCross;
   final bool isSender;
   final bool isCaption;
+
   const TextUi(
       {Key key,
       this.message,
@@ -21,6 +22,7 @@ class TextUi extends StatelessWidget {
       this.isSender,
       this.isCaption})
       : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -29,7 +31,12 @@ class TextUi extends StatelessWidget {
   }
 
   List<Widget> textMessages() {
-    String content = this.message.json.toText().text;
+    String content = "";
+    if (isCaption) {
+      content = this.message.json.toFile().caption;
+    } else {
+      content = this.message.json.toText().text;
+    }
     List<String> lines = LineSplitter().convert(content);
     List<Widget> texts = [];
     texts.add(disjointThenJoin(preProcess(lines)));
@@ -71,7 +78,6 @@ class TextUi extends StatelessWidget {
         ],
       );
     }
-    print('idx, $idx, length: ${blocks.length}');
     for (var i = 1; i < blocks.length - idx; i++) {
       joint = Column(
         crossAxisAlignment: blocks[idx].isRtl
@@ -93,13 +99,13 @@ class TextUi extends StatelessWidget {
 }
 
 List<TextBlock> preProcess(List<String> texts) {
-  bool currentLng = texts[0].isPersian();
+  bool currentLang = texts[0].isPersian();
   List<TextBlock> blocks = [TextBlock.withFirstText(texts[0])];
   for (var i = 1; i < texts.length; i++) {
-    if (currentLng == texts[i].isPersian()) {
+    if (currentLang == texts[i].isPersian()) {
       blocks.last.add(texts[i]);
     } else {
-      currentLng = !currentLng;
+      currentLang = !currentLang;
       blocks.add(TextBlock.withFirstText(texts[i]));
     }
   }
@@ -130,48 +136,40 @@ class TextBlock {
             isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: <Widget>[
           for (var i in texts)
-            _t(_textWidget(i, message, isLastBlock, isSender), maxWidth)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Container(
+                    constraints: BoxConstraints.loose(Size.fromWidth(maxWidth)),
+                    child: _textWidget(i, message, isLastBlock, isSender)),
+              ],
+            )
         ]);
   }
 }
 
 Widget _textWidget(
     String text, Message message, bool isLastBlock, bool isSender) {
-  if (text.isPersian()) {
-    return Text(text,
-        textDirection: TextDirection.rtl, textAlign: TextAlign.justify);
-  }
-
   return Wrap(
     alignment: WrapAlignment.end,
     crossAxisAlignment: WrapCrossAlignment.start,
     children: [
-      Text(text, textAlign: TextAlign.justify),
-      isLastBlock
-          ? Padding(
-              padding: const EdgeInsets.only(left: 8.0, top: 5),
-              child: MsgTime(
-                time: message.time,
-              ),
-            )
-          : Container(),
-      (isLastBlock & isSender)
-          ? Padding(
-              padding: const EdgeInsets.only(left: 3.0, top: 5),
-              child: SeenStatus(message),
-            )
-          : Container(),
-    ],
-  );
-}
-
-Widget _t(Widget text, double maxWidth) {
-  return Row(
-    crossAxisAlignment: CrossAxisAlignment.end,
-    children: <Widget>[
-      Container(
-          constraints: BoxConstraints.loose(Size.fromWidth(maxWidth)),
-          child: text),
+      Text(text,
+          textDirection:
+              text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
+          textAlign: TextAlign.justify),
+      if (isLastBlock)
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, top: 5),
+          child: MsgTime(
+            time: message.time,
+          ),
+        ),
+      if (isLastBlock & isSender)
+        Padding(
+          padding: const EdgeInsets.only(left: 3.0, top: 5),
+          child: SeenStatus(message),
+        ),
     ],
   );
 }

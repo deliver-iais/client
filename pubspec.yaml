@@ -61,6 +61,7 @@ dependencies:
       path: plugins/file_chooser
       ref: 0efb6b14a802a01b5432b2a2ee97c7f4821f2ab2
   dio: 3.0.10 # HTTP Invoker Library
+  mime_type: 0.3.2 # Get mime type of file path
   jwt_decoder: 1.0.1
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:

@@ -38,7 +38,7 @@ class _ImageWidget extends State<ShowImagePage> {
             color: Colors.blueAccent,
           ),
           onPressed: () {
-            _messageRepo.sendFileMessage(
+            _messageRepo.sendFileMessageDeprecated(
                 widget.contactUid, [widget.imageFile.path],
                 caption: _controller.value.text);
             ExtendedNavigator.of(context).pop();

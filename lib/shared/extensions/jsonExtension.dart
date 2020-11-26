@@ -1,25 +1,10 @@
-import 'dart:convert';
-import 'dart:ffi';
-
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/sticker.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
-import 'package:fixnum/fixnum.dart';
 
 extension JsonMapper on String {
   File toFile() {
-    // return File.fromJson(this);
-    File f = File.create();
-    f.uuid = (jsonDecode(this))['uuid'];
-    // f.size = Int64.parseInt((jsonDecode(this))['size'].toString());
-    f.size = Int64.parseInt('60000');
-    f.type = (jsonDecode(this))['type'];
-    f.name = (jsonDecode(this))['name'];
-    f.caption = (jsonDecode(this))['caption'];
-    f.width = (jsonDecode(this))['width'];
-    f.height = (jsonDecode(this))['height'];
-    f.duration = 0.0;
-    return f;
+    return File.fromJson(this);
   }
 
   Sticker toSticker() {
@@ -27,10 +12,7 @@ extension JsonMapper on String {
   }
 
   Text toText() {
-    // return Text.fromJson(this);
-    Text t = Text.create();
-    t.text = (jsonDecode(this))['text'];
-    return t;
+    return Text.fromJson(this);
   }
 
   Location toLocation() {
