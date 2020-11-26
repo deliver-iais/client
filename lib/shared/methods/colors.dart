@@ -43,11 +43,7 @@ class RandomColor {
     h = colorHue.returnHue(_random);
     s = colorSaturation.returnSaturation(_random);
     b = colorBrightness.returnBrightness(_random);
-
-    _log('Color hue: $h');
-    _log('Color saturation: $s');
-    _log('Color brightness: $b');
-
+    
     return _getColor(h, s, b);
   }
 
@@ -119,12 +115,6 @@ class RandomColor {
     final Color _color = HSLColor.fromAHSL(1.0, hue.toDouble(), s, v).toColor();
 
     return _color;
-  }
-
-  void _log(String s) {
-    if (debug) {
-      print('Random color: $s');
-    }
   }
 }
 

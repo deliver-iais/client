@@ -33,8 +33,6 @@ class FireBaseServices {
         RegistrationReq()..tokenId = fireBaseToken,
         options: CallOptions(
             metadata: {'accessToken': await accountRepo.getAccessToken()}));
-
-    print("result" + result.toString());
   }
 
   _setFirebaseSetting(BuildContext context) {
@@ -56,7 +54,6 @@ class FireBaseServices {
       onLaunch: (Map<String, dynamic> message) async {
         print("onLaunch: $message");
         // todo
-        print("new message");
       },
       onResume: (Map<String, dynamic> message) async {
         print("onResume: $message");

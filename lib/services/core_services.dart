@@ -19,7 +19,6 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/cupertino.dart';
 
 import 'package:get_it/get_it.dart';
 
@@ -139,7 +138,6 @@ class CoreServices {
     _clientPacket.add(ClientPacket()
       ..message = message
       ..id = message.packetId);
-    print("message is send ");
   }
 
   sendPingMessage() {
@@ -270,11 +268,13 @@ class CoreServices {
   saveMessageInMessagesDB(Message message) async {
     M.Message msg = M.Message(
         id: message.id.toInt(),
-        roomId: message.whichType() == Message_Type.persistEvent?message.from.string: message.from.node.contains(_accountRepo.currentUserUid.node)
-            ? message.to.string
-            : message.to.category == Categories.USER
-                ? message.from.string
-                : message.to.string,
+        roomId: message.whichType() == Message_Type.persistEvent
+            ? message.from.string
+            : message.from.node.contains(_accountRepo.currentUserUid.node)
+                ? message.to.string
+                : message.to.category == Categories.USER
+                    ? message.from.string
+                    : message.to.string,
         packetId: message.packetId,
         time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
         to: message.to.string,
@@ -295,27 +295,13 @@ class CoreServices {
     var type = findFetchMessageType(message);
     var json = Object();
     if (type == MessageType.TEXT)
-      json = {"text": message.text.text};
+      return message.text.writeToJson();
     else if (type == MessageType.FILE)
-      json = {
-        "uuid": message.file.uuid,
-        "size": message.file.size.toInt(),
-        "type": message.file.type,
-        "name": message.file.name,
-        "caption": message.file.caption,
-        "width": message.file.width.toInt(),
-        "height": message.file.height.toInt(),
-        "duration": message.file.duration.toDouble()
-      };
+      return message.file.writeToJson();
     else if (type == MessageType.FORM)
-      json = {"uuid": message.form.uuid, "title": message.form.title};
+      return message.form.writeToJson();
     else if (type == MessageType.STICKER)
-      json = {
-        "uuid": message.sticker.uuid,
-        "id": message.sticker.id,
-        "width": message.sticker.width.toInt(),
-        "height": message.sticker.height.toInt()
-      };
+      return message.sticker.writeToJson();
     else if (type == MessageType.PERSISTENT_EVENT)
       switch (message.persistEvent.whichType()) {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
@@ -345,18 +331,11 @@ class CoreServices {
           break;
       }
     else if (type == MessageType.POLL)
-      json = {
-        "uuid": message.poll.uuid,
-        "title": message.poll.title,
-        "number_of_options": message.poll.numberOfOptions
-      };
+      return message.poll.writeToJson();
     else if (type == MessageType.LOCATION)
-      json = {
-        "latitude": message.location.latitude.toInt(),
-        "longitude": message.location.longitude.toInt()
-      };
+      return message.location.writeToJson();
     else if (type == MessageType.LIVE_LOCATION)
-      json = {"uuid": message.liveLocation.uuid};
+      return message.liveLocation.writeToJson();
     return jsonEncode(json);
   }
 
@@ -380,7 +359,6 @@ class CoreServices {
     else
       return MessageType.NOT_SET;
   }
-
 
   String getIssueType(MucSpecificPersistentEvent_Issue issue) {
     switch (issue) {

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:http_parser/http_parser.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
@@ -6,6 +7,7 @@ import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -28,14 +30,25 @@ class FileService {
     }
   }
 
-  Future<File> _localFile(String fileUuid,String fileType) async {
+  Future<String> localFilePath(String fileUuid, String fileType) async {
+    final path = await _localPath;
+    return '$path/$fileUuid.$fileType';
+  }
+
+  Future<String> localThumbnailFilePath(
+      String fileUuid, String fileType, ThumbnailSize size) async {
+    final path = await _localPath;
+    return "$path/${enumToString(size)}-$fileUuid.$fileType";
+  }
+
+  Future<File> localFile(String fileUuid, String fileType) async {
     final path = await _localPath;
     return File('$path/$fileUuid.$fileType');
   }
 
-  Future<File> _localThumbnailFile(String filename) async {
-    final path = await _localPath;
-    return File('$path/$filename');
+  Future<File> localThumbnailFile(
+      String fileUuid, String fileType, ThumbnailSize size) async {
+    return File(await localThumbnailFilePath(fileUuid, fileType, size));
   }
 
   FileService() {
@@ -61,16 +74,17 @@ class FileService {
       behaviorSubject.add((i / j));
       filesDownloadStatus[uuid] = behaviorSubject;
     }, options: Options(responseType: ResponseType.bytes));
-    final file = await _localFile(uuid,filename.split('.').last);
+    final file = await localFile(uuid, filename.split('.').last);
     file.writeAsBytesSync(res.data);
     return file;
   }
 
   Future<File> _getFileThumbnail(
       String uuid, String filename, ThumbnailSize size) async {
-    var res = await _dio.get("/${enumToString(size)}/$uuid/.${filename.split('.').last}",
+    var res = await _dio.get(
+        "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
         options: Options(responseType: ResponseType.bytes));
-    final file = await _localThumbnailFile("${enumToString(size)}-$uuid.${filename.split('.').last}");
+    final file = await localThumbnailFile(uuid, filename.split(".").last, size);
     file.writeAsBytesSync(res.data);
     return file;
   }
@@ -81,16 +95,21 @@ class FileService {
         .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
       options.onSendProgress = (int i, int j) {
         behaviorSubject.add((i / j));
-        print((i / j));
+        print("upload progress ${(i / j)}");
         filesUploadStatus[uploadKey] = behaviorSubject;
       };
       return options; //continue
     }));
 
     var formData = FormData.fromMap({
-      "file": await MultipartFile.fromFile(filePath),
+      "file": MultipartFile.fromFileSync(filePath,
+          contentType:
+              MediaType.parse(mime(filePath) ?? "application/octet-stream")),
     });
 
-    return _dio.post("/upload", data: formData,);
+    return _dio.post(
+      "/upload",
+      data: formData,
+    );
   }
 }

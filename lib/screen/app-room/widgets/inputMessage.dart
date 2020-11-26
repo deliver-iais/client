@@ -225,10 +225,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                                         .resetRoomPageDetails();
                                                   } else {
                                                     messageRepo.sendTextMessage(
-                                                      currentRoom.roomId.uid,
-                                                      controller.text,roomLastMesssgaeId: widget.currentRoom.lastMessageId
-
-                                                    );
+                                                        currentRoom.roomId.uid,
+                                                        controller.text);
                                                   }
 
                                                   controller.clear();
@@ -274,9 +272,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                 backgroundColor:
                                     ExtraTheme.of(context).secondColor,
                                 borderRadius: 0,
-                                tracetime: (time) {
-                                  print(time.currentSeconds.toString());
-                                },
                               ),
                               Opacity(
                                 opacity: opacity(),
@@ -345,7 +340,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 try {
                                   Recording recording =
                                       await AudioRecorder.stop();
-                                  messageRepo.sendFileMessage(
+                                  messageRepo.sendFileMessageDeprecated(
                                       widget.currentRoom.roomId.uid,
                                       [recording.path]);
                                 } catch (e) {}
@@ -398,7 +393,8 @@ class _InputMessageWidget extends State<InputMessage> {
       allowsMultipleSelection: true,
     );
     if (result.paths != null) {
-      messageRepo.sendFileMessage(currentRoom.roomId.uid, result.paths);
+      messageRepo.sendFileMessageDeprecated(
+          currentRoom.roomId.uid, result.paths);
     }
   }
 }

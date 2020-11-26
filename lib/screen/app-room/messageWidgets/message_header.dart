@@ -1,30 +1,28 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/circular_file_status_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/header_details.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
-class MessageHeader extends StatefulWidget {
+class UnknownFileUi extends StatefulWidget {
   final Message message;
   final double maxWidth;
+  final bool isSender;
 
-  MessageHeader({Key key, this.message, this.maxWidth}) : super(key: key);
+  UnknownFileUi({Key key, this.message, this.maxWidth, this.isSender})
+      : super(key: key);
 
   @override
-  _MessageHeaderState createState() => _MessageHeaderState();
+  _UnknownFileUiState createState() => _UnknownFileUiState();
 }
 
-class _MessageHeaderState extends State<MessageHeader> {
+class _UnknownFileUiState extends State<UnknownFileUi> {
   filePb.File file;
   bool isDownloaded = false;
   double loadProgress = 0.0;
@@ -40,7 +38,7 @@ class _MessageHeaderState extends State<MessageHeader> {
   Widget build(BuildContext context) {
     file = widget.message.json.toFile();
     return StreamBuilder<PendingMessage>(
-      stream: pendingMessageDao.getByMessageDbId(widget.message.dbId),
+      stream: pendingMessageDao.watchByMessageDbId(widget.message.dbId),
       builder: (context, pendingMessage) {
         return FutureBuilder<bool>(
             future: fileRepo.isExist(file.uuid, file.name),
@@ -104,6 +102,10 @@ class _MessageHeaderState extends State<MessageHeader> {
                               loadStatus: 'loaded',
                               loadProgress: loadProgress,
                               file: file),
+                          file.caption.isEmpty
+                              ? TimeAndSeenStatus(
+                                  widget.message, widget.isSender, false)
+                              : Container(),
                         ],
                       ),
                     ],

@@ -43,3 +43,5 @@ double ANIMATION_SQUARE_SIZE(BuildContext context) => isLarge(context)
 
 // ignore: non_constant_identifier_names
 double ANIMATION_TOP_PADDING(BuildContext context) => 40;
+
+double navigationPanelSize() => BREAKDOWN_SIZE / 2 + 84;
