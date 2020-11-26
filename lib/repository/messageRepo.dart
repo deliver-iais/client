@@ -242,10 +242,8 @@ class MessageRepo {
     var roomId = message.roomId;
 
     // Upload to file server
-    FileProto.File fileInfo = await _fileRepo.uploadClonedFile(
-      packetId,
-      fakeFileInfo.name
-    );
+    FileProto.File fileInfo =
+        await _fileRepo.uploadClonedFile(packetId, fakeFileInfo.name);
 
     fileInfo.caption = fakeFileInfo.caption;
 
