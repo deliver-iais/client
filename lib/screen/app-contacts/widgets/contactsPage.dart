@@ -17,39 +17,38 @@ class ContactsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-        child: StreamBuilder<List<Contact>>(
-            stream: contactDao.getAllContacts(),
-            builder:
-                (BuildContext context, AsyncSnapshot<List<Contact>> snapshot) {
-              if (snapshot.hasData &&
-                  snapshot.data != null &&
-                  snapshot.data.length > 0) {
-                return Container(
-                    child: Scrollbar(
-                  child: ListView.builder(
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (BuildContext ctxt, int index) =>
-                        GestureDetector(
-                            onTap: () {
-                              if (snapshot.data[index].uid != null) {
-                                rootingServices
-                                    .openRoom(snapshot.data[index].uid);
-                              } else {
-                                // todo invite contact
-                              }
-                            },
-                            child: ContactWidget(
-                                contact: snapshot.data[index],
-                                circleIcon: (snapshot.data[index].uid != null)
-                                    ? Icons.message
-                                    : Icons.add)),
-                  ),
-                ));
-              } else {
-                return SizedBox.shrink();
-              }
-            }));
+    return StreamBuilder<List<Contact>>(
+        stream: contactDao.getAllContacts(),
+        builder:
+            (BuildContext context, AsyncSnapshot<List<Contact>> snapshot) {
+          if (snapshot.hasData &&
+              snapshot.data != null &&
+              snapshot.data.length > 0) {
+            return Container(
+                child: Scrollbar(
+              child: ListView.builder(
+                itemCount: snapshot.data.length,
+                itemBuilder: (BuildContext ctxt, int index) =>
+                    GestureDetector(
+                        onTap: () {
+                          if (snapshot.data[index].uid != null) {
+                            rootingServices
+                                .openRoom(snapshot.data[index].uid);
+                          } else {
+                            // todo invite contact
+                          }
+                        },
+                        child: ContactWidget(
+                            contact: snapshot.data[index],
+                            circleIcon: (snapshot.data[index].uid != null)
+                                ? Icons.message
+                                : Icons.add)),
+              ),
+            ));
+          } else {
+            return SizedBox.shrink();
+          }
+        });
   }
 }
 //builder

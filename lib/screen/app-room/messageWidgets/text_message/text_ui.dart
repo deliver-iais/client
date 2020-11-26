@@ -73,7 +73,7 @@ class TextUi extends StatelessWidget {
                 : CrossAxisAlignment.end),
         children: <Widget>[
           blocks[idx - i].build(this.maxWidth, this.message,
-              i == (blocks.length - 1), this.isSender),
+              idx - i == (blocks.length - 1), this.isSender),
           joint,
         ],
       );
@@ -90,7 +90,7 @@ class TextUi extends StatelessWidget {
         children: <Widget>[
           joint,
           blocks[idx + i].build(this.maxWidth, this.message,
-              i == (blocks.length - 1), this.isSender),
+              idx + i == (blocks.length - 1), this.isSender),
         ],
       );
     }
