@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -28,6 +29,7 @@ class FileService {
         await Directory('${directory.path}/Deliver').create(recursive: true);
       return directory.path + "/Deliver";
     }
+    throw Exception("There is no Storage Permission!");
   }
 
   Future<String> localFilePath(String fileUuid, String fileType) async {
@@ -54,7 +56,7 @@ class FileService {
   FileService() {
     _dio.interceptors
         .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
-      options.baseUrl = "http://172.16.111.189:30010/";
+      options.baseUrl = FileServiceBaseUrl;
       options.headers["Authorization"] = await accountRepo.getAccessToken();
       return options; //continue
     }));
@@ -68,6 +70,7 @@ class FileService {
     return _getFile(uuid, filename);
   }
 
+  // TODO, refactoring needed
   Future<File> _getFile(String uuid, String filename) async {
     BehaviorSubject<double> behaviorSubject = BehaviorSubject();
     var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
@@ -89,6 +92,7 @@ class FileService {
     return file;
   }
 
+  // TODO, refactoring needed
   uploadFile(String filePath, {String uploadKey}) async {
     BehaviorSubject<double> behaviorSubject = BehaviorSubject();
     _dio.interceptors

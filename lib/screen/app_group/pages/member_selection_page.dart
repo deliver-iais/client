@@ -11,11 +11,12 @@ import 'package:get_it/get_it.dart';
 
 class MemberSelectionPage extends StatelessWidget {
 
-  Uid mucUid;
-  var _routingService = GetIt.I.get<RoutingService>();
-  var _createMucService = GetIt.I.get<CreateMucService>();
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _createMucService = GetIt.I.get<CreateMucService>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+
+  final Uid mucUid;
   final bool isChannel;
-  var _roomRepo = GetIt.I.get<RoomRepo>();
 
   MemberSelectionPage({Key key, this.isChannel,this.mucUid}) : super(key: key);
 

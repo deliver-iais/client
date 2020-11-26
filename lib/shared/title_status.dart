@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class TitleStatus extends StatelessWidget {
-  final TextStyle style;
-  var _messageRepo = GetIt.I.get<MessageRepo>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
 
+  final TextStyle style;
   final Widget normalConditionWidget;
 
   TitleStatus(

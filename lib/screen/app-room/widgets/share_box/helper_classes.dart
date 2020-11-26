@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:fimber/fimber.dart';
 import 'package:storage_path/storage_path.dart';
 
 class StorageFile {

@@ -12,18 +12,17 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class UserAppbar extends StatelessWidget {
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+
   final Uid userUid;
 
   UserAppbar({Key key, this.userUid}) : super(key: key);
 
-  var _routingService = GetIt.I.get<RoutingService>();
-  var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
-  AppLocalization _appLocalization;
-
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    AppLocalization i18n = AppLocalization.of(context);
     return Container(
         color: Theme.of(context).appBarTheme.color,
         child: GestureDetector(
@@ -37,7 +36,7 @@ class UserAppbar extends StatelessWidget {
                       .toString()
                       .contains(_accountRepo.currentUserUid.toString())
                   ? Text(
-                      _appLocalization.getTraslateValue("saved_message"),
+                      i18n.getTraslateValue("saved_message"),
                       style: TextStyle(fontSize: 14),
                     )
                   : FutureBuilder<String>(
@@ -66,7 +65,7 @@ class UserAppbar extends StatelessWidget {
           onTap: () {
             userUid.toString().contains(_accountRepo.currentUserUid.toString())
                 ? _routingService.openSettings()
-                : _routingService.openProfile(userUid.string);
+                : _routingService.openProfile(userUid.asString());
           },
         ));
   }

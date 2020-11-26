@@ -12,7 +12,7 @@ class SeenDao extends DatabaseAccessor<Database> with _$SeenDaoMixin {
 
   Stream watchAllSeens() => select(seens).watch();
 
-  Future<int> insertSeen(Seen newSeen) => into(seens).insert(newSeen);
+  Future<int> insertSeen(SeensCompanion newSeen) => into(seens).insert(newSeen);
 
   Future deleteSeen(Seen seen) => delete(seens).delete(seen);
 

@@ -6,7 +6,7 @@ import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
-import 'package:deliver_flutter/db/database.dart' as M;
+import 'package:deliver_flutter/db/database.dart' as Database;
 
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -24,22 +24,18 @@ import 'package:get_it/get_it.dart';
 
 import 'package:grpc/grpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:moor/moor.dart';
 
 import 'package:rxdart/rxdart.dart';
 
 enum ConnectionStatus { Connected, Disconnected }
 
-const MIN_BACKOFF_TIME = 1;
+const MIN_BACKOFF_TIME = 4;
 const MAX_BACKOFF_TIME = 32;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
-  static ClientChannel _clientChannel = ClientChannel(
-      ServicesDiscoveryRepo().coreService.host,
-      port: ServicesDiscoveryRepo().coreService.port,
-      options: ChannelOptions(credentials: ChannelCredentials.insecure()));
-
-  var _grpcCoreService = CoreServiceClient(_clientChannel);
+  var _grpcCoreService = CoreServiceClient(CoreServicesClientChannel);
   var _clientPacket = StreamController<ClientPacket>();
   ResponseStream<ServerPacket> _responseStream;
 
@@ -158,37 +154,26 @@ class CoreServices {
       ..id = DateTime.now().microsecondsSinceEpoch.toString());
   }
 
-  deleteMessage() {}
-
   MessageType getMessageType(Message_Type messageType) {
     switch (messageType) {
       case Message_Type.text:
         return MessageType.TEXT;
-        break;
       case Message_Type.file:
         return MessageType.FILE;
-        break;
       case Message_Type.sticker:
         return MessageType.STICKER;
-        break;
       case Message_Type.location:
         return MessageType.LOCATION;
-        break;
       case Message_Type.liveLocation:
         return MessageType.LIVE_LOCATION;
-        break;
       case Message_Type.poll:
         return MessageType.POLL;
-        break;
       case Message_Type.form:
         return MessageType.FORM;
-        break;
       case Message_Type.persistEvent:
         return MessageType.PERSISTENT_EVENT;
-        break;
-      case Message_Type.notSet:
+      default:
         return MessageType.NOT_SET;
-        break;
     }
   }
 
@@ -200,16 +185,18 @@ class CoreServices {
             ? roomId = seen.to
             : roomId = seen.from;
         break;
+      case Categories.STORE:
+      case Categories.SYSTEM:
       case Categories.GROUP:
       case Categories.CHANNEL:
       case Categories.BOT:
         roomId = seen.to;
         break;
     }
-    _seenDao.insertSeen(M.Seen(
+    _seenDao.insertSeen(Database.SeensCompanion.insert(
         messageId: seen.id.toInt(),
-        user: seen.from.string,
-        roomId: roomId.string));
+        user: seen.from.asString(),
+        roomId: roomId.asString()));
   }
 
   _saveActivityMessage(Activity activity) {
@@ -218,26 +205,14 @@ class CoreServices {
 
   void savePongMessage(Pong pong) {}
 
-  String findType(String path) {
-    String postfix = path.split('.').last;
-    if (postfix == 'png' || postfix == 'jpg' || postfix == 'jpeg')
-      return 'image';
-    else if (postfix == 'mp4')
-      return 'video';
-    else if (postfix == 'mp3')
-      return 'audio';
-    else
-      return 'file';
-  }
-
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
-    var roomId = messageDeliveryAck.to.getString();
+    var roomId = messageDeliveryAck.to.asString();
     var packetId = messageDeliveryAck.packetId;
     var id = messageDeliveryAck.id.toInt();
     var time = messageDeliveryAck.time.toInt() ??
         DateTime.now().millisecondsSinceEpoch;
     _messageDao.updateMessageId(roomId, packetId, id, time);
-    _roomDao.insertRoom(M.Room(roomId: roomId, lastMessageId: id));
+    _roomDao.insertRoomCompanion(Database.RoomsCompanion.insert(roomId: roomId, lastMessageId: Value(id)));
     _lastSeenDao.updateLastSeen(roomId, id);
     _pendingMessageDao.deletePendingMessage(packetId);
   }
@@ -250,11 +225,11 @@ class CoreServices {
         ? message.to
         : (message.to.category == Categories.USER ? message.from : message.to);
 
-    _roomDao.insertRoom(
-      M.Room(
-          roomId: roomUid.getString(),
-          lastMessageId: message.id.toInt(),
-          lastMessageDbId: msg.dbId),
+    _roomDao.insertRoomCompanion(
+      Database.RoomsCompanion.insert(
+          roomId: roomUid.asString(),
+          lastMessageId: Value(message.id.toInt()),
+          lastMessageDbId: Value(msg.dbId)),
     );
     var roomName = await RoomRepo().getRoomDisplayName(message.from);
     _notificationServices.showNotification(msg, roomName);
@@ -266,21 +241,22 @@ class CoreServices {
   }
 
   saveMessageInMessagesDB(Message message) async {
-    M.Message msg = M.Message(
+    // ignore: missing_required_param
+    Database.Message msg = Database.Message(
         id: message.id.toInt(),
         roomId: message.whichType() == Message_Type.persistEvent
-            ? message.from.string
+            ? message.from.asString()
             : message.from.node.contains(_accountRepo.currentUserUid.node)
-                ? message.to.string
+                ? message.to.asString()
                 : message.to.category == Categories.USER
-                    ? message.from.string
-                    : message.to.string,
+                    ? message.from.asString()
+                    : message.to.asString(),
         packetId: message.packetId,
         time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
-        to: message.to.string,
-        from: message.from.string,
+        to: message.to.asString(),
+        from: message.from.asString(),
         replyToId: message.replyToId.toInt(),
-        forwardedFrom: message.forwardFrom.string,
+        forwardedFrom: message.forwardFrom.asString(),
         json: messageToJson(message),
         edited: message.edited,
         encrypted: message.encrypted,
@@ -309,10 +285,10 @@ class CoreServices {
             "type": "MUC_EVENT",
             "issueType": getIssueType(
                 message.persistEvent.mucSpecificPersistentEvent.issue),
-            "issuer":
-                message.persistEvent.mucSpecificPersistentEvent.issuer.string,
-            "assignee":
-                message.persistEvent.mucSpecificPersistentEvent.assignee.string
+            "issuer": message.persistEvent.mucSpecificPersistentEvent.issuer
+                .asString(),
+            "assignee": message.persistEvent.mucSpecificPersistentEvent.assignee
+                .asString()
           };
           break;
         case PersistentEvent_Type.messageManipulationPersistentEvent:
@@ -364,25 +340,20 @@ class CoreServices {
     switch (issue) {
       case MucSpecificPersistentEvent_Issue.ADD_USER:
         return "ADD_USER";
-        break;
       case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
         return "AVATAR_CHANGED";
-        break;
       case MucSpecificPersistentEvent_Issue.MUC_CREATED:
         return "MUC_CREATED";
-        break;
       case MucSpecificPersistentEvent_Issue.LEAVE_USER:
         return "LEAVE_USER";
-        break;
       case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
         return "NAME_CHANGED";
-        break;
       case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
         return "PIN_MESSAGE";
-        break;
       case MucSpecificPersistentEvent_Issue.KICK_USER:
         return "KICK_USER";
-        break;
+      default:
+        return "UNKNOWN";
     }
   }
 }

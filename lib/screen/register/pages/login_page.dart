@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -10,7 +8,6 @@ import 'package:deliver_flutter/screen/register/widgets/phone_number.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
-import 'package:fimber/fimber.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
@@ -32,11 +29,11 @@ class _LoginPageState extends State<LoginPage> {
     var isValidated = _formKey?.currentState?.validate() ?? false;
     if (isValidated && phoneNumber != null) {
       try {
-        var result = await accountRepo.getVerificationCode(
+        await accountRepo.getVerificationCode(
             phoneNumber.countryCode, phoneNumber.number);
         ExtendedNavigator.of(context).push(Routes.verificationPage);
       } catch (e) {
-        Fimber.d(e.toString());
+        print(e);
         Fluttertoast.showToast(
 //          TODO more detailed error message needed here.
             msg: appLocalization.getTraslateValue("error_occurred"),

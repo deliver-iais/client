@@ -1,18 +1,12 @@
 import 'dart:io';
 
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
-import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/account.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
 
-import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/screen/settings/account_settings.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profile_avatar_card.dart';
@@ -106,7 +100,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ProfileAvatarCard(
               uploadNewAvatar: _uploadNewAvatar,
               newAvatarPath: _newAvatarPath,
-              userUid: _accountRepo.currentUserUid,
+              uid: _accountRepo.currentUserUid,
               buttons: [
                 MaterialButton(
                   color: Theme.of(context).buttonColor,
@@ -121,7 +115,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   color: Theme.of(context).buttonColor,
                   onPressed: () {
                     _routingService
-                        .openRoom(_accountRepo.currentUserUid.string);
+                        .openRoom(_accountRepo.currentUserUid.asString());
                   },
                   shape: CircleBorder(),
                   child: Icon(Icons.bookmark),

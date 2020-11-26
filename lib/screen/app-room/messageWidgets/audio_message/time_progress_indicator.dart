@@ -16,8 +16,10 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
   AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
   Duration currentPos;
   Duration dur;
+
   @override
   void initState() {
+    super.initState();
     if (audioPlayerService.audioUuid == widget.audioUuid) {
       currentPos = audioPlayerService.lastPos;
       dur = audioPlayerService.lastDur;
@@ -31,8 +33,9 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
         stream: audioPlayerService.audioPlayerState(widget.audioUuid),
         builder: (c, state) {
           if (state.hasData &&
-              state.data != null &&
-              state.data == AudioPlayerState.PLAYING ||audioPlayerService.CURRENT_AUDIO_ID.contains(widget.audioUuid)) {
+                  state.data != null &&
+                  state.data == AudioPlayerState.PLAYING ||
+              audioPlayerService.CURRENT_AUDIO_ID.contains(widget.audioUuid)) {
             return StreamBuilder<Duration>(
                 stream: audioPlayerService.audioDuration,
                 builder: (context, snapshot1) {
@@ -57,7 +60,6 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
                         );
                       });
                 });
-            return SizedBox.shrink();
           } else {
             return Text(
               currentPos.toString().split('.')[0].substring(3) +

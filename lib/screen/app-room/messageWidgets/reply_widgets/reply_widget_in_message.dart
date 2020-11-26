@@ -27,7 +27,7 @@ class ReplyWidgetInMessage extends StatelessWidget {
                 decoration: BoxDecoration(
                     border: Border(
                         left: BorderSide(
-                            color: accountRepo.currentUserUid.string ==
+                            color: accountRepo.currentUserUid.asString() ==
                                     snapshot.data.from
                                 ? ExtraTheme.of(context).secondColor
                                 : Theme.of(context).primaryColor,

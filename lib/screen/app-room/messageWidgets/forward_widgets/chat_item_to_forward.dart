@@ -1,8 +1,5 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/screen/app-chats/widgets/contactPic.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -17,8 +14,8 @@ class ChatItemToForward extends StatelessWidget {
 
   ChatItemToForward({Key key, this.uid, this.forwardedMessages})
       : super(key: key);
-  var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _routingService = GetIt.I.get<RoutingService>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +56,10 @@ class ChatItemToForward extends StatelessWidget {
                     }
                   }),
               onTap: () {
-                _routingService.openRoom(uid.string,forwardedMessages: forwardedMessages);
+                _routingService.openRoom(uid.asString(),forwardedMessages: forwardedMessages);
 //                ExtendedNavigator.of(context).push(Routes.roomPage,
 //                    arguments: RoomPageArguments(
-//                        roomId: uid.getString(),
+//                        roomId: uid.asString(),
 //                        forwardedMessages: forwardedMessages));
               },
             ),
