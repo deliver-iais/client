@@ -35,7 +35,7 @@ import 'package:image_size_getter/image_size_getter.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
-
+import 'package:flutter/foundation.dart';
 import 'mucRepo.dart';
 
 enum TitleStatusConditions { Disconnected, Updating, Normal }
@@ -332,6 +332,10 @@ class MessageRepo {
     return byClient;
   }
 
+  @visibleForTesting
+  MessageProto.MessageByClient createMessageByClient(Message message) =>
+      _createMessageByClient(message);
+
   sendFileMessageDeprecated(Uid room, List<String> filesPath,
       {String caption, int replyToId}) async {
     for (var path in filesPath) {
@@ -461,6 +465,11 @@ class MessageRepo {
     }
     return msgList;
   }
+
+  @visibleForTesting
+  Future<List<Message>> saveFetchMessages(
+          List<MessageProto.Message> messages) =>
+      _saveFetchMessages(messages);
 
   String _findType(String path) {
     return mime(path) ?? "application/octet-stream";

@@ -21,7 +21,6 @@ void main() {
   setUp(() {
     messageRepoTestSetup();
     messageRepo = MessageRepo();
-    messageRepo;
     roomId = randomUid().getString();
     page = 0;
   });
