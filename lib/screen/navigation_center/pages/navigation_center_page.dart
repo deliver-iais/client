@@ -49,6 +49,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   var rootingServices = GetIt.I.get<RoutingService>();
   var contactRepo = GetIt.I.get<ContactRepo>();
+  AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
 
   final Function tapOnCurrentUserAvatar;
 
@@ -84,7 +85,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
-    AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
     AppLocalization appLocalization = AppLocalization.of(context);
     return StreamBuilder<bool>(
         stream: audioPlayerService.isOn,
@@ -151,18 +151,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   _searchMode
                       ? searchResult()
                       : Expanded(
-                          child: isDesktop() || !kDebugMode
-                              ? (tab == NavigationTabs.Chats)
-                                  ? ChatsPage(key: ValueKey("ChatsPage"))
-                                  : ContactsPage(key: ValueKey("ContactsPage"))
-                              : AnimatedSwitcher(
-                                  duration: Duration(milliseconds: 150),
-                                  child: (tab == NavigationTabs.Chats)
-                                      ? ChatsPage(key: ValueKey("ChatsPage"))
-                                      : ContactsPage(
-                                          key: ValueKey("ContactsPage")),
-                                ),
-                        )
+                          child: (tab == NavigationTabs.Chats)
+                              ? ChatsPage(key: ValueKey("ChatsPage"))
+                              : ContactsPage(key: ValueKey("ContactsPage"))),
                 ],
               ),
             ),
@@ -283,7 +274,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         child: Text(
                             appLocalization.getTraslateValue("newContact")),
                         onTap: () {
-                          ExtendedNavigator.of(context).popAndPush(Routes.newContact);
+                          ExtendedNavigator.of(context)
+                              .popAndPush(Routes.newContact);
                         },
                       )),
                     ]),

@@ -44,7 +44,7 @@ class _BoxContentState extends State<BoxContent> {
         if (widget.message.roomId.uid.category == Categories.GROUP &&
             !widget.isSender)
           senderNameBox(),
-        if (widget.message.replyToId != null && widget.message.replyToId > -1)
+        if (widget.message.replyToId != null && widget.message.replyToId > 0)
           replyToIdBox(),
         if (widget.message.forwardedFrom != null &&
             widget.message.forwardedFrom.length > 3)
