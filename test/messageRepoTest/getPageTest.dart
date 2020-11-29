@@ -25,13 +25,8 @@ void main() {
     page = 0;
   });
   group('MessageRepo/getPage', () {
-    test('getPage/page is in completer', () {
-      // _completer is  private
-    });
-
     test('getPage/page is in messageDao', () async {
-      var messages = messagesList;
-      messages.add(Message(id: 2));
+      final messages = [Message(id: 0), Message(id: 1), Message(id: 2)];
       var mockMessageDao = GetIt.I.get<MessageDao>();
       when(mockMessageDao.getPage(roomId, page))
           .thenAnswer((_) async => messages);
@@ -39,20 +34,36 @@ void main() {
     });
 
     test('getPage/page is not in database and completer', () async {
-      var messages = messagesList;
-      messages.add(Message(id: 2));
+      final messages = [Message(id: 0), Message(id: 1), Message(id: 2)];
+      var mockMessageDao = GetIt.I.get<MessageDao>();
       var mockQueryServiceClient = MockQueryServiceClient();
-      // when(mockQueryServiceClient.fetchMessages(
-      //   FetchMessagesReq()
-      //     ..roomUid = roomId.uid
-      //     ..pointer = Int64(containsId)
-      //     ..type = FetchMessagesReq_Type.BACKWARD_FETCH
-      //     ..limit = pageSize,
-      // )).thenAnswer((_) => ResponseFuture<FetchMessagesRes>);
+      when(mockMessageDao.getPage(roomId, page))
+          .thenAnswer((_) async => messagesList);
+      when(mockQueryServiceClient.fetchMessages(
+        FetchMessagesReq()
+          ..roomUid = roomId.uid
+          ..pointer = Int64(containsId)
+          ..type = FetchMessagesReq_Type.BACKWARD_FETCH
+          ..limit = pageSize,
+      )).thenAnswer((_) => Future<FetchMessagesRes>.value(
+          FetchMessagesRes().getDefaultForField(0)));
       expect(await messageRepo.getPage(page, roomId, containsId), messages);
     });
     test(
         'getPage/page is not in database and completer and server throws exception',
-        () {});
+        () async {
+      var mockMessageDao = GetIt.I.get<MessageDao>();
+      var mockQueryServiceClient = MockQueryServiceClient();
+      when(mockMessageDao.getPage(roomId, page))
+          .thenAnswer((_) async => messagesList);
+      when(mockQueryServiceClient.fetchMessages(any)).thenAnswer((_) {
+        throw Exception('Server does not answer');
+      });
+      expect(
+          await messageRepo.getPage(page, roomId, containsId), throwsException);
+    });
   });
 }
+
+//TODO
+// server
