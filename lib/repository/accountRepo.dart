@@ -4,11 +4,9 @@ import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
-import 'package:deliver_flutter/screen/register/pages/testing_environment_tokens.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
@@ -47,13 +45,8 @@ class AccountRepo {
   // Dependencies
   SharedPreferencesDao _prefs = GetIt.I.get<SharedPreferencesDao>();
 
-  static ClientChannel _clientChannel = ClientChannel(
-      ServicesDiscoveryRepo().authConnection.host,
-      port: ServicesDiscoveryRepo().authConnection.port,
-      options: ChannelOptions(credentials: ChannelCredentials.insecure()));
-
-  var authServiceStub = AuthServiceClient(_clientChannel);
-  var _userServices = UserServiceClient(_clientChannel);
+  var authServiceStub = AuthServiceClient(ProfileServicesClientChannel);
+  var _userServices = UserServiceClient(ProfileServicesClientChannel);
 
   Future<void> init() async {
     var accessToken = await _prefs.get(ACCESS_TOKEN_KEY);
@@ -174,7 +167,7 @@ class AccountRepo {
       currentUserUid = Uid()
         ..category = Categories.USER
         ..node = decodedToken["sub"];
-      print("UserId " + currentUserUid.getString());
+      print("UserId " + currentUserUid.asString());
     }
   }
 

@@ -1,11 +1,8 @@
 import 'dart:ui';
 
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:flutter/material.dart';
@@ -281,6 +278,7 @@ class _AccountSettingsState extends State<AccountSettings> {
         _userNameCorrect = true;
       });
     }
+    return null;
   }
 
   String validateEmail(String value) {
@@ -292,6 +290,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     } else if (!regex.hasMatch(value)) {
       return _appLocalization.getTraslateValue("email_not_valid");
     }
+    return null;
   }
 
   checkAndSend() async {

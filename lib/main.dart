@@ -33,7 +33,6 @@ import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:fimber/fimber.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -47,7 +46,6 @@ import 'db/dao/MessageDao.dart';
 import 'db/dao/MucDao.dart';
 import 'db/dao/RoomDao.dart';
 import 'repository/mucRepo.dart';
-import 'repository/servicesDiscoveryRepo.dart';
 
 void setupDB() {
   GetIt getIt = GetIt.instance;
@@ -72,7 +70,6 @@ void setupRepositories() {
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<UxService>(UxService());
   getIt.registerSingleton<AccountRepo>(AccountRepo());
-  getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
@@ -97,20 +94,24 @@ void setupRepositories() {
 }
 
 setupFlutterNotification() async {
-  // await Firebase.initializeApp();
+  await Firebase.initializeApp();
 }
 
 void setupDIAndRunApp() {
   setupDB();
   setupRepositories();
-  setupFlutterNotification();
+
+  // TODO: Android just now is available
+  if (isAndroid()) {
+    setupFlutterNotification();
+  }
+
   runApp(MyApp());
 }
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Fimber.plantTree(DebugTree.elapsed());
-  Fimber.i("Application has been started");
+  print("Application has been started");
 
   if (isDesktop()) {
     _setWindowSize();
@@ -121,7 +122,7 @@ void main() {
   if (isAndroid()) {
     SmsAutoFill()
         .getAppSignature
-        .then((signCode) => Fimber.d("APP_SIGN_CODE for SMS: $signCode"));
+        .then((signCode) => print("APP_SIGN_CODE for SMS: $signCode"));
   }
 
   setupDIAndRunApp();
@@ -150,7 +151,7 @@ class MyApp extends StatelessWidget {
         uxService.localeStream as Stream,
       ]),
       builder: (context, snapshot) {
-        Fimber.d("theme changed ${uxService.theme.toString()}");
+        print("theme changed ${uxService.theme.toString()}");
         return ExtraTheme(
           extraThemeData: uxService.extraTheme,
           child: MaterialApp(

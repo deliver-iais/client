@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ContactsPage extends StatelessWidget {
-  var contactDao = GetIt.I.get<ContactDao>();
-  var contactRepo = GetIt.I.get<ContactRepo>();
-  var rootingServices = GetIt.I.get<RoutingService>();
+  final contactDao = GetIt.I.get<ContactDao>();
+  final contactRepo = GetIt.I.get<ContactRepo>();
+  final rootingServices = GetIt.I.get<RoutingService>();
 
   ContactsPage({Key key}) : super(key: key) {
     contactRepo.syncContacts();

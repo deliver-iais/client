@@ -11,16 +11,7 @@ extension UidExtension on Uid {
     }
   }
 
-  bool equals(Uid uid) {
-    return this.category.value == uid.category.value && this.node == uid.node;
-  }
-
-  get string => "${this.category.value}:${this.node}";
-
-  get hashcode => int.parse(this.category.value.toString()+hashCode.toString());
-
-
-  String getString() => this.string;
+  String asString() => "${this.category.value}:${this.node}";
 }
 
 const _ALL_SESSIONS = "*";

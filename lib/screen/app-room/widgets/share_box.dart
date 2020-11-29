@@ -52,7 +52,7 @@ class _ShareBoxState extends State<ShareBox> {
 
   AudioPlayer audioPlayer = AudioPlayer();
 
-  Widget CircleButton(Function onTap, IconData icon, String text, double size) {
+  Widget circleButton(Function onTap, IconData icon, String text, double size) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -163,7 +163,7 @@ class _ShareBoxState extends State<ShareBox> {
                               Stack(
                                 children: <Widget>[
                                   Container(
-                                    child: CircleButton(
+                                    child: circleButton(
                                       () {
                                         if(widget.replyMessageId != null){
                                           messageRepo.sendFileMessageDeprecated(
@@ -242,7 +242,7 @@ class _ShareBoxState extends State<ShareBox> {
                                     MainAxisAlignment.spaceAround,
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: <Widget>[
-                                  CircleButton(() {
+                                  circleButton(() {
                                     setState(() {
                                       audioPlayer.stop();
 
@@ -253,7 +253,7 @@ class _ShareBoxState extends State<ShareBox> {
                                       appLocalization
                                           .getTraslateValue("gallery"),
                                       40),
-                                  CircleButton(() {
+                                  circleButton(() {
                                     setState(() {
                                       audioPlayer.stop();
                                       currentPage = Page.Files;
@@ -262,14 +262,14 @@ class _ShareBoxState extends State<ShareBox> {
                                       Icons.file_upload,
                                       appLocalization.getTraslateValue("file"),
                                       40),
-                                  CircleButton(() async {
+                                  circleButton(() async {
                                     audioPlayer.stop();
                                   },
                                       Icons.location_on,
                                       appLocalization
                                           .getTraslateValue("location"),
                                       40),
-                                  CircleButton(() {
+                                  circleButton(() {
                                     setState(() {
                                       currentPage = Page.Music;
                                     });

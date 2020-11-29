@@ -33,7 +33,7 @@ class MemberRepo {
 
   Future<bool> isOwner(Uid mucUid) async {
     var member = await _memberDao.getMember(
-        _accountRepo.currentUserUid.string, mucUid.string);
+        _accountRepo.currentUserUid.asString(), mucUid.asString());
     if (member.role == MucRole.OWNER) {
       return true;
     }

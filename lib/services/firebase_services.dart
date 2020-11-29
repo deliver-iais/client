@@ -14,12 +14,7 @@ class FireBaseServices {
   var notificationServices = GetIt.I.get<NotificationServices>();
   var accountRepo = GetIt.I.get<AccountRepo>();
 
-  static ClientChannel _clientChannel = ClientChannel(
-      ServicesDiscoveryRepo().fireBaseServices.host,
-      port: ServicesDiscoveryRepo().fireBaseServices.port,
-      options: ChannelOptions(credentials: ChannelCredentials.insecure()));
-
-  var fireBaseServices = FirebaseServiceClient(_clientChannel);
+  var fireBaseServices = FirebaseServiceClient(FirebaseServicesClientChannel);
 
   sendFireBaseToken(BuildContext context) async {
     _firebaseMessaging.requestNotificationPermissions();
@@ -29,7 +24,7 @@ class FireBaseServices {
   }
 
   _sendFireBaseToken(String fireBaseToken) async {
-    var result = await fireBaseServices.registration(
+    await fireBaseServices.registration(
         RegistrationReq()..tokenId = fireBaseToken,
         options: CallOptions(
             metadata: {'accessToken': await accountRepo.getAccessToken()}));

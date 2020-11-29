@@ -15,7 +15,9 @@ class MucDao extends DatabaseAccessor<Database> with _$MucDaoMixin {
   Future<int> insertMuc(Muc muc) =>
       into(mucs).insertOnConflictUpdate(muc);
 
-  Future deleteMuc(Muc muc) => delete(mucs).delete(muc);
+  Future deleteMuc(String mucUid) {
+    return (delete(mucs)..where((t) => t.uid.equals(mucUid))).go();
+  }
 
   Future updateMuc(String  mucUid,int members) =>
       (update(mucs)

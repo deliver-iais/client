@@ -4,14 +4,11 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
 
-import 'package:uuid/uuid.dart';
 
 import '../circleAvatar.dart';
 
@@ -19,7 +16,7 @@ class ContactWidget extends StatelessWidget {
   final Contact contact;
   final IconData circleIcon;
   final bool isSelected;
-  var accountRepo = GetIt.I.get<AccountRepo>();
+  final accountRepo = GetIt.I.get<AccountRepo>();
 
   ContactWidget({this.contact, this.circleIcon, this.isSelected = false});
 

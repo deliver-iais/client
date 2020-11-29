@@ -18,6 +18,10 @@ class MemberDao extends DatabaseAccessor<Database> with _$MemberDaoMixin {
 
   Future deleteMember(Member member) => delete(members).delete(member);
 
+  Future deleteAllMembers(String mucUid) {
+    return (delete(members)..where((t) => t.mucUid.equals(mucUid))).go();
+  }
+
   Future updateMember(Member updatedMember) =>
       update(members).replace(updatedMember);
 

@@ -4,7 +4,6 @@ import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:open_file/open_file.dart';
-import 'package:rxdart/rxdart.dart';
 
 class AudioPlayerService {
   AudioPlayer audioPlayer;
@@ -23,6 +22,7 @@ class AudioPlayerService {
 
   Map<String, StreamController<AudioPlayerState>> _audioPlayerStateController;
 
+  // TODO, why we can access variable of class directly!!
   String CURRENT_AUDIO_ID = "";
 
   Stream<AudioPlayerState> audioPlayerState(String audioId) {

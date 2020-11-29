@@ -4,13 +4,11 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -18,11 +16,10 @@ import 'package:get_it/get_it.dart';
 
 class LastMessage extends StatelessWidget {
   final Message message;
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
 
   LastMessage({Key key, this.message}) : super(key: key);
-
-  var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +41,7 @@ class LastMessage extends StatelessWidget {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          message.from.contains(_accountRepo.currentUserUid.string)
+          message.from.contains(_accountRepo.currentUserUid.asString())
               ? _fromDisplayName(
                   _appLocalization.getTraslateValue("you"), context)
               : FutureBuilder<String>(
@@ -76,7 +73,7 @@ class LastMessage extends StatelessWidget {
     return message.type == MessageType.PERSISTENT_EVENT
         ? PersistentEventMessage(
             message: message,
-            showLastMessaeg: true,
+            showLastMessage: true,
           )
         : Container(
             width: 230,
@@ -96,7 +93,7 @@ class LastMessage extends StatelessWidget {
 
   Widget _fromDisplayName(String from, BuildContext context) {
     return Text(
-      "${from} :",
+      "$from :",
       style: TextStyle(
         color: Theme.of(context).primaryColor,
         fontSize: 13,
