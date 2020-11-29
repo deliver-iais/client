@@ -332,10 +332,6 @@ class MessageRepo {
     return byClient;
   }
 
-  @visibleForTesting
-  MessageProto.MessageByClient createMessageByClient(Message message) =>
-      _createMessageByClient(message);
-
   sendFileMessageDeprecated(Uid room, List<String> filesPath,
       {String caption, int replyToId}) async {
     for (var path in filesPath) {
@@ -428,7 +424,6 @@ class MessageRepo {
     if (completer != null && !completer.isCompleted) {
       return completer.future;
     }
-
     completer = new Completer();
     _completerMap["$roomId-$page"] = completer;
 
@@ -465,11 +460,6 @@ class MessageRepo {
     }
     return msgList;
   }
-
-  @visibleForTesting
-  Future<List<Message>> saveFetchMessages(
-          List<MessageProto.Message> messages) =>
-      _saveFetchMessages(messages);
 
   String _findType(String path) {
     return mime(path) ?? "application/octet-stream";
