@@ -105,7 +105,7 @@ class MessageRepo {
               FetchMessagesReq()
                 ..roomUid = userRoomMeta.roomUid
                 ..pointer = userRoomMeta.lastMessageId
-                ..type = FetchMessagesReq_Type.FORWARD_FETCH
+                ..type = FetchMessagesReq_Type.BACKWARD_FETCH
                 ..limit = 2,
               options: CallOptions(timeout: Duration(seconds: 1), metadata: {
                 'accessToken': await _accountRepo.getAccessToken()
@@ -114,7 +114,7 @@ class MessageRepo {
               await _saveFetchMessages(fetchMessagesRes.messages);
 
           if (userRoomMeta.roomUid.category != Categories.USER) {
-            _mucRepo.saveMucInfo(userRoomMeta.roomUid);
+            await _mucRepo.saveMucInfo(userRoomMeta.roomUid);
           }
 
           // TODO if there is Pending Message this line has a bug!!

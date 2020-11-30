@@ -30,6 +30,7 @@ class _MucInfoDeterminationPageState
   String channelId = "";
   bool showEmoji = false;
   bool autofocus = false;
+  bool _showIcon = true;
   var _routingService = GetIt.I.get<RoutingService>();
   var _createMucService = GetIt.I.get<CreateMucService>();
 
@@ -145,37 +146,45 @@ class _MucInfoDeterminationPageState
             Positioned(
               bottom: 0,
               right: 0,
-              child: Container(
+              child:_showIcon? Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Theme.of(context).primaryColor,
                 ),
-                child: IconButton(
+                child:  IconButton(
                   alignment: Alignment.center,
                   padding: EdgeInsets.all(0),
                   icon: Icon(Icons.check),
                   onPressed: () async {
+                    setState(() {
+                      _showIcon = false;
+                    });
                     List<Uid> memberUidList = [];
                     Uid micUid;
                     for (var i = 0; i < _createMucService.members.length; i++) {
                       memberUidList.add(_createMucService.members[i].uid.uid);
                     }
-                    if(widget.isChannel){
+                    if(widget.isChannel && controller.text!= null){
                       micUid = await _mucRepo.makeNewChannel(idController.text,
                           memberUidList, controller.text,ChannelType.PUBLIC);
-                    }else{
+                      controller.clear();
+                    }else if(controller.text != null){
                       micUid = await _mucRepo.makeNewGroup(
                           memberUidList, controller.text);
                       controller.clear();
                     }
                     if(micUid !=null) {
                       _routingService.openRoom(micUid.asString());
+                    }else{
+                      setState(() {
+                        _showIcon = true;
+                      });
                     }
                   },
                 ),
-              ),
+              ):SizedBox.shrink(),
             ),
             Positioned(
               bottom: 0,

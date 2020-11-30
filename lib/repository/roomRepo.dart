@@ -53,7 +53,8 @@ class RoomRepo {
         }
         break;
     }
-    return "Unknown";
+    
+    return await _searchByUid(uid);
   }
 
   Future<String> _searchByUid(Uid uid) async {

@@ -2,6 +2,8 @@ import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/role.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/mucRepo.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -9,6 +11,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 class MemberRepo {
   var _memberDao = GetIt.I.get<MemberDao>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
+  var _mucRepo = GetIt.I.get<MucRepo>();
 
   Future<Member> insertMemberInfo(
       String memberUid, String mucUid, DateTime lastSeen, MucRole role) async {
@@ -22,6 +25,9 @@ class MemberRepo {
   }
 
   Future<bool> isMucAdminOrOwner(String memberUid, String mucUid) async {
+    if(mucUid.uid.category == Categories.CHANNEL){
+      await _mucRepo.getChannelMembers(mucUid.uid);
+    }
     var member = await _memberDao.getMember(memberUid, mucUid);
     if (member != null) {
       if (member.role == MucRole.OWNER || member.role == MucRole.ADMIN) {

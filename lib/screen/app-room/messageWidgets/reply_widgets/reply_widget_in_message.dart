@@ -17,8 +17,8 @@ class ReplyWidgetInMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
     MessageDao messageDao = GetIt.I.get<MessageDao>();
-    return StreamBuilder<Message>(
-        stream: messageDao.getById(replyToId, roomId),
+    return FutureBuilder<List<Message>>(
+        future: messageDao.getFutureById(replyToId, roomId),
         builder: (context, snapshot) {
           if (snapshot.hasData)
             return Padding(
@@ -28,14 +28,14 @@ class ReplyWidgetInMessage extends StatelessWidget {
                     border: Border(
                         left: BorderSide(
                             color: accountRepo.currentUserUid.asString() ==
-                                    snapshot.data.from
+                                    snapshot.data[0].from
                                 ? ExtraTheme.of(context).secondColor
                                 : Theme.of(context).primaryColor,
                             width: 3))),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
                   child: SenderAndContent(
-                    messages: List<Message>.filled(1, snapshot.data),
+                    messages: List<Message>.filled(1, snapshot.data[0]),
                     inBox: true,
                   ),
                 ),

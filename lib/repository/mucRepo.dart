@@ -82,12 +82,14 @@ class MucRepo {
           name: group.name,
           uid: mucUid.asString(),
           members: group.population.toInt()));
+      getGroupMembers(mucUid);
     } else {
       Channel channel = await getChannelInfo(mucUid);
       _mucDao.insertMuc(Muc(
           name: channel.name,
           uid: mucUid.asString(),
           members: channel.population.toInt()));
+      getChannelMembers(mucUid);
     }
   }
 
@@ -302,9 +304,6 @@ class MucRepo {
     _mucDao.updateMuc(mucUid.asString(), members.length);
   }
 
-  String _getPacketId() {
-    return "${_accountRepo.currentUserUid}:${DateTime.now().microsecondsSinceEpoch}";
-  }
 
   MucPro.Role getRole(MucRole role) {
     switch (role) {
