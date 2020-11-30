@@ -96,7 +96,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Future<List<Message>> _getMessageAndPreviousMessage(int id) async {
     String roomId = widget.roomId;
     var m1 = await getMessage(id, roomId);
-    if (id == 0) {
+    if (id == 1) {
       return [m1];
     } else {
       var m2 = await getMessage(id - 1, roomId);
@@ -252,8 +252,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                     _itemCount = pendingMessages.length;
                                   } else {
                                     _itemCount = currentRoom.lastMessageId +
-                                        1 +
-                                        pendingMessages.length;
+                                        pendingMessages.length; //TODO chang
                                   }
                                   int month;
                                   int day;
@@ -269,9 +268,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                         initialScrollIndex:
                                             _lastShowedMessageId != -1
                                                 ? _itemCount -
-                                                    _lastShowedMessageId -
-                                                    1
-                                                : 0,
+                                                    _lastShowedMessageId
+                                                : 0, //TODO
                                         initialAlignment: 1,
                                         physics: _scrollPhysics,
                                         reverse: true,
@@ -350,7 +348,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                         : Container(),
                                                     currentRoom.lastMessageId !=
                                                             null
-                                                        ? _lastShowedMessageId!=-1 && _lastShowedMessageId ==
+                                                        ? _lastShowedMessageId !=
+                                                                    -1 &&
+                                                                _lastShowedMessageId ==
                                                                     currentRoom
                                                                             .lastMessageId -
                                                                         1 -
