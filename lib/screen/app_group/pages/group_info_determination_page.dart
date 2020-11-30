@@ -166,11 +166,11 @@ class _MucInfoDeterminationPageState
                     for (var i = 0; i < _createMucService.members.length; i++) {
                       memberUidList.add(_createMucService.members[i].uid.uid);
                     }
-                    if(widget.isChannel && controller.text!= null){
+                    if(widget.isChannel ){
                       micUid = await _mucRepo.makeNewChannel(idController.text,
                           memberUidList, controller.text,ChannelType.PUBLIC);
                       controller.clear();
-                    }else if(controller.text != null){
+                    }else {
                       micUid = await _mucRepo.makeNewGroup(
                           memberUidList, controller.text);
                       controller.clear();

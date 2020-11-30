@@ -10,6 +10,7 @@ import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -27,6 +28,7 @@ class MucServices {
       var request = await groupServices.createGroup(
           GroupServices.CreateGroupReq()..name = groupName,
           options: CallOptions(
+              timeout: Duration(seconds: 2),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return request.uid;
     } catch (e) {
@@ -116,11 +118,10 @@ class MucServices {
     try {
       await groupServices.kickMembers(kickMembersReq,
           options: CallOptions(
+              timeout: Duration(seconds: 1),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
-      print(e.toString());
-
       return false;
     }
   }
@@ -132,10 +133,10 @@ class MucServices {
             ..member = member.uid
             ..group = mucUid,
           options: CallOptions(
+              timeout: Duration(seconds: 1),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
-      print(e.toString());
       return false;
     }
   }
@@ -147,6 +148,7 @@ class MucServices {
             ..member = member.uid
             ..group = mucUid,
           options: CallOptions(
+              timeout: Duration(seconds: 1),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
@@ -159,6 +161,7 @@ class MucServices {
       await groupServices.joinGroup(
           GroupServices.JoinGroupReq()..group = groupUid,
           options: CallOptions(
+              timeout: Duration(seconds: 1),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
@@ -170,19 +173,25 @@ class MucServices {
     await groupServices.modifyGroup(
         GroupServices.ModifyGroupReq()..group = group,
         options: CallOptions(
+            timeout: Duration(seconds: 1),
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
   }
 
   Future<Uid> createNewChannel(
       String channelName, ChannelType type, String channelId) async {
-    var request = await channelServices.createChannel(
-        CreateChannelReq()
-          ..name = channelName
-          ..type = type
-          ..id = channelId,
-        options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-    return request.uid;
+    try {
+      var request = await channelServices.createChannel(
+          CreateChannelReq()
+            ..name = channelName
+            ..type = type
+            ..id = channelId,
+          options: CallOptions(
+              timeout: Duration(seconds: 2),
+              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      return request.uid;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<bool> addChannelMembers(List<Member> members, Uid mucUid) async {
@@ -195,6 +204,7 @@ class MucServices {
       addMemberRequest..channel = mucUid;
       await channelServices.addMembers(addMemberRequest,
           options: CallOptions(
+              timeout: Duration(seconds: 2),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
@@ -204,11 +214,16 @@ class MucServices {
   }
 
   Future<ChannelServices.Channel> getChannel(Uid channelUid) async {
-    var request = await channelServices.getChannel(
-        ChannelServices.GetChannelReq()..uid = channelUid,
-        options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-    return request.channel;
+    try {
+      var request = await channelServices.getChannel(
+          ChannelServices.GetChannelReq()..uid = channelUid,
+          options: CallOptions(
+              timeout: Duration(seconds: 1),
+              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      return request.channel;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<bool> removeChannel(Uid channelUid) async {
@@ -216,6 +231,7 @@ class MucServices {
       await channelServices.removeChannel(
           ChannelServices.RemoveChannelReq()..uid = channelUid,
           options: CallOptions(
+              timeout: Duration(seconds: 1),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
@@ -230,6 +246,7 @@ class MucServices {
             ..member = member
             ..channel = channel,
           options: CallOptions(
+              timeout: Duration(seconds: 1),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
@@ -239,11 +256,16 @@ class MucServices {
 
   Future<List<Member>> getChnnelMembers(
       Uid channelUid, int limit, int pointer) async {
-    var request = await channelServices.getMembers(
-        ChannelServices.GetMembersReq()..uid = channelUid,
-        options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-    return request.members;
+    try {
+      var request = await channelServices.getMembers(
+          ChannelServices.GetMembersReq()..uid = channelUid,
+          options: CallOptions(
+              timeout: Duration(seconds: 2),
+              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      return request.members;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<bool> leaveChannel(Uid channelUid) async {
@@ -251,6 +273,7 @@ class MucServices {
       await channelServices.leaveChannel(
           ChannelServices.LeaveChannelReq()..channel = channelUid,
           options: CallOptions(
+              timeout: Duration(seconds: 1),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
@@ -267,6 +290,7 @@ class MucServices {
     try {
       await channelServices.kickMembers(kickMembersReq,
           options: CallOptions(
+              timeout: Duration(seconds: 1),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
@@ -281,6 +305,7 @@ class MucServices {
             ..member = member.uid
             ..channel = channelUid,
           options: CallOptions(
+              timeout: Duration(seconds: 1),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
@@ -295,6 +320,7 @@ class MucServices {
             ..member = member.uid
             ..channel = channelUid,
           options: CallOptions(
+              timeout: Duration(seconds: 1),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
@@ -307,6 +333,7 @@ class MucServices {
       await channelServices.joinChannel(
           ChannelServices.JoinChannelReq()..channel = channelUid,
           options: CallOptions(
+              timeout: Duration(seconds: 1),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
@@ -318,6 +345,7 @@ class MucServices {
     await channelServices.modifyChannel(
         ChannelServices.ModifyChannelReq()..channel = channel,
         options: CallOptions(
+            timeout: Duration(seconds: 1),
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
   }
 }
