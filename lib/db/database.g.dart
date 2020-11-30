@@ -4874,7 +4874,7 @@ class $MediasMetaDataTable extends MediasMetaData
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  Set<GeneratedColumn> get $primaryKey => {roomId};
   @override
   MediasMetaDataData map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;

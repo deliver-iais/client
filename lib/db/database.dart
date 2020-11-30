@@ -79,7 +79,7 @@ class Database extends _$Database {
           }
           final dbFolder = await getApplicationDocumentsDirectory();
           final file = File(p.join(dbFolder.path, 'db.sqlite'));
-          return VmDatabase(file);
+          return VmDatabase(file,logStatements: true);
         }));
 
   @override
