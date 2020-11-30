@@ -40,7 +40,7 @@ class SenderAndContent extends StatelessWidget {
         ? '${messages.length} ' +
             appLocalization.getTraslateValue("ForwardedMessages")
         : messages[0].type == MessageType.TEXT
-            ? (jsonDecode(messages[0].json))["text"]
+            ? (jsonDecode(messages[0].json))["1"]
             : "File";
 
     return Container(

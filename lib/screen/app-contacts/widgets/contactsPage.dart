@@ -24,6 +24,12 @@ class ContactsPage extends StatelessWidget {
           if (snapshot.hasData &&
               snapshot.data != null &&
               snapshot.data.length > 0) {
+            List<Contact> contacts = List();
+            List<Contact> contactUsers = List();
+            snapshot.data.forEach((element) {
+              element.uid!=null?contacts.add(element):contactUsers.add(element);
+            });
+           contacts.addAll(contactUsers);
             return Container(
                 child: Scrollbar(
               child: ListView.builder(
@@ -31,16 +37,16 @@ class ContactsPage extends StatelessWidget {
                 itemBuilder: (BuildContext ctxt, int index) =>
                     GestureDetector(
                         onTap: () {
-                          if (snapshot.data[index].uid != null) {
+                          if (contacts[index].uid != null) {
                             rootingServices
-                                .openRoom(snapshot.data[index].uid);
+                                .openRoom(contacts[index].uid);
                           } else {
                             // todo invite contact
                           }
                         },
                         child: ContactWidget(
-                            contact: snapshot.data[index],
-                            circleIcon: (snapshot.data[index].uid != null)
+                            contact: contacts[index],
+                            circleIcon: (contacts[index].uid != null)
                                 ? Icons.message
                                 : Icons.add)),
               ),

@@ -350,7 +350,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                         : Container(),
                                                     currentRoom.lastMessageId !=
                                                             null
-                                                        ? _lastShowedMessageId ==
+                                                        ? _lastShowedMessageId!=-1 && _lastShowedMessageId ==
                                                                     currentRoom
                                                                             .lastMessageId -
                                                                         1 -
