@@ -55,8 +55,7 @@ class MessageRepo {
 
   var _coreServices = GetIt.I.get<CoreServices>();
 
-  final QueryServiceClient _queryServiceClient =
-      QueryServiceClient(QueryClientChannel);
+  var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
 
   BehaviorSubject<TitleStatusConditions> updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
@@ -67,7 +66,7 @@ class MessageRepo {
         updatingStatus.add(TitleStatusConditions.Disconnected);
       }
       if (mode == ConnectionStatus.Connected) {
-        _updating();
+        updating();
       }
     });
   }
@@ -75,7 +74,8 @@ class MessageRepo {
   var _completerMap = Map<String, Completer<List<Message>>>();
 
   // TODO: Refactor Needed
-  _updating() async {
+  @visibleForTesting
+  updating() async {
     updatingStatus.add(TitleStatusConditions.Updating);
     print("UPDATTTTTTTTTTTTTTTTTTTTTTTTTTTTINNNNNNNNNNNNGGGGGGGGGGGG");
     try {
@@ -84,16 +84,14 @@ class MessageRepo {
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-      print(getAllUserRoomMetaRes.roomsMeta);
+      // print(getAllUserRoomMetaRes.roomsMeta);
       print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
         print("------------------------------------");
         print(userRoomMeta);
         var room =
             await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.asString());
-
         print("room: $room");
-
         if (room != null &&
             room.lastMessageId != null &&
             room.lastMessageId >= userRoomMeta.lastMessageId.toInt() &&
@@ -127,8 +125,10 @@ class MessageRepo {
           print(e);
         }
       }
-    } catch (e) {
-      print(e);
+    } on Exception catch (exception) {
+      print(exception);
+    } catch (error) {
+      print(error);
     }
     updatingStatus.add(TitleStatusConditions.Normal);
 
@@ -423,6 +423,7 @@ class MessageRepo {
     _completerMap["$roomId-$page"] = completer;
 
     _messageDao.getPage(roomId, page).then((messages) async {
+      print('message = $messages');
       if (messages.any((element) => element.id == containsId)) {
         completer.complete(messages);
       } else {
@@ -436,14 +437,16 @@ class MessageRepo {
               options: CallOptions(metadata: {
                 'accessToken': await _accountRepo.getAccessToken()
               }));
-          completer
-              .complete(await _saveFetchMessages(fetchMessagesRes.messages));
+          print('nlnlslnslnls');
+          var m = await _saveFetchMessages(fetchMessagesRes.messages);
+          completer.complete(m);
         } catch (e) {
+          print(e);
           completer.completeError(e);
         }
       }
     });
-
+    print('hhnknnkjhh');
     return completer.future;
   }
 

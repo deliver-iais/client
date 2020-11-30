@@ -9,6 +9,7 @@ import 'package:mockito/mockito.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 
 class MockMessageDao extends Mock implements MessageDao {}
 
@@ -39,7 +40,5 @@ void messageRepoTestSetup() {
   getIt.registerSingleton<FileRepo>(MockFileRepo());
   getIt.registerSingleton<MucRepo>(MockMucRepo());
   getIt.registerSingleton<CoreServices>(MockCoreServices());
-
-  // final QueryServiceClient _queryServiceClient =
-  // QueryServiceClient(QueryClientChannel);
+  getIt.registerSingleton<QueryServiceClient>(MockQueryServiceClient());
 }
