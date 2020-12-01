@@ -191,11 +191,16 @@ class ContactRepo {
   }
 
   Future<UserAsContact> searchUserByUid(Uid uid) async {
-    var result = await contactServices.getUserByUid(
-        GetUserByUidReq()..uid = uid,
-        options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-    return result.user;
+    try{
+      var result = await contactServices.getUserByUid(
+          GetUserByUidReq()..uid = uid,
+          options: CallOptions(timeout: Duration(seconds: 2),
+              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      return result.user;
+    }catch(e){
+      return null;
+    }
+
   }
 
   Future<UserAsContact> searchUserByUsername(String username) async {

@@ -50,7 +50,7 @@ class NotificationServices {
   showTextNotification(int notificationId, String roomId, String roomName,
       String messageBody) async {
     if (_notificationMessage[roomId] == null) {
-      _notificationMessage[roomId] = "";
+      _notificationMessage[roomId] = " ";
     }
     _notificationMessage[roomId] =
         _notificationMessage[roomId] + "\n" + messageBody;
@@ -90,13 +90,13 @@ class NotificationServices {
         payload: roomId);
   }
 
-  void showNotification(db.Message message, String roomName) async {
+  void showNotification(db.Message message, String roomName,String roomUid) async {
     if (_currentRoomId == null || !_currentRoomId.contains(message.from))
       cancelNotification(message.id - 1);
     switch (message.type) {
       case MessageType.TEXT:
-        showTextNotification(message.id, message.from, roomName,
-            jsonDecode(message.json)['text']);
+        showTextNotification(message.id, roomUid, roomName,
+            jsonDecode(message.json)['1']);
         break;
       case MessageType.FILE:
         // TODO: Handle this case.
@@ -127,6 +127,6 @@ class NotificationServices {
 
   void reset(String roomId) {
     _currentRoomId = roomId;
-    _notificationMessage[roomId] = "";
+    _notificationMessage[roomId] = " ";
   }
 }
