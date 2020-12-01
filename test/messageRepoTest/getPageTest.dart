@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
+import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -39,6 +40,7 @@ void main() {
     test('getPage/page is not in database and completer', () async {
       final messages = [Message(id: 0), Message(id: 1), Message(id: 2)];
       var mockMessageDao = GetIt.I.get<MessageDao>();
+      var mockCoreServices = GetIt.I.get<CoreServices>();
       var mockQueryServiceClient = GetIt.I.get<QueryServiceClient>();
       when(mockMessageDao.getPage(roomId, page))
           .thenAnswer((_) async => messagesList);
@@ -46,14 +48,19 @@ void main() {
       res.messages.add(MessageProto.Message()..id = Int64(0));
       res.messages.add(MessageProto.Message()..id = Int64(1));
       res.messages.add(MessageProto.Message()..id = Int64(2));
-      when(await mockQueryServiceClient.fetchMessages(
-        FetchMessagesReq()
-          ..roomUid = roomId.uid
-          ..pointer = Int64(containsId)
-          ..type = FetchMessagesReq_Type.BACKWARD_FETCH
-          ..limit = pageSize,
-      ))
-          .thenReturn(res);
+      print(res.messages);
+      when(mockQueryServiceClient.fetchMessages(any,
+              options: anyNamed('options')))
+          .thenAnswer((_) => MockResponseFuture<FetchMessagesRes>(res));
+      when(mockCoreServices
+              .saveMessageInMessagesDB(MessageProto.Message()..id = Int64(0)))
+          .thenAnswer((realInvocation) async => Message(id: 0));
+      when(mockCoreServices
+              .saveMessageInMessagesDB(MessageProto.Message()..id = Int64(1)))
+          .thenAnswer((realInvocation) async => Message(id: 1));
+      when(mockCoreServices
+              .saveMessageInMessagesDB(MessageProto.Message()..id = Int64(2)))
+          .thenAnswer((realInvocation) async => Message(id: 2));
       expect(await messageRepo.getPage(page, roomId, containsId), messages);
     });
     test(
@@ -63,12 +70,15 @@ void main() {
       var mockQueryServiceClient = GetIt.I.get<QueryServiceClient>();
       when(mockMessageDao.getPage(roomId, page))
           .thenAnswer((_) async => messagesList);
-      when(mockQueryServiceClient.fetchMessages(any))
-          .thenAnswer((realInvocation) {
-        throw Future.value(Exception);
+      when(mockQueryServiceClient.fetchMessages(any,
+              options: anyNamed('options')))
+          .thenThrow(MockResponseFuture<Exception>(
+              Exception('fetchMessage throws exception')));
+      bool error = false;
+      await messageRepo.getPage(page, roomId, containsId).catchError((e) {
+        error = true;
       });
-      expect(await messageRepo.getPage(page, roomId, containsId),
-          Future.error(Exception));
+      expect(error, true);
     });
   });
 }

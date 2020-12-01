@@ -67,6 +67,8 @@ class MessageRepo {
       }
       if (mode == ConnectionStatus.Connected) {
         updating();
+        // TODO, change the position of calling this function, maybe needed periodic sending
+        _sendPendingMessages();
       }
     });
   }
@@ -77,22 +79,16 @@ class MessageRepo {
   @visibleForTesting
   updating() async {
     updatingStatus.add(TitleStatusConditions.Updating);
-    print("UPDATTTTTTTTTTTTTTTTTTTTTTTTTTTTINNNNNNNNNNNNGGGGGGGGGGGG");
     try {
       var getAllUserRoomMetaRes = await _queryServiceClient.getAllUserRoomMeta(
           GetAllUserRoomMetaReq(),
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-      print(getAllUserRoomMetaRes);
       print(getAllUserRoomMetaRes.roomsMeta);
-      print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
-        print("------------------------------------");
         print(userRoomMeta);
         var room =
             await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.asString());
-        print("room: $room");
         if (room != null &&
             room.lastMessageId != null &&
             room.lastMessageId >= userRoomMeta.lastMessageId.toInt() &&
@@ -117,26 +113,23 @@ class MessageRepo {
           }
 
           // TODO if there is Pending Message this line has a bug!!
-          _roomDao.insertRoomCompanion(RoomsCompanion.insert(
-              roomId: userRoomMeta.roomUid.asString(),
-              lastMessageId: Value(userRoomMeta.lastMessageId.toInt()),
-              lastMessageDbId: Value(messages[0].dbId)));
+          if (messages.isNotEmpty) {
+            _roomDao.insertRoomCompanion(RoomsCompanion.insert(
+                roomId: userRoomMeta.roomUid.asString(),
+                lastMessageId: Value(messages.last.id),
+                lastMessageDbId: Value(messages.last.dbId)));
+          }
         } catch (e) {
-          print("EXCEPTIOOOOOOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNNNNNNN");
           print(e);
         }
       }
-    } on Exception catch (exception) {
-      print(exception);
-    } catch (error) {
-      print(error);
+    } catch (e) {
+      print(e);
     }
     updatingStatus.add(TitleStatusConditions.Normal);
-
-    // TODO, change the position of calling this function, maybe needed periodic sending
-    // _sendPendingMessages();
   }
 
+  //TODO test
   sendTextMessage(Uid room, String text,
       {int replyId, String forwardedFromAsString}) async {
     String packetId = _getPacketId();
@@ -167,6 +160,7 @@ class MessageRepo {
     _sendMessageToServer(dbId);
   }
 
+  //TODO test
   sendFileMessage(Uid room, String path,
       {String caption = "", int replyToId = -1}) async {
     String packetId = _getPacketId();
@@ -335,6 +329,7 @@ class MessageRepo {
     }
   }
 
+  //TODO test
   _sendPendingMessages() async {
     List<PendingMessage> pendingMessages =
         await _pendingMessageDao.getAllPendingMessages();
@@ -376,6 +371,7 @@ class MessageRepo {
     await _roomDao.updateRoomLastMessage(roomId, dbId);
   }
 
+  //TODO test
   sendForwardedMessage(Uid room, List<Message> forwardedMessage) async {
     for (Message forwardedMessage in forwardedMessage) {
       var msg = forwardedMessage.copyWith(
@@ -424,7 +420,6 @@ class MessageRepo {
     _completerMap["$roomId-$page"] = completer;
 
     _messageDao.getPage(roomId, page).then((messages) async {
-      print('message = $messages');
       if (messages.any((element) => element.id == containsId)) {
         completer.complete(messages);
       } else {
@@ -438,7 +433,7 @@ class MessageRepo {
               options: CallOptions(metadata: {
                 'accessToken': await _accountRepo.getAccessToken()
               }));
-          print('nlnlslnslnls');
+          print(fetchMessagesRes.messages);
           var m = await _saveFetchMessages(fetchMessagesRes.messages);
           completer.complete(m);
         } catch (e) {
@@ -447,7 +442,6 @@ class MessageRepo {
         }
       }
     });
-    print('hhnknnkjhh');
     return completer.future;
   }
 
