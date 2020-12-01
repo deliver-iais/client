@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/mediaType.dart';
@@ -47,25 +48,20 @@ class _ProfilePageState extends State<ProfilePage> {
   var mediasLength;
   Room currentRoomId;
   List<Media> _fetchedMedia;
-
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
   bool hasMedia=false;
+  var _mediaCache = LruCache<String,Media>(storage: SimpleStorage(size: 30));
 
-  // Future<int> x() async{
-  //
-  //     imageCount= await _mediaQueryRepo.allMediasTypeCount(widget.userUid, MediaType.IMAGE);
-  //   return imageCount;
-  // }
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
 
     return Scaffold(
         body: DefaultTabController(
-            length: widget.userUid.category == Categories.USER ? 3 : 4,
+            length: widget.userUid.category == Categories.USER ? 1 : 2,
             child: NestedScrollView(
                 headerSliverBuilder:
                     (BuildContext context, bool innerBoxIsScrolled) {
@@ -253,70 +249,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                             ],
                                           ),
                                         ),
-                                        // kDebugMode
-                                        //     ? IconButton(
-                                        //         icon: Icon(Icons.add),
-                                        //         onPressed: () {
-                                        //           DateFormat dateFormat =
-                                        //               DateFormat(
-                                        //                   "yyyy-MM-dd HH:mm");
-                                        //           DateTime sendTime =
-                                        //               DateTime.now();
-                                        //           String time = dateFormat
-                                        //               .format(sendTime);
-                                        //           _mediaQueryRepo
-                                        //               .insertMediaQueryInfo(
-                                        //                   1,
-                                        //                   "https://picsum.photos/250?image=9",
-                                        //                   "parinaz",
-                                        //                   "laptop",
-                                        //                   "image",
-                                        //                   time,
-                                        //                   "p.asghari",
-                                        //                   "laptop");
-                                        //           _mediaQueryRepo
-                                        //               .insertMediaQueryInfo(
-                                        //                   2,
-                                        //                   "https://picsum.photos/seed/picsum/200/300",
-                                        //                   "parinaz",
-                                        //                   "sky",
-                                        //                   "image",
-                                        //                   time,
-                                        //                   "p.asghari",
-                                        //                   "skyy");
-                                        //           _mediaQueryRepo
-                                        //               .insertMediaQueryInfo(
-                                        //                   3,
-                                        //                   "https://picsum.photos/seed/picsum/200/300",
-                                        //                   "parinaz",
-                                        //                   "sky1",
-                                        //                   "image",
-                                        //                   time,
-                                        //                   "p.asghari",
-                                        //                   "skyy1");
-                                        //           _mediaQueryRepo
-                                        //               .insertMediaQueryInfo(
-                                        //                   14,
-                                        //                   "https://picsum.photos/seed/picsum/200/300",
-                                        //                   "parinaz",
-                                        //                   "sky1",
-                                        //                   "image",
-                                        //                   time,
-                                        //                   "p.asghari",
-                                        //                   "skyy1");
-                                        //           _mediaQueryRepo
-                                        //               .insertMediaQueryInfo(
-                                        //                   19,
-                                        //                   "https://picsum.photos/seed/picsum/200/300",
-                                        //                   "parinaz",
-                                        //                   "sky1",
-                                        //                   "image",
-                                        //                   time,
-                                        //                   "p.asghari",
-                                        //                   "skyy1");
-                                        //         },
-                                        //       )
-                                        // : SizedBox.shrink(),
                                       ]);
                                     } else {
                                       return SizedBox.shrink();
@@ -346,30 +278,35 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                FutureBuilder<int>(
                                  future: _mediaQueryRepo.allMediasCountReq(widget.userUid, FetchMediasReq_MediaType.IMAGES),
-                                 builder:(builder,snap){
-                                   if(snap.hasData && snap.data!=0) {
-                                     hasMedia==true;
-                                     return
-                                  Tab(
-                                        text:
-                                        appLocalization.getTraslateValue(
-                                            "media"),
-                                      );
-                                    }
-                                   else{
-                                     return Container(width: 100,height: 100,);
-                                   }
-                                 } ,
+                                 builder:(builder,snap) {
+                                   if (snap.hasData && snap.data != 0) {
+                                     hasMedia == true;
 
-                                ),
-                                Tab(
-                                  text:
-                                      appLocalization.getTraslateValue("file"),
-                                ),
-                                Tab(
-                                  text:
-                                      appLocalization.getTraslateValue("links"),
-                                ),
+                                     return Tab(
+                                       text:
+                                       appLocalization.getTraslateValue(
+                                           "media"),
+                                     );
+                                   }
+                                   else {
+                                     return Container();
+                                   }
+                                   //   return Tab(
+                                   //     text:
+                                   //     appLocalization.getTraslateValue(
+                                   //         "media"),
+                                   //   );
+                                   // } ,
+
+                                   // ),
+                                   // Tab(
+                                   //   text:
+                                   //       appLocalization.getTraslateValue("file"),
+                                   // ),
+                                   // Tab(
+                                   //   text:
+                                   //       appLocalization.getTraslateValue("links"),
+                                 }),
                               ],
                             )),
                       ),
@@ -386,154 +323,178 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ]),
                     ),
-                      ListView(
-                        padding: EdgeInsets.zero,
-                        children: <Widget>[
-                          Text("File"),
-                          Text("File"),
-                          Text("File"),
-                          Text("File"),
-                          Text("File"),
-                        ],
-                      ),
-
-                  ListView(
-                    padding: EdgeInsets.zero,
-                    children: <Widget>[
-                      Text("File"),
-                      Text("File"),
-                      Text("File"),
-                      Text("File"),
-                      Text("File"),
-                    ],
-                  ),
-                  ListView(
-                    padding: EdgeInsets.zero,
-                    children: <Widget>[
-                      Text("File"),
-                      Text("File"),
-                      Text("File"),
-                      Text("File"),
-                      Text("File"),
-                    ],
-                  ),
+                      if(hasMedia==true)
+                        imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo,_mediaCache),
+                  // ListView(
+                  //   padding: EdgeInsets.zero,
+                  //   children: <Widget>[
+                  //     Text("File"),
+                  //     Text("File"),
+                  //     Text("File"),
+                  //     Text("File"),
+                  //     Text("File"),
+                  //   ],
+                  // ),
+                  // ListView(
+                  //   padding: EdgeInsets.zero,
+                  //   children: <Widget>[
+                  //     Text("File"),
+                  //     Text("File"),
+                  //     Text("File"),
+                  //     Text("File"),
+                  //     Text("File"),
+                  //   ],
+                  // ),
                   // linkWidget(widget.userUid,_mediaQueryRepo),
                 ])))));
   }
+
 }
-//
-// Widget mediaWidget(Uid userUid, MediaQueryRepo mediaQueryRepo,
-//     FileRepo fileRepo) {
-//   return StreamBuilder(
-//     stream: mediaQueryRepo.getMediasMetaDataCountFromDB(
-//         userUid, FetchMediasReq_MediaType.IMAGES),
-//     builder: (context, snap) {
-//       if (snap.hasData && snap.data != null) {
-//         return GridView.builder(
-//             shrinkWrap: true,
-//             padding: EdgeInsets.zero,
-//             itemCount: snap.data,
-//             scrollDirection: Axis.vertical,
-//             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//               crossAxisCount: 3,
-//               //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
-//             ),
-//             itemBuilder: (context, position) {
-//               return FutureBuilder(
-//                   future: mediaQueryRepo.getMedia(
-//                       position, userUid, FetchMediasReq_MediaType.IMAGES),
-//                   builder: (BuildContext c, AsyncSnapshot snaps) {
-//                     if (snaps.hasData &&
-//                         snaps.data != null &&
-//                         snaps.connectionState == ConnectionState.done) {
-//                       if (position >= snaps.data - 10) {
-//                         mediaQueryRepo.fetchMoreMedia(
-//                             userUid, FetchMediasReq_MediaType.IMAGES);
-//                       }
-//                       var fileId = jsonDecode(snaps.data.json)["uuid"];
-//                       var fileName = jsonDecode(snaps.data.json)["name"];
-//                       return FutureBuilder(
-//                           future: fileRepo.getFile(fileId, fileName),
-//                           builder: (BuildContext c, AsyncSnapshot snaps) {
-//                             if (snaps.hasData &&
-//                                 snaps.data != null &&
-//                                 snaps.connectionState == ConnectionState.done) {
-//                               return Container(
-//                                   decoration: new BoxDecoration(
-//                                 image: new DecorationImage(
-//                                   image: Image.file(
-//                                     snaps.data,
-//                                   ).image,
-//                                   fit: BoxFit.cover,
-//                                 ),
-//                                 border: Border.all(
-//                                   width: 1,
-//                                   color: ExtraTheme.of(context).secondColor,
-//                                 ),
-//                               ));
-//                             } else {
-//                               return Container(
-//                                 width: 100,
-//                                 height: 100,
-//                               );
-//                             }
-//                           });
-//                     } else {
-//                       return Container(
-//                         width: 100,
-//                         height: 100,
-//                       );
-//                     }
-//                   });
-//             });
-//       }
-//       // else if(snap.data == 0){
-//       //             ()async{
-//       //              await mediaQueryRepo.getLastMediasList(userUid.string, FetchMediasReq_MediaType.IMAGES);
-//       //             };}
-//       else {
-//         return Container(
-//           width: 100,
-//           height: 100,
-//         );
-//       }
-//     },
-//   );
-//
-//   // child: GestureDetector(
-//   //   // onTap: () {
-//   //   //   _routingService.openShowAllMedia(
-//   //   //     mediaPosition: position,
-//   //   //     heroTag: "btn$position",
-//   //   //     mediasLength: medias.length,
-//   //   //   );
-//   //   // },
-//   //  child: Hero(
-//   //       tag: "btn$position",
-//   //       child: Container(
-//   //         decoration: new BoxDecoration(
-//   //           image: new DecorationImage(
-//   //               // image: new NetworkImage(
-//   //               //   medias[position].mediaUrl,
-//   //               //    //imageList[position],
-//   //               // ),
-//   //               fit: BoxFit.cover),
-//   //           border: Border.all(
-//   //             width: 1,
-//   //             color: ExtraTheme.of(context).secondColor,
-//   //           ),
-//   //         ),
-//   //       ), // transitionOnUserGestures: true,
-//   //
-//   //   ),
-//   // ),
-//   //);
-// }
-//   else {
-//     return Text("...");
-//
-//
-// }
+
+Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo,LruCache mediaCache) {
+  setMediaCache(int currentPosition, List<Media> mediaList) {
+    for (int j = 0; j < mediaList.length; j++) {
+      mediaCache.set("$currentPosition", mediaList[j]);
+    }
+  }
+  return StreamBuilder(
+    stream: mediaQueryRepo.getMediasMetaDataCountFromDB(userUid, FetchMediasReq_MediaType.IMAGES),
+    builder: (context, snap) {
+      if (snap.hasData && snap.data != null) {
+        return GridView.builder(
+            shrinkWrap: true,
+            padding: EdgeInsets.zero,
+            itemCount: snap.data,
+            scrollDirection: Axis.vertical,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
+            ),
+            itemBuilder: (context, position) {
+              var media = mediaCache.get("$position");
+              if(media==null)
+              return FutureBuilder(
+                  future: mediaQueryRepo.getMedia(
+                      position, userUid, FetchMediasReq_MediaType.IMAGES),
+                  builder: (BuildContext c, AsyncSnapshot snaps) {
+                    if (snaps.hasData &&
+                        snaps.data != null &&
+                        snaps.connectionState == ConnectionState.done) {
+                      setMediaCache(position,snaps.data);
+                      // if (position >= snaps.data - 10) {
+                      //   mediaQueryRepo.fetchMoreMedia(
+                      //       userUid, FetchMediasReq_MediaType.IMAGES,position);
+                      // }
+                      var fileId = jsonDecode(snaps.data[position].json)["uuid"];
+                      var fileName = jsonDecode(snaps.data[position].json)["name"];
+                      return FutureBuilder(
+                          future: fileRepo.getFile(fileId, fileName),
+                          builder: (BuildContext c, AsyncSnapshot snaps) {
+                            if (snaps.hasData &&
+                                snaps.data != null &&
+                                snaps.connectionState == ConnectionState.done) {
+                              return Container(
+                                  decoration: new BoxDecoration(
+                                image: new DecorationImage(
+                                  image: Image.file(
+                                    snaps.data,
+                                  ).image,
+                                  fit: BoxFit.cover,
+                                ),
+                                border: Border.all(
+                                  width: 1,
+                                  color: ExtraTheme.of(context).secondColor,
+                                ),
+                              ));
+                            } else {
+                              return Container(
+                                width: 100,
+                                height: 100,
+                              );
+                            }
+                          });
+                    } else {
+                      return Container(
+                        width: 100,
+                        height: 100,
+                      );
+                    }
+                  });
+              else{
+                var fileId = jsonDecode(media.json)["uuid"];
+                var fileName = jsonDecode(media.json)["name"];
+                return FutureBuilder(
+                    future: fileRepo.getFile(fileId, fileName),
+                    builder: (BuildContext c, AsyncSnapshot snaps) {
+                      if (snaps.hasData &&
+                          snaps.data != null &&
+                          snaps.connectionState == ConnectionState.done) {
+                        return Container(
+                            decoration: new BoxDecoration(
+                              image: new DecorationImage(
+                                image: Image.file(
+                                  snaps.data,
+                                ).image,
+                                fit: BoxFit.cover,
+                              ),
+                              border: Border.all(
+                                width: 1,
+                                color: ExtraTheme.of(context).secondColor,
+                              ),
+                            ));
+                      } else {
+                        return Container(
+                          width: 100,
+                          height: 100,
+                        );
+                      }
+                    });
+              }
+            });
+      }
+      // else if(snap.data == 0){
+      //             ()async{
+      //              await mediaQueryRepo.getLastMediasList(userUid.string, FetchMediasReq_MediaType.IMAGES);
+      //             };}
+      else {
+        return Container(
+          width: 100,
+          height: 100,
+        );
+      }
+    },
+  );
+
+  // child: GestureDetector(
+  //   // onTap: () {
+  //   //   _routingService.openShowAllMedia(
+  //   //     mediaPosition: position,
+  //   //     heroTag: "btn$position",
+  //   //     mediasLength: medias.length,
+  //   //   );
+  //   // },
+  //  child: Hero(
+  //       tag: "btn$position",
+  //       child: Container(
+  //         decoration: new BoxDecoration(
+  //           image: new DecorationImage(
+  //               // image: new NetworkImage(
+  //               //   medias[position].mediaUrl,
+  //               //    //imageList[position],
+  //               // ),
+  //               fit: BoxFit.cover),
+  //           border: Border.all(
+  //             width: 1,
+  //             color: ExtraTheme.of(context).secondColor,
+  //           ),
+  //         ),
+  //       ), // transitionOnUserGestures: true,
+  //
+  //   ),
+  // ),
+  //);
+
+}
 
 // Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo){
 //  return FutureBuilder<List<Media>>(
@@ -555,6 +516,7 @@ class _ProfilePageState extends State<ProfilePage> {
 //   });
 //
 // }
+
 
 Widget _showUsername(String username) {
   return Padding(
