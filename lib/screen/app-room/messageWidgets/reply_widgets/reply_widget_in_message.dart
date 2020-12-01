@@ -24,7 +24,7 @@ class ReplyWidgetInMessage extends StatelessWidget {
     return FutureBuilder<List<Message>>(
         future: messageDao.getMessageById(replyToId, roomId),
         builder: (context, snapshot) {
-          if (snapshot.hasData)
+          if (snapshot.hasData && snapshot.data.length>0)
             return Padding(
               padding: const EdgeInsets.only(top: 8.0, left: 8, right: 8),
               child: Container(

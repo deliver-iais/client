@@ -70,7 +70,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _memberRepo = GetIt.I.get<MemberRepo>();
   int _lastShowedMessageId = -1;
   int _itemCount;
-  int _replayMessageId;
+  int _replayMessageId = -1;
 
   ScrollPhysics _scrollPhysics = AlwaysScrollableScrollPhysics();
 
@@ -418,7 +418,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                             .packetId)
                                                                         ? Theme.of(context)
                                                                             .disabledColor
-                                                                        : messages[0].id ==
+                                                                        : messages[0].id != null && messages[0].id==
                                                                                 _replayMessageId
                                                                             ? Theme.of(context).disabledColor
                                                                             : Theme.of(context).backgroundColor,
