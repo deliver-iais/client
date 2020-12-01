@@ -9,6 +9,7 @@ import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
@@ -30,8 +31,10 @@ class _MucInfoDeterminationPageState
   String channelId = "";
   bool showEmoji = false;
   bool autofocus = false;
+  bool _showIcon = true;
   var _routingService = GetIt.I.get<RoutingService>();
   var _createMucService = GetIt.I.get<CreateMucService>();
+  MucRepo _mucRepo = GetIt.I.get<MucRepo>();
 
   @override
   void initState() {
@@ -43,7 +46,6 @@ class _MucInfoDeterminationPageState
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    MucRepo _mucRepo = GetIt.I.get<MucRepo>();
     return Scaffold(
       appBar: AppBar(
         leading: _routingService.backButtonLeading(),
@@ -145,37 +147,46 @@ class _MucInfoDeterminationPageState
             Positioned(
               bottom: 0,
               right: 0,
-              child: Container(
+              child:_showIcon? Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Theme.of(context).primaryColor,
                 ),
-                child: IconButton(
+                child:  IconButton(
                   alignment: Alignment.center,
                   padding: EdgeInsets.all(0),
                   icon: Icon(Icons.check),
                   onPressed: () async {
+                    setState(() {
+                      _showIcon = false;
+                    });
                     List<Uid> memberUidList = [];
                     Uid micUid;
                     for (var i = 0; i < _createMucService.members.length; i++) {
                       memberUidList.add(_createMucService.members[i].uid.uid);
                     }
-                    if(widget.isChannel){
+                    if(widget.isChannel ){
                       micUid = await _mucRepo.makeNewChannel(idController.text,
                           memberUidList, controller.text,ChannelType.PUBLIC);
-                    }else{
+                      controller.clear();
+                    }else {
                       micUid = await _mucRepo.makeNewGroup(
                           memberUidList, controller.text);
                       controller.clear();
                     }
                     if(micUid !=null) {
                       _routingService.openRoom(micUid.asString());
+                    }else{
+                      Fluttertoast.showToast(msg: appLocalization.getTraslateValue("error_occurred"));
+                      setState(() {
+                        _showIcon = true;
+                      });
                     }
                   },
                 ),
-              ),
+              ):SizedBox.shrink(),
             ),
             Positioned(
               bottom: 0,
