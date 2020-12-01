@@ -10,11 +10,13 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 class ReplyWidgetInMessage extends StatelessWidget {
   final String roomId;
   final int replyToId;
-  final Function scrollToMessage;
 
-  const ReplyWidgetInMessage(
-      {Key key, this.roomId, this.replyToId, this.scrollToMessage})
-      : super(key: key);
+  const ReplyWidgetInMessage({
+    Key key,
+    this.roomId,
+    this.replyToId,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
@@ -26,24 +28,22 @@ class ReplyWidgetInMessage extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.only(top: 8.0, left: 8, right: 8),
               child: Container(
-                  decoration: BoxDecoration(
-                      border: Border(
-                          left: BorderSide(
-                              color: accountRepo.currentUserUid.asString() ==
-                                      snapshot.data[0].from
-                                  ? ExtraTheme.of(context).secondColor
-                                  : Theme.of(context).primaryColor,
-                              width: 3))),
-                  child: GestureDetector(
-                    onTap: scrollToMessage(replyToId),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: SenderAndContent(
-                        messages: List<Message>.filled(1, snapshot.data[0]),
-                        inBox: true,
-                      ),
-                    ),
-                  )),
+                decoration: BoxDecoration(
+                    border: Border(
+                        left: BorderSide(
+                            color: accountRepo.currentUserUid.asString() ==
+                                    snapshot.data[0].from
+                                ? ExtraTheme.of(context).secondColor
+                                : Theme.of(context).primaryColor,
+                            width: 3))),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: SenderAndContent(
+                    messages: List<Message>.filled(1, snapshot.data[0]),
+                    inBox: true,
+                  ),
+                ),
+              ),
             );
           else
             return CircularProgressIndicator();

@@ -70,6 +70,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _memberRepo = GetIt.I.get<MemberRepo>();
   int _lastShowedMessageId = -1;
   int _itemCount;
+  int _replayMessageId;
 
   ScrollPhysics _scrollPhysics = AlwaysScrollableScrollPhysics();
 
@@ -350,7 +351,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                         : Container(),
                                                     currentRoom.lastMessageId !=
                                                             null
-                                                        ? _lastShowedMessageId!=-1 && _lastShowedMessageId ==
+                                                        ? _lastShowedMessageId !=
+                                                                    -1 &&
+                                                                _lastShowedMessageId ==
                                                                     currentRoom
                                                                             .lastMessageId -
                                                                         1 -
@@ -411,13 +414,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                     SingleChildScrollView(
                                                                   child:
                                                                       Container(
-                                                                    color: _selectedMessages.containsKey(
-                                                                            messages[0]
-                                                                                .packetId)
+                                                                    color: _selectedMessages.containsKey(messages[0]
+                                                                            .packetId)
                                                                         ? Theme.of(context)
                                                                             .disabledColor
-                                                                        : Theme.of(context)
-                                                                            .backgroundColor,
+                                                                        : messages[0].id ==
+                                                                                _replayMessageId
+                                                                            ? Theme.of(context).disabledColor
+                                                                            : Theme.of(context).backgroundColor,
                                                                     child:
                                                                         Stack(
                                                                       alignment:
@@ -433,9 +437,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                               Widget>[
                                                                             SentMessageBox(
                                                                                 message: messages[0],
-                                                                                maxWidth: _maxWidth,scrollToMessage: (int index){
-                                                                                  _itemScrollController.jumpTo(index: index);
-                                                                            },),
+                                                                                maxWidth: _maxWidth,
+                                                                                scrollToMessage: (int id) {
+                                                                                  _scrollToMessage(id, currentRoom.lastMessageId + pendingMessages.length - id);
+                                                                                }),
                                                                           ],
                                                                         ),
                                                                         if (_selectMultiMessage)
@@ -503,6 +508,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                         isGroup:
                                                                             widget.roomId.uid.category ==
                                                                                 Categories.GROUP,
+                                                                        scrollToMessage:
+                                                                            (int
+                                                                                id) {
+                                                                          _scrollToMessage(
+                                                                              id,
+                                                                              currentRoom.lastMessageId + pendingMessages.length - id);
+                                                                        },
                                                                       ),
                                                                     ],
                                                                   ),
@@ -672,6 +684,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         _messageRepo.sendFileMessageDeprecated(widget.roomId.uid, [path]);
       }
     }
+  }
+
+  _scrollToMessage(int id, int position) {
+    _itemScrollController.jumpTo(index: position);
+    setState(() {
+      _replayMessageId = id;
+    });
   }
 
   Widget _selectMultiMessageAppBar() {
