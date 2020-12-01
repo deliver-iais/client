@@ -18,6 +18,7 @@ import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart' as R;
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
@@ -33,6 +34,7 @@ import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -80,6 +82,8 @@ void setupRepositories() {
   getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<MucRepo>(MucRepo());
   getIt.registerSingleton<CoreServices>(CoreServices());
+  getIt.registerSingleton<QueryServiceClient>(
+      QueryServiceClient(QueryClientChannel));
   getIt.registerSingleton<MessageRepo>(MessageRepo());
   getIt.registerSingleton<ContactRepo>(ContactRepo());
   getIt.registerSingleton<RoomRepo>(RoomRepo());
