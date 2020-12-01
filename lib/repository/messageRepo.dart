@@ -432,7 +432,7 @@ class MessageRepo {
               FetchMessagesReq()
                 ..roomUid = roomId.uid
                 ..pointer = Int64(containsId)
-                ..type = FetchMessagesReq_Type.BACKWARD_FETCH
+                ..type = FetchMessagesReq_Type.FORWARD_FETCH
                 ..limit = pageSize,
               options: CallOptions(metadata: {
                 'accessToken': await _accountRepo.getAccessToken()

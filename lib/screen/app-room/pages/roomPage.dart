@@ -414,14 +414,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                     SingleChildScrollView(
                                                                   child:
                                                                       Container(
-                                                                    color: _selectedMessages.containsKey(messages[0]
-                                                                            .packetId)
+                                                                    color: _selectedMessages.containsKey(messages[0].packetId) ||
+                                                                            (messages[0].id != null &&
+                                                                                messages[0].id ==
+                                                                                    _replayMessageId)
                                                                         ? Theme.of(context)
                                                                             .disabledColor
-                                                                        : messages[0].id != null && messages[0].id==
-                                                                                _replayMessageId
-                                                                            ? Theme.of(context).disabledColor
-                                                                            : Theme.of(context).backgroundColor,
+                                                                        : Theme.of(context)
+                                                                            .backgroundColor,
                                                                     child:
                                                                         Stack(
                                                                       alignment:
@@ -472,9 +472,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                     storePosition,
                                                                 child:
                                                                     Container(
-                                                                  color: _selectedMessages.containsKey(
-                                                                          messages[0]
-                                                                              .packetId)
+                                                                  color: _selectedMessages.containsKey(messages[0]
+                                                                              .packetId) ||
+                                                                          (messages[0].id != null &&
+                                                                              messages[0].id ==
+                                                                                  _replayMessageId)
                                                                       ? Theme.of(
                                                                               context)
                                                                           .disabledColor
