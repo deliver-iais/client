@@ -84,7 +84,8 @@ class MessageRepo {
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-      // print(getAllUserRoomMetaRes.roomsMeta);
+      print(getAllUserRoomMetaRes);
+      print(getAllUserRoomMetaRes.roomsMeta);
       print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
         print("------------------------------------");
@@ -133,7 +134,7 @@ class MessageRepo {
     updatingStatus.add(TitleStatusConditions.Normal);
 
     // TODO, change the position of calling this function, maybe needed periodic sending
-    _sendPendingMessages();
+    // _sendPendingMessages();
   }
 
   sendTextMessage(Uid room, String text,
