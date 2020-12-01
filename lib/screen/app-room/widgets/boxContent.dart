@@ -16,8 +16,9 @@ class BoxContent extends StatefulWidget {
   final Message message;
   final double maxWidth;
   final bool isSender;
+  final Function scrollToMessage;
 
-  const BoxContent({Key key, this.message, this.maxWidth, this.isSender})
+  const BoxContent({Key key, this.message, this.maxWidth, this.isSender,this.scrollToMessage})
       : super(key: key);
 
   @override
@@ -56,7 +57,7 @@ class _BoxContentState extends State<BoxContent> {
 
   Widget replyToIdBox() {
     return ReplyWidgetInMessage(
-        roomId: widget.message.roomId, replyToId: widget.message.replyToId);
+        roomId: widget.message.roomId, replyToId: widget.message.replyToId,scrollToMessage: widget.scrollToMessage,);
   }
 
   Widget senderNameBox() {

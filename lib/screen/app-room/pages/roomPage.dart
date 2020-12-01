@@ -433,7 +433,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                               Widget>[
                                                                             SentMessageBox(
                                                                                 message: messages[0],
-                                                                                maxWidth: _maxWidth),
+                                                                                maxWidth: _maxWidth,scrollToMessage: (int index){
+                                                                                  _itemScrollController.jumpTo(index: index);
+                                                                            },),
                                                                           ],
                                                                         ),
                                                                         if (_selectMultiMessage)

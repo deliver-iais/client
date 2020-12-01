@@ -52,7 +52,7 @@ class ContactsPage extends StatelessWidget {
               ),
             ));
           } else {
-            return SizedBox.shrink();
+            return CircularProgressIndicator();
           }
         });
   }
