@@ -10,7 +10,6 @@ import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/cupertino.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -28,7 +27,7 @@ class MucServices {
       var request = await groupServices.createGroup(
           GroupServices.CreateGroupReq()..name = groupName,
           options: CallOptions(
-              timeout: Duration(seconds: 2),
+              timeout: Duration(seconds: 1),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return request.uid;
     } catch (e) {
@@ -254,7 +253,7 @@ class MucServices {
     }
   }
 
-  Future<List<Member>> getChnnelMembers(
+  Future<List<Member>> getChannelMembers(
       Uid channelUid, int limit, int pointer) async {
     try {
       var request = await channelServices.getMembers(

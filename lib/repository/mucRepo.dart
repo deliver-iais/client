@@ -51,27 +51,37 @@ class MucRepo {
   }
 
   getGroupMembers(Uid groupUid) async {
-    var result = await mucServices.getGroupMembers(groupUid, 1, 1);
-    List<Member> members = new List();
-    for (MucPro.Member member in result) {
-      members.add(Member(
-          mucUid: groupUid.asString(),
-          memberUid: member.uid.asString(),
-          role: getLocalRole(member.role)));
+    try{
+      var result = await mucServices.getGroupMembers(groupUid, 1, 1);
+      List<Member> members = new List();
+      for (MucPro.Member member in result) {
+        members.add(Member(
+            mucUid: groupUid.asString(),
+            memberUid: member.uid.asString(),
+            role: getLocalRole(member.role)));
+      }
+      insertUserInDb(groupUid, members);
+    }catch(e){
+      print(e.toString());
     }
-    insertUserInDb(groupUid, members);
+
   }
 
   getChannelMembers(Uid channelUid) async {
-    var result = await mucServices.getChnnelMembers(channelUid, 1, 1);
-    List<Member> members = new List();
-    for (MucPro.Member member in result) {
-      members.add(Member(
-          mucUid: channelUid.asString(),
-          memberUid: member.uid.asString(),
-          role: getLocalRole(member.role)));
+    try{
+      var result = await mucServices.getChannelMembers(channelUid, 1, 1);
+      List<Member> members = new List();
+      for (MucPro.Member member in result) {
+        members.add(Member(
+            mucUid: channelUid.asString(),
+            memberUid: member.uid.asString(),
+            role: getLocalRole(member.role)));
+      }
+      insertUserInDb(channelUid, members);
+    }catch(e){
+      print(e.toString());
     }
-    insertUserInDb(channelUid, members);
+
   }
 
   // TODO remove later on if Add User to group message feature is implemented
@@ -300,7 +310,6 @@ class MucRepo {
     for (Member member in members) {
       _memberDao.insertMember(member);
     }
-
     _mucDao.updateMuc(mucUid.asString(), members.length);
   }
 

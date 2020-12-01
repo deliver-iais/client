@@ -15,13 +15,12 @@ class ReplyWidgetInMessage extends StatelessWidget {
   const ReplyWidgetInMessage(
       {Key key, this.roomId, this.replyToId, this.scrollToMessage})
       : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
     MessageDao messageDao = GetIt.I.get<MessageDao>();
     return FutureBuilder<List<Message>>(
-        future: messageDao.getFutureById(replyToId, roomId),
+        future: messageDao.getMessageById(replyToId, roomId),
         builder: (context, snapshot) {
           if (snapshot.hasData)
             return Padding(

@@ -53,13 +53,16 @@ class RoomRepo {
         }
         break;
     }
-    
-    return await _searchByUid(uid);
+    return "Unknown";
+   //todo  return await _searchByUid(uid);
   }
 
   Future<String> _searchByUid(Uid uid) async {
     UserAsContact userAsContact = await _contactRepo.searchUserByUid(uid);
-    return userAsContact.username;
+    if(userAsContact != null){
+      return userAsContact.username;
+    }
+   return "Unknown";
   }
 
   updateRoomName(Uid uid, String name) {

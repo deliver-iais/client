@@ -34,6 +34,7 @@ class _MucInfoDeterminationPageState
   bool _showIcon = true;
   var _routingService = GetIt.I.get<RoutingService>();
   var _createMucService = GetIt.I.get<CreateMucService>();
+  MucRepo _mucRepo = GetIt.I.get<MucRepo>();
 
   @override
   void initState() {
@@ -45,7 +46,6 @@ class _MucInfoDeterminationPageState
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    MucRepo _mucRepo = GetIt.I.get<MucRepo>();
     return Scaffold(
       appBar: AppBar(
         leading: _routingService.backButtonLeading(),
