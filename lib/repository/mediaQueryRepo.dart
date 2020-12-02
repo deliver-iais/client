@@ -43,7 +43,8 @@ class MediaQueryRepo {
 
   var mediaServices = QueryServiceClient(clientChannel);
 
-  Future<int> allMediasCountReq(Uid uid, FetchMediasReq_MediaType mediaType) async {
+   getMediaMetaDataReq(Uid uid) async {
+    var mediaServices = QueryServiceClient(clientChannel);
     var mediaResponse;
     var getMediaMetaDataReq = GetMediaMetadataReq();
     getMediaMetaDataReq..with_1 = uid;
@@ -56,25 +57,6 @@ class MediaQueryRepo {
     } catch (e) {
       print("metaDataEroorrrr$e");
     }
-     _mediaMetaDataDao.allMediasCountByRoomId(uid.string).then((value) {
-      if (mediaType == FetchMediasReq_MediaType.IMAGES) {
-        print(value.imagesCount);
-        return value.imagesCount;
-      } else if (mediaType == FetchMediasReq_MediaType.LINKS) {
-        return value.linkCount;
-      } else if (mediaType == FetchMediasReq_MediaType.FILES) {
-        return value.filesCount;
-      } else if (mediaType == FetchMediasReq_MediaType.MUSICS) {
-        return value.musicsCount;
-      } else if (mediaType ==FetchMediasReq_MediaType.VIDEOS) {
-        return value.videosCount;
-      } else if (mediaType == FetchMediasReq_MediaType.DOCUMENTS) {
-        return value.documentsCount;
-      } else if (mediaType == FetchMediasReq_MediaType.AUDIOS) {
-        return value.audiosCount;
-      }
-    });
-
     // return MediaCount()
     // ..imageCount = mediaResponse.allImagesCount.toInt()
     // ..linkCount = mediaResponse.allLinksCount.toInt()
@@ -119,27 +101,28 @@ class MediaQueryRepo {
     ));
   }
 
-  Stream<int> getMediasMetaDataCountFromDB(Uid roomId, FetchMediasReq_MediaType mediaType) {
+  Stream<MediasMetaDataData> getMediasMetaDataCountFromDB(Uid roomId) {
     _mediaMetaDataDao.getStreamMediasCountByRoomId(roomId.string).listen((value) {
-      if (mediaType == queryObject.FetchMediasReq_MediaType.IMAGES) {
-        // if(event.imagesCount==0){
-        //   await allMediasCountReqInServer(roomId);
-        //   await getLastMediasList(roomId, mediaType);
-        // }
-        return value.imagesCount;
-      } else if (mediaType == queryObject.FetchMediasReq_MediaType.FILES) {
-        return value.filesCount;
-      } else if (mediaType == queryObject.FetchMediasReq_MediaType.VIDEOS) {
-        return value.videosCount;
-      } else if (mediaType == queryObject.FetchMediasReq_MediaType.LINKS) {
-        return value.linkCount;
-      } else if (mediaType == queryObject.FetchMediasReq_MediaType.MUSICS) {
-        return value.musicsCount;
-      } else if (mediaType == queryObject.FetchMediasReq_MediaType.DOCUMENTS) {
-        return value.documentsCount;
-      } else if (mediaType == queryObject.FetchMediasReq_MediaType.AUDIOS) {
-        return value.audiosCount;
-      }
+      return value;
+      // if (mediaType == queryObject.FetchMediasReq_MediaType.IMAGES) {
+      //   // if(event.imagesCount==0){
+      //   //   await allMediasCountReqInServer(roomId);
+      //   //   await getLastMediasList(roomId, mediaType);
+      //   // }
+      //   return value.imagesCount;
+      // } else if (mediaType == queryObject.FetchMediasReq_MediaType.FILES) {
+      //   return value.filesCount;
+      // } else if (mediaType == queryObject.FetchMediasReq_MediaType.VIDEOS) {
+      //   return value.videosCount;
+      // } else if (mediaType == queryObject.FetchMediasReq_MediaType.LINKS) {
+      //   return value.linkCount;
+      // } else if (mediaType == queryObject.FetchMediasReq_MediaType.MUSICS) {
+      //   return value.musicsCount;
+      // } else if (mediaType == queryObject.FetchMediasReq_MediaType.DOCUMENTS) {
+      //   return value.documentsCount;
+      // } else if (mediaType == queryObject.FetchMediasReq_MediaType.AUDIOS) {
+      //   return value.audiosCount;
+      // }
     });
   }
 
