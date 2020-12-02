@@ -262,11 +262,11 @@ class MessageRepo {
     var message = await _messageDao.getPendingMessage(dbId);
     var pendingMessage = await _pendingMessageDao.getByMessageDbId(dbId);
 
-    if (!_canPendingMessageResendAndDecreaseRemainingRetries(
-            pendingMessage, message) ||
-        pendingMessage.status != SendingStatus.PENDING) {
-      return;
-    }
+    // if (!_canPendingMessageResendAndDecreaseRemainingRetries(
+    //         pendingMessage, message) ||
+    //     pendingMessage.status != SendingStatus.PENDING) {
+    //   return;
+    // }
 
     MessageProto.MessageByClient byClient = _createMessageByClient(message);
 
@@ -378,15 +378,37 @@ class MessageRepo {
 
   sendForwardedMessage(Uid room, List<Message> forwardedMessage) async {
     for (Message forwardedMessage in forwardedMessage) {
-      switch(forwardedMessage.type){
+      switch (forwardedMessage.type) {
         case MessageType.TEXT:
-          sendTextMessage(room, jsonDecode(forwardedMessage.json)["1"],replyId: forwardedMessage.replyToId,forwardedFromAsString: forwardedMessage.from);
+          sendTextMessage(room, jsonDecode(forwardedMessage.json)["1"],
+              replyId: forwardedMessage.replyToId,
+              forwardedFromAsString: forwardedMessage.from);
           break;
         case MessageType.FILE:
+          var msg = forwardedMessage.copyWith(
+              dbId: null,
+              roomId: room.asString(),
+              packetId: _getPacketId(),
+              forwardedFrom: forwardedMessage.from,
+              time: now(),
+              id:null,
+              from: _accountRepo.currentUserUid.asString(),
+              to: room.asString(),
+              replyToId: null);
 
+          int dbId = await _messageDao.insertMessage(msg);
 
+          _savePendingMessage(
+              room.asString(), dbId, msg.packetId, SendingStatus.PENDING);
+
+          _updateRoomLastMessage(
+            room.asString(),
+            dbId,
+          );
+
+          // Send Message
+          _sendMessageToServer(dbId);
       }
-
     }
   }
 
