@@ -68,7 +68,7 @@ class MessageRepo {
       if (mode == ConnectionStatus.Connected) {
         updating();
         // TODO, change the position of calling this function, maybe needed periodic sending
-        _sendPendingMessages();
+        sendPendingMessages();
       }
     });
   }
@@ -84,9 +84,7 @@ class MessageRepo {
           GetAllUserRoomMetaReq(),
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      print(getAllUserRoomMetaRes.roomsMeta);
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
-        print(userRoomMeta);
         var room =
             await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.asString());
         if (room != null &&
@@ -129,7 +127,6 @@ class MessageRepo {
     updatingStatus.add(TitleStatusConditions.Normal);
   }
 
-  //TODO test
   sendTextMessage(Uid room, String text,
       {int replyId, String forwardedFromAsString}) async {
     String packetId = _getPacketId();
@@ -268,9 +265,6 @@ class MessageRepo {
     if (message.forwardedFrom != null)
       byClient.forwardFrom = message.forwardedFrom.getUid();
 
-    print("^^^^^^^^^^^^^^^^^^^^^^^^^^");
-    print(byClient);
-
     _coreServices.sendMessage(byClient);
   }
 
@@ -325,8 +319,8 @@ class MessageRepo {
     }
   }
 
-  //TODO test
-  _sendPendingMessages() async {
+  @visibleForTesting
+  sendPendingMessages() async {
     List<PendingMessage> pendingMessages =
         await _pendingMessageDao.getAllPendingMessages();
     for (var pendingMessage in pendingMessages) {
@@ -334,9 +328,7 @@ class MessageRepo {
         case SendingStatus.SENDING_FILE:
           var dbId = pendingMessage.messageDbId;
           await _sendFileToServerOfPendingMessage(dbId);
-
           await _sendMessageToServer(dbId);
-
           break;
         case SendingStatus.PENDING:
           await _sendMessageToServer(pendingMessage.messageDbId);
@@ -367,7 +359,6 @@ class MessageRepo {
     await _roomDao.updateRoomLastMessage(roomId, dbId);
   }
 
-  //TODO test
   sendForwardedMessage(Uid room, List<Message> forwardedMessage) async {
     for (Message forwardedMessage in forwardedMessage) {
       var msg = forwardedMessage.copyWith(
@@ -429,7 +420,6 @@ class MessageRepo {
               options: CallOptions(metadata: {
                 'accessToken': await _accountRepo.getAccessToken()
               }));
-          print(fetchMessagesRes.messages);
           var m = await _saveFetchMessages(fetchMessagesRes.messages);
           completer.complete(m);
         } catch (e) {

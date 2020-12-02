@@ -87,7 +87,6 @@ void main() {
       when(mockCoreServices.sendMessage(any)).thenAnswer((_) {
         return 0;
       });
-      print(byClient);
       expect(mockAccountRepo.currentUserUid, userId);
       await messageRepo.sendTextMessage(roomId, 'Test');
       verify(mockMessageDao.insertMessageCompanion(any)).called(1);
@@ -311,6 +310,117 @@ void main() {
       verify(mockRoomDao.updateRoomLastMessage(roomId.asString(), 5)).called(1);
       verify(mockPendingMessageDao.deletePendingMessage(any)).called(1);
       verifyNever(mockCoreServices.sendMessage(any));
+    });
+    test('not sending text messages when message is not exist', () async {
+      var mockMessageDao = GetIt.I.get<MessageDao>();
+      var mockPendingMessageDao = GetIt.I.get<PendingMessageDao>();
+      var mockCoreServices = GetIt.I.get<CoreServices>();
+      var mockAccountRepo = GetIt.I.get<AccountRepo>();
+      var mockRoomDao = GetIt.I.get<RoomDao>();
+      var pendingMessage = PendingMessage(
+          messageDbId: 5,
+          messagePacketId: 'test',
+          roomId: roomId.asString(),
+          remainingRetries: MAX_REMAINING_RETRIES,
+          status: SendingStatus.PENDING);
+      when(mockAccountRepo.currentUserUid).thenReturn(userId);
+      when(mockMessageDao.insertMessageCompanion(any)).thenAnswer((_) async {
+        return 5;
+      });
+      when(mockPendingMessageDao.insertPendingMessage(any))
+          .thenAnswer((_) async {
+        return 2;
+      });
+      when(mockRoomDao.updateRoomLastMessage(roomId.asString(), 5))
+          .thenAnswer((_) async {
+        return 3;
+      });
+      //sendMessageToServer
+      when(mockMessageDao.getPendingMessage(5)).thenAnswer((_) async {
+        return null;
+      });
+
+      when(mockPendingMessageDao.getByMessageDbId(any))
+          .thenAnswer((realInvocation) async {
+        return pendingMessage;
+      });
+      when(mockCoreServices.sendMessage(any)).thenAnswer((_) {
+        return 0;
+      });
+      when(mockPendingMessageDao.deletePendingMessage(any))
+          .thenAnswer((_) async {
+        return 0;
+      });
+      await messageRepo.sendTextMessage(roomId, 'Test');
+      verify(mockMessageDao.insertMessageCompanion(any)).called(1);
+      verify(mockPendingMessageDao.insertPendingMessage(any)).called(1);
+      verify(mockMessageDao.getPendingMessage(5)).called(1);
+      verify(mockPendingMessageDao.getByMessageDbId(any)).called(1);
+      verify(mockRoomDao.updateRoomLastMessage(roomId.asString(), 5)).called(1);
+      verify(mockPendingMessageDao.deletePendingMessage(any)).called(1);
+      verifyNever(mockCoreServices.sendMessage(any));
+    });
+    test('message has id', () async {
+      var mockMessageDao = GetIt.I.get<MessageDao>();
+      var mockPendingMessageDao = GetIt.I.get<PendingMessageDao>();
+      var mockCoreServices = GetIt.I.get<CoreServices>();
+      var mockAccountRepo = GetIt.I.get<AccountRepo>();
+      var mockRoomDao = GetIt.I.get<RoomDao>();
+      var message = Message(
+          roomId: roomId.asString(),
+          dbId: 5,
+          id: 10,
+          to: roomId.asString(),
+          packetId: 'test',
+          type: MessageType.TEXT,
+          json: (MessageProto.Text()..text = 'Test').writeToJson());
+      var pendingMessage = PendingMessage(
+          messageDbId: 5,
+          messagePacketId: 'test',
+          roomId: roomId.asString(),
+          remainingRetries: MAX_REMAINING_RETRIES,
+          status: SendingStatus.PENDING);
+      var byClient = MessageProto.MessageByClient()
+        ..packetId = 'test'
+        ..to = message.to.getUid()
+        ..text = MessageProto.Text.fromJson(message.json)
+        ..replyToId = Int64(-1);
+      when(mockAccountRepo.currentUserUid).thenReturn(userId);
+      when(mockMessageDao.insertMessageCompanion(any)).thenAnswer((_) async {
+        return 5;
+      });
+      when(mockPendingMessageDao.insertPendingMessage(any))
+          .thenAnswer((_) async {
+        return 2;
+      });
+      when(mockRoomDao.updateRoomLastMessage(roomId.asString(), 5))
+          .thenAnswer((_) async {
+        return 3;
+      });
+      //sendMessageToServer
+      when(mockMessageDao.getPendingMessage(5)).thenAnswer((_) async {
+        return message;
+      });
+
+      when(mockPendingMessageDao.getByMessageDbId(any))
+          .thenAnswer((realInvocation) async {
+        return pendingMessage;
+      });
+      when(mockCoreServices.sendMessage(any)).thenAnswer((_) {
+        return 0;
+      });
+      when(mockPendingMessageDao.deletePendingMessage(any))
+          .thenAnswer((_) async {
+        return 0;
+      });
+      await messageRepo.sendTextMessage(roomId, 'Test');
+      verify(mockMessageDao.insertMessageCompanion(any)).called(1);
+      verify(mockMessageDao.getPendingMessage(5)).called(1);
+      verify(mockPendingMessageDao.getByMessageDbId(any)).called(1);
+      verify(mockPendingMessageDao.insertPendingMessage(any)).called(1);
+      verify(mockRoomDao.updateRoomLastMessage(roomId.asString(), 5)).called(1);
+      verify(mockPendingMessageDao.deletePendingMessage(any)).called(1);
+      verifyNever(mockCoreServices.sendMessage(byClient));
     });
   });
 }
