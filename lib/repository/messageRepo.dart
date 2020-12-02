@@ -134,7 +134,6 @@ class MessageRepo {
       {int replyId, String forwardedFromAsString}) async {
     String packetId = _getPacketId();
     String json = (MessageProto.Text()..text = text).writeToJson();
-
     MessagesCompanion message = MessagesCompanion.insert(
       roomId: room.asString(),
       packetId: packetId,
@@ -148,16 +147,14 @@ class MessageRepo {
     );
 
     int dbId = await _messageDao.insertMessageCompanion(message);
-
-    _savePendingMessage(room.asString(), dbId, packetId, SendingStatus.PENDING);
-
+    await _savePendingMessage(
+        room.asString(), dbId, packetId, SendingStatus.PENDING);
     _updateRoomLastMessage(
       room.asString(),
       dbId,
     );
-
     // Send Message
-    _sendMessageToServer(dbId);
+    await _sendMessageToServer(dbId);
   }
 
   //TODO test
@@ -255,7 +252,6 @@ class MessageRepo {
   _sendMessageToServer(int dbId) async {
     var message = await _messageDao.getPendingMessage(dbId);
     var pendingMessage = await _pendingMessageDao.getByMessageDbId(dbId);
-
     if (!_canPendingMessageResendAndDecreaseRemainingRetries(
             pendingMessage, message) ||
         pendingMessage.status != SendingStatus.PENDING) {
@@ -287,7 +283,7 @@ class MessageRepo {
       return false;
     }
     if (message == null) {
-      _pendingMessageDao.deletePendingMessage(message.packetId);
+      _pendingMessageDao.deletePendingMessage(pendingMessage.messagePacketId);
       return false;
     }
     if (pendingMessage.remainingRetries > 0) {
