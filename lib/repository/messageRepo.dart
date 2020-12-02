@@ -105,7 +105,7 @@ class MessageRepo {
               FetchMessagesReq()
                 ..roomUid = userRoomMeta.roomUid
                 ..pointer = userRoomMeta.lastMessageId
-                ..type = FetchMessagesReq_Type.BACKWARD_FETCH
+                ..type = FetchMessagesReq_Type.FORWARD_FETCH
                 ..limit = 2,
               options: CallOptions(timeout: Duration(seconds: 1), metadata: {
                 'accessToken': await _accountRepo.getAccessToken()
