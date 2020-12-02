@@ -82,7 +82,8 @@ void setupRepositories() {
   getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<MucRepo>(MucRepo());
   getIt.registerSingleton<CoreServices>(CoreServices());
-  getIt.registerSingleton(QueryServiceClient(QueryClientChannel));
+  getIt.registerSingleton<QueryServiceClient>(
+      QueryServiceClient(QueryClientChannel));
   getIt.registerSingleton<MessageRepo>(MessageRepo());
   getIt.registerSingleton<ContactRepo>(ContactRepo());
   getIt.registerSingleton<RoomRepo>(RoomRepo());

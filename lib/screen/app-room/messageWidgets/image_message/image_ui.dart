@@ -42,11 +42,6 @@ class _ImageUiState extends State<ImageUi> {
       var dimensions =
           getImageDimensions(image.width.toDouble(), image.height.toDouble());
 
-      // TODO, there is bug in server about dimension, we should change width and height
-      if (msg.id != null) {
-        dimensions =
-            getImageDimensions(image.height.toDouble(), image.width.toDouble());
-      }
       width = dimensions.width;
       height = dimensions.height;
 

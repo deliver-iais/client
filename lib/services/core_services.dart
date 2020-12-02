@@ -218,6 +218,10 @@ class CoreServices {
   }
 
   _saveIncomingMessage(Message message) async {
+    // TODO remove later on if Add User to group message feature is implemented
+    if (message.from.category != Categories.USER) {
+     await _mucRepo.saveMucInfo(message.to);
+    }
     var msg = await saveMessageInMessagesDB(message);
     bool isCurrentUser =
         message.from.node.contains(_accountRepo.currentUserUid.node);
@@ -231,13 +235,9 @@ class CoreServices {
           lastMessageId: Value(message.id.toInt()),
           lastMessageDbId: Value(msg.dbId)),
     );
-    var roomName = await RoomRepo().getRoomDisplayName(message.from);
-    _notificationServices.showNotification(msg, roomName);
 
-    // TODO remove later on if Add User to group message feature is implemented
-    if (message.to.category != Categories.USER) {
-      _mucRepo.saveMucInfo(message.to);
-    }
+    var roomName = await RoomRepo().getRoomDisplayName(roomUid);
+    _notificationServices.showNotification(msg, roomName,roomUid.asString());
   }
 
   saveMessageInMessagesDB(Message message) async {

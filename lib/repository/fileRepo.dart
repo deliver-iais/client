@@ -37,9 +37,9 @@ class FileRepo {
       ..size = Int64.parseInt(json["size"])
       ..type = json["type"]
       ..name = json["name"]
-      ..width = json["width"]
-      ..height = json["height"]
-      ..duration = json["duration"];
+      ..width = json["width"] ?? 0
+      ..height = json["height"] ?? 0
+      ..duration = json["duration"] ?? 0;
 
     await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
 

@@ -55,7 +55,8 @@ class MessageRepo {
 
   var _coreServices = GetIt.I.get<CoreServices>();
 
-  var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
+  final QueryServiceClient _queryServiceClient =
+      GetIt.I.get<QueryServiceClient>();
 
   BehaviorSubject<TitleStatusConditions> updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
@@ -107,7 +108,7 @@ class MessageRepo {
               await _saveFetchMessages(fetchMessagesRes.messages);
 
           if (userRoomMeta.roomUid.category != Categories.USER) {
-            _mucRepo.saveMucInfo(userRoomMeta.roomUid);
+            await _mucRepo.saveMucInfo(userRoomMeta.roomUid);
           }
 
           // TODO if there is Pending Message this line has a bug!!
@@ -414,19 +415,19 @@ class MessageRepo {
               FetchMessagesReq()
                 ..roomUid = roomId.uid
                 ..pointer = Int64(containsId)
-                ..type = FetchMessagesReq_Type.BACKWARD_FETCH
+                ..type = FetchMessagesReq_Type.FORWARD_FETCH
                 ..limit = pageSize,
               options: CallOptions(metadata: {
                 'accessToken': await _accountRepo.getAccessToken()
               }));
-          var m = await _saveFetchMessages(fetchMessagesRes.messages);
-          completer.complete(m);
+          completer
+              .complete(await _saveFetchMessages(fetchMessagesRes.messages));
         } catch (e) {
-          print(e);
           completer.completeError(e);
         }
       }
     });
+
     return completer.future;
   }
 
