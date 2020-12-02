@@ -60,6 +60,11 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
           ..where((m) => m.roomId.equals(roomId) & m.id.equals(id)))
         .watchSingle();
   }
+  Future<List<Message>> getMessageById(int id, String roomId) {
+    return (select(messages)
+      ..where((m) => m.roomId.equals(roomId) & m.id.equals(id)))
+        .get();
+  }
 
   Future<List<Message>> getPage(String roomId, int page,
       {int pageSize = 50}) async {

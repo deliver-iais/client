@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 class SentMessageBox extends StatelessWidget {
   final Message message;
   final double maxWidth;
+  final Function scrollToMessage;
 
-  const SentMessageBox({Key key, this.message, this.maxWidth})
+  const SentMessageBox({Key key, this.message, this.maxWidth,this.scrollToMessage})
       : super(key: key);
 
   @override
@@ -22,7 +23,7 @@ class SentMessageBox extends StatelessWidget {
               padding: const EdgeInsets.all(2),
               color: Theme.of(context).primaryColor,
               child: BoxContent(
-                  message: message, maxWidth: maxWidth, isSender: true),
+                  message: message, maxWidth: maxWidth, isSender: true,scrollToMessage: scrollToMessage,),
             ),
           ),
         ),

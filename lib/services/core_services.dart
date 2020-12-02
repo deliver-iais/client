@@ -236,8 +236,8 @@ class CoreServices {
           lastMessageDbId: Value(msg.dbId)),
     );
 
-    var roomName = await RoomRepo().getRoomDisplayName(message.from);
-    _notificationServices.showNotification(msg, roomName);
+    var roomName = await RoomRepo().getRoomDisplayName(roomUid);
+    _notificationServices.showNotification(msg, roomName,roomUid.asString());
   }
 
   saveMessageInMessagesDB(Message message) async {

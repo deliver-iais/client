@@ -90,36 +90,36 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   Text(appLocalization.getTraslateValue("Forward")),
                 ])),
           ),
-          widget.message.type == MessageType.TEXT
-              ? Expanded(
-                  child: FlatButton(
-                      onPressed: () {
-                        onEdit();
-                      },
-                      child: Row(children: [
-                        Icon(
-                          Icons.edit,
-                          size: 20,
-                        ),
-                        SizedBox(width: 8),
-                        Text(appLocalization.getTraslateValue("Edit")),
-                      ])),
-                )
-              : Container(),
-          Expanded(
-            child: FlatButton(
-                onPressed: () {
-                  onDelete();
-                },
-                child: Row(children: [
-                  Icon(
-                    Icons.delete,
-                    size: 20,
-                  ),
-                  SizedBox(width: 8),
-                  Text(appLocalization.getTraslateValue("Delete")),
-                ])),
-          ),
+          // widget.message.type == MessageType.TEXT
+          //     ? Expanded(
+          //         child: FlatButton(
+          //             onPressed: () {
+          //               onEdit();
+          //             },
+          //             child: Row(children: [
+          //               Icon(
+          //                 Icons.edit,
+          //                 size: 20,
+          //               ),
+          //               SizedBox(width: 8),
+          //               Text(appLocalization.getTraslateValue("Edit")),
+          //             ])),
+          //       )
+          //     : Container(),
+          // Expanded(
+          //   child: FlatButton(
+          //       onPressed: () {
+          //         onDelete();
+          //       },
+          //       child: Row(children: [
+          //         Icon(
+          //           Icons.delete,
+          //           size: 20,
+          //         ),
+          //         SizedBox(width: 8),
+          //         Text(appLocalization.getTraslateValue("Delete")),
+          //       ])),
+          // ),
         ],
       ),
     );
