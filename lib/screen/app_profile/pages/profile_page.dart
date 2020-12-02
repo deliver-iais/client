@@ -32,8 +32,6 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
-
-
 class ProfilePage extends StatefulWidget {
   Uid userUid;
 
@@ -55,16 +53,14 @@ class _ProfilePageState extends State<ProfilePage> {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
-  int tabsCount=0;
-  var _mediaCache = LruCache<String,Media>(storage: SimpleStorage(size: 30));
+  int tabsCount;
+  var _mediaCache = LruCache<String, Media>(storage: SimpleStorage(size: 30));
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
-
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -73,301 +69,332 @@ class _ProfilePageState extends State<ProfilePage> {
     return StreamBuilder(
       stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
       builder: (context, snapshot) {
-        if(snapshot.hasData){
-          snapshot.data.forEach((element){
-            if(element!=0){
-              tabsCount = tabsCount+1;
-            }
-          });
-      return Scaffold(
-          body: DefaultTabController(
-              length: widget.userUid.category == Categories.USER ? tabsCount : tabsCount + 1,
-              child: NestedScrollView(
-                  headerSliverBuilder:
-                      (BuildContext context, bool innerBoxIsScrolled) {
-                    return <Widget>[
-                      ProfileAvatar(
-                        innerBoxIsScrolled: innerBoxIsScrolled,
-                        roomUid: widget.userUid,
-                      ),
-                      widget.userUid.category == Categories.USER
-                          ? SliverList(
-                              delegate: SliverChildListDelegate([
-                              Container(
-                                height: 80,
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Wrap(
-                                      direction: Axis.vertical,
-                                      runSpacing: 40,
-                                      children: <Widget>[
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(20, 0, 0, 0),
-                                          child: Text(
-                                            appLocalization
-                                                .getTraslateValue("info"),
-                                            style: TextStyle(
-                                              color: ExtraTheme.of(context)
-                                                  .blueOfProfilePage,
-                                              fontSize: 16.0,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(height: 10),
-                                        FutureBuilder<Contact>(
-                                          future: _contactRepo
-                                              .getContact(widget.userUid),
-                                          builder: (BuildContext context,
-                                              AsyncSnapshot<Contact> snapshot) {
-                                            if (snapshot.data != null) {
-                                              return _showUsername(
-                                                  snapshot.data.username);
-                                            } else {
-                                              return FutureBuilder<UserAsContact>(
-                                                future:
-                                                    _contactRepo.searchUserByUid(
-                                                        widget.userUid),
-                                                builder: (BuildContext context,
-                                                    AsyncSnapshot<UserAsContact>
-                                                        snapshot) {
-                                                  if (snapshot.data != null) {
-                                                    return _showUsername(
-                                                        snapshot.data.username);
-                                                  } else {
-                                                    return SizedBox.shrink();
-                                                  }
-                                                },
-                                              );
-                                            }
-                                          },
-                                        ),
-                                      ]),
-                                  // )
-                                ),
-                              ),
-                              SizedBox(height: 20),
-                              Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: ExtraTheme.of(context)
-                                            .borderOfProfilePage),
-                                    color: ExtraTheme.of(context)
-                                        .backgroundOfProfilePage,
-                                  ),
-                                  height: 60,
-                                  padding: const EdgeInsetsDirectional.only(
-                                      start: 5, end: 15),
-                                  child: GestureDetector(
-                                    child: Row(children: <Widget>[
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Icon(Icons.message),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      //  SizedBox(width: 10),
-                                      Text(appLocalization
-                                          .getTraslateValue("sendMessage")),
-                                    ]),
-                                    onTap: () {
-                                      _routingService
-                                          .openRoom(widget.userUid.string);
-                                    },
-                                  )),
-                              Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: ExtraTheme.of(context)
-                                            .borderOfProfilePage),
-                                    color: ExtraTheme.of(context)
-                                        .backgroundOfProfilePage,
-                                  ),
-                                  height: 60,
-                                  padding: const EdgeInsetsDirectional.only(
-                                      start: 13, end: 15),
-                                  child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Container(
-                                          child: Row(
-                                            children: <Widget>[
-                                              Icon(
-                                                Icons.notifications_active,
-                                                size: 30,
-                                              ),
-                                              SizedBox(width: 10),
-                                              Text(appLocalization
-                                                  .getTraslateValue(
-                                                      "notification")),
-                                            ],
-                                          ),
-                                        ),
-                                        StreamBuilder<Room>(
-                                          stream: _roomDao
-                                              .getByRoomId(widget.userUid.string),
-                                          builder: (BuildContext context,
-                                              AsyncSnapshot<Room> snapshot) {
-                                            if (snapshot.data != null) {
-                                              return Switch(
-                                                activeColor:
-                                                    ExtraTheme.of(context)
-                                                        .blueOfProfilePage,
-                                                value: !snapshot.data.mute,
-                                                onChanged: (newNotifState) {
-                                                  setState(() {
-                                                    _roomDao.insertRoom(Room(
-                                                        roomId:
-                                                            widget.userUid.string,
-                                                        mute: !newNotifState));
-                                                  });
-                                                },
-                                              );
-                                            } else {
-                                              return SizedBox.shrink();
-                                            }
-                                          },
-                                        )
-                                      ])),
-                              Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: ExtraTheme.of(context)
-                                            .borderOfProfilePage),
-                                    color: ExtraTheme.of(context)
-                                        .backgroundOfProfilePage,
-                                  ),
-                                  height: 60,
-                                  padding: const EdgeInsetsDirectional.only(
-                                      start: 7, end: 15),
-                                  child: FutureBuilder<Contact>(
-                                    future:
-                                        _contactRepo.getContact(widget.userUid),
-                                    builder: (BuildContext context,
-                                        AsyncSnapshot<Contact> snapshot) {
-                                      if (snapshot.data != null) {
-                                        return Stack(children: <Widget>[
-                                          Row(
-                                            children: [
-                                              IconButton(
-                                                icon: Icon(Icons.phone),
-                                                onPressed: () {},
-                                              ),
-                                              Text(appLocalization
-                                                  .getTraslateValue("phone")),
-                                            ],
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(top: 20),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                Text(snapshot.data.phoneNumber),
-                                              ],
-                                            ),
-                                          ),
-                                        ]);
-                                      } else {
-                                        return SizedBox.shrink();
-                                      }
-                                    },
-                                  )),
-                              SizedBox(
-                                height: 40,
-                              )
-                            ]))
-                          : GroupUiWidget(
-                              mucUid: widget.userUid,
-                            ),
-                      SliverPersistentHeader(
-                        pinned: true,
-                        delegate: _SliverAppBarDelegate(
-                          maxHeight: 60,
-                          minHeight: 60,
-                          child: Container(
-                              color: Theme.of(context).backgroundColor,
-                              child: TabBar(
-                                tabs: [
-                                  if (widget.userUid.category != Categories.USER)
-                                    Tab(
-                                      text: appLocalization
-                                          .getTraslateValue("members"),
-                                    ),
-
-                                       if(snapshot.data.imagesCount!=0)
-                                        Tab(
-                                         text:
-                                         appLocalization.getTraslateValue(
-                                             "images"),
-                                       ),
-                                      if(snapshot.data.videosCount!=0)
-                                        Tab(
-                                         text:
-                                         appLocalization.getTraslateValue(
-                                             "videos"),
-                                       ),
-                                  if(snapshot.data.filesCount!=0)
-                                      Tab(
-                                        text:
-                                        appLocalization.getTraslateValue("files"),
-                                      ),
-                                  if(snapshot.data.linksCount!=0)
-                                      Tab(
-                                        text:
-                                        appLocalization.getTraslateValue("links")),
-                                  if(snapshot.data.documentsCount!=0)
-                                     Tab(
-                                      text:
-                                      appLocalization.getTraslateValue("documents")),
-                                  if(snapshot.data.musicsCount!=0)
-                                    Tab(
-                                      text:
-                                      appLocalization.getTraslateValue("musics")),
-                                  if(snapshot.data.audiosCount!=0)
-                                   Tab(
-                                      text:
-                                      appLocalization.getTraslateValue("audios")),
-                                     ]),
-                              )),
-                        ),
-                    ];
-                  },
-                  body: Container(
-                      child: TabBarView(children: [
-                    if (widget.userUid.category != Categories.USER)
-                      SingleChildScrollView(
-                        child: Column(children: [
-                          MucMemberWidget(
-                            mucUid: widget.userUid,
+        tabsCount = 0;
+        if (snapshot.hasData) {
+          if (snapshot.data.imagesCount != 0) {
+            tabsCount = tabsCount + 1;
+            print(snapshot.data);
+          }
+          if (snapshot.data.videosCount != 0) {
+            tabsCount = tabsCount + 1;
+          }
+          if (snapshot.data.linkCount != 0) {
+            tabsCount = tabsCount + 1;
+          }
+          if (snapshot.data.filesCount != 0) {
+            tabsCount = tabsCount + 1;
+          }
+          if (snapshot.data.documentsCount != 0) {
+            tabsCount = tabsCount + 1;
+          }
+          if (snapshot.data.musicsCount != 0) {
+            tabsCount = tabsCount + 1;
+          }
+          if (snapshot.data.audiosCount != 0) {
+            tabsCount = tabsCount + 1;
+          }
+          return Scaffold(
+              body: DefaultTabController(
+                  length: widget.userUid.category == Categories.USER
+                      ? tabsCount
+                      : tabsCount + 1,
+                  child: NestedScrollView(
+                      headerSliverBuilder:
+                          (BuildContext context, bool innerBoxIsScrolled) {
+                        return <Widget>[
+                          ProfileAvatar(
+                            innerBoxIsScrolled: innerBoxIsScrolled,
+                            roomUid: widget.userUid,
                           ),
-                        ]),
-                      ),
-                        if(snapshot.data.imagesCount!=0)
+                          widget.userUid.category == Categories.USER
+                              ? SliverList(
+                                  delegate: SliverChildListDelegate([
+                                  Container(
+                                    height: 80,
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Wrap(
+                                          direction: Axis.vertical,
+                                          runSpacing: 40,
+                                          children: <Widget>[
+                                            Padding(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  20, 0, 0, 0),
+                                              child: Text(
+                                                appLocalization
+                                                    .getTraslateValue("info"),
+                                                style: TextStyle(
+                                                  color: ExtraTheme.of(context)
+                                                      .blueOfProfilePage,
+                                                  fontSize: 16.0,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(height: 10),
+                                            FutureBuilder<Contact>(
+                                              future: _contactRepo
+                                                  .getContact(widget.userUid),
+                                              builder: (BuildContext context,
+                                                  AsyncSnapshot<Contact>
+                                                      snapshot) {
+                                                if (snapshot.data != null) {
+                                                  return _showUsername(
+                                                      snapshot.data.username);
+                                                } else {
+                                                  return FutureBuilder<
+                                                      UserAsContact>(
+                                                    future: _contactRepo
+                                                        .searchUserByUid(
+                                                            widget.userUid),
+                                                    builder: (BuildContext
+                                                            context,
+                                                        AsyncSnapshot<
+                                                                UserAsContact>
+                                                            snapshot) {
+                                                      if (snapshot.data !=
+                                                          null) {
+                                                        return _showUsername(
+                                                            snapshot
+                                                                .data.username);
+                                                      } else {
+                                                        return SizedBox
+                                                            .shrink();
+                                                      }
+                                                    },
+                                                  );
+                                                }
+                                              },
+                                            ),
+                                          ]),
+                                      // )
+                                    ),
+                                  ),
+                                  SizedBox(height: 20),
+                                  Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: ExtraTheme.of(context)
+                                                .borderOfProfilePage),
+                                        color: ExtraTheme.of(context)
+                                            .backgroundOfProfilePage,
+                                      ),
+                                      height: 60,
+                                      padding: const EdgeInsetsDirectional.only(
+                                          start: 5, end: 15),
+                                      child: GestureDetector(
+                                        child: Row(children: <Widget>[
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Icon(Icons.message),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          //  SizedBox(width: 10),
+                                          Text(appLocalization
+                                              .getTraslateValue("sendMessage")),
+                                        ]),
+                                        onTap: () {
+                                          _routingService
+                                              .openRoom(widget.userUid.string);
+                                        },
+                                      )),
+                                  Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: ExtraTheme.of(context)
+                                                .borderOfProfilePage),
+                                        color: ExtraTheme.of(context)
+                                            .backgroundOfProfilePage,
+                                      ),
+                                      height: 60,
+                                      padding: const EdgeInsetsDirectional.only(
+                                          start: 13, end: 15),
+                                      child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: <Widget>[
+                                            Container(
+                                              child: Row(
+                                                children: <Widget>[
+                                                  Icon(
+                                                    Icons.notifications_active,
+                                                    size: 30,
+                                                  ),
+                                                  SizedBox(width: 10),
+                                                  Text(appLocalization
+                                                      .getTraslateValue(
+                                                          "notification")),
+                                                ],
+                                              ),
+                                            ),
+                                            StreamBuilder<Room>(
+                                              stream: _roomDao.getByRoomId(
+                                                  widget.userUid.string),
+                                              builder: (BuildContext context,
+                                                  AsyncSnapshot<Room>
+                                                      snapshot) {
+                                                if (snapshot.data != null) {
+                                                  return Switch(
+                                                    activeColor:
+                                                        ExtraTheme.of(context)
+                                                            .blueOfProfilePage,
+                                                    value: !snapshot.data.mute,
+                                                    onChanged: (newNotifState) {
+                                                      setState(() {
+                                                        _roomDao.insertRoom(Room(
+                                                            roomId: widget
+                                                                .userUid.string,
+                                                            mute:
+                                                                !newNotifState));
+                                                      });
+                                                    },
+                                                  );
+                                                } else {
+                                                  return SizedBox.shrink();
+                                                }
+                                              },
+                                            )
+                                          ])),
+                                  Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: ExtraTheme.of(context)
+                                                .borderOfProfilePage),
+                                        color: ExtraTheme.of(context)
+                                            .backgroundOfProfilePage,
+                                      ),
+                                      height: 60,
+                                      padding: const EdgeInsetsDirectional.only(
+                                          start: 7, end: 15),
+                                      child: FutureBuilder<Contact>(
+                                        future: _contactRepo
+                                            .getContact(widget.userUid),
+                                        builder: (BuildContext context,
+                                            AsyncSnapshot<Contact> snapshot) {
+                                          if (snapshot.data != null) {
+                                            return Stack(children: <Widget>[
+                                              Row(
+                                                children: [
+                                                  IconButton(
+                                                    icon: Icon(Icons.phone),
+                                                    onPressed: () {},
+                                                  ),
+                                                  Text(appLocalization
+                                                      .getTraslateValue(
+                                                          "phone")),
+                                                ],
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    EdgeInsets.only(top: 20),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: [
+                                                    Text(snapshot
+                                                        .data.phoneNumber),
+                                                  ],
+                                                ),
+                                              ),
+                                            ]);
+                                          } else {
+                                            return SizedBox.shrink();
+                                          }
+                                        },
+                                      )),
+                                  SizedBox(
+                                    height: 40,
+                                  )
+                                ]))
+                              : GroupUiWidget(
+                                  mucUid: widget.userUid,
+                                ),
+                          SliverPersistentHeader(
+                            pinned: true,
+                            delegate: _SliverAppBarDelegate(
+                                maxHeight: 60,
+                                minHeight: 60,
+                                child: Container(
+                                  color: Theme.of(context).backgroundColor,
+                                  child: TabBar(tabs: [
+                                    if (widget.userUid.category !=
+                                        Categories.USER)
+                                      Tab(
+                                        text: appLocalization
+                                            .getTraslateValue("members"),
+                                      ),
+                                    if (snapshot.data.imagesCount != 0)
+                                      Tab(
+                                        text: appLocalization
+                                            .getTraslateValue("images"),
+                                      ),
+                                    if (snapshot.data.videosCount != 0)
+                                      Tab(
+                                        text: appLocalization
+                                            .getTraslateValue("videos"),
+                                      ),
+                                    if (snapshot.data.filesCount != 0)
+                                      Tab(
+                                        text: appLocalization
+                                            .getTraslateValue("file"),
+                                      ),
+                                    if (snapshot.data.linkCount != 0)
+                                      Tab(
+                                          text: appLocalization
+                                              .getTraslateValue("links")),
+                                    if (snapshot.data.documentsCount != 0)
+                                      Tab(
+                                          text: appLocalization
+                                              .getTraslateValue("documents")),
+                                    if (snapshot.data.musicsCount != 0)
+                                      Tab(
+                                          text: appLocalization
+                                              .getTraslateValue("musics")),
+                                    if (snapshot.data.audiosCount != 0)
+                                      Tab(
+                                          text: appLocalization
+                                              .getTraslateValue("audios")),
+                                  ]),
+                                )),
+                          ),
+                        ];
+                      },
+                      body: Container(
+                          child: TabBarView(children: [
+                        if (widget.userUid.category != Categories.USER)
+                          SingleChildScrollView(
+                            child: Column(children: [
+                              MucMemberWidget(
+                                mucUid: widget.userUid,
+                              ),
+                            ]),
+                          ),
+                        if (snapshot.data.imagesCount != 0)
                           Text("imagesssssssssssssss"),
-                          //imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo,_mediaCache),
-                        if(snapshot.data.videosCount!=0)
+                        //imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo,_mediaCache),
+                        if (snapshot.data.videosCount != 0)
                           Text("videooooooooooooooo"),
-                        if(snapshot.data.filesCount!=0)
+                        if (snapshot.data.filesCount != 0)
                           Text("fileeeeeeeeeee"),
-                        if(snapshot.data.linksCount!=0)
+                        if (snapshot.data.linkCount != 0)
                           Text("linkkkkkkkkkkk"),
-                        if(snapshot.data.documentsCount!=0)
+                        if (snapshot.data.documentsCount != 0)
                           Text("dooooooooccccccccc"),
-                        if(snapshot.data.musicsCount!=0)
+                        if (snapshot.data.musicsCount != 0)
                           Text("musiccccccccccc"),
-                        if(snapshot.data.audiosCount!=0)
+                        if (snapshot.data.audiosCount != 0)
                           Text("audioooooooo"),
-
-                  ])))));}else{
-          return Container();
+                      ])))));
+        } else {
+          return Container(
+            width: 100,
+            height: 100,
+          );
         }
       },
     );
   }
-
 }
 
 // Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo,LruCache mediaCache) {
@@ -535,7 +562,6 @@ class _ProfilePageState extends State<ProfilePage> {
 //   });
 //
 // }
-
 
 Widget _showUsername(String username) {
   return Padding(

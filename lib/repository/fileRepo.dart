@@ -38,8 +38,8 @@ class FileRepo {
       ..type = json["type"]
       ..name = json["name"]
       ..width = json["width"]
-      ..height = json["height"]
-      ..duration = json["duration"];
+      ..height = json["height"];
+      //..duration = json["duration"];
 
     await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
 

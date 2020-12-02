@@ -52,7 +52,8 @@ class MediaQueryRepo {
       mediaResponse = await mediaServices.getMediaMetadata(getMediaMetaDataReq,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      print("tttttttttttttttttttttttt${mediaResponse}");
+      print("tttttttttttttttttttttttt${mediaResponse}"
+      );
       await insertMediaMetaData(uid, mediaResponse);
     } catch (e) {
       print("metaDataEroorrrr$e");
@@ -102,8 +103,8 @@ class MediaQueryRepo {
   }
 
   Stream<MediasMetaDataData> getMediasMetaDataCountFromDB(Uid roomId) {
-    _mediaMetaDataDao.getStreamMediasCountByRoomId(roomId.string).listen((value) {
-      return value;
+    return _mediaMetaDataDao.getStreamMediasCountByRoomId(roomId.string);
+
       // if (mediaType == queryObject.FetchMediasReq_MediaType.IMAGES) {
       //   // if(event.imagesCount==0){
       //   //   await allMediasCountReqInServer(roomId);
@@ -123,7 +124,7 @@ class MediaQueryRepo {
       // } else if (mediaType == queryObject.FetchMediasReq_MediaType.AUDIOS) {
       //   return value.audiosCount;
       // }
-    });
+
   }
 
   // Stream<int> allMediasTypeInDBCount(Uid uid , FetchMediasReq_MediaType mediaType) {
