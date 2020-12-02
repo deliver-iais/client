@@ -7,7 +7,6 @@ import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:path/path.dart';
 
 class ContactsPage extends StatelessWidget {
   final contactDao = GetIt.I.get<ContactDao>();
