@@ -154,23 +154,23 @@ class MessageRepo {
     await _sendMessageToServer(dbId);
   }
 
-  //TODO test
   sendFileMessage(Uid room, String path,
       {String caption = "", int replyToId = -1}) async {
     String packetId = _getPacketId();
 
     // Create MessageCompanion
     var file = DartFile.File(path);
-
+    final tempType = _findType(path);
+    var tempDimension;
     // Get size of image
-    var tempDimension = ImageSizeGetter.getSize(FileInput(file));
-    if (tempDimension == Size.zero) {
-      tempDimension = Size(200, 200);
+    if (tempType.split('/')[0] == 'image') {
+      tempDimension = ImageSizeGetter.getSize(FileInput(file));
+      if (tempDimension == Size.zero) {
+        tempDimension = Size(200, 200);
+      }
     }
 
     // Get type with file name
-    final tempType = _findType(path);
-
     final tempFileSize = file.statSync().size;
 
     FileProto.File sendingFakeFile = FileProto.File()
@@ -264,7 +264,6 @@ class MessageRepo {
 
     if (message.forwardedFrom != null)
       byClient.forwardFrom = message.forwardedFrom.getUid();
-
     _coreServices.sendMessage(byClient);
   }
 
