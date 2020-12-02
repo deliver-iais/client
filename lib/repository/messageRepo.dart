@@ -56,7 +56,7 @@ class MessageRepo {
   var _coreServices = GetIt.I.get<CoreServices>();
 
   final QueryServiceClient _queryServiceClient =
-      QueryServiceClient(QueryClientChannel);
+      GetIt.I.get<QueryServiceClient>();
 
   BehaviorSubject<TitleStatusConditions> updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
