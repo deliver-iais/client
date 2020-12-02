@@ -77,7 +77,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                 .getRoomDisplayName(member.memberUid.uid),
                             builder: (BuildContext context,
                                 AsyncSnapshot<String> name) {
-                              if (name.data != null) {
+                              if (name.data != null && !member.memberUid.contains(_accountRepo.currentUserUid.asString())) {
                                 return Text(
                                   name.data,
                                   overflow: TextOverflow.ellipsis,
@@ -105,29 +105,12 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                   },
                                 );
                               } else {
-                                return FutureBuilder<UserAsContact>(
-                                  future: _contactRepo
-                                      .searchUserByUid(member.memberUid.uid),
-                                  builder: (BuildContext context,
-                                      AsyncSnapshot<UserAsContact> snapshot) {
-                                    if (snapshot.data != null) {
-                                      return Text(
-                                        snapshot.data.username,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                        ),
-                                      );
-                                    } else {
-                                      return Text(
-                                        "Unknown",
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                        ),
-                                      );
-                                    }
-                                  },
+                                return Text(
+                                  "Unknown",
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                  ),
                                 );
                               }
                             },

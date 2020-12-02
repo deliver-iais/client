@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io' as DartFile;
 
@@ -377,28 +378,14 @@ class MessageRepo {
 
   sendForwardedMessage(Uid room, List<Message> forwardedMessage) async {
     for (Message forwardedMessage in forwardedMessage) {
-      var msg = forwardedMessage.copyWith(
-          dbId: null,
-          roomId: room.asString(),
-          packetId: _getPacketId(),
-          forwardedFrom: forwardedMessage.from,
-          time: now(),
-          from: _accountRepo.currentUserUid.asString(),
-          to: room.asString(),
-          replyToId: null);
+      switch(forwardedMessage.type){
+        case MessageType.TEXT:
+          sendTextMessage(room, jsonDecode(forwardedMessage.json)["1"],replyId: forwardedMessage.replyToId,forwardedFromAsString: forwardedMessage.from);
+          break;
+        case MessageType.FILE:
 
-      int dbId = await _messageDao.insertMessage(msg);
+      }
 
-      _savePendingMessage(
-          room.asString(), dbId, msg.packetId, SendingStatus.PENDING);
-
-      _updateRoomLastMessage(
-        room.asString(),
-        dbId,
-      );
-
-      // Send Message
-      _sendMessageToServer(dbId);
     }
   }
 

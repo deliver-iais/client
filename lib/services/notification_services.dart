@@ -16,7 +16,7 @@ class NotificationServices {
 
   NotificationServices() {
     var androidNotificationSetting =
-        new AndroidInitializationSettings('@mipmap/ic_launcher');
+        new AndroidInitializationSettings('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
     var iosNotificationSetting = new IOSInitializationSettings(
         onDidReceiveLocalNotification: onDidReceiveLocalNotification);
 
@@ -90,13 +90,13 @@ class NotificationServices {
         payload: roomId);
   }
 
-  void showNotification(db.Message message, String roomName,String roomUid) async {
-    if (_currentRoomId == null || !_currentRoomId.contains(message.from))
-      cancelNotification(message.id - 1);
+  void showNotification(
+      db.Message message, String roomName, String roomUid) async {
+    cancelNotification(message.id - 1);
     switch (message.type) {
       case MessageType.TEXT:
-        showTextNotification(message.id, roomUid, roomName,
-            jsonDecode(message.json)['1']);
+        showTextNotification(
+            message.id, roomUid, roomName, jsonDecode(message.json)['1']);
         break;
       case MessageType.FILE:
         // TODO: Handle this case.
