@@ -262,11 +262,11 @@ class MessageRepo {
     var message = await _messageDao.getPendingMessage(dbId);
     var pendingMessage = await _pendingMessageDao.getByMessageDbId(dbId);
 
-    // if (!_canPendingMessageResendAndDecreaseRemainingRetries(
-    //         pendingMessage, message) ||
-    //     pendingMessage.status != SendingStatus.PENDING) {
-    //   return;
-    // }
+    if (!_canPendingMessageResendAndDecreaseRemainingRetries(
+            pendingMessage, message) ||
+        pendingMessage.status != SendingStatus.PENDING) {
+      return;
+    }
 
     MessageProto.MessageByClient byClient = _createMessageByClient(message);
 
@@ -385,21 +385,22 @@ class MessageRepo {
               forwardedFromAsString: forwardedMessage.from);
           break;
         case MessageType.FILE:
-          var msg = forwardedMessage.copyWith(
-              dbId: null,
+          String packetId = _getPacketId();
+          var mes = await _messageDao.getMessageById(
+              forwardedMessage.id, forwardedMessage.roomId);
+
+          int dbId = await _messageDao.insertMessage(Message(
               roomId: room.asString(),
-              packetId: _getPacketId(),
-              forwardedFrom: forwardedMessage.from,
+              packetId: packetId,
               time: now(),
-              id:null,
+              type: mes[0].type,
               from: _accountRepo.currentUserUid.asString(),
               to: room.asString(),
-              replyToId: null);
-
-          int dbId = await _messageDao.insertMessage(msg);
+              forwardedFrom: forwardedMessage.from,
+              json: mes[0].json));
 
           _savePendingMessage(
-              room.asString(), dbId, msg.packetId, SendingStatus.PENDING);
+              room.asString(), dbId, packetId, SendingStatus.PENDING);
 
           _updateRoomLastMessage(
             room.asString(),
