@@ -10,7 +10,6 @@ import 'package:deliver_flutter/screen/register/widgets/phone_number.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
-import 'package:fimber/fimber.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
@@ -36,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
             phoneNumber.countryCode, phoneNumber.number);
         ExtendedNavigator.of(context).push(Routes.verificationPage);
       } catch (e) {
-        Fimber.d(e.toString());
+
         Fluttertoast.showToast(
 //          TODO more detailed error message needed here.
             msg: appLocalization.getTraslateValue("error_occurred"),

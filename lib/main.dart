@@ -34,7 +34,6 @@ import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:fimber/fimber.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -111,8 +110,7 @@ void setupDIAndRunApp() {
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Fimber.plantTree(DebugTree.elapsed());
-  Fimber.i("Application has been started");
+
 
   if (isDesktop()) {
     _setWindowSize();
@@ -121,9 +119,9 @@ void main() {
   }
 
   if (isAndroid()) {
-    SmsAutoFill()
-        .getAppSignature
-        .then((signCode) => Fimber.d("APP_SIGN_CODE for SMS: $signCode"));
+    // SmsAutoFill()
+    //     .getAppSignature
+    //     .then((signCode) => Fimber.d("APP_SIGN_CODE for SMS: $signCode"));
   }
 
   setupDIAndRunApp();
@@ -152,7 +150,6 @@ class MyApp extends StatelessWidget {
         uxService.localeStream as Stream,
       ]),
       builder: (context, snapshot) {
-        Fimber.d("theme changed ${uxService.theme.toString()}");
         return ExtraTheme(
           extraThemeData: uxService.extraTheme,
           child: MaterialApp(

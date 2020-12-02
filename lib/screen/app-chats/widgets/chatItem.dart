@@ -11,7 +11,6 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
-import 'package:fimber/fimber_base.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

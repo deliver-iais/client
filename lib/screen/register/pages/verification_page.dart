@@ -6,7 +6,6 @@ import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
-import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
@@ -56,7 +55,6 @@ class _VerificationPageState extends State<VerificationPage> {
         _setErrorAndResetCode();
       }
     }).catchError((e) {
-      Fimber.d(e.toString());
       _setErrorAndResetCode();
     });
   }
@@ -185,11 +183,9 @@ class _VerificationPageState extends State<VerificationPage> {
                       currentCode: _verificationCode,
                       onCodeSubmitted: (code) {
                         _verificationCode = code;
-                        Fimber.d(_verificationCode);
                         _sendVerificationCode();
                       },
                       onCodeChanged: (code) {
-                        Fimber.d(_verificationCode);
                         _verificationCode = code;
                         if (code.length == 5) {
                           _sendVerificationCode();
