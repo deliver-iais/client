@@ -21,7 +21,7 @@ class RoomRepo {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
 
-  Future<String> getRoomDisplayName(Uid uid,) async {
+  Future<String> getRoomDisplayName(Uid uid) async {
     switch (uid.category) {
       case Categories.SYSTEM:
         return "Deliver";

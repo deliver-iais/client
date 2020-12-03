@@ -3,14 +3,12 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/models/role.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -30,7 +28,6 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   var _roomRepo = GetIt.I.get<RoomRepo>();
   AppLocalization _appLocalization;
   var _mucRepo = GetIt.I.get<MucRepo>();
-  var _contactRepo = GetIt.I.get<ContactRepo>();
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
   static const String CHANGE_ROLE = "changeRole";
@@ -77,7 +74,9 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                 .getRoomDisplayName(member.memberUid.uid),
                             builder: (BuildContext context,
                                 AsyncSnapshot<String> name) {
-                              if (name.data != null && !member.memberUid.contains(_accountRepo.currentUserUid.asString())) {
+                              if (name.data != null &&
+                                  member.memberUid !=
+                                      _accountRepo.currentUserUid.asString()) {
                                 return Text(
                                   name.data,
                                   overflow: TextOverflow.ellipsis,
@@ -85,8 +84,8 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                     fontSize: 16,
                                   ),
                                 );
-                              } else if (member.memberUid.contains(
-                                  _accountRepo.currentUserUid.asString())) {
+                              } else if (member.memberUid ==
+                                  _accountRepo.currentUserUid.asString()) {
                                 return FutureBuilder<Account>(
                                   future: _accountRepo.getAccount(),
                                   builder: (BuildContext context,
@@ -120,8 +119,8 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                       Row(
                         children: [
                           showMemberRole(member),
-                          member.memberUid
-                                  .contains(_accountRepo.currentUserUid.asString())
+                          member.memberUid.contains(
+                                  _accountRepo.currentUserUid.asString())
                               ? SizedBox(
                                   width: 50,
                                 )
