@@ -95,7 +95,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                         "${snapshot.data.firstName} ${snapshot.data.lastName ?? ""}",
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: 16,
                                         ),
                                       );
                                     } else {

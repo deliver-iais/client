@@ -181,9 +181,9 @@ class CoreServices {
     Uid roomId;
     switch (seen.to.category) {
       case Categories.USER:
-        seen.to == _accountRepo.currentUserUid
-            ? roomId = seen.to
-            : roomId = seen.from;
+        seen.to.asString() == _accountRepo.currentUserUid.asString()
+            ? roomId = seen.from
+            : roomId = seen.to;
         break;
       case Categories.STORE:
       case Categories.SYSTEM:
@@ -212,7 +212,8 @@ class CoreServices {
     var time = messageDeliveryAck.time.toInt() ??
         DateTime.now().millisecondsSinceEpoch;
     _messageDao.updateMessageId(roomId, packetId, id, time);
-    _roomDao.insertRoomCompanion(Database.RoomsCompanion.insert(roomId: roomId, lastMessageId: Value(id)));
+    _roomDao.insertRoomCompanion(Database.RoomsCompanion.insert(
+        roomId: roomId, lastMessageId: Value(id)));
     _lastSeenDao.updateLastSeen(roomId, id);
     _pendingMessageDao.deletePendingMessage(packetId);
   }
@@ -220,7 +221,7 @@ class CoreServices {
   _saveIncomingMessage(Message message) async {
     // TODO remove later on if Add User to group message feature is implemented
     if (message.from.category != Categories.USER) {
-     await _mucRepo.saveMucInfo(message.to);
+      await _mucRepo.saveMucInfo(message.to);
     }
     var msg = await saveMessageInMessagesDB(message);
     bool isCurrentUser =
@@ -237,7 +238,7 @@ class CoreServices {
     );
 
     var roomName = await RoomRepo().getRoomDisplayName(roomUid);
-    _notificationServices.showNotification(msg, roomName,roomUid.asString());
+    _notificationServices.showNotification(msg, roomName, roomUid.asString());
   }
 
   saveMessageInMessagesDB(Message message) async {
