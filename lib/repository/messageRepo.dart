@@ -182,7 +182,7 @@ class MessageRepo {
       ..type = tempType
       ..size = Int64(tempFileSize)
       ..name = path.split('/').last
-      ..duration = -1;
+      ..duration = 0;
 
     await _fileRepo.cloneFileInLocalDirectory(
         file, packetId, file.path.split('/').last);
