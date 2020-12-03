@@ -103,9 +103,10 @@ class _BoxContentState extends State<BoxContent> {
         future: _roomRepo.getRoomDisplayName(widget.message.forwardedFrom.uid),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
-            return Text(
+            return GestureDetector(child:  Text(
                 "${_appLocalization.getTraslateValue("Forwarded_From")} ${snapshot.data}",
-                style: TextStyle(color: ExtraTheme.of(context).text));
+                style: TextStyle(color: ExtraTheme.of(context).text)),onTap:() {_routingServices.openRoom(widget.message.forwardedFrom);},);
+
           } else {
             return Text(
                 "${_appLocalization.getTraslateValue("Forwarded_From")} Unknown",
