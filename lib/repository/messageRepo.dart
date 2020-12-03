@@ -162,7 +162,7 @@ class MessageRepo {
     // Create MessageCompanion
     var file = DartFile.File(path);
     final tempType = _findType(path);
-    var tempDimension;
+    var tempDimension = Size.zero;
     // Get size of image
     if (tempType.split('/')[0] == 'image') {
       tempDimension = ImageSizeGetter.getSize(FileInput(file));
