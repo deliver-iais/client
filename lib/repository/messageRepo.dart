@@ -361,20 +361,20 @@ class MessageRepo {
 
   sendForwardedMessage(Uid room, List<Message> forwardedMessage) async {
     for (Message forwardedMessage in forwardedMessage) {
-      var msg = forwardedMessage.copyWith(
-          dbId: null,
+      String packetId = _getPacketId();
+
+      int dbId = await _messageDao.insertMessage(Message(
           roomId: room.asString(),
-          packetId: _getPacketId(),
-          forwardedFrom: forwardedMessage.from,
+          packetId: packetId,
           time: now(),
+          type: forwardedMessage.type,
           from: _accountRepo.currentUserUid.asString(),
           to: room.asString(),
-          replyToId: null);
-
-      int dbId = await _messageDao.insertMessage(msg);
+          forwardedFrom: forwardedMessage.from,
+          json: forwardedMessage.json));
 
       _savePendingMessage(
-          room.asString(), dbId, msg.packetId, SendingStatus.PENDING);
+          room.asString(), dbId, packetId, SendingStatus.PENDING);
 
       _updateRoomLastMessage(
         room.asString(),
