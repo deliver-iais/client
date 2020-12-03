@@ -51,34 +51,32 @@ class RoomPage extends StatefulWidget {
 }
 
 class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
-  double _maxWidth;
-  Message _replyedMessage;
-  bool _isMuc;
-  bool _waitingForForwardedMessage;
-  bool _hasPermissionToSendMessageInChannel = true;
-  AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
-  MessageRepo _messageRepo = GetIt.I.get<MessageRepo>();
-  LastSeenDao _lastSeenDao = GetIt.I.get<LastSeenDao>();
-  PendingMessageDao _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
-  RoutingService _routingService = GetIt.I.get<RoutingService>();
-  var _notificationServices = GetIt.I.get<NotificationServices>();
-  bool _selectMultiMessage = false;
-  Map<String, Message> _selectedMessages = Map();
-  var _roomRepo = GetIt.I.get<RoomRepo>();
   var _roomDao = GetIt.I.get<RoomDao>();
-  AppLocalization _appLocalization;
+  var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _memberRepo = GetIt.I.get<MemberRepo>();
+  var _messageRepo = GetIt.I.get<MessageRepo>();
+  var _accountRepo = GetIt.I.get<AccountRepo>();
+  var _lastSeenDao = GetIt.I.get<LastSeenDao>();
+  var _audioPlayerService = GetIt.I.get<AudioPlayerService>();
+  var _routingService = GetIt.I.get<RoutingService>();
+  var _notificationServices = GetIt.I.get<NotificationServices>();
+
+  var _roomRepo = GetIt.I.get<RoomRepo>();
+  bool _waitingForForwardedMessage;
+  bool _isMuc;
+  bool _hasPermissionToSendMessageInChannel = true;
+  Message _replyedMessage;
+  Map<String, Message> _selectedMessages = Map();
+  AppLocalization _appLocalization;
+  bool _selectMultiMessage = false;
   int _lastShowedMessageId = -1;
   int _itemCount;
+
   int _replayMessageId = -1;
 
   ScrollPhysics _scrollPhysics = AlwaysScrollableScrollPhysics();
 
-  AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
-
   int _currentMessageSearchId = -1;
-
-  // TODO should be implemented
 
   final ItemScrollController _itemScrollController = ItemScrollController();
 
@@ -93,19 +91,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   // TODO check function
-  // Check print before return result result not working future builder, why?!
   Future<List<Message>> _getMessageAndPreviousMessage(int id) async {
     String roomId = widget.roomId;
-    var m1 = await getMessage(id, roomId);
-    if (id == 1) {
+    var m1 = await _getMessage(id, roomId);
+    if (id <= 1) {
       return [m1];
     } else {
-      var m2 = await getMessage(id - 1, roomId);
+      var m2 = await _getMessage(id - 1, roomId);
       return [m1, m2];
     }
   }
 
-  Future<Message> getMessage(int id, String roomId) async {
+  Future<Message> _getMessage(int id, String roomId) async {
     var msg = _cache.get(id);
     if (msg != null) {
       return msg;
@@ -122,14 +119,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     return msg;
   }
 
-  void resetRoomPageDetails() {
+  void _resetRoomPageDetails() {
     setState(() {
       _replyedMessage = null;
       _waitingForForwardedMessage = false;
     });
   }
 
-  void sendForwardMessage() async {
+  void _sendForwardMessage() async {
     await _messageRepo.sendForwardedMessage(
         widget.roomId.uid, widget.forwardedMessages);
     setState(() {
@@ -174,7 +171,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       _checkChannelRole();
     }
     //TODO check
-    _lastSeenSubject.listen((event) {
+    _lastSeenSubject.distinct().listen((event) {
       if (event != null && _lastShowedMessageId < event) {
         _lastSeenDao
             .insertLastSeen(LastSeen(roomId: widget.roomId, messageId: event));
@@ -193,7 +190,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
-    _maxWidth = MediaQuery.of(context).size.width * 0.7;
+    double _maxWidth = MediaQuery.of(context).size.width * 0.7;
     if (isLarge(context)) {
       _maxWidth =
           (MediaQuery.of(context).size.width - navigationPanelSize()) * 0.7;
@@ -203,12 +200,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     var deviceHeight = MediaQuery.of(context).size.height;
 
     return StreamBuilder<bool>(
-      stream: audioPlayerService.isOn,
+      stream: _audioPlayerService.isOn,
       builder: (context, snapshot) {
         return Scaffold(
           appBar: PreferredSize(
             preferredSize: Size.fromHeight(
-                snapshot.data == true || audioPlayerService.lastDur != null
+                snapshot.data == true || _audioPlayerService.lastDur != null
                     ? 100
                     : 60),
             child: AppBar(
@@ -270,7 +267,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                             _lastShowedMessageId != -1
                                                 ? _itemCount -
                                                     _lastShowedMessageId
-                                                : 0, //TODO
+                                                : 0,
+                                        //TODO
                                         initialAlignment: 1,
                                         physics: _scrollPhysics,
                                         reverse: true,
@@ -578,7 +576,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               _replyedMessage != null
                   ? ReplyWidget(
                       message: _replyedMessage,
-                      resetRoomPageDetails: resetRoomPageDetails)
+                      resetRoomPageDetails: _resetRoomPageDetails)
                   : Container(),
               _waitingForForwardedMessage
                   ? ForwardWidget(
@@ -596,15 +594,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       replyMessageId: _replyedMessage != null
                           ? _replyedMessage.id ?? -1
                           : -1,
-                      resetRoomPageDetails: resetRoomPageDetails,
+                      resetRoomPageDetails: _resetRoomPageDetails,
                       waitingForForward: _waitingForForwardedMessage,
-                      sendForwardMessage: sendForwardMessage,
+                      sendForwardMessage: _sendForwardMessage,
                     )
-                  : Container(
-                      height: 45,
-                      color: Theme.of(context).buttonColor,
-                      child: roomMuteWidgt(),
-                    )
+                  : muteRoomWidget()
             ],
           ),
           backgroundColor: Theme.of(context).backgroundColor,
@@ -640,42 +634,46 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     });
   }
 
-  Widget roomMuteWidgt() {
-    return Center(
-        child: GestureDetector(
-      child: StreamBuilder<Room>(
-        stream: _roomRepo.roomIsMute(widget.roomId),
-        builder: (BuildContext context, AsyncSnapshot<Room> room) {
-          if (room.data != null) {
-            if (room.data.mute) {
-              return GestureDetector(
-                child: Text(
-                  _appLocalization.getTraslateValue("un_mute"),
-                  style: TextStyle(color: Colors.white),
-                ),
-                onTap: () {
-                  _roomRepo.changeRoomMuteTye(
-                      roomId: widget.roomId, mute: false);
-                },
-              );
+  Widget muteRoomWidget() {
+    return Container(
+      color: Theme.of(context).buttonColor,
+      height: 45,
+      child: Center(
+          child: GestureDetector(
+        child: StreamBuilder<Room>(
+          stream: _roomRepo.roomIsMute(widget.roomId),
+          builder: (BuildContext context, AsyncSnapshot<Room> room) {
+            if (room.data != null) {
+              if (room.data.mute) {
+                return GestureDetector(
+                  child: Text(
+                    _appLocalization.getTraslateValue("un_mute"),
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    _roomRepo.changeRoomMuteTye(
+                        roomId: widget.roomId, mute: false);
+                  },
+                );
+              } else {
+                return GestureDetector(
+                  child: Text(
+                    _appLocalization.getTraslateValue("mute"),
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    _roomRepo.changeRoomMuteTye(
+                        roomId: widget.roomId, mute: true);
+                  },
+                );
+              }
             } else {
-              return GestureDetector(
-                child: Text(
-                  _appLocalization.getTraslateValue("mute"),
-                  style: TextStyle(color: Colors.white),
-                ),
-                onTap: () {
-                  _roomRepo.changeRoomMuteTye(
-                      roomId: widget.roomId, mute: true);
-                },
-              );
+              return SizedBox.shrink();
             }
-          } else {
-            return SizedBox.shrink();
-          }
-        },
-      ),
-    ));
+          },
+        ),
+      )),
+    );
   }
 
   sendInputSharedFile() async {
