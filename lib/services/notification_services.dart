@@ -16,7 +16,7 @@ class NotificationServices {
 
   NotificationServices() {
     var androidNotificationSetting =
-        new AndroidInitializationSettings('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
+        new AndroidInitializationSettings('@mipmap/ic_launcher.png');
     var iosNotificationSetting = new IOSInitializationSettings(
         onDidReceiveLocalNotification: onDidReceiveLocalNotification);
 
