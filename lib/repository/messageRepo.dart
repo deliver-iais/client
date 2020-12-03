@@ -378,38 +378,28 @@ class MessageRepo {
 
   sendForwardedMessage(Uid room, List<Message> forwardedMessage) async {
     for (Message forwardedMessage in forwardedMessage) {
-      switch (forwardedMessage.type) {
-        case MessageType.TEXT:
-          sendTextMessage(room, jsonDecode(forwardedMessage.json)["1"],
-              replyId: forwardedMessage.replyToId,
-              forwardedFromAsString: forwardedMessage.from);
-          break;
-        case MessageType.FILE:
-          String packetId = _getPacketId();
-          var mes = await _messageDao.getMessageById(
-              forwardedMessage.id, forwardedMessage.roomId);
+      String packetId = _getPacketId();
 
-          int dbId = await _messageDao.insertMessage(Message(
-              roomId: room.asString(),
-              packetId: packetId,
-              time: now(),
-              type: mes[0].type,
-              from: _accountRepo.currentUserUid.asString(),
-              to: room.asString(),
-              forwardedFrom: forwardedMessage.from,
-              json: mes[0].json));
+      int dbId = await _messageDao.insertMessage(Message(
+          roomId: room.asString(),
+          packetId: packetId,
+          time: now(),
+          type: forwardedMessage.type,
+          from: _accountRepo.currentUserUid.asString(),
+          to: room.asString(),
+          forwardedFrom: forwardedMessage.from,
+          json: forwardedMessage.json));
 
-          _savePendingMessage(
-              room.asString(), dbId, packetId, SendingStatus.PENDING);
+      _savePendingMessage(
+          room.asString(), dbId, packetId, SendingStatus.PENDING);
 
-          _updateRoomLastMessage(
-            room.asString(),
-            dbId,
-          );
+      _updateRoomLastMessage(
+        room.asString(),
+        dbId,
+      );
 
-          // Send Message
-          _sendMessageToServer(dbId);
-      }
+      // Send Message
+      _sendMessageToServer(dbId);
     }
   }
 
