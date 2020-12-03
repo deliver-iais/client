@@ -99,6 +99,7 @@ dependencies:
   mockito: 4.1.3 # Great Library for Mocking in Tests
   scrollable_positioned_list: 0.1.8
   test:
+  badges: 1.1.4
 
 
   receive_sharing_intent: 1.4.2
