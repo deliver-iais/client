@@ -33,7 +33,7 @@ import 'package:image_size_getter/image_size_getter.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
-
+import 'package:flutter/foundation.dart';
 import 'mucRepo.dart';
 
 enum TitleStatusConditions { Disconnected, Updating, Normal }
@@ -67,7 +67,9 @@ class MessageRepo {
         updatingStatus.add(TitleStatusConditions.Disconnected);
       }
       if (mode == ConnectionStatus.Connected) {
-        _updating();
+        updating();
+        // TODO, change the position of calling this function, maybe needed periodic sending
+        sendPendingMessages();
       }
     });
   }
@@ -75,25 +77,17 @@ class MessageRepo {
   var _completerMap = Map<String, Completer<List<Message>>>();
 
   // TODO: Refactor Needed
-  _updating() async {
+  @visibleForTesting
+  updating() async {
     updatingStatus.add(TitleStatusConditions.Updating);
-    print("UPDATTTTTTTTTTTTTTTTTTTTTTTTTTTTINNNNNNNNNNNNGGGGGGGGGGGG");
     try {
       var getAllUserRoomMetaRes = await _queryServiceClient.getAllUserRoomMeta(
           GetAllUserRoomMetaReq(),
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-      print(getAllUserRoomMetaRes.roomsMeta);
-      print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
-        print("------------------------------------");
-        print(userRoomMeta);
         var room =
             await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.asString());
-
-        print("room: $room");
-
         if (room != null &&
             room.lastMessageId != null &&
             room.lastMessageId >= userRoomMeta.lastMessageId.toInt() &&
@@ -118,12 +112,13 @@ class MessageRepo {
           }
 
           // TODO if there is Pending Message this line has a bug!!
-          _roomDao.insertRoomCompanion(RoomsCompanion.insert(
-              roomId: userRoomMeta.roomUid.asString(),
-              lastMessageId: Value(userRoomMeta.lastMessageId.toInt()),
-              lastMessageDbId: Value(messages[0].dbId)));
+          if (messages.isNotEmpty) {
+            _roomDao.insertRoomCompanion(RoomsCompanion.insert(
+                roomId: userRoomMeta.roomUid.asString(),
+                lastMessageId: Value(messages.last.id),
+                lastMessageDbId: Value(messages.last.dbId)));
+          }
         } catch (e) {
-          print("EXCEPTIOOOOOOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNNNNNNN");
           print(e);
         }
       }
@@ -131,16 +126,12 @@ class MessageRepo {
       print(e);
     }
     updatingStatus.add(TitleStatusConditions.Normal);
-
-    // TODO, change the position of calling this function, maybe needed periodic sending
-    _sendPendingMessages();
   }
 
   sendTextMessage(Uid room, String text,
       {int replyId, String forwardedFromAsString}) async {
     String packetId = _getPacketId();
     String json = (MessageProto.Text()..text = text).writeToJson();
-
     MessagesCompanion message = MessagesCompanion.insert(
       roomId: room.asString(),
       packetId: packetId,
@@ -154,16 +145,14 @@ class MessageRepo {
     );
 
     int dbId = await _messageDao.insertMessageCompanion(message);
-
-    _savePendingMessage(room.asString(), dbId, packetId, SendingStatus.PENDING);
-
+    await _savePendingMessage(
+        room.asString(), dbId, packetId, SendingStatus.PENDING);
     _updateRoomLastMessage(
       room.asString(),
       dbId,
     );
-
     // Send Message
-    _sendMessageToServer(dbId);
+    await _sendMessageToServer(dbId);
   }
 
   sendFileMessage(Uid room, String path,
@@ -172,16 +161,17 @@ class MessageRepo {
 
     // Create MessageCompanion
     var file = DartFile.File(path);
-
+    final tempType = _findType(path);
+    var tempDimension = Size.zero;
     // Get size of image
-    var tempDimension = ImageSizeGetter.getSize(FileInput(file));
-    if (tempDimension == Size.zero) {
-      tempDimension = Size(200, 200);
+    if (tempType.split('/')[0] == 'image') {
+      tempDimension = ImageSizeGetter.getSize(FileInput(file));
+      if (tempDimension == Size.zero) {
+        tempDimension = Size(200, 200);
+      }
     }
 
     // Get type with file name
-    final tempType = _findType(path);
-
     final tempFileSize = file.statSync().size;
 
     FileProto.File sendingFakeFile = FileProto.File()
@@ -192,7 +182,7 @@ class MessageRepo {
       ..type = tempType
       ..size = Int64(tempFileSize)
       ..name = path.split('/').last
-      ..duration = -1;
+      ..duration = 0;
 
     await _fileRepo.cloneFileInLocalDirectory(
         file, packetId, file.path.split('/').last);
@@ -260,7 +250,6 @@ class MessageRepo {
   _sendMessageToServer(int dbId) async {
     var message = await _messageDao.getPendingMessage(dbId);
     var pendingMessage = await _pendingMessageDao.getByMessageDbId(dbId);
-
     if (!_canPendingMessageResendAndDecreaseRemainingRetries(
             pendingMessage, message) ||
         pendingMessage.status != SendingStatus.PENDING) {
@@ -276,10 +265,6 @@ class MessageRepo {
 
     if (message.forwardedFrom != null)
       byClient.forwardFrom = message.forwardedFrom.getUid();
-
-    print("^^^^^^^^^^^^^^^^^^^^^^^^^^");
-    print(byClient);
-
     _coreServices.sendMessage(byClient);
   }
 
@@ -292,7 +277,7 @@ class MessageRepo {
       return false;
     }
     if (message == null) {
-      _pendingMessageDao.deletePendingMessage(message.packetId);
+      _pendingMessageDao.deletePendingMessage(pendingMessage.messagePacketId);
       return false;
     }
     if (pendingMessage.remainingRetries > 0) {
@@ -334,7 +319,8 @@ class MessageRepo {
     }
   }
 
-  _sendPendingMessages() async {
+  @visibleForTesting
+  sendPendingMessages() async {
     List<PendingMessage> pendingMessages =
         await _pendingMessageDao.getAllPendingMessages();
     for (var pendingMessage in pendingMessages) {
@@ -342,9 +328,7 @@ class MessageRepo {
         case SendingStatus.SENDING_FILE:
           var dbId = pendingMessage.messageDbId;
           await _sendFileToServerOfPendingMessage(dbId);
-
           await _sendMessageToServer(dbId);
-
           break;
         case SendingStatus.PENDING:
           await _sendMessageToServer(pendingMessage.messageDbId);
@@ -419,7 +403,6 @@ class MessageRepo {
     if (completer != null && !completer.isCompleted) {
       return completer.future;
     }
-
     completer = new Completer();
     _completerMap["$roomId-$page"] = completer;
 
