@@ -1,18 +1,21 @@
 import 'dart:async';
 
+import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
+import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/services/notification_services.dart';
+import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:grpc/grpc.dart';
 import 'package:mockito/mockito.dart';
+import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 
 class MockMessageDao extends Mock implements MessageDao {}
 
@@ -40,17 +43,26 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
       Future.value(value).then(onValue, onError: onError);
 }
 
+// class MockResponseStream<T> extends Mock implements ResponseStream<T> {
+//   var controller = StreamController<T>();
+//
+//   MockResponseStream();
+//
+//   void add(T value) => controller.add(value);
+//   @override
+//   StreamSubscription<T> listen(void Function(T value) onData,
+//           {Function onError, void Function() onDone, bool cancelOnError}) =>
+//       controller.stream.listen((event) => event);
+//
+//   //     Future.value(value).then(onValue, onError: onError);
+// }
+
 class MockQueryServiceClient extends Mock implements QueryServiceClient {}
 
-void messageRepoTestSetup() {
-  GetIt.instance.reset();
-  GetIt getIt = GetIt.instance;
-  getIt.registerSingleton<MessageDao>(MockMessageDao());
-  getIt.registerSingleton<RoomDao>(MockRoomDao());
-  getIt.registerSingleton<PendingMessageDao>(MockPendingMessageDao());
-  getIt.registerSingleton<AccountRepo>(MockAccountRepo());
-  getIt.registerSingleton<FileRepo>(MockFileRepo());
-  getIt.registerSingleton<MucRepo>(MockMucRepo());
-  getIt.registerSingleton<CoreServices>(MockCoreServices());
-  getIt.registerSingleton<QueryServiceClient>(MockQueryServiceClient());
-}
+class MockNotificationServices extends Mock implements NotificationServices {}
+
+class MockCoreServiceClient extends Mock implements CoreServiceClient {}
+
+class MockLastSeenDao extends Mock implements LastSeenDao {}
+
+class MockSeenDao extends Mock implements SeenDao {}

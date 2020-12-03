@@ -34,6 +34,7 @@ import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -81,6 +82,8 @@ void setupRepositories() {
   getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<MucRepo>(MucRepo());
+  getIt.registerSingleton<CoreServiceClient>(
+      CoreServiceClient(CoreServicesClientChannel));
   getIt.registerSingleton<CoreServices>(CoreServices());
   getIt.registerSingleton<QueryServiceClient>(
       QueryServiceClient(QueryClientChannel));

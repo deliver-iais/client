@@ -19,6 +19,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:get_it/get_it.dart';
 
@@ -35,7 +36,6 @@ const MAX_BACKOFF_TIME = 32;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
-  var _grpcCoreService = CoreServiceClient(CoreServicesClientChannel);
   var _clientPacket = StreamController<ClientPacket>();
   ResponseStream<ServerPacket> _responseStream;
 
@@ -49,6 +49,7 @@ class CoreServices {
 
   bool _responseChecked = false;
 
+  var _grpcCoreService = GetIt.I.get<CoreServiceClient>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _messageDao = GetIt.I.get<MessageDao>();
   var _seenDao = GetIt.I.get<SeenDao>();
@@ -58,12 +59,14 @@ class CoreServices {
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
 
+//TODO test
   initStreamConnection() async {
-    await _startStream();
+    await startStream();
     await _startCheckerTimer();
     _connectionStatus.distinct().listen((event) => connectionStatus.add(event));
   }
 
+//TODO maybe need to test
   _startCheckerTimer() {
     sendPingMessage();
     _responseChecked = false;
@@ -72,7 +75,7 @@ class CoreServices {
       if (!_responseChecked) {
         if (_backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO)
           _connectionStatus.add(ConnectionStatus.Disconnected);
-        _startStream();
+        startStream();
       } else {
         _backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
       }
@@ -86,14 +89,15 @@ class CoreServices {
     _responseChecked = true;
   }
 
-  _startStream() async {
+  @visibleForTesting
+  startStream() async {
     try {
       _clientPacket = StreamController<ClientPacket>();
       _responseStream = _grpcCoreService.establishStream(
           _clientPacket.stream.asBroadcastStream(),
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-
+      print('aaaaaaaaa');
       _responseStream.listen((serverPacket) {
         print(serverPacket.toString());
         gotResponse();
@@ -126,6 +130,7 @@ class CoreServices {
         }
       });
     } catch (e) {
+      print(e);
       print("correservice error");
     }
   }
@@ -241,6 +246,7 @@ class CoreServices {
     _notificationServices.showNotification(msg, roomName, roomUid.asString());
   }
 
+//TODO maybe need to test
   saveMessageInMessagesDB(Message message) async {
     // ignore: missing_required_param
     Database.Message msg = Database.Message(
@@ -268,6 +274,7 @@ class CoreServices {
     return msg.copyWith(dbId: dbId);
   }
 
+  //TODO maybe need to test
   String messageToJson(Message message) {
     var type = findFetchMessageType(message);
     var json = Object();
