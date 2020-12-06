@@ -14,14 +14,14 @@ class MediaDao extends DatabaseAccessor<Database> with _$MediaDaoMixin {
   Future insertQueryMedia(Media media) =>
       into(medias).insertOnConflictUpdate(media);
 
-  Stream<List<Media>> getByRoomIdAndType(String roomId , int type) {
+  Future<List<Media>> getByRoomIdAndType(String roomId , int type) {
     return (select(medias)
           ..orderBy([
             (medias) => OrderingTerm(
                 expression: medias.createdOn, mode: OrderingMode.desc)
           ])
           ..where((media) => media.roomId.equals(roomId) & media.type.equals(type)))
-        .watch();
+        .get();
   }
 
   Future<List<Media>> getMedia(String roomId , int type,int limit,int offset) {

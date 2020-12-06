@@ -403,96 +403,54 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
       mediaCache.set("$currentPosition", mediaList[j]);
     }
   }
-        return GridView.builder(
-            shrinkWrap: true,
-            padding: EdgeInsets.zero,
-            itemCount: imagesCount,
-            scrollDirection: Axis.vertical,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
-            ),
-            itemBuilder: (context, position) {
-              var media = mediaCache.get("$position");
-              if(media==null)
-              return FutureBuilder(
-                  future: mediaQueryRepo.getMedia(
-                      position, userUid, FetchMediasReq_MediaType.IMAGES),
-                  builder: (BuildContext c, AsyncSnapshot snaps) {
-                    if (!snaps.hasData ||
-                        snaps.data == null||snaps.connectionState==ConnectionState.waiting||
-                        snaps.connectionState==ConnectionState.none) {
-                      return Container(
-                        width: 100,
-                        height: 100,
-                      );}
-                    else{
-                      setMediaCache(position,snaps.data);
-                      // if (position >= snaps.data - 10) {
-                      //   mediaQueryRepo.fetchMoreMedia(
-                      //       userUid, FetchMediasReq_MediaType.IMAGES,position);
-                      // }
-                      var fileId = jsonDecode(snaps.data[position].json)["uuid"];
-                      var fileName = jsonDecode(snaps.data[position].json)["name"];
-                      return FutureBuilder(
-                          future: fileRepo.getFile(fileId, fileName),
-                          builder: (BuildContext c, AsyncSnapshot snaps) {
-                            if (snaps.hasData &&
-                                snaps.data != null &&
-                                snaps.connectionState == ConnectionState.done) {
-                              return Container(
-                                  decoration: new BoxDecoration(
-                                image: new DecorationImage(
-                                  image: Image.file(
-                                    snaps.data,
-                                  ).image,
-                                  fit: BoxFit.cover,
-                                ),
-                                border: Border.all(
-                                  width: 1,
-                                  color: ExtraTheme.of(context).secondColor,
-                                ),
-                              ));
-                            } else {
-                              return Container(
-                                width: 100,
-                                height: 100,
-                              );
-                            }
-                          });
-                    }
-                  });
-              else{
-                var fileId = jsonDecode(media.json)["uuid"];
-                var fileName = jsonDecode(media.json)["name"];
-                return FutureBuilder(
-                    future: fileRepo.getFile(fileId, fileName),
-                    builder: (BuildContext c, AsyncSnapshot snaps) {
-                      if (snaps.hasData &&
-                          snaps.data != null &&
-                          snaps.connectionState == ConnectionState.done) {
-                        return Container(
-                            decoration: new BoxDecoration(
-                              image: new DecorationImage(
-                                image: Image.file(
-                                  snaps.data,
-                                ).image,
-                                fit: BoxFit.cover,
-                              ),
-                              border: Border.all(
-                                width: 1,
-                                color: ExtraTheme.of(context).secondColor,
-                              ),
-                            ));
-                      } else {
-                        return Container(
-                          width: 100,
-                          height: 100,
-                        );
-                      }
-                    });
-              }
-            });
+        return FutureBuilder(
+          future: mediaQueryRepo.getMedia(userUid, FetchMediasReq_MediaType.IMAGES),
+          builder: (BuildContext c, AsyncSnapshot snaps) {
+            if (!snaps.hasData ||snaps.data == null||snaps.connectionState==ConnectionState.waiting||snaps.connectionState==ConnectionState.none) {
+                      return Container(width: 100,height: 100,);}
+                 else{
+                   return GridView.builder(
+                       shrinkWrap: true,
+                       padding: EdgeInsets.zero,
+                       itemCount: imagesCount,
+                       scrollDirection: Axis.vertical,
+                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                         crossAxisCount: 3,
+                         //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
+                       ),
+                       itemBuilder: (context, position) {
+                         var fileId = jsonDecode(snaps.data[position].json)["uuid"];
+                         var fileName = jsonDecode(snaps.data[position].json)["name"];
+                         return FutureBuilder(
+                             future: fileRepo.getFile(fileId, fileName),
+                             builder: (BuildContext c, AsyncSnapshot snaps) {
+                               if (snaps.hasData &&
+                                   snaps.data != null &&
+                                   snaps.connectionState == ConnectionState.done) {
+                                 return Container(
+                                     decoration: new BoxDecoration(
+                                       image: new DecorationImage(
+                                         image: Image.file(
+                                           snaps.data,
+                                         ).image,
+                                         fit: BoxFit.cover,
+                                       ),
+                                       border: Border.all(
+                                         width: 1,
+                                         color: ExtraTheme.of(context).secondColor,
+                                       ),
+                                     ));
+                               } else {
+                                 return Container(
+                                   width: 100,
+                                   height: 100,
+                                 );
+                               }
+                             });
+                       }
+                   );
+            }}
+        );
 
       // else if(snap.data == 0){
       //             ()async{

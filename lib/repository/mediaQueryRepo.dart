@@ -169,19 +169,21 @@ class MediaQueryRepo {
   //
   // }
 
-  Future<List<Media>> getMedia(int position, Uid uid, FetchMediasReq_MediaType mediaType) async {
-    var mediasList;
-   mediasList = await _mediaDao.getMedia(uid.string, mediaType.value, 5, position);
+  Future<List<Media>> getMedia(Uid uid, FetchMediasReq_MediaType mediaType) async {
+    List<Media> mediasList=[];
+   mediasList = await _mediaDao.getByRoomIdAndType(uid.string, mediaType.value);
     // if(position%5==0){
     if(mediasList.length==0) {
-      await getLastMediasList(uid, mediaType);
-      mediasList = await _mediaDao.getMedia(uid.string, mediaType.value, 5, position);
+      mediasList=await getLastMediasList(uid, mediaType);
+      print("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
+      return mediasList;
     }
-  //  }else{
-  //    mediasList = await _mediaDao.getMedia(uid.string, mediaType.value,5,position);
-   // }
-    return mediasList;
-  }
+    else {
+      print("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
+      return mediasList;
+    }
+    }
+
 
   Future<List<Media>> fetchMoreMedia(
       Uid roomId, FetchMediasReq_MediaType mediaType,int position) async {
