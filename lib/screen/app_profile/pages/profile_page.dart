@@ -425,8 +425,8 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
                       return Container(
                         width: 100,
                         height: 100,
-                      );}else{
-
+                      );}
+                    else{
                       setMediaCache(position,snaps.data);
                       // if (position >= snaps.data - 10) {
                       //   mediaQueryRepo.fetchMoreMedia(
