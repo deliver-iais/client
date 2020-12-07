@@ -171,13 +171,22 @@ class MediaQueryRepo {
 
   Future<List<Media>> getMedia(Uid uid, FetchMediasReq_MediaType mediaType,int mediaCount) async {
     List<Media> mediasList=[];
+    var x;
    mediasList = await _mediaDao.getByRoomIdAndType(uid.string, mediaType.value);
-    // if(position%5==0){
-    // Todo edit
-    if(mediasList.length!= mediaCount) {
-      mediasList=await getLastMediasList(uid, mediaType);
+    if(mediasList.length==0){
+      mediasList=await getLastMediasList(uid, mediaType,DateTime.now().microsecondsSinceEpoch,FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
       print("serverqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
       return mediasList;
+    }
+   else if(mediasList.length< mediaCount) {
+      int pointer = mediasList.first.createdOn;
+      List serverList = await getLastMediasList(uid, mediaType, pointer,
+          FetchMediasReq_FetchingDirectionType.FORWARD_FETCH);
+      if (serverList.length > 1) {
+        serverList= serverList.removeAt(0);
+      }
+      serverList.addAll(mediasList);
+      return serverList;
     }
     else {
       print("databaseqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
@@ -209,19 +218,18 @@ class MediaQueryRepo {
   }
 
   Future<List<Media>> getLastMediasList(
-      Uid roomId, FetchMediasReq_MediaType mediaType) async {
+      Uid roomId, FetchMediasReq_MediaType mediaType,int pointer,FetchMediasReq_FetchingDirectionType directionType) async {
     // await getMediasCountFromServer(roomId.uid);
     // var medias = await _mediaDao.getByRoomIdAndType(roomId, mediaType.value);
     // if(medias.length==0){
    // await allMediasCountReq(roomId);
     var getMediaReq = FetchMediasReq();
     getMediaReq..roomUid = roomId;
-    getMediaReq..pointer = Int64(DateTime.now().microsecondsSinceEpoch);
+    getMediaReq..pointer = Int64(pointer);
     getMediaReq..year = DateTime.now().year;
     getMediaReq..mediaType = mediaType;
     getMediaReq
-      ..fetchingDirectionType =
-          FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH;
+      ..fetchingDirectionType =directionType;
     getMediaReq..limit = 30;
     try {
       var getMediasRes = await mediaServices.fetchMedias(getMediaReq,

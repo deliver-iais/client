@@ -62,6 +62,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
   }
 
+
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
