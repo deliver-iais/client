@@ -173,7 +173,8 @@ class MediaQueryRepo {
     List<Media> mediasList=[];
    mediasList = await _mediaDao.getByRoomIdAndType(uid.string, mediaType.value);
     // if(position%5==0){
-    if(mediasList.length==0) {
+    // Todo edit
+    if(mediasList.length!= 100) {
       mediasList=await getLastMediasList(uid, mediaType);
       print("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
       return mediasList;
