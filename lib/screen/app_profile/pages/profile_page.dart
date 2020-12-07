@@ -404,11 +404,11 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
     }
   }
         return FutureBuilder(
-          future: mediaQueryRepo.getMedia(userUid, FetchMediasReq_MediaType.IMAGES),
+          future: mediaQueryRepo.getMedia(userUid, FetchMediasReq_MediaType.IMAGES,imagesCount),
           builder: (BuildContext c, AsyncSnapshot snaps) {
-            if (!snaps.hasData ||snaps.data == null||snaps.connectionState==ConnectionState.waiting||snaps.connectionState==ConnectionState.none) {
-                      return Container(width: 100,height: 100,);}
-                 else{
+            if (!snaps.hasData ||snaps.data == null) {
+                      return Container(width: 0.0, height: 0.0);}
+                 else {
                    return GridView.builder(
                        shrinkWrap: true,
                        padding: EdgeInsets.zero,
@@ -441,10 +441,7 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
                                        ),
                                      ));
                                } else {
-                                 return Container(
-                                   width: 100,
-                                   height: 100,
-                                 );
+                                 return Container(width: 0.0, height: 0.0);
                                }
                              });
                        }

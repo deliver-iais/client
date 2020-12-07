@@ -18,7 +18,7 @@ class MediaDao extends DatabaseAccessor<Database> with _$MediaDaoMixin {
     return (select(medias)
           ..orderBy([
             (medias) => OrderingTerm(
-                expression: medias.createdOn, mode: OrderingMode.desc)
+                expression: medias.createdOn, mode: OrderingMode.asc)
           ])
           ..where((media) => media.roomId.equals(roomId) & media.type.equals(type)))
         .get();

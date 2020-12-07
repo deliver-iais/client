@@ -169,18 +169,18 @@ class MediaQueryRepo {
   //
   // }
 
-  Future<List<Media>> getMedia(Uid uid, FetchMediasReq_MediaType mediaType) async {
+  Future<List<Media>> getMedia(Uid uid, FetchMediasReq_MediaType mediaType,int mediaCount) async {
     List<Media> mediasList=[];
    mediasList = await _mediaDao.getByRoomIdAndType(uid.string, mediaType.value);
     // if(position%5==0){
     // Todo edit
-    if(mediasList.length!= 100) {
+    if(mediasList.length!= mediaCount) {
       mediasList=await getLastMediasList(uid, mediaType);
-      print("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
+      print("serverqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
       return mediasList;
     }
     else {
-      print("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
+      print("databaseqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
       return mediasList;
     }
     }
