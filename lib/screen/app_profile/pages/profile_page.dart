@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:dcache/dcache.dart';
@@ -54,7 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
   int tabsCount;
-  var _mediaCache = LruCache<String, Media>(storage: SimpleStorage(size: 30));
+  var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 30));
   @override
   void initState() {
     // TODO: implement initState
@@ -373,7 +374,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         if (snapshot.data.imagesCount != 0)
                           //Text("imagesssssssssssssss"),
-                          imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo, _mediaCache,snapshot.data.imagesCount),
+                          imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo, _fileCache,snapshot.data.imagesCount),
                         if (snapshot.data.videosCount != 0)
                           Text("videooooooooooooooo"),
                         if (snapshot.data.filesCount != 0)
@@ -422,6 +423,8 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
                        itemBuilder: (context, position) {
                          var fileId = jsonDecode(snaps.data[position].json)["uuid"];
                          var fileName = jsonDecode(snaps.data[position].json)["name"];
+                         var file = mediaCache.get(fileId);
+                         if(file==null)
                          return FutureBuilder(
                              future: fileRepo.getFile(fileId, fileName),
                              builder: (BuildContext c, AsyncSnapshot snaps) {
@@ -429,6 +432,7 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
                                    snaps.data != null &&
                                    snaps.connectionState == ConnectionState.done) {
                                  print("*******getfileeeeeeeeeeeeeeeeeee*************$position");
+                                 mediaCache.set(fileId, snaps.data);
                                  return Container(
                                      decoration: new BoxDecoration(
                                        image: new DecorationImage(
@@ -445,7 +449,21 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
                                } else {
                                  return Container(width: 0.0, height: 0.0);
                                }
-                             });
+                             });else{
+                               return Container(
+                                   decoration: new BoxDecoration(
+                                     image: new DecorationImage(
+                                       image: Image.file(
+                                         file
+                                       ).image,
+                                       fit: BoxFit.cover,
+                                     ),
+                                     border: Border.all(
+                                       width: 1,
+                                       color: ExtraTheme.of(context).secondColor,
+                                     ),
+                                   ));
+                         }
                        }
                    );
             }}
