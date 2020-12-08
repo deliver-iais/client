@@ -43,7 +43,7 @@ class MediaQueryRepo {
 
   var mediaServices = QueryServiceClient(clientChannel);
 
-   getMediaMetaDataReq(Uid uid) async {
+  getMediaMetaDataReq(Uid uid) async {
     var mediaServices = QueryServiceClient(clientChannel);
     var mediaResponse;
     var getMediaMetaDataReq = GetMediaMetadataReq();
@@ -52,8 +52,7 @@ class MediaQueryRepo {
       mediaResponse = await mediaServices.getMediaMetadata(getMediaMetaDataReq,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      print("tttttttttttttttttttttttt${mediaResponse}"
-      );
+      print("tttttttttttttttttttttttt${mediaResponse}");
       await insertMediaMetaData(uid, mediaResponse);
     } catch (e) {
       print("metaDataEroorrrr$e");
@@ -89,7 +88,8 @@ class MediaQueryRepo {
     //insertMediaMetaData(uid, mediaResponse);
   }
 
-  insertMediaMetaData(Uid uid, queryObject.GetMediaMetadataRes mediaResponse) async {
+  insertMediaMetaData(
+      Uid uid, queryObject.GetMediaMetadataRes mediaResponse) async {
     await _mediaMetaDataDao.upsertMetaData(MediasMetaDataData(
       roomId: uid.string,
       imagesCount: mediaResponse.allImagesCount.toInt(),
@@ -105,26 +105,25 @@ class MediaQueryRepo {
   Stream<MediasMetaDataData> getMediasMetaDataCountFromDB(Uid roomId) {
     return _mediaMetaDataDao.getStreamMediasCountByRoomId(roomId.string);
 
-      // if (mediaType == queryObject.FetchMediasReq_MediaType.IMAGES) {
-      //   // if(event.imagesCount==0){
-      //   //   await allMediasCountReqInServer(roomId);
-      //   //   await getLastMediasList(roomId, mediaType);
-      //   // }
-      //   return value.imagesCount;
-      // } else if (mediaType == queryObject.FetchMediasReq_MediaType.FILES) {
-      //   return value.filesCount;
-      // } else if (mediaType == queryObject.FetchMediasReq_MediaType.VIDEOS) {
-      //   return value.videosCount;
-      // } else if (mediaType == queryObject.FetchMediasReq_MediaType.LINKS) {
-      //   return value.linkCount;
-      // } else if (mediaType == queryObject.FetchMediasReq_MediaType.MUSICS) {
-      //   return value.musicsCount;
-      // } else if (mediaType == queryObject.FetchMediasReq_MediaType.DOCUMENTS) {
-      //   return value.documentsCount;
-      // } else if (mediaType == queryObject.FetchMediasReq_MediaType.AUDIOS) {
-      //   return value.audiosCount;
-      // }
-
+    // if (mediaType == queryObject.FetchMediasReq_MediaType.IMAGES) {
+    //   // if(event.imagesCount==0){
+    //   //   await allMediasCountReqInServer(roomId);
+    //   //   await getLastMediasList(roomId, mediaType);
+    //   // }
+    //   return value.imagesCount;
+    // } else if (mediaType == queryObject.FetchMediasReq_MediaType.FILES) {
+    //   return value.filesCount;
+    // } else if (mediaType == queryObject.FetchMediasReq_MediaType.VIDEOS) {
+    //   return value.videosCount;
+    // } else if (mediaType == queryObject.FetchMediasReq_MediaType.LINKS) {
+    //   return value.linkCount;
+    // } else if (mediaType == queryObject.FetchMediasReq_MediaType.MUSICS) {
+    //   return value.musicsCount;
+    // } else if (mediaType == queryObject.FetchMediasReq_MediaType.DOCUMENTS) {
+    //   return value.documentsCount;
+    // } else if (mediaType == queryObject.FetchMediasReq_MediaType.AUDIOS) {
+    //   return value.audiosCount;
+    // }
   }
 
   // Stream<int> allMediasTypeInDBCount(Uid uid , FetchMediasReq_MediaType mediaType) {
@@ -169,36 +168,36 @@ class MediaQueryRepo {
   //
   // }
 
-  Future<List<Media>> getMedia(Uid uid, FetchMediasReq_MediaType mediaType,int mediaCount) async {
-    List<Media> mediasList=[];
-    var x;
-   mediasList = await _mediaDao.getByRoomIdAndType(uid.string, mediaType.value);
-    if(mediasList.length==0){
-      mediasList=await getLastMediasList(uid, mediaType,DateTime.now().microsecondsSinceEpoch,FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
+  Future<List<Media>> getMedia(
+      Uid uid, FetchMediasReq_MediaType mediaType, int mediaCount) async {
+    List<Media> mediasList = [];
+    mediasList =
+        await _mediaDao.getByRoomIdAndType(uid.string, mediaType.value);
+    if (mediasList.length == 0) {
+      mediasList = await getLastMediasList(
+          uid,
+          mediaType,
+          DateTime.now().microsecondsSinceEpoch,
+          FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
       print("serverqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
       return mediasList;
-    }
-   else if(mediasList.length< mediaCount) {
+    } else if (mediasList.length < mediaCount) {
       int pointer = mediasList.first.createdOn;
-      List serverList = await getLastMediasList(uid, mediaType, pointer,
+      var newMediasServerList = await getLastMediasList(uid, mediaType, pointer,
           FetchMediasReq_FetchingDirectionType.FORWARD_FETCH);
-      if (serverList.length > 1) {
-        serverList= serverList.removeAt(0);
-      }
-      serverList.addAll(mediasList);
-      return serverList;
-    }
-    else {
+      mediasList.removeAt(0);
+      var combinedList = [...newMediasServerList.reversed, ...mediasList];
+      return combinedList;
+    } else {
       print("databaseqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
       return mediasList;
     }
-    }
-
+  }
 
   Future<List<Media>> fetchMoreMedia(
-      Uid roomId, FetchMediasReq_MediaType mediaType,int position) async {
+      Uid roomId, FetchMediasReq_MediaType mediaType, int position) async {
     List<Media> medias =
-        await _mediaDao.getMedia(roomId.string, mediaType.value,30,position);
+        await _mediaDao.getMedia(roomId.string, mediaType.value, 30, position);
     int pointer = medias.first.createdOn;
     var getMediaReq = FetchMediasReq();
     getMediaReq..roomUid = roomId;
@@ -218,24 +217,26 @@ class MediaQueryRepo {
   }
 
   Future<List<Media>> getLastMediasList(
-      Uid roomId, FetchMediasReq_MediaType mediaType,int pointer,FetchMediasReq_FetchingDirectionType directionType) async {
+      Uid roomId,
+      FetchMediasReq_MediaType mediaType,
+      int pointer,
+      FetchMediasReq_FetchingDirectionType directionType) async {
     // await getMediasCountFromServer(roomId.uid);
     // var medias = await _mediaDao.getByRoomIdAndType(roomId, mediaType.value);
     // if(medias.length==0){
-   // await allMediasCountReq(roomId);
+    // await allMediasCountReq(roomId);
     var getMediaReq = FetchMediasReq();
     getMediaReq..roomUid = roomId;
     getMediaReq..pointer = Int64(pointer);
     getMediaReq..year = DateTime.now().year;
     getMediaReq..mediaType = mediaType;
-    getMediaReq
-      ..fetchingDirectionType =directionType;
+    getMediaReq..fetchingDirectionType = directionType;
     getMediaReq..limit = 30;
     try {
       var getMediasRes = await mediaServices.fetchMedias(getMediaReq,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-     // await allMediasCountReq(roomId);
+      // await allMediasCountReq(roomId);
       List<Media> medias =
           await _saveFetchedMedias(getMediasRes.medias, roomId, mediaType);
       return medias;

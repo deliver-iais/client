@@ -407,7 +407,7 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
         return FutureBuilder(
           future: mediaQueryRepo.getMedia(userUid, FetchMediasReq_MediaType.IMAGES,imagesCount),
           builder: (BuildContext c, AsyncSnapshot snaps) {
-            if (!snaps.hasData ||snaps.data == null) {
+            if (!snaps.hasData ||snaps.data == null || snaps.connectionState == ConnectionState.waiting) {
                       return Container(width: 0.0, height: 0.0);}
                  else {
                    return GridView.builder(
@@ -428,6 +428,7 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
                                if (snaps.hasData &&
                                    snaps.data != null &&
                                    snaps.connectionState == ConnectionState.done) {
+                                 print("*******getfileeeeeeeeeeeeeeeeeee*************$position");
                                  return Container(
                                      decoration: new BoxDecoration(
                                        image: new DecorationImage(
