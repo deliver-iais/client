@@ -57,13 +57,17 @@ class CoreServices {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _mucRepo = GetIt.I.get<MucRepo>();
+  var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
 
 //TODO test
   initStreamConnection() async {
     await startStream();
     await _startCheckerTimer();
-    _connectionStatus.distinct().listen((event) => connectionStatus.add(event));
+    _connectionStatus.distinct().listen((event) {
+      print(' _connectionStatus event id : $event');
+      connectionStatus.add(event);
+    });
   }
 
 //TODO maybe need to test
@@ -97,8 +101,7 @@ class CoreServices {
           _clientPacket.stream.asBroadcastStream(),
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      print('aaaaaaaaa');
-      _responseStream.listen((serverPacket) {
+      _responseStream.listen((serverPacket) async {
         print(serverPacket.toString());
         gotResponse();
         switch (serverPacket.whichType()) {
@@ -241,8 +244,7 @@ class CoreServices {
           lastMessageId: Value(message.id.toInt()),
           lastMessageDbId: Value(msg.dbId)),
     );
-
-    var roomName = await RoomRepo().getRoomDisplayName(roomUid);
+    var roomName = await _roomRepo.getRoomDisplayName(roomUid);
     _notificationServices.showNotification(msg, roomName, roomUid.asString());
   }
 
@@ -274,7 +276,6 @@ class CoreServices {
     return msg.copyWith(dbId: dbId);
   }
 
-  //TODO maybe need to test
   String messageToJson(Message message) {
     var type = findFetchMessageType(message);
     var json = Object();

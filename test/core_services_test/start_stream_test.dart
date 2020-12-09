@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
@@ -26,10 +27,14 @@ void main() {
   Uid userId = Uid.create()
     ..category = Categories.USER
     ..node = "joe";
+  Uid groupId = Uid.create()
+    ..category = Categories.GROUP
+    ..node = "5745645454545456";
   setUp(() {
     coreServicesTestSetup();
     coreServices = CoreServices();
   });
+
   group('CoreServices/startStream', () {
     test('serverPacket has message from current user to another user',
         () async {
@@ -38,6 +43,7 @@ void main() {
       var mockMessageDao = GetIt.I.get<MessageDao>();
       var mockRoomDao = GetIt.I.get<RoomDao>();
       var mockNotificationServices = GetIt.I.get<NotificationServices>();
+      var mockRoomRepo = GetIt.I.get<RoomRepo>();
       var serverPacket = ServerPacket()
         ..message = (Message()
           ..from = currentUserId
@@ -47,12 +53,13 @@ void main() {
           ..replyToId = Int64(0)
           ..text = (Text()..text = 'test'));
 
+      var res = MockResponseStream<ServerPacket>();
+
       when(mockAccountRepo.currentUserUid).thenReturn(currentUserId);
 
       when(mockGrpcCoreService.establishStream(any,
               options: anyNamed('options')))
-          .thenAnswer(
-              (_) => MockResponseFuture<ServerPacket>(serverPacket).asStream());
+          .thenAnswer((_) => res);
 
       when(mockMessageDao.insertMessage(any))
           .thenAnswer((realInvocation) async => 5);
@@ -60,9 +67,17 @@ void main() {
       when(mockRoomDao.insertRoomCompanion(any))
           .thenAnswer((realInvocation) async => 5);
 
+      when(mockRoomRepo.getRoomDisplayName(userId))
+          .thenAnswer((_) async => "name");
+
       when(mockNotificationServices.showNotification(any, any, any))
-          .thenReturn(null);
-      coreServices.startStream();
+          .thenAnswer((_) {});
+
+      await coreServices.startStream();
+      res.add(serverPacket);
+      await Future.delayed(Duration(seconds: 2));
+      verify(mockMessageDao.insertMessage(any)).called(1);
+      verify(mockRoomRepo.getRoomDisplayName(userId)).called(1);
       verify(mockNotificationServices.showNotification(any, any, any))
           .called(1);
     });
@@ -71,99 +86,177 @@ void main() {
       var mockGrpcCoreService = GetIt.I.get<CoreServiceClient>();
       var mockAccountRepo = GetIt.I.get<AccountRepo>();
       var mockMessageDao = GetIt.I.get<MessageDao>();
+      var mockRoomDao = GetIt.I.get<RoomDao>();
+      var mockNotificationServices = GetIt.I.get<NotificationServices>();
+      var mockRoomRepo = GetIt.I.get<RoomRepo>();
       var serverPacket = ServerPacket()
         ..message = (Message()
-          ..from = currentUserId
-          ..to = userId
+          ..from = userId
+          ..to = currentUserId
           ..id = Int64(2)
           ..packetId = 'test'
-          ..replyToId = Int64(0));
+          ..replyToId = Int64(0)
+          ..text = (Text()..text = 'test'));
+
+      var res = MockResponseStream<ServerPacket>();
 
       when(mockAccountRepo.currentUserUid).thenReturn(currentUserId);
 
       when(mockGrpcCoreService.establishStream(any,
               options: anyNamed('options')))
-          .thenAnswer(
-              (_) => MockResponseFuture<ServerPacket>(serverPacket).asStream());
+          .thenAnswer((_) => res);
 
       when(mockMessageDao.insertMessage(any))
           .thenAnswer((realInvocation) async => 5);
-      // expect(await messageRepo.getPage(page, roomId, containsId), messages);
+
+      when(mockRoomDao.insertRoomCompanion(any))
+          .thenAnswer((realInvocation) async => 5);
+
+      when(mockRoomRepo.getRoomDisplayName(userId))
+          .thenAnswer((_) async => "name");
+
+      when(mockNotificationServices.showNotification(any, any, any))
+          .thenAnswer((_) {});
+
+      await coreServices.startStream();
+      res.add(serverPacket);
+      await Future.delayed(Duration(seconds: 2));
+      verify(mockMessageDao.insertMessage(any)).called(1);
+      verify(mockRoomRepo.getRoomDisplayName(userId)).called(1);
+      verify(mockNotificationServices.showNotification(any, any, any))
+          .called(1);
     });
     test('serverPacket has message from group to current user', () async {
       var mockGrpcCoreService = GetIt.I.get<CoreServiceClient>();
       var mockAccountRepo = GetIt.I.get<AccountRepo>();
       var mockMessageDao = GetIt.I.get<MessageDao>();
+      var mockRoomDao = GetIt.I.get<RoomDao>();
+      var mockNotificationServices = GetIt.I.get<NotificationServices>();
+      var mockRoomRepo = GetIt.I.get<RoomRepo>();
       var serverPacket = ServerPacket()
         ..message = (Message()
-          ..from = currentUserId
-          ..to = userId
+          ..from = userId
+          ..to = groupId
           ..id = Int64(2)
           ..packetId = 'test'
-          ..replyToId = Int64(0));
+          ..replyToId = Int64(0)
+          ..text = (Text()..text = 'test'));
+
+      var res = MockResponseStream<ServerPacket>();
 
       when(mockAccountRepo.currentUserUid).thenReturn(currentUserId);
 
       when(mockGrpcCoreService.establishStream(any,
               options: anyNamed('options')))
-          .thenAnswer(
-              (_) => MockResponseFuture<ServerPacket>(serverPacket).asStream());
+          .thenAnswer((_) => res);
 
       when(mockMessageDao.insertMessage(any))
           .thenAnswer((realInvocation) async => 5);
-      // expect(await messageRepo.getPage(page, roomId, containsId), messages);
+
+      when(mockRoomDao.insertRoomCompanion(any))
+          .thenAnswer((realInvocation) async => 5);
+
+      when(mockRoomRepo.getRoomDisplayName(groupId))
+          .thenAnswer((_) async => "name");
+
+      when(mockNotificationServices.showNotification(any, any, any))
+          .thenAnswer((_) {});
+
+      await coreServices.startStream();
+      res.add(serverPacket);
+      await Future.delayed(Duration(seconds: 2));
+      verify(mockMessageDao.insertMessage(any)).called(1);
+      verify(mockRoomRepo.getRoomDisplayName(groupId)).called(1);
+      verify(mockNotificationServices.showNotification(any, any, any))
+          .called(1);
     });
     test('serverPacket has message from current user to a group', () async {
       var mockGrpcCoreService = GetIt.I.get<CoreServiceClient>();
       var mockAccountRepo = GetIt.I.get<AccountRepo>();
       var mockMessageDao = GetIt.I.get<MessageDao>();
+      var mockRoomDao = GetIt.I.get<RoomDao>();
+      var mockNotificationServices = GetIt.I.get<NotificationServices>();
+      var mockRoomRepo = GetIt.I.get<RoomRepo>();
       var serverPacket = ServerPacket()
         ..message = (Message()
           ..from = currentUserId
-          ..to = userId
+          ..to = groupId
           ..id = Int64(2)
           ..packetId = 'test'
-          ..replyToId = Int64(0));
+          ..replyToId = Int64(0)
+          ..text = (Text()..text = 'test'));
+
+      var res = MockResponseStream<ServerPacket>();
 
       when(mockAccountRepo.currentUserUid).thenReturn(currentUserId);
 
       when(mockGrpcCoreService.establishStream(any,
               options: anyNamed('options')))
-          .thenAnswer(
-              (_) => MockResponseFuture<ServerPacket>(serverPacket).asStream());
+          .thenAnswer((_) => res);
 
       when(mockMessageDao.insertMessage(any))
           .thenAnswer((realInvocation) async => 5);
-      // expect(await messageRepo.getPage(page, roomId, containsId), messages);
+
+      when(mockRoomDao.insertRoomCompanion(any))
+          .thenAnswer((realInvocation) async => 5);
+
+      when(mockRoomRepo.getRoomDisplayName(groupId))
+          .thenAnswer((_) async => "name");
+
+      when(mockNotificationServices.showNotification(any, any, any))
+          .thenAnswer((_) {});
+
+      await coreServices.startStream();
+      res.add(serverPacket);
+      await Future.delayed(Duration(seconds: 2));
+      verify(mockMessageDao.insertMessage(any)).called(1);
+      verify(mockRoomRepo.getRoomDisplayName(groupId)).called(1);
+      verify(mockNotificationServices.showNotification(any, any, any))
+          .called(1);
     });
-    test('serverPacket has messageDeliveryAck', () async {
+    test('serverPacket has message from a user to group', () async {
       var mockGrpcCoreService = GetIt.I.get<CoreServiceClient>();
       var mockAccountRepo = GetIt.I.get<AccountRepo>();
-      var serverPacket = ServerPacket();
+      var mockMessageDao = GetIt.I.get<MessageDao>();
+      var mockRoomDao = GetIt.I.get<RoomDao>();
+      var mockNotificationServices = GetIt.I.get<NotificationServices>();
+      var mockRoomRepo = GetIt.I.get<RoomRepo>();
+      var serverPacket = ServerPacket()
+        ..message = (Message()
+          ..from = userId
+          ..to = groupId
+          ..id = Int64(2)
+          ..packetId = 'test'
+          ..replyToId = Int64(0)
+          ..text = (Text()..text = 'test'));
 
-      when(mockAccountRepo.currentUserUid).thenReturn(userId);
+      var res = MockResponseStream<ServerPacket>();
+
+      when(mockAccountRepo.currentUserUid).thenReturn(currentUserId);
 
       when(mockGrpcCoreService.establishStream(any,
               options: anyNamed('options')))
-          .thenAnswer(
-              (_) => MockResponseFuture<ServerPacket>(serverPacket).asStream());
+          .thenAnswer((_) => res);
 
-      // expect(await messageRepo.getPage(page, roomId, containsId), messages);
-    });
+      when(mockMessageDao.insertMessage(any))
+          .thenAnswer((realInvocation) async => 5);
 
-    test('serverPacket has seen', () async {
-      var mockGrpcCoreService = GetIt.I.get<CoreServiceClient>();
-      var mockAccountRepo = GetIt.I.get<AccountRepo>();
-      var serverPacket = ServerPacket();
+      when(mockRoomDao.insertRoomCompanion(any))
+          .thenAnswer((realInvocation) async => 5);
 
-      when(mockAccountRepo.currentUserUid).thenReturn(userId);
+      when(mockRoomRepo.getRoomDisplayName(groupId))
+          .thenAnswer((_) async => "name");
 
-      when(mockGrpcCoreService.establishStream(any,
-              options: anyNamed('options')))
-          .thenAnswer(
-              (_) => MockResponseFuture<ServerPacket>(serverPacket).asStream());
+      when(mockNotificationServices.showNotification(any, any, any))
+          .thenAnswer((_) {});
 
-      // expect(await messageRepo.getPage(page, roomId, containsId), messages);
+      await coreServices.startStream();
+      res.add(serverPacket);
+      await Future.delayed(Duration(seconds: 2));
+      verify(mockMessageDao.insertMessage(any)).called(1);
+      verify(mockRoomRepo.getRoomDisplayName(groupId)).called(1);
+      verify(mockNotificationServices.showNotification(any, any, any))
+          .called(1);
     });
   });
 }

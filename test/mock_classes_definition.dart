@@ -1,11 +1,15 @@
 import 'dart:async';
 
+import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
+import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:flutter/cupertino.dart';
@@ -43,19 +47,20 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
       Future.value(value).then(onValue, onError: onError);
 }
 
-// class MockResponseStream<T> extends Mock implements ResponseStream<T> {
-//   var controller = StreamController<T>();
-//
-//   MockResponseStream();
-//
-//   void add(T value) => controller.add(value);
-//   @override
-//   StreamSubscription<T> listen(void Function(T value) onData,
-//           {Function onError, void Function() onDone, bool cancelOnError}) =>
-//       controller.stream.listen((event) => event);
-//
-//   //     Future.value(value).then(onValue, onError: onError);
-// }
+class MockResponseStream<T> extends Mock implements ResponseStream<T> {
+  var controller = StreamController<T>();
+
+  MockResponseStream();
+
+  void add(T value) => controller.add(value);
+  @override
+  StreamSubscription<T> listen(void Function(T value) onData,
+      {Function onError, void Function() onDone, bool cancelOnError}) {
+    return controller.stream.listen((event) => onData(event));
+  }
+
+  //     Future.value(value).then(onValue, onError: onError);
+}
 
 class MockQueryServiceClient extends Mock implements QueryServiceClient {}
 
@@ -66,3 +71,11 @@ class MockCoreServiceClient extends Mock implements CoreServiceClient {}
 class MockLastSeenDao extends Mock implements LastSeenDao {}
 
 class MockSeenDao extends Mock implements SeenDao {}
+
+class MockMucDao extends Mock implements MucDao {}
+
+class MockContactDao extends Mock implements ContactDao {}
+
+class MockContactRepo extends Mock implements ContactRepo {}
+
+class MockRoomRepo extends Mock implements RoomRepo {}

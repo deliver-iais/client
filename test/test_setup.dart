@@ -1,10 +1,14 @@
+import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
+import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -38,5 +42,10 @@ void coreServicesTestSetup() {
   getIt.registerSingleton<RoomDao>(MockRoomDao());
   getIt.registerSingleton<PendingMessageDao>(MockPendingMessageDao());
   getIt.registerSingleton<MucRepo>(MockMucRepo());
+  getIt.registerSingleton<ContactDao>(MockContactDao());
+  getIt.registerSingleton<ContactRepo>(MockContactRepo());
+  getIt.registerSingleton<MucDao>(MockMucDao());
+  getIt.registerSingleton<RoomRepo>(MockRoomRepo());
+
   getIt.registerSingleton<NotificationServices>(MockNotificationServices());
 }
