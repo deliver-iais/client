@@ -7,36 +7,31 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
-import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class MediaDetailsPage extends StatefulWidget {
   String heroTag;
-
   int mediaPosition;
   int mediasLength;
-
   Uid uid;
   bool isAvatar = false;
-  bool hasPermissionToDeleteAvatar = false;
+  bool hasPermissionToDeletePic = false;
 
   MediaDetailsPage.showMedia(
-      {Key key, this.uid, this.mediaPosition, this.mediasLength, this.heroTag})
+      {Key key,this.hasPermissionToDeletePic ,this.uid, this.mediaPosition, this.mediasLength, this.heroTag})
       : super(key: key);
 
   MediaDetailsPage.showAvatar(
       {Key key,
       this.uid,
-      this.hasPermissionToDeleteAvatar = false,
+      this.hasPermissionToDeletePic = false,
       this.heroTag})
       : super(key: key) {
     this.isAvatar = true;
@@ -47,11 +42,11 @@ class MediaDetailsPage extends StatefulWidget {
 }
 
 class _MediaDetailsPageState extends State<MediaDetailsPage> {
+
   var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
   var _avatarRepo = GetIt.I.get<AvatarRepo>();
   var _routingService = GetIt.I.get<RoutingService>();
-
   var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 5));
   var _mediaCache = LruCache<String, Media>(storage: SimpleStorage(size: 50));
 
@@ -265,6 +260,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                             direction: Axis.vertical,
                                             runSpacing: 40,
                                             children: [
+                                              //TODO showing media sender and time
                                               //  Text(mediaSender.toString()),
                                               SizedBox(height: 10),
                                               //   Text(_mediaCache.get("$i").time),
@@ -325,6 +321,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                               direction: Axis.vertical,
                               runSpacing: 40,
                               children: [
+                                //TODO showing media sender and time
                                 // Text(media.createdOn.toString()),
                                 SizedBox(height: 10),
                                 // Text(_mediaCache.get("$i").time),
@@ -379,6 +376,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                     direction: Axis.vertical,
                                     runSpacing: 40,
                                     children: [
+                                      //TODO showing media sender and time
                                       //  Text(media.createdOn.toString()),
                                       SizedBox(height: 10),
                                       // Text(_mediaCache.get("$i").time),
@@ -431,7 +429,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               size: 20,
             ),
             itemBuilder: (cc) => [
-                  if (widget.hasPermissionToDeleteAvatar && widget.isAvatar)
+                  if (widget.hasPermissionToDeletePic && widget.isAvatar)
                     PopupMenuItem(
                         child: GestureDetector(
                       child: Text("delete"),
@@ -439,6 +437,13 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                         await _avatarRepo
                             .deleteAvatar(_allAvatars[swipePosition]);
                         setState(() {});
+                      },
+                    )),
+              if(widget.hasPermissionToDeletePic && !widget.isAvatar)
+                PopupMenuItem(
+                    child: GestureDetector(
+                      child: Text("delete"),
+                      onTap: () {
                       },
                     )),
                 ])

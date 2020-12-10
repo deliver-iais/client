@@ -434,6 +434,7 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
                                    onTap: () {
                                        _routingService.openShowAllMedia(
                                          uid: userUid,
+                                         hasPermissionToDeletePic: true,
                                          mediaPosition: position,
                                          heroTag: "btn$position",
                                          mediasLength: imagesCount,
@@ -464,6 +465,7 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
                                  onTap: () {
                                    _routingService.openShowAllMedia(
                                      uid:userUid,
+                                     hasPermissionToDeletePic: true,
                                      mediaPosition: position,
                                      heroTag: "btn$position",
                                      mediasLength: imagesCount,
