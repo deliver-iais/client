@@ -198,7 +198,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         ]),
                                         onTap: () {
                                           _routingService
-                                              .openRoom(widget.userUid.string);
+                                              .openRoom(widget.userUid.asString());
                                         },
                                       )),
                                   Container(
@@ -232,7 +232,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                             ),
                                             StreamBuilder<Room>(
                                               stream: _roomDao.getByRoomId(
-                                                  widget.userUid.string),
+                                                  widget.userUid.asString()),
                                               builder: (BuildContext context,
                                                   AsyncSnapshot<Room>
                                                       snapshot) {
@@ -246,7 +246,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                       setState(() {
                                                         _roomDao.insertRoom(Room(
                                                             roomId: widget
-                                                                .userUid.string,
+                                                                .userUid.asString(),
                                                             mute:
                                                                 !newNotifState));
                                                       });

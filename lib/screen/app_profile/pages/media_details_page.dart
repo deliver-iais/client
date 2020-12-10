@@ -195,7 +195,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             if (media == null) {
               widget.heroTag = "btn$i";
               return FutureBuilder(
-                  future: _mediaQueryRepo.getMediaAround(widget.uid.string, i,
+                  future: _mediaQueryRepo.getMediaAround(widget.uid.asString(), i,
                       FetchMediasReq_MediaType.IMAGES.value),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData || snapshot.data == null) {

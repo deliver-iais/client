@@ -35,21 +35,22 @@ class MediaQueryRepo {
   var _messageRepo = GetIt.I.get<MessageRepo>();
   var _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   int lastTime;
+  final QueryServiceClient _queryServiceClient =
+  GetIt.I.get<QueryServiceClient>();
+  // static ClientChannel clientChannel = ClientChannel(
+  //     ServicesDiscoveryRepo().mediaConnection.host,
+  //     port: ServicesDiscoveryRepo().mediaConnection.port,
+  //     options: ChannelOptions(credentials: ChannelCredentials.insecure()));
 
-  static ClientChannel clientChannel = ClientChannel(
-      ServicesDiscoveryRepo().mediaConnection.host,
-      port: ServicesDiscoveryRepo().mediaConnection.port,
-      options: ChannelOptions(credentials: ChannelCredentials.insecure()));
-
-  var mediaServices = QueryServiceClient(clientChannel);
+ // var mediaServices = QueryServiceClient(clientChannel);
 
   getMediaMetaDataReq(Uid uid) async {
-    var mediaServices = QueryServiceClient(clientChannel);
+   // var mediaServices = QueryServiceClient(clientChannel);
     var mediaResponse;
     var getMediaMetaDataReq = GetMediaMetadataReq();
     getMediaMetaDataReq..with_1 = uid;
     try {
-      mediaResponse = await mediaServices.getMediaMetadata(getMediaMetaDataReq,
+      mediaResponse = await _queryServiceClient.getMediaMetadata(getMediaMetaDataReq,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       print("tttttttttttttttttttttttt${mediaResponse}");
@@ -91,7 +92,7 @@ class MediaQueryRepo {
   insertMediaMetaData(
       Uid uid, queryObject.GetMediaMetadataRes mediaResponse) async {
     await _mediaMetaDataDao.upsertMetaData(MediasMetaDataData(
-      roomId: uid.string,
+      roomId: uid.asString(),
       imagesCount: mediaResponse.allImagesCount.toInt(),
       videosCount: mediaResponse.allVideosCount.toInt(),
       filesCount: mediaResponse.allFilesCount.toInt(),
@@ -103,7 +104,7 @@ class MediaQueryRepo {
   }
 
   Stream<MediasMetaDataData> getMediasMetaDataCountFromDB(Uid roomId) {
-    return _mediaMetaDataDao.getStreamMediasCountByRoomId(roomId.string);
+    return _mediaMetaDataDao.getStreamMediasCountByRoomId(roomId.asString());
 
     // if (mediaType == queryObject.FetchMediasReq_MediaType.IMAGES) {
     //   // if(event.imagesCount==0){
@@ -172,7 +173,7 @@ class MediaQueryRepo {
       Uid uid, FetchMediasReq_MediaType mediaType, int mediaCount) async {
     List<Media> mediasList = [];
     mediasList =
-        await _mediaDao.getByRoomIdAndType(uid.string, mediaType.value);
+        await _mediaDao.getByRoomIdAndType(uid.asString(), mediaType.value);
     if (mediasList.length == 0) {
       mediasList = await getLastMediasList(
           uid,
@@ -197,7 +198,7 @@ class MediaQueryRepo {
   Future<List<Media>> fetchMoreMedia(
       Uid roomId, FetchMediasReq_MediaType mediaType, int position) async {
     List<Media> medias =
-        await _mediaDao.getMedia(roomId.string, mediaType.value, 30, position);
+        await _mediaDao.getMedia(roomId.asString(), mediaType.value, 30, position);
     int pointer = medias.first.createdOn;
     var getMediaReq = FetchMediasReq();
     getMediaReq..roomUid = roomId;
@@ -208,7 +209,7 @@ class MediaQueryRepo {
       ..fetchingDirectionType =
           FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH;
     getMediaReq..limit = 30;
-    var getMediasRes = await mediaServices.fetchMedias(getMediaReq,
+    var getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq,
         options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
     List<Media> mediasList =
@@ -233,7 +234,7 @@ class MediaQueryRepo {
     getMediaReq..fetchingDirectionType = directionType;
     getMediaReq..limit = 30;
     try {
-      var getMediasRes = await mediaServices.fetchMedias(getMediaReq,
+      var getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       // await allMediasCountReq(roomId);
@@ -257,10 +258,10 @@ class MediaQueryRepo {
       String json = findFetchedMediaJson(media);
       Media insertedMedia = Media(
           createdOn: media.createdOn.toInt(),
-          createdBy: media.createdBy.string,
+          createdBy: media.createdBy.asString(),
           messageId: media.messageId.toInt(),
           type: type,
-          roomId: roomUid.string,
+          roomId: roomUid.asString(),
           json: json);
       mediaList.add(insertedMedia);
       await _mediaDao.insertQueryMedia(insertedMedia);
