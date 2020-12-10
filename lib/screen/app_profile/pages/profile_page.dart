@@ -29,6 +29,7 @@ import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -44,8 +45,6 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
-  List<String> _mediaUrls = [];
   List<String> mediaUrls = [];
   var mediasLength;
   Room currentRoomId;
@@ -58,7 +57,6 @@ class _ProfilePageState extends State<ProfilePage> {
   var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 30));
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
   }
@@ -73,6 +71,8 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context, snapshot) {
         tabsCount = 0;
         if (snapshot.hasData) {
+          print("mediaaaaaaaaaaaaaaaaaaaaCounttttttttttttttttt${snapshot.data.imagesCount}");
+
           if (snapshot.data.imagesCount != 0) {
             tabsCount = tabsCount + 1;
             print(snapshot.data);
@@ -400,12 +400,9 @@ class _ProfilePageState extends State<ProfilePage> {
 }
 
 Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo,LruCache mediaCache,int imagesCount) {
-  setMediaCache(int currentPosition, List<Media> mediaList) {
-    for (int j = 0; j < mediaList.length; j++) {
-      mediaCache.set("$currentPosition", mediaList[j]);
-    }
-  }
-        return FutureBuilder(
+  var _routingService = GetIt.I.get<RoutingService>();
+
+  return FutureBuilder(
           future: mediaQueryRepo.getMedia(userUid, FetchMediasReq_MediaType.IMAGES,imagesCount),
           builder: (BuildContext c, AsyncSnapshot snaps) {
             if (!snaps.hasData ||snaps.data == null || snaps.connectionState == ConnectionState.waiting) {
@@ -433,46 +430,69 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
                                    snaps.connectionState == ConnectionState.done) {
                                  print("*******getfileeeeeeeeeeeeeeeeeee*************$position");
                                  mediaCache.set(fileId, snaps.data);
-                                 return Container(
-                                     decoration: new BoxDecoration(
-                                       image: new DecorationImage(
-                                         image: Image.file(
-                                           snaps.data,
-                                         ).image,
-                                         fit: BoxFit.cover,
-                                       ),
-                                       border: Border.all(
-                                         width: 1,
-                                         color: ExtraTheme.of(context).secondColor,
-                                       ),
-                                     ));
+                                 return GestureDetector(
+                                   onTap: () {
+                                       _routingService.openShowAllMedia(
+                                         uid: userUid,
+                                         mediaPosition: position,
+                                         heroTag: "btn$position",
+                                         mediasLength: imagesCount,
+                                       );
+                                     },
+                                   child: Hero(
+                                     tag:  "btn$position",
+                                     child: Container(
+                                         decoration: new BoxDecoration(
+                                           image: new DecorationImage(
+                                             image: Image.file(
+                                               snaps.data,
+                                             ).image,
+                                             fit: BoxFit.cover,
+                                           ),
+                                           border: Border.all(
+                                             width: 1,
+                                             color: ExtraTheme.of(context).secondColor,
+                                           ),
+                                         )),
+                                   ),
+                                 );
                                } else {
                                  return Container(width: 0.0, height: 0.0);
                                }
                              });else{
-                               return Container(
-                                   decoration: new BoxDecoration(
-                                     image: new DecorationImage(
-                                       image: Image.file(
-                                         file
-                                       ).image,
-                                       fit: BoxFit.cover,
-                                     ),
-                                     border: Border.all(
-                                       width: 1,
-                                       color: ExtraTheme.of(context).secondColor,
-                                     ),
-                                   ));
+                               return GestureDetector(
+                                 onTap: () {
+                                   _routingService.openShowAllMedia(
+                                     uid:userUid,
+                                     mediaPosition: position,
+                                     heroTag: "btn$position",
+                                     mediasLength: imagesCount,
+                                   );
+                                 },
+                                 child: Hero(
+                                   tag: "btn$position",
+                                   child: Container(
+                                       decoration: new BoxDecoration(
+                                         image: new DecorationImage(
+                                           image: Image.file(
+                                             file
+                                           ).image,
+                                           fit: BoxFit.cover,
+                                         ),
+                                         border: Border.all(
+                                           width: 1,
+                                           color: ExtraTheme.of(context).secondColor,
+                                         ),
+                                       )),
+                                 ),
+                               );
                          }
                        }
                    );
             }}
         );
 
-      // else if(snap.data == 0){
-      //             ()async{
-      //              await mediaQueryRepo.getLastMediasList(userUid.string, FetchMediasReq_MediaType.IMAGES);
-      //             };}
+
 
 
   // child: GestureDetector(

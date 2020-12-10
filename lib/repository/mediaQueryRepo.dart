@@ -293,8 +293,8 @@ class MediaQueryRepo {
   //   return mediaList;
   // }
 
-  Future<List<Media>> getMediaAround(String roomId, int offset) async {
-    mediaList = await _mediaQueriesDao.getMediaAround(roomId, offset);
+  Future<List<Media>> getMediaAround(String roomId, int offset,int type) async {
+    mediaList = await _mediaQueriesDao.getMediaAround(roomId, offset,type);
     return mediaList;
   }
 
