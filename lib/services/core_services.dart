@@ -38,8 +38,8 @@ const BACKOFF_TIME_INCREASE_RATIO = 2;
 class CoreServices {
   var _clientPacket = StreamController<ClientPacket>();
   ResponseStream<ServerPacket> _responseStream;
-
-  int _backoffTime = MIN_BACKOFF_TIME;
+  @visibleForTesting
+  int backoffTime = MIN_BACKOFF_TIME;
 
   BehaviorSubject<ConnectionStatus> connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Disconnected);
@@ -47,7 +47,8 @@ class CoreServices {
   BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Disconnected);
 
-  bool _responseChecked = false;
+  @visibleForTesting
+  bool responseChecked = false;
 
   var _grpcCoreService = GetIt.I.get<CoreServiceClient>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
@@ -63,34 +64,32 @@ class CoreServices {
 //TODO test
   initStreamConnection() async {
     await startStream();
-    await _startCheckerTimer();
+    await startCheckerTimer();
     _connectionStatus.distinct().listen((event) {
-      print(' _connectionStatus event id : $event');
       connectionStatus.add(event);
     });
   }
 
-//TODO maybe need to test
-  _startCheckerTimer() {
+  @visibleForTesting
+  startCheckerTimer() {
     sendPingMessage();
-    _responseChecked = false;
-
-    Timer(new Duration(seconds: _backoffTime), () {
-      if (!_responseChecked) {
-        if (_backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO)
+    responseChecked = false;
+    Timer(new Duration(seconds: backoffTime), () {
+      if (!responseChecked) {
+        if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO)
           _connectionStatus.add(ConnectionStatus.Disconnected);
         startStream();
       } else {
-        _backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
+        backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
       }
-      _startCheckerTimer();
+      startCheckerTimer();
     });
   }
 
   void gotResponse() {
     _connectionStatus.add(ConnectionStatus.Connected);
-    _backoffTime = MIN_BACKOFF_TIME;
-    _responseChecked = true;
+    backoffTime = MIN_BACKOFF_TIME;
+    responseChecked = true;
   }
 
   @visibleForTesting
