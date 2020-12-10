@@ -16,8 +16,14 @@ class BoxContent extends StatefulWidget {
   final Message message;
   final double maxWidth;
   final bool isSender;
+  final Function scrollToMessage;
 
-  const BoxContent({Key key, this.message, this.maxWidth, this.isSender})
+  const BoxContent(
+      {Key key,
+      this.message,
+      this.maxWidth,
+      this.isSender,
+      this.scrollToMessage})
       : super(key: key);
 
   @override
@@ -44,7 +50,7 @@ class _BoxContentState extends State<BoxContent> {
         if (widget.message.roomId.uid.category == Categories.GROUP &&
             !widget.isSender)
           senderNameBox(),
-        if (widget.message.replyToId != null && widget.message.replyToId > -1)
+        if (widget.message.replyToId != null && widget.message.replyToId > 0)
           replyToIdBox(),
         if (widget.message.forwardedFrom != null &&
             widget.message.forwardedFrom.length > 3)
@@ -55,8 +61,15 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget replyToIdBox() {
-    return ReplyWidgetInMessage(
-        roomId: widget.message.roomId, replyToId: widget.message.replyToId);
+    return GestureDetector(
+      onTap: () {
+        widget.scrollToMessage(widget.message.replyToId);
+      },
+      child: ReplyWidgetInMessage(
+        roomId: widget.message.roomId,
+        replyToId: widget.message.replyToId,
+      ),
+    );
   }
 
   Widget senderNameBox() {
@@ -90,9 +103,10 @@ class _BoxContentState extends State<BoxContent> {
         future: _roomRepo.getRoomDisplayName(widget.message.forwardedFrom.uid),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
-            return Text(
+            return GestureDetector(child:  Text(
                 "${_appLocalization.getTraslateValue("Forwarded_From")} ${snapshot.data}",
-                style: TextStyle(color: ExtraTheme.of(context).text));
+                style: TextStyle(color: ExtraTheme.of(context).text)),onTap:() {_routingServices.openRoom(widget.message.forwardedFrom);},);
+
           } else {
             return Text(
                 "${_appLocalization.getTraslateValue("Forwarded_From")} Unknown",

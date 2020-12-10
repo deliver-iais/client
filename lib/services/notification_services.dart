@@ -16,7 +16,7 @@ class NotificationServices {
 
   NotificationServices() {
     var androidNotificationSetting =
-        new AndroidInitializationSettings('@mipmap/ic_launcher');
+        new AndroidInitializationSettings('@mipmap/ic_launcher.png');
     var iosNotificationSetting = new IOSInitializationSettings(
         onDidReceiveLocalNotification: onDidReceiveLocalNotification);
 
@@ -50,7 +50,7 @@ class NotificationServices {
   showTextNotification(int notificationId, String roomId, String roomName,
       String messageBody) async {
     if (_notificationMessage[roomId] == null) {
-      _notificationMessage[roomId] = "";
+      _notificationMessage[roomId] = " ";
     }
     _notificationMessage[roomId] =
         _notificationMessage[roomId] + "\n" + messageBody;
@@ -90,18 +90,43 @@ class NotificationServices {
         payload: roomId);
   }
 
-  void showNotification(db.Message message, String roomName) async {
-    if (_currentRoomId == null || !_currentRoomId.contains(message.from))
-      cancelNotification(message.id - 1);
+  void showNotification(
+      db.Message message, String roomName, String roomUid) async {
+    cancelNotification(message.id - 1);
     switch (message.type) {
       case MessageType.TEXT:
-        showTextNotification(message.id, message.from, roomName,
-            jsonDecode(message.json)['text']);
+        showTextNotification(
+            message.id, roomUid, roomName, jsonDecode(message.json)['1']);
+        break;
+      case MessageType.FILE:
+        // TODO: Handle this case.
+        break;
+      case MessageType.STICKER:
+        // TODO: Handle this case.
+        break;
+      case MessageType.LOCATION:
+        // TODO: Handle this case.
+        break;
+      case MessageType.LIVE_LOCATION:
+        // TODO: Handle this case.
+        break;
+      case MessageType.POLL:
+        // TODO: Handle this case.
+        break;
+      case MessageType.FORM:
+        // TODO: Handle this case.
+        break;
+      case MessageType.PERSISTENT_EVENT:
+        // TODO: Handle this case.
+        break;
+      case MessageType.NOT_SET:
+        // TODO: Handle this case.
+        break;
     }
   }
 
   void reset(String roomId) {
     _currentRoomId = roomId;
-    _notificationMessage[roomId] = "";
+    _notificationMessage[roomId] = " ";
   }
 }

@@ -20,16 +20,14 @@ class CircleAvatarWidget extends StatelessWidget {
   final double radius;
   final bool forceToUpdate;
   final bool showAsStreamOfAvatar;
-  bool isAvatar;
 
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
-
-  var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
 
   CircleAvatarWidget(this.contactUid, this.radius,
-      {this.forceToUpdate = false, this.showAsStreamOfAvatar = false}) {}
+      {this.forceToUpdate = false, this.showAsStreamOfAvatar = false});
 
   Color colorFor(String text) {
     var hash = 0;
@@ -53,7 +51,7 @@ class CircleAvatarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: radius,
-      backgroundColor: colorFor(contactUid.getString()),
+      backgroundColor: colorFor(contactUid.asString()),
       child: contactUid.category == Categories.SYSTEM
           ? Image(
               image: AssetImage(

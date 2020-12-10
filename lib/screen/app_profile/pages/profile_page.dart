@@ -35,7 +35,7 @@ import 'package:intl/intl.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class ProfilePage extends StatefulWidget {
-  Uid userUid;
+  final Uid userUid;
 
   ProfilePage(this.userUid, {Key key}) : super(key: key);
 

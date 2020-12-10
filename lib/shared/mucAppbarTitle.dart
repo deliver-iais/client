@@ -9,12 +9,11 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class MucAppbarTitle extends StatelessWidget {
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _mucDao = GetIt.I.get<MucDao>();
   final String mucUid;
 
   MucAppbarTitle({Key key, this.mucUid}) : super(key: key);
-
-  var _routingService = GetIt.I.get<RoutingService>();
-  var _mucDao = GetIt.I.get<MucDao>();
 
   @override
   Widget build(BuildContext context) {

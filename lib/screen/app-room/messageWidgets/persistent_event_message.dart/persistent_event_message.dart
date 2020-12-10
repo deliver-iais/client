@@ -12,14 +12,14 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class PersistentEventMessage extends StatelessWidget {
   final Message message;
-  final bool showLastMessaeg;
+  final bool showLastMessage;
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
 
-  PersistentEventMessage({Key key, this.message, this.showLastMessaeg})
+  PersistentEventMessage({Key key, this.message, this.showLastMessage})
       : super(key: key);
 
-  var _roomRepo = GetIt.I.get<RoomRepo>();
   AppLocalization _appLocalization;
-  var _accountRepo = GetIt.I.get<AccountRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class PersistentEventMessage extends StatelessWidget {
       padding: const EdgeInsets.all(2.0),
       child: Container(
         decoration: BoxDecoration(
-          color: showLastMessaeg
+          color: showLastMessage
               ? Theme.of(context).backgroundColor
               : ExtraTheme.of(context).details,
           borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -71,10 +71,10 @@ class PersistentEventMessage extends StatelessWidget {
         String issuerName = "";
         String assigneeName = "";
         try {
-          issuerName = issuer.contains(_accountRepo.currentUserUid.string)
+          issuerName = issuer.contains(_accountRepo.currentUserUid.asString())
               ? _appLocalization.getTraslateValue("you")
               : await _roomRepo.getRoomDisplayName(issuer.uid);
-          assigneeName = assignee.contains(_accountRepo.currentUserUid.string)
+          assigneeName = assignee.contains(_accountRepo.currentUserUid.asString())
               ? _appLocalization.getTraslateValue("you")
               : await _roomRepo.getRoomDisplayName(assignee.uid);
         } catch (e) {
@@ -83,7 +83,7 @@ class PersistentEventMessage extends StatelessWidget {
 
         switch (issueType) {
           case "ADD_USER":
-            return "$issuerName  ${_appLocalization.getTraslateValue("add_user_to_muc")} ${assigneeName}";
+            return "$issuerName  ${_appLocalization.getTraslateValue("add_user_to_muc")} $assigneeName";
           case "AVATAR_CHANGED":
             return message.from.uid.category == Categories.CHANNEL
                 ? "$issuerName  ${_appLocalization.getTraslateValue("change_channel_avatar")}"
@@ -99,7 +99,7 @@ class PersistentEventMessage extends StatelessWidget {
           case "PIN_MESSAGE":
             return "$issuerName  ${_appLocalization.getTraslateValue("pin_message")}";
           case "KICK_USER":
-            return "$issuerName ، ${assigneeName} ${_appLocalization.getTraslateValue("kick_from_muc")}";
+            return "$issuerName ، $assigneeName ${_appLocalization.getTraslateValue("kick_from_muc")}";
         }
 
         return "";

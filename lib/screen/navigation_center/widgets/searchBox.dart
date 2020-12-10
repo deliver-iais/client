@@ -3,7 +3,7 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
 class SearchBox extends StatelessWidget {
-  dynamic Function(String) onChange;
+  final Function(String) onChange;
 
   SearchBox({this.onChange});
 

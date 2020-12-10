@@ -15,7 +15,7 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class GroupUiWidget extends StatefulWidget {
-  Uid mucUid;
+  final Uid mucUid;
 
   GroupUiWidget({this.mucUid});
 
@@ -34,6 +34,7 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
 
   @override
   void initState() {
+    super.initState();
     mucUid = widget.mucUid;
   }
 
@@ -63,17 +64,17 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
                                 DateTime lastSeenTime = DateTime.now();
                                 _memberRepo.insertMemberInfo(
                                     "1:e61b9fe7-c618-4b6b-ab7f-6891374ee799",
-                                    mucUid.string,
+                                    mucUid.asString(),
                                     lastSeenTime,
                                     MucRole.MEMBER);
                                 _memberRepo.insertMemberInfo(
                                     "1:e61b9fg7-c618-4b6b-ab7f-6891374ee799",
-                                    mucUid.string,
+                                    mucUid.asString(),
                                     lastSeenTime,
                                     MucRole.OWNER);
                                 _memberRepo.insertMemberInfo(
                                     "1:e61b9fk7-c618-4b6b-ab7f-6891374ee799",
-                                    mucUid.string,
+                                    mucUid.asString(),
                                     lastSeenTime,
                                     MucRole.ADMIN);
                               },
@@ -87,7 +88,7 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
                   ),
                 ),
                 StreamBuilder<Room>(
-                  stream: _roomDao.getByRoomId(widget.mucUid.string),
+                  stream: _roomDao.getByRoomId(widget.mucUid.asString()),
                   builder:
                       (BuildContext context, AsyncSnapshot<Room> snapshot) {
                     if (snapshot.data != null) {
@@ -119,6 +120,7 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
               IconButton(
                 icon: Icon(Icons.person_add),
                 disabledColor: Colors.blue,
+                onPressed: null,
               ),
               SizedBox(
                 width: 10,

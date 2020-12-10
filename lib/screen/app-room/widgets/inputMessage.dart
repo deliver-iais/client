@@ -1,9 +1,7 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:audio_recorder/audio_recorder.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/emojiKeybord.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
@@ -16,7 +14,6 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:flutter_timer/flutter_timer.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:random_string/random_string.dart';
 import 'package:vibration/vibration.dart';
 import 'package:ext_storage/ext_storage.dart';
@@ -60,11 +57,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   bool startAudioRecorder = false;
 
-  var _messageRepo = GetIt.I.get<MessageRepo>();
-
-  AudioRecorder _audioRecorder;
-
-  Widget showButtonSheet() {
+  void showButtonSheet() {
     if (isDesktop()) {
       _attachFileInWindowsMode();
     } else {
@@ -85,8 +78,8 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
-    controller = TextEditingController();
     super.initState();
+    controller = TextEditingController();
     currentRoom = widget.currentRoom;
   }
 
@@ -323,7 +316,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   started = true;
                                   time = DateTime.now();
                                 });
-                                _audioRecorder = await AudioRecorder.start(
+                                await AudioRecorder.start(
                                     path: await ExtStorage
                                         .getExternalStoragePublicDirectory(
                                             "${ExtStorage.DIRECTORY_MUSIC}/${randomString(10)}"),

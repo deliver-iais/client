@@ -10,10 +10,10 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 class AudioPlayProgress extends StatelessWidget {
   final File audio;
   final String audioUuid;
+  final _audioPlayerService = GetIt.I.get<AudioPlayerService>();
 
   AudioPlayProgress({Key key, this.audioUuid, this.audio}) : super(key: key);
 
-  AudioPlayerService _audioPlayerService = GetIt.I.get<AudioPlayerService>();
 
   @override
   Widget build(BuildContext context) {

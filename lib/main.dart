@@ -19,6 +19,7 @@ import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart' as R;
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
@@ -34,6 +35,7 @@ import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -47,7 +49,6 @@ import 'db/dao/MessageDao.dart';
 import 'db/dao/MucDao.dart';
 import 'db/dao/RoomDao.dart';
 import 'repository/mucRepo.dart';
-import 'repository/servicesDiscoveryRepo.dart';
 
 void setupDB() {
   GetIt getIt = GetIt.instance;
@@ -73,7 +74,6 @@ void setupRepositories() {
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<UxService>(UxService());
   getIt.registerSingleton<AccountRepo>(AccountRepo());
-  getIt.registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
@@ -84,6 +84,8 @@ void setupRepositories() {
   getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<MucRepo>(MucRepo());
   getIt.registerSingleton<CoreServices>(CoreServices());
+  getIt.registerSingleton<QueryServiceClient>(
+      QueryServiceClient(QueryClientChannel));
   getIt.registerSingleton<MessageRepo>(MessageRepo());
   getIt.registerSingleton<ContactRepo>(ContactRepo());
   getIt.registerSingleton<RoomRepo>(RoomRepo());
@@ -98,19 +100,24 @@ void setupRepositories() {
 }
 
 setupFlutterNotification() async {
-  // await Firebase.initializeApp();
+  await Firebase.initializeApp();
 }
 
 void setupDIAndRunApp() {
   setupDB();
   setupRepositories();
-  setupFlutterNotification();
+
+  // TODO: Android just now is available
+  if (isAndroid()) {
+    setupFlutterNotification();
+  }
+
   runApp(MyApp());
 }
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
+  print("Application has been started");
 
   if (isDesktop()) {
     _setWindowSize();
@@ -119,9 +126,9 @@ void main() {
   }
 
   if (isAndroid()) {
-    // SmsAutoFill()
-    //     .getAppSignature
-    //     .then((signCode) => Fimber.d("APP_SIGN_CODE for SMS: $signCode"));
+    SmsAutoFill()
+        .getAppSignature
+        .then((signCode) => print("APP_SIGN_CODE for SMS: $signCode"));
   }
 
   setupDIAndRunApp();
@@ -150,6 +157,7 @@ class MyApp extends StatelessWidget {
         uxService.localeStream as Stream,
       ]),
       builder: (context, snapshot) {
+        print("theme changed ${uxService.theme.toString()}");
         return ExtraTheme(
           extraThemeData: uxService.extraTheme,
           child: MaterialApp(

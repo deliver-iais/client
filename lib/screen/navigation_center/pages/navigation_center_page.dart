@@ -15,7 +15,6 @@ import 'package:deliver_flutter/screen/navigation_center/widgets/searchBox.dart'
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
-import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -49,6 +48,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   var rootingServices = GetIt.I.get<RoutingService>();
   var contactRepo = GetIt.I.get<ContactRepo>();
+  AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
 
   final Function tapOnCurrentUserAvatar;
 
@@ -72,6 +72,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   void initState() {
+    super.initState();
     subject.stream.debounceTime(Duration(milliseconds: 250)).listen((text) {
       setState(() {
         query = text;
@@ -84,7 +85,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
-    AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
     AppLocalization appLocalization = AppLocalization.of(context);
     return StreamBuilder<bool>(
         stream: audioPlayerService.isOn,
@@ -151,18 +151,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   _searchMode
                       ? searchResult()
                       : Expanded(
-                          child: isDesktop() && !kDebugMode
-                              ? (tab == NavigationTabs.Chats)
-                                  ? ChatsPage(key: ValueKey("ChatsPage"))
-                                  : ContactsPage(key: ValueKey("ContactsPage"))
-                              : AnimatedSwitcher(
-                                  duration: Duration(milliseconds: 150),
-                                  child: (tab == NavigationTabs.Chats)
-                                      ? ChatsPage(key: ValueKey("ChatsPage"))
-                                      : ContactsPage(
-                                          key: ValueKey("ContactsPage")),
-                                ),
-                        )
+                          child: (tab == NavigationTabs.Chats)
+                              ? ChatsPage(key: ValueKey("ChatsPage"))
+                              : ContactsPage(key: ValueKey("ContactsPage"))),
                 ],
               ),
             ),
@@ -239,7 +230,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           child: Text("Go to Profile"),
                           onTap: () {
                             _routingService.openProfile(
-                                _accountRepo.currentUserUid.getString());
+                                _accountRepo.currentUserUid.asString());
                           },
                         )),
                       if (kDebugMode)
@@ -251,7 +242,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                               ..category = Categories.GROUP
                               ..node = "5745645454545456";
                             _routingService
-                                .openProfile(fakeGroupUid.getString());
+                                .openProfile(fakeGroupUid.asString());
                           },
                         )),
                       PopupMenuItem(
@@ -283,7 +274,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         child: Text(
                             appLocalization.getTraslateValue("newContact")),
                         onTap: () {
-                          ExtendedNavigator.of(context).popAndPush(Routes.newContact);
+                          ExtendedNavigator.of(context)
+                              .popAndPush(Routes.newContact);
                         },
                       )),
                     ]),
@@ -318,7 +310,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                               GestureDetector(
                             onTap: () {
                               rootingServices
-                                  .openRoom(snaps.data[index].uid.getString());
+                                  .openRoom(snaps.data[index].uid.asString());
                             },
                             child: _contactResultWidget(
                                 uid: snaps.data[index].uid,
@@ -360,7 +352,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                             GestureDetector(
                           onTap: () {
                             rootingServices
-                                .openRoom(snaps.data[index].uid.getString());
+                                .openRoom(snaps.data[index].uid.asString());
                           },
                           child: _contactResultWidget(
                               uid: snaps.data[index].uid,

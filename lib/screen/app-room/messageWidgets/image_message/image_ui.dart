@@ -1,24 +1,15 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/sending_status.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/circular_file_status_indicator.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/image_message/filtered_image.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/sending_file_circular_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_flutter/services/file_service.dart';
-import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:open_file/open_file.dart';
 
 class ImageUi extends StatefulWidget {
@@ -40,11 +31,6 @@ class _ImageUiState extends State<ImageUi> {
   bool showTime;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     var msg = widget.message;
     double width = widget.maxWidth;
@@ -56,11 +42,6 @@ class _ImageUiState extends State<ImageUi> {
       var dimensions =
           getImageDimensions(image.width.toDouble(), image.height.toDouble());
 
-      // TODO, there is bug in server about dimension, we should change width and height
-      if (msg.id != null) {
-        dimensions =
-            getImageDimensions(image.height.toDouble(), image.width.toDouble());
-      }
       width = dimensions.width;
       height = dimensions.height;
 

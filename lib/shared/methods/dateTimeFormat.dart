@@ -12,6 +12,5 @@ extension ToText on DateTime {
       return DateTimeFormat.format(this, format: 'D');
     else
       return DateTimeFormat.format(this, format: 'M j');
-    return '';
   }
 }

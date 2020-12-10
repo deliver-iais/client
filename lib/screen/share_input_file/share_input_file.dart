@@ -1,6 +1,5 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/chat_item_to_forward.dart';
 
 import 'package:deliver_flutter/screen/navigation_center/widgets/searchBox.dart';
 import 'package:deliver_flutter/screen/share_input_file/shareFileWidget.dart';
@@ -11,18 +10,16 @@ import 'package:get_it/get_it.dart';
 
 class ShareInputFile extends StatelessWidget{
   final List<String> inputSharedFilePath;
+  final _roomRepo = GetIt.I.get<RoomRepo>();
 
   ShareInputFile({this.inputSharedFilePath});
 
-  var _roomRepo = GetIt.I.get<RoomRepo>();
-  AppLocalization _appLocalization;
-
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    AppLocalization i18n = AppLocalization.of(context);
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      appBar: AppBar(title:Text(_appLocalization.getTraslateValue("send_To")) ,),
+      appBar: AppBar(title:Text(i18n.getTraslateValue("send_To")) ,),
       body: Column(
         children: <Widget>[
           SearchBox(),

@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart';
 import 'package:moor/moor.dart';
-import 'package:rxdart/streams.dart';
 import '../Messages.dart';
 import '../database.dart';
 import 'dart:async';
@@ -15,10 +13,6 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
 
   Stream watchAllMessages() => select(messages).watch();
 
-  Future insertBulk(List<Message> messages) {
-
-  }
-
   Future<int> insertMessageCompanion(MessagesCompanion newMessage) =>
       into(messages).insertOnConflictUpdate(newMessage);
 
@@ -26,7 +20,7 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
       into(messages).insertOnConflictUpdate(newMessage);
 
   Future<int> updateMessageId(String roomId, String packetID, int id, int time) {
-    (update(messages)
+    return (update(messages)
           ..where((t) => t.roomId.equals(roomId) & t.packetId.equals(packetID)))
         .write(
       MessagesCompanion(
@@ -65,6 +59,11 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
     return (select(messages)
           ..where((m) => m.roomId.equals(roomId) & m.id.equals(id)))
         .watchSingle();
+  }
+  Future<List<Message>> getMessageById(int id, String roomId) {
+    return (select(messages)
+      ..where((m) => m.roomId.equals(roomId) & m.id.equals(id)))
+        .get();
   }
 
   Future<List<Message>> getPage(String roomId, int page,

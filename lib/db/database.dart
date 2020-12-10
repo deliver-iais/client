@@ -86,7 +86,7 @@ class Database extends _$Database {
   int get schemaVersion => 7;
 
   Future<void> deleteAllData() {
-    return transaction(() {
+    return transaction(() async {
       for (var table in allTables) {
         delete(table).go();
       }

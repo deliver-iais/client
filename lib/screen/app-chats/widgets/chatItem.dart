@@ -1,16 +1,13 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/models/roomWithMessage.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/recievedMsgStatusIcon.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/methods/dateTimeFormat.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -24,17 +21,13 @@ class ChatItem extends StatelessWidget {
 
   final AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
 
-  var _roomRepo = GetIt.I.get<RoomRepo>();
-
-  var _contactRepo = GetIt.I.get<ContactRepo>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
 
   ChatItem({key: Key, this.roomWithMessage, this.isSelected}) : super(key: key);
 
-  AppLocalization _appLocalization;
-
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    AppLocalization _appLocalization = AppLocalization.of(context);
     var messageType = roomWithMessage.lastMessage.from
             .isSameEntity(_accountRepo.currentUserUid)
         ? "send"

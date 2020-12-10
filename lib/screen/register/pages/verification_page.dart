@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
@@ -43,7 +42,7 @@ class _VerificationPageState extends State<VerificationPage> {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
         _accountRepo.saveTokens(accessTokenResponse);
         _fireBaseServices.sendFireBaseToken(context);
-        _showSyncContactDialog();
+        _navigationToHome();
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {
         Fluttertoast.showToast(msg: "PASSWORD_PROTECTED");
@@ -55,6 +54,7 @@ class _VerificationPageState extends State<VerificationPage> {
         _setErrorAndResetCode();
       }
     }).catchError((e) {
+      print(e);
       _setErrorAndResetCode();
     });
   }
@@ -64,40 +64,6 @@ class _VerificationPageState extends State<VerificationPage> {
       Routes.homePage,
       (_) => false,
     );
-  }
-  _showSyncContactDialog(){
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-            actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
-            backgroundColor: Colors.white,
-            title: Container(
-              height: 80,
-              color: Colors.blue,
-              child: Icon(
-                Icons.contacts,
-                color: Colors.white,
-                size: 40,
-              ),
-            ),
-            content: Text(_appLocalization.getTraslateValue("send_Contacts_message"),
-                style: TextStyle(color: Colors.black, fontSize: 18)),
-            actions: <Widget>[
-              GestureDetector(
-                child: Text(
-                  _appLocalization.getTraslateValue("continue"),
-                  style: TextStyle(fontSize: 16, color: Colors.blue),
-                ),
-                onTap: () {
-                  _navigationToHome();
-                },
-              )
-            ],
-          );
-        });
-
   }
 
   _setErrorAndResetCode() {
@@ -183,9 +149,11 @@ class _VerificationPageState extends State<VerificationPage> {
                       currentCode: _verificationCode,
                       onCodeSubmitted: (code) {
                         _verificationCode = code;
+                        print(_verificationCode);
                         _sendVerificationCode();
                       },
                       onCodeChanged: (code) {
+                        print(_verificationCode);
                         _verificationCode = code;
                         if (code.length == 5) {
                           _sendVerificationCode();

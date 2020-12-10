@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -31,11 +29,11 @@ class _LoginPageState extends State<LoginPage> {
     var isValidated = _formKey?.currentState?.validate() ?? false;
     if (isValidated && phoneNumber != null) {
       try {
-        var result = await accountRepo.getVerificationCode(
+        await accountRepo.getVerificationCode(
             phoneNumber.countryCode, phoneNumber.number);
         ExtendedNavigator.of(context).push(Routes.verificationPage);
       } catch (e) {
-
+        print(e);
         Fluttertoast.showToast(
 //          TODO more detailed error message needed here.
             msg: appLocalization.getTraslateValue("error_occurred"),
