@@ -455,6 +455,7 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
                                              color: ExtraTheme.of(context).secondColor,
                                            ),
                                          )),
+                                     transitionOnUserGestures: true,
                                    ),
                                  );
                                } else {
@@ -486,6 +487,7 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
                                            color: ExtraTheme.of(context).secondColor,
                                          ),
                                        )),
+                                   transitionOnUserGestures: true,
                                  ),
                                );
                          }

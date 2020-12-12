@@ -122,6 +122,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                         ),
                                       ),
                                     ),
+                                    transitionOnUserGestures: true,
                                   ),
                                 )
                               ],
@@ -162,6 +163,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                                 ),
                                               ),
                                             ),
+                                            transitionOnUserGestures: true,
                                           ),
                                         )
                                       ],
@@ -242,7 +244,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                         bottom: 0.0,
                                         right: 0.0,
                                         child: Hero(
-                                          tag: "avatar$i",
+                                          tag: widget.heroTag,
                                           child: Container(
                                             decoration: new BoxDecoration(
                                               image: new DecorationImage(
@@ -253,6 +255,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                               ),
                                             ),
                                           ),
+                                          transitionOnUserGestures: true,
                                         ),
                                       ),
                                       FutureBuilder<String>(
@@ -314,7 +317,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                           bottom: 0.0,
                           right: 0.0,
                           child: Hero(
-                            tag: "avatar$i",
+                            tag: widget.heroTag,
                             child: Container(
                               decoration: new BoxDecoration(
                                 image: new DecorationImage(
@@ -325,6 +328,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                 ),
                               ),
                             ),
+                            transitionOnUserGestures: true,
                           ),
                         ),
                         Positioned(
@@ -370,7 +374,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                 bottom: 0.0,
                                 right: 0.0,
                                 child: Hero(
-                                  tag: "avatar$i",
+                                  tag: widget.heroTag,
                                   child: Container(
                                     decoration: new BoxDecoration(
                                       image: new DecorationImage(
@@ -379,6 +383,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                       ),
                                     ),
                                   ),
+                                  transitionOnUserGestures: true,
                                 ),
                               ),
                               Positioned(
