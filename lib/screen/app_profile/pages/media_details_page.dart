@@ -212,7 +212,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                         fileName = jsonDecode(snapshot
                             .data[snapshot.data.length - 1].json)["name"];
                          mediaSender = snapshot.data[snapshot.data.length-1].createdBy.uid;
-                        createdOn =DateTime.fromMicrosecondsSinceEpoch(snapshot.data[snapshot.data.length-1].createdOn);
+                        createdOn =DateTime.fromMillisecondsSinceEpoch(snapshot.data[snapshot.data.length-1].createdOn);
 
                       } else {
                         fileId = jsonDecode(snapshot
@@ -220,7 +220,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                         fileName = jsonDecode(snapshot
                             .data[snapshot.data.length - 2].json)["name"];
                          mediaSender = snapshot.data[snapshot.data.length-2].createdBy.uid;
-                        createdOn =DateTime.fromMicrosecondsSinceEpoch(snapshot.data[snapshot.data.length-2].createdOn);
+                        createdOn =DateTime.fromMillisecondsSinceEpoch(snapshot.data[snapshot.data.length-2].createdOn);
                       }
 
                       return FutureBuilder(

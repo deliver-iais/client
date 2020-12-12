@@ -373,14 +373,17 @@ class _ProfilePageState extends State<ProfilePage> {
                             ]),
                           ),
                         if (snapshot.data.imagesCount != 0)
-                          //Text("imagesssssssssssssss"),
+
                           imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo, _fileCache,snapshot.data.imagesCount),
+
                         if (snapshot.data.videosCount != 0)
                           Text("videooooooooooooooo"),
                         if (snapshot.data.filesCount != 0)
                           Text("fileeeeeeeeeee"),
                         if (snapshot.data.linkCount != 0)
-                          Text("linkkkkkkkkkkk"),
+
+                          linkWidget(widget.userUid, _mediaQueryRepo, snapshot.data.linkCount),
+
                         if (snapshot.data.documentsCount != 0)
                           Text("dooooooooccccccccc"),
                         if (snapshot.data.musicsCount != 0)
@@ -402,7 +405,7 @@ class _ProfilePageState extends State<ProfilePage> {
 Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo,LruCache mediaCache,int imagesCount) {
   var _routingService = GetIt.I.get<RoutingService>();
 
-  return FutureBuilder(
+  return FutureBuilder<List<Media>>(
           future: mediaQueryRepo.getMedia(userUid, FetchMediasReq_MediaType.IMAGES,imagesCount),
           builder: (BuildContext c, AsyncSnapshot snaps) {
             if (!snaps.hasData ||snaps.data == null || snaps.connectionState == ConnectionState.waiting) {
@@ -494,62 +497,30 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
                        }
                    );
             }}
-        );
+        );}
 
-
-
-
-  // child: GestureDetector(
-  //   // onTap: () {
-  //   //   _routingService.openShowAllMedia(
-  //   //     mediaPosition: position,
-  //   //     heroTag: "btn$position",
-  //   //     mediasLength: medias.length,
-  //   //   );
-  //   // },
-  //  child: Hero(
-  //       tag: "btn$position",
-  //       child: Container(
-  //         decoration: new BoxDecoration(
-  //           image: new DecorationImage(
-  //               // image: new NetworkImage(
-  //               //   medias[position].mediaUrl,
-  //               //    //imageList[position],
-  //               // ),
-  //               fit: BoxFit.cover),
-  //           border: Border.all(
-  //             width: 1,
-  //             color: ExtraTheme.of(context).secondColor,
-  //           ),
-  //         ),
-  //       ), // transitionOnUserGestures: true,
-  //
-  //   ),
-  // ),
-  //);
+Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo,int linksCount){
+ return FutureBuilder<List<Media>>(
+      future:  mediaQueryRepo.getMedia(userUid,FetchMediasReq_MediaType.LINKS,linksCount ),
+  builder: (BuildContext context,
+  AsyncSnapshot<List<Media>> snapshot) {
+    if (!snapshot.hasData ||snapshot.data == null || snapshot.connectionState == ConnectionState.waiting) {
+      return Container(width: 0.0, height: 0.0);}
+    else {
+      return ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          Text("File"),
+          Text("File"),
+          Text("File"),
+          Text("File"),
+          Text("File"),
+        ],
+      );
+    }
+  });
 
 }
-
-// Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo){
-//  return FutureBuilder<List<Media>>(
-//       future:  mediaQueryRepo.getLastMediasList(userUid.string, DateTime.now().microsecondsSinceEpoch,2020, FetchMediasReq_MediaType.LINKS, 50),
-//   builder: (BuildContext context,
-//   AsyncSnapshot<List<Media>> snapshot) {
-//   if (snapshot.hasData && snapshot.data.length != null) {
-//     return ListView(
-//       padding: EdgeInsets.zero,
-//       children: <Widget>[
-//         Text("File"),
-//         Text("File"),
-//         Text("File"),
-//         Text("File"),
-//         Text("File"),
-//       ],
-//     );
-//   }
-//   });
-//
-// }
 
 Widget _showUsername(String username) {
   return Padding(

@@ -158,7 +158,7 @@ class MediaQueryRepo {
       mediasList = await getLastMediasList(
           uid,
           mediaType,
-          DateTime.now().microsecondsSinceEpoch,
+          DateTime.now().millisecondsSinceEpoch,
           FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
       print("serverqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
       return mediasList;
