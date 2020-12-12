@@ -101,7 +101,7 @@ dependencies:
   test:
 
 
-  receive_sharing_intent: 1.4.2
+  receive_sharing_intent: 1.4.1
 
   flutter_icons: 1.1.0
 
