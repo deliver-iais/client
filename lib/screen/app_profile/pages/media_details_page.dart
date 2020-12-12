@@ -7,6 +7,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
@@ -42,8 +43,12 @@ class MediaDetailsPage extends StatefulWidget {
 }
 
 class _MediaDetailsPageState extends State<MediaDetailsPage> {
-
+  var fileId;
+  var fileName;
+  var mediaSender;
+  var createdOn;
   var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  var _roomRepo = GetIt.I.get<RoomRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
   var _avatarRepo = GetIt.I.get<AvatarRepo>();
   var _routingService = GetIt.I.get<RoutingService>();
@@ -189,16 +194,14 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             var media = _mediaCache.get("$i");
             if (media == null) {
               widget.heroTag = "btn$i";
-              return FutureBuilder(
+              return FutureBuilder<List<Media>>(
                   future: _mediaQueryRepo.getMediaAround(widget.uid.asString(), i,
                       FetchMediasReq_MediaType.IMAGES.value),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData || snapshot.data == null) {
                       return Center();
                     } else {
-                      var fileId;
-                      var fileName;
-                      var mediaSender;
+
                       setMediaUrlCache(i, snapshot.data);
                       _allMedias = snapshot.data;
                       if (i == widget.mediasLength - 1) {
@@ -206,14 +209,16 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                             .data[snapshot.data.length - 1].json)["uuid"];
                         fileName = jsonDecode(snapshot
                             .data[snapshot.data.length - 1].json)["name"];
-                        // mediaSender = snapshot.data[snapshot.data.length-1].createdOn;
+                         mediaSender = snapshot.data[snapshot.data.length-1].createdBy.uid;
+                        createdOn =DateTime.fromMicrosecondsSinceEpoch(snapshot.data[snapshot.data.length-1].createdOn);
 
                       } else {
                         fileId = jsonDecode(snapshot
                             .data[snapshot.data.length - 2].json)["uuid"];
                         fileName = jsonDecode(snapshot
                             .data[snapshot.data.length - 2].json)["name"];
-                        // mediaSender = snapshot.data[snapshot.data.length-2].createdOn;
+                         mediaSender = snapshot.data[snapshot.data.length-2].createdBy.uid;
+                        createdOn =DateTime.fromMicrosecondsSinceEpoch(snapshot.data[snapshot.data.length-2].createdOn);
                       }
 
                       return FutureBuilder(
@@ -250,24 +255,34 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                           ),
                                         ),
                                       ),
-                                      Positioned(
-                                        bottom: 0,
-                                        left: 0,
-                                        child: Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              10, 0, 0, 5),
-                                          child: Wrap(
-                                            direction: Axis.vertical,
-                                            runSpacing: 40,
-                                            children: [
-                                              //TODO showing media sender and time
-                                              //  Text(mediaSender.toString()),
-                                              SizedBox(height: 10),
-                                              //   Text(_mediaCache.get("$i").time),
-                                            ],
+                                      FutureBuilder<String>(
+                                        future: _roomRepo.getRoomDisplayName(mediaSender),
+                                        builder: (BuildContext c, AsyncSnapshot s) {
+                                          if(!s.hasData || s.data!=null || s.connectionState==ConnectionState.waiting){
+                                            return Center();
+                                          }else
+                                            {
+                                         return Positioned(
+                                          bottom: 0,
+                                          left: 0,
+                                          child: Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                10, 0, 0, 5),
+                                            child: Wrap(
+                                              direction: Axis.vertical,
+                                              runSpacing: 40,
+                                              children: [
+                                                //TODO showing media sender and time
+                                                  Text(s.data),
+                                                SizedBox(height: 10),
+                                                   Text("$createdOn"),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      )
+                                        );
+                           }
+                            },
+                                     )
                                     ],
                                   ),
                                 ),
@@ -324,7 +339,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                 //TODO showing media sender and time
                                 // Text(media.createdOn.toString()),
                                 SizedBox(height: 10),
-                                // Text(_mediaCache.get("$i").time),
+                                 Text("$createdOn"),
                               ],
                             ),
                           ),
@@ -379,7 +394,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                       //TODO showing media sender and time
                                       //  Text(media.createdOn.toString()),
                                       SizedBox(height: 10),
-                                      // Text(_mediaCache.get("$i").time),
+                                       Text("$createdOn"),
                                     ],
                                   ),
                                 ),
