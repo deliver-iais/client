@@ -245,10 +245,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                               builder: (context, currentRoomStream) {
                                 if (currentRoomStream.hasData) {
                                   Room currentRoom = currentRoomStream.data;
-                                  if (currentRoom.lastMessageId ==
-                                      _lastShowedMessageId) {
-                                    _lastShowedMessageId = -1;
-                                  }
                                   if (currentRoom.lastMessageId == null) {
                                     _itemCount = pendingMessages.length;
                                   } else {
