@@ -33,6 +33,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:flutter_link_preview/flutter_link_preview.dart';
 
 class ProfilePage extends StatefulWidget {
   final Uid userUid;
@@ -507,16 +508,29 @@ Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo,int linksCount){
     if (!snapshot.hasData ||snapshot.data == null || snapshot.connectionState == ConnectionState.waiting) {
       return Container(width: 0.0, height: 0.0);}
     else {
-      return ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          Text("File"),
-          Text("File"),
-          Text("File"),
-          Text("File"),
-          Text("File"),
-        ],
+      return ListView.builder(
+        itemCount: linksCount,
+        itemBuilder: (BuildContext ctx, int index){
+         return Column(
+           children: [
+             ListTile(
+               title: FlutterLinkPreview(
+                  url: jsonDecode(snapshot.data[index].json)["url"],
+                 bodyStyle: TextStyle(
+                   fontSize: 10.0,
+                 ),
+                 titleStyle: TextStyle(
+                   fontSize: 18.0,
+                   fontWeight: FontWeight.bold,
+                 ),
+                ),
+             ),
+             Divider(),
+           ],
+         );
+        },
       );
+
     }
   });
 
