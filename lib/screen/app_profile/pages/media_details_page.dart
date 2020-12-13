@@ -45,8 +45,8 @@ class MediaDetailsPage extends StatefulWidget {
 class _MediaDetailsPageState extends State<MediaDetailsPage> {
   var fileId;
   var fileName;
-  var mediaSender;
-  var createdOn;
+  Uid mediaSender;
+  DateTime createdOn;
   var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
@@ -54,11 +54,12 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   var _routingService = GetIt.I.get<RoutingService>();
   var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 5));
   var _mediaCache = LruCache<String, Media>(storage: SimpleStorage(size: 50));
+  var _mediaSenderCache = LruCache<String, String>(storage: SimpleStorage(size: 50));
 
   var isDeleting = false;
   List<Avatar> _allAvatars;
-  List<Media> _allMedias;
   var swipePosition;
+  String senderName;
 
   @override
   void dispose() {
@@ -203,9 +204,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                     if (!snapshot.hasData || snapshot.data == null) {
                       return Center();
                     } else {
-
                       setMediaUrlCache(i, snapshot.data);
-                      _allMedias = snapshot.data;
                       if (i == widget.mediasLength - 1) {
                         fileId = jsonDecode(snapshot
                             .data[snapshot.data.length - 1].json)["uuid"];
@@ -213,6 +212,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                             .data[snapshot.data.length - 1].json)["name"];
                          mediaSender = snapshot.data[snapshot.data.length-1].createdBy.uid;
                         createdOn =DateTime.fromMillisecondsSinceEpoch(snapshot.data[snapshot.data.length-1].createdOn);
+                        senderName = _mediaSenderCache.get(fileId);
 
                       } else {
                         fileId = jsonDecode(snapshot
@@ -221,6 +221,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                             .data[snapshot.data.length - 2].json)["name"];
                          mediaSender = snapshot.data[snapshot.data.length-2].createdBy.uid;
                         createdOn =DateTime.fromMillisecondsSinceEpoch(snapshot.data[snapshot.data.length-2].createdOn);
+                        senderName = _mediaSenderCache.get(fileId);
                       }
 
                       return FutureBuilder(
@@ -258,34 +259,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                           transitionOnUserGestures: true,
                                         ),
                                       ),
-                                      FutureBuilder<String>(
-                                        future: _roomRepo.getRoomDisplayName(mediaSender),
-                                        builder: (BuildContext c, AsyncSnapshot s) {
-                                          if(!s.hasData || s.data!=null || s.connectionState==ConnectionState.waiting){
-                                            return Center();
-                                          }else
-                                            {
-                                         return Positioned(
-                                          bottom: 0,
-                                          left: 0,
-                                          child: Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                10, 0, 0, 5),
-                                            child: Wrap(
-                                              direction: Axis.vertical,
-                                              runSpacing: 40,
-                                              children: [
-                                                //TODO showing media sender and time
-                                                  Text(s.data),
-                                                SizedBox(height: 10),
-                                                   Text("$createdOn"),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                           }
-                            },
-                                     )
+                                      buildBottomAppBar(mediaSender,createdOn,senderName,fileId),
                                     ],
                                   ),
                                 ),
@@ -300,7 +274,10 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               widget.heroTag = "btn$i";
               var fileId = jsonDecode(media.json)["uuid"];
               var fileName = jsonDecode(media.json)["name"];
+              mediaSender = media.createdBy.uid;
+              createdOn =DateTime.fromMillisecondsSinceEpoch(media.createdOn);
               var file = _fileCache.get(fileId);
+              senderName=_mediaSenderCache.get(fileId);
 
               if (file != null)
                 return Center(
@@ -331,23 +308,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                             transitionOnUserGestures: true,
                           ),
                         ),
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(10, 0, 0, 5),
-                            child: Wrap(
-                              direction: Axis.vertical,
-                              runSpacing: 40,
-                              children: [
-                                //TODO showing media sender and time
-                                // Text(media.createdOn.toString()),
-                                SizedBox(height: 10),
-                                 Text("$createdOn"),
-                              ],
-                            ),
-                          ),
-                        )
+                        buildBottomAppBar(mediaSender,createdOn,senderName,fileId),
                       ],
                     ),
                   ), // transitionOnUserGestures: true,
@@ -386,27 +347,10 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                   transitionOnUserGestures: true,
                                 ),
                               ),
-                              Positioned(
-                                bottom: 0,
-                                left: 0,
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(10, 0, 0, 5),
-                                  child: Wrap(
-                                    direction: Axis.vertical,
-                                    runSpacing: 40,
-                                    children: [
-                                      //TODO showing media sender and time
-                                      //  Text(media.createdOn.toString()),
-                                      SizedBox(height: 10),
-                                       Text("$createdOn"),
-                                    ],
-                                  ),
-                                ),
-                              )
+                              buildBottomAppBar(mediaSender,createdOn,senderName,fileId),
                             ],
                           ),
-                        ), // transitionOnUserGestures: true,
+                        ),
                       );
                     } else {
                       return Center();
@@ -432,7 +376,56 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       _mediaCache.set("${currentPosition + shift + j}", mediaList[j]);
     }
   }
+  Widget buildBottomAppBar(Uid mediaSender,DateTime createdOn,var name,var fileId){
 
+    if(name==null){
+      return FutureBuilder<String>(
+      future: _roomRepo.getRoomDisplayName(mediaSender),
+      builder: (BuildContext c, AsyncSnapshot s) {
+        if(!s.hasData || s.data==null || s.connectionState==ConnectionState.waiting){
+          return Center();
+        }else {
+          print("frombuilderrrrrrrrrrrrrrrrrrrrr");
+          _mediaSenderCache.set(fileId,s.data);
+          return Positioned(
+            bottom: 0,
+            left: 0,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  10, 0, 0, 5),
+              child: Wrap(
+                direction: Axis.vertical,
+                runSpacing: 40,
+                children: [
+                  Text("${s.data}"),
+                  SizedBox(height: 10),
+                  Text("$createdOn"),
+                ],
+              ),
+            ),
+          );
+        }
+      },
+    );} else{
+      print("fromcacheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+      return Positioned(
+      bottom: 0,
+      left: 0,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+            10, 0, 0, 5),
+        child: Wrap(
+          direction: Axis.vertical,
+          runSpacing: 40,
+          children: [
+            Text("$name"),
+            SizedBox(height: 10),
+            Text("$createdOn"),
+          ],
+        ),
+      ),
+    );}
+  }
   Widget buildAppBar(int currentPosition, totalLength) {
     return AppBar(
       leading: _routingService.backButtonLeading(),

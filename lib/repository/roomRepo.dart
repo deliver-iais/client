@@ -30,7 +30,7 @@ class RoomRepo {
         return "Deliver";
         break;
       case Categories.USER:
-        if(_accountRepo.currentUserUid==uid){
+        if(_accountRepo.currentUserUid.node==uid.node){
          Account account= await _accountRepo.getAccount();
          return "${account.firstName} ${account.lastName}";
         }
