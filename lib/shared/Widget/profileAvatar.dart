@@ -242,13 +242,14 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                             ? _appLocalization.getTraslateValue("leftGroup")
                             : _appLocalization.getTraslateValue("leftChannel")),
                         value: "leftMuc"),
-                    if (_deleteMucPermission)
-                      new PopupMenuItem<String>(
-                          child: Text(_mucType == MucType.GROUP
-                              ? _appLocalization.getTraslateValue("deleteGroup")
-                              : _appLocalization
-                                  .getTraslateValue("deleteChannel")),
-                          value: "deleteMuc"),
+//todo delete muc
+//                    if (_deleteMucPermission)
+//                      new PopupMenuItem<String>(
+//                          child: Text(_mucType == MucType.GROUP
+//                              ? _appLocalization.getTraslateValue("deleteGroup")
+//                              : _appLocalization
+//                                  .getTraslateValue("deleteChannel")),
+//                          value: "deleteMuc"),
                     if (_setAvatarPermission)
                       new PopupMenuItem<String>(
                           child: Text(
