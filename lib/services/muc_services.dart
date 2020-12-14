@@ -54,11 +54,17 @@ class MucServices {
   }
 
   Future<GroupServices.Group> getGroup(Uid groupUid) async {
-    var request = await groupServices.getGroup(
-        GroupServices.GetGroupReq()..uid = groupUid,
-        options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-    return request.group;
+    try {
+      var request = await groupServices.getGroup(
+          GroupServices.GetGroupReq()..uid = groupUid,
+          options: CallOptions(
+            metadata: {'accessToken': await _accountRepo.getAccessToken()},
+            timeout: Duration(seconds: 2),
+          ));
+      return request.group;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<bool> removeGroup(Uid groupUid) async {

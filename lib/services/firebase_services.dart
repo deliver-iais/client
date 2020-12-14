@@ -20,6 +20,7 @@ class FireBaseServices {
     _firebaseMessaging.requestNotificationPermissions();
     var fireBaseToken = await _firebaseMessaging.getToken();
     _sendFireBaseToken(fireBaseToken);
+    print("@@@@@@@@"+fireBaseToken);
     _setFirebaseSetting(context);
   }
 
@@ -34,6 +35,7 @@ class FireBaseServices {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         print("new message");
+        print("#######################"+message.toString());
         if (message.containsKey("notification")) {
           notificationServices.showTextNotification(
               1,
