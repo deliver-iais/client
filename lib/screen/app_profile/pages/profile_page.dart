@@ -388,7 +388,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         if (snapshot.data.documentsCount != 0)
                           Text("dooooooooccccccccc"),
                         if (snapshot.data.musicsCount != 0)
-                          Text("musiccccccccccc"),
+                          musicWidget(widget.userUid, _mediaQueryRepo, snapshot.data.musicsCount),
                         if (snapshot.data.audiosCount != 0)
                           Text("audioooooooo"),
                       ])))));
@@ -501,6 +501,7 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
         );}
 
 Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo,int linksCount){
+  //TODO i just implemented and not tested because server problem
  return FutureBuilder<List<Media>>(
       future:  mediaQueryRepo.getMedia(userUid,FetchMediasReq_MediaType.LINKS,linksCount ),
   builder: (BuildContext context,
@@ -534,6 +535,58 @@ Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo,int linksCount){
     }
   });
 
+}
+
+Widget musicWidget(Uid userUid , MediaQueryRepo mediaQueryRepo,int musicCount){
+  // return FutureBuilder<List<Media>>(
+  //     future:  mediaQueryRepo.getMedia(userUid,FetchMediasReq_MediaType.MUSICS,musicCount ),
+  //     builder: (BuildContext context,
+  //         AsyncSnapshot<List<Media>> snapshot) {
+  //       if (!snapshot.hasData ||snapshot.data == null || snapshot.connectionState == ConnectionState.waiting) {
+  //         return Container(width: 0.0, height: 0.0);}
+  //       else {
+          return ListView.builder(
+            itemCount: musicCount,
+            itemBuilder: (BuildContext ctx, int index){
+              return Row(
+                children: [
+                  Stack(
+                    children:<Widget> [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: new BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.black12
+
+                        ),
+                      ),
+                      Positioned(
+                        child: IconButton(
+                            padding: EdgeInsets.all(0),
+                            alignment: Alignment.center,
+                            icon: Icon(
+                              Icons.play_arrow,
+                             // color: Theme.of(context).primaryColor,
+                              size: 40,
+                            ),
+                           ),
+                        top: 130.0,
+                        left: 130.0,
+                        right: 130.0,
+                        bottom: 130,
+                      ),
+                    ],
+
+                  )
+
+                ],
+              );
+            },
+          );
+
+      //   }
+      // });
 }
 
 Widget _showUsername(String username) {
