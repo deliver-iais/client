@@ -65,23 +65,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   bool _waitingForForwardedMessage;
   bool _isMuc;
   bool _hasPermissionToSendMessage = true;
-  Message _replyedMessage;
+  Message _repliedMessage;
   Map<String, Message> _selectedMessages = Map();
   AppLocalization _appLocalization;
   bool _selectMultiMessage = false;
   int _lastShowedMessageId = -1;
   int _itemCount;
-
   int _replayMessageId = -1;
-
   ScrollPhysics _scrollPhysics = AlwaysScrollableScrollPhysics();
-
   int _currentMessageSearchId = -1;
-
   final ItemScrollController _itemScrollController = ItemScrollController();
-
   Subject<int> _lastSeenSubject = BehaviorSubject.seeded(-1);
-
   Cache<int, Message> _cache =
       LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
 
@@ -121,7 +115,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   void _resetRoomPageDetails() {
     setState(() {
-      _replyedMessage = null;
+      _repliedMessage = null;
       _waitingForForwardedMessage = false;
     });
   }
@@ -131,7 +125,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         widget.roomId.uid, widget.forwardedMessages);
     setState(() {
       _waitingForForwardedMessage = false;
-      _replyedMessage = null;
+      _repliedMessage = null;
     });
   }
 
@@ -146,10 +140,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
       setState(() {
         if (opr == OperationOnMessage.REPLY) {
-          _replyedMessage = message;
+          _repliedMessage = message;
           _waitingForForwardedMessage = false;
         } else if (opr == OperationOnMessage.FORWARD) {
-          _replyedMessage = null;
+          _repliedMessage = null;
           _routingService.openSelectForwardMessage([message]);
         }
       });
@@ -180,11 +174,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       }
     });
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
@@ -250,9 +239,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                               });
                         });
                   }),
-              _replyedMessage != null
+              _repliedMessage != null
                   ? ReplyWidget(
-                      message: _replyedMessage,
+                      message: _repliedMessage,
                       resetRoomPageDetails: _resetRoomPageDetails)
                   : Container(),
               _waitingForForwardedMessage
@@ -268,8 +257,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               _hasPermissionToSendMessage
                   ? NewMessageInput(
                       currentRoomId: widget.roomId,
-                      replyMessageId: _replyedMessage != null
-                          ? _replyedMessage.id ?? -1
+                      replyMessageId: _repliedMessage != null
+                          ? _repliedMessage.id ?? -1
                           : -1,
                       resetRoomPageDetails: _resetRoomPageDetails,
                       waitingForForward: _waitingForForwardedMessage,
@@ -308,9 +297,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   ScrollablePositionedList buildMessagesListView(
       Room currentRoom, List pendingMessages, double _maxWidth) {
-    int month;
-    int day;
-    bool newTime;
     // TODO check day on 00:00
     return ScrollablePositionedList.builder(
       itemCount: _itemCount,
@@ -343,27 +329,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               if (messages.length == 0) {
                 return Container();
               } else if (messages.length > 0) {
-                month = messages[0].time.month;
-                day = messages[0].time.day;
                 if (!(messages[0]
                     .from
                     .isSameEntity(_accountRepo.currentUserUid)))
                   _lastSeenSubject.add(currentRoom.lastMessageId);
               }
-
-              newTime = false;
-              if (messages.length > 1 && messages[1] != null) {
-                if (messages[1].time.day != day ||
-                    messages[1].time.month != month) {
-                  newTime = true;
-                  day = messages[1].time.day;
-                  month = messages[1].time.month;
-                }
-              }
-
+              print(messages);
               return Column(
                 children: <Widget>[
-                  newTime ? ChatTime(t: messages[0].time) : Container(),
+                  ChatTime(
+                      currentMessageTime: messages[0].time,
+                      previousMessageTime:
+                          messages.length > 1 ? messages[1].time : null),
                   currentRoom.lastMessageId != null
                       ? _lastShowedMessageId != -1 &&
                               _lastShowedMessageId ==
