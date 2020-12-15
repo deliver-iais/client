@@ -182,11 +182,11 @@ class MessageRepo {
       ..height = tempDimension.height
       ..type = tempType
       ..size = Int64(tempFileSize)
-      ..name = path.split('/').last
+      ..name = path.split(".").last
       ..duration = 0;
 
     await _fileRepo.cloneFileInLocalDirectory(
-        file, packetId, file.path.split('/').last);
+        file, packetId, path.split('.').last);
 
     MessagesCompanion message = MessagesCompanion.insert(
         roomId: room.asString(),
@@ -398,7 +398,7 @@ class MessageRepo {
   }
 
   Future<List<Message>> getPage(int page, String roomId, int containsId,
-      {int pageSize = 50}) async {
+      {int pageSize = 40}) async {
     var completer = _completerMap["$roomId-$page"];
 
     if (completer != null && !completer.isCompleted) {
@@ -415,7 +415,7 @@ class MessageRepo {
           var fetchMessagesRes = await _queryServiceClient.fetchMessages(
               FetchMessagesReq()
                 ..roomUid = roomId.uid
-                ..pointer = Int64(containsId)
+                ..pointer = Int64(page * pageSize)
                 ..type = FetchMessagesReq_Type.FORWARD_FETCH
                 ..limit = pageSize,
               options: CallOptions(metadata: {
