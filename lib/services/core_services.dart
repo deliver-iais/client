@@ -76,11 +76,13 @@ class CoreServices {
     responseChecked = false;
     Timer(new Duration(seconds: backoffTime), () {
       if (!responseChecked) {
-        if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO)
-          _connectionStatus.add(ConnectionStatus.Disconnected);
+        if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
+          backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
+        } else {
+          backoffTime = MIN_BACKOFF_TIME;
+        }
+        _connectionStatus.add(ConnectionStatus.Disconnected);
         startStream();
-      } else {
-        backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
       }
       startCheckerTimer();
     });
