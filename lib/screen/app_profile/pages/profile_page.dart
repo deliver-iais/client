@@ -12,6 +12,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -34,6 +35,9 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:flutter_link_preview/flutter_link_preview.dart';
+import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
+
 
 class ProfilePage extends StatefulWidget {
   final Uid userUid;
@@ -61,7 +65,10 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
   }
-
+  download(String uuid, String name) async {
+    await GetIt.I.get<FileRepo>().getFile(uuid, name);
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -374,8 +381,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             ]),
                           ),
                         if (snapshot.data.imagesCount != 0)
-
-                          imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo, _fileCache,snapshot.data.imagesCount),
+                          Text("imagessssssssssssssssssss"),
+                         // imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo, _fileCache,snapshot.data.imagesCount),
 
                         if (snapshot.data.videosCount != 0)
                           Text("videooooooooooooooo"),
@@ -388,7 +395,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         if (snapshot.data.documentsCount != 0)
                           Text("dooooooooccccccccc"),
                         if (snapshot.data.musicsCount != 0)
-                          musicWidget(widget.userUid, _mediaQueryRepo, snapshot.data.musicsCount),
+                          musicWidget(widget.userUid, _fileRepo,_mediaQueryRepo, snapshot.data.musicsCount,download),
                         if (snapshot.data.audiosCount != 0)
                           Text("audioooooooo"),
                       ])))));
@@ -537,56 +544,69 @@ Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo,int linksCount){
 
 }
 
-Widget musicWidget(Uid userUid , MediaQueryRepo mediaQueryRepo,int musicCount){
-  // return FutureBuilder<List<Media>>(
-  //     future:  mediaQueryRepo.getMedia(userUid,FetchMediasReq_MediaType.MUSICS,musicCount ),
-  //     builder: (BuildContext context,
-  //         AsyncSnapshot<List<Media>> snapshot) {
-  //       if (!snapshot.hasData ||snapshot.data == null || snapshot.connectionState == ConnectionState.waiting) {
-  //         return Container(width: 0.0, height: 0.0);}
-  //       else {
+Widget musicWidget(Uid userUid , FileRepo fileRepo,MediaQueryRepo mediaQueryRepo,int musicCount,Function download){
+  return FutureBuilder<List<Media>>(
+      future:  mediaQueryRepo.getMedia(userUid,FetchMediasReq_MediaType.MUSICS,musicCount ),
+      builder: (BuildContext context,
+          AsyncSnapshot<List<Media>> media) {
+        if (!media.hasData ||media.data == null || media.connectionState == ConnectionState.waiting) {
+          return Container(width: 0.0, height: 0.0);}
+        else {
           return ListView.builder(
             itemCount: musicCount,
             itemBuilder: (BuildContext ctx, int index){
-              return Row(
-                children: [
-                  Stack(
-                    children:<Widget> [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: new BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.black12
-
-                        ),
-                      ),
-                      Positioned(
-                        child: IconButton(
+              var fileId = jsonDecode(media.data[index].json)["uuid"];
+              var fileName = jsonDecode(media.data[index].json)["name"];
+              filePb.File file = media.data[index].json.toFile();
+              return FutureBuilder<bool>(
+                future: fileRepo.isExist(fileId, fileName),
+                builder: (context, isExist) {
+                  //jsonDecode(media.data[index].json)["type"].contains("mp3")
+                  if (isExist.hasData && isExist.data) {
+                    return Row(
+                        children: <Widget>[
+                          PlayAudioStatus(
+                            file: file,
+                           // dbId: messageDbId,
+                          ),
+                          Text(fileName,
+                                style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold)),
+                        ]
+                    );
+                  }else{
+                    return Row(
+                        children: <Widget>[
+                          IconButton(
                             padding: EdgeInsets.all(0),
                             alignment: Alignment.center,
                             icon: Icon(
-                              Icons.play_arrow,
-                             // color: Theme.of(context).primaryColor,
-                              size: 40,
+                              Icons.arrow_downward,
+                              color: Theme.of(context).primaryColor,
+                              size: 35,
                             ),
-                           ),
-                        top: 130.0,
-                        left: 130.0,
-                        right: 130.0,
-                        bottom: 130,
-                      ),
-                    ],
+                            onPressed: () {
+                              download(fileId,fileName);
+                              // setState(() {
+                              //   startDownload = true;
+                              // });
 
-                  )
-
-                ],
-              );
-            },
+                            },
+                          ),
+                          Text(fileName,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold)),
+                        ]
+                    );
+                  }
+                });
+           },
           );
 
-      //   }
-      // });
+        }
+      });
 }
 
 Widget _showUsername(String username) {

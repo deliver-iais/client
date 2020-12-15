@@ -28,7 +28,7 @@ class CircularFileStatusIndicator extends StatelessWidget {
         return file.type.contains("audio") || file.type.contains("mp3")
             ? PlayAudioStatus(
                 file: file,
-                dbId: messageDbId,
+               // dbId: messageDbId,
               )
             : file.type == 'file'
                 ? OpenFileStatus(
