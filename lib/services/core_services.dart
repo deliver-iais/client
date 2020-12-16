@@ -238,7 +238,7 @@ class CoreServices {
     );
 
     var roomName = await RoomRepo().getRoomDisplayName(roomUid);
-    _notificationServices.showNotification(msg, roomName, roomUid.asString());
+    _notificationServices.showNotification(message, roomName, roomUid.asString());
   }
 
   saveMessageInMessagesDB(Message message) async {

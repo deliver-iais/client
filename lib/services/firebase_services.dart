@@ -1,6 +1,9 @@
+import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
@@ -8,11 +11,14 @@ import 'package:grpc/grpc.dart';
 
 import 'notification_services.dart';
 
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+
 class FireBaseServices {
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
-  var notificationServices = GetIt.I.get<NotificationServices>();
-  var accountRepo = GetIt.I.get<AccountRepo>();
+  var _notificationServices = GetIt.I.get<NotificationServices>();
+  var _accountRepo = GetIt.I.get<AccountRepo>();
+  var _messageDao = GetIt.I.get<MessageDao>();
 
   var fireBaseServices = FirebaseServiceClient(FirebaseServicesClientChannel);
 
@@ -20,7 +26,7 @@ class FireBaseServices {
     _firebaseMessaging.requestNotificationPermissions();
     var fireBaseToken = await _firebaseMessaging.getToken();
     _sendFireBaseToken(fireBaseToken);
-    print("@@@@@@@@"+fireBaseToken);
+    print("@@@@@@@@" + fireBaseToken);
     _setFirebaseSetting(context);
   }
 
@@ -28,16 +34,31 @@ class FireBaseServices {
     await fireBaseServices.registration(
         RegistrationReq()..tokenId = fireBaseToken,
         options: CallOptions(
-            metadata: {'accessToken': await accountRepo.getAccessToken()}));
+            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
   }
 
   _setFirebaseSetting(BuildContext context) {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
+        Message mes = _getMappedMessage(message["notification"]["body"]);
+
+        var msg = await _messageDao.getMessageById(
+          mes.id.toInt(),
+          mes.whichType() == Message_Type.persistEvent
+              ? mes.from.asString()
+              : mes.from.node.contains(_accountRepo.currentUserUid.node)
+                  ? mes.to.asString()
+                  : mes.to.category == Categories.USER
+                      ? mes.from.asString()
+                      : mes.to.asString(),
+        );
+        if (msg[0] == null) {
+          return;
+        }
         print("new message");
-        print("#######################"+message.toString());
+        print("#######################" + message.toString());
         if (message.containsKey("notification")) {
-          notificationServices.showTextNotification(
+          _notificationServices.showTextNotification(
               1,
               message["notification"]["title"],
               message["notification"]["title"],
@@ -60,6 +81,8 @@ class FireBaseServices {
     );
   }
 }
+
+Message _getMappedMessage(String notificationBody) {}
 
 Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
   if (message.containsKey('data')) {

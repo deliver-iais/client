@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:deliver_flutter/db/database.dart' as db;
-import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 
@@ -10,7 +10,8 @@ class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   NotificationDetails _notificationDetails;
   var _routinServices = GetIt.I.get<RoutingService>();
-  String _currentRoomId;
+
+  var _messageRepo = GetIt.I.get<MessageRepo>();
 
   Map<String, String> _notificationMessage = Map();
 
@@ -93,45 +94,40 @@ class NotificationServices {
   }
 
   void showNotification(
-      db.Message message, String roomName, String roomUid) async {
+      pro.Message message, String roomName, String roomUid) async {
     try {
       cancelNotification(message.id - 1);
-      switch (message.type) {
-        case MessageType.TEXT:
+      switch (message.whichType()) {
+        case pro.Message_Type.persistEvent:
+        case pro.Message_Type.text:
           showTextNotification(
-              message.id, roomUid, roomName, jsonDecode(message.json)['1']);
+              message.id.toInt(), roomUid, roomName, jsonDecode(message.text.text)['1']);
           break;
-        case MessageType.FILE:
+        case pro.Message_Type.file:
           showTextNotification(
-              message.id, roomUid, roomName, "File");
+              message.id.toInt(), roomUid, roomName, "File");
           break;
-        case MessageType.STICKER:
+        case pro.Message_Type.sticker:
           // TODO: Handle this case.
           break;
-        case MessageType.LOCATION:
+        case pro.Message_Type.location:
           // TODO: Handle this case.
           break;
-        case MessageType.LIVE_LOCATION:
+        case pro.Message_Type.liveLocation:
           // TODO: Handle this case.
           break;
-        case MessageType.POLL:
+        case pro.Message_Type.poll:
           // TODO: Handle this case.
           break;
-        case MessageType.FORM:
+        case pro.Message_Type.form:
           // TODO: Handle this case.
           break;
-        case MessageType.PERSISTENT_EVENT:
-          // TODO: Handle this case.
-          break;
-        case MessageType.NOT_SET:
-          // TODO: Handle this case.
-          break;
+
       }
     } catch (e) {}
   }
 
   void reset(String roomId) {
-    _currentRoomId = roomId;
     _notificationMessage[roomId] = " ";
   }
 }
