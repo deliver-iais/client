@@ -79,7 +79,6 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context, snapshot) {
         tabsCount = 0;
         if (snapshot.hasData) {
-          print("mediaaaaaaaaaaaaaaaaaaaaCounttttttttttttttttt${snapshot.data.imagesCount}");
 
           if (snapshot.data.imagesCount != 0) {
             tabsCount = tabsCount + 1;
@@ -98,6 +97,7 @@ class _ProfilePageState extends State<ProfilePage> {
             tabsCount = tabsCount + 1;
           }
           if (snapshot.data.musicsCount != 0) {
+            print("mediaaaaaaaaaaaaaaaaaaaaCounttttttttttttttttt${snapshot.data.musicsCount}");
             tabsCount = tabsCount + 1;
           }
           if (snapshot.data.audiosCount != 0) {
