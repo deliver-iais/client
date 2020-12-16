@@ -40,7 +40,6 @@ class FireBaseServices {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         Message mes = _getMappedMessage(message["notification"]["body"]);
-
         // var msg = await _messageDao.getMessageById(
         //   mes.id.toInt(),
         //   mes.whichType() == Message_Type.persistEvent
@@ -75,7 +74,6 @@ class FireBaseServices {
       },
       onResume: (Map<String, dynamic> message) async {
         print("onResume: $message");
-
         //todo
       },
     );

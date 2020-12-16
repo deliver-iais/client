@@ -11,7 +11,6 @@ class NotificationServices {
   NotificationDetails _notificationDetails;
   var _routinServices = GetIt.I.get<RoutingService>();
 
-  var _messageRepo = GetIt.I.get<MessageRepo>();
 
   Map<String, String> _notificationMessage = Map();
   Map<String,int> _notificationMap = Map();
