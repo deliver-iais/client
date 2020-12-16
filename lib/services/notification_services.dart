@@ -14,6 +14,7 @@ class NotificationServices {
   var _messageRepo = GetIt.I.get<MessageRepo>();
 
   Map<String, String> _notificationMessage = Map();
+  Map<String,int> _notificationMap = Map();
 
   NotificationServices() {
     var androidNotificationSetting =
@@ -95,7 +96,11 @@ class NotificationServices {
 
   void showNotification(
       pro.Message message, String roomName, String roomUid) async {
+    if(_notificationMap[roomUid] != null && _notificationMap[roomUid]<= message.id.toInt()){
+      return;
+    }
     try {
+      _notificationMap[roomUid] == message.id;
       cancelNotification(message.id - 1);
       switch (message.whichType()) {
         case pro.Message_Type.persistEvent:

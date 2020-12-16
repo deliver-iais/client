@@ -18,7 +18,6 @@ class FireBaseServices {
 
   var _notificationServices = GetIt.I.get<NotificationServices>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _messageDao = GetIt.I.get<MessageDao>();
 
   var fireBaseServices = FirebaseServiceClient(FirebaseServicesClientChannel);
 
@@ -42,27 +41,28 @@ class FireBaseServices {
       onMessage: (Map<String, dynamic> message) async {
         Message mes = _getMappedMessage(message["notification"]["body"]);
 
-        var msg = await _messageDao.getMessageById(
-          mes.id.toInt(),
-          mes.whichType() == Message_Type.persistEvent
-              ? mes.from.asString()
-              : mes.from.node.contains(_accountRepo.currentUserUid.node)
-                  ? mes.to.asString()
-                  : mes.to.category == Categories.USER
-                      ? mes.from.asString()
-                      : mes.to.asString(),
-        );
-        if (msg[0] == null) {
-          return;
-        }
+        // var msg = await _messageDao.getMessageById(
+        //   mes.id.toInt(),
+        //   mes.whichType() == Message_Type.persistEvent
+        //       ? mes.from.asString()
+        //       : mes.from.node.contains(_accountRepo.currentUserUid.node)
+        //           ? mes.to.asString()
+        //           : mes.to.category == Categories.USER
+        //               ? mes.from.asString()
+        //               : mes.to.asString(),
+        // );
+        // if (msg[0] != null) {
+        //   return;
+        // }
         print("new message");
         print("#######################" + message.toString());
         if (message.containsKey("notification")) {
-          _notificationServices.showTextNotification(
-              1,
-              message["notification"]["title"],
-              message["notification"]["title"],
-              message["notification"]["body"]);
+          bool isCurrentUser =
+          mes.from.node.contains(_accountRepo.currentUserUid.node);
+          var roomUid = isCurrentUser
+              ? mes.to
+              : (mes.to.category == Categories.USER ? mes.from : mes.to);
+          _notificationServices.showNotification(mes, " ", roomUid.asString());
         }
         if (message.containsKey("data")) {
           // todo
