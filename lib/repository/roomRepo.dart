@@ -19,6 +19,7 @@ class RoomRepo {
   var _mucDao = GetIt.I.get<MucDao>();
   var _contactDao = GetIt.I.get<ContactDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
+  var _contactRepo = GetIt.I.get<ContactRepo>();
 
   Future<String> getRoomDisplayName(Uid uid) async {
     switch (uid.category) {
@@ -57,7 +58,7 @@ class RoomRepo {
   }
 
   Future<String> _searchByUid(Uid uid) async {
-    UserAsContact userAsContact = null;   // todo    //await _contactRepo.searchUserByUid(uid);
+    UserAsContact userAsContact = await _contactRepo.searchUserByUid(uid);
     if(userAsContact != null){
       return userAsContact.username;
     }

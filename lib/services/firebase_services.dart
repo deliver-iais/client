@@ -61,7 +61,7 @@ class FireBaseServices {
           var roomUid = isCurrentUser
               ? mes.to
               : (mes.to.category == Categories.USER ? mes.from : mes.to);
-          _notificationServices.showNotification(mes, " ", roomUid.asString());
+          _notificationServices.showNotification(mes, roomUid.asString());
         }
         if (message.containsKey("data")) {
           // todo

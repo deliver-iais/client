@@ -75,22 +75,18 @@ void setupRepositories() {
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
+  getIt.registerSingleton<ContactRepo>(ContactRepo());
+  getIt.registerSingleton<RoomRepo>(RoomRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<CreateMucService>(CreateMucService());
   getIt.registerSingleton<RoutingService>(RoutingService());
+  getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<MucRepo>(MucRepo());
-  getIt.registerSingleton<RoomRepo>(RoomRepo());
-  getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<CoreServices>(CoreServices());
-
   getIt.registerSingleton<QueryServiceClient>(
       QueryServiceClient(QueryClientChannel));
-
   getIt.registerSingleton<MessageRepo>(MessageRepo());
-  getIt.registerSingleton<ContactRepo>(ContactRepo());
-
-
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
   getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());
 

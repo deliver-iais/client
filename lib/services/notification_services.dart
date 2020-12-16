@@ -1,15 +1,18 @@
 import 'dart:convert';
 
 import 'package:deliver_flutter/repository/messageRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   NotificationDetails _notificationDetails;
   var _routinServices = GetIt.I.get<RoutingService>();
+  var _roomRepo = GetIt.I.get<RoomRepo>();
 
 
   Map<String, String> _notificationMessage = Map();
@@ -94,11 +97,12 @@ class NotificationServices {
   }
 
   void showNotification(
-      pro.Message message, String roomName, String roomUid) async {
+      pro.Message message,  String roomUid) async {
     if(_notificationMap[roomUid] != null && _notificationMap[roomUid]<= message.id.toInt()){
       return;
     }
     try {
+      String roomName = await _roomRepo.getRoomDisplayName(roomUid.getUid());
       _notificationMap[roomUid] == message.id;
       cancelNotification(message.id - 1);
       switch (message.whichType()) {
