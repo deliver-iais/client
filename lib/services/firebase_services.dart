@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
@@ -39,20 +41,7 @@ class FireBaseServices {
   _setFirebaseSetting(BuildContext context) {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-        Message mes = _getMappedMessage(message["notification"]["body"]);
-        // var msg = await _messageDao.getMessageById(
-        //   mes.id.toInt(),
-        //   mes.whichType() == Message_Type.persistEvent
-        //       ? mes.from.asString()
-        //       : mes.from.node.contains(_accountRepo.currentUserUid.node)
-        //           ? mes.to.asString()
-        //           : mes.to.category == Categories.USER
-        //               ? mes.from.asString()
-        //               : mes.to.asString(),
-        // );
-        // if (msg[0] != null) {
-        //   return;
-        // }
+        Message mes = _decodeMessage(message["notification"]["body"]);
         print("new message");
         print("#######################" + message.toString());
         if (message.containsKey("notification")) {
@@ -80,7 +69,10 @@ class FireBaseServices {
   }
 }
 
-Message _getMappedMessage(String notificationBody) {}
+Message _decodeMessage(String notificationBody) {
+  final dataTitle64 = base64.decode(notificationBody);
+  return Message.fromBuffer(dataTitle64);
+}
 
 Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
   if (message.containsKey('data')) {
