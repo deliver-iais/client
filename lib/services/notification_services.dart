@@ -108,8 +108,9 @@ class NotificationServices {
       switch (message.whichType()) {
         case pro.Message_Type.persistEvent:
         case pro.Message_Type.text:
+
           showTextNotification(
-              message.id.toInt(), roomUid, roomName, jsonDecode(message.text.text)['1']);
+              message.id.toInt(), roomUid, roomName, message.text.text);
           break;
         case pro.Message_Type.file:
           showTextNotification(

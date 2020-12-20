@@ -8,6 +8,8 @@ import 'package:deliver_flutter/repository/avatarRepo.dart';
 
 import 'package:deliver_flutter/services/routing_service.dart';
 
+import 'package:deliver_flutter/services/firebase_services.dart';
+
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profile_avatar_card.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
@@ -33,6 +35,8 @@ class _SettingsPageState extends State<SettingsPage> {
   final _uxService = GetIt.I.get<UxService>();
 
   final _accountRepo = GetIt.I.get<AccountRepo>();
+
+  var fi  = GetIt.I.get<FireBaseServices>();
 
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
 

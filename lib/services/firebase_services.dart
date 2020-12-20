@@ -23,22 +23,27 @@ class FireBaseServices {
 
   var fireBaseServices = FirebaseServiceClient(FirebaseServicesClientChannel);
 
-  sendFireBaseToken(BuildContext context) async {
+  sendFireBaseToken() async {
     _firebaseMessaging.requestNotificationPermissions();
     var fireBaseToken = await _firebaseMessaging.getToken();
     _sendFireBaseToken(fireBaseToken);
-    print("@@@@@@@@" + fireBaseToken);
-    _setFirebaseSetting(context);
+    _setFirebaseSetting();
   }
 
   _sendFireBaseToken(String fireBaseToken) async {
-    await fireBaseServices.registration(
-        RegistrationReq()..tokenId = fireBaseToken,
-        options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+    try{
+     var res = await fireBaseServices.registration(
+          RegistrationReq()..tokenId = fireBaseToken,
+          options: CallOptions(
+              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+     print(res.toString());
+    }catch(e){
+      print(e.toString());
+    }
+
   }
 
-  _setFirebaseSetting(BuildContext context) {
+  _setFirebaseSetting() {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         Message mes = _decodeMessage(message["notification"]["body"]);
@@ -71,7 +76,8 @@ class FireBaseServices {
 
 Message _decodeMessage(String notificationBody) {
   final dataTitle64 = base64.decode(notificationBody);
-  return Message.fromBuffer(dataTitle64);
+  Message m = Message.fromBuffer(dataTitle64);
+  return m;
 }
 
 Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
