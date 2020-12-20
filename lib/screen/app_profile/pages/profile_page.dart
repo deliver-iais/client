@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
@@ -12,12 +13,17 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/audio_play_progress.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/audio_progress_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/play_audio_status.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/load-file-status.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/group_Ui_widget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/memberWidget.dart';
+import 'package:deliver_flutter/screen/app_profile/widgets/music_play_progress.dart';
+import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
@@ -58,6 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
+
   int tabsCount;
   var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 30));
   @override
@@ -545,6 +552,8 @@ Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo,int linksCount){
 }
 
 Widget musicWidget(Uid userUid , FileRepo fileRepo,MediaQueryRepo mediaQueryRepo,int musicCount,Function download){
+  final _audioPlayerService = GetIt.I.get<AudioPlayerService>();
+
   return FutureBuilder<List<Media>>(
       future:  mediaQueryRepo.getMedia(userUid,FetchMediasReq_MediaType.MUSICS,musicCount ),
       builder: (BuildContext context,
@@ -552,57 +561,131 @@ Widget musicWidget(Uid userUid , FileRepo fileRepo,MediaQueryRepo mediaQueryRepo
         if (!media.hasData ||media.data == null || media.connectionState == ConnectionState.waiting) {
           return Container(width: 0.0, height: 0.0);}
         else {
-          return ListView.builder(
-            itemCount: musicCount,
-            itemBuilder: (BuildContext ctx, int index){
-              var fileId = jsonDecode(media.data[index].json)["uuid"];
-              var fileName = jsonDecode(media.data[index].json)["name"];
-              filePb.File file = media.data[index].json.toFile();
-              return FutureBuilder<bool>(
-                future: fileRepo.isExist(fileId, fileName),
-                builder: (context, isExist) {
-                  //jsonDecode(media.data[index].json)["type"].contains("mp3")
-                  if (isExist.hasData && isExist.data) {
-                    return Row(
-                        children: <Widget>[
-                          PlayAudioStatus(
-                            file: file,
-                           // dbId: messageDbId,
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+            child: ListView.builder(
+              itemCount: musicCount,
+              itemBuilder: (BuildContext ctx, int index){
+                var fileId = jsonDecode(media.data[index].json)["uuid"];
+                var fileName = jsonDecode(media.data[index].json)["name"];
+                var messageId = media.data[index].messageId;
+                return FutureBuilder<bool>(
+                  future: fileRepo.isExist(fileId, fileName),
+                  builder: (context, isExist) {
+                    if (isExist.hasData && isExist.data) {
+                      return Column(
+                        children: [
+                          ListTile(
+                            title: Row(
+                                  children: <Widget>[
+                                    PlayAudioStatus(
+                                      fileId: fileId,
+                                     fileName: fileName,
+                                    ),
+                                    Stack(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                          child: Text(fileName,
+                                                style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold)),
+                                        ),
+                                        MusicPlayProgress(
+                                          audioUuid: fileId,
+                                        ),
+                                      ],
+                                    ),
+                                  ]
+                              ),),
+                          Divider(
+                            color: Colors.grey,
                           ),
-                          Text(fileName,
-                                style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold)),
-                        ]
-                    );
-                  }else{
-                    return Row(
-                        children: <Widget>[
-                          IconButton(
-                            padding: EdgeInsets.all(0),
-                            alignment: Alignment.center,
-                            icon: Icon(
-                              Icons.arrow_downward,
-                              color: Theme.of(context).primaryColor,
-                              size: 35,
-                            ),
-                            onPressed: () {
-                              download(fileId,fileName);
-                              // setState(() {
-                              //   startDownload = true;
-                              // });
+                        ],
+                      );
+                    }else if(isExist.hasData && !isExist.data){
+                      return Column(
+                        children: [
+                          ListTile(
+                            title: Row(
+                                children: [
+                                  LoadFileStatus(
+                                    fileId: fileId,
+                                    fileName: fileName,
+                                    dbId: messageId,
+                                    onPressed: download,
+                                  ),
+                                    Stack(
+                                      children: [
+                                        Padding(
+                                         padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                          child: Text(fileName,
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold)),),
+                                        MusicPlayProgress(
+                                          audioUuid: fileId,
+                                        ),
+                                      ],
+                                    ),],),
 
-                            },
+
+
                           ),
-                          Text(fileName,
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold)),
-                        ]
-                    );
-                  }
-                });
-           },
+                          Divider(
+                          color: Colors.grey,
+                        ),
+                        ],
+                      );
+                      // return Column(
+                      //   children: [
+                      //     ListTile(
+                      //       title: Row(
+                      //           children: <Widget>[
+                      //           Container(
+                      //           width: 50,
+                      //           height: 50,
+                      //           decoration: BoxDecoration(
+                      //             shape: BoxShape.circle,
+                      //             color: ExtraTheme.of(context).text),
+                      //             child:IconButton(
+                      //               padding: EdgeInsets.all(0),
+                      //               alignment: Alignment.center,
+                      //               icon: Icon(
+                      //                 Icons.arrow_downward,
+                      //                 color: Theme.of(context).primaryColor,
+                      //                 size: 35,
+                      //               ),
+                      //               onPressed: () {
+                      //                 download(fileId,fileName);
+                      //                 // setState(() {
+                      //                 //   startDownload = true;
+                      //                 // });
+                      //
+                      //               },
+                      //             )),
+                      //             Padding(
+                      //               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      //               child: Text(fileName,
+                      //                   style: TextStyle(
+                      //                       fontSize: 14,
+                      //                       fontWeight: FontWeight.bold)),
+                      //             ),
+                      //           ]
+                      //       ),
+                      //     ),
+                      //     Divider(
+                      //       color: Colors.grey,
+                      //     ),
+                      //   ],
+                      // );
+                    }else{
+                      return Container(width: 0,height: 0,);
+                    }
+                 }
+                  );
+             },
+            ),
           );
 
         }

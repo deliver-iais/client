@@ -7,12 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 
-class AudioPlayProgress extends StatelessWidget {
- // final File audio;
+class MusicPlayProgress extends StatelessWidget {
   final String audioUuid;
   final _audioPlayerService = GetIt.I.get<AudioPlayerService>();
 
-  AudioPlayProgress({Key key, this.audioUuid}) : super(key: key);
+  MusicPlayProgress({Key key, this.audioUuid}) : super(key: key);
 
 
   @override
@@ -23,7 +22,7 @@ class AudioPlayProgress extends StatelessWidget {
           return Stack(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(top: 3.0),
+                padding: const EdgeInsets.only(top: 10.0),
                 child: StreamBuilder<AudioPlayerState>(
                     stream: _audioPlayerService.audioPlayerState(audioUuid),
                     builder: (c, state) {
@@ -33,18 +32,7 @@ class AudioPlayProgress extends StatelessWidget {
                           audioUuid: audioUuid,
                         );
                       } else {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 19.0, left: 20),
-                          child: Container(
-                            child: Text(
-                              'description',
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: false,
-                              style:
-                                  TextStyle(color: ExtraTheme.of(context).text),
-                            ),
-                          ),
-                        );
+                        return Container(width: 0,height: 0,);
                       }
                     }),
               ),
