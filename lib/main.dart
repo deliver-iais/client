@@ -3,6 +3,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
+import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
@@ -66,6 +67,7 @@ void setupDB() {
   getIt.registerSingleton<MucDao>(db.mucDao);
   getIt.registerSingleton<MemberDao>(db.memberDao);
   getIt.registerSingleton<LastSeenDao>(db.lastSeenDao);
+  getIt.registerSingleton<MediaMetaDataDao>(db.mediaMetaDataDao);
 }
 
 void setupRepositories() {
