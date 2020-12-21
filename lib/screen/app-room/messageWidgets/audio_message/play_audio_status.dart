@@ -23,7 +23,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<File>(
-        future: fileRepo.getFile(widget.file.uuid, widget.file.name),
+        future: fileRepo.getFileIfExist(widget.file.uuid, widget.file.name),
         builder: (context, audio) {
           return Container(
             width: 50,

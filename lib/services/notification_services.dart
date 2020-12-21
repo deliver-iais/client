@@ -16,7 +16,7 @@ class NotificationServices {
 
   NotificationServices() {
     var androidNotificationSetting =
-        new AndroidInitializationSettings('@mipmap/ic_launcher.png');
+        new AndroidInitializationSettings('@mipmap/ic_launcher');
     var iosNotificationSetting = new IOSInitializationSettings(
         onDidReceiveLocalNotification: onDidReceiveLocalNotification);
 
@@ -39,7 +39,7 @@ class NotificationServices {
   }
 
   cancelNotification(notificationId) {
-    flutterLocalNotificationsPlugin.cancel(notificationId);
+    flutterLocalNotificationsPlugin.cancelAll();
   }
 
   cancelAllNotification(String roomId) {
@@ -49,23 +49,25 @@ class NotificationServices {
 
   showTextNotification(int notificationId, String roomId, String roomName,
       String messageBody) async {
-    if (_notificationMessage[roomId] == null) {
-      _notificationMessage[roomId] = " ";
-    }
-    _notificationMessage[roomId] =
-        _notificationMessage[roomId] + "\n" + messageBody;
-    var bigTextStyleInformation =
-        BigTextStyleInformation(_notificationMessage[roomId]);
-    var androidNotificationDetails = new AndroidNotificationDetails(
-        'channel_ID', 'cs', 'desc',
-        styleInformation: bigTextStyleInformation);
-    var iOSNotificationDetails = IOSNotificationDetails();
-    _notificationDetails =
-        NotificationDetails(androidNotificationDetails, iOSNotificationDetails);
+    try {
+      if (_notificationMessage[roomId] == null) {
+        _notificationMessage[roomId] = " ";
+      }
+      _notificationMessage[roomId] =
+          _notificationMessage[roomId] + "\n" + messageBody;
+      var bigTextStyleInformation =
+          BigTextStyleInformation(_notificationMessage[roomId]);
+      var androidNotificationDetails = new AndroidNotificationDetails(
+          'channel_ID', 'cs', 'desc',
+          styleInformation: bigTextStyleInformation);
+      var iOSNotificationDetails = IOSNotificationDetails();
+      _notificationDetails = NotificationDetails(
+          androidNotificationDetails, iOSNotificationDetails);
 
-    await flutterLocalNotificationsPlugin.show(
-        notificationId, roomName, "", _notificationDetails,
-        payload: roomId);
+      await flutterLocalNotificationsPlugin.show(
+          notificationId, roomName, "", _notificationDetails,
+          payload: roomId);
+    } catch (e) {}
   }
 
   showImageNotification(int notificationId, String roomId, String roomName,
@@ -92,37 +94,40 @@ class NotificationServices {
 
   void showNotification(
       db.Message message, String roomName, String roomUid) async {
-    cancelNotification(message.id - 1);
-    switch (message.type) {
-      case MessageType.TEXT:
-        showTextNotification(
-            message.id, roomUid, roomName, jsonDecode(message.json)['1']);
-        break;
-      case MessageType.FILE:
-        // TODO: Handle this case.
-        break;
-      case MessageType.STICKER:
-        // TODO: Handle this case.
-        break;
-      case MessageType.LOCATION:
-        // TODO: Handle this case.
-        break;
-      case MessageType.LIVE_LOCATION:
-        // TODO: Handle this case.
-        break;
-      case MessageType.POLL:
-        // TODO: Handle this case.
-        break;
-      case MessageType.FORM:
-        // TODO: Handle this case.
-        break;
-      case MessageType.PERSISTENT_EVENT:
-        // TODO: Handle this case.
-        break;
-      case MessageType.NOT_SET:
-        // TODO: Handle this case.
-        break;
-    }
+    try {
+      cancelNotification(message.id - 1);
+      switch (message.type) {
+        case MessageType.TEXT:
+          showTextNotification(
+              message.id, roomUid, roomName, jsonDecode(message.json)['1']);
+          break;
+        case MessageType.FILE:
+          showTextNotification(
+              message.id, roomUid, roomName, "File");
+          break;
+        case MessageType.STICKER:
+          // TODO: Handle this case.
+          break;
+        case MessageType.LOCATION:
+          // TODO: Handle this case.
+          break;
+        case MessageType.LIVE_LOCATION:
+          // TODO: Handle this case.
+          break;
+        case MessageType.POLL:
+          // TODO: Handle this case.
+          break;
+        case MessageType.FORM:
+          // TODO: Handle this case.
+          break;
+        case MessageType.PERSISTENT_EVENT:
+          // TODO: Handle this case.
+          break;
+        case MessageType.NOT_SET:
+          // TODO: Handle this case.
+          break;
+      }
+    } catch (e) {}
   }
 
   void reset(String roomId) {

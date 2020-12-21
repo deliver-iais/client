@@ -24,8 +24,8 @@ class CircularFileStatusIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isExist != null) {
-      if (isExist) {
-        return file.type == 'audio'
+      if (isExist && sendingStatus == null) {
+        return file.type.contains("audio") || file.type.contains("mp3")
             ? PlayAudioStatus(
                 file: file,
                 dbId: messageDbId,
