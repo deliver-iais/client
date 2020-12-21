@@ -15,13 +15,6 @@ class ChatTime extends StatelessWidget {
     return ValueListenableBuilder<int>(
       valueListenable: day,
       builder: (context, value, _) {
-        bool newTime = false;
-        if (previousMessageTime == null)
-          newTime = true;
-        else if (previousMessageTime.day != currentMessageTime.day ||
-            previousMessageTime.month != currentMessageTime.month) {
-          newTime = true;
-        }
         if (!newTime)
           return Container();
         else {

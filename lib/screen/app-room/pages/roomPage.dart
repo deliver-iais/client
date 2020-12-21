@@ -297,12 +297,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   ScrollablePositionedList buildMessagesListView(
       Room currentRoom, List pendingMessages, double _maxWidth) {
-    // TODO check day on 00:00
     return ScrollablePositionedList.builder(
       itemCount: _itemCount,
       initialScrollIndex:
           _lastShowedMessageId != -1 ? _itemCount - _lastShowedMessageId : 0,
-      //TODO
       initialAlignment: 1,
       physics: _scrollPhysics,
       reverse: true,
@@ -334,13 +332,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     .isSameEntity(_accountRepo.currentUserUid)))
                   _lastSeenSubject.add(currentRoom.lastMessageId);
               }
-              print(messages);
+              bool newTime = false;
+              if (messages.length == 1)
+                newTime = true;
+              else if (messages[1].time.day != messages[0].time.day ||
+                  messages[1].time.month != messages[0].time.month) {
+                newTime = true;
+              }
               return Column(
                 children: <Widget>[
-                  ChatTime(
-                      currentMessageTime: messages[0].time,
-                      previousMessageTime:
-                          messages.length > 1 ? messages[1].time : null),
+                  newTime
+                      ? ChatTime(currentMessageTime: messages[0].time)
+                      : Container(),
                   currentRoom.lastMessageId != null
                       ? _lastShowedMessageId != -1 &&
                               _lastShowedMessageId ==
@@ -365,106 +368,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       ? (messages[0]
                               .from
                               .isSameEntity(_accountRepo.currentUserUid)
-                          ? GestureDetector(
-                              onTap: () {
-                                _selectMultiMessage
-                                    ? _addForwardMessage(messages[0])
-                                    : _showCustomMenu(messages[0]);
-                              },
-                              onLongPress: () {
-                                setState(() {
-                                  _selectMultiMessage = true;
-                                });
-                              },
-                              onTapDown: storePosition,
-                              child: SingleChildScrollView(
-                                child: Container(
-                                  color: _selectedMessages.containsKey(
-                                              messages[0].packetId) ||
-                                          (messages[0].id != null &&
-                                              messages[0].id ==
-                                                  _replayMessageId)
-                                      ? Theme.of(context).disabledColor
-                                      : Theme.of(context).backgroundColor,
-                                  child: Stack(
-                                    alignment: AlignmentDirectional.bottomStart,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: <Widget>[
-                                          SentMessageBox(
-                                              message: messages[0],
-                                              maxWidth: _maxWidth,
-                                              scrollToMessage: (int id) {
-                                                _scrollToMessage(
-                                                    id,
-                                                    currentRoom.lastMessageId +
-                                                        pendingMessages.length -
-                                                        id);
-                                              }),
-                                        ],
-                                      ),
-                                      if (_selectMultiMessage)
-                                        selectMultiMessage(message: messages[0])
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            )
-                          : GestureDetector(
-                              onTap: () {
-                                _selectMultiMessage
-                                    ? _addForwardMessage(messages[0])
-                                    : _showCustomMenu(messages[0]);
-                              },
-                              onLongPress: () {
-                                setState(() {
-                                  _selectMultiMessage = true;
-                                });
-                              },
-                              onTapDown: storePosition,
-                              child: Container(
-                                color: _selectedMessages.containsKey(
-                                            messages[0].packetId) ||
-                                        (messages[0].id != null &&
-                                            messages[0].id == _replayMessageId)
-                                    ? Theme.of(context).disabledColor
-                                    : Theme.of(context).backgroundColor,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: <Widget>[
-                                    _isMuc
-                                        ? Padding(
-                                            padding: const EdgeInsets.only(
-                                                bottom: 8.0,
-                                                left: 5.0,
-                                                right: 3.0),
-                                            child: CircleAvatarWidget(
-                                                messages[0].from.uid, 18),
-                                          )
-                                        : Container(),
-                                    if (_selectMultiMessage)
-                                      selectMultiMessage(message: messages[0]),
-                                    RecievedMessageBox(
-                                      message: messages[0],
-                                      maxWidth: _maxWidth,
-                                      isGroup: widget.roomId.uid.category ==
-                                          Categories.GROUP,
-                                      scrollToMessage: (int id) {
-                                        _scrollToMessage(
-                                            id,
-                                            currentRoom.lastMessageId +
-                                                pendingMessages.length -
-                                                id);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              )))
+                          ? showSentMessage(messages[0], _maxWidth,
+                              currentRoom.lastMessageId, pendingMessages.length)
+                          : showReceivedMessage(
+                              messages[0],
+                              _maxWidth,
+                              currentRoom.lastMessageId,
+                              pendingMessages.length))
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -609,5 +519,94 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         _hasPermissionToSendMessage = false;
       });
     }
+  }
+
+  Widget showSentMessage(Message message, double _maxWidth, int lastMessageId,
+      int pendingMessagesLength) {
+    return GestureDetector(
+      onTap: () {
+        _selectMultiMessage
+            ? _addForwardMessage(message)
+            : _showCustomMenu(message);
+      },
+      onLongPress: () {
+        setState(() {
+          _selectMultiMessage = true;
+        });
+      },
+      onTapDown: storePosition,
+      child: SingleChildScrollView(
+        child: Container(
+          color: _selectedMessages.containsKey(message.packetId) ||
+                  (message.id != null && message.id == _replayMessageId)
+              ? Theme.of(context).disabledColor
+              : Theme.of(context).backgroundColor,
+          child: Stack(
+            alignment: AlignmentDirectional.bottomStart,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  SentMessageBox(
+                      message: message,
+                      maxWidth: _maxWidth,
+                      scrollToMessage: (int id) {
+                        _scrollToMessage(
+                            id, lastMessageId + pendingMessagesLength - id);
+                      }),
+                ],
+              ),
+              if (_selectMultiMessage) selectMultiMessage(message: message)
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget showReceivedMessage(Message message, double _maxWidth,
+      int lastMessageId, int pendingMessagesLength) {
+    return GestureDetector(
+        onTap: () {
+          _selectMultiMessage
+              ? _addForwardMessage(message)
+              : _showCustomMenu(message);
+        },
+        onLongPress: () {
+          setState(() {
+            _selectMultiMessage = true;
+          });
+        },
+        onTapDown: storePosition,
+        child: Container(
+          color: _selectedMessages.containsKey(message.packetId) ||
+                  (message.id != null && message.id == _replayMessageId)
+              ? Theme.of(context).disabledColor
+              : Theme.of(context).backgroundColor,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              _isMuc
+                  ? Padding(
+                      padding: const EdgeInsets.only(
+                          bottom: 8.0, left: 5.0, right: 3.0),
+                      child: CircleAvatarWidget(message.from.uid, 18),
+                    )
+                  : Container(),
+              if (_selectMultiMessage) selectMultiMessage(message: message),
+              RecievedMessageBox(
+                message: message,
+                maxWidth: _maxWidth,
+                isGroup: widget.roomId.uid.category == Categories.GROUP,
+                scrollToMessage: (int id) {
+                  _scrollToMessage(
+                      id, lastMessageId + pendingMessagesLength - id);
+                },
+              ),
+            ],
+          ),
+        ));
   }
 }
