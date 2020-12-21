@@ -241,7 +241,7 @@ class CoreServices {
           lastMessageDbId: Value(msg.dbId)),
     );
 
-    _notificationServices.showNotification(message, roomUid.asString());
+   // _notificationServices.showNotification(message, roomUid.asString());
   }
 
 //TODO maybe need to test

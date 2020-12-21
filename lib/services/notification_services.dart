@@ -98,9 +98,9 @@ class NotificationServices {
 
   void showNotification(
       pro.Message message,  String roomUid) async {
-    if(_notificationMap[roomUid] != null && _notificationMap[roomUid]<= message.id.toInt()){
-      return;
-    }
+    // if(){
+    //   return;
+    // }
     try {
       String roomName = await _roomRepo.getRoomDisplayName(roomUid.getUid());
       _notificationMap[roomUid] == message.id;

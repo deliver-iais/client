@@ -34,8 +34,9 @@ class FireBaseServices {
   }
 
   _sendFireBaseToken(String fireBaseToken) async {
+    print("%%%%%%%%%%+"+_accountRepo.currentUserUid.toString());
     String firabase_setting = await _prefs.get(Firabase_Setting_Is_Set);
-    if (true) {
+    if (firabase_setting == null) {
       print("%%%%%%%%%" + fireBaseToken);
       try {
         var res = await fireBaseServices.registration(
@@ -53,7 +54,9 @@ class FireBaseServices {
   _setFirebaseSetting() {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-        Message mes = _decodeMessage(message["notification"]["body"]);
+        print(message.toString());
+        Message mes = _decodeMessage(message["data"]["body"]);
+        print(message.toString());
         print("new message");
         print("#######################" + message.toString());
         if (message.containsKey("notification")) {
@@ -68,13 +71,15 @@ class FireBaseServices {
           // todo
         }
       },
-      // onBackgroundMessage: myBackgroundMessageHandler,
+      onBackgroundMessage: (Map<String, dynamic> message){
+        _notificationServices.showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
+      },
       onLaunch: (Map<String, dynamic> message) async {
-        print("onLaunch: $message");
+        _notificationServices.showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
         // todo
       },
       onResume: (Map<String, dynamic> message) async {
-        print("onResume: $message");
+        _notificationServices.showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
         //todo
       },
     );
@@ -87,16 +92,20 @@ Message _decodeMessage(String notificationBody) {
   return m;
 }
 
-Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
-  if (message.containsKey('data')) {
-    // Handle data message
-    final dynamic data = message['data'];
-  }
-
-  if (message.containsKey('notification')) {
-    // Handle notification message
-    final dynamic notification = message['notification'];
-  }
-
-  // Or do other work.
-}
+// Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
+//   if (message.containsKey('data')) {
+//     NotificationServices().showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
+//     // Handle data message
+//     final dynamic data = message['data'];
+//   }
+//
+//   if (message.containsKey('notification')) {
+//
+//
+//     // Handle notification message
+//     NotificationServices().showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
+//     final dynamic notification = message['notification'];
+//   }
+//
+//   // Or do other work.
+// }

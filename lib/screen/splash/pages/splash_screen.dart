@@ -59,7 +59,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToHomePage() async {
-    _fireBaseServices.sendFireBaseToken();
+  //  _fireBaseServices.sendFireBaseToken();
     bool setUserName = await _accountRepo.usernameIsSet();
     if (setUserName) {
       ExtendedNavigator.of(context).pushAndRemoveUntil(
