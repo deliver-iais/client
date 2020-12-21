@@ -35,7 +35,7 @@ class FireBaseServices {
 
   _sendFireBaseToken(String fireBaseToken) async {
     String firabase_setting = await _prefs.get(Firabase_Setting_Is_Set);
-    if (firabase_setting.isEmpty) {
+    if (true) {
       print("%%%%%%%%%" + fireBaseToken);
       try {
         var res = await fireBaseServices.registration(

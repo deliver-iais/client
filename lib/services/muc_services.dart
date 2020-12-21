@@ -123,7 +123,7 @@ class MucServices {
     try {
       await groupServices.kickMembers(kickMembersReq,
           options: CallOptions(
-              timeout: Duration(seconds: 1),
+              timeout: Duration(seconds: 2),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
@@ -138,7 +138,7 @@ class MucServices {
             ..member = member.uid
             ..group = mucUid,
           options: CallOptions(
-              timeout: Duration(seconds: 1),
+              timeout: Duration(seconds: 2),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
