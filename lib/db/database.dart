@@ -1,6 +1,7 @@
 import 'package:deliver_flutter/db/Avatars.dart';
 import 'package:deliver_flutter/db/Media.dart';
 import 'package:deliver_flutter/db/LastAvatar.dart';
+import 'package:deliver_flutter/db/MediaMetaData.dart';
 import 'package:deliver_flutter/db/Messages.dart';
 import 'package:deliver_flutter/db/SharedPreferences.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
@@ -12,6 +13,7 @@ import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
+import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/models/role.dart';
@@ -31,6 +33,7 @@ import 'Rooms.dart';
 import 'Seens.dart';
 import 'PendingMessages.dart';
 import 'dao/LastSeenDao.dart';
+import 'dao/MediaMetaDataDao.dart';
 import 'dao/MemberDao.dart';
 import 'dao/RoomDao.dart';
 import 'dao/MessageDao.dart';
@@ -51,6 +54,7 @@ part 'database.g.dart';
   Members,
   Mucs,
   LastSeens,
+  MediasMetaData,
 ], daos: [
   MessageDao,
   RoomDao,
@@ -65,6 +69,7 @@ part 'database.g.dart';
   MemberDao,
   MucDao,
   LastSeenDao,
+  MediaMetaDataDao,
 ])
 class Database extends _$Database {
   Database()
@@ -74,7 +79,7 @@ class Database extends _$Database {
           }
           final dbFolder = await getApplicationDocumentsDirectory();
           final file = File(p.join(dbFolder.path, 'db.sqlite'));
-          return VmDatabase(file);
+          return VmDatabase(file,logStatements: true);
         }));
 
   @override

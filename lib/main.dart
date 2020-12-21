@@ -3,6 +3,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
+import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
@@ -34,6 +35,7 @@ import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -65,6 +67,7 @@ void setupDB() {
   getIt.registerSingleton<MucDao>(db.mucDao);
   getIt.registerSingleton<MemberDao>(db.memberDao);
   getIt.registerSingleton<LastSeenDao>(db.lastSeenDao);
+  getIt.registerSingleton<MediaMetaDataDao>(db.mediaMetaDataDao);
 }
 
 void setupRepositories() {
@@ -83,10 +86,13 @@ void setupRepositories() {
   getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<MucRepo>(MucRepo());
+  getIt.registerSingleton<CoreServiceClient>(
+      CoreServiceClient(CoreServicesClientChannel));
   getIt.registerSingleton<CoreServices>(CoreServices());
   getIt.registerSingleton<QueryServiceClient>(
       QueryServiceClient(QueryClientChannel));
   getIt.registerSingleton<MessageRepo>(MessageRepo());
+
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
   getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());
 

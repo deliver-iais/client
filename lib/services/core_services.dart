@@ -7,25 +7,21 @@ import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/database.dart' as Database;
-
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-
+import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
-
 import 'package:grpc/grpc.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:moor/moor.dart';
-
 import 'package:rxdart/rxdart.dart';
 
 enum ConnectionStatus { Connected, Disconnected }
@@ -35,11 +31,10 @@ const MAX_BACKOFF_TIME = 32;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
-  var _grpcCoreService = CoreServiceClient(CoreServicesClientChannel);
   var _clientPacket = StreamController<ClientPacket>();
   ResponseStream<ServerPacket> _responseStream;
-
-  int _backoffTime = MIN_BACKOFF_TIME;
+  @visibleForTesting
+  int backoffTime = MIN_BACKOFF_TIME;
 
   BehaviorSubject<ConnectionStatus> connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Disconnected);
@@ -47,8 +42,10 @@ class CoreServices {
   BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Disconnected);
 
-  bool _responseChecked = false;
+  @visibleForTesting
+  bool responseChecked = false;
 
+  var _grpcCoreService = GetIt.I.get<CoreServiceClient>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _messageDao = GetIt.I.get<MessageDao>();
   var _seenDao = GetIt.I.get<SeenDao>();
@@ -56,45 +53,51 @@ class CoreServices {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _mucRepo = GetIt.I.get<MucRepo>();
+  var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
 
+//TODO test
   initStreamConnection() async {
-    await _startStream();
-    await _startCheckerTimer();
-    _connectionStatus.distinct().listen((event) => connectionStatus.add(event));
+    await startStream();
+    await startCheckerTimer();
+    _connectionStatus.distinct().listen((event) {
+      connectionStatus.add(event);
+    });
   }
 
-  _startCheckerTimer() {
+  @visibleForTesting
+  startCheckerTimer() {
     sendPingMessage();
-    _responseChecked = false;
-
-    Timer(new Duration(seconds: _backoffTime), () {
-      if (!_responseChecked) {
-        if (_backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO)
-          _connectionStatus.add(ConnectionStatus.Disconnected);
-        _startStream();
-      } else {
-        _backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
+    responseChecked = false;
+    Timer(new Duration(seconds: backoffTime), () {
+      if (!responseChecked) {
+        if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
+          backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
+        } else {
+          backoffTime = MIN_BACKOFF_TIME;
+        }
+        _connectionStatus.add(ConnectionStatus.Disconnected);
+        startStream();
       }
-      _startCheckerTimer();
+      startCheckerTimer();
     });
   }
 
   void gotResponse() {
     _connectionStatus.add(ConnectionStatus.Connected);
-    _backoffTime = MIN_BACKOFF_TIME;
-    _responseChecked = true;
+    backoffTime = MIN_BACKOFF_TIME;
+    responseChecked = true;
   }
 
-  _startStream() async {
+  @visibleForTesting
+  startStream() async {
     try {
       _clientPacket = StreamController<ClientPacket>();
       _responseStream = _grpcCoreService.establishStream(
           _clientPacket.stream.asBroadcastStream(),
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-
-      _responseStream.listen((serverPacket) {
+      _responseStream.listen((serverPacket) async {
         print(serverPacket.toString());
         gotResponse();
         switch (serverPacket.whichType()) {
@@ -126,6 +129,7 @@ class CoreServices {
         }
       });
     } catch (e) {
+      print(e);
       print("correservice error");
     }
   }
@@ -240,6 +244,7 @@ class CoreServices {
     _notificationServices.showNotification(message, roomUid.asString());
   }
 
+//TODO maybe need to test
   saveMessageInMessagesDB(Message message) async {
     // ignore: missing_required_param
     Database.Message msg = Database.Message(

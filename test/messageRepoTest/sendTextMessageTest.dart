@@ -19,10 +19,11 @@ import 'package:mockito/mockito.dart';
 import 'package:moor/moor.dart';
 import 'package:test/test.dart';
 import 'package:fixnum/fixnum.dart';
-import 'messageRepoTestSetup.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as MessageProto;
+
+import '../test_setup.dart';
 
 void main() {
   MessageRepo messageRepo;
