@@ -44,7 +44,6 @@ import 'package:flutter_link_preview/flutter_link_preview.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 
-
 class ProfilePage extends StatefulWidget {
   final Uid userUid;
 
@@ -72,6 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
   }
+
   download(String uuid, String name) async {
     await GetIt.I.get<FileRepo>().getFile(uuid, name);
     setState(() {});
@@ -86,7 +86,6 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context, snapshot) {
         tabsCount = 0;
         if (snapshot.hasData) {
-
           if (snapshot.data.imagesCount != 0) {
             tabsCount = tabsCount + 1;
             print(snapshot.data);
@@ -104,7 +103,8 @@ class _ProfilePageState extends State<ProfilePage> {
             tabsCount = tabsCount + 1;
           }
           if (snapshot.data.musicsCount != 0) {
-            print("mediaaaaaaaaaaaaaaaaaaaaCounttttttttttttttttt${snapshot.data.musicsCount}");
+            print(
+                "mediaaaaaaaaaaaaaaaaaaaaCounttttttttttttttttt${snapshot.data.musicsCount}");
             tabsCount = tabsCount + 1;
           }
           if (snapshot.data.audiosCount != 0) {
@@ -212,8 +212,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                               .getTraslateValue("sendMessage")),
                                         ]),
                                         onTap: () {
-                                          _routingService
-                                              .openRoom(widget.userUid.asString());
+                                          _routingService.openRoom(
+                                              widget.userUid.asString());
                                         },
                                       )),
                                   Container(
@@ -261,7 +261,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                       setState(() {
                                                         _roomDao.insertRoom(Room(
                                                             roomId: widget
-                                                                .userUid.asString(),
+                                                                .userUid
+                                                                .asString(),
                                                             mute:
                                                                 !newNotifState));
                                                       });
@@ -389,20 +390,25 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         if (snapshot.data.imagesCount != 0)
                           Text("imagessssssssssssssssssss"),
-                         // imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo, _fileCache,snapshot.data.imagesCount),
+                        // imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo, _fileCache,snapshot.data.imagesCount),
 
                         if (snapshot.data.videosCount != 0)
                           Text("videooooooooooooooo"),
                         if (snapshot.data.filesCount != 0)
                           Text("fileeeeeeeeeee"),
                         if (snapshot.data.linkCount != 0)
-
-                          linkWidget(widget.userUid, _mediaQueryRepo, snapshot.data.linkCount),
+                          linkWidget(widget.userUid, _mediaQueryRepo,
+                              snapshot.data.linkCount),
 
                         if (snapshot.data.documentsCount != 0)
                           Text("dooooooooccccccccc"),
                         if (snapshot.data.musicsCount != 0)
-                          musicWidget(widget.userUid, _fileRepo,_mediaQueryRepo, snapshot.data.musicsCount,download),
+                          musicWidget(
+                              widget.userUid,
+                              _fileRepo,
+                              _mediaQueryRepo,
+                              snapshot.data.musicsCount,
+                              download),
                         if (snapshot.data.audiosCount != 0)
                           Text("audioooooooo"),
                       ])))));
@@ -417,277 +423,250 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo,LruCache mediaCache,int imagesCount) {
+Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo,
+    FileRepo fileRepo, LruCache mediaCache, int imagesCount) {
   var _routingService = GetIt.I.get<RoutingService>();
 
   return FutureBuilder<List<Media>>(
-          future: mediaQueryRepo.getMedia(userUid, FetchMediasReq_MediaType.IMAGES,imagesCount),
-          builder: (BuildContext c, AsyncSnapshot snaps) {
-            if (!snaps.hasData ||snaps.data == null || snaps.connectionState == ConnectionState.waiting) {
-                      return Container(width: 0.0, height: 0.0);}
-                 else {
-                   return GridView.builder(
-                       shrinkWrap: true,
-                       padding: EdgeInsets.zero,
-                       itemCount: imagesCount,
-                       scrollDirection: Axis.vertical,
-                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                         crossAxisCount: 3,
-                         //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
-                       ),
-                       itemBuilder: (context, position) {
-                         var fileId = jsonDecode(snaps.data[position].json)["uuid"];
-                         var fileName = jsonDecode(snaps.data[position].json)["name"];
-                         var file = mediaCache.get(fileId);
-                         if(file==null)
-                         return FutureBuilder(
-                             future: fileRepo.getFile(fileId, fileName),
-                             builder: (BuildContext c, AsyncSnapshot snaps) {
-                               if (snaps.hasData &&
-                                   snaps.data != null &&
-                                   snaps.connectionState == ConnectionState.done) {
-                                 print("*******getfileeeeeeeeeeeeeeeeeee*************$position");
-                                 mediaCache.set(fileId, snaps.data);
-                                 return GestureDetector(
-                                   onTap: () {
-                                       _routingService.openShowAllMedia(
-                                         uid: userUid,
-                                         hasPermissionToDeletePic: true,
-                                         mediaPosition: position,
-                                         heroTag: "btn$position",
-                                         mediasLength: imagesCount,
-                                       );
-                                     },
-                                   child: Hero(
-                                     tag:  "btn$position",
-                                     child: Container(
-                                         decoration: new BoxDecoration(
-                                           image: new DecorationImage(
-                                             image: Image.file(
-                                               snaps.data,
-                                             ).image,
-                                             fit: BoxFit.cover,
-                                           ),
-                                           border: Border.all(
-                                             width: 1,
-                                             color: ExtraTheme.of(context).secondColor,
-                                           ),
-                                         )),
-                                     transitionOnUserGestures: true,
-                                   ),
-                                 );
-                               } else {
-                                 return Container(width: 0.0, height: 0.0);
-                               }
-                             });else{
-                               return GestureDetector(
-                                 onTap: () {
-                                   _routingService.openShowAllMedia(
-                                     uid:userUid,
-                                     hasPermissionToDeletePic: true,
-                                     mediaPosition: position,
-                                     heroTag: "btn$position",
-                                     mediasLength: imagesCount,
-                                   );
-                                 },
-                                 child: Hero(
-                                   tag: "btn$position",
-                                   child: Container(
-                                       decoration: new BoxDecoration(
-                                         image: new DecorationImage(
-                                           image: Image.file(
-                                             file
-                                           ).image,
-                                           fit: BoxFit.cover,
-                                         ),
-                                         border: Border.all(
-                                           width: 1,
-                                           color: ExtraTheme.of(context).secondColor,
-                                         ),
-                                       )),
-                                   transitionOnUserGestures: true,
-                                 ),
-                               );
-                         }
-                       }
-                   );
-            }}
-        );}
-
-Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo,int linksCount){
-  //TODO i just implemented and not tested because server problem
- return FutureBuilder<List<Media>>(
-      future:  mediaQueryRepo.getMedia(userUid,FetchMediasReq_MediaType.LINKS,linksCount ),
-  builder: (BuildContext context,
-  AsyncSnapshot<List<Media>> snapshot) {
-    if (!snapshot.hasData ||snapshot.data == null || snapshot.connectionState == ConnectionState.waiting) {
-      return Container(width: 0.0, height: 0.0);}
-    else {
-      return ListView.builder(
-        itemCount: linksCount,
-        itemBuilder: (BuildContext ctx, int index){
-         return Column(
-           children: [
-             ListTile(
-               title: FlutterLinkPreview(
-                  url: jsonDecode(snapshot.data[index].json)["url"],
-                 bodyStyle: TextStyle(
-                   fontSize: 10.0,
-                 ),
-                 titleStyle: TextStyle(
-                   fontSize: 18.0,
-                   fontWeight: FontWeight.bold,
-                 ),
-                ),
-             ),
-             Divider(),
-           ],
-         );
-        },
-      );
-
-    }
-  });
-
+      future: mediaQueryRepo.getMedia(
+          userUid, FetchMediasReq_MediaType.IMAGES, imagesCount),
+      builder: (BuildContext c, AsyncSnapshot snaps) {
+        if (!snaps.hasData ||
+            snaps.data == null ||
+            snaps.connectionState == ConnectionState.waiting) {
+          return Container(width: 0.0, height: 0.0);
+        } else {
+          return GridView.builder(
+              shrinkWrap: true,
+              padding: EdgeInsets.zero,
+              itemCount: imagesCount,
+              scrollDirection: Axis.vertical,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
+              ),
+              itemBuilder: (context, position) {
+                var fileId = jsonDecode(snaps.data[position].json)["uuid"];
+                var fileName = jsonDecode(snaps.data[position].json)["name"];
+                var file = mediaCache.get(fileId);
+                if (file == null)
+                  return FutureBuilder(
+                      future: fileRepo.getFile(fileId, fileName),
+                      builder: (BuildContext c, AsyncSnapshot snaps) {
+                        if (snaps.hasData &&
+                            snaps.data != null &&
+                            snaps.connectionState == ConnectionState.done) {
+                          print(
+                              "*******getfileeeeeeeeeeeeeeeeeee*************$position");
+                          mediaCache.set(fileId, snaps.data);
+                          return GestureDetector(
+                            onTap: () {
+                              _routingService.openShowAllMedia(
+                                uid: userUid,
+                                hasPermissionToDeletePic: true,
+                                mediaPosition: position,
+                                heroTag: "btn$position",
+                                mediasLength: imagesCount,
+                              );
+                            },
+                            child: Hero(
+                              tag: "btn$position",
+                              child: Container(
+                                  decoration: new BoxDecoration(
+                                image: new DecorationImage(
+                                  image: Image.file(
+                                    snaps.data,
+                                  ).image,
+                                  fit: BoxFit.cover,
+                                ),
+                                border: Border.all(
+                                  width: 1,
+                                  color: ExtraTheme.of(context).secondColor,
+                                ),
+                              )),
+                              transitionOnUserGestures: true,
+                            ),
+                          );
+                        } else {
+                          return Container(width: 0.0, height: 0.0);
+                        }
+                      });
+                else {
+                  return GestureDetector(
+                    onTap: () {
+                      _routingService.openShowAllMedia(
+                        uid: userUid,
+                        hasPermissionToDeletePic: true,
+                        mediaPosition: position,
+                        heroTag: "btn$position",
+                        mediasLength: imagesCount,
+                      );
+                    },
+                    child: Hero(
+                      tag: "btn$position",
+                      child: Container(
+                          decoration: new BoxDecoration(
+                        image: new DecorationImage(
+                          image: Image.file(file).image,
+                          fit: BoxFit.cover,
+                        ),
+                        border: Border.all(
+                          width: 1,
+                          color: ExtraTheme.of(context).secondColor,
+                        ),
+                      )),
+                      transitionOnUserGestures: true,
+                    ),
+                  );
+                }
+              });
+        }
+      });
 }
 
-Widget musicWidget(Uid userUid , FileRepo fileRepo,MediaQueryRepo mediaQueryRepo,int musicCount,Function download){
-  final _audioPlayerService = GetIt.I.get<AudioPlayerService>();
-
+Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
+  //TODO i just implemented and not tested because server problem
   return FutureBuilder<List<Media>>(
-      future:  mediaQueryRepo.getMedia(userUid,FetchMediasReq_MediaType.MUSICS,musicCount ),
-      builder: (BuildContext context,
-          AsyncSnapshot<List<Media>> media) {
-        if (!media.hasData ||media.data == null || media.connectionState == ConnectionState.waiting) {
-          return Container(width: 0.0, height: 0.0);}
-        else {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
-            child: ListView.builder(
-              itemCount: musicCount,
-              itemBuilder: (BuildContext ctx, int index){
-                var fileId = jsonDecode(media.data[index].json)["uuid"];
-                var fileName = jsonDecode(media.data[index].json)["name"];
-                var messageId = media.data[index].messageId;
-                return FutureBuilder<bool>(
-                  future: fileRepo.isExist(fileId, fileName),
-                  builder: (context, isExist) {
-                    if (isExist.hasData && isExist.data) {
-                      return Column(
-                        children: [
-                          ListTile(
-                            title: Row(
-                                  children: <Widget>[
-                                    PlayAudioStatus(
-                                      fileId: fileId,
-                                     fileName: fileName,
-                                    ),
-                                    Stack(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                                          child: Text(fileName,
-                                                style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold)),
-                                        ),
-                                        MusicPlayProgress(
-                                          audioUuid: fileId,
-                                        ),
-                                      ],
-                                    ),
-                                  ]
-                              ),),
-                          Divider(
-                            color: Colors.grey,
-                          ),
-                        ],
-                      );
-                    }else if(isExist.hasData && !isExist.data){
-                      return Column(
-                        children: [
-                          ListTile(
-                            title: Row(
-                                children: [
-                                  LoadFileStatus(
+      future: mediaQueryRepo.getMedia(
+          userUid, FetchMediasReq_MediaType.LINKS, linksCount),
+      builder: (BuildContext context, AsyncSnapshot<List<Media>> snapshot) {
+        if (!snapshot.hasData ||
+            snapshot.data == null ||
+            snapshot.connectionState == ConnectionState.waiting) {
+          return Container(width: 0.0, height: 0.0);
+        } else {
+          return ListView.builder(
+            itemCount: linksCount,
+            itemBuilder: (BuildContext ctx, int index) {
+              return Column(
+                children: [
+                  ListTile(
+                    title: FlutterLinkPreview(
+                      url: jsonDecode(snapshot.data[index].json)["url"],
+                      bodyStyle: TextStyle(
+                        fontSize: 10.0,
+                      ),
+                      titleStyle: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Divider(),
+                ],
+              );
+            },
+          );
+        }
+      });
+}
+
+Widget musicWidget(Uid userUid, FileRepo fileRepo,
+    MediaQueryRepo mediaQueryRepo, int musicCount, Function download) {
+  return FutureBuilder<List<Media>>(
+      future: mediaQueryRepo.getMedia(
+          userUid, FetchMediasReq_MediaType.MUSICS, musicCount),
+      builder: (BuildContext context, AsyncSnapshot<List<Media>> media) {
+        if (!media.hasData ||
+            media.data == null ||
+            media.connectionState == ConnectionState.waiting) {
+          return Container(width: 0.0, height: 0.0);
+        } else {
+          return Container(
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+              child: ListView.builder(
+                itemCount: musicCount,
+                itemBuilder: (BuildContext ctx, int index) {
+                  var fileId = jsonDecode(media.data[index].json)["uuid"];
+                  var fileName = jsonDecode(media.data[index].json)["name"];
+                  var messageId = media.data[index].messageId;
+                  return FutureBuilder<bool>(
+                      future: fileRepo.isExist(fileId, fileName),
+                      builder: (context, isExist) {
+                        if (isExist.hasData && isExist.data) {
+                          return Column(
+                            children: [
+                              ListTile(
+                                title: Row(children: <Widget>[
+                                  PlayAudioStatus(
                                     fileId: fileId,
                                     fileName: fileName,
-                                    dbId: messageId,
-                                    onPressed: download,
                                   ),
-                                    Stack(
+                                  Expanded(
+                                    child: Stack(
                                       children: [
                                         Padding(
-                                         padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                          padding: const EdgeInsets.only(
+                                              left: 15.0, top: 10),
                                           child: Text(fileName,
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold)),),
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold)),
+                                        ),
                                         MusicPlayProgress(
                                           audioUuid: fileId,
                                         ),
                                       ],
-                                    ),],),
-
-
-
-                          ),
-                          Divider(
-                          color: Colors.grey,
-                        ),
-                        ],
-                      );
-                      // return Column(
-                      //   children: [
-                      //     ListTile(
-                      //       title: Row(
-                      //           children: <Widget>[
-                      //           Container(
-                      //           width: 50,
-                      //           height: 50,
-                      //           decoration: BoxDecoration(
-                      //             shape: BoxShape.circle,
-                      //             color: ExtraTheme.of(context).text),
-                      //             child:IconButton(
-                      //               padding: EdgeInsets.all(0),
-                      //               alignment: Alignment.center,
-                      //               icon: Icon(
-                      //                 Icons.arrow_downward,
-                      //                 color: Theme.of(context).primaryColor,
-                      //                 size: 35,
-                      //               ),
-                      //               onPressed: () {
-                      //                 download(fileId,fileName);
-                      //                 // setState(() {
-                      //                 //   startDownload = true;
-                      //                 // });
-                      //
-                      //               },
-                      //             )),
-                      //             Padding(
-                      //               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      //               child: Text(fileName,
-                      //                   style: TextStyle(
-                      //                       fontSize: 14,
-                      //                       fontWeight: FontWeight.bold)),
-                      //             ),
-                      //           ]
-                      //       ),
-                      //     ),
-                      //     Divider(
-                      //       color: Colors.grey,
-                      //     ),
-                      //   ],
-                      // );
-                    }else{
-                      return Container(width: 0,height: 0,);
-                    }
-                 }
-                  );
-             },
+                                    ),
+                                  ),
+                                ]),
+                              ),
+                              Divider(
+                                color: Colors.grey,
+                              ),
+                            ],
+                          );
+                        } else if (isExist.hasData && !isExist.data) {
+                          return Column(
+                            children: [
+                              ListTile(
+                                title: Row(
+                                  children: [
+                                    LoadFileStatus(
+                                      fileId: fileId,
+                                      fileName: fileName,
+                                      dbId: messageId,
+                                      onPressed: download,
+                                    ),
+                                    Expanded(
+                                      child: Stack(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 15.0, top: 10),
+                                            child: Text(fileName,
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ),
+                                          MusicPlayProgress(
+                                            audioUuid: fileId,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Divider(
+                                color: Colors.grey,
+                              ),
+                            ],
+                          );
+                        } else {
+                          return Container(
+                            width: 0,
+                            height: 0,
+                          );
+                        }
+                      });
+                },
+              ),
             ),
           );
-
         }
       });
 }
