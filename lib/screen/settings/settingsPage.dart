@@ -5,10 +5,10 @@ import 'package:deliver_flutter/models/account.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/services/firebase_services.dart';
 
 import 'package:deliver_flutter/services/routing_service.dart';
 
-import 'package:deliver_flutter/services/firebase_services.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profile_avatar_card.dart';
@@ -36,9 +36,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   final _accountRepo = GetIt.I.get<AccountRepo>();
 
-  var fi  = GetIt.I.get<FireBaseServices>();
 
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
+
+  var _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
   final _routingService = GetIt.I.get<RoutingService>();
 
@@ -191,7 +192,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   IconButton(
                       icon: Icon(Icons.navigate_next),
                       onPressed: () {
-                        _routingService.openAccountSettings();
+                        _fireBaseServices.sendFireBaseToken();
+                       // _routingService.openAccountSettings();
                       }),
                 ],
               ),

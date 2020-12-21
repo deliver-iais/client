@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
+import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
@@ -15,13 +16,15 @@ import 'notification_services.dart';
 
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
+String Firabase_Setting_Is_Set = "firabase_setting_is_set";
+
 class FireBaseServices {
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   var _notificationServices = GetIt.I.get<NotificationServices>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
-
   var fireBaseServices = FirebaseServiceClient(FirebaseServicesClientChannel);
+  SharedPreferencesDao _prefs = GetIt.I.get<SharedPreferencesDao>();
 
   sendFireBaseToken() async {
     _firebaseMessaging.requestNotificationPermissions();
@@ -31,16 +34,20 @@ class FireBaseServices {
   }
 
   _sendFireBaseToken(String fireBaseToken) async {
-    try{
-     var res = await fireBaseServices.registration(
-          RegistrationReq()..tokenId = fireBaseToken,
-          options: CallOptions(
-              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-     print(res.toString());
-    }catch(e){
-      print(e.toString());
+    String firabase_setting = await _prefs.get(Firabase_Setting_Is_Set);
+    if (firabase_setting.isEmpty) {
+      print("%%%%%%%%%" + fireBaseToken);
+      try {
+        var res = await fireBaseServices.registration(
+            RegistrationReq()..tokenId = fireBaseToken,
+            options: CallOptions(metadata: {
+              'accessToken': await _accountRepo.getAccessToken()
+            }));
+        _prefs.set(Firabase_Setting_Is_Set, "true");
+      } catch (e) {
+        print(e.toString());
+      }
     }
-
   }
 
   _setFirebaseSetting() {
@@ -51,7 +58,7 @@ class FireBaseServices {
         print("#######################" + message.toString());
         if (message.containsKey("notification")) {
           bool isCurrentUser =
-          mes.from.node.contains(_accountRepo.currentUserUid.node);
+              mes.from.node.contains(_accountRepo.currentUserUid.node);
           var roomUid = isCurrentUser
               ? mes.to
               : (mes.to.category == Categories.USER ? mes.from : mes.to);

@@ -223,7 +223,7 @@ class MucServices {
       var request = await channelServices.getChannel(
           ChannelServices.GetChannelReq()..uid = channelUid,
           options: CallOptions(
-              timeout: Duration(seconds: 1),
+              timeout: Duration(seconds: 2),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return request.channel;
     } catch (e) {
