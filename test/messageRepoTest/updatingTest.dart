@@ -15,7 +15,8 @@ import 'package:test/test.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
-import 'messageRepoTestSetup.dart';
+import '../mock_classes_definition.dart';
+import '../test_setup.dart';
 
 void main() {
   MessageRepo messageRepo;
