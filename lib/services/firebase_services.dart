@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
+import 'package:deliver_flutter/db/database.dart' as db;
 import 'package:deliver_flutter/main.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
@@ -33,11 +34,10 @@ class FireBaseServices {
     var fireBaseToken = await _firebaseMessaging.getToken();
     await _setFirebaseSetting();
     _sendFireBaseToken(fireBaseToken);
-
   }
 
   _sendFireBaseToken(String fireBaseToken) async {
-    print("%%%%%%%%%%+"+_accountRepo.currentUserUid.toString());
+    print("%%%%%%%%%%+" + _accountRepo.currentUserUid.toString());
     String firabase_setting = await _prefs.get(Firabase_Setting_Is_Set);
     if (true) {
       print("%%%%%%%%%" + fireBaseToken);
@@ -55,40 +55,57 @@ class FireBaseServices {
   }
 
   _setFirebaseSetting() {
-    try{
+    try {
       _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
           print(message.toString());
           Message mes = _decodeMessage(message["data"]["body"]);
           print(message.toString());
-          print("new message");
           if (message.containsKey("notification")) {
             bool isCurrentUser =
-            mes.from.node.contains(_accountRepo.currentUserUid.node);
+                mes.from.node.contains(_accountRepo.currentUserUid.node);
             var roomUid = isCurrentUser
                 ? mes.to
                 : (mes.to.category == Categories.USER ? mes.from : mes.to);
-            _notificationServices.showNotification(mes, roomUid.asString());
+         //   _notificationServices.showNotification(mes, roomUid.asString(),"gg");
           }
           if (message.containsKey("data")) {
             // todo
           }
         },
-       onBackgroundMessage:myBackgroundMessageHandler
-        ,
+        onBackgroundMessage: myBackgroundMessageHandler,
         onLaunch: (Map<String, dynamic> message) async {
-          _notificationServices.showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
-          // todo
+          Message mes = _decodeMessage(message["data"]["body"]);
+          print(message.toString());
+          print("new message");
+          if (message.containsKey("notification")) {
+            bool isCurrentUser =
+                mes.from.node.contains(_accountRepo.currentUserUid.node);
+            var roomUid = isCurrentUser
+                ? mes.to
+                : (mes.to.category == Categories.USER ? mes.from : mes.to);
+         //   _notificationServices.showNotification(mes, roomUid.asString(),"dd");
+
+          }
         },
         onResume: (Map<String, dynamic> message) async {
-          _notificationServices.showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
-          //todo
+          Message mes = _decodeMessage(message["data"]["body"]);
+          print(message.toString());
+          if (message.containsKey("notification")) {
+            bool isCurrentUser =
+                mes.from.node.contains(_accountRepo.currentUserUid.node);
+            var roomUid = isCurrentUser
+                ? mes.to
+                : (mes.to.category == Categories.USER ? mes.from : mes.to);
+         //   _notificationServices.showNotification(mes, roomUid.asString(),"ee");
+            // todo
+          }
+          //todo4
         },
       );
-    }catch(e){
+    } catch (e) {
       print(e);
     }
-
   }
 }
 
@@ -100,21 +117,13 @@ Message _decodeMessage(String notificationBody) {
 
 Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
   var _notificationServices = NotificationServices();
-  await  Firebase.initializeApp();
-
   if (message.containsKey('data')) {
-    _notificationServices.showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
-    // Handle data message
-    final dynamic data = message['data'];
-  }
-
+    Message mes = _decodeMessage(message["data"]["body"]);
+    _notificationServices.showTextNotification(mes.id.toInt()," ", " ",mes.text.text);
+    }
   if (message.containsKey('notification')) {
-
-
-    // Handle notification message
-    _notificationServices.showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
-    final dynamic notification = message['notification'];
+    Message mes = _decodeMessage(message["data"]["body"]);
+    _notificationServices.showTextNotification(mes.id.toInt(), mes.packetId, mes.packetId,mes.text.text);
   }
 
-  // Or do other work.
 }

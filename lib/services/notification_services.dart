@@ -12,8 +12,6 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   NotificationDetails _notificationDetails;
- // var _routinServices = RoutingService();
- // var _roomRepo = RoomRepo();
 
 
   Map<String, String> _notificationMessage = Map();
@@ -42,7 +40,7 @@ class NotificationServices {
       int id, String title, String body, String payload) async {}
 
   gotoRoomPage(String roomId) {
- //   _routinServices.openRoom(roomId);
+   // _routinServices.openRoom(roomId);
   }
 
   cancelNotification(notificationId) {
@@ -63,9 +61,9 @@ class NotificationServices {
     var platformChannelSpecifics = NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.show(
-      0,
-      'ddd',
-      'dddd',
+      notificationId,
+      roomName,
+      messageBody,
       platformChannelSpecifics,
       payload: 'Default_Sound',
     );
@@ -94,24 +92,19 @@ class NotificationServices {
   }
 
   void showNotification(
-      pro.Message message,  String roomUid) async {
-    // if(){
-    //   return;
-    // }
+      pro.Message message,  String roomUid,String roomName) async {
     try {
-     // String roomName = await _roomRepo.getRoomDisplayName(roomUid.getUid());
       _notificationMap[roomUid] == message.id;
       cancelNotification(message.id - 1);
       switch (message.whichType()) {
         case pro.Message_Type.persistEvent:
         case pro.Message_Type.text:
-
           showTextNotification(
-              message.id.toInt(), roomUid, "kkk", message.text.text);
+              message.id.toInt(), roomUid, roomName, message.text.text);
           break;
         case pro.Message_Type.file:
           showTextNotification(
-              message.id.toInt(), roomUid, "kkk", "File");
+              message.id.toInt(), roomUid,roomName, "File");
           break;
         case pro.Message_Type.sticker:
           // TODO: Handle this case.

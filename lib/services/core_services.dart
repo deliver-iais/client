@@ -240,8 +240,8 @@ class CoreServices {
           lastMessageId: Value(message.id.toInt()),
           lastMessageDbId: Value(msg.dbId)),
     );
-
-   // _notificationServices.showNotification(message, roomUid.asString());
+    String roomName = await _roomRepo.getRoomDisplayName(roomUid);
+   _notificationServices.showNotification(message, roomUid.asString(),roomName);
   }
 
 //TODO maybe need to test
