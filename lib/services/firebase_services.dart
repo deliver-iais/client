@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
+import 'package:deliver_flutter/main.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
@@ -29,14 +31,15 @@ class FireBaseServices {
   sendFireBaseToken() async {
     _firebaseMessaging.requestNotificationPermissions();
     var fireBaseToken = await _firebaseMessaging.getToken();
+    await _setFirebaseSetting();
     _sendFireBaseToken(fireBaseToken);
-    _setFirebaseSetting();
+
   }
 
   _sendFireBaseToken(String fireBaseToken) async {
     print("%%%%%%%%%%+"+_accountRepo.currentUserUid.toString());
     String firabase_setting = await _prefs.get(Firabase_Setting_Is_Set);
-    if (firabase_setting == null) {
+    if (true) {
       print("%%%%%%%%%" + fireBaseToken);
       try {
         var res = await fireBaseServices.registration(
@@ -52,37 +55,40 @@ class FireBaseServices {
   }
 
   _setFirebaseSetting() {
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        print(message.toString());
-        Message mes = _decodeMessage(message["data"]["body"]);
-        print(message.toString());
-        print("new message");
-        print("#######################" + message.toString());
-        if (message.containsKey("notification")) {
-          bool isCurrentUser =
-              mes.from.node.contains(_accountRepo.currentUserUid.node);
-          var roomUid = isCurrentUser
-              ? mes.to
-              : (mes.to.category == Categories.USER ? mes.from : mes.to);
-          _notificationServices.showNotification(mes, roomUid.asString());
-        }
-        if (message.containsKey("data")) {
+    try{
+      _firebaseMessaging.configure(
+        onMessage: (Map<String, dynamic> message) async {
+          print(message.toString());
+          Message mes = _decodeMessage(message["data"]["body"]);
+          print(message.toString());
+          print("new message");
+          if (message.containsKey("notification")) {
+            bool isCurrentUser =
+            mes.from.node.contains(_accountRepo.currentUserUid.node);
+            var roomUid = isCurrentUser
+                ? mes.to
+                : (mes.to.category == Categories.USER ? mes.from : mes.to);
+            _notificationServices.showNotification(mes, roomUid.asString());
+          }
+          if (message.containsKey("data")) {
+            // todo
+          }
+        },
+       onBackgroundMessage:myBackgroundMessageHandler
+        ,
+        onLaunch: (Map<String, dynamic> message) async {
+          _notificationServices.showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
           // todo
-        }
-      },
-      onBackgroundMessage: (Map<String, dynamic> message){
-        _notificationServices.showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        _notificationServices.showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
-        // todo
-      },
-      onResume: (Map<String, dynamic> message) async {
-        _notificationServices.showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
-        //todo
-      },
-    );
+        },
+        onResume: (Map<String, dynamic> message) async {
+          _notificationServices.showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
+          //todo
+        },
+      );
+    }catch(e){
+      print(e);
+    }
+
   }
 }
 
@@ -92,20 +98,23 @@ Message _decodeMessage(String notificationBody) {
   return m;
 }
 
-// Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
-//   if (message.containsKey('data')) {
-//     NotificationServices().showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
-//     // Handle data message
-//     final dynamic data = message['data'];
-//   }
-//
-//   if (message.containsKey('notification')) {
-//
-//
-//     // Handle notification message
-//     NotificationServices().showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
-//     final dynamic notification = message['notification'];
-//   }
-//
-//   // Or do other work.
-// }
+Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
+  var _notificationServices = NotificationServices();
+  await  Firebase.initializeApp();
+
+  if (message.containsKey('data')) {
+    _notificationServices.showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
+    // Handle data message
+    final dynamic data = message['data'];
+  }
+
+  if (message.containsKey('notification')) {
+
+
+    // Handle notification message
+    _notificationServices.showTextNotification(2, "dddd", "ddddddd", "dddddddddd");
+    final dynamic notification = message['notification'];
+  }
+
+  // Or do other work.
+}

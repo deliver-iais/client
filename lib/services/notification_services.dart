@@ -4,6 +4,7 @@ import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -11,14 +12,16 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   NotificationDetails _notificationDetails;
-  var _routinServices = GetIt.I.get<RoutingService>();
-  var _roomRepo = GetIt.I.get<RoomRepo>();
+ // var _routinServices = RoutingService();
+ // var _roomRepo = RoomRepo();
 
 
   Map<String, String> _notificationMessage = Map();
   Map<String,int> _notificationMap = Map();
 
   NotificationServices() {
+
+     Firebase.initializeApp();
     var androidNotificationSetting =
         new AndroidInitializationSettings('@mipmap/ic_launcher');
     var iosNotificationSetting = new IOSInitializationSettings(
@@ -39,7 +42,7 @@ class NotificationServices {
       int id, String title, String body, String payload) async {}
 
   gotoRoomPage(String roomId) {
-    _routinServices.openRoom(roomId);
+ //   _routinServices.openRoom(roomId);
   }
 
   cancelNotification(notificationId) {
@@ -53,25 +56,19 @@ class NotificationServices {
 
   showTextNotification(int notificationId, String roomId, String roomName,
       String messageBody) async {
-    try {
-      if (_notificationMessage[roomId] == null) {
-        _notificationMessage[roomId] = " ";
-      }
-      _notificationMessage[roomId] =
-          _notificationMessage[roomId] + "\n" + messageBody;
-      var bigTextStyleInformation =
-          BigTextStyleInformation(_notificationMessage[roomId]);
-      var androidNotificationDetails = new AndroidNotificationDetails(
-          'channel_ID', 'cs', 'desc',
-          styleInformation: bigTextStyleInformation);
-      var iOSNotificationDetails = IOSNotificationDetails();
-      _notificationDetails = NotificationDetails(
-          androidNotificationDetails, iOSNotificationDetails);
-
-      await flutterLocalNotificationsPlugin.show(
-          notificationId, roomName, "", _notificationDetails,
-          payload: roomId);
-    } catch (e) {}
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        'channel_id', 'channel_name', 'channel_description',
+        importance: Importance.Max, priority: Priority.High);
+    var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+    var platformChannelSpecifics = NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'ddd',
+      'dddd',
+      platformChannelSpecifics,
+      payload: 'Default_Sound',
+    );
   }
 
   showImageNotification(int notificationId, String roomId, String roomName,
@@ -102,7 +99,7 @@ class NotificationServices {
     //   return;
     // }
     try {
-      String roomName = await _roomRepo.getRoomDisplayName(roomUid.getUid());
+     // String roomName = await _roomRepo.getRoomDisplayName(roomUid.getUid());
       _notificationMap[roomUid] == message.id;
       cancelNotification(message.id - 1);
       switch (message.whichType()) {
@@ -110,11 +107,11 @@ class NotificationServices {
         case pro.Message_Type.text:
 
           showTextNotification(
-              message.id.toInt(), roomUid, roomName, message.text.text);
+              message.id.toInt(), roomUid, "kkk", message.text.text);
           break;
         case pro.Message_Type.file:
           showTextNotification(
-              message.id.toInt(), roomUid, roomName, "File");
+              message.id.toInt(), roomUid, "kkk", "File");
           break;
         case pro.Message_Type.sticker:
           // TODO: Handle this case.
