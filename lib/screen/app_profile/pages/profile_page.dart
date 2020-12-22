@@ -183,7 +183,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                               },
                                             ),
                                           ]),
-                                      // )
                                     ),
                                   ),
                                   SizedBox(height: 20),
@@ -207,7 +206,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                           SizedBox(
                                             width: 10,
                                           ),
-                                          //  SizedBox(width: 10),
                                           Text(appLocalization
                                               .getTraslateValue("sendMessage")),
                                         ]),
@@ -389,16 +387,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             ]),
                           ),
                         if (snapshot.data.imagesCount != 0)
-                          Text("imagessssssssssssssssssss"),
-                        // imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo, _fileCache,snapshot.data.imagesCount),
+                          imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo, _fileCache,snapshot.data.imagesCount),
 
                         if (snapshot.data.videosCount != 0)
                           Text("videooooooooooooooo"),
                         if (snapshot.data.filesCount != 0)
                           Text("fileeeeeeeeeee"),
                         if (snapshot.data.linkCount != 0)
-                          linkWidget(widget.userUid, _mediaQueryRepo,
-                              snapshot.data.linkCount),
+                          linkWidget(widget.userUid, _mediaQueryRepo, snapshot.data.linkCount),
 
                         if (snapshot.data.documentsCount != 0)
                           Text("dooooooooccccccccc"),

@@ -10,7 +10,6 @@ import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class LoadFileStatus extends StatefulWidget {
- // final File file;
   final String fileId;
   final String fileName;
   final int dbId;
@@ -90,7 +89,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                 }
                               }))
                        : Padding(
-                            padding: EdgeInsets.only(left: 2),
+                            padding: EdgeInsets.only(left: 3,top: 4),
                             child: Container(
                             width: 50,
                             height: 50,
