@@ -1,13 +1,7 @@
-import 'dart:convert';
 
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
@@ -30,7 +24,6 @@ class NotificationServices {
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: (room) {
       if (room != null && room.isNotEmpty) {
-        gotoRoomPage(room);
       }
       return;
     });
@@ -39,9 +32,6 @@ class NotificationServices {
   Future onDidReceiveLocalNotification(
       int id, String title, String body, String payload) async {}
 
-  gotoRoomPage(String roomId) {
-   // _routinServices.openRoom(roomId);
-  }
 
   cancelNotification(notificationId) {
     flutterLocalNotificationsPlugin.cancelAll();
