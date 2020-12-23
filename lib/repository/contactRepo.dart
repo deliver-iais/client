@@ -140,7 +140,7 @@ class ContactRepo {
           i, contacts.length > i + 49 ? i + 49 : contacts.length));
       i = i + 50;
     }
-    _getContacts(contacts);
+    getContacts();
   }
 
   _sendContacts(List<Contact> contacts) async {
@@ -153,7 +153,7 @@ class ContactRepo {
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
   }
 
-  Future _getContacts(List<Contact> contacts) async {
+  Future getContacts() async {
     var result = await contactServices.getContactListUsers(
         GetContactListUsersReq(),
         options: CallOptions(
@@ -210,5 +210,10 @@ class ContactRepo {
     Database.Contact contact =
         await _contactDao.getContactByUid(userUid.asString());
     return contact;
+  }
+
+  Future <bool>ContactIsExist(String number) async  {
+    var result = await _contactDao.getContact(number);
+    return result!=null;
   }
 }

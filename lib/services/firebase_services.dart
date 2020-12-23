@@ -93,13 +93,18 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
     String roomName;
     if (mes.to.category != Categories.USER) {
       var muc = await mucDao.getMucByUid(mes.to.asString());
-      roomName = muc.name ?? "Unknown";
+      if(muc !=  null){
+        roomName = muc.name;
+      }else{
+        roomName = "Unknown";
+      }
+
     } else {
       db.Contact contact =
           await contactDao.getContactByUid(mes.from.asString());
       if (contact != null) {
         roomName =
-            contact.firstName != null ? contact.firstName : contact.username;
+            contact.firstName != null ? contact.firstName : contact.username??"Unknown";
         if (contact.lastName != null) {
           roomName = "$roomName ${contact.lastName}";
         } else {
@@ -110,15 +115,6 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
     _notificationServices.showNotification(mes, mes.from.asString(), roomName);
   }
   if (message.containsKey('notification')) {
-    Message mes = _decodeMessage(message["data"]["body"]);
-    _notificationServices.showTextNotification(
-        mes.id.toInt(),
-        mes.packetId,
-        mes.packetId,
-        mes.whichType() == Message_Type.text
-            ? mes.text.text
-            : mes.whichType() == Message_Type.persistEvent
-                ? "new Message "
-                : "File");
+    //todo
   }
 }
