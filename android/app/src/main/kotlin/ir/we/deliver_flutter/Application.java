@@ -7,7 +7,7 @@ import io.flutter.plugins.GeneratedPluginRegistrant;
 import io.flutter.plugins.firebasemessaging.FlutterFirebaseMessagingService;
 import io.flutter.plugins.firebasemessaging.FirebaseMessagingPlugin;
 import com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin;
-
+import io.flutter.plugins.pathprovider.PathProviderPlugin;
 
 public class Application extends FlutterApplication implements PluginRegistrantCallback {
     @Override
@@ -21,5 +21,7 @@ public class Application extends FlutterApplication implements PluginRegistrantC
     public void registerWith(PluginRegistry registry) {
         FirebaseMessagingPlugin.registerWith(registry.registrarFor("io.flutter.plugins.firebasemessaging.FirebaseMessagingPlugin"));
         FlutterLocalNotificationsPlugin.registerWith(registry.registrarFor("com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin"));
+        PathProviderPlugin.registerWith(registry.registrarFor("io.flutter.plugins.pathprovider.PathProviderPlugin"));
+
     }
 }

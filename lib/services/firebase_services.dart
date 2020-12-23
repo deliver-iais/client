@@ -13,6 +13,7 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 
 import 'notification_services.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 String Firabase_Setting_Is_Set = "firabase_setting_is_set";
 
@@ -32,7 +33,7 @@ class FireBaseServices {
 
   _sendFireBaseToken(String fireBaseToken) async {
     String firabase_setting = await _prefs.get(Firabase_Setting_Is_Set);
-    if (firabase_setting == null) {
+    if (true) {
       try {
         await fireBaseServices.registration(
             RegistrationReq()..tokenId = fireBaseToken,
@@ -84,10 +85,13 @@ Message _decodeMessage(String notificationBody) {
 
 Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
   var _notificationServices = NotificationServices();
+  var contactDao  = db.Database().contactDao;
   if (message.containsKey('data')) {
     Message mes = _decodeMessage(message["data"]["body"]);
+    db.Contact c = await contactDao.getContactByUid(mes.from.asString());
     _notificationServices.showTextNotification(
-        mes.id.toInt(), " ", " ", mes.text.text);
+        mes.id.toInt(),c.username , c.username, mes.text.text);
+
   }
   if (message.containsKey('notification')) {
     Message mes = _decodeMessage(message["data"]["body"]);
