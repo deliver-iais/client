@@ -7,8 +7,10 @@ import 'package:deliver_flutter/main.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 
@@ -85,13 +87,30 @@ Message _decodeMessage(String notificationBody) {
 
 Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
   var _notificationServices = NotificationServices();
-  var contactDao  = db.Database().contactDao;
+  var database = db.Database();
+  var contactDao  = database.contactDao;
+  var mucDao = database.mucDao;
+
   if (message.containsKey('data')) {
     Message mes = _decodeMessage(message["data"]["body"]);
-    db.Contact c = await contactDao.getContactByUid(mes.from.asString());
-    _notificationServices.showTextNotification(
-        mes.id.toInt(),c.username , c.username, mes.text.text);
+    String roomName;
+    if(mes.to.category != Categories.USER){
+      var muc  = await mucDao.getMucByUid(mes.to.asString());
+      roomName = muc.name??"Unknown";
+    }else{
+      db.Contact contact = await contactDao.getContactByUid(mes.from.asString());
+      if(contact != null){
+        roomName = contact.firstName!= null ?contact.firstName:contact.username;
+        if(contact.lastName != null){
+          roomName = "$roomName ${contact.lastName}";
+        }else{
+          roomName = "Unknown";
+        }
+      }
+    }
 
+    _notificationServices.showNotification(
+        mes,mes.from.asString() ,roomName);
   }
   if (message.containsKey('notification')) {
     Message mes = _decodeMessage(message["data"]["body"]);

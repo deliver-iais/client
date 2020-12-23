@@ -30,6 +30,7 @@ const EMAIL = "email";
 const DESCRIPTION = "description";
 const PHONE_NUMBER = "phoneNumber";
 const NOTIFICATION = "notification";
+const ACCOUNT_UID = "account_uid";
 
 class AccountRepo {
   // TODO add account name protocol to server
@@ -167,6 +168,7 @@ class AccountRepo {
       currentUserUid = Uid()
         ..category = Categories.USER
         ..node = decodedToken["sub"];
+      _prefs.set(ACCOUNT_UID,currentUserUid.asString());
       print("UserId " + currentUserUid.asString());
     }
   }
