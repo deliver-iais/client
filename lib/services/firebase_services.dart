@@ -1,16 +1,12 @@
 import 'dart:convert';
-
-import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart' as db;
-import 'package:deliver_flutter/main.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 
@@ -35,7 +31,8 @@ class FireBaseServices {
 
   _sendFireBaseToken(String fireBaseToken) async {
     String firabase_setting = await _prefs.get(Firabase_Setting_Is_Set);
-    if (true) {
+    if (firabase_setting == null) {
+
       try {
         await fireBaseServices.registration(
             RegistrationReq()..tokenId = fireBaseToken,
@@ -88,33 +85,40 @@ Message _decodeMessage(String notificationBody) {
 Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
   var _notificationServices = NotificationServices();
   var database = db.Database();
-  var contactDao  = database.contactDao;
+  var contactDao = database.contactDao;
   var mucDao = database.mucDao;
 
   if (message.containsKey('data')) {
     Message mes = _decodeMessage(message["data"]["body"]);
     String roomName;
-    if(mes.to.category != Categories.USER){
-      var muc  = await mucDao.getMucByUid(mes.to.asString());
-      roomName = muc.name??"Unknown";
-    }else{
-      db.Contact contact = await contactDao.getContactByUid(mes.from.asString());
-      if(contact != null){
-        roomName = contact.firstName!= null ?contact.firstName:contact.username;
-        if(contact.lastName != null){
+    if (mes.to.category != Categories.USER) {
+      var muc = await mucDao.getMucByUid(mes.to.asString());
+      roomName = muc.name ?? "Unknown";
+    } else {
+      db.Contact contact =
+          await contactDao.getContactByUid(mes.from.asString());
+      if (contact != null) {
+        roomName =
+            contact.firstName != null ? contact.firstName : contact.username;
+        if (contact.lastName != null) {
           roomName = "$roomName ${contact.lastName}";
-        }else{
+        } else {
           roomName = "Unknown";
         }
       }
     }
-
-    _notificationServices.showNotification(
-        mes,mes.from.asString() ,roomName);
+    _notificationServices.showNotification(mes, mes.from.asString(), roomName);
   }
   if (message.containsKey('notification')) {
     Message mes = _decodeMessage(message["data"]["body"]);
     _notificationServices.showTextNotification(
-        mes.id.toInt(), mes.packetId, mes.packetId, mes.text.text);
+        mes.id.toInt(),
+        mes.packetId,
+        mes.packetId,
+        mes.whichType() == Message_Type.text
+            ? mes.text.text
+            : mes.whichType() == Message_Type.persistEvent
+                ? "new Message "
+                : "File");
   }
 }
