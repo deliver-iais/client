@@ -33,7 +33,7 @@ class RoomRepo {
         } else {
           var contact = await _contactDao.getContactByUid(uid.asString());
           if (contact != null) {
-            String contactName = "${contact.firstName} ${contact.lastName}";
+            String contactName = "${contact.firstName}";
             _roomNameCache.set(uid.asString(), contactName);
             return contactName;
           } else
