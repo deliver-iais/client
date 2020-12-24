@@ -145,8 +145,6 @@ flutter:
     - lib/lang/fa.json
     - lib/lang/en.json
     - assets/audios/ack.mp3
-    - assets/audios/rec.mp3
-
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

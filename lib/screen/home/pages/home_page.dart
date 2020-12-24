@@ -49,7 +49,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    _notificationServices.reset("\t");
     return WillPopScope(
       onWillPop: () async {
         if (_routingService.canPerformBackButton()) return true;

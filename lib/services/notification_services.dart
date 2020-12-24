@@ -133,7 +133,7 @@ class NotificationServices {
 
   void _playNotificationSound() async {
       AssetsAudioPlayer.newPlayer().open(
-        Audio("assets/audios/rec.mp3"),
+        Audio("assets/audios/ack.mp3"),
       );
   }
 }
