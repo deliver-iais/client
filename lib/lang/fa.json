@@ -129,6 +129,6 @@
   "pin_message": "پیام را پین کرد. ",
   "kick_from_muc": "از گروه حذف کرد.",
   "create_channel": "کانال  را ایجاد کرد",
-  "create_group": "گروه را ساخت."
-
+  "create_group": "گروه را ساخت.",
+  "cancel": "لغو"
 }
