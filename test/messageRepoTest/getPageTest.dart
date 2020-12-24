@@ -5,15 +5,16 @@ import 'package:deliver_flutter/shared/methods/helper.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:grpc/grpc.dart';
 import 'package:test/test.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'messageRepoTestSetup.dart';
 import 'package:mockito/mockito.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as MessageProto;
+
+import '../mock_classes_definition.dart';
+import '../test_setup.dart';
 
 void main() {
   MessageRepo messageRepo;
