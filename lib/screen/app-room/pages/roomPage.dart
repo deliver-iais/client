@@ -79,6 +79,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Cache<int, Message> _cache =
       LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
 
+  Cache<int, Widget> widgetCache =
+      LruCache<int, Widget>(storage: SimpleStorage(size: 100));
+
   // TODO, get previous message
   Future<List<Message>> _getPendingMessage(dbId) async {
     return [await _messageRepo.getPendingMessage(dbId)];
@@ -361,16 +364,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           : Container()
                       : SizedBox.shrink(),
                   messages[0].type != MessageType.PERSISTENT_EVENT
-                      ? (messages[0]
-                              .from
-                              .isSameEntity(_accountRepo.currentUserUid)
-                          ? showSentMessage(messages[0], _maxWidth,
-                              currentRoom.lastMessageId, pendingMessages.length)
-                          : showReceivedMessage(
-                              messages[0],
-                              _maxWidth,
-                              currentRoom.lastMessageId,
-                              pendingMessages.length))
+                      ? normalMessage(
+                          messages[0], _maxWidth, currentRoom, pendingMessages)
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -407,6 +402,28 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         );
       },
     );
+  }
+
+  Widget normalMessage(Message message, double maxWidth, Room currentRoom,
+      List pendingMessages) {
+    if (message.id == null) {
+      return _createWidget(message, maxWidth, currentRoom, pendingMessages);
+    }
+    if (widgetCache.containsKey(message.id)) return widgetCache.get(message.id);
+    Widget widget =
+        _createWidget(message, maxWidth, currentRoom, pendingMessages);
+    widgetCache.set(message.id, widget);
+    return widget;
+  }
+
+  Widget _createWidget(Message message, double maxWidth, Room currentRoom,
+      List pendingMessages) {
+    if (message.from.isSameEntity(_accountRepo.currentUserUid))
+      return showSentMessage(
+          message, maxWidth, currentRoom.lastMessageId, pendingMessages.length);
+    else
+      return showReceivedMessage(
+          message, maxWidth, currentRoom.lastMessageId, pendingMessages.length);
   }
 
   Widget selectMultiMessage({Message message}) {
@@ -455,15 +472,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        // IconButton(
-        //     icon: Icon(
-        //       Icons.delete,
-        //       size: 30,
-        //     ),
-        //     onPressed: () {
-        //       _messageRepo
-        //           .deleteMessage(_selectedMessages.values.toList());
-        //     }),
         Tooltip(
           message: _appLocalization.getTraslateValue("cancel"),
           child: Badge(
@@ -550,7 +558,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       scrollToMessage: (int id) {
                         _scrollToMessage(
                             id, lastMessageId + pendingMessagesLength - id);
-                      }),
+                      })
                 ],
               ),
               if (_selectMultiMessage) selectMultiMessage(message: message)
@@ -600,7 +608,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   _scrollToMessage(
                       id, lastMessageId + pendingMessagesLength - id);
                 },
-              ),
+              )
             ],
           ),
         ));

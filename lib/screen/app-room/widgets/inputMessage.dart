@@ -349,7 +349,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                 ),
                               ),
                             ))
-                        : SizedBox.shrink()
+                        : SizedBox(
+                            height: 0,
+                          ),
                   ],
                 ),
               ],

@@ -1,19 +1,21 @@
-
+import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   NotificationDetails _notificationDetails;
+  String _currentRoomUid;
 
+  AudioPlayer audioPlayer = AudioPlayer();
 
   Map<String, String> _notificationMessage = Map();
-  Map<String,int> _notificationMap = Map();
+  Map<String, int> _notificationMap = Map();
 
   NotificationServices() {
-
-     Firebase.initializeApp();
+    Firebase.initializeApp();
     var androidNotificationSetting =
         new AndroidInitializationSettings('@mipmap/ic_launcher');
     var iosNotificationSetting = new IOSInitializationSettings(
@@ -23,15 +25,13 @@ class NotificationServices {
         androidNotificationSetting, iosNotificationSetting);
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: (room) {
-      if (room != null && room.isNotEmpty) {
-      }
+      if (room != null && room.isNotEmpty) {}
       return;
     });
   }
 
   Future onDidReceiveLocalNotification(
       int id, String title, String body, String payload) async {}
-
 
   cancelNotification(notificationId) {
     flutterLocalNotificationsPlugin.cancelAll();
@@ -82,41 +82,53 @@ class NotificationServices {
   }
 
   void showNotification(
-      pro.Message message,  String roomUid,String roomName) async {
-    try {
-      _notificationMap[roomUid] == message.id;
-      cancelNotification(message.id - 1);
-      switch (message.whichType()) {
-        case pro.Message_Type.persistEvent:
-        case pro.Message_Type.text:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, message.text.text);
-          break;
-        case pro.Message_Type.file:
-          showTextNotification(
-              message.id.toInt(), roomUid,roomName, "File");
-          break;
-        case pro.Message_Type.sticker:
-          // TODO: Handle this case.
-          break;
-        case pro.Message_Type.location:
-          // TODO: Handle this case.
-          break;
-        case pro.Message_Type.liveLocation:
-          // TODO: Handle this case.
-          break;
-        case pro.Message_Type.poll:
-          // TODO: Handle this case.
-          break;
-        case pro.Message_Type.form:
-          // TODO: Handle this case.
-          break;
-
-      }
-    } catch (e) {}
+      pro.Message message, String roomUid, String roomName) async {
+    if (_currentRoomUid != null && _currentRoomUid.contains(roomUid)) {
+      _playNotificationSound();
+    } else {
+      try {
+        _notificationMap[roomUid] == message.id;
+        cancelNotification(message.id - 1);
+        switch (message.whichType()) {
+          case pro.Message_Type.persistEvent:
+          case pro.Message_Type.text:
+            showTextNotification(
+                message.id.toInt(), roomUid, roomName, message.text.text);
+            break;
+          case pro.Message_Type.file:
+            showTextNotification(message.id.toInt(), roomUid, roomName, "File");
+            break;
+          case pro.Message_Type.sticker:
+            // TODO: Handle this case.
+            break;
+          case pro.Message_Type.location:
+            // TODO: Handle this case.
+            break;
+          case pro.Message_Type.liveLocation:
+            // TODO: Handle this case.
+            break;
+          case pro.Message_Type.poll:
+            // TODO: Handle this case.
+            break;
+          case pro.Message_Type.form:
+            // TODO: Handle this case.
+            break;
+        }
+      } catch (e) {}
+    }
   }
 
   void reset(String roomId) {
-    _notificationMessage[roomId] = " ";
+    _notificationMessage[roomId] = "\t";
+    _currentRoomUid = roomId;
+  }
+
+  void palyAckMessageNotification(String roomUid) {
+    if (_currentRoomUid != null && _currentRoomUid.contains(roomUid))
+      audioPlayer.play('');
+  }
+
+  void _playNotificationSound() {
+    audioPlayer.play("");
   }
 }

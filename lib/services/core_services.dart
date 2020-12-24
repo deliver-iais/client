@@ -220,6 +220,7 @@ class CoreServices {
         roomId: roomId, lastMessageId: Value(id)));
     _lastSeenDao.updateLastSeen(roomId, id);
     _pendingMessageDao.deletePendingMessage(packetId);
+    _notificationServices.palyAckMessageNotification(messageDeliveryAck.to.asString());
   }
 
   _saveIncomingMessage(Message message) async {
