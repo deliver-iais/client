@@ -340,10 +340,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   _lastSeenSubject.add(currentRoom.lastMessageId);
               }
               bool newTime = false;
-              if (messages.length == 1)
+              if (messages.length == 1 &&  messages[0].id != null && messages[0].id.toInt() ==1)
                 newTime = true;
-              else if (messages[1].time.day != messages[0].time.day ||
-                  messages[1].time.month != messages[0].time.month) {
+              else if (messages.length>1 &&( messages[1].time.day != messages[0].time.day ||
+                  messages[1].time.month != messages[0].time.month)) {
                 newTime = true;
               }
               return Column(

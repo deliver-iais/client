@@ -108,10 +108,6 @@ class MessageRepo {
           List<Message> messages =
               await _saveFetchMessages(fetchMessagesRes.messages);
 
-          if (userRoomMeta.roomUid.category != Categories.USER) {
-            await _mucRepo.saveMucInfo(userRoomMeta.roomUid);
-          }
-
           // TODO if there is Pending Message this line has a bug!!
           if (messages.isNotEmpty) {
             _roomDao.insertRoomCompanion(RoomsCompanion.insert(

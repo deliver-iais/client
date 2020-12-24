@@ -12,6 +12,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -52,7 +53,8 @@ class CoreServices {
   var _lastSeenDao = GetIt.I.get<LastSeenDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
-  var _mucRepo = GetIt.I.get<MucRepo>();
+  var r = GetIt.I.get<RoutingService>();
+
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
 
@@ -220,14 +222,12 @@ class CoreServices {
         roomId: roomId, lastMessageId: Value(id)));
     _lastSeenDao.updateLastSeen(roomId, id);
     _pendingMessageDao.deletePendingMessage(packetId);
-    _notificationServices.palyAckMessageNotification(messageDeliveryAck.to.asString());
+    if (r.isInRoom(messageDeliveryAck.to.asString())) {
+      _notificationServices.playSoundNotification();
+    }
   }
 
   _saveIncomingMessage(Message message) async {
-    // TODO remove later on if Add User to group message feature is implemented
-    if (message.to.category != Categories.USER) {
-      await _mucRepo.saveMucInfo(message.to);
-    }
     var msg = await saveMessageInMessagesDB(message);
     bool isCurrentUser =
         message.from.node.contains(_accountRepo.currentUserUid.node);
@@ -242,7 +242,12 @@ class CoreServices {
           lastMessageDbId: Value(msg.dbId)),
     );
     String roomName = await _roomRepo.getRoomDisplayName(roomUid);
-   _notificationServices.showNotification(message, roomUid.asString(),roomName);
+    if (r.isInRoom(roomUid.asString())) {
+      _notificationServices.playSoundNotification();
+    } else {
+      _notificationServices.showNotification(
+          message, roomUid.asString(), roomName);
+    }
   }
 
 //TODO maybe need to test

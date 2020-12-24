@@ -84,7 +84,7 @@ class MucRepo {
   }
 
   // TODO remove later on if Add User to group message feature is implemented
-  saveMucInfo(Uid mucUid) async {
+  Future<String> fetchMucInfo(Uid mucUid) async {
     if (mucUid.category == Categories.GROUP) {
       MucPro.Group group = await getGroupInfo(mucUid);
       _mucDao.insertMuc(Muc(
@@ -92,6 +92,8 @@ class MucRepo {
           uid: mucUid.asString(),
           members: group.population.toInt()));
       getGroupMembers(mucUid);
+      return group.name;
+
     } else {
       Channel channel = await getChannelInfo(mucUid);
       _mucDao.insertMuc(Muc(
@@ -99,6 +101,8 @@ class MucRepo {
           uid: mucUid.asString(),
           members: channel.population.toInt()));
       getChannelMembers(mucUid);
+      return channel.name;
+
     }
   }
 

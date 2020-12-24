@@ -40,7 +40,6 @@ class Page {
 }
 
 class RoutingService {
-  var _createMucService = GetIt.I.get<CreateMucService>();
   BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
 
   Widget _navigationCenter;

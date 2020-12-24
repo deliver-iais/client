@@ -32,7 +32,6 @@ class FireBaseServices {
   _sendFireBaseToken(String fireBaseToken) async {
     String firabase_setting = await _prefs.get(Firabase_Setting_Is_Set);
     if (firabase_setting == null) {
-
       try {
         await fireBaseServices.registration(
             RegistrationReq()..tokenId = fireBaseToken,
@@ -93,23 +92,26 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
     String roomName;
     if (mes.to.category != Categories.USER) {
       var muc = await mucDao.getMucByUid(mes.to.asString());
-      if(muc !=  null){
+      if (muc != null) {
         roomName = muc.name;
-      }else{
-        roomName = "Unknown";
-      }
-
-    } else {
-      db.Contact contact =
-          await contactDao.getContactByUid(mes.from.asString());
-      if (contact != null) {
-        roomName =
-            contact.firstName != null ? contact.firstName : contact.username;
-        if (contact.lastName != null) {
-          roomName = "$roomName ${contact.lastName}";
-        }
       } else {
         roomName = "Unknown";
+      }
+    } else {
+      if (mes.from.category == Categories.SYSTEM) {
+        roomName = "Deliver";
+      } else {
+        db.Contact contact =
+            await contactDao.getContactByUid(mes.from.asString());
+        if (contact != null) {
+          roomName =
+              contact.firstName != null ? contact.firstName : contact.username;
+          if (contact.lastName != null) {
+            roomName = "$roomName ${contact.lastName}";
+          }
+        } else {
+          roomName = "Unknown";
+        }
       }
     }
     _notificationServices.showNotification(mes, mes.from.asString(), roomName);
