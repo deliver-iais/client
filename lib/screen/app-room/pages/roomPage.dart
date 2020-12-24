@@ -430,7 +430,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                           children: <
                                                                               Widget>[
                                                                             SentMessageBox(
-                                                                                key: Key(messages[0].id.toString()),
                                                                                 message: messages[0],
                                                                                 maxWidth: _maxWidth,
                                                                                 scrollToMessage: (int id) {
