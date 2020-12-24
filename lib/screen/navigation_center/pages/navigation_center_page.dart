@@ -209,6 +209,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
         ),
         child: tab == NavigationTabs.Chats
             ? PopupMenuButton(
+                color: Theme.of(context).backgroundColor,
                 icon: Icon(
                   Icons.create,
                   color: Colors.white,
@@ -217,49 +218,43 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 itemBuilder: (context) => [
                       if (kDebugMode)
                         PopupMenuItem(
-                            child: GestureDetector(
-                          child:
+                            child: RaisedButton(
+                          color: Theme.of(context).backgroundColor,
+                          child: Row(
+                            children: [
                               Text(appLocalization.getTraslateValue("newChat")),
-                          onTap: () {
+                            ],
+                          ),
+                          onPressed: () {
                             initialDataBase();
-                          },
-                        )),
-                      if (kDebugMode)
-                        PopupMenuItem(
-                            child: GestureDetector(
-                          child: Text("Go to Profile"),
-                          onTap: () {
-                            _routingService.openProfile(
-                                _accountRepo.currentUserUid.asString());
-                          },
-                        )),
-                      if (kDebugMode)
-                        PopupMenuItem(
-                            child: GestureDetector(
-                          child: Text("Go to Group"),
-                          onTap: () {
-                            var fakeGroupUid = Uid()
-                              ..category = Categories.GROUP
-                              ..node = "5745645454545456";
-                            _routingService
-                                .openProfile(fakeGroupUid.asString());
+                            Navigator.pop(context);
                           },
                         )),
                       PopupMenuItem(
-                          child: GestureDetector(
-                        child:
+                          child: RaisedButton(
+                        color: Theme.of(context).backgroundColor,
+                        child: Row(
+                          children: [
                             Text(appLocalization.getTraslateValue("newGroup")),
-                        onTap: () {
+                          ],
+                        ),
+                        onPressed: () {
                           _routingService.openMemberSelection(isChannel: false);
+                          Navigator.pop(context);
                         },
                       )),
                       PopupMenuItem(
-                          child: GestureDetector(
-                        child: Text(
-                            appLocalization.getTraslateValue("newChannel")),
-                        onTap: () {
+                          child: RaisedButton(
+                        color: Theme.of(context).backgroundColor,
+                        onPressed: () {
                           _routingService.openMemberSelection(isChannel: true);
+                          Navigator.pop(context);
                         },
+                        child: Row(
+                          children: [
+                            Text(appLocalization.getTraslateValue("newChannel"))
+                          ],
+                        ),
                       ))
                     ])
             : PopupMenuButton(

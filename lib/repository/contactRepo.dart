@@ -33,58 +33,60 @@ class ContactRepo {
 
   var contactServices = ContactServiceClient(ProfileServicesClientChannel);
 
+  Map<PhoneNumber, String> _contactsDisplayName = Map();
+
   syncContacts() async {
     if (await _checkPermission.checkContactPermission() || isDesktop()) {
       List<Contact> contacts = new List();
-
-      if (kDebugMode) {
-        PhoneNumber p1 = PhoneNumber()
-          ..countryCode = 98
-          ..nationalNumber = Int64.parseInt("1111111111");
-        contacts.add(Contact()
-          ..phoneNumber = p1
-          ..firstName = "Contact"
-          ..lastName = "1");
-        PhoneNumber p2 = PhoneNumber()
-          ..countryCode = 98
-          ..nationalNumber = Int64.parseInt("2222222222");
-        contacts.add(Contact()
-          ..phoneNumber = p2
-          ..firstName = "Contact"
-          ..lastName = "2");
-        PhoneNumber p3 = PhoneNumber()
-          ..countryCode = 98
-          ..nationalNumber = Int64.parseInt("3333333333");
-        contacts.add(Contact()
-          ..phoneNumber = p3
-          ..firstName = "Contact"
-          ..lastName = "3");
-        PhoneNumber p4 = PhoneNumber()
-          ..countryCode = 98
-          ..nationalNumber = Int64.parseInt("4444444444");
-        contacts.add(Contact()
-          ..phoneNumber = p4
-          ..firstName = "Contact"
-          ..lastName = "4");
-        PhoneNumber p5 = PhoneNumber()
-          ..countryCode = 98
-          ..nationalNumber = Int64.parseInt("55555584455");
-        contacts.add(Contact()
-          ..phoneNumber = p5
-          ..firstName = "Contact"
-          ..lastName = "5");
-        for (var contact in contacts) {
-          _contactDao.insertContact(Database.Contact(
-              phoneNumber: contact.phoneNumber.nationalNumber.toString(),
-              firstName: contact.firstName,
-              lastName: contact.lastName,
-              isMute: true,
-              isBlock: false));
-        }
-      }
+      //
+      // if (kDebugMode) {
+      //   PhoneNumber p1 = PhoneNumber()
+      //     ..countryCode = 98
+      //     ..nationalNumber = Int64.parseInt("1111111111");
+      //   contacts.add(Contact()
+      //     ..phoneNumber = p1
+      //     ..firstName = "Contact"
+      //     ..lastName = "1");
+      //   PhoneNumber p2 = PhoneNumber()
+      //     ..countryCode = 98
+      //     ..nationalNumber = Int64.parseInt("2222222222");
+      //   contacts.add(Contact()
+      //     ..phoneNumber = p2
+      //     ..firstName = "Contact"
+      //     ..lastName = "2");
+      //   PhoneNumber p3 = PhoneNumber()
+      //     ..countryCode = 98
+      //     ..nationalNumber = Int64.parseInt("3333333333");
+      //   contacts.add(Contact()
+      //     ..phoneNumber = p3
+      //     ..firstName = "Contact"
+      //     ..lastName = "3");
+      //   PhoneNumber p4 = PhoneNumber()
+      //     ..countryCode = 98
+      //     ..nationalNumber = Int64.parseInt("4444444444");
+      //   contacts.add(Contact()
+      //     ..phoneNumber = p4
+      //     ..firstName = "Contact"
+      //     ..lastName = "4");
+      //   PhoneNumber p5 = PhoneNumber()
+      //     ..countryCode = 98
+      //     ..nationalNumber = Int64.parseInt("55555584455");
+      //   contacts.add(Contact()
+      //     ..phoneNumber = p5
+      //     ..firstName = "Contact"
+      //     ..lastName = "5");
+      //   for (var contact in contacts) {
+      //     _contactDao.insertContact(Database.Contact(
+      //         phoneNumber: contact.phoneNumber.nationalNumber.toString(),
+      //         firstName: contact.firstName,
+      //         lastName: contact.lastName,
+      //         isMute: true,
+      //         isBlock: false));
+      //   }
+      // }
       if (!isDesktop()) {
         Iterable<OsContact.Contact> phoneContacts =
-            await OsContact.ContactsService.getContacts();
+            await OsContact.ContactsService.getContacts(withThumbnails: false,photoHighResolution: false,orderByGivenName: false,iOSLocalizedLabels: false);
 
         for (OsContact.Contact phoneContact in phoneContacts) {
           try {
@@ -96,9 +98,11 @@ class ContactRepo {
                 .replaceAll(')', '')
                 .replaceAll('-', '');
 
+            PhoneNumber phoneNumber = _getPhoneNumber(contactPhoneNumber);
+            _contactsDisplayName[phoneNumber] = phoneContact.displayName;
             Contact contact = Contact()
               ..lastName = phoneContact.displayName
-              ..phoneNumber = _getPhoneNumber(contactPhoneNumber);
+              ..phoneNumber = phoneNumber;
             contacts.add(contact);
           } catch (e) {
             print("ContactRepo");
@@ -116,13 +120,11 @@ class ContactRepo {
         phoneNumber.countryCode = 98;
         phoneNumber.nationalNumber = Int64.parseInt(phone.substring(1, 11));
         return phoneNumber;
-
         break;
       case 12:
         phoneNumber.countryCode = int.parse(phone.substring(0, 2));
         phoneNumber.nationalNumber = Int64.parseInt(phone.substring(2, 12));
         return phoneNumber;
-
       case 10:
         phoneNumber.countryCode = 98;
         phoneNumber.nationalNumber = Int64.parseInt(phone.substring(0, 10));
@@ -131,14 +133,14 @@ class ContactRepo {
     throw Exception("Not Valid Number $phone");
   }
 
-  Future<List<UserAsContact>> sendContacts(List<Contact> contacts) async {
+  Future sendContacts(List<Contact> contacts) async {
     int i = 0;
     while (i < contacts.length) {
       _sendContacts(contacts.sublist(
           i, contacts.length > i + 49 ? i + 49 : contacts.length));
       i = i + 50;
     }
-    return _getContacts(contacts);
+    getContacts();
   }
 
   _sendContacts(List<Contact> contacts) async {
@@ -151,7 +153,7 @@ class ContactRepo {
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
   }
 
-  Future<List<UserAsContact>> _getContacts(List<Contact> contacts) async {
+  Future getContacts() async {
     var result = await contactServices.getContactListUsers(
         GetContactListUsersReq(),
         options: CallOptions(
@@ -159,9 +161,10 @@ class ContactRepo {
 
     for (var contact in result.userList) {
       _contactDao.insertContact(Database.Contact(
-        uid: contact.uid != null ? contact.uid.asString() : null,
+        uid: contact.uid.asString(),
         phoneNumber: contact.phoneNumber.nationalNumber.toString(),
         username: contact.username,
+        firstName: _contactsDisplayName[contact.phoneNumber]!= null?_contactsDisplayName[contact.phoneNumber]:"${contact.firstName} ${contact.lastName.isNotEmpty?contact.lastName:" "}" ,
         isMute: true,
         isBlock: false,
       ));
@@ -170,37 +173,21 @@ class ContactRepo {
             Database.RoomsCompanion.insert(roomId: contact.uid.asString()));
       }
     }
-
-    _getContactsDetails();
-    return result.userList;
   }
 
-  _getContactsDetails() async {
-    var result = await contactServices.getContactList(GetContactListReq(),
-        options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
 
-    for (var contact in result.contactList) {
-      _contactDao.insertContact(Database.Contact(
-          phoneNumber: contact.phoneNumber.nationalNumber.toString(),
-          firstName: contact.firstName,
-          lastName: contact.lastName,
-          isMute: true,
-          isBlock: false));
-    }
-  }
 
   Future<UserAsContact> searchUserByUid(Uid uid) async {
-    try{
+    try {
       var result = await contactServices.getUserByUid(
           GetUserByUidReq()..uid = uid,
-          options: CallOptions(timeout: Duration(seconds: 2),
+          options: CallOptions(
+              timeout: Duration(seconds: 2),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return result.user;
-    }catch(e){
+    } catch (e) {
       return null;
     }
-
   }
 
   Future<UserAsContact> searchUserByUsername(String username) async {
@@ -223,5 +210,10 @@ class ContactRepo {
     Database.Contact contact =
         await _contactDao.getContactByUid(userUid.asString());
     return contact;
+  }
+
+  Future <bool>ContactIsExist(String number) async  {
+    var result = await _contactDao.getContact(number);
+    return result!=null;
   }
 }

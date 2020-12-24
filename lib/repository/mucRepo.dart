@@ -21,7 +21,6 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 class MucRepo {
   MucDao _mucDao = GetIt.I.get<MucDao>();
   MemberDao _memberDao = GetIt.I.get<MemberDao>();
-  AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
   RoomDao _roomDao = GetIt.I.get<RoomDao>();
   var mucServices = GetIt.I.get<MucServices>();
   var accountRepo = GetIt.I.get<AccountRepo>();

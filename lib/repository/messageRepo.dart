@@ -257,6 +257,7 @@ class MessageRepo {
       return;
     }
 
+
     MessageProto.MessageByClient byClient = _createMessageByClient(message);
 
     if (message.replyToId != null)

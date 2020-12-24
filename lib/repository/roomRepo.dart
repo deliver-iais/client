@@ -33,7 +33,7 @@ class RoomRepo {
         } else {
           var contact = await _contactDao.getContactByUid(uid.asString());
           if (contact != null) {
-            String contactName = "${contact.firstName} ${contact.lastName}";
+            String contactName = "${contact.firstName}";
             _roomNameCache.set(uid.asString(), contactName);
             return contactName;
           } else
@@ -49,7 +49,9 @@ class RoomRepo {
         } else {
           var muc = await _mucDao.getMucByUid(uid.asString());
           _roomNameCache.set(uid.asString(), muc.name);
-          return muc.name;
+          if(muc != null){
+            return muc.name;
+          }
         }
         break;
     }

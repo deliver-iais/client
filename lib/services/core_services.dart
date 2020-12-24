@@ -220,11 +220,12 @@ class CoreServices {
         roomId: roomId, lastMessageId: Value(id)));
     _lastSeenDao.updateLastSeen(roomId, id);
     _pendingMessageDao.deletePendingMessage(packetId);
+    _notificationServices.palyAckMessageNotification(messageDeliveryAck.to.asString());
   }
 
   _saveIncomingMessage(Message message) async {
     // TODO remove later on if Add User to group message feature is implemented
-    if (message.from.category != Categories.USER) {
+    if (message.to.category != Categories.USER) {
       await _mucRepo.saveMucInfo(message.to);
     }
     var msg = await saveMessageInMessagesDB(message);
@@ -240,8 +241,8 @@ class CoreServices {
           lastMessageId: Value(message.id.toInt()),
           lastMessageDbId: Value(msg.dbId)),
     );
-    var roomName = await _roomRepo.getRoomDisplayName(roomUid);
-    _notificationServices.showNotification(msg, roomName, roomUid.asString());
+    String roomName = await _roomRepo.getRoomDisplayName(roomUid);
+   _notificationServices.showNotification(message, roomUid.asString(),roomName);
   }
 
 //TODO maybe need to test

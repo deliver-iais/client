@@ -135,37 +135,38 @@ class TextBlock {
         crossAxisAlignment:
             isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: <Widget>[
-          for (var i in texts)
+          for (int i = 0; i < texts.length; i++)
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 Container(
                     constraints: BoxConstraints.loose(Size.fromWidth(maxWidth)),
-                    child: _textWidget(i, message, isLastBlock, isSender)),
+                    child: _textWidget(texts[i], message, isLastBlock, isSender,
+                        i, texts.length - 1)),
               ],
             )
         ]);
   }
 }
 
-Widget _textWidget(
-    String text, Message message, bool isLastBlock, bool isSender) {
+Widget _textWidget(String text, Message message, bool isLastBlock,
+    bool isSender, i, int lenght) {
   return Wrap(
     alignment: WrapAlignment.end,
-    crossAxisAlignment: WrapCrossAlignment.start,
+    crossAxisAlignment: WrapCrossAlignment.end,
     children: [
       Text(text,
           textDirection:
               text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           textAlign: TextAlign.justify),
-      if (isLastBlock)
+      if (i == lenght && isLastBlock)
         Padding(
           padding: const EdgeInsets.only(left: 8.0, top: 5),
           child: MsgTime(
             time: message.time,
           ),
         ),
-      if (isLastBlock & isSender)
+      if (i == lenght && isLastBlock & isSender)
         Padding(
           padding: const EdgeInsets.only(left: 3.0, top: 5),
           child: SeenStatus(message),

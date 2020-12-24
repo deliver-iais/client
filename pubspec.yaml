@@ -37,7 +37,7 @@ dependencies:
   permissions_plugin: 1.1.4 # ANDROID ONLY SUPPORTED
 
   ext_storage: 1.0.3
-  path_provider: 1.6.24
+  path_provider: 1.6.8
   path:
 
   # The following adds the Cupertino Icons font to your application.
@@ -65,7 +65,7 @@ dependencies:
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://gitlab.iais.co/deliver/protocol/pub-dart-artifactory.git
-      ref: tags/v1.6.0
+      ref: tags/v1.6.3
   grpc: 2.2.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   protobuf: 1.0.1 # (WEB NOT SUPPORTED BI-Directional Streaming)
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
@@ -106,6 +106,8 @@ dependencies:
 
   flutter_icons: 1.1.0
 
+  assets_audio_player: 2.0.13+1
+
   device_info: 1.0.0
 
   path_provider_fde:
@@ -142,7 +144,7 @@ flutter:
     - assets/audios/r.mp3
     - lib/lang/fa.json
     - lib/lang/en.json
-
+    - assets/audios/ack.mp3
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
