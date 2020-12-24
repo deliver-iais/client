@@ -86,7 +86,7 @@ class ContactRepo {
       // }
       if (!isDesktop()) {
         Iterable<OsContact.Contact> phoneContacts =
-            await OsContact.ContactsService.getContacts();
+            await OsContact.ContactsService.getContacts(withThumbnails: false,photoHighResolution: false,orderByGivenName: false,iOSLocalizedLabels: false);
 
         for (OsContact.Contact phoneContact in phoneContacts) {
           try {

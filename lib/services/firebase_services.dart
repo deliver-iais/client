@@ -104,12 +104,12 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
           await contactDao.getContactByUid(mes.from.asString());
       if (contact != null) {
         roomName =
-            contact.firstName != null ? contact.firstName : contact.username??"Unknown";
+            contact.firstName != null ? contact.firstName : contact.username;
         if (contact.lastName != null) {
           roomName = "$roomName ${contact.lastName}";
-        } else {
-          roomName = "Unknown";
         }
+      } else {
+        roomName = "Unknown";
       }
     }
     _notificationServices.showNotification(mes, mes.from.asString(), roomName);
