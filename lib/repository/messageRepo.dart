@@ -257,7 +257,6 @@ class MessageRepo {
       return;
     }
 
-    print(message.toString());
 
     MessageProto.MessageByClient byClient = _createMessageByClient(message);
 

@@ -144,7 +144,7 @@ class RoutingService {
   }
 
   void openMemberSelection({bool isChannel, Uid mucUid}) {
-    _createMucService.reset();
+   // _createMucService.reset();
     var widget = MemberSelectionPage(
       key: ValueKey("/member-selection-page"),
       isChannel: isChannel,
