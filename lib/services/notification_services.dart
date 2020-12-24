@@ -1,5 +1,6 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,7 +17,7 @@ class NotificationServices {
   Map<String, int> _notificationMap = Map();
 
   NotificationServices() {
-    Firebase.initializeApp();
+    if (!isDesktop()) Firebase.initializeApp();
     var androidNotificationSetting =
         new AndroidInitializationSettings('@mipmap/ic_launcher');
     var iosNotificationSetting = new IOSInitializationSettings(
@@ -124,7 +125,7 @@ class NotificationServices {
     _currentRoomUid = roomId;
   }
 
-  void palyAckMessageNotification(String roomUid) async{
+  void palyAckMessageNotification(String roomUid) async {
     if (_currentRoomUid != null && _currentRoomUid.contains(roomUid))
       AssetsAudioPlayer.newPlayer().open(
         Audio("assets/audios/ack.mp3"),
@@ -132,8 +133,8 @@ class NotificationServices {
   }
 
   void _playNotificationSound() async {
-      AssetsAudioPlayer.newPlayer().open(
-        Audio("assets/audios/ack.mp3"),
-      );
+    AssetsAudioPlayer.newPlayer().open(
+      Audio("assets/audios/ack.mp3"),
+    );
   }
 }
