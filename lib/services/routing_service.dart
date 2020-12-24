@@ -81,13 +81,13 @@ class RoutingService {
         path: "/settings"));
   }
 
-  void openShowAllAvatars({Uid uid, bool hasPermissionToDeleteAvatar,String heroTag}) {
+  void openShowAllAvatars(
+      {Uid uid, bool hasPermissionToDeleteAvatar, String heroTag}) {
     var widget = MediaDetailsPage.showAvatar(
-      key: ValueKey("/media-details"),
-      uid: uid,
-      hasPermissionToDeletePic: hasPermissionToDeleteAvatar,
-      heroTag: heroTag
-    );
+        key: ValueKey("/media-details"),
+        uid: uid,
+        hasPermissionToDeletePic: hasPermissionToDeleteAvatar,
+        heroTag: heroTag);
     _push(Page(
       //largePageNavigator: _navigationCenter,
       //largePageMain: widget,
@@ -97,7 +97,12 @@ class RoutingService {
     ));
   }
 
-  void openShowAllMedia({Uid uid,bool hasPermissionToDeletePic,int mediaPosition, int mediasLength, String heroTag}) {
+  void openShowAllMedia(
+      {Uid uid,
+      bool hasPermissionToDeletePic,
+      int mediaPosition,
+      int mediasLength,
+      String heroTag}) {
     var widget = MediaDetailsPage.showMedia(
       key: ValueKey("/media-details"),
       uid: uid,
@@ -162,7 +167,8 @@ class RoutingService {
         smallPageMain: widget,
         path: "/new-contact"));
   }
-  void  openSelectForwardMessage(List<Message> forwardedMessages) {
+
+  void openSelectForwardMessage(List<Message> forwardedMessages) {
     var widget = SelectionToForwardPage(
       key: ValueKey("/selection-to-forward-page"),
       forwardedMessages: forwardedMessages,
@@ -250,9 +256,10 @@ class RoutingService {
     return _stack.length < 2 || (_stack?.last?.lockBackButton ?? false);
   }
 
-  Widget backButtonLeading() {
+  Widget backButtonLeading({Function back}) {
     return BackButton(
       onPressed: () {
+        if (back != null) back();
         pop();
       },
     );

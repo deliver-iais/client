@@ -1,3 +1,4 @@
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -123,12 +124,16 @@ class NotificationServices {
     _currentRoomUid = roomId;
   }
 
-  void palyAckMessageNotification(String roomUid) {
+  void palyAckMessageNotification(String roomUid) async{
     if (_currentRoomUid != null && _currentRoomUid.contains(roomUid))
-      audioPlayer.play('');
+      AssetsAudioPlayer.newPlayer().open(
+        Audio("assets/audios/ack.mp3"),
+      );
   }
 
-  void _playNotificationSound() {
-    audioPlayer.play("");
+  void _playNotificationSound() async {
+      AssetsAudioPlayer.newPlayer().open(
+        Audio("assets/audios/rec.mp3"),
+      );
   }
 }

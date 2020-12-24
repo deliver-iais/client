@@ -191,85 +191,89 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _maxWidth = min(_maxWidth, 300);
     var deviceHeight = MediaQuery.of(context).size.height;
 
-    return StreamBuilder<bool>(
-      stream: _audioPlayerService.isOn,
-      builder: (context, snapshot) {
-        return Scaffold(
-          appBar: buildAppbar(snapshot),
-          body: Column(
-            children: <Widget>[
-              FutureBuilder<LastSeen>(
-                  future: _lastSeenDao.getByRoomId(widget.roomId),
-                  builder: (context, lastSeen) {
-                    if (lastSeen.data != null) {
-                      _lastShowedMessageId = lastSeen.data.messageId;
-                    }
-                    return StreamBuilder<List<PendingMessage>>(
-                        stream: _pendingMessageDao.getByRoomId(widget.roomId),
-                        builder: (context, pendingMessagesStream) {
-                          var pendingMessages = pendingMessagesStream.hasData
-                              ? pendingMessagesStream.data
-                              : [];
+    return  StreamBuilder<bool>(
+          stream: _audioPlayerService.isOn,
+          builder: (context, snapshot) {
+            return Scaffold(
+              appBar: buildAppbar(snapshot),
+              body: Column(
+                children: <Widget>[
+                  FutureBuilder<LastSeen>(
+                      future: _lastSeenDao.getByRoomId(widget.roomId),
+                      builder: (context, lastSeen) {
+                        if (lastSeen.data != null) {
+                          _lastShowedMessageId = lastSeen.data.messageId;
+                        }
+                        return StreamBuilder<List<PendingMessage>>(
+                            stream:
+                                _pendingMessageDao.getByRoomId(widget.roomId),
+                            builder: (context, pendingMessagesStream) {
+                              var pendingMessages =
+                                  pendingMessagesStream.hasData
+                                      ? pendingMessagesStream.data
+                                      : [];
 
-                          return StreamBuilder<Room>(
-                              stream: _roomDao.getByRoomId(widget.roomId),
-                              builder: (context, currentRoomStream) {
-                                if (currentRoomStream.hasData) {
-                                  Room currentRoom = currentRoomStream.data;
-                                  if (currentRoom.lastMessageId == null) {
-                                    _itemCount = pendingMessages.length;
-                                  } else {
-                                    _itemCount = currentRoom.lastMessageId +
-                                        pendingMessages.length; //TODO chang
-                                  }
+                              return StreamBuilder<Room>(
+                                  stream: _roomDao.getByRoomId(widget.roomId),
+                                  builder: (context, currentRoomStream) {
+                                    if (currentRoomStream.hasData) {
+                                      Room currentRoom = currentRoomStream.data;
+                                      if (currentRoom.lastMessageId == null) {
+                                        _itemCount = pendingMessages.length;
+                                      } else {
+                                        _itemCount = currentRoom.lastMessageId +
+                                            pendingMessages.length; //TODO chang
+                                      }
 
-                                  return Flexible(
-                                    fit: FlexFit.loose,
-                                    child: Container(
-                                      height: deviceHeight,
-                                      // color: Colors.amber,
-                                      child: buildMessagesListView(currentRoom,
-                                          pendingMessages, _maxWidth),
-                                    ),
-                                  );
-                                } else {
-                                  return Container();
-                                }
-                              });
-                        });
-                  }),
-              _repliedMessage != null
-                  ? ReplyWidget(
-                      message: _repliedMessage,
-                      resetRoomPageDetails: _resetRoomPageDetails)
-                  : Container(),
-              _waitingForForwardedMessage
-                  ? ForwardWidget(
-                      forwardedMessages: widget.forwardedMessages,
-                      onClick: () {
-                        setState(() {
-                          _waitingForForwardedMessage = false;
-                        });
-                      },
-                    )
-                  : Container(),
-              _hasPermissionToSendMessage
-                  ? NewMessageInput(
-                      currentRoomId: widget.roomId,
-                      replyMessageId: _repliedMessage != null
-                          ? _repliedMessage.id ?? -1
-                          : -1,
-                      resetRoomPageDetails: _resetRoomPageDetails,
-                      waitingForForward: _waitingForForwardedMessage,
-                      sendForwardMessage: _sendForwardMessage,
-                    )
-                  : MuteAndUnMuteRoomWidget(roomId: widget.roomId)
-            ],
-          ),
-          backgroundColor: Theme.of(context).backgroundColor,
+                                      return Flexible(
+                                        fit: FlexFit.loose,
+                                        child: Container(
+                                          height: deviceHeight,
+                                          // color: Colors.amber,
+                                          child: buildMessagesListView(
+                                              currentRoom,
+                                              pendingMessages,
+                                              _maxWidth),
+                                        ),
+                                      );
+                                    } else {
+                                      return Container();
+                                    }
+                                  });
+                            });
+                      }),
+                  _repliedMessage != null
+                      ? ReplyWidget(
+                          message: _repliedMessage,
+                          resetRoomPageDetails: _resetRoomPageDetails)
+                      : Container(),
+                  _waitingForForwardedMessage
+                      ? ForwardWidget(
+                          forwardedMessages: widget.forwardedMessages,
+                          onClick: () {
+                            setState(() {
+                              _waitingForForwardedMessage = false;
+                            });
+                          },
+                        )
+                      : Container(),
+                  _hasPermissionToSendMessage
+                      ? NewMessageInput(
+                          currentRoomId: widget.roomId,
+                          replyMessageId: _repliedMessage != null
+                              ? _repliedMessage.id ?? -1
+                              : -1,
+                          resetRoomPageDetails: _resetRoomPageDetails,
+                          waitingForForward: _waitingForForwardedMessage,
+                          sendForwardMessage: _sendForwardMessage,
+                        )
+                      : MuteAndUnMuteRoomWidget(roomId: widget.roomId)
+                ],
+              ),
+              backgroundColor: Theme.of(context).backgroundColor,
+            );
+          },
         );
-      },
-    );
   }
 
   PreferredSize buildAppbar(AsyncSnapshot<bool> snapshot) {
@@ -279,7 +283,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               ? 100
               : 60),
       child: AppBar(
-        leading: _routingService.backButtonLeading(),
+        leading: GestureDetector(
+          child: _routingService.backButtonLeading(back: () {
+            _notificationServices.reset("\t");
+          }),
+        ),
         title: Align(
           alignment: Alignment.centerLeft,
           child: _selectMultiMessage

@@ -220,8 +220,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         PopupMenuItem(
                             child: RaisedButton(
                           color: Theme.of(context).backgroundColor,
-                          child:
+                          child: Row(
+                            children: [
                               Text(appLocalization.getTraslateValue("newChat")),
+                            ],
+                          ),
                           onPressed: () {
                             initialDataBase();
                             Navigator.pop(context);
@@ -230,8 +233,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       PopupMenuItem(
                           child: RaisedButton(
                         color: Theme.of(context).backgroundColor,
-                        child:
+                        child: Row(
+                          children: [
                             Text(appLocalization.getTraslateValue("newGroup")),
+                          ],
+                        ),
                         onPressed: () {
                           _routingService.openMemberSelection(isChannel: false);
                           Navigator.pop(context);
@@ -244,8 +250,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           _routingService.openMemberSelection(isChannel: true);
                           Navigator.pop(context);
                         },
-                        child: Text(
-                            appLocalization.getTraslateValue("newChannel")),
+                        child: Row(
+                          children: [
+                            Text(appLocalization.getTraslateValue("newChannel"))
+                          ],
+                        ),
                       ))
                     ])
             : PopupMenuButton(
