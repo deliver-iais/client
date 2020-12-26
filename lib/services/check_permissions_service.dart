@@ -1,7 +1,9 @@
-
 import 'package:permissions_plugin/permissions_plugin.dart';
+import 'package:synchronized/synchronized.dart';
 
 class CheckPermissionsService {
+  var requestLock = new Lock();
+
   Future<bool> check(List<Permission> permissions) async {
     try {
       return (await PermissionsPlugin.checkPermissions(permissions))
@@ -14,14 +16,16 @@ class CheckPermissionsService {
   }
 
   Future<bool> request(List<Permission> permission) async {
-    try {
-      return (await PermissionsPlugin.requestPermissions(permission))
-          .values
-          .every(
-              (permissionState) => permissionState == PermissionState.GRANTED);
-    } catch (e) {
-      return false;
-    }
+    return await requestLock.synchronized(() async {
+      try {
+        return (await PermissionsPlugin.requestPermissions(permission))
+            .values
+            .every((permissionState) =>
+                permissionState == PermissionState.GRANTED);
+      } catch (e) {
+        return false;
+      }
+    });
   }
 }
 
@@ -42,7 +46,7 @@ extension PermissionsExtension on CheckPermissionsService {
     }
   }
 
-  Future<bool>checkStoragePermission() async {
+  Future<bool> checkStoragePermission() async {
     if (!await check([
       Permission.READ_EXTERNAL_STORAGE,
       Permission.WRITE_EXTERNAL_STORAGE
@@ -51,7 +55,7 @@ extension PermissionsExtension on CheckPermissionsService {
         Permission.READ_EXTERNAL_STORAGE,
         Permission.WRITE_EXTERNAL_STORAGE
       ]);
-    }else{
+    } else {
       return true;
     }
   }
