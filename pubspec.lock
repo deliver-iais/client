@@ -866,7 +866,7 @@ packages:
       name: receive_sharing_intent
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.2"
+    version: "1.4.1"
   rxdart:
     dependency: "direct main"
     description:
@@ -1027,7 +1027,7 @@ packages:
     source: hosted
     version: "1.1.0-nullsafety.1"
   synchronized:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: synchronized
       url: "https://pub.dartlang.org"
@@ -1176,5 +1176,5 @@ packages:
     source: hosted
     version: "2.2.1"
 sdks:
-  dart: ">=2.10.0 <2.11.0"
+  dart: ">=2.10.0 <=2.11.0-161.0.dev"
   flutter: ">=1.20.0 <2.0.0"
