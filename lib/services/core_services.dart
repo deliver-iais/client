@@ -53,7 +53,7 @@ class CoreServices {
   var _lastSeenDao = GetIt.I.get<LastSeenDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
-  var r = GetIt.I.get<RoutingService>();
+  var _routingServices = GetIt.I.get<RoutingService>();
 
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
@@ -222,7 +222,7 @@ class CoreServices {
         roomId: roomId, lastMessageId: Value(id)));
     _lastSeenDao.updateLastSeen(roomId, id);
     _pendingMessageDao.deletePendingMessage(packetId);
-    if (r.isInRoom(messageDeliveryAck.to.asString())) {
+    if(_routingServices.isInRoom(messageDeliveryAck.to.asString())){
       _notificationServices.playSoundNotification();
     }
   }
@@ -242,12 +242,12 @@ class CoreServices {
           lastMessageDbId: Value(msg.dbId)),
     );
     String roomName = await _roomRepo.getRoomDisplayName(roomUid);
-    if (r.isInRoom(roomUid.asString())) {
+    if(_routingServices.isInRoom(roomUid.asString())){
       _notificationServices.playSoundNotification();
-    } else {
-      _notificationServices.showNotification(
-          message, roomUid.asString(), roomName);
+    }else{
+      _notificationServices.showNotification(message, roomUid.asString(),roomName);
     }
+
   }
 
 //TODO maybe need to test
