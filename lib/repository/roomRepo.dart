@@ -57,7 +57,7 @@ class RoomRepo {
            String mucName = await _mucRepo.fetchMucInfo(roomUid);
            if(mucName != null){
              _roomNameCache.set(roomUid.asString(), mucName);
-             return muc.name;
+             return mucName;
            }else{
              return "UnKnown";
            }

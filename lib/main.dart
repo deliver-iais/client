@@ -51,7 +51,7 @@ import 'db/dao/MucDao.dart';
 import 'db/dao/RoomDao.dart';
 import 'repository/mucRepo.dart';
 
-void setupDB() {
+void setupDI() {
   GetIt getIt = GetIt.instance;
   Database db = Database();
   getIt.registerSingleton<MessageDao>(db.messageDao);
@@ -68,13 +68,10 @@ void setupDB() {
   getIt.registerSingleton<MemberDao>(db.memberDao);
   getIt.registerSingleton<LastSeenDao>(db.lastSeenDao);
   getIt.registerSingleton<MediaMetaDataDao>(db.mediaMetaDataDao);
-}
 
-void setupRepositories() {
   // Order is important, don't change it!
-  GetIt getIt = GetIt.instance;
   getIt.registerSingleton<UxService>(UxService());
-  getIt.registerSingleton<AccountRepo>(AccountRepo());
+  getIt.registerSingleton<AccountRepo>(AccountRepo(sharedPrefs: db.sharedPreferencesDao));
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
@@ -107,8 +104,7 @@ setupFlutterNotification() async {
 }
 
 void setupDIAndRunApp() {
-  setupDB();
-  setupRepositories();
+  setupDI();
 
   // TODO: Android just now is available
   if (isAndroid()) {

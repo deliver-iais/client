@@ -252,7 +252,6 @@ class MessageRepo {
       return;
     }
 
-
     MessageProto.MessageByClient byClient = _createMessageByClient(message);
 
     if (message.replyToId != null)
@@ -432,7 +431,8 @@ class MessageRepo {
       List<MessageProto.Message> messages) async {
     List<Message> msgList = [];
     for (MessageProto.Message message in messages) {
-      msgList.add(await _coreServices.saveMessageInMessagesDB(message));
+      msgList.add(
+          await saveMessageInMessagesDB(_accountRepo, _messageDao, message));
     }
     return msgList;
   }

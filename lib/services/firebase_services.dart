@@ -3,6 +3,7 @@ import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart' as db;
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
@@ -86,23 +87,30 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
   var database = db.Database();
   var contactDao = database.contactDao;
   var mucDao = database.mucDao;
+  var roomDao = database.roomDao;
+  var messageDao = database.messageDao;
+  var sharedPreferencesDao = database.sharedPreferencesDao;
+  var accountRepo = AccountRepo(sharedPrefs: sharedPreferencesDao);
 
   if (message.containsKey('data')) {
-    Message mes = _decodeMessage(message["data"]["body"]);
+    Message msg = _decodeMessage(message["data"]["body"]);
     String roomName;
-    if (mes.to.category != Categories.USER) {
-      var muc = await mucDao.getMucByUid(mes.to.asString());
+
+    CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg);
+
+    if (msg.to.category != Categories.USER) {
+      var muc = await mucDao.getMucByUid(msg.to.asString());
       if (muc != null) {
         roomName = muc.name;
       } else {
         roomName = "Unknown";
       }
     } else {
-      if (mes.from.category == Categories.SYSTEM) {
+      if (msg.from.category == Categories.SYSTEM) {
         roomName = "Deliver";
       } else {
         db.Contact contact =
-            await contactDao.getContactByUid(mes.from.asString());
+            await contactDao.getContactByUid(msg.from.asString());
         if (contact != null) {
           roomName =
               contact.firstName != null ? contact.firstName : contact.username;
@@ -114,7 +122,7 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
         }
       }
     }
-    _notificationServices.showNotification(mes, mes.from.asString(), roomName);
+    _notificationServices.showNotification(msg, msg.from.asString(), roomName);
   }
   if (message.containsKey('notification')) {
     //todo

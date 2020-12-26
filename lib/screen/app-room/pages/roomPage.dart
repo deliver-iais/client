@@ -55,7 +55,6 @@ class RoomPage extends StatefulWidget {
 class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
-  var _memberRepo = GetIt.I.get<MemberRepo>();
   var _messageRepo = GetIt.I.get<MessageRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _lastSeenDao = GetIt.I.get<LastSeenDao>();
@@ -67,7 +66,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   int lastSeenMessageId = -1;
   bool _waitingForForwardedMessage;
   bool _isMuc;
-  bool _hasPermissionToSendMessage = true;
   Message _repliedMessage;
   Map<String, Message> _selectedMessages = Map();
   AppLocalization _appLocalization;
@@ -175,14 +173,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         ? widget.forwardedMessages.length > 0
         : false;
     sendInputSharedFile();
-    if (widget.roomId.uid.category == Categories.CHANNEL) {
-      _checkChannelRole();
-    }
     //TODO check
     _lastSeenSubject.distinct().listen((event) {
       if (event != null && _lastShowedMessageId < event) {
-        _lastSeenDao
-            .insertLastSeen(LastSeen(roomId: widget.roomId, messageId: event));
         _messageRepo.sendSeenMessage(
             event, widget.roomId.uid, widget.roomId.uid);
       }
@@ -264,22 +257,27 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       },
                     )
                   : Container(),
-              _hasPermissionToSendMessage
-                  ? NewMessageInput(
-                      currentRoomId: widget.roomId,
-                      replyMessageId: _repliedMessage != null
-                          ? _repliedMessage.id ?? -1
-                          : -1,
-                      resetRoomPageDetails: _resetRoomPageDetails,
-                      waitingForForward: _waitingForForwardedMessage,
-                      sendForwardMessage: _sendForwardMessage,
+              widget.roomId.uid.category != Categories.CHANNEL
+                  ? buildNewMessageInput()
+                  : MuteAndUnMuteRoomWidget(
+                      roomId: widget.roomId,
+                      inputMessage: buildNewMessageInput(),
                     )
-                  : MuteAndUnMuteRoomWidget(roomId: widget.roomId)
             ],
           ),
           backgroundColor: Theme.of(context).backgroundColor,
         );
       },
+    );
+  }
+
+  NewMessageInput buildNewMessageInput() {
+    return NewMessageInput(
+      currentRoomId: widget.roomId,
+      replyMessageId: _repliedMessage != null ? _repliedMessage.id ?? -1 : -1,
+      resetRoomPageDetails: _resetRoomPageDetails,
+      waitingForForward: _waitingForForwardedMessage,
+      sendForwardMessage: _sendForwardMessage,
     );
   }
 
@@ -346,6 +344,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     .from
                     .isSameEntity(_accountRepo.currentUserUid)))
                   _lastSeenSubject.add(currentRoom.lastMessageId);
+                _lastSeenDao.insertLastSeen(LastSeen(
+                    roomId: widget.roomId,
+                    messageId: currentRoom.lastMessageId));
               }
               bool newTime = false;
               if (messages.length == 1 &&
@@ -532,16 +533,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         )
       ],
     );
-  }
-
-  _checkChannelRole() async {
-    var hasPermissionInMuc = await _memberRepo.isMucAdminOrOwner(
-        _accountRepo.currentUserUid.asString(), widget.roomId);
-    if (!hasPermissionInMuc) {
-      setState(() {
-        _hasPermissionToSendMessage = false;
-      });
-    }
   }
 
   Widget showSentMessage(Message message, double _maxWidth, int lastMessageId,
