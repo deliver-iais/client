@@ -31,7 +31,7 @@ class RecievedMessageBox extends StatelessWidget {
                 color: ExtraTheme.of(context).secondColor,
                 padding: const EdgeInsets.all(2),
                 child: BoxContent(
-                    message: message, maxWidth: maxWidth, isSender: false,scrollToMessage:scrollToMessage ,),
+                    message: message, maxWidth: maxWidth, isSender: false,scrollToMessage:scrollToMessage,),
               ),
             ),
           );

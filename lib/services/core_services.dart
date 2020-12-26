@@ -79,8 +79,6 @@ class CoreServices {
           backoffTime = MIN_BACKOFF_TIME;
         }
         _connectionStatus.add(ConnectionStatus.Disconnected);
-        // _clientPacket.close();
-        // _responseStream.cancel();
         startStream();
       }
       startCheckerTimer();
@@ -136,17 +134,6 @@ class CoreServices {
       print(e);
       print("correservice error");
     }
-    _responseStream.doOnError((){
-      print("error");
-    });
-    _responseStream.onErrorResume((error)  {
-      print("error");
-    });
-    _responseStream.handleError((){
-      print("error");
-    });
-
-
   }
 
   sendMessage(MessageByClient message) {
@@ -233,7 +220,6 @@ class CoreServices {
     _messageDao.updateMessageId(roomId, packetId, id, time);
     _roomDao.insertRoomCompanion(Database.RoomsCompanion.insert(
         roomId: roomId, lastMessageId: Value(id)));
-    _lastSeenDao.updateLastSeen(roomId, id);
     _pendingMessageDao.deletePendingMessage(packetId);
     if(_routingServices.isInRoom(messageDeliveryAck.to.asString())){
       _notificationServices.playSoundNotification();

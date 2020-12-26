@@ -6,7 +6,10 @@ import 'package:get_it/get_it.dart';
 
 class SeenStatus extends StatelessWidget {
   final Message message;
-  const SeenStatus(this.message);
+  final bool isSeen;
+
+  const SeenStatus(this.message, {this.isSeen});
+
   @override
   Widget build(BuildContext context) {
     final SeenDao seenDao = GetIt.I.get<SeenDao>();
@@ -14,18 +17,28 @@ class SeenStatus extends StatelessWidget {
         color: Theme.of(context).primaryColor, size: 15);
     if (message.id == null)
       return pendingMessage;
-    else
-      return FutureBuilder<bool>(
-        future: seenDao.isSeenSentMessage(message),
+    else if (isSeen != null && isSeen) {
+      return Icon(
+        Icons.done_all,
+        color: ExtraTheme.of(context).text,
+        size: 15,
+      );
+    } else
+      return StreamBuilder<Seen>(
+        stream: seenDao.getRoomLastSeen(message.roomId),
         builder: (context, snapshot) {
           if (snapshot.hasData)
             return Icon(
-              (snapshot.data) ? Icons.done_all : Icons.done,
+              snapshot.data.messageId>=message.id?Icons.done_all:Icons.done,
               color: ExtraTheme.of(context).text,
               size: 15,
             );
           else
-            return pendingMessage;
+            return Icon(
+              Icons.done,
+              color: ExtraTheme.of(context).text,
+              size: 15,
+            );
         },
       );
   }

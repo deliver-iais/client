@@ -13,6 +13,7 @@ class TextUi extends StatelessWidget {
   final Function lastCross;
   final bool isSender;
   final bool isCaption;
+  final bool isSeen;
 
   const TextUi(
       {Key key,
@@ -20,6 +21,7 @@ class TextUi extends StatelessWidget {
       this.maxWidth,
       this.lastCross,
       this.isSender,
+      this.isSeen,
       this.isCaption})
       : super(key: key);
 
@@ -60,7 +62,7 @@ class TextUi extends StatelessWidget {
           : CrossAxisAlignment.start);
     //max lenght
     var joint = blocks[idx].build(
-        this.maxWidth, this.message, idx == (blocks.length - 1), this.isSender);
+        this.maxWidth, this.message, idx == (blocks.length - 1), this.isSender, this.isSeen);
 
     for (var i = 1; i <= idx; i++) {
       joint = Column(
@@ -73,7 +75,7 @@ class TextUi extends StatelessWidget {
                 : CrossAxisAlignment.end),
         children: <Widget>[
           blocks[idx - i].build(this.maxWidth, this.message,
-              idx - i == (blocks.length - 1), this.isSender),
+              idx - i == (blocks.length - 1), this.isSender,this.isSeen),
           joint,
         ],
       );
@@ -90,7 +92,7 @@ class TextUi extends StatelessWidget {
         children: <Widget>[
           joint,
           blocks[idx + i].build(this.maxWidth, this.message,
-              idx + i == (blocks.length - 1), this.isSender),
+              idx + i == (blocks.length - 1), this.isSender,this.isSeen),
         ],
       );
     }
@@ -130,7 +132,7 @@ class TextBlock {
     texts.add(t);
   }
 
-  build(double maxWidth, Message message, bool isLastBlock, bool isSender) {
+  build(double maxWidth, Message message, bool isLastBlock, bool isSender,bool isSeen) {
     return Column(
         crossAxisAlignment:
             isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -142,7 +144,7 @@ class TextBlock {
                 Container(
                     constraints: BoxConstraints.loose(Size.fromWidth(maxWidth)),
                     child: _textWidget(texts[i], message, isLastBlock, isSender,
-                        i, texts.length - 1)),
+                        i, texts.length - 1,isSeen)),
               ],
             )
         ]);
@@ -150,7 +152,7 @@ class TextBlock {
 }
 
 Widget _textWidget(String text, Message message, bool isLastBlock,
-    bool isSender, i, int lenght) {
+    bool isSender, i, int lenght,bool isSeen ) {
   return Wrap(
     alignment: WrapAlignment.end,
     crossAxisAlignment: WrapCrossAlignment.end,
@@ -169,7 +171,7 @@ Widget _textWidget(String text, Message message, bool isLastBlock,
       if (i == lenght && isLastBlock & isSender)
         Padding(
           padding: const EdgeInsets.only(left: 3.0, top: 5),
-          child: SeenStatus(message),
+          child: SeenStatus(message,isSeen: isSeen,),
         ),
     ],
   );

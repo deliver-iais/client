@@ -51,7 +51,6 @@ class MessageRepo {
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
-  var _mucRepo = GetIt.I.get<MucRepo>();
 
   var _coreServices = GetIt.I.get<CoreServices>();
 
