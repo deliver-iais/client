@@ -155,7 +155,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     minLines: 1,
                                     maxLines: 15,
                                     autofocus: autofocus,
-                                    textInputAction: TextInputAction.send,
+                                    textInputAction: TextInputAction.newline,
                                     controller: controller,
                                     onSubmitted: null,
                                     onChanged: (str) {

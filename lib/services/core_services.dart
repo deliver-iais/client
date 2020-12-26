@@ -32,7 +32,7 @@ const MAX_BACKOFF_TIME = 32;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
-  var _clientPacket = StreamController<ClientPacket>();
+  var _clientPacket;
   ResponseStream<ServerPacket> _responseStream;
   @visibleForTesting
   int backoffTime = MIN_BACKOFF_TIME;
@@ -79,6 +79,8 @@ class CoreServices {
           backoffTime = MIN_BACKOFF_TIME;
         }
         _connectionStatus.add(ConnectionStatus.Disconnected);
+        // _clientPacket.close();
+        // _responseStream.cancel();
         startStream();
       }
       startCheckerTimer();
@@ -134,6 +136,17 @@ class CoreServices {
       print(e);
       print("correservice error");
     }
+    _responseStream.doOnError((){
+      print("error");
+    });
+    _responseStream.onErrorResume((error)  {
+      print("error");
+    });
+    _responseStream.handleError((){
+      print("error");
+    });
+
+
   }
 
   sendMessage(MessageByClient message) {
