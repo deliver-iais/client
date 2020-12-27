@@ -67,7 +67,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   bool _waitingForForwardedMessage;
   bool _isMuc;
   Message _repliedMessage;
-  Map<String, Message> _selectedMessages = Map();
+  Map<int, Message> _selectedMessages = Map();
   AppLocalization _appLocalization;
   bool _selectMultiMessage = false;
   int _lastShowedMessageId = -1;
@@ -388,7 +388,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   messages[0].type != MessageType.PERSISTENT_EVENT
                       ? Container(
                           color: _selectedMessages
-                                      .containsKey(messages[0].packetId) ||
+                                      .containsKey(messages[0].id) ||
                                   (messages[0].id != null &&
                                       messages[0].id == _replayMessageId)
                               ? Theme.of(context).disabledColor
@@ -460,7 +460,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     return GestureDetector(
       child: Padding(
         padding: EdgeInsets.only(bottom: 8),
-        child: _selectedMessages.containsKey(message.packetId)
+        child: _selectedMessages.containsKey(message.id)
             ? Icon(Icons.check_circle_outline)
             : Icon(Icons.panorama_fish_eye),
       ),
@@ -472,9 +472,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   _addForwardMessage(Message message) {
     setState(() {
-      _selectedMessages.containsKey(message.packetId)
-          ? _selectedMessages.remove(message.packetId)
-          : _selectedMessages[message.packetId] = message;
+      _selectedMessages.containsKey(message.id)
+          ? _selectedMessages.remove(message.id)
+          : _selectedMessages[message.id] = message;
       if (_selectedMessages.values.length == 0) {
         setState(() {
           _selectMultiMessage = false;
