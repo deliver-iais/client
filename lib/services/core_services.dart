@@ -32,7 +32,8 @@ const MAX_BACKOFF_TIME = 32;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
-  var _clientPacket;
+  StreamController<ClientPacket> _clientPacket =
+      StreamController<ClientPacket>();
   ResponseStream<ServerPacket> _responseStream;
   @visibleForTesting
   int backoffTime = MIN_BACKOFF_TIME;
@@ -68,7 +69,6 @@ class CoreServices {
 
   @visibleForTesting
   startCheckerTimer() {
-    sendPingMessage();
     responseChecked = false;
     Timer(new Duration(seconds: backoffTime), () {
       if (!responseChecked) {
@@ -82,6 +82,9 @@ class CoreServices {
       }
       startCheckerTimer();
     });
+    if (!_clientPacket.isClosed) {
+      sendPingMessage();
+    }
   }
 
   void gotResponse() {
@@ -93,11 +96,14 @@ class CoreServices {
   @visibleForTesting
   startStream() async {
     try {
+      if (_responseStream != null) {
+        await _clientPacket.close();
+      }
       _clientPacket = StreamController<ClientPacket>();
-      _responseStream = _grpcCoreService.establishStream(
-          _clientPacket.stream.asBroadcastStream(),
+      _responseStream = _grpcCoreService.establishStream(_clientPacket.stream,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      sendPingMessage();
       _responseStream.listen((serverPacket) async {
         print(serverPacket.toString());
         gotResponse();
@@ -203,7 +209,8 @@ class CoreServices {
   }
 
   _saveIncomingMessage(Message message) async {
-    Uid roomUid = await saveMessage(_accountRepo, _messageDao, _roomDao, message);
+    Uid roomUid =
+        await saveMessage(_accountRepo, _messageDao, _roomDao, message);
     await showNotification(roomUid, message);
   }
 
@@ -232,8 +239,6 @@ class CoreServices {
     return roomUid;
   }
 }
-
-
 
 saveMessageInMessagesDB(
     AccountRepo accountRepo, MessageDao messageDao, Message message) async {
