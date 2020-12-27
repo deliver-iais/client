@@ -317,7 +317,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       itemCount: _itemCount,
       initialScrollIndex:
           _lastShowedMessageId != -1 ? _itemCount - _lastShowedMessageId : 0,
-      initialAlignment:
+      initialAlignment: currentRoom.lastMessageId == null?0:
           _lastShowedMessageId >= currentRoom.lastMessageId ? 0 : 1,
       physics: _scrollPhysics,
       reverse: true,
