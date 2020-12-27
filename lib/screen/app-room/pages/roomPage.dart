@@ -176,11 +176,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     //TODO check
     _lastSeenSubject.distinct().listen((event) {
       if (event != null && _lastShowedMessageId < event) {
-        _messageRepo.sendSeenMessage(
-            event, widget.roomId.uid, widget.roomId.uid);
-        _lastSeenDao.insertLastSeen(LastSeen(
-            roomId: widget.roomId,
-            messageId: event));
+        _messageRepo.sendSeenMessage(event, widget.roomId.uid);
+        _lastSeenDao
+            .insertLastSeen(LastSeen(roomId: widget.roomId, messageId: event));
       }
     });
     super.initState();
@@ -312,13 +310,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   ScrollablePositionedList buildMessagesListView(
       Room currentRoom, List pendingMessages, double _maxWidth) {
-
     return ScrollablePositionedList.builder(
       itemCount: _itemCount,
       initialScrollIndex:
           _lastShowedMessageId != -1 ? _itemCount - _lastShowedMessageId : 0,
-      initialAlignment: currentRoom.lastMessageId == null?0:
-          _lastShowedMessageId >= currentRoom.lastMessageId ? 0 : 1,
+      initialAlignment: currentRoom.lastMessageId == null
+          ? 0
+          : _lastShowedMessageId >= currentRoom.lastMessageId
+              ? 0
+              : 1,
       physics: _scrollPhysics,
       reverse: true,
       itemScrollController: _itemScrollController,
@@ -346,8 +346,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               } else if (messages.length > 0) {
                 if (!(messages[0]
                     .from
-                    .isSameEntity(_accountRepo.currentUserUid)))
-                  _lastSeenSubject.add(currentRoom.lastMessageId);
+                    .isSameEntity(_accountRepo.currentUserUid))) {
+                  _lastSeenSubject.add(messages[0].id);
+                }
               }
               bool newTime = false;
               if (messages.length == 1 &&

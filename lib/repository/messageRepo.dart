@@ -345,7 +345,7 @@ class MessageRepo {
     _pendingMessageDao.insertPendingMessage(pendingMessage);
   }
 
-  sendSeenMessage(int messageId, Uid to, Uid roomId) {
+  sendSeenMessage(int messageId, Uid to) {
     _coreServices.sendSeenMessage(SeenByClient()
       ..to = to
       ..id = Int64.parseInt(messageId.toString()));
