@@ -69,6 +69,7 @@ class CoreServices {
 
   @visibleForTesting
   startCheckerTimer() {
+    sendPingMessage();
     responseChecked = false;
     Timer(new Duration(seconds: backoffTime), () {
       if (!responseChecked) {
@@ -82,9 +83,6 @@ class CoreServices {
       }
       startCheckerTimer();
     });
-    if (!_clientPacket.isClosed) {
-      sendPingMessage();
-    }
   }
 
   void gotResponse() {
@@ -96,13 +94,10 @@ class CoreServices {
   @visibleForTesting
   startStream() async {
     try {
-      if (_responseStream != null) {
-        await _clientPacket.close();
-      }
       _clientPacket = StreamController<ClientPacket>();
-      _responseStream = _grpcCoreService.establishStream(_clientPacket.stream,
+      _responseStream = _grpcCoreService.establishStream(_clientPacket.stream.asBroadcastStream(),
           options: CallOptions(
-              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+              metadata: {'accessToken': await _accountRepo.getAccessToken()},));
       sendPingMessage();
       _responseStream.listen((serverPacket) async {
         print(serverPacket.toString());

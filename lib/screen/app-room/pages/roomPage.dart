@@ -72,6 +72,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   bool _selectMultiMessage = false;
   int _lastShowedMessageId = -1;
   int _itemCount;
+  Room _currentRoom;
   int _replayMessageId = -1;
   ScrollPhysics _scrollPhysics = AlwaysScrollableScrollPhysics();
   int _currentMessageSearchId = -1;
@@ -178,7 +179,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       if (event != null && _lastShowedMessageId < event) {
         _messageRepo.sendSeenMessage(event, widget.roomId.uid);
         _lastSeenDao
-            .insertLastSeen(LastSeen(roomId: widget.roomId, messageId: event));
+            .insertLastSeen(LastSeen(roomId: widget.roomId, messageId: _currentRoom.lastMessageId));
       }
     });
     super.initState();
@@ -220,11 +221,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                               stream: _roomDao.getByRoomId(widget.roomId),
                               builder: (context, currentRoomStream) {
                                 if (currentRoomStream.hasData) {
-                                  Room currentRoom = currentRoomStream.data;
-                                  if (currentRoom.lastMessageId == null) {
+                                  _currentRoom = currentRoomStream.data;
+                                  if (_currentRoom.lastMessageId == null) {
                                     _itemCount = pendingMessages.length;
                                   } else {
-                                    _itemCount = currentRoom.lastMessageId +
+                                    _itemCount = _currentRoom.lastMessageId +
                                         pendingMessages.length; //TODO chang
                                   }
 
@@ -233,7 +234,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                     child: Container(
                                       height: deviceHeight,
                                       // color: Colors.amber,
-                                      child: buildMessagesListView(currentRoom,
+                                      child: buildMessagesListView(_currentRoom,
                                           pendingMessages, _maxWidth),
                                     ),
                                   );
@@ -603,7 +604,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>[
-          _isMuc
+          widget.roomId.getUid().category == Categories.GROUP
               ? Padding(
                   padding:
                       const EdgeInsets.only(bottom: 8.0, left: 5.0, right: 3.0),
