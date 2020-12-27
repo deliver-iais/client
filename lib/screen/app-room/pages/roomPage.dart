@@ -386,8 +386,16 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           : Container()
                       : SizedBox.shrink(),
                   messages[0].type != MessageType.PERSISTENT_EVENT
-                      ? normalMessage(
-                          messages[0], _maxWidth, currentRoom, pendingMessages)
+                      ? Container(
+                          color: _selectedMessages
+                                      .containsKey(messages[0].packetId) ||
+                                  (messages[0].id != null &&
+                                      messages[0].id == _replayMessageId)
+                              ? Theme.of(context).disabledColor
+                              : Theme.of(context).backgroundColor,
+                          child: normalMessage(messages[0], _maxWidth,
+                              currentRoom, pendingMessages),
+                        )
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -552,32 +560,26 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       },
       onTapDown: storePosition,
       child: SingleChildScrollView(
-        child: Container(
-          color: _selectedMessages.containsKey(message.packetId) ||
-                  (message.id != null && message.id == _replayMessageId)
-              ? Theme.of(context).disabledColor
-              : Theme.of(context).backgroundColor,
-          child: Stack(
-            alignment: AlignmentDirectional.bottomStart,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  SentMessageBox(
-                      message: message,
-                      maxWidth: _maxWidth,
-                      isSeen:
-                          message.id != null && message.id <= lastSeenMessageId,
-                      scrollToMessage: (int id) {
-                        _scrollToMessage(
-                            id, lastMessageId + pendingMessagesLength - id);
-                      })
-                ],
-              ),
-              if (_selectMultiMessage) selectMultiMessage(message: message)
-            ],
-          ),
+        child: Stack(
+          alignment: AlignmentDirectional.bottomStart,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                SentMessageBox(
+                    message: message,
+                    maxWidth: _maxWidth,
+                    isSeen:
+                        message.id != null && message.id <= lastSeenMessageId,
+                    scrollToMessage: (int id) {
+                      _scrollToMessage(
+                          id, lastMessageId + pendingMessagesLength - id);
+                    })
+              ],
+            ),
+            if (_selectMultiMessage) selectMultiMessage(message: message)
+          ],
         ),
       ),
     );
@@ -586,45 +588,39 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Widget showReceivedMessage(Message message, double _maxWidth,
       int lastMessageId, int pendingMessagesLength) {
     return GestureDetector(
-        onTap: () {
-          _selectMultiMessage
-              ? _addForwardMessage(message)
-              : _showCustomMenu(message);
-        },
-        onLongPress: () {
-          setState(() {
-            _selectMultiMessage = true;
-          });
-        },
-        onTapDown: storePosition,
-        child: Container(
-          color: _selectedMessages.containsKey(message.packetId) ||
-                  (message.id != null && message.id == _replayMessageId)
-              ? Theme.of(context).disabledColor
-              : Theme.of(context).backgroundColor,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              _isMuc
-                  ? Padding(
-                      padding: const EdgeInsets.only(
-                          bottom: 8.0, left: 5.0, right: 3.0),
-                      child: CircleAvatarWidget(message.from.uid, 18),
-                    )
-                  : Container(),
-              if (_selectMultiMessage) selectMultiMessage(message: message),
-              RecievedMessageBox(
-                message: message,
-                maxWidth: _maxWidth,
-                isGroup: widget.roomId.uid.category == Categories.GROUP,
-                scrollToMessage: (int id) {
-                  _scrollToMessage(
-                      id, lastMessageId + pendingMessagesLength - id);
-                },
-              )
-            ],
-          ),
-        ));
+      onTap: () {
+        _selectMultiMessage
+            ? _addForwardMessage(message)
+            : _showCustomMenu(message);
+      },
+      onLongPress: () {
+        setState(() {
+          _selectMultiMessage = true;
+        });
+      },
+      onTapDown: storePosition,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+          _isMuc
+              ? Padding(
+                  padding:
+                      const EdgeInsets.only(bottom: 8.0, left: 5.0, right: 3.0),
+                  child: CircleAvatarWidget(message.from.uid, 18),
+                )
+              : Container(),
+          if (_selectMultiMessage) selectMultiMessage(message: message),
+          RecievedMessageBox(
+            message: message,
+            maxWidth: _maxWidth,
+            isGroup: widget.roomId.uid.category == Categories.GROUP,
+            scrollToMessage: (int id) {
+              _scrollToMessage(id, lastMessageId + pendingMessagesLength - id);
+            },
+          )
+        ],
+      ),
+    );
   }
 }
