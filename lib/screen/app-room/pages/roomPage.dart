@@ -166,10 +166,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   void initState() {
     super.initState();
     _getLastSeen();
-    _roomDao.insertRoomCompanion(RoomsCompanion.insert(
-      roomId: widget.roomId,
-      mentioned: Moor.Value(false),
-    ));
+    _roomDao.insertRoom(Room(roomId: widget.roomId, mentioned: false));
     _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.uid.category == Categories.GROUP ||
             widget.roomId.uid.category == Categories.CHANNEL

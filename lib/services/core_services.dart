@@ -237,13 +237,21 @@ class CoreServices {
         isMention = await checkMention(message.text.text, accountRepo);
       }
     }
-    roomDao.insertRoomCompanion(
-      Database.RoomsCompanion.insert(
+    if (isMention) {
+      roomDao.insertRoomCompanion(
+        Database.RoomsCompanion.insert(
+            roomId: roomUid.asString(),
+            lastMessageId: Value(message.id.toInt()),
+            mentioned: Value(isMention),
+            lastMessageDbId: Value(msg.dbId)),
+      );
+    } else {
+      roomDao.insertRoomCompanion(Database.RoomsCompanion.insert(
           roomId: roomUid.asString(),
           lastMessageId: Value(message.id.toInt()),
-          mentioned: Value(isMention),
-          lastMessageDbId: Value(msg.dbId)),
-    );
+          lastMessageDbId: Value(msg.dbId)));
+    }
+
     return roomUid;
   }
 }
