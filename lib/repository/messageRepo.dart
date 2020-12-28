@@ -63,8 +63,7 @@ class MessageRepo {
   MessageRepo() {
     _coreServices.connectionStatus.listen((mode) {
       if (mode == ConnectionStatus.Disconnected) {
-       // updatingStatus.add(TitleStatusConditions.Disconnected);
-        _coreServices.sendPingMessage();
+        updatingStatus.add(TitleStatusConditions.Disconnected);
       }
       if (mode == ConnectionStatus.Connected) {
         print('updating -----------------');

@@ -1,11 +1,10 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/services/core_services.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class TitleStatus extends StatelessWidget {
-  final _messageRepo = GetIt.I.get<CoreServices>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
 
   final TextStyle style;
   final Widget normalConditionWidget;
@@ -16,11 +15,12 @@ class TitleStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    return StreamBuilder<ConnectionStatus>(
-        stream: _messageRepo.connectionStatus.stream,
+    return StreamBuilder<TitleStatusConditions>(
+        stream: _messageRepo.updatingStatus.stream,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            if (snapshot.data == ConnectionStatus.Connected ) {
+            if (snapshot.data == TitleStatusConditions.Normal &&
+                this.normalConditionWidget != null) {
               return this.normalConditionWidget;
             } else {
               return Text(title(appLocalization, snapshot.data),
@@ -32,13 +32,13 @@ class TitleStatus extends StatelessWidget {
   }
 
   title(
-      AppLocalization appLocalization, ConnectionStatus statusConditions) {
+      AppLocalization appLocalization, TitleStatusConditions statusConditions) {
     switch (statusConditions) {
-      case ConnectionStatus.Disconnected:
+      case TitleStatusConditions.Disconnected:
         return appLocalization.getTraslateValue("disconnected");
-      // case TitleStatusConditions.Updating:
-      //   return appLocalization.getTraslateValue("updating");
-      case ConnectionStatus.Connected:
+      case TitleStatusConditions.Updating:
+        return appLocalization.getTraslateValue("updating");
+      case TitleStatusConditions.Normal:
         return appLocalization.getTraslateValue("connected");
     }
   }
