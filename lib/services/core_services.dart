@@ -7,6 +7,7 @@ import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/database.dart' as Database;
+import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
@@ -95,14 +96,16 @@ class CoreServices {
   startStream() async {
     try {
       _clientPacket = StreamController<ClientPacket>();
-      _responseStream = _grpcCoreService.establishStream(_clientPacket.stream.asBroadcastStream(onListen: (c)async{
-        gotResponse();
-      },onCancel: (c){
-        _clientPacket.close();
-        startStream();
-      }),
+      _responseStream = _grpcCoreService.establishStream(
+          _clientPacket.stream.asBroadcastStream(onListen: (c) async {
+            gotResponse();
+          }, onCancel: (c) {
+            _clientPacket.close();
+            startStream();
+          }),
           options: CallOptions(
-              metadata: {'accessToken': await _accountRepo.getAccessToken()},));
+            metadata: {'accessToken': await _accountRepo.getAccessToken()},
+          ));
       sendPingMessage();
       _responseStream.listen((serverPacket) async {
         print(serverPacket.toString());
@@ -228,15 +231,26 @@ class CoreServices {
     var msg = await saveMessageInMessagesDB(accountRepo, messageDao, message);
 
     Uid roomUid = getRoomId(accountRepo, message);
-
+    bool isMention = false;
+    if (roomUid.category == Categories.GROUP) {
+      if (message.text.text.contains("@")) {
+        isMention = await checkMention(message.text.text, accountRepo);
+      }
+    }
     roomDao.insertRoomCompanion(
       Database.RoomsCompanion.insert(
           roomId: roomUid.asString(),
           lastMessageId: Value(message.id.toInt()),
+          mentioned: Value(isMention),
           lastMessageDbId: Value(msg.dbId)),
     );
     return roomUid;
   }
+}
+
+Future<bool> checkMention(String text, AccountRepo accountRepo) async {
+  Account account = await accountRepo.getAccount();
+  return text.contains(account.userName);
 }
 
 saveMessageInMessagesDB(
