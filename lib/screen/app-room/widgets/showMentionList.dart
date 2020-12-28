@@ -22,7 +22,7 @@ class ShowMentionList extends StatelessWidget {
               children: [
                 Flexible(
                     child: SizedBox(
-                        height: 180,
+                        height: members.data.length >= 4 ? 180 : 100,
                         child: Container(
                             color: Theme.of(context).accentColor,
                             child: ListView.builder(

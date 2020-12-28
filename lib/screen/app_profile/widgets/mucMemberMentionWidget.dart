@@ -19,74 +19,46 @@ class MucMemberMentionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(padding: EdgeInsets.only(left: 10),child: Column(
-      children: [
-        SizedBox(
-          height: 10,
-        ),
-        FutureBuilder<Contact>(
-          future: _contactRepo.getContact(member.memberUid.uid),
-          builder: (BuildContext context, AsyncSnapshot<Contact> contact) {
-            if (contact.data != null &&
-                member.memberUid != _accountRepo.currentUserUid.asString()) {
-              return Row(
-                children: [
-                  CircleAvatarWidget(member.memberUid.uid, 18),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      onSelected(contact.data.username);
-                    },
-                    child: Text(
-                      contact.data.firstName,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 16,
+    return Padding(
+        padding: EdgeInsets.only(left: 10),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 10,
+            ),
+            FutureBuilder<Contact>(
+              future: _contactRepo.getContact(member.memberUid.uid),
+              builder: (BuildContext context, AsyncSnapshot<Contact> contact) {
+                if (contact.data != null &&
+                    member.memberUid !=
+                        _accountRepo.currentUserUid.asString()) {
+                  return Row(
+                    children: [
+                      CircleAvatarWidget(member.memberUid.uid, 18),
+                      SizedBox(
+                        width: 10,
                       ),
-                    ),
-                  ),
-                ],
-              );
-            } else if (member.memberUid ==
-                _accountRepo.currentUserUid.asString()) {
-              return FutureBuilder<Account>(
-                future: _accountRepo.getAccount(),
-                builder:
-                    (BuildContext context, AsyncSnapshot<Account> snapshot) {
-                  if (snapshot.data != null) {
-                    return Row(
-                      children: [
-                        CircleAvatarWidget(member.memberUid.uid, 18),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            onSelected(snapshot.data.userName);
-                          },
-                          child: Text(
-                            "${snapshot.data.firstName} ${snapshot.data.lastName ?? ""}",
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
+                      GestureDetector(
+                        onTap: () {
+                          onSelected(contact.data.username);
+                        },
+                        child: Text(
+                          contact.data.firstName,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 16,
                           ),
                         ),
-                      ],
-                    );
-                  } else {
-                    return SizedBox.shrink();
-                  }
-                },
-              );
-            } else {
-              return SizedBox.shrink();
-            }
-          },
-        ),
-      ],
-    ));
+                      ),
+                    ],
+                  );
+                }
+                {
+                  return SizedBox.shrink();
+                }
+              },
+            ),
+          ],
+        ));
   }
 }
