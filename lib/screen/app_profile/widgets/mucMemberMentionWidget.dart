@@ -9,21 +9,20 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:rxdart/subjects.dart';
 
-class MucMemberProfileWidget extends StatelessWidget {
+class MucMemberMentionWidget extends StatelessWidget {
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
-  BehaviorSubject<String> s = BehaviorSubject.seeded("");
   final Member member;
   Function onSelected;
 
-  MucMemberProfileWidget(this.member, this.onSelected);
+  MucMemberMentionWidget(this.member, this.onSelected);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Padding(padding: EdgeInsets.only(left: 10),child: Column(
       children: [
         SizedBox(
-          height: 5,
+          height: 10,
         ),
         FutureBuilder<Contact>(
           future: _contactRepo.getContact(member.memberUid.uid),
@@ -88,6 +87,6 @@ class MucMemberProfileWidget extends StatelessWidget {
           },
         ),
       ],
-    );
+    ));
   }
 }

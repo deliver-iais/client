@@ -196,6 +196,9 @@ class CoreServices {
   void savePongMessage(Pong pong) {}
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
+    if(messageDeliveryAck.id.toInt() == 0){
+      return;
+    }
     var roomId = messageDeliveryAck.to.asString();
     var packetId = messageDeliveryAck.packetId;
     var id = messageDeliveryAck.id.toInt();

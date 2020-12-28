@@ -174,12 +174,17 @@ class _InputMessageWidget extends State<InputMessage> {
                                     controller: controller,
                                     onSubmitted: null,
                                     onChanged: (str) {
-                                      if (str.contains("@", str.length-1)) {
-                                        setState(() {
-                                          _showMentionList = true;
-                                        });
-                                      }
                                       setState(() {
+                                        if(str.isEmpty){
+                                          setState(() {
+                                            _showMentionList = false;
+                                          });
+                                        }
+                                        else if ( str!= null && str.contains("@", str.length - 1)) {
+                                          _showMentionList = true;
+                                        } else {
+                                          _showMentionList = false;
+                                        }
                                         messageText = str;
                                       });
                                     },

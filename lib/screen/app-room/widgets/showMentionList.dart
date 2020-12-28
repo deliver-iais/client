@@ -1,7 +1,7 @@
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/memberWidget.dart';
-import 'package:deliver_flutter/screen/app_profile/widgets/mucMemberProfileWidget.dart';
+import 'package:deliver_flutter/screen/app_profile/widgets/mucMemberMentionWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -30,7 +30,7 @@ class ShowMentionList extends StatelessWidget {
                               shrinkWrap: true,
                               scrollDirection: Axis.vertical,
                               itemBuilder: (c, i) {
-                                return MucMemberProfileWidget(
+                                return MucMemberMentionWidget(
                                     members.data[i], onSelected);
                               },
                             ))))
