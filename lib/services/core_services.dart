@@ -95,7 +95,12 @@ class CoreServices {
   startStream() async {
     try {
       _clientPacket = StreamController<ClientPacket>();
-      _responseStream = _grpcCoreService.establishStream(_clientPacket.stream.asBroadcastStream(),
+      _responseStream = _grpcCoreService.establishStream(_clientPacket.stream.asBroadcastStream(onListen: (c)async{
+        gotResponse();
+      },onCancel: (c){
+        _clientPacket.close();
+        startStream();
+      }),
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()},));
       sendPingMessage();
@@ -131,7 +136,6 @@ class CoreServices {
         }
       });
     } catch (e) {
-      print(e);
       print("correservice error");
     }
   }

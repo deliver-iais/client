@@ -48,6 +48,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   var rootingServices = GetIt.I.get<RoutingService>();
   var contactRepo = GetIt.I.get<ContactRepo>();
+  var _messageRepo = GetIt.I.get<MessageRepo>();
   AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
 
   final Function tapOnCurrentUserAvatar;
@@ -85,7 +86,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
-    AppLocalization appLocalization = AppLocalization.of(context);
     return StreamBuilder<bool>(
         stream: audioPlayerService.isOn,
         builder: (context, snapshot) {
@@ -115,12 +115,33 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       ),
                     ],
                   ),
-                  title: Text(
-                    tab == NavigationTabs.Chats
-                        ? appLocalization.getTraslateValue("chats")
-                        : appLocalization.getTraslateValue("contacts"),
-                    style: Theme.of(context).textTheme.headline2,
-                  ),
+                  title: StreamBuilder<TitleStatusConditions>(
+                      stream: _messageRepo.updatingStatus.stream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data == TitleStatusConditions.Normal) {
+                          return buildText(context);
+                        } else if (snapshot.data ==
+                            TitleStatusConditions.Updating) {
+                          return Text(
+                              _appLocalization.getTraslateValue("connecting"),
+                              style: TextStyle(fontSize: 20));
+                        } else {
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              buildText(context),
+                              SizedBox(
+                                width: 7,
+                              ),
+                              Text(
+                                  _appLocalization
+                                      .getTraslateValue("disconnect"),
+                                  style: TextStyle(fontSize: 16,color: Theme.of(context).primaryColor ))
+                            ],
+                          );
+                        }
+                      }),
                   actions: [
                     buildMenu(context),
                     SizedBox(
@@ -175,6 +196,19 @@ class _NavigationCenterState extends State<NavigationCenter> {
             ),
           );
         });
+  }
+
+  Text buildText(BuildContext context) {
+    return Text(
+      data(),
+      style: Theme.of(context).textTheme.headline2,
+    );
+  }
+
+  String data() {
+    return tab == NavigationTabs.Chats
+        ? _appLocalization.getTraslateValue("chats")
+        : _appLocalization.getTraslateValue("contacts");
   }
 
   IconButton buildIconButton(
