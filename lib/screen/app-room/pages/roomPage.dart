@@ -34,6 +34,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:moor/moor.dart' as Moor;
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -165,6 +166,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   void initState() {
     super.initState();
     _getLastSeen();
+    _roomDao.insertRoomCompanion(RoomsCompanion.insert(
+      roomId: widget.roomId,
+      mentioned: Moor.Value(false),
+    ));
     _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.uid.category == Categories.GROUP ||
             widget.roomId.uid.category == Categories.CHANNEL
@@ -178,8 +183,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _lastSeenSubject.distinct().listen((event) {
       if (event != null && _lastShowedMessageId < event) {
         _messageRepo.sendSeenMessage(event, widget.roomId.uid);
-        _lastSeenDao
-            .insertLastSeen(LastSeen(roomId: widget.roomId, messageId: _currentRoom.lastMessageId));
+        _lastSeenDao.insertLastSeen(LastSeen(
+            roomId: widget.roomId, messageId: _currentRoom.lastMessageId));
       }
     });
     super.initState();
@@ -388,12 +393,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       : SizedBox.shrink(),
                   messages[0].type != MessageType.PERSISTENT_EVENT
                       ? Container(
-                          color: _selectedMessages
-                                      .containsKey(messages[0].id) ||
-                                  (messages[0].id != null &&
-                                      messages[0].id == _replayMessageId)
-                              ? Theme.of(context).disabledColor
-                              : Theme.of(context).backgroundColor,
+                          color:
+                              _selectedMessages.containsKey(messages[0].id) ||
+                                      (messages[0].id != null &&
+                                          messages[0].id == _replayMessageId)
+                                  ? Theme.of(context).disabledColor
+                                  : Theme.of(context).backgroundColor,
                           child: normalMessage(messages[0], _maxWidth,
                               currentRoom, pendingMessages),
                         )

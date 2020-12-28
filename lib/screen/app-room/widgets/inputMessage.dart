@@ -4,9 +4,11 @@ import 'package:audio_recorder/audio_recorder.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/emojiKeybord.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/showMentionList.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +17,7 @@ import 'package:flutter_timer/flutter_timer.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:random_string/random_string.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
@@ -27,6 +30,7 @@ class InputMessage extends StatefulWidget {
   final Function resetRoomPageDetails;
   final bool waitingForForward;
   final Function sendForwardMessage;
+  final Function showMentionList;
 
   @override
   _InputMessageWidget createState() => _InputMessageWidget();
@@ -36,7 +40,8 @@ class InputMessage extends StatefulWidget {
       this.replyMessageId,
       this.resetRoomPageDetails,
       this.waitingForForward,
-      this.sendForwardMessage});
+      this.sendForwardMessage,
+      this.showMentionList});
 }
 
 class _InputMessageWidget extends State<InputMessage> {
@@ -54,6 +59,8 @@ class _InputMessageWidget extends State<InputMessage> {
   DateTime time = DateTime.now();
   double DX = 150.0;
   bool recordAudioPermission = false;
+
+  bool _showMentionList = false;
 
   bool startAudioRecorder = false;
 
@@ -89,6 +96,14 @@ class _InputMessageWidget extends State<InputMessage> {
     DX = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
       children: <Widget>[
+        if (_showMentionList &&
+            widget.currentRoom.roomId.getUid().category == Categories.GROUP)
+          ShowMentionList((String s) {
+            controller.text = "${controller.text}${s}";
+            setState(() {
+              _showMentionList = false;
+            });
+          }, widget.currentRoom.roomId),
         IconTheme(
           data: IconThemeData(color: Theme.of(context).accentColor),
           child: Container(
@@ -159,6 +174,11 @@ class _InputMessageWidget extends State<InputMessage> {
                                     controller: controller,
                                     onSubmitted: null,
                                     onChanged: (str) {
+                                      if (str.contains("@", str.length-1)) {
+                                        setState(() {
+                                          _showMentionList = true;
+                                        });
+                                      }
                                       setState(() {
                                         messageText = str;
                                       });
