@@ -120,9 +120,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void _resetRoomPageDetails() {
-    _repliedMessage = null;
-    _waitingForForwardedMessage = false;
-    setState(() {});
+      _repliedMessage = null;
+      _waitingForForwardedMessage = false;
+      setState(() {
+      });
   }
 
   void _sendForwardMessage() async {
@@ -143,13 +144,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     ).then<void>((OperationOnMessage opr) {
       if (opr == null) return;
 
-      if (opr == OperationOnMessage.REPLY) {
-        _repliedMessage = message;
-        _waitingForForwardedMessage = false;
-      } else if (opr == OperationOnMessage.FORWARD) {
-        _repliedMessage = null;
-        _routingService.openSelectForwardMessage([message]);
-      }
+      setState(() {
+        if (opr == OperationOnMessage.REPLY) {
+          _repliedMessage = message;
+          _waitingForForwardedMessage = false;
+        } else if (opr == OperationOnMessage.FORWARD) {
+          _repliedMessage = null;
+          _routingService.openSelectForwardMessage([message]);
+        }
+      });
     });
   }
 
