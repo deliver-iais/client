@@ -17,7 +17,6 @@ import 'package:flutter_timer/flutter_timer.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:random_string/random_string.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
@@ -93,6 +92,8 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   Widget build(BuildContext context) {
+    controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: controller.text.length));
     AppLocalization appLocalization = AppLocalization.of(context);
     DX = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
@@ -102,7 +103,7 @@ class _InputMessageWidget extends State<InputMessage> {
           ShowMentionList(
             query: query,
             onSelected: (s) {
-              controller.text = "${controller.text}${s}";
+              controller.text = "${controller.text}${s} ";
               setState(() {
                 _showMentionList = false;
               });
