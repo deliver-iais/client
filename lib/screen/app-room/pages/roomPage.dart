@@ -14,6 +14,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/forward_widget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/operation_on_message_entry.dart';
@@ -65,6 +66,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _notificationServices = GetIt.I.get<NotificationServices>();
   var _seenDao = GetIt.I.get<SeenDao>();
   var _mucRepo = GetIt.I.get<MucRepo>();
+  var _roomRepo  = GetIt.I.get<RoomRepo>();
 
   int lastSeenMessageId = -1;
   bool _waitingForForwardedMessage;
@@ -576,7 +578,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     scrollToMessage: (int id) {
                       _scrollToMessage(
                           id, lastMessageId + pendingMessagesLength - id);
-                    })
+                    },omUsernameClick: onUsernameClick,)
               ],
             ),
             if (_selectMultiMessage) selectMultiMessage(message: message)
@@ -618,10 +620,16 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             isGroup: widget.roomId.uid.category == Categories.GROUP,
             scrollToMessage: (int id) {
               _scrollToMessage(id, lastMessageId + pendingMessagesLength - id);
-            },
+            },omUsernameClick: onUsernameClick,
           )
         ],
       ),
     );
+  }
+  onUsernameClick(String username) async{
+   String roomId = await _roomRepo.searchByUsername(username);
+   if(roomId != null){
+     _routingService.openRoom(roomId);
+   }
   }
 }

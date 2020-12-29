@@ -7,8 +7,9 @@ class SentMessageBox extends StatelessWidget {
   final double maxWidth;
   final Function scrollToMessage;
   final bool isSeen;
+  final Function omUsernameClick;
 
-  const SentMessageBox({Key key, this.message, this.maxWidth,this.isSeen,this.scrollToMessage})
+  const SentMessageBox({Key key, this.message, this.maxWidth,this.isSeen,this.scrollToMessage,this.omUsernameClick})
       : super(key: key);
 
   @override
@@ -24,7 +25,7 @@ class SentMessageBox extends StatelessWidget {
               padding: const EdgeInsets.all(2),
               color: Theme.of(context).primaryColor,
               child: BoxContent(
-                  message: message, maxWidth: maxWidth, isSender: true,scrollToMessage: scrollToMessage,isSeen: this.isSeen,),
+                  message: message, maxWidth: maxWidth, isSender: true,scrollToMessage: scrollToMessage,isSeen: this.isSeen,onUsernameClick: this.omUsernameClick,),
             ),
           ),
         ),

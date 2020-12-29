@@ -10,8 +10,9 @@ class RecievedMessageBox extends StatelessWidget {
   final double maxWidth;
   final bool isGroup;
   final Function scrollToMessage;
+  final Function omUsernameClick;
 
-  const RecievedMessageBox({Key key, this.message, this.maxWidth, this.isGroup,this.scrollToMessage})
+  const RecievedMessageBox({Key key, this.message, this.maxWidth, this.isGroup,this.scrollToMessage,this.omUsernameClick})
       : super(key: key);
 
   @override
@@ -31,7 +32,7 @@ class RecievedMessageBox extends StatelessWidget {
                 color: ExtraTheme.of(context).secondColor,
                 padding: const EdgeInsets.all(2),
                 child: BoxContent(
-                    message: message, maxWidth: maxWidth, isSender: false,scrollToMessage:scrollToMessage,),
+                    message: message, maxWidth: maxWidth, isSender: false,scrollToMessage:scrollToMessage,onUsernameClick: this.omUsernameClick,),
               ),
             ),
           );

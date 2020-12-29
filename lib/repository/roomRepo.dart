@@ -50,32 +50,31 @@ class RoomRepo {
           return name;
         } else {
           var muc = await _mucDao.getMucByUid(roomUid.asString());
-          if(muc != null){
+          if (muc != null) {
             _roomNameCache.set(roomUid.asString(), muc.name);
             return muc.name;
-          }else{
-           String mucName = await _mucRepo.fetchMucInfo(roomUid);
-           if(mucName != null){
-             _roomNameCache.set(roomUid.asString(), mucName);
-             return mucName;
-           }else{
-             return "UnKnown";
-           }
+          } else {
+            String mucName = await _mucRepo.fetchMucInfo(roomUid);
+            if (mucName != null) {
+              _roomNameCache.set(roomUid.asString(), mucName);
+              return mucName;
+            } else {
+              return "UnKnown";
+            }
           }
-
         }
         break;
     }
     return "Unknown";
-   //todo  return await _searchByUid(uid);
+    //todo  return await _searchByUid(uid);
   }
 
   Future<String> _searchByUid(Uid uid) async {
     UserAsContact userAsContact = await _contactRepo.searchUserByUid(uid);
-    if(userAsContact != null){
+    if (userAsContact != null) {
       return userAsContact.username;
     }
-   return "Unknown";
+    return "Unknown";
   }
 
   updateRoomName(Uid uid, String name) {
@@ -83,7 +82,8 @@ class RoomRepo {
   }
 
   changeRoomMuteTye({String roomId, bool mute}) async {
-    _roomDao.updateRoom(RoomsCompanion(roomId: Value(roomId), mute: Value(mute)));
+    _roomDao
+        .updateRoom(RoomsCompanion(roomId: Value(roomId), mute: Value(mute)));
   }
 
   Stream<Room> roomIsMute(String roomId) {
@@ -126,5 +126,17 @@ class RoomRepo {
       }
     }
     return searchResult;
+  }
+
+  searchByUsername(String username) async {
+    if (username.contains('@')) {
+      username = username.substring(username.indexOf('@') + 1, username.length);
+    }
+    var contact = await _contactDao.searchByUserName(username);
+    if (contact != null) {
+      return contact.uid;
+    } else {
+      // todo
+    }
   }
 }

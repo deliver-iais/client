@@ -18,6 +18,7 @@ class BoxContent extends StatefulWidget {
   final bool isSender;
   final Function scrollToMessage;
   final bool isSeen;
+  final Function onUsernameClick;
 
   const BoxContent(
       {Key key,
@@ -25,6 +26,7 @@ class BoxContent extends StatefulWidget {
       this.maxWidth,
       this.isSender,
       this.isSeen,
+      this.onUsernameClick,
       this.scrollToMessage})
       : super(key: key);
 
@@ -132,6 +134,7 @@ class _BoxContentState extends State<BoxContent> {
           maxWidth: widget.maxWidth,
           isSender: widget.isSender,
           isCaption: false,
+          onUsernameClick: widget.onUsernameClick,
           isSeen: widget.isSeen,
         ),
       );

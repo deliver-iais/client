@@ -6,6 +6,7 @@ import 'package:deliver_flutter/shared/seenStatus.dart';
 
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
+import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 
 class TextUi extends StatelessWidget {
   final Message message;
@@ -14,6 +15,7 @@ class TextUi extends StatelessWidget {
   final bool isSender;
   final bool isCaption;
   final bool isSeen;
+  final Function onUsernameClick;
 
   const TextUi(
       {Key key,
@@ -22,6 +24,7 @@ class TextUi extends StatelessWidget {
       this.lastCross,
       this.isSender,
       this.isSeen,
+      this.onUsernameClick,
       this.isCaption})
       : super(key: key);
 
@@ -62,7 +65,12 @@ class TextUi extends StatelessWidget {
           : CrossAxisAlignment.start);
     //max lenght
     var joint = blocks[idx].build(
-        this.maxWidth, this.message, idx == (blocks.length - 1), this.isSender, this.isSeen);
+        this.maxWidth,
+        this.message,
+        idx == (blocks.length - 1),
+        this.isSender,
+        this.isSeen,
+        this.onUsernameClick);
 
     for (var i = 1; i <= idx; i++) {
       joint = Column(
@@ -74,8 +82,13 @@ class TextUi extends StatelessWidget {
                 ? CrossAxisAlignment.start
                 : CrossAxisAlignment.end),
         children: <Widget>[
-          blocks[idx - i].build(this.maxWidth, this.message,
-              idx - i == (blocks.length - 1), this.isSender,this.isSeen),
+          blocks[idx - i].build(
+              this.maxWidth,
+              this.message,
+              idx - i == (blocks.length - 1),
+              this.isSender,
+              this.isSeen,
+              this.onUsernameClick),
           joint,
         ],
       );
@@ -91,8 +104,13 @@ class TextUi extends StatelessWidget {
                 : CrossAxisAlignment.end),
         children: <Widget>[
           joint,
-          blocks[idx + i].build(this.maxWidth, this.message,
-              idx + i == (blocks.length - 1), this.isSender,this.isSeen),
+          blocks[idx + i].build(
+              this.maxWidth,
+              this.message,
+              idx + i == (blocks.length - 1),
+              this.isSender,
+              this.isSeen,
+              this.onUsernameClick),
         ],
       );
     }
@@ -132,7 +150,8 @@ class TextBlock {
     texts.add(t);
   }
 
-  build(double maxWidth, Message message, bool isLastBlock, bool isSender,bool isSeen) {
+  build(double maxWidth, Message message, bool isLastBlock, bool isSender,
+      bool isSeen, Function onUsernameClick) {
     return Column(
         crossAxisAlignment:
             isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -144,7 +163,7 @@ class TextBlock {
                 Container(
                     constraints: BoxConstraints.loose(Size.fromWidth(maxWidth)),
                     child: _textWidget(texts[i], message, isLastBlock, isSender,
-                        i, texts.length - 1,isSeen)),
+                        i, texts.length - 1, isSeen, onUsernameClick)),
               ],
             )
         ]);
@@ -152,15 +171,27 @@ class TextBlock {
 }
 
 Widget _textWidget(String text, Message message, bool isLastBlock,
-    bool isSender, i, int lenght,bool isSeen ) {
+    bool isSender, i, int lenght, bool isSeen, Function onClick) {
   return Wrap(
     alignment: WrapAlignment.end,
     crossAxisAlignment: WrapCrossAlignment.end,
     children: [
-      Text(text,
-          textDirection:
-              text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
-          textAlign: TextAlign.justify),
+      ParsedText(
+        textDirection: text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
+        text: text,
+        parse: <MatchText>[
+          MatchText(
+            pattern: "(^|\\W)@[a-zA-Z]([a-zA-Z0-9_]){4,19}",
+            style: TextStyle(
+              color: Colors.yellowAccent,
+              fontSize: 17,
+            ),
+            onTap: (username) {
+              onClick(username);
+            },
+          ),
+        ],
+      ),
       if (i == lenght && isLastBlock)
         Padding(
           padding: const EdgeInsets.only(left: 8.0, top: 5),
@@ -171,7 +202,10 @@ Widget _textWidget(String text, Message message, bool isLastBlock,
       if (i == lenght && isLastBlock & isSender)
         Padding(
           padding: const EdgeInsets.only(left: 3.0, top: 5),
-          child: SeenStatus(message,isSeen: isSeen,),
+          child: SeenStatus(
+            message,
+            isSeen: isSeen,
+          ),
         ),
     ],
   );

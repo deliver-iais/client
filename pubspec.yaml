@@ -109,6 +109,8 @@ dependencies:
 
   assets_audio_player: 2.0.13+1
 
+  flutter_parsed_text: 1.2.5
+
   device_info: 1.0.0
 
   path_provider_fde:

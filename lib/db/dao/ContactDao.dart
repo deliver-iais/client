@@ -10,29 +10,38 @@ class ContactDao extends DatabaseAccessor<Database> with _$ContactDaoMixin {
 
   ContactDao(this.database) : super(database);
 
-  Future insertContact(Contact contact) => into(contacts).insertOnConflictUpdate(contact);
+  Future insertContact(Contact contact) =>
+      into(contacts).insertOnConflictUpdate(contact);
 
   Future deleteAvatar(Contact contact) => delete(contacts).delete(contact);
 
-
-  Future<Contact>getContactByUid(String uid
-      ) {
+  Future<Contact> getContactByUid(String uid) {
     return (select(contacts)..where((tbl) => tbl.uid.equals(uid))).getSingle();
   }
 
-
-  Future<Contact>getContact(String phoneNumber
-      ) {
-    return (select(contacts)..where((tbl) => tbl.phoneNumber.equals(phoneNumber))).getSingle();
+  Future<Contact> getContact(String phoneNumber) {
+    return (select(contacts)
+          ..where((tbl) => tbl.phoneNumber.equals(phoneNumber)))
+        .getSingle();
   }
 
   Stream<List<Contact>> getAllContacts() => select(contacts).watch();
 
   Future<List<Contact>> getContactByName(String text) {
-    return(select(contacts)..where((tbl) =>tbl.lastName.contains(text)|tbl.firstName.contains(text) | tbl.username.contains(text))).get();
+    return (select(contacts)
+          ..where((tbl) =>
+              tbl.lastName.contains(text) |
+              tbl.firstName.contains(text) |
+              tbl.username.contains(text)))
+        .get();
   }
 
-  Future<List<Contact> >getAllUser() {
-    return(select(contacts)..where((tbl) => isNotNull(tbl.uid))).get();
+  Future<List<Contact>> getAllUser() {
+    return (select(contacts)..where((tbl) => isNotNull(tbl.uid))).get();
+  }
+
+  Future<Contact> searchByUserName(String username) {
+    return (select(contacts)..where((tbl) => tbl.username.equals(username)))
+        .getSingle();
   }
 }
