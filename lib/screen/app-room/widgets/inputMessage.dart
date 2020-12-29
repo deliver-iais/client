@@ -59,6 +59,7 @@ class _InputMessageWidget extends State<InputMessage> {
   DateTime time = DateTime.now();
   double DX = 150.0;
   bool recordAudioPermission = false;
+  String query;
 
   bool _showMentionList = false;
 
@@ -98,12 +99,16 @@ class _InputMessageWidget extends State<InputMessage> {
       children: <Widget>[
         if (_showMentionList &&
             widget.currentRoom.roomId.getUid().category == Categories.GROUP)
-          ShowMentionList((String s) {
-            controller.text = "${controller.text}${s}";
-            setState(() {
-              _showMentionList = false;
-            });
-          }, widget.currentRoom.roomId),
+          ShowMentionList(
+            query: query,
+            onSelected: (s) {
+              controller.text = "${controller.text}${s}";
+              setState(() {
+                _showMentionList = false;
+              });
+            },
+            roomUid: widget.currentRoom.roomId,
+          ),
         IconTheme(
           data: IconThemeData(color: Theme.of(context).accentColor),
           child: Container(
@@ -174,19 +179,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     controller: controller,
                                     onSubmitted: null,
                                     onChanged: (str) {
-                                      setState(() {
-                                        if (str.isEmpty) {
-                                          setState(() {
-                                            _showMentionList = false;
-                                          });
-                                        } else if (str != null &&
-                                            str.contains("@", str.length - 1)) {
-                                          _showMentionList = true;
-                                        } else {
-                                          _showMentionList = false;
-                                        }
-                                        messageText = str;
-                                      });
+                                      onChange(str);
                                     },
                                     decoration: InputDecoration.collapsed(
                                         hintText: appLocalization
@@ -406,6 +399,27 @@ class _InputMessageWidget extends State<InputMessage> {
             : SizedBox(),
       ],
     );
+  }
+
+  void onChange(String str) {
+    messageText = str;
+    if (str.isEmpty) {
+      setState(() {
+        _showMentionList = false;
+      });
+      return;
+    }
+    query = "";
+    int i = str.lastIndexOf("@");
+    if (i != -1 && !str.contains(" ", i)) {
+      setState(() {
+        query = str.substring(i + 1, str.length);
+        _showMentionList = true;
+      });
+    } else {
+      _showMentionList = false;
+    }
+    setState(() {});
   }
 
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;

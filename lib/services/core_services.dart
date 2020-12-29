@@ -97,12 +97,13 @@ class CoreServices {
     try {
       _clientPacket = StreamController<ClientPacket>();
       _responseStream = _grpcCoreService.establishStream(
-          _clientPacket.stream.asBroadcastStream(onListen: (c) async {
-            gotResponse();
-          }, onCancel: (c) {
-            _clientPacket.close();
-            startStream();
-          }),
+          _clientPacket.stream.asBroadcastStream(
+              onListen: (c) async {},
+              onCancel: (c) {
+                _clientPacket.close();
+                _responseStream.cancel();
+                startStream();
+              }),
           options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()},
           ));
@@ -196,7 +197,7 @@ class CoreServices {
   void savePongMessage(Pong pong) {}
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
-    if(messageDeliveryAck.id.toInt() == 0){
+    if (messageDeliveryAck.id.toInt() == 0) {
       return;
     }
     var roomId = messageDeliveryAck.to.asString();

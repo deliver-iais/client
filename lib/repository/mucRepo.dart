@@ -8,6 +8,8 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/role.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
+import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pb.dart' as MucPro;
@@ -25,6 +27,7 @@ class MucRepo {
   var mucServices = GetIt.I.get<MucServices>();
   var accountRepo = GetIt.I.get<AccountRepo>();
   var messageDao = GetIt.I.get<MessageDao>();
+  var _contactRepo = GetIt.I.get<ContactRepo>();
 
   Future<Uid> makeNewGroup(List<Uid> memberUids, String groupName) async {
     Uid groupUid = await mucServices.createNewGroup(groupName);
@@ -50,37 +53,50 @@ class MucRepo {
   }
 
   getGroupMembers(Uid groupUid) async {
-    try{
+    try {
       var result = await mucServices.getGroupMembers(groupUid, 1, 1);
       List<Member> members = new List();
       for (MucPro.Member member in result) {
-        members.add(Member(
+        members.add(await fetchMemberNameAndUsername(Member(
             mucUid: groupUid.asString(),
             memberUid: member.uid.asString(),
-            role: getLocalRole(member.role)));
+            role: getLocalRole(member.role))));
       }
       insertUserInDb(groupUid, members);
-    }catch(e){
+    } catch (e) {
       print(e.toString());
     }
-
   }
 
   getChannelMembers(Uid channelUid) async {
-    try{
+    try {
       var result = await mucServices.getChannelMembers(channelUid, 1, 1);
       List<Member> members = new List();
       for (MucPro.Member member in result) {
-        members.add(Member(
+        members.add(await fetchMemberNameAndUsername(Member(
             mucUid: channelUid.asString(),
             memberUid: member.uid.asString(),
-            role: getLocalRole(member.role)));
+            role: getLocalRole(member.role))));
       }
       insertUserInDb(channelUid, members);
-    }catch(e){
+    } catch (e) {
       print(e.toString());
     }
+  }
 
+  Future<Member> fetchMemberNameAndUsername(Member member) async {
+    var contact = await _contactRepo.getContact(member.memberUid.getUid());
+    if (contact != null) {
+      return member.copyWith(
+          name: contact.firstName, username: contact.username);
+    } else {
+      var userAsContact =
+          await _contactRepo.searchUserByUid(member.memberUid.getUid());
+      if (userAsContact != null)
+        return member.copyWith(username: userAsContact.username);
+      else
+        return member;
+    }
   }
 
   // TODO remove later on if Add User to group message feature is implemented
@@ -93,7 +109,6 @@ class MucRepo {
           members: group.population.toInt()));
       getGroupMembers(mucUid);
       return group.name;
-
     } else {
       Channel channel = await getChannelInfo(mucUid);
       _mucDao.insertMuc(Muc(
@@ -102,7 +117,6 @@ class MucRepo {
           members: channel.population.toInt()));
       getChannelMembers(mucUid);
       return channel.name;
-
     }
   }
 
@@ -315,7 +329,6 @@ class MucRepo {
     }
     _mucDao.updateMuc(mucUid.asString(), members.length);
   }
-
 
   MucPro.Role getRole(MucRole role) {
     switch (role) {

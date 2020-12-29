@@ -26,13 +26,8 @@ class MucMemberMentionWidget extends StatelessWidget {
             SizedBox(
               height: 10,
             ),
-            FutureBuilder<Contact>(
-              future: _contactRepo.getContact(member.memberUid.uid),
-              builder: (BuildContext context, AsyncSnapshot<Contact> contact) {
-                if (contact.data != null &&
-                    member.memberUid !=
-                        _accountRepo.currentUserUid.asString()) {
-                  return Row(
+            member.username != null
+                ? Row(
                     children: [
                       CircleAvatarWidget(member.memberUid.uid, 18),
                       SizedBox(
@@ -40,24 +35,30 @@ class MucMemberMentionWidget extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: () {
-                          onSelected(contact.data.username);
+                          onSelected(member.username);
                         },
                         child: Text(
-                          contact.data.firstName,
+                          member.name ?? member.username,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 16,
                           ),
                         ),
                       ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      if (member.name != null)
+                        Text(
+                          member.username,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                          ),
+                        ),
                     ],
-                  );
-                }
-                {
-                  return SizedBox.shrink();
-                }
-              },
-            ),
+                  )
+                : SizedBox.shrink()
           ],
         ));
   }

@@ -13,6 +13,7 @@ import 'package:deliver_flutter/models/operation_on_message.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
+import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/forward_widget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/operation_on_message_entry.dart';
@@ -63,6 +64,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _routingService = GetIt.I.get<RoutingService>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
   var _seenDao = GetIt.I.get<SeenDao>();
+  var _mucRepo = GetIt.I.get<MucRepo>();
 
   int lastSeenMessageId = -1;
   bool _waitingForForwardedMessage;
@@ -120,10 +122,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void _resetRoomPageDetails() {
-      _repliedMessage = null;
-      _waitingForForwardedMessage = false;
-      setState(() {
-      });
+    _repliedMessage = null;
+    _waitingForForwardedMessage = false;
+    setState(() {});
   }
 
   void _sendForwardMessage() async {
@@ -188,10 +189,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _lastSeenSubject.distinct().listen((event) {
       if (event != null && _lastShowedMessageId < event) {
         _messageRepo.sendSeenMessage(event, widget.roomId.uid);
-        _lastSeenDao.insertLastSeen(LastSeen(
-            roomId: widget.roomId, messageId: _currentRoom.lastMessageId));
       }
     });
+
+    if (widget.roomId.getUid().category != Categories.USER)
+      _mucRepo.fetchMucInfo(widget.roomId.getUid());
   }
 
   @override
@@ -324,6 +326,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       reverse: true,
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) {
+        _lastSeenDao.insertLastSeen(LastSeen(
+            roomId: widget.roomId, messageId: _currentRoom.lastMessageId));
         bool isPendingMessage = (currentRoom.lastMessageId == null)
             ? true
             : _itemCount > currentRoom.lastMessageId &&

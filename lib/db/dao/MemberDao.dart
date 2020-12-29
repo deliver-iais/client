@@ -30,8 +30,11 @@ class MemberDao extends DatabaseAccessor<Database> with _$MemberDaoMixin {
         .watch();
   }
 
-  Future<List<Member>> getByMucUidFuture(String mucUid) {
-    return (select(members)..where((member) => member.mucUid.equals(mucUid)))
+  Future<List<Member>> getByMucUidFuture(String mucUid, {String query}) {
+    return (select(members)
+          ..where((member) =>
+              member.mucUid.equals(mucUid) &
+              (member.username.contains(query) | member.name.contains(query))))
         .get();
   }
 
@@ -41,8 +44,10 @@ class MemberDao extends DatabaseAccessor<Database> with _$MemberDaoMixin {
         .watch();
   }
 
-  Future<Member> getMember(String uid,String mucId){
-    return(select(members)..where((tbl) => tbl.memberUid.equals(uid) & tbl.mucUid.equals(mucId))).getSingle();
-
+  Future<Member> getMember(String uid, String mucId) {
+    return (select(members)
+          ..where(
+              (tbl) => tbl.memberUid.equals(uid) & tbl.mucUid.equals(mucId)))
+        .getSingle();
   }
 }
