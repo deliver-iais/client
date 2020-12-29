@@ -175,12 +175,12 @@ class _InputMessageWidget extends State<InputMessage> {
                                     onSubmitted: null,
                                     onChanged: (str) {
                                       setState(() {
-                                        if(str.isEmpty){
+                                        if (str.isEmpty) {
                                           setState(() {
                                             _showMentionList = false;
                                           });
-                                        }
-                                        else if ( str!= null && str.contains("@", str.length - 1)) {
+                                        } else if (str != null &&
+                                            str.contains("@", str.length - 1)) {
                                           _showMentionList = true;
                                         } else {
                                           _showMentionList = false;
@@ -239,8 +239,10 @@ class _InputMessageWidget extends State<InputMessage> {
                                                       replyId:
                                                           widget.replyMessageId,
                                                     );
-                                                    widget
-                                                        .resetRoomPageDetails();
+                                                    if (widget.replyMessageId !=
+                                                        -1)
+                                                      widget
+                                                          .resetRoomPageDetails();
                                                   } else {
                                                     messageRepo.sendTextMessage(
                                                         currentRoom.roomId.uid,

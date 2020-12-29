@@ -120,10 +120,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void _resetRoomPageDetails() {
-    setState(() {
-      _repliedMessage = null;
-      _waitingForForwardedMessage = false;
-    });
+    _repliedMessage = null;
+    _waitingForForwardedMessage = false;
+    setState(() {});
   }
 
   void _sendForwardMessage() async {
@@ -144,15 +143,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     ).then<void>((OperationOnMessage opr) {
       if (opr == null) return;
 
-      setState(() {
-        if (opr == OperationOnMessage.REPLY) {
-          _repliedMessage = message;
-          _waitingForForwardedMessage = false;
-        } else if (opr == OperationOnMessage.FORWARD) {
-          _repliedMessage = null;
-          _routingService.openSelectForwardMessage([message]);
-        }
-      });
+      if (opr == OperationOnMessage.REPLY) {
+        _repliedMessage = message;
+        _waitingForForwardedMessage = false;
+      } else if (opr == OperationOnMessage.FORWARD) {
+        _repliedMessage = null;
+        _routingService.openSelectForwardMessage([message]);
+      }
     });
   }
 
@@ -163,9 +160,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     }
   }
 
+  _getLastShowMessageId() async {
+    LastSeen lastSeen = await _lastSeenDao.getByRoomId(widget.roomId);
+    if (lastSeen != null) {
+      _lastShowedMessageId = lastSeen.messageId;
+    }
+  }
+
   void initState() {
     super.initState();
     _getLastSeen();
+    _getLastShowMessageId();
     _roomDao.insertRoom(Room(roomId: widget.roomId, mentioned: false));
     _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.uid.category == Categories.GROUP ||
@@ -184,7 +189,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             roomId: widget.roomId, messageId: _currentRoom.lastMessageId));
       }
     });
-    super.initState();
   }
 
   @override
@@ -206,44 +210,35 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           appBar: buildAppbar(snapshot),
           body: Column(
             children: <Widget>[
-              FutureBuilder<LastSeen>(
-                  future: _lastSeenDao.getByRoomId(widget.roomId),
-                  builder: (context, lastSeen) {
-                    if (lastSeen.data != null) {
-                      _lastShowedMessageId = lastSeen.data.messageId;
-                    }
-                    return StreamBuilder<List<PendingMessage>>(
-                        stream: _pendingMessageDao.getByRoomId(widget.roomId),
-                        builder: (context, pendingMessagesStream) {
-                          var pendingMessages = pendingMessagesStream.hasData
-                              ? pendingMessagesStream.data
-                              : [];
-
-                          return StreamBuilder<Room>(
-                              stream: _roomDao.getByRoomId(widget.roomId),
-                              builder: (context, currentRoomStream) {
-                                if (currentRoomStream.hasData) {
-                                  _currentRoom = currentRoomStream.data;
-                                  if (_currentRoom.lastMessageId == null) {
-                                    _itemCount = pendingMessages.length;
-                                  } else {
-                                    _itemCount = _currentRoom.lastMessageId +
-                                        pendingMessages.length; //TODO chang
-                                  }
-
-                                  return Flexible(
-                                    fit: FlexFit.loose,
-                                    child: Container(
-                                      height: deviceHeight,
-                                      // color: Colors.amber,
-                                      child: buildMessagesListView(_currentRoom,
-                                          pendingMessages, _maxWidth),
-                                    ),
-                                  );
-                                } else {
-                                  return Container();
-                                }
-                              });
+              StreamBuilder<List<PendingMessage>>(
+                  stream: _pendingMessageDao.getByRoomId(widget.roomId),
+                  builder: (context, pendingMessagesStream) {
+                    var pendingMessages = pendingMessagesStream.hasData
+                        ? pendingMessagesStream.data
+                        : [];
+                    return StreamBuilder<Room>(
+                        stream: _roomDao.getByRoomId(widget.roomId),
+                        builder: (context, currentRoomStream) {
+                          if (currentRoomStream.hasData) {
+                            _currentRoom = currentRoomStream.data;
+                            if (_currentRoom.lastMessageId == null) {
+                              _itemCount = pendingMessages.length;
+                            } else {
+                              _itemCount = _currentRoom.lastMessageId +
+                                  pendingMessages.length; //TODO chang
+                            }
+                            return Flexible(
+                              fit: FlexFit.loose,
+                              child: Container(
+                                height: deviceHeight,
+                                // color: Colors.amber,
+                                child: buildMessagesListView(
+                                    _currentRoom, pendingMessages, _maxWidth),
+                              ),
+                            );
+                          } else {
+                            return Container();
+                          }
                         });
                   }),
               _repliedMessage != null
@@ -368,26 +363,22 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   newTime
                       ? ChatTime(currentMessageTime: messages[0].time)
                       : Container(),
-                  currentRoom.lastMessageId != null
-                      ? _lastShowedMessageId != -1 &&
-                              _lastShowedMessageId ==
-                                  currentRoom.lastMessageId - 1 - index &&
-                              !(messages[0]
-                                  .from
-                                  .isSameEntity(_accountRepo.currentUserUid))
-                          ? Container(
-                              width: double.infinity,
-                              alignment: Alignment.center,
-                              color: Colors.white,
-                              child: Text(
-                                _appLocalization
-                                    .getTraslateValue("UnreadMessages"),
-                                style: TextStyle(
-                                    color: Theme.of(context).primaryColor),
-                              ),
-                            )
-                          : Container()
-                      : SizedBox.shrink(),
+                  if (currentRoom.lastMessageId != null &&
+                      _lastShowedMessageId != -1 &&
+                      _lastShowedMessageId ==
+                          currentRoom.lastMessageId - 1 - index &&
+                      !(messages[0]
+                          .from
+                          .isSameEntity(_accountRepo.currentUserUid)))
+                    Container(
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      color: Colors.white,
+                      child: Text(
+                        _appLocalization.getTraslateValue("UnreadMessages"),
+                        style: TextStyle(color: Theme.of(context).primaryColor),
+                      ),
+                    ),
                   messages[0].type != MessageType.PERSISTENT_EVENT
                       ? Container(
                           color:
