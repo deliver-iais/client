@@ -404,21 +404,23 @@ class _InputMessageWidget extends State<InputMessage> {
   void onChange(String str) {
     messageText = str;
     if (str.isEmpty) {
-      setState(() {
-        _showMentionList = false;
-      });
+      _showMentionList = false;
+      setState(() {});
       return;
     }
-    query = "";
-    int i = str.lastIndexOf("@");
-    if (i != -1 && !str.contains(" ", i)) {
-      setState(() {
+    try {
+      query = "";
+      int i = str.lastIndexOf("@");
+      if (i != 0 && str[i - 1] != " ") {
+        return;
+      }
+      if (i != -1 && !str.contains(" ", i)) {
         query = str.substring(i + 1, str.length);
         _showMentionList = true;
-      });
-    } else {
-      _showMentionList = false;
-    }
+      } else {
+        _showMentionList = false;
+      }
+    } catch (e) {}
     setState(() {});
   }
 

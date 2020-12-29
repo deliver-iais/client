@@ -1,17 +1,9 @@
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/account.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:rxdart/subjects.dart';
 
 class MucMemberMentionWidget extends StatelessWidget {
-  var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _contactRepo = GetIt.I.get<ContactRepo>();
   final Member member;
   Function onSelected;
 
