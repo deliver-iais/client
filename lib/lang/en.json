@@ -112,7 +112,7 @@
   "deleteChannel": "Delete Channel",
   "saved_message": "Saved Message",
   "send_Contacts_message": "Deliver needs access to your contacts so that you can connect with your friend across all your device. your contacts will be continuously synced with Dliver's  heavily encrypted cloud servers.",
-  "connecting": "Connecting...",
+  "connecting": "Updating...",
   "UnreadMessages": "Unread Messages",
   "updating": "updating",
   "disconnected": "Disconnected",

@@ -181,10 +181,10 @@ Widget _textWidget(String text, Message message, bool isLastBlock,
         text: text,
         parse: <MatchText>[
           MatchText(
-            pattern: "(^|\\W)@[a-zA-Z]([a-zA-Z0-9_]){4,19}",
+            pattern: "[@#][a-zA-Z]([a-zA-Z0-9_]){4,19}",
             style: TextStyle(
               color: Colors.yellowAccent,
-              fontSize: 17,
+              fontSize: 16,
             ),
             onTap: (username) {
               onClick(username);

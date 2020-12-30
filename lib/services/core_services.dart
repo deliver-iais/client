@@ -101,7 +101,7 @@ class CoreServices {
               onListen: (c) async {},
               onCancel: (c) {
                 _clientPacket.close();
-                _responseStream.cancel();
+               // _responseStream.cancel();
                 startStream();
               }),
           options: CallOptions(
