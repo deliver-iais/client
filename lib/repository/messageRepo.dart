@@ -67,6 +67,7 @@ class MessageRepo {
         updatingStatus.add(TitleStatusConditions.Disconnected);
       }
       if (mode == ConnectionStatus.Connected) {
+        print('updating -----------------');
         updating();
         // TODO, change the position of calling this function, maybe needed periodic sending
         sendPendingMessages();
@@ -255,6 +256,7 @@ class MessageRepo {
         pendingMessage.status != SendingStatus.PENDING) {
       return;
     }
+
 
     MessageProto.MessageByClient byClient = _createMessageByClient(message);
 

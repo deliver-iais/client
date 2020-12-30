@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_flutter/services/firebase_services.dart';
 
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   var loggedInStatus;
   AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
+  var _fireBaseServices = GetIt.I.get<FireBaseServices>();
   int attempts = 0;
 
   @override
@@ -57,6 +59,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToHomePage() async {
+    _fireBaseServices.sendFireBaseToken();
     bool setUserName = await _accountRepo.usernameIsSet();
     if (setUserName) {
       ExtendedNavigator.of(context).pushAndRemoveUntil(

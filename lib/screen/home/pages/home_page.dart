@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _notificationServices.reset("");
+    _notificationServices.reset("\t");
     checkIfUsernameIsSet();
     if (isAndroid()) {
       checkShareFile(context);

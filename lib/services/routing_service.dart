@@ -81,7 +81,8 @@ class RoutingService {
         path: "/settings"));
   }
 
-  void openShowAllAvatars({Uid uid, bool hasPermissionToDeleteAvatar,String heroTag}) {
+  void openShowAllAvatars(
+      {Uid uid, bool hasPermissionToDeleteAvatar, String heroTag}) {
     var widget = MediaDetailsPage.showAvatar(
       key: ValueKey("/media-details"),
       uid: uid,
@@ -139,7 +140,7 @@ class RoutingService {
   }
 
   void openMemberSelection({bool isChannel, Uid mucUid}) {
-    _createMucService.reset();
+   // _createMucService.reset();
     var widget = MemberSelectionPage(
       key: ValueKey("/member-selection-page"),
       isChannel: isChannel,
@@ -162,7 +163,8 @@ class RoutingService {
         smallPageMain: widget,
         path: "/new-contact"));
   }
-  void  openSelectForwardMessage(List<Message> forwardedMessages) {
+
+  void openSelectForwardMessage(List<Message> forwardedMessages) {
     var widget = SelectionToForwardPage(
       key: ValueKey("/selection-to-forward-page"),
       forwardedMessages: forwardedMessages,
@@ -250,9 +252,10 @@ class RoutingService {
     return _stack.length < 2 || (_stack?.last?.lockBackButton ?? false);
   }
 
-  Widget backButtonLeading() {
+  Widget backButtonLeading({Function back}) {
     return BackButton(
       onPressed: () {
+        if (back != null) back();
         pop();
       },
     );

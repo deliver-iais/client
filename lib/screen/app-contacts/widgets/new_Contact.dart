@@ -32,7 +32,6 @@ class _NewContactState extends State<NewContact> {
 
   String _firstName = "";
   String _lastName = "";
-  bool _userExist = false;
 
   @override
   Widget build(BuildContext context) {
@@ -56,20 +55,15 @@ class _NewContactState extends State<NewContact> {
                 PhoneNumber phoneNumber = PhoneNumber()
                   ..nationalNumber = Int64.parseInt(_phoneNumber.number)
                   ..countryCode = int.parse(_phoneNumber.countryCode);
-                var result = await _contactRepo.sendContacts([
+              await _contactRepo.sendContacts([
                   Contact()
                     ..phoneNumber = phoneNumber
                     ..firstName = _firstName
                     ..lastName = _lastName
                 ]);
 
-                for (UserAsContact contact in result) {
-                  if (contact.phoneNumber.nationalNumber ==
-                      phoneNumber.nationalNumber) {
-                    _userExist = true;
-                  }
-                }
-                showResult();
+                await _contactRepo.getContacts();
+                await showResult();
                 Navigator.pop(context);
               })
         ],
@@ -151,14 +145,14 @@ class _NewContactState extends State<NewContact> {
     );
   }
 
-  void showResult() {
-    if (_userExist) {
+  void showResult() async  {
+    var result = await _contactRepo.ContactIsExist(_phoneNumber.number);
+    if (result) {
       Fluttertoast.showToast(
           msg: _appLocalization.getTraslateValue("contactAdd"));
     } else {
       Fluttertoast.showToast(
           msg: _appLocalization.getTraslateValue("contactNotExit"));
     }
-    _userExist = false;
   }
 }

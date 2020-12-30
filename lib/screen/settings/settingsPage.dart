@@ -5,6 +5,7 @@ import 'package:deliver_flutter/models/account.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/services/firebase_services.dart';
 
 import 'package:deliver_flutter/services/routing_service.dart';
 
@@ -158,9 +159,10 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                     ),
                     IconButton(
-                        icon: Icon(Icons.navigate_next), onPressed: () {
-                      _routingService.openAccountSettings();
-                    }),
+                        icon: Icon(Icons.navigate_next),
+                        onPressed: () {
+                          _routingService.openAccountSettings();
+                        }),
                   ],
                 )),
             settingsRow(
@@ -192,17 +194,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
             ),
-            settingsRow(
-              context,
-              iconData: Icons.brightness_2,
-              title: appLocalization.getTraslateValue("darkMode"),
-              child: Switch(
-                value: _getTheme(),
-                onChanged: (newThemMode) {
-                  _uxService.toggleTheme();
-                },
-              ),
-            ),
+            // settingsRow(
+            //   context,
+            //   iconData: Icons.brightness_2,
+            //   title: appLocalization.getTraslateValue("darkMode"),
+            //   child: Switch(
+            //     value: _getTheme(),
+            //     onChanged: (newThemMode) {
+            //       _uxService.toggleTheme();
+            //     },
+            //   ),
+            // ),
             settingsRow(context,
                 iconData: Icons.notifications_active,
                 title: appLocalization.getTraslateValue("notification"),
