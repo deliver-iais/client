@@ -20,6 +20,7 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/load-file-status.
 import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/screen/app_profile/widgets/documentAndFile_ui.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/group_Ui_widget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/memberWidget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/music_play_progress.dart';
@@ -43,6 +44,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:flutter_link_preview/flutter_link_preview.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
+import 'package:open_file/open_file.dart';
 
 class ProfilePage extends StatefulWidget {
   final Uid userUid;
@@ -386,26 +388,26 @@ class _ProfilePageState extends State<ProfilePage> {
                             ]),
                           ),
                         if (snapshot.data.imagesCount != 0)
-                          //imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo, _fileCache,snapshot.data.imagesCount),
-                         Text("audioooooooo"),
-                        if (snapshot.data.videosCount != 0)
+                          imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo, _fileCache,snapshot.data.imagesCount),
+                       if (snapshot.data.videosCount != 0)
                           Text("videooooooooooooooo"),
                         if (snapshot.data.filesCount != 0)
-                          Text("fileeeeeeeeeee"),
+                          DocumentAndFileUi(userUid: widget.userUid,
+                            documentCount: snapshot.data.documentsCount,type: FetchMediasReq_MediaType.FILES,),
                         if (snapshot.data.linkCount != 0)
                           linkWidget(widget.userUid, _mediaQueryRepo, snapshot.data.linkCount),
 
                         if (snapshot.data.documentsCount != 0)
-                         documentWidget(widget.userUid,  _fileRepo, _mediaQueryRepo, snapshot.data.documentsCount),
-                         //  Text("audioooooooo"),
+                            DocumentAndFileUi(userUid: widget.userUid,
+                            documentCount: snapshot.data.documentsCount,type: FetchMediasReq_MediaType.DOCUMENTS,),
                         if (snapshot.data.musicsCount != 0)
-                          Text("audioooooooo"),
-                         //  musicWidget(
-                         //      widget.userUid,
-                         //      _fileRepo,
-                         //      _mediaQueryRepo,
-                         //      snapshot.data.musicsCount,
-                         //      download),
+
+                          musicWidget(
+                              widget.userUid,
+                              _fileRepo,
+                              _mediaQueryRepo,
+                              snapshot.data.musicsCount,
+                              download),
                         if (snapshot.data.audiosCount != 0)
                           Text("audioooooooo"),
                       ])))));
@@ -558,89 +560,6 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
       });
 }
 
-Widget documentWidget(Uid userUid, FileRepo fileRepo,
-    MediaQueryRepo mediaQueryRepo, int documentCount){
-  FutureBuilder<List<Media>>(
-      future: mediaQueryRepo.getMedia(userUid, FetchMediasReq_MediaType.DOCUMENTS, documentCount),
-      builder: (BuildContext context, AsyncSnapshot<List<Media>> media) {
-          if (!media.hasData || media.data == null || media.connectionState == ConnectionState.waiting) {
-            return Container(width: 0.0, height: 0.0);
-        } else {
-           return Container(
-                width: MediaQuery.of(context).size.width,
-               child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
-                  child: ListView.builder(
-                      itemCount: documentCount,
-                      itemBuilder: (BuildContext ctx, int index) {
-                        var fileId = jsonDecode(media.data[index].json)["uuid"];
-                        var fileName = jsonDecode(media.data[index].json)["name"];
-                          return FutureBuilder<bool>(
-                             future: fileRepo.isExist(fileId, fileName),
-                              builder: (context, isExist) {
-                               if (isExist.hasData && isExist.data) {
-                                 return Column(
-                                   children: [
-                                     ListTile(
-                                       title: Row(children: <Widget>[
-                                         Padding(
-                                         padding: EdgeInsets.only(left: 2),
-                                          child: Container(
-                                            width: 50,
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                               color: ExtraTheme.of(context).text,
-                                              ),
-                                            child: IconButton(
-                                              padding: EdgeInsets.all(0),
-                                              alignment: Alignment.center,
-                                              icon: Icon(
-                                                Icons.insert_drive_file_sharp,
-                                                color: Theme.of(context).primaryColor,
-                                                size: 40,
-                                              ),
-                                              // onPressed: () {
-                                              //   setState(() {
-                                              //     audioPlayerService.onPause(widget.fileId);
-                                              //   });
-                                              // },
-                                            ),
-                                          )
-                                         ),
-                                         Expanded(
-                                           child: Stack(
-                                             children: [
-                                               Padding(
-                                                 padding: const EdgeInsets.only(
-                                                     left: 15.0, top: 10),
-                                                 child: Text(fileName,
-                                                     style: TextStyle(
-                                                         fontSize: 14,
-                                                         fontWeight: FontWeight.bold)),
-                                               ),
-                                               // MusicPlayProgress(
-                                               //   audioUuid: fileId,
-                                               // ),
-                                             ],
-                                           ),
-                                         ),
-                                       ]),
-                                     ),
-                                     Divider(
-                                       color: Colors.grey,
-                                     ),
-                                   ],
-                                 );
-                               }else{
-                                 return Container(width:0,height:0);
-                               }
-
-        });})
-            ));
-
-  }});
-}
 
 Widget musicWidget(Uid userUid, FileRepo fileRepo,
     MediaQueryRepo mediaQueryRepo, int musicCount, Function download) {

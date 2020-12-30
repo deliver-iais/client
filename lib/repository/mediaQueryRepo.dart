@@ -152,8 +152,7 @@ class MediaQueryRepo {
   Future<List<Media>> getMedia(
       Uid uid, FetchMediasReq_MediaType mediaType, int mediaCount) async {
     List<Media> mediasList = [];
-    mediasList =
-        await _mediaDao.getByRoomIdAndType(uid.asString(), mediaType.value);
+    mediasList = await _mediaDao.getByRoomIdAndType(uid.asString(), mediaType.value);
     if (mediasList.length == 0) {
       mediasList = await getLastMediasList(
           uid,
