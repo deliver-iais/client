@@ -103,18 +103,21 @@ class MucRepo {
   Future<String> fetchMucInfo(Uid mucUid) async {
     if (mucUid.category == Categories.GROUP) {
       MucPro.Group group = await getGroupInfo(mucUid);
-      _mucDao.insertMuc(Muc(
-          name: group.name,
-          uid: mucUid.asString(),
-          members: group.population.toInt()));
+      if (group != null)
+        _mucDao.insertMuc(Muc(
+            name: group.name,
+            uid: mucUid.asString(),
+            members: group.population.toInt()));
       getGroupMembers(mucUid);
+      print(group.name);
       return group.name;
     } else {
       Channel channel = await getChannelInfo(mucUid);
-      _mucDao.insertMuc(Muc(
-          name: channel.name,
-          uid: mucUid.asString(),
-          members: channel.population.toInt()));
+      if (channel != null)
+        _mucDao.insertMuc(Muc(
+            name: channel.name,
+            uid: mucUid.asString(),
+            members: channel.population.toInt()));
       getChannelMembers(mucUid);
       return channel.name;
     }

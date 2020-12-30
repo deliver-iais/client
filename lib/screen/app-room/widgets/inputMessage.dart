@@ -245,6 +245,8 @@ class _InputMessageWidget extends State<InputMessage> {
 
                                                   controller.clear();
                                                   messageText = "";
+
+                                                  _showMentionList = false;
                                                 }
                                               },
                                       ),

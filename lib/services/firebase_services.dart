@@ -50,6 +50,7 @@ class FireBaseServices {
     try {
       _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
+
           if (message.containsKey("notification")) {
             // nothing
           }

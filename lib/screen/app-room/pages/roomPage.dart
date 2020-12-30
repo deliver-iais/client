@@ -66,7 +66,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _notificationServices = GetIt.I.get<NotificationServices>();
   var _seenDao = GetIt.I.get<SeenDao>();
   var _mucRepo = GetIt.I.get<MucRepo>();
-  var _roomRepo  = GetIt.I.get<RoomRepo>();
+  var _roomRepo = GetIt.I.get<RoomRepo>();
 
   int lastSeenMessageId = -1;
   bool _waitingForForwardedMessage;
@@ -85,6 +85,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Subject<int> _lastSeenSubject = BehaviorSubject.seeded(-1);
   Cache<int, Message> _cache =
       LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
+
+  Map<int, String> _messagesPacketId = Map();
 
   Cache<int, Widget> widgetCache =
       LruCache<int, Widget>(storage: SimpleStorage(size: 100));
@@ -119,8 +121,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         msg = messages[i];
       }
       _cache.set(messages[i].id, messages[i]);
+      try {
+        if (_messagesPacketId.containsValue(messages[i].packetId))
+          _cache.set(messages[i].id, messages[i].copyWith(packetId: null));
+      } catch (e) {}
+      _messagesPacketId[messages[i].id] = messages[i].packetId;
     }
-    return msg;
+    return _cache.get(id);
   }
 
   void _resetRoomPageDetails() {
@@ -216,6 +223,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         return Scaffold(
           appBar: buildAppbar(snapshot),
           body: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
               StreamBuilder<List<PendingMessage>>(
                   stream: _pendingMessageDao.getByRoomId(widget.roomId),
@@ -363,6 +371,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   messages[0].id.toInt() == 1)
                 newTime = true;
               else if (messages.length > 1 &&
+                  messages[1].packetId != null &&
                   (messages[1].time.day != messages[0].time.day ||
                       messages[1].time.month != messages[0].time.month)) {
                 newTime = true;
@@ -388,27 +397,29 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         style: TextStyle(color: Theme.of(context).primaryColor),
                       ),
                     ),
-                  messages[0].type != MessageType.PERSISTENT_EVENT
-                      ? Container(
-                          color:
-                              _selectedMessages.containsKey(messages[0].id) ||
+                  messages[0].packetId == null
+                      ? SizedBox.shrink()
+                      : messages[0].type != MessageType.PERSISTENT_EVENT
+                          ? Container(
+                              color: _selectedMessages
+                                          .containsKey(messages[0].id) ||
                                       (messages[0].id != null &&
                                           messages[0].id == _replayMessageId)
                                   ? Theme.of(context).disabledColor
                                   : Theme.of(context).backgroundColor,
-                          child: normalMessage(messages[0], _maxWidth,
-                              currentRoom, pendingMessages),
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            PersistentEventMessage(
-                              message: messages[0],
-                              showLastMessage: false,
+                              child: normalMessage(messages[0], _maxWidth,
+                                  currentRoom, pendingMessages),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                PersistentEventMessage(
+                                  message: messages[0],
+                                  showLastMessage: false,
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
                 ],
               );
             } else {
@@ -571,14 +582,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 SentMessageBox(
-                    message: message,
-                    maxWidth: _maxWidth,
-                    isSeen:
-                        message.id != null && message.id <= lastSeenMessageId,
-                    scrollToMessage: (int id) {
-                      _scrollToMessage(
-                          id, lastMessageId + pendingMessagesLength - id);
-                    },omUsernameClick: onUsernameClick,)
+                  message: message,
+                  maxWidth: _maxWidth,
+                  isSeen: message.id != null && message.id <= lastSeenMessageId,
+                  scrollToMessage: (int id) {
+                    _scrollToMessage(
+                        id, lastMessageId + pendingMessagesLength - id);
+                  },
+                  omUsernameClick: onUsernameClick,
+                )
               ],
             ),
             if (_selectMultiMessage) selectMultiMessage(message: message)
@@ -620,16 +632,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             isGroup: widget.roomId.uid.category == Categories.GROUP,
             scrollToMessage: (int id) {
               _scrollToMessage(id, lastMessageId + pendingMessagesLength - id);
-            },omUsernameClick: onUsernameClick,
+            },
+            omUsernameClick: onUsernameClick,
           )
         ],
       ),
     );
   }
-  onUsernameClick(String username) async{
-   String roomId = await _roomRepo.searchByUsername(username);
-   if(roomId != null){
-     _routingService.openRoom(roomId);
-   }
+
+  onUsernameClick(String username) async {
+    String roomId = await _roomRepo.searchByUsername(username);
+    if (roomId != null) {
+      _routingService.openRoom(roomId);
+    }
   }
 }

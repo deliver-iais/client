@@ -61,26 +61,29 @@ class CoreServices {
 
 //TODO test
   initStreamConnection() async {
-    await startStream();
-    await startCheckerTimer();
+    startStream();
+    startCheckerTimer();
     _connectionStatus.distinct().listen((event) {
       connectionStatus.add(event);
     });
   }
 
   @visibleForTesting
-  startCheckerTimer() {
+  startCheckerTimer() async {
+    if (_clientPacket.isClosed || _clientPacket.isPaused) {
+      await startStream();
+    }
     sendPingMessage();
     responseChecked = false;
-    Timer(new Duration(seconds: backoffTime), () {
+    Timer(new Duration(seconds: backoffTime), () async {
       if (!responseChecked) {
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
           backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
+        _clientPacket.close();
         _connectionStatus.add(ConnectionStatus.Disconnected);
-        startStream();
       }
       startCheckerTimer();
     });
@@ -95,15 +98,22 @@ class CoreServices {
   @visibleForTesting
   startStream() async {
     try {
-      _clientPacket = StreamController<ClientPacket>();
+      _clientPacket = StreamController<ClientPacket>(onPause: () {
+        print("eeee");
+      }, onResume: () {
+        print("sdssd");
+      }, onCancel: () async {
+        await _clientPacket.close();
+        await _responseStream.cancel();
+      });
       _responseStream = _grpcCoreService.establishStream(
           _clientPacket.stream.asBroadcastStream(
-              onListen: (c) async {},
-              onCancel: (c) {
-                _clientPacket.close();
-               // _responseStream.cancel();
-                startStream();
-              }),
+            onListen: (c) async {},
+            onCancel: (c) async {
+              await _clientPacket.close();
+              await _responseStream.cancel();
+            },
+          ),
           options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()},
           ));
@@ -145,21 +155,36 @@ class CoreServices {
   }
 
   sendMessage(MessageByClient message) {
-    _clientPacket.add(ClientPacket()
-      ..message = message
-      ..id = message.packetId);
+    if( !_clientPacket.isClosed){
+      _clientPacket.add(ClientPacket()
+        ..message = message
+        ..id = message.packetId);
+    }else{
+      startCheckerTimer();
+    }
   }
 
   sendPingMessage() {
-    _clientPacket.add(ClientPacket()
-      ..ping = Ping()
-      ..id = DateTime.now().microsecondsSinceEpoch.toString());
+    if (_clientPacket != null &&  !_clientPacket.isClosed)
+      {
+        _clientPacket.add(ClientPacket()
+          ..ping = Ping()
+          ..id = DateTime.now().microsecondsSinceEpoch.toString());
+      }else{
+      startStream();
+    }
+
   }
 
   sendSeenMessage(SeenByClient seen) {
-    _clientPacket.add(ClientPacket()
-      ..seen = seen
-      ..id = seen.id.toString());
+    if(!_clientPacket.isClosed){
+      _clientPacket.add(ClientPacket()
+        ..seen = seen
+        ..id = seen.id.toString());
+    }else{
+      startCheckerTimer();
+    }
+
   }
 
   sendActivityMessage(ActivityByClient activity) {
