@@ -103,8 +103,8 @@ class CoreServices {
       }, onResume: () {
 
       }, onCancel: () async {
-        await _clientPacket.close();
-        await _responseStream.cancel();
+        // await _clientPacket.close();
+        // await _responseStream.cancel();
       });
       _responseStream = _grpcCoreService.establishStream(
           _clientPacket.stream.asBroadcastStream(

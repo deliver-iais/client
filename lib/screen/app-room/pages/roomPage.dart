@@ -365,7 +365,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               }
               bool newTime = false;
               if (messages.length == 1 &&
-                  messages[0].packetId != null &&
+                  messages[0].packetId != null && messages[0].id != null &&
                   messages[0].id.toInt() == 1)
                 newTime = true;
               else if (messages.length > 1 && messages[1] != null&&
