@@ -50,24 +50,25 @@ class FireBaseServices {
     try {
       _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
-
+          var _coreServices = GetIt.I.get<CoreServices>();
+          _coreServices.sendPingMessage();
           if (message.containsKey("notification")) {
-            // nothing
+            // print("f");l
           }
           if (message.containsKey("data")) {
-            //nothing
+            // print("fff");
           }
         },
         onBackgroundMessage: myBackgroundMessageHandler,
         onLaunch: (Map<String, dynamic> message) async {
           if (message.containsKey("notification")) {
-            //nothing
+            // print("fff");
 
           }
         },
         onResume: (Map<String, dynamic> message) async {
           if (message.containsKey("notification")) {
-            // npthing
+            // print("fff");
           }
         },
       );

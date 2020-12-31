@@ -440,4 +440,8 @@ class MessageRepo {
   String _findType(String path) {
     return mime(path) ?? "application/octet-stream";
   }
+
+  void setCoreSetting() {
+    _coreServices.sendPingMessage();
+  }
 }

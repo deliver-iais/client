@@ -181,6 +181,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   void initState() {
     super.initState();
     _getLastSeen();
+    _messageRepo.setCoreSetting();
     _getLastShowMessageId();
     _roomDao.insertRoom(Room(roomId: widget.roomId, mentioned: false));
     _notificationServices.reset(widget.roomId);

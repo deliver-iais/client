@@ -126,7 +126,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           return Text(
                               _appLocalization.getTraslateValue("connecting"),
                               style: TextStyle(fontSize: 20));
-                        } else {
+                        } else if(snapshot.hasData && snapshot.data == TitleStatusConditions.Disconnected) {
                           return Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
@@ -140,6 +140,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                                   style: TextStyle(fontSize: 16,color: Theme.of(context).primaryColor ))
                             ],
                           );
+                        }else{
+                          return buildText(context);
                         }
                       }),
                   actions: [
