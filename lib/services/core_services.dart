@@ -101,7 +101,7 @@ class CoreServices {
       _clientPacket = StreamController<ClientPacket>(onPause: () {
         print("eeee");
       }, onResume: () {
-        print("sdssd");
+
       }, onCancel: () async {
         await _clientPacket.close();
         await _responseStream.cancel();
@@ -171,7 +171,7 @@ class CoreServices {
           ..ping = Ping()
           ..id = DateTime.now().microsecondsSinceEpoch.toString());
       }else{
-      startStream();
+      startCheckerTimer();
     }
 
   }

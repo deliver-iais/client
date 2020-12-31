@@ -86,7 +86,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Cache<int, Message> _cache =
       LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
 
-  Map<int, String> _messagesPacketId = Map();
+  Map<String, int> _messagesPacketId = Map();
 
   Cache<int, Widget> widgetCache =
       LruCache<int, Widget>(storage: SimpleStorage(size: 100));
@@ -117,18 +117,16 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     List<Message> messages =
         await _messageRepo.getPage(page, roomId, id, pageSize: PAGE_SIZE);
     for (int i = 0; i < messages.length; i = i + 1) {
-      if (messages[i].id == id) {
-        msg = messages[i];
-      }
       _cache.set(messages[i].id, messages[i]);
       try {
-        if (_messagesPacketId.containsValue(messages[i].packetId))
-          _cache.set(messages[i].id, messages[i].copyWith(packetId: null));
+        if (_messagesPacketId.containsKey(messages[i].packetId) && _messagesPacketId[messages[i].packetId] != messages[i].id && _messagesPacketId[messages[i].packetId]>messages[i].id)
+          _cache.set(messages[i].id, Message(packetId: null,id: messages[i].id,time: messages[i].time,roomId: messages[i].roomId,from: messages[i].from));
       } catch (e) {}
-      _messagesPacketId[messages[i].id] = messages[i].packetId;
+      _messagesPacketId[messages[i].packetId] = messages[i].id;
     }
     return _cache.get(id);
   }
+
 
   void _resetRoomPageDetails() {
     _repliedMessage = null;
@@ -367,10 +365,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               }
               bool newTime = false;
               if (messages.length == 1 &&
-                  messages[0].id != null &&
+                  messages[0].packetId != null &&
                   messages[0].id.toInt() == 1)
                 newTime = true;
-              else if (messages.length > 1 &&
+              else if (messages.length > 1 && messages[1] != null&&
                   messages[1].packetId != null &&
                   (messages[1].time.day != messages[0].time.day ||
                       messages[1].time.month != messages[0].time.month)) {
