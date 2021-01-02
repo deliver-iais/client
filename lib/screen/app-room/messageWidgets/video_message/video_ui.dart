@@ -1,14 +1,13 @@
 import 'dart:io';
 
-import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/services/video_player_service.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file;
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoUi extends StatefulWidget {
-  final file.File video;
+  final File video;
 
   const VideoUi({Key key, this.video}) : super(key: key);
 
@@ -18,6 +17,7 @@ class VideoUi extends StatefulWidget {
 
 class _VideoUiState extends State<VideoUi> {
   VideoPlayerService videoPlayerService = GetIt.I.get<VideoPlayerService>();
+
   @override
   void dispose() {
     videoPlayerService.videoControllerDispose();
@@ -26,26 +26,29 @@ class _VideoUiState extends State<VideoUi> {
 
   @override
   Widget build(BuildContext context) {
-    var fileRepo = GetIt.I.get<FileRepo>();
-
-    return FutureBuilder<File>(
-      future: fileRepo.getFile(widget.video.uuid, widget.video.name),
-      builder: (context, snapshot1) {
-        if (snapshot1.hasData) {
-          return FutureBuilder(
-              future: videoPlayerService
-                  .videoControllerInitialization(snapshot1.data),
-              builder: (context, snapshot2) {
-                if (snapshot2.connectionState == ConnectionState.active) {
-                  return VideoPlayer(videoPlayerService.videoPlayerController);
-                } else {
-                  return CircularProgressIndicator();
-                }
-              });
-        } else {
-          return CircularProgressIndicator();
-        }
-      },
-    );
+    return FutureBuilder(
+        future: videoPlayerService.videoControllerInitialization(widget.video),
+        builder: (context, snapshot2) {
+          return Stack(
+            children: [
+              VideoPlayer(videoPlayerService.videoPlayerController),
+              Positioned(child: Icon(Icons.more_vert), top: 5, right: 0),
+              Center(
+                  child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black.withOpacity(0.5),
+                ),
+                child: IconButton(
+                    icon: Icon(Icons.play_arrow),
+                    onPressed: () {
+                      videoPlayerService.videoPlayerController.play();
+                    }),
+              ))
+            ],
+          );
+        });
   }
 }
