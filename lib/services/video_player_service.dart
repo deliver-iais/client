@@ -12,7 +12,7 @@ class VideoPlayerService {
     return videoPlayerController.initialize();
   }
 
-  videoControllerDispose() {
-    videoPlayerController.dispose();
-  }
+  // videoControllerDispose() {
+  //   videoPlayerController.dispose();
+  // }
 }

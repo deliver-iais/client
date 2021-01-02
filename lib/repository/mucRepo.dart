@@ -49,6 +49,7 @@ class MucRepo {
       _insertToDb(channelUid, channelName, memberUids.length + 1);
       return channelUid;
     }
+    getChannelMembers(channelUid);
     return null;
   }
 
@@ -119,7 +120,7 @@ class MucRepo {
             uid: mucUid.asString(),
             members: channel.population.toInt()));
       getChannelMembers(mucUid);
-      return channel.name;
+      return channel.name??"";
     }
   }
 

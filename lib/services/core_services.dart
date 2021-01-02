@@ -158,7 +158,6 @@ class CoreServices {
       _clientPacket.add(ClientPacket()
         ..message = message
         ..id = message.packetId);
-      sendActivityMessage(ActivityByClient()..to = message.to..typeOfActivity = "isTyping");
     } else {
       startStream();
     }
