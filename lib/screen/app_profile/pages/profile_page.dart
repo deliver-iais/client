@@ -23,6 +23,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/documentAndFile_ui.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/group_Ui_widget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/memberWidget.dart';
+import 'package:deliver_flutter/screen/app_profile/widgets/musicAndAudio_ui_widget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/music_play_progress.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -105,7 +106,6 @@ class _ProfilePageState extends State<ProfilePage> {
             tabsCount = tabsCount + 1;
           }
           if (snapshot.data.musicsCount != 0) {
-
             tabsCount = tabsCount + 1;
           }
           if (snapshot.data.audiosCount != 0) {
@@ -388,29 +388,33 @@ class _ProfilePageState extends State<ProfilePage> {
                             ]),
                           ),
                         if (snapshot.data.imagesCount != 0)
-                          imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo, _fileCache,snapshot.data.imagesCount),
-                       if (snapshot.data.videosCount != 0)
+                          imageWidget(widget.userUid, _mediaQueryRepo,
+                              _fileRepo, _fileCache, snapshot.data.imagesCount),
+                        if (snapshot.data.videosCount != 0)
                           Text("videooooooooooooooo"),
                         if (snapshot.data.filesCount != 0)
-                          DocumentAndFileUi(userUid: widget.userUid,
-                            documentCount: snapshot.data.documentsCount,type: FetchMediasReq_MediaType.FILES,),
+                          DocumentAndFileUi(
+                            userUid: widget.userUid,
+                            documentCount: snapshot.data.filesCount,
+                            type: FetchMediasReq_MediaType.FILES,
+                          ),
                         if (snapshot.data.linkCount != 0)
-                          linkWidget(widget.userUid, _mediaQueryRepo, snapshot.data.linkCount),
-
+                          linkWidget(widget.userUid, _mediaQueryRepo,
+                              snapshot.data.linkCount),
                         if (snapshot.data.documentsCount != 0)
-                            DocumentAndFileUi(userUid: widget.userUid,
-                            documentCount: snapshot.data.documentsCount,type: FetchMediasReq_MediaType.DOCUMENTS,),
+                          DocumentAndFileUi(
+                            userUid: widget.userUid,
+                            documentCount: snapshot.data.documentsCount,
+                            type: FetchMediasReq_MediaType.DOCUMENTS,
+                          ),
                         if (snapshot.data.musicsCount != 0)
+                          MusicAndAudioUi(userUid: widget.userUid,type: FetchMediasReq_MediaType.MUSICS,
+                          mediaCount:snapshot.data.musicsCount,),
 
-                          musicWidget(
-                              widget.userUid,
-                              _fileRepo,
-                              _mediaQueryRepo,
-                              snapshot.data.musicsCount,
-                              download),
                         if (snapshot.data.audiosCount != 0)
-                          Text("audioooooooo"),
-                      ])))));
+                          MusicAndAudioUi(userUid: widget.userUid,type: FetchMediasReq_MediaType.AUDIOS,
+                            mediaCount:snapshot.data.audiosCount,),
+                          ])))));
         } else {
           return Container(
             width: 100,
@@ -555,117 +559,6 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
                 ],
               );
             },
-          );
-        }
-      });
-}
-
-
-Widget musicWidget(Uid userUid, FileRepo fileRepo,
-    MediaQueryRepo mediaQueryRepo, int musicCount, Function download) {
-  return FutureBuilder<List<Media>>(
-      future: mediaQueryRepo.getMedia(
-          userUid, FetchMediasReq_MediaType.MUSICS, musicCount),
-      builder: (BuildContext context, AsyncSnapshot<List<Media>> media) {
-        if (!media.hasData ||
-            media.data == null ||
-            media.connectionState == ConnectionState.waiting) {
-          return Container(width: 0.0, height: 0.0);
-        } else {
-          return Container(
-            width: MediaQuery.of(context).size.width,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
-              child: ListView.builder(
-                itemCount: musicCount,
-                itemBuilder: (BuildContext ctx, int index) {
-                  var fileId = jsonDecode(media.data[index].json)["uuid"];
-                  var fileName = jsonDecode(media.data[index].json)["name"];
-                  var messageId = media.data[index].messageId;
-                  return FutureBuilder<bool>(
-                      future: fileRepo.isExist(fileId, fileName),
-                      builder: (context, isExist) {
-                        if (isExist.hasData && isExist.data) {
-                          return Column(
-                            children: [
-                              ListTile(
-                                title: Row(children: <Widget>[
-                                  PlayAudioStatus(
-                                    fileId: fileId,
-                                    fileName: fileName,
-                                  ),
-                                  Expanded(
-                                    child: Stack(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 15.0, top: 10),
-                                          child: Text(fileName,
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold)),
-                                        ),
-                                        MusicPlayProgress(
-                                          audioUuid: fileId,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ]),
-                              ),
-                              Divider(
-                                color: Colors.grey,
-                              ),
-                            ],
-                          );
-                        } else if (isExist.hasData && !isExist.data) {
-                          return Column(
-                            children: [
-                              ListTile(
-                                title: Row(
-                                  children: [
-                                    LoadFileStatus(
-                                      fileId: fileId,
-                                      fileName: fileName,
-                                      dbId: messageId,
-                                      onPressed: download,
-                                    ),
-                                    Expanded(
-                                      child: Stack(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 15.0, top: 10),
-                                            child: Text(fileName,
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight:
-                                                        FontWeight.bold)),
-                                          ),
-                                          MusicPlayProgress(
-                                            audioUuid: fileId,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Divider(
-                                color: Colors.grey,
-                              ),
-                            ],
-                          );
-                        } else {
-                          return Container(
-                            width: 0,
-                            height: 0,
-                          );
-                        }
-                      });
-                },
-              ),
-            ),
           );
         }
       });
