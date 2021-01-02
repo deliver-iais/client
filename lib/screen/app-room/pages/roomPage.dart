@@ -119,14 +119,22 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     for (int i = 0; i < messages.length; i = i + 1) {
       _cache.set(messages[i].id, messages[i]);
       try {
-        if (_messagesPacketId.containsKey(messages[i].packetId) && _messagesPacketId[messages[i].packetId] != messages[i].id && _messagesPacketId[messages[i].packetId]>messages[i].id)
-          _cache.set(messages[i].id, Message(packetId: null,id: messages[i].id,time: messages[i].time,roomId: messages[i].roomId,from: messages[i].from));
+        if (_messagesPacketId.containsKey(messages[i].packetId) &&
+            _messagesPacketId[messages[i].packetId] != messages[i].id &&
+            _messagesPacketId[messages[i].packetId] > messages[i].id)
+          _cache.set(
+              messages[i].id,
+              Message(
+                  packetId: null,
+                  id: messages[i].id,
+                  time: messages[i].time,
+                  roomId: messages[i].roomId,
+                  from: messages[i].from));
       } catch (e) {}
       _messagesPacketId[messages[i].packetId] = messages[i].id;
     }
     return _cache.get(id);
   }
-
 
   void _resetRoomPageDetails() {
     _repliedMessage = null;
@@ -366,10 +374,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               }
               bool newTime = false;
               if (messages.length == 1 &&
-                  messages[0].packetId != null && messages[0].id != null &&
+                  messages[0].packetId != null &&
+                  messages[0].id != null &&
                   messages[0].id.toInt() == 1)
                 newTime = true;
-              else if (messages.length > 1 && messages[1] != null&&
+              else if (messages.length > 1 &&
+                  messages[1] != null &&
                   messages[1].packetId != null &&
                   (messages[1].time.day != messages[0].time.day ||
                       messages[1].time.month != messages[0].time.month)) {
@@ -436,8 +446,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   height: 60,
                   width: 20,
                   child: Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.blue,
+                    child: SizedBox(
+                      height: 20,
                     ),
                   ));
             }
