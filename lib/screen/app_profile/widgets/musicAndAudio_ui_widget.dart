@@ -12,26 +12,27 @@ import 'package:get_it/get_it.dart';
 
 import 'music_play_progress.dart';
 
-class MusicAndAudioUi extends StatefulWidget{
+class MusicAndAudioUi extends StatefulWidget {
   final Uid userUid;
   final int mediaCount;
   final FetchMediasReq_MediaType type;
 
-  MusicAndAudioUi({Key key,this.userUid,this.type,this.mediaCount})
+  MusicAndAudioUi({Key key, this.userUid, this.type, this.mediaCount})
       : super(key: key);
 
   @override
   _MusicAndAudioUiState createState() => _MusicAndAudioUiState();
-
 }
- class _MusicAndAudioUiState extends State<MusicAndAudioUi>{
-   var mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-   var fileRepo = GetIt.I.get<FileRepo>();
 
-   download(String uuid, String name) async {
-     await GetIt.I.get<FileRepo>().getFile(uuid, name);
-     setState(() {});
-   }
+class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
+  var mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  var fileRepo = GetIt.I.get<FileRepo>();
+
+  download(String uuid, String name) async {
+    await GetIt.I.get<FileRepo>().getFile(uuid, name);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Media>>(
@@ -74,7 +75,8 @@ class MusicAndAudioUi extends StatefulWidget{
                                             child: Text(fileName,
                                                 style: TextStyle(
                                                     fontSize: 14,
-                                                    fontWeight: FontWeight.bold)),
+                                                    fontWeight:
+                                                        FontWeight.bold)),
                                           ),
                                           MusicPlayProgress(
                                             audioUuid: fileId,
@@ -111,7 +113,7 @@ class MusicAndAudioUi extends StatefulWidget{
                                                   style: TextStyle(
                                                       fontSize: 14,
                                                       fontWeight:
-                                                      FontWeight.bold)),
+                                                          FontWeight.bold)),
                                             ),
                                             MusicPlayProgress(
                                               audioUuid: fileId,
@@ -141,5 +143,4 @@ class MusicAndAudioUi extends StatefulWidget{
           }
         });
   }
-
- }
+}
