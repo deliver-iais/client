@@ -41,7 +41,7 @@ class NewMessageInput extends StatelessWidget {
               sendForwardMessage: sendForwardMessage,
             );
           } else {
-            _roomDao.insertRoom(Room(roomId: currentRoomId, mute: false));
+            _roomDao.insertRoom(Room(roomId: currentRoomId,));
             return SizedBox.shrink();
           }
         });

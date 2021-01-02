@@ -124,7 +124,9 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
         }
       }
     }
-    _notificationServices.showNotification(msg, msg.from.asString(), roomName);
+    if ((await accountRepo.notification).contains("true"))
+      _notificationServices.showNotification(
+          msg, msg.from.asString(), roomName);
   }
   if (message.containsKey('notification')) {
     //todo

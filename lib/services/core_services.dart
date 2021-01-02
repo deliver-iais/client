@@ -34,16 +34,16 @@ const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
   StreamController<ClientPacket> _clientPacket =
-  StreamController<ClientPacket>();
+      StreamController<ClientPacket>();
   ResponseStream<ServerPacket> _responseStream;
   @visibleForTesting
   int backoffTime = MIN_BACKOFF_TIME;
 
   BehaviorSubject<ConnectionStatus> connectionStatus =
-  BehaviorSubject.seeded(ConnectionStatus.Disconnected);
+      BehaviorSubject.seeded(ConnectionStatus.Disconnected);
 
   BehaviorSubject<ConnectionStatus> _connectionStatus =
-  BehaviorSubject.seeded(ConnectionStatus.Disconnected);
+      BehaviorSubject.seeded(ConnectionStatus.Disconnected);
 
   @visibleForTesting
   bool responseChecked = false;
@@ -59,11 +59,11 @@ class CoreServices {
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
 
-   Timer _connectionTimer;
+  Timer _connectionTimer;
 
 //TODO test
   initStreamConnection() async {
-    if(_connectionTimer != null && _connectionTimer.isActive){
+    if (_connectionTimer != null && _connectionTimer.isActive) {
       return;
     }
     startStream();
@@ -75,7 +75,7 @@ class CoreServices {
 
   @visibleForTesting
   startCheckerTimer() async {
-    if(_connectionTimer != null && _connectionTimer.isActive){
+    if (_connectionTimer != null && _connectionTimer.isActive) {
       return;
     }
     if (_clientPacket.isClosed || _clientPacket.isPaused) {
@@ -83,7 +83,7 @@ class CoreServices {
     }
     sendPingMessage();
     responseChecked = false;
-   _connectionTimer =  Timer(new Duration(seconds: backoffTime), () async {
+    _connectionTimer = Timer(new Duration(seconds: backoffTime), () async {
       if (!responseChecked) {
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
           backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
@@ -109,10 +109,10 @@ class CoreServices {
       _clientPacket = StreamController<ClientPacket>();
       _responseStream = _grpcCoreService.establishStream(
           _clientPacket.stream.asBroadcastStream(
-            onCancel: (c) async {
-              await _clientPacket.close();
-            },
-          ),
+        onCancel: (c) async {
+          await _clientPacket.close();
+        },
+      ),
           options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()},
           ));
@@ -144,7 +144,7 @@ class CoreServices {
           case ServerPacket_Type.pong:
             break;
           case ServerPacket_Type.notSet:
-          // TODO: Handle this case.
+            // TODO: Handle this case.
             break;
         }
       });
@@ -167,14 +167,10 @@ class CoreServices {
     if (_clientPacket != null && !_clientPacket.isClosed) {
       _clientPacket.add(ClientPacket()
         ..ping = Ping()
-        ..id = DateTime
-            .now()
-            .microsecondsSinceEpoch
-            .toString());
+        ..id = DateTime.now().microsecondsSinceEpoch.toString());
     } else {
       startStream();
-  }
-
+    }
   }
 
   sendSeenMessage(SeenByClient seen) {
@@ -215,10 +211,7 @@ class CoreServices {
         roomId: roomId.asString()));
   }
 
-  _saveActivityMessage(Activity activity) {
-
-  }
-
+  _saveActivityMessage(Activity activity) {}
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
     if (messageDeliveryAck.id.toInt() == 0) {
@@ -228,9 +221,7 @@ class CoreServices {
     var packetId = messageDeliveryAck.packetId;
     var id = messageDeliveryAck.id.toInt();
     var time = messageDeliveryAck.time.toInt() ??
-        DateTime
-            .now()
-            .millisecondsSinceEpoch;
+        DateTime.now().millisecondsSinceEpoch;
     _messageDao.updateMessageId(roomId, packetId, id, time);
     _roomDao.insertRoomCompanion(Database.RoomsCompanion.insert(
         roomId: roomId, lastMessageId: Value(id)));
@@ -242,8 +233,10 @@ class CoreServices {
 
   _saveIncomingMessage(Message message) async {
     Uid roomUid =
-    await saveMessage(_accountRepo, _messageDao, _roomDao, message);
-    await showNotification(roomUid, message);
+        await saveMessage(_accountRepo, _messageDao, _roomDao, message);
+    if ((await _accountRepo.notification).contains("true")) {
+      await showNotification(roomUid, message);
+    }
   }
 
   Future showNotification(Uid roomUid, Message message) async {
@@ -291,18 +284,18 @@ Future<bool> checkMention(String text, AccountRepo accountRepo) async {
   return text.contains(account.userName);
 }
 
-saveMessageInMessagesDB(AccountRepo accountRepo, MessageDao messageDao,
-    Message message) async {
+saveMessageInMessagesDB(
+    AccountRepo accountRepo, MessageDao messageDao, Message message) async {
   // ignore: missing_required_param
   Database.Message msg = Database.Message(
       id: message.id.toInt(),
       roomId: message.whichType() == Message_Type.persistEvent
           ? message.from.asString()
           : message.from.node.contains(accountRepo.currentUserUid.node)
-          ? message.to.asString()
-          : message.to.category == Categories.USER
-          ? message.from.asString()
-          : message.to.asString(),
+              ? message.to.asString()
+              : message.to.category == Categories.USER
+                  ? message.from.asString()
+                  : message.to.asString(),
       packetId: message.packetId,
       time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
       to: message.to.asString(),
@@ -321,7 +314,7 @@ saveMessageInMessagesDB(AccountRepo accountRepo, MessageDao messageDao,
 
 Uid getRoomId(AccountRepo accountRepo, Message message) {
   bool isCurrentUser =
-  message.from.node.contains(accountRepo.currentUserUid.node);
+      message.from.node.contains(accountRepo.currentUserUid.node);
   var roomUid = isCurrentUser
       ? message.to
       : (message.to.category == Categories.USER ? message.from : message.to);
@@ -347,13 +340,13 @@ String messageToJson(Message message) {
           "issueType": getIssueType(
               message.persistEvent.mucSpecificPersistentEvent.issue),
           "issuer":
-          message.persistEvent.mucSpecificPersistentEvent.issuer.asString(),
+              message.persistEvent.mucSpecificPersistentEvent.issuer.asString(),
           "assignee": message.persistEvent.mucSpecificPersistentEvent.assignee
               .asString()
         };
         break;
       case PersistentEvent_Type.messageManipulationPersistentEvent:
-      //todo
+        //todo
         break;
       case PersistentEvent_Type.adminSpecificPersistentEvent:
         switch (message.persistEvent.adminSpecificPersistentEvent.event) {
@@ -364,7 +357,7 @@ String messageToJson(Message message) {
 
         break;
       case PersistentEvent_Type.notSet:
-      // TODO: Handle this case.
+        // TODO: Handle this case.
         break;
     }
   else if (type == MessageType.POLL)
