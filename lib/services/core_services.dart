@@ -59,8 +59,13 @@ class CoreServices {
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
 
+   Timer _connectionTimer;
+
 //TODO test
   initStreamConnection() async {
+    if(_connectionTimer != null && _connectionTimer.isActive){
+      return;
+    }
     startStream();
     startCheckerTimer();
     _connectionStatus.distinct().listen((event) {
@@ -70,12 +75,15 @@ class CoreServices {
 
   @visibleForTesting
   startCheckerTimer() async {
+    if(_connectionTimer != null && _connectionTimer.isActive){
+      return;
+    }
     if (_clientPacket.isClosed || _clientPacket.isPaused) {
       await startStream();
     }
     sendPingMessage();
     responseChecked = false;
-    Timer(new Duration(seconds: backoffTime), () async {
+   _connectionTimer =  Timer(new Duration(seconds: backoffTime), () async {
       if (!responseChecked) {
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
           backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
@@ -98,16 +106,9 @@ class CoreServices {
   @visibleForTesting
   startStream() async {
     try {
-      _clientPacket = StreamController<ClientPacket>(onPause: () {
-        print("eeee");
-      }, onResume: () {
-
-      }, onCancel: () async {
-
-      });
+      _clientPacket = StreamController<ClientPacket>();
       _responseStream = _grpcCoreService.establishStream(
           _clientPacket.stream.asBroadcastStream(
-            onListen: (c) async {},
             onCancel: (c) async {
               await _clientPacket.close();
             },
@@ -157,6 +158,7 @@ class CoreServices {
       _clientPacket.add(ClientPacket()
         ..message = message
         ..id = message.packetId);
+      sendActivityMessage(ActivityByClient()..to = message.to..typeOfActivity = "isTyping");
     } else {
       startStream();
     }
@@ -182,17 +184,14 @@ class CoreServices {
         ..seen = seen
         ..id = seen.id.toString());
     } else {
-      startCheckerTimer();
+      startStream();
     }
   }
 
   sendActivityMessage(ActivityByClient activity) {
     _clientPacket.add(ClientPacket()
       ..activity = activity
-      ..id = DateTime
-          .now()
-          .microsecondsSinceEpoch
-          .toString());
+      ..id = "1");
   }
 
   _saveSeenMessage(Seen seen) {
@@ -218,10 +217,9 @@ class CoreServices {
   }
 
   _saveActivityMessage(Activity activity) {
-    //todo
+
   }
 
-  void savePongMessage(Pong pong) {}
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
     if (messageDeliveryAck.id.toInt() == 0) {
