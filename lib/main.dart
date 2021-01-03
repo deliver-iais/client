@@ -40,6 +40,7 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:rxdart/rxdart.dart';
@@ -127,7 +128,10 @@ void main() {
   if (isAndroid()) {
     SmsAutoFill()
         .getAppSignature
-        .then((signCode) => print("APP_SIGN_CODE for SMS: $signCode"));
+        .then((signCode) {
+          Fluttertoast.showToast(msg:"hash $signCode");
+    });
+
   }
 
   setupDIAndRunApp();

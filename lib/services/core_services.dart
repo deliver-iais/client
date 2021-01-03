@@ -21,6 +21,7 @@ import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:moor/moor.dart';
@@ -33,8 +34,7 @@ const MAX_BACKOFF_TIME = 32;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
-  StreamController<ClientPacket> _clientPacket =
-      StreamController<ClientPacket>();
+  StreamController<ClientPacket> _clientPacket ;
   ResponseStream<ServerPacket> _responseStream;
   @visibleForTesting
   int backoffTime = MIN_BACKOFF_TIME;
@@ -91,7 +91,7 @@ class CoreServices {
           backoffTime = MIN_BACKOFF_TIME;
         }
         _clientPacket.close();
-        _connectionStatus.add(ConnectionStatus.Connecting);
+        _connectionStatus.add(ConnectionStatus.Disconnected);
       }
       startCheckerTimer();
     });
@@ -155,7 +155,7 @@ class CoreServices {
   }
 
   sendMessage(MessageByClient message) {
-    if (!_clientPacket.isClosed) {
+    if (_clientPacket != null&& !_clientPacket.isClosed) {
       _clientPacket.add(ClientPacket()
         ..message = message
         ..id = message.packetId);
@@ -235,8 +235,9 @@ class CoreServices {
   _saveIncomingMessage(Message message) async {
     Uid roomUid =
         await saveMessage(_accountRepo, _messageDao, _roomDao, message);
+
     if ((await _accountRepo.notification).contains("true")) {
-      await showNotification(roomUid, message);
+      showNotification(roomUid, message);
     }
   }
 
