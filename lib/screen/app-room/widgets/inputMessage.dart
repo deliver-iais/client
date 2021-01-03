@@ -320,7 +320,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     path: await ExtStorage
                                         .getExternalStoragePublicDirectory(
                                             "${ExtStorage.DIRECTORY_MUSIC}/${randomString(10)}"),
-                                    audioOutputFormat: AudioOutputFormat.AAC);
+                                    audioOutputFormat: AudioOutputFormat.WAV);
                               }
                             },
                             onLongPressEnd: (s) async {
