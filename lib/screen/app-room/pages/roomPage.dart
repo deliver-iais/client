@@ -250,7 +250,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   pendingMessages.length; //TODO chang
                             }
                             return Flexible(
-                              fit: FlexFit.loose,
+                              fit: FlexFit.tight ,
                               child: Container(
                                 height: deviceHeight,
                                 // color: Colors.amber,
