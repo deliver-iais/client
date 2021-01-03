@@ -36,7 +36,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:flutter/foundation.dart';
 import 'mucRepo.dart';
 
-enum TitleStatusConditions { Disconnected, Updating, Normal }
+enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
 const int MAX_REMAINING_RETRIES = 3;
 
@@ -62,14 +62,18 @@ class MessageRepo {
 
   MessageRepo() {
     _coreServices.connectionStatus.listen((mode) {
-      if (mode == ConnectionStatus.Disconnected) {
-        updatingStatus.add(TitleStatusConditions.Disconnected);
-      }
-      if (mode == ConnectionStatus.Connected) {
-        print('updating -----------------');
-        updating();
-        // TODO, change the position of calling this function, maybe needed periodic sending
-        sendPendingMessages();
+      switch (mode) {
+        case ConnectionStatus.Connected:
+          print('updating -----------------');
+          updating();
+          sendPendingMessages();
+          break;
+        case ConnectionStatus.Disconnected:
+          updatingStatus.add(TitleStatusConditions.Disconnected);
+          break;
+        case ConnectionStatus.Connecting:
+          updatingStatus.add(TitleStatusConditions.Connecting);
+          break;
       }
     });
   }

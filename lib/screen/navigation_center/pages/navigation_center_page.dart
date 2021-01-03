@@ -124,6 +124,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         } else if (snapshot.data ==
                             TitleStatusConditions.Updating) {
                           return Text(
+                              _appLocalization.getTraslateValue("updating"),
+                              style: TextStyle(fontSize: 20));
+                        } else if(snapshot.data == TitleStatusConditions.Connecting){
+                          return Text(
                               _appLocalization.getTraslateValue("connecting"),
                               style: TextStyle(fontSize: 20));
                         } else if(snapshot.hasData && snapshot.data == TitleStatusConditions.Disconnected) {

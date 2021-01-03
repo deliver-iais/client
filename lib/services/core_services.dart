@@ -26,7 +26,7 @@ import 'package:grpc/grpc.dart';
 import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
 
-enum ConnectionStatus { Connected, Disconnected }
+enum ConnectionStatus { Connected, Disconnected, Connecting }
 
 const MIN_BACKOFF_TIME = 4;
 const MAX_BACKOFF_TIME = 32;
@@ -40,10 +40,10 @@ class CoreServices {
   int backoffTime = MIN_BACKOFF_TIME;
 
   BehaviorSubject<ConnectionStatus> connectionStatus =
-      BehaviorSubject.seeded(ConnectionStatus.Disconnected);
+      BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
   BehaviorSubject<ConnectionStatus> _connectionStatus =
-      BehaviorSubject.seeded(ConnectionStatus.Disconnected);
+      BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
   @visibleForTesting
   bool responseChecked = false;
@@ -91,7 +91,7 @@ class CoreServices {
           backoffTime = MIN_BACKOFF_TIME;
         }
         _clientPacket.close();
-        _connectionStatus.add(ConnectionStatus.Disconnected);
+        _connectionStatus.add(ConnectionStatus.Connecting);
       }
       startCheckerTimer();
     });
@@ -111,6 +111,7 @@ class CoreServices {
           _clientPacket.stream.asBroadcastStream(
         onCancel: (c) async {
           await _clientPacket.close();
+          _connectionStatus.add(ConnectionStatus.Disconnected);
         },
       ),
           options: CallOptions(
