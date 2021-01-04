@@ -76,15 +76,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   bool _selectMultiMessage = false;
   int _lastShowedMessageId = -1;
   int _itemCount;
+  bool _scrollToNewMessage = true;
   Room _currentRoom;
   int _replayMessageId = -1;
+  int currentIndex = 0;
   ScrollPhysics _scrollPhysics = AlwaysScrollableScrollPhysics();
   int _currentMessageSearchId = -1;
   final ItemScrollController _itemScrollController = ItemScrollController();
   Subject<int> _lastSeenSubject = BehaviorSubject.seeded(-1);
   final ItemPositionsListener _itemPositionsListener =
       ItemPositionsListener.create();
-  Subject<int> _scrollSubject = BehaviorSubject.seeded(-1);
+  Subject<int> _scrollSubject = BehaviorSubject.seeded(-2);
   int _currentPosition = 0;
   Cache<int, Message> _cache =
       LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
@@ -198,20 +200,23 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       List<ItemPosition> p =
           _itemPositionsListener.itemPositions.value.toList();
       for (var i in p) {
-        if (_currentPosition <= i.index) {
+        if (_currentPosition == -1 || _currentPosition >= i.index) {
           _currentPosition = i.index;
+          _scrollToNewMessage = false;
+        } else {
+          _scrollToNewMessage = true;
         }
       }
     });
     _messageRepo.setCoreSetting();
     _getLastShowMessageId();
     _scrollSubject.distinct().listen((event) {
-      if (event - _currentPosition < 2) {
+      if (_scrollToNewMessage && event != -1) {
         _currentPosition = event;
-        _scrollToMessage(position: event);
-      } else if (_currentPosition != -1) {
+         _scrollToMessage(position: event);
+      } else if ( event ==-1 && ( _currentPosition != -1 || !_scrollToNewMessage)) {
         setState(() {
-          unreadMessageScroll = unreadMessageScroll + 1;
+          unreadMessageScroll = unreadMessageScroll +1;;
         });
       }
     });
@@ -393,10 +398,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) {
-        if (index >= _itemCount - 1) {
-          _scrollSubject.add(index);
-        }
-
         _lastSeenDao.insertLastSeen(LastSeen(
             roomId: widget.roomId, messageId: _currentRoom.lastMessageId));
         bool isPendingMessage = (currentRoom.lastMessageId == null)
@@ -410,6 +411,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   pendingMessages[_itemCount - index - 1].messageDbId)
               : _getMessageAndPreviousMessage(index + 1),
           builder: (context, messagesFuture) {
+            if (index >= currentIndex) currentIndex = index;
             if (messagesFuture.hasData && messagesFuture.data[0] != null) {
               if (index - _currentMessageSearchId > 49) {
                 _currentMessageSearchId = -1;
@@ -421,9 +423,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 if (!(messages[0]
                     .from
                     .isSameEntity(_accountRepo.currentUserUid))) {
+                  if (index >= _itemCount - 1) {
+                    _scrollSubject.add(index);
+                  } else if (_itemCount > currentIndex+1) {
+                    _scrollSubject.add(-1);
+                  }
                   _lastSeenSubject.add(messages[0].id);
                 }
               }
+
               bool newTime = false;
               if (messages.length == 1 &&
                   messages[0].packetId != null &&
