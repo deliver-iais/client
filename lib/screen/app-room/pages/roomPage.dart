@@ -11,7 +11,6 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/operation_on_message.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -83,10 +82,16 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   int _currentMessageSearchId = -1;
   final ItemScrollController _itemScrollController = ItemScrollController();
   Subject<int> _lastSeenSubject = BehaviorSubject.seeded(-1);
+  final ItemPositionsListener _itemPositionsListener =
+      ItemPositionsListener.create();
+  Subject<int> _scrollSubject = BehaviorSubject.seeded(-1);
+  int _currentPosition = 0;
   Cache<int, Message> _cache =
       LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
 
   Map<String, int> _messagesPacketId = Map();
+
+  int unreadMessageScroll = 0;
 
   Cache<int, Widget> widgetCache =
       LruCache<int, Widget>(storage: SimpleStorage(size: 100));
@@ -189,8 +194,28 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   void initState() {
     super.initState();
     _getLastSeen();
+    _itemPositionsListener.itemPositions.addListener(() {
+      List<ItemPosition> p =
+          _itemPositionsListener.itemPositions.value.toList();
+      for (var i in p) {
+        if (_currentPosition <= i.index) {
+          _currentPosition = i.index;
+        }
+      }
+    });
     _messageRepo.setCoreSetting();
     _getLastShowMessageId();
+    _scrollSubject.distinct().listen((event) {
+      if (event - _currentPosition < 2) {
+        _currentPosition = event;
+        _scrollToMessage(position: event);
+      } else if (_currentPosition != -1) {
+        setState(() {
+          unreadMessageScroll = unreadMessageScroll + 1;
+        });
+      }
+    });
+
     _roomDao.insertRoom(Room(roomId: widget.roomId, mentioned: false));
     _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.uid.category == Categories.GROUP ||
@@ -252,11 +277,39 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                             return Flexible(
                               fit: FlexFit.tight,
                               child: Container(
-                                height: deviceHeight,
-                                // color: Colors.amber,
-                                child: buildMessagesListView(
-                                    _currentRoom, pendingMessages, _maxWidth),
-                              ),
+                                  height: deviceHeight,
+                                  // color: Colors.amber,
+                                  child: Stack(
+                                    children: [
+                                      buildMessagesListView(_currentRoom,
+                                          pendingMessages, _maxWidth),
+                                      if (unreadMessageScroll > 0)
+                                        Positioned(
+                                            right: 5,
+                                            bottom: 7,
+                                            child: FloatingActionButton(
+                                                mini: true,
+                                                child: Column(
+                                                  children: [
+                                                    Text(unreadMessageScroll
+                                                        .toString()),
+                                                    Icon(
+                                                      Icons
+                                                          .arrow_downward_sharp,
+                                                      color: Colors.blue,
+                                                    )
+                                                  ],
+                                                ),
+                                                onPressed: () {
+                                                  _scrollToMessage(
+                                                      position:
+                                                          _lastShowedMessageId);
+                                                  setState(() {
+                                                    unreadMessageScroll = 0;
+                                                  });
+                                                })),
+                                    ],
+                                  )),
                             );
                           } else {
                             return Container();
@@ -337,8 +390,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
+      itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) {
+        if (index >= _itemCount - 1) {
+          _scrollSubject.add(index);
+        }
+
         _lastSeenDao.insertLastSeen(LastSeen(
             roomId: widget.roomId, messageId: _currentRoom.lastMessageId));
         bool isPendingMessage = (currentRoom.lastMessageId == null)
@@ -507,12 +565,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     }
   }
 
-  _scrollToMessage(int id, int position) {
+  _scrollToMessage({int id, int position}) {
     _itemScrollController.scrollTo(
         index: position, duration: Duration(seconds: 1));
-    setState(() {
-      _replayMessageId = id;
-    });
+    if (id != null)
+      setState(() {
+        _replayMessageId = id;
+      });
   }
 
   Widget _selectMultiMessageAppBar() {
@@ -589,7 +648,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   maxWidth: _maxWidth,
                   isSeen: message.id != null && message.id <= lastSeenMessageId,
                   scrollToMessage: (int id) {
-                    _scrollToMessage(id, pendingMessagesLength + id);
+                    _scrollToMessage(
+                        id: id, position: pendingMessagesLength + id);
                   },
                   omUsernameClick: onUsernameClick,
                 )
@@ -633,7 +693,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             maxWidth: _maxWidth,
             isGroup: widget.roomId.uid.category == Categories.GROUP,
             scrollToMessage: (int id) {
-              _scrollToMessage(id, pendingMessagesLength + id);
+              _scrollToMessage(id: id, position: pendingMessagesLength + id);
             },
             omUsernameClick: onUsernameClick,
           )
