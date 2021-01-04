@@ -250,7 +250,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   pendingMessages.length; //TODO chang
                             }
                             return Flexible(
-                              fit: FlexFit.tight ,
+                              fit: FlexFit.tight,
                               child: Container(
                                 height: deviceHeight,
                                 // color: Colors.amber,
@@ -299,6 +299,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       resetRoomPageDetails: _resetRoomPageDetails,
       waitingForForward: _waitingForForwardedMessage,
       sendForwardMessage: _sendForwardMessage,
+      scrollToLastSentMessage: scrollToLast,
     );
   }
 
@@ -332,7 +333,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       Room currentRoom, List pendingMessages, double _maxWidth) {
     return ScrollablePositionedList.builder(
       itemCount: _itemCount,
-      initialScrollIndex: _itemCount-1,
+      initialScrollIndex: _itemCount - 1,
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
@@ -343,15 +344,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         bool isPendingMessage = (currentRoom.lastMessageId == null)
             ? true
             : _itemCount > currentRoom.lastMessageId &&
-                index < pendingMessages.length;
+                _itemCount - index <= pendingMessages.length;
 
         return FutureBuilder<List<Message>>(
           future: isPendingMessage
               ? _getPendingMessage(
-                  pendingMessages[pendingMessages.length - 1 - index]
-                      .messageDbId)
-              : _getMessageAndPreviousMessage(
-                  index+1),
+                  pendingMessages[_itemCount - index - 1].messageDbId)
+              : _getMessageAndPreviousMessage(index + 1),
           builder: (context, messagesFuture) {
             if (messagesFuture.hasData && messagesFuture.data[0] != null) {
               if (index - _currentMessageSearchId > 49) {
@@ -387,8 +386,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       : Container(),
                   if (currentRoom.lastMessageId != null &&
                       _lastShowedMessageId != -1 &&
-                      _lastShowedMessageId ==
-                          currentRoom.lastMessageId - 1 - index &&
+                      _lastShowedMessageId == index &&
                       !(messages[0]
                           .from
                           .isSameEntity(_accountRepo.currentUserUid)))
@@ -510,7 +508,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   _scrollToMessage(int id, int position) {
-    _itemScrollController.jumpTo(index: position);
+    _itemScrollController.scrollTo(
+        index: position, duration: Duration(seconds: 1));
     setState(() {
       _replayMessageId = id;
     });
@@ -590,8 +589,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   maxWidth: _maxWidth,
                   isSeen: message.id != null && message.id <= lastSeenMessageId,
                   scrollToMessage: (int id) {
-                    _scrollToMessage(
-                        id, lastMessageId + pendingMessagesLength - id);
+                    _scrollToMessage(id, pendingMessagesLength + id);
                   },
                   omUsernameClick: onUsernameClick,
                 )
@@ -635,7 +633,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             maxWidth: _maxWidth,
             isGroup: widget.roomId.uid.category == Categories.GROUP,
             scrollToMessage: (int id) {
-              _scrollToMessage(id, lastMessageId + pendingMessagesLength - id);
+              _scrollToMessage(id, pendingMessagesLength + id);
             },
             omUsernameClick: onUsernameClick,
           )
@@ -643,8 +641,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       ),
     );
   }
-  scrollToLast(){
-    _itemScrollController.jumpTo(index: _itemCount-1);
+
+  scrollToLast() {
+    _itemScrollController.scrollTo(
+        index: _itemCount - 1, duration: Duration(seconds: 2));
   }
 
   onUsernameClick(String username) async {

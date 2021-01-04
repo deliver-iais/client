@@ -30,6 +30,7 @@ class InputMessage extends StatefulWidget {
   final bool waitingForForward;
   final Function sendForwardMessage;
   final Function showMentionList;
+  final Function scrollToLastSentMessage;
 
   @override
   _InputMessageWidget createState() => _InputMessageWidget();
@@ -40,7 +41,8 @@ class InputMessage extends StatefulWidget {
       this.resetRoomPageDetails,
       this.waitingForForward,
       this.sendForwardMessage,
-      this.showMentionList});
+      this.showMentionList,
+      this.scrollToLastSentMessage});
 }
 
 class _InputMessageWidget extends State<InputMessage> {
@@ -248,6 +250,8 @@ class _InputMessageWidget extends State<InputMessage> {
 
                                                   _showMentionList = false;
                                                 }
+                                                widget
+                                                    .scrollToLastSentMessage();
                                               },
                                       ),
                               ],
