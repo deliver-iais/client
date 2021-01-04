@@ -332,15 +332,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       Room currentRoom, List pendingMessages, double _maxWidth) {
     return ScrollablePositionedList.builder(
       itemCount: _itemCount,
-      initialScrollIndex:
-          _lastShowedMessageId != -1 ? _itemCount - _lastShowedMessageId : 0,
-      initialAlignment: currentRoom.lastMessageId == null
-          ? 0
-          : _lastShowedMessageId >= currentRoom.lastMessageId
-              ? 0
-              : 1,
+      initialScrollIndex: _itemCount-1,
+      initialAlignment: 0,
       physics: _scrollPhysics,
-      reverse: true,
+      reverse: false,
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) {
         _lastSeenDao.insertLastSeen(LastSeen(
@@ -356,7 +351,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   pendingMessages[pendingMessages.length - 1 - index]
                       .messageDbId)
               : _getMessageAndPreviousMessage(
-                  currentRoom.lastMessageId + pendingMessages.length - index),
+                  index+1),
           builder: (context, messagesFuture) {
             if (messagesFuture.hasData && messagesFuture.data[0] != null) {
               if (index - _currentMessageSearchId > 49) {
@@ -647,6 +642,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         ],
       ),
     );
+  }
+  scrollToLast(){
+    _itemScrollController.jumpTo(index: _itemCount-1);
   }
 
   onUsernameClick(String username) async {

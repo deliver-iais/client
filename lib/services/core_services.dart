@@ -67,6 +67,9 @@ class CoreServices {
       return;
     }
     startStream();
+    if (_connectionTimer != null && _connectionTimer.isActive) {
+      return;
+    }
     startCheckerTimer();
     _connectionStatus.distinct().listen((event) {
       connectionStatus.add(event);
@@ -75,9 +78,7 @@ class CoreServices {
 
   @visibleForTesting
   startCheckerTimer() async {
-    if (_connectionTimer != null && _connectionTimer.isActive) {
-      return;
-    }
+
     if (_clientPacket.isClosed || _clientPacket.isPaused) {
       await startStream();
     }
