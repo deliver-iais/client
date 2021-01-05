@@ -20,12 +20,14 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/load-file-status.
 import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/screen/app_profile/widgets/documentAndFile_ui.dart';
+import 'package:deliver_flutter/screen/app_profile/widgets/document_and_File_ui.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/group_Ui_widget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/memberWidget.dart';
-import 'package:deliver_flutter/screen/app_profile/widgets/musicAndAudio_ui_widget.dart';
+import 'package:deliver_flutter/screen/app_profile/widgets/music_and_audio_ui.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/music_play_progress.dart';
+import 'package:deliver_flutter/screen/app_profile/widgets/video_tab_ui.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
+import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
@@ -391,7 +393,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           imageWidget(widget.userUid, _mediaQueryRepo,
                               _fileRepo, _fileCache, snapshot.data.imagesCount),
                         if (snapshot.data.videosCount != 0)
-                          Text("videooooooooooooooo"),
+                          VideoTabUi(userUid:widget.userUid,videoCount:snapshot.data.videosCount),
                         if (snapshot.data.filesCount != 0)
                           DocumentAndFileUi(
                             userUid: widget.userUid,

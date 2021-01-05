@@ -32,7 +32,7 @@ class _VideoUiState extends State<VideoUi> {
           return Stack(
             children: [
               VideoPlayer(videoPlayerService.videoPlayerController),
-              Positioned(child: Icon(Icons.more_vert), top: 5, right: 0),
+             Positioned(child: Icon(Icons.more_vert), top: 5, right: 0),
               Center(
                   child: Container(
                 width: 40,
