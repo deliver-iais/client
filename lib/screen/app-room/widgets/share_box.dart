@@ -7,12 +7,15 @@ import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/file.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/music.dart';
+import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
+
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
@@ -44,6 +47,14 @@ class _ShareBoxState extends State<ShareBox> {
   final icons = Map<int, IconData>();
 
   final finalSelected = Map<int, String>();
+
+  // Location location = new Location();
+  //
+  // LocationData _locationData;
+
+  Position _currentPosition;
+
+  CheckPermissionsService _checkPermissionsService = GetIt.I.get<CheckPermissionsService>();
 
   int playAudioIndex;
 
@@ -159,8 +170,7 @@ class _ShareBoxState extends State<ShareBox> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
-                  isSelected()
-                      ? Container(
+                  if (isSelected()) Container(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
@@ -241,8 +251,7 @@ class _ShareBoxState extends State<ShareBox> {
                               )
                             ],
                           ),
-                        )
-                      : Container(
+                        ) else Container(
                           padding: const EdgeInsetsDirectional.only(bottom: 10),
                           color: Colors.white,
                           child: Column(
@@ -274,6 +283,21 @@ class _ShareBoxState extends State<ShareBox> {
                                       40),
                                   circleButton(() async {
                                     audioPlayer.stop();
+                                    if(await _checkPermissionsService.checkLocationPermission())  {
+                                      final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+                                        geolocator
+                                            .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
+                                            .then((Position position) {
+                                            _currentPosition = position;
+                                            print(_currentPosition.toString());
+                                            // List<Placemark> p = await geolocator.placemarkFromCoordinates(
+                                            //     _currentPosition.latitude, _currentPosition.longitude);
+
+                                        }).catchError((e) {
+                                          print(e);
+                                        });
+                                      }
+
                                   },
                                       Icons.location_on,
                                       appLocalization

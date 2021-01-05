@@ -190,6 +190,10 @@ class CoreServices {
       ..activity = activity
       ..id = "1");
   }
+  sendLocationMessage(Location location ){
+    MessageByClient messageByClient = MessageByClient()..location = location..to;
+    _clientPacket.add(ClientPacket()..message = messageByClient);
+  }
 
   _saveSeenMessage(Seen seen) {
     Uid roomId;

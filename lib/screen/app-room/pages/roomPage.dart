@@ -718,7 +718,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   scrollToLast() {
     _itemScrollController.scrollTo(
-        index: _itemCount-2, duration: Duration(seconds: 1));
+        index: _itemCount, duration: Duration(seconds: 1));
   }
 
   onUsernameClick(String username) async {
@@ -728,3 +728,31 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     }
   }
 }
+
+// SizedBox(
+// height: 400,
+// width: 400,
+// child: FlutterMap(
+// options: new MapOptions(
+// center: _locationData != null ? LatLng(_locationData.latitude, _locationData.longitude) : LatLng(35.703012, 51.3905033),
+// zoom: 13.0,
+// ),
+// layers: [
+// new TileLayerOptions(
+// urlTemplate:
+// "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+// subdomains: ['a', 'b', 'c']),
+// new MarkerLayerOptions(
+// markers: [
+// new Marker(
+// width: 200.0,
+// height: 200.0,
+// point: _locationData != null ? LatLng(_locationData.latitude, _locationData.longitude) : LatLng(35.703012, 51.3905033),
+// builder: (ctx) => new Container(
+// child: Container(child: Icon(Icons.add_location_rounded),),
+// ),
+// ),
+// ],
+// ),
+// ],
+// ),

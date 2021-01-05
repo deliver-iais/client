@@ -38,52 +38,6 @@ class ContactRepo {
   syncContacts() async {
     if (await _checkPermission.checkContactPermission() || isDesktop()) {
       List<Contact> contacts = new List();
-      //
-      // if (kDebugMode) {
-      //   PhoneNumber p1 = PhoneNumber()
-      //     ..countryCode = 98
-      //     ..nationalNumber = Int64.parseInt("1111111111");
-      //   contacts.add(Contact()
-      //     ..phoneNumber = p1
-      //     ..firstName = "Contact"
-      //     ..lastName = "1");
-      //   PhoneNumber p2 = PhoneNumber()
-      //     ..countryCode = 98
-      //     ..nationalNumber = Int64.parseInt("2222222222");
-      //   contacts.add(Contact()
-      //     ..phoneNumber = p2
-      //     ..firstName = "Contact"
-      //     ..lastName = "2");
-      //   PhoneNumber p3 = PhoneNumber()
-      //     ..countryCode = 98
-      //     ..nationalNumber = Int64.parseInt("3333333333");
-      //   contacts.add(Contact()
-      //     ..phoneNumber = p3
-      //     ..firstName = "Contact"
-      //     ..lastName = "3");
-      //   PhoneNumber p4 = PhoneNumber()
-      //     ..countryCode = 98
-      //     ..nationalNumber = Int64.parseInt("4444444444");
-      //   contacts.add(Contact()
-      //     ..phoneNumber = p4
-      //     ..firstName = "Contact"
-      //     ..lastName = "4");
-      //   PhoneNumber p5 = PhoneNumber()
-      //     ..countryCode = 98
-      //     ..nationalNumber = Int64.parseInt("55555584455");
-      //   contacts.add(Contact()
-      //     ..phoneNumber = p5
-      //     ..firstName = "Contact"
-      //     ..lastName = "5");
-      //   for (var contact in contacts) {
-      //     _contactDao.insertContact(Database.Contact(
-      //         phoneNumber: contact.phoneNumber.nationalNumber.toString(),
-      //         firstName: contact.firstName,
-      //         lastName: contact.lastName,
-      //         isMute: true,
-      //         isBlock: false));
-      //   }
-      // }
       if (!isDesktop()) {
         Iterable<OsContact.Contact> phoneContacts =
             await OsContact.ContactsService.getContacts(withThumbnails: false,photoHighResolution: false,orderByGivenName: false,iOSLocalizedLabels: false);
