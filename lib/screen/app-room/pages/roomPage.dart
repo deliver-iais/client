@@ -718,7 +718,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   scrollToLast() {
     _itemScrollController.scrollTo(
-        index: _itemCount - 1, duration: Duration(seconds: 2));
+        index: _itemCount-2, duration: Duration(seconds: 2));
   }
 
   onUsernameClick(String username) async {
