@@ -213,10 +213,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _scrollSubject.distinct().listen((event) {
       if (_scrollToNewMessage && event != -1) {
         _currentPosition = event;
-         _scrollToMessage(position: event);
-      } else if ( event ==-1 && ( _currentPosition != -1 || !_scrollToNewMessage)) {
+        _scrollToMessage(position: event);
+      } else if (event == -1 && !_scrollToNewMessage) {
         setState(() {
-          unreadMessageScroll = unreadMessageScroll +1;;
+          unreadMessageScroll = unreadMessageScroll + 1;
         });
       }
     });
@@ -285,6 +285,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   height: deviceHeight,
                                   // color: Colors.amber,
                                   child: Stack(
+                                    alignment: AlignmentDirectional.bottomStart,
                                     children: [
                                       buildMessagesListView(_currentRoom,
                                           pendingMessages, _maxWidth),
@@ -391,8 +392,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       Room currentRoom, List pendingMessages, double _maxWidth) {
     return ScrollablePositionedList.builder(
       itemCount: _itemCount,
-      initialScrollIndex: _itemCount - 1,
-      initialAlignment: 0,
+      initialScrollIndex: _itemCount,
+      initialAlignment: 1,
       physics: _scrollPhysics,
       reverse: false,
       itemPositionsListener: _itemPositionsListener,
@@ -425,7 +426,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     .isSameEntity(_accountRepo.currentUserUid))) {
                   if (index >= _itemCount - 1) {
                     _scrollSubject.add(index);
-                  } else if (_itemCount > currentIndex+1) {
+                  } else if (_itemCount > currentIndex + 1) {
                     _scrollSubject.add(-1);
                   }
                   _lastSeenSubject.add(messages[0].id);
@@ -505,8 +506,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   height: 60,
                   width: 20,
                   child: Center(
-                    child: SizedBox(
-                      height: 20,
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.blue,
                     ),
                   ));
             }
@@ -673,41 +674,46 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Widget showReceivedMessage(Message message, double _maxWidth,
       int lastMessageId, int pendingMessagesLength) {
     return GestureDetector(
-      onTap: () {
-        _selectMultiMessage
-            ? _addForwardMessage(message)
-            : _showCustomMenu(message);
-      },
-      onLongPress: () {
-        setState(() {
-          _selectMultiMessage = true;
-        });
-      },
-      onTapDown: storePosition,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: <Widget>[
-          widget.roomId.getUid().category == Categories.GROUP
-              ? Padding(
-                  padding:
-                      const EdgeInsets.only(bottom: 8.0, left: 5.0, right: 3.0),
-                  child: CircleAvatarWidget(message.from.uid, 18),
+        onTap: () {
+          _selectMultiMessage
+              ? _addForwardMessage(message)
+              : _showCustomMenu(message);
+        },
+        onLongPress: () {
+          setState(() {
+            _selectMultiMessage = true;
+          });
+        },
+        onTapDown: storePosition,
+        child: Stack(
+          alignment: AlignmentDirectional.bottomStart,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                widget.roomId.getUid().category == Categories.GROUP
+                    ? Padding(
+                        padding: const EdgeInsets.only(
+                            bottom: 8.0, left: 5.0, right: 3.0),
+                        child: CircleAvatarWidget(message.from.uid, 18),
+                      )
+                    : Container(),
+                if (_selectMultiMessage) selectMultiMessage(message: message),
+                RecievedMessageBox(
+                  message: message,
+                  maxWidth: _maxWidth,
+                  isGroup: widget.roomId.uid.category == Categories.GROUP,
+                  scrollToMessage: (int id) {
+                    _scrollToMessage(
+                        id: id, position: pendingMessagesLength + id);
+                  },
+                  omUsernameClick: onUsernameClick,
                 )
-              : Container(),
-          if (_selectMultiMessage) selectMultiMessage(message: message),
-          RecievedMessageBox(
-            message: message,
-            maxWidth: _maxWidth,
-            isGroup: widget.roomId.uid.category == Categories.GROUP,
-            scrollToMessage: (int id) {
-              _scrollToMessage(id: id, position: pendingMessagesLength + id);
-            },
-            omUsernameClick: onUsernameClick,
-          )
-        ],
-      ),
-    );
+              ],
+            ),
+          ],
+        ));
   }
 
   scrollToLast() {
