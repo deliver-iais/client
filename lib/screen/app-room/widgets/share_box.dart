@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
@@ -16,12 +18,14 @@ class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
   final int replyMessageId;
   final Function resetRoomPageDetails;
+  final Function scrollToLastSentMessage;
 
   const ShareBox(
       {Key key,
       this.currentRoomId,
       this.replyMessageId,
-      this.resetRoomPageDetails})
+      this.resetRoomPageDetails,
+      this.scrollToLastSentMessage})
       : super(key: key);
 
   @override
@@ -165,16 +169,22 @@ class _ShareBoxState extends State<ShareBox> {
                                   Container(
                                     child: circleButton(
                                       () {
-                                        if(widget.replyMessageId != null){
+                                        if (widget.replyMessageId != null) {
                                           messageRepo.sendFileMessageDeprecated(
-                                              widget.currentRoomId, finalSelected.values.toList(),
+                                              widget.currentRoomId,
+                                              finalSelected.values.toList(),
                                               replyToId: widget.replyMessageId);
-                                        }else{
+                                        } else {
                                           messageRepo.sendFileMessageDeprecated(
                                             widget.currentRoomId,
                                             finalSelected.values.toList(),
                                           );
                                         }
+
+                                        Navigator.pop(context);
+                                        Timer(Duration(seconds: 2), () {
+                                          widget.scrollToLastSentMessage();
+                                        });
                                         setState(() {
                                           finalSelected.clear();
                                           selectedAudio.clear();

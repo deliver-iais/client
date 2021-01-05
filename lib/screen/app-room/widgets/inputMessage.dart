@@ -80,6 +80,7 @@ class _InputMessageWidget extends State<InputMessage> {
               currentRoomId: currentRoom.roomId.uid,
               replyMessageId: widget.replyMessageId,
               resetRoomPageDetails: widget.resetRoomPageDetails,
+                scrollToLastSentMessage:widget.scrollToLastSentMessage
             );
           });
     }

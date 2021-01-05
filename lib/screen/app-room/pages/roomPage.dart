@@ -211,7 +211,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _messageRepo.setCoreSetting();
     _getLastShowMessageId();
     _scrollSubject.distinct().listen((event) {
-      if (_scrollToNewMessage && event != -1) {
+      if (_scrollToNewMessage && event > 0) {
         _currentPosition = event;
         _scrollToMessage(position: event);
       } else if (event == -1 && !_scrollToNewMessage) {
@@ -506,8 +506,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   height: 60,
                   width: 20,
                   child: Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.blue,
+                    child: SizedBox(
+                      height: 20,
                     ),
                   ));
             }
@@ -718,7 +718,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   scrollToLast() {
     _itemScrollController.scrollTo(
-        index: _itemCount-2, duration: Duration(seconds: 2));
+        index: _itemCount-2, duration: Duration(seconds: 1));
   }
 
   onUsernameClick(String username) async {
