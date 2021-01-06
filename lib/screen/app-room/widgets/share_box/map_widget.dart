@@ -63,7 +63,7 @@ class MapWidget extends StatelessWidget {
             child: FlutterMap(
           options: new MapOptions(
             center: LatLng(locationData.latitude, locationData.longitude),
-            zoom: 13.0,
+            zoom: 14.0,
           ),
           layers: [
             new TileLayerOptions(
@@ -80,7 +80,7 @@ class MapWidget extends StatelessWidget {
                     child: Icon(
                       Icons.location_pin,
                       color: Colors.red,
-                      size: 24,
+                      size: 28,
                     ),
                   ),
                 ),

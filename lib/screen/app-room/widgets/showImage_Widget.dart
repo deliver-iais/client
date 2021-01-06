@@ -30,10 +30,11 @@ class _ImageWidget extends State<ShowImagePage> {
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
     return Scaffold(
-        floatingActionButton: new FloatingActionButton(
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.blue,
           child: Icon(
             Icons.send,
-            color: Colors.blueAccent,
+            color: Colors.white,
           ),
           onPressed: () {
             _messageRepo.sendFileMessageDeprecated(
@@ -51,7 +52,7 @@ class _ImageWidget extends State<ShowImagePage> {
               if (snapshot.data != null) {
                 return Text(
                   snapshot.data,
-                  style: TextStyle(color:Colors.white),
+                  style: TextStyle(color: Colors.white),
                 );
               } else {
                 return Text(
@@ -64,36 +65,29 @@ class _ImageWidget extends State<ShowImagePage> {
           backgroundColor: Colors.blue,
         ),
         backgroundColor: Theme.of(context).backgroundColor,
-        body: Stack(
-          children: <Widget>[
-            Hero(
-              tag: widget.imageFile.path,
-              child: Container(
-                // color: Colors.black12,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                      image: Image.file(widget.imageFile).image,
-                      fit: BoxFit.cover),
-                ),
-              ),
+        body: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: Image.file(widget.imageFile).image, fit: BoxFit.cover),
             ),
-            Container(
-                color: Colors.black12,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    TextField(
-                      minLines: 2,
-                      maxLines: 15,
-                      textInputAction: TextInputAction.send,
-                      controller: _controller,
-                      decoration: InputDecoration.collapsed(
-                          hintText: appLocalization
-                              .getTraslateValue("typeSomeThing")),
-                    ),
-                  ],
-                ))
-          ],
-        ));
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    minLines: 2,
+                    autofocus: true,
+                    maxLines: 15,
+                    textInputAction: TextInputAction.newline,
+                    controller: _controller,
+                    decoration: InputDecoration.collapsed(
+                        hintText:
+                            appLocalization.getTraslateValue("typeSomeThing")),
+                  ),
+                ),
+                SizedBox(height: 40,)
+              ],
+            )));
   }
 }
