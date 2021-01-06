@@ -30,6 +30,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
+import 'package:location/location.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
@@ -141,6 +142,35 @@ class MessageRepo {
       replyToId: replyId != null ? Value(replyId) : Value.absent(),
       forwardedFrom: Value(forwardedFromAsString),
       type: MessageType.TEXT,
+      json: json,
+    );
+
+    int dbId = await _messageDao.insertMessageCompanion(message);
+    await _savePendingMessage(
+        room.asString(), dbId, packetId, SendingStatus.PENDING);
+    _updateRoomLastMessage(
+      room.asString(),
+      dbId,
+    );
+    // Send Message
+    await _sendMessageToServer(dbId);
+  }
+
+  sendLocationMessage(LocationData locationData, Uid room,
+      {String forwardedFromAsString}) async {
+    String packetId = _getPacketId();
+    String json = (MessageProto.Location()
+          ..longitude = locationData.longitude
+          ..latitude = locationData.latitude)
+        .writeToJson();
+    MessagesCompanion message = MessagesCompanion.insert(
+      roomId: room.asString(),
+      packetId: packetId,
+      time: now(),
+      from: _accountRepo.currentUserUid.asString(),
+      to: room.asString(),
+      forwardedFrom: Value(forwardedFromAsString),
+      type: MessageType.LOCATION,
       json: json,
     );
 
@@ -305,6 +335,10 @@ class MessageRepo {
         break;
       case MessageType.FILE:
         byClient.file = FileProto.File.fromJson(message.json);
+        break;
+      case MessageType.LOCATION:
+        byClient.location = MessageProto.Location.fromJson(message.json);
+
         break;
       default:
         break;
