@@ -194,17 +194,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
             ),
-            settingsRow(
-              context,
-              iconData: Icons.brightness_2,
-              title: appLocalization.getTraslateValue("darkMode"),
-              child: Switch(
-                value: _getTheme(),
-                onChanged: (newThemMode) {
-                  _uxService.toggleTheme();
-                },
-              ),
-            ),
+            // settingsRow(
+            //   context,
+            //   iconData: Icons.brightness_2,
+            //   title: appLocalization.getTraslateValue("darkMode"),
+            //   child: Switch(
+            //     value: _getTheme(),
+            //     onChanged: (newThemMode) {
+            //       _uxService.toggleTheme();
+            //     },
+            //   ),
+            // ),
             settingsRow(context,
                 iconData: Icons.notifications_active,
                 title: appLocalization.getTraslateValue("notification"),
