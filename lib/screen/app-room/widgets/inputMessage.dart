@@ -171,23 +171,26 @@ class _InputMessageWidget extends State<InputMessage> {
                                     });
                                   },
                                 ),
-                                Flexible(
-                                  child: TextField(
-                                    onTap: () {
-                                      showEmoji = false;
-                                    },
-                                    minLines: 1,
-                                    maxLines: 15,
-                                    autofocus: autofocus,
-                                    textInputAction: TextInputAction.newline,
-                                    controller: controller,
-                                    onSubmitted: null,
-                                    onChanged: (str) {
-                                      onChange(str);
-                                    },
-                                    decoration: InputDecoration.collapsed(
-                                        hintText: appLocalization
-                                            .getTraslateValue("message")),
+
+                                Container(
+                                  child: Flexible(
+                                    child: SizedBox(child:  TextField(
+                                      // onTap: () {
+                                      //   showEmoji = false;
+                                      // },
+                                      minLines: 1,
+                                      maxLines: 15,
+                                      autofocus: autofocus,
+                                      textInputAction: TextInputAction.newline,
+                                      controller: controller,
+                                      onSubmitted: null,
+                                      onChanged: (str) {
+                                        onChange(str);
+                                      },
+                                      decoration: InputDecoration.collapsed(
+                                          hintText: appLocalization
+                                              .getTraslateValue("message")),
+                                    )),
                                   ),
                                 ),
                                 controller.text?.isEmpty &&
@@ -409,7 +412,7 @@ class _InputMessageWidget extends State<InputMessage> {
     );
   }
 
-  void onChange(String str) {
+  void onChange(String str)  {
     messageText = str;
     if (str.isEmpty) {
       _showMentionList = false;
