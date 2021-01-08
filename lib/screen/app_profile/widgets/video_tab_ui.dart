@@ -7,6 +7,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/size_formater.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_ui.dart';
+import 'package:deliver_flutter/screen/app_profile/widgets/thumbnail_video_ui.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -69,148 +70,31 @@ class _VideoTabUiState extends State<VideoTabUi>{
                   }
                  // var file = _fileCache.get(fileId);
                  // if (file == null)
-                    return FutureBuilder<File>(
-                        future: fileRepo.getFileIfExist(fileId, fileName),
-                        builder: (BuildContext c, AsyncSnapshot snaps) {
-                          if (snaps.hasData &&
-                              snaps.data != null&&
-                          snaps.connectionState==ConnectionState.done) {
-                            File file1=snaps.data;
-                            file1.path.replaceAll('mp4', 'jpg');
-                            //_fileCache.set(fileId, snaps.data);
-                            return GestureDetector(
-                              // onTap: () {
-                              //   _routingService.openShowAllMedia(
-                              //     uid: userUid,
-                              //     hasPermissionToDeletePic: true,
-                              //     mediaPosition: position,
-                              //     heroTag: "btn$position",
-                              //     mediasLength: imagesCount,
-                              //   );
-                              // },
-                              child: Stack(
-                                children: [
-                                  //VideoUi(video:snaps.data),
-                                  Container(
-                                      decoration: new BoxDecoration(
-                                        image: new DecorationImage(
-                                          image: Image.file(
-                                            file1
-                                          ).image,
-                                          fit: BoxFit.cover,
-                                        ),
-                                        border: Border.all(
-                                          width: 1,
-                                          color: ExtraTheme.of(context).secondColor,
-                                        ),
-                                      )),
-                                  Positioned(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(Radius.circular(7)),
-                                        color: Colors.grey.withOpacity(0.5),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(0.8,2 , 4, 2),
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.play_arrow,size: 17,),
-                                            SizedBox(width: 3,),
-                                            Text(videoLength,style: TextStyle(fontSize: 10),),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    bottom: 4,
-                                    left: 4,
-                                  )
-                                ],
-                              )
-                            );
-                          } else if(snaps.data==null && snaps.connectionState==ConnectionState.waiting){
-                            return Stack(
-                              children: [
-                                FutureBuilder(
-                                    future: fileRepo.getFile(fileId, fileName,
-                                        thumbnailSize: ThumbnailSize.small),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasData && snapshot.data != null) {
-                                        print("videoooooooooooooooooo$snapshot");
-                                        File file2=snapshot.data;
-                                        file2.path.replaceAll('mp4', 'jpg');
-                                        return  Stack(
-                                          children:[
-                                            Container(
-                                              decoration: new BoxDecoration(
-                                                image: new DecorationImage(
-                                                  image: Image.file(
-                                                      file2
-                                                  ).image,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                                border: Border.all(
-                                                  width: 1,
-                                                  color: ExtraTheme.of(context).secondColor,
-                                                ),
-                                              )),
-                                      BackdropFilter(
-                                            filter: ImageFilter.blur(
-                                              sigmaX: 5,
-                                              sigmaY: 5,
-                                            ),
-                                        child:  Positioned(
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(Radius.circular(7)),
-                                              color: Colors.grey.withOpacity(0.5),
-                                            ),
-                                            child: Padding(
-                                              padding: const EdgeInsets.fromLTRB(0.8,2 , 4, 2),
-                                              child: Row(
-                                                children: [
-                                                  Icon(Icons.play_arrow,size: 17,),
-                                                  SizedBox(width: 3,),
-                                                  Text(videoLength,style: TextStyle(fontSize: 10),),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          bottom: 4,
-                                          left: 4,
-                                        ),
-                                      )],
-                                        );
-                                        //return VideoUi(video:snapshot.data);
-                                      } else {
-                                        return Container(
-                                          width: 0,
-                                          height: 0,
-                                        );
+                          return  FutureBuilder<File>(
+                              future: fileRepo.getFileIfExist(fileId, fileName+"png",thumbnailSize: ThumbnailSize.small),
+                              builder: (BuildContext c, AsyncSnapshot snaps) {
+                                if (snaps.hasData &&
+                                    snaps.data != null&&
+                                    snaps.connectionState==ConnectionState.done) {
+                                  //_fileCache.set(fileId, snaps.data);
+                                 return VideoThumbnail(snaps.data,videoLength,true);
+                                }
+                                else if(snaps.data==null && snaps.connectionState==ConnectionState.done) {
+                                  return FutureBuilder<File>(
+                                    future: fileRepo.downloadFile(fileId, fileName+"png",thumbnailSize: ThumbnailSize.small),
+                                    builder: (BuildContext c, AsyncSnapshot downloadedFile){
+                                      if(downloadedFile.hasData && downloadedFile.data!=null&& downloadedFile.connectionState==
+                                      ConnectionState.done){
+                                        return VideoThumbnail(downloadedFile.data, videoLength, false);
+                                      }else{
+                                        return Container(width: 0,height: 0,);
                                       }
-                                    }),
-                                // Positioned.fill(
-                                //   child: ClipRRect(
-                                //     child: BackdropFilter(
-                                //       filter: ImageFilter.blur(
-                                //         sigmaX: 5,
-                                //         sigmaY: 5,
-                                //       ),
-                                //       child: Container(
-                                //         color: Colors.deepOrange.withOpacity(0),
-                                //       ),
-                                //     ),
-                                //   ),
-                                // ),
-                              ],
-                            );
-                          }else{
-
-                          return Container(
-                          width: 0,
-                          height: 0,
-                          );
-
-                          }
+                                    },
+                                  );
+                                }else{
+                                  return Container(width: 0,height: 0,);
+                                }
+                              });
                         });
                   // else {
                   //   return GestureDetector(
@@ -240,11 +124,6 @@ class _VideoTabUiState extends State<VideoTabUi>{
                   //     ),
                   //   );
                   // }
-                });
+                }});
           }
-        });
-
-
-  }
-
-}
+        }
