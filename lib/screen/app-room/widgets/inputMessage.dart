@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:audio_recorder/audio_recorder.dart';
@@ -13,6 +14,7 @@ import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:flutter_emoji_keyboard/flutter_emoji_keyboard.dart';
 import 'package:flutter_timer/flutter_timer.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -77,11 +79,10 @@ class _InputMessageWidget extends State<InputMessage> {
           backgroundColor: Colors.transparent,
           builder: (context) {
             return ShareBox(
-              currentRoomId: currentRoom.roomId.uid,
-              replyMessageId: widget.replyMessageId,
-              resetRoomPageDetails: widget.resetRoomPageDetails,
-                scrollToLastSentMessage:widget.scrollToLastSentMessage
-            );
+                currentRoomId: currentRoom.roomId.uid,
+                replyMessageId: widget.replyMessageId,
+                resetRoomPageDetails: widget.resetRoomPageDetails,
+                scrollToLastSentMessage: widget.scrollToLastSentMessage);
           });
     }
   }
@@ -152,6 +153,7 @@ class _InputMessageWidget extends State<InputMessage> {
                     !startAudioRecorder
                         ? Expanded(
                             child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: <Widget>[
                                 IconButton(
                                   icon: Icon(
@@ -166,31 +168,35 @@ class _InputMessageWidget extends State<InputMessage> {
                                       } else {
                                         FocusScope.of(context)
                                             .requestFocus(new FocusNode());
-                                        showEmoji = true;
+                                        Timer(Duration(microseconds: 10), () {
+                                          showEmoji = true;
+                                        });
                                       }
                                     });
                                   },
                                 ),
-
                                 Container(
                                   child: Flexible(
-                                    child: SizedBox(child:  TextField(
-                                      // onTap: () {
-                                      //   showEmoji = false;
-                                      // },
-                                      minLines: 1,
-                                      maxLines: 15,
-                                      autofocus: autofocus,
-                                      textInputAction: TextInputAction.newline,
-                                      controller: controller,
-                                      onSubmitted: null,
-                                      onChanged: (str) {
-                                        onChange(str);
-                                      },
-                                      decoration: InputDecoration.collapsed(
-                                          hintText: appLocalization
-                                              .getTraslateValue("message")),
-                                    )),
+                                    child: SizedBox(
+                                      child: TextField(
+                                        onTap: () {
+                                          showEmoji = false;
+                                        },
+                                        minLines: 2,
+                                        maxLines: 15,
+                                        autofocus: autofocus,
+                                        textInputAction:
+                                            TextInputAction.newline,
+                                        controller: controller,
+                                        onSubmitted: null,
+                                        onChanged: (str) {
+                                          onChange(str);
+                                        },
+                                        decoration: InputDecoration.collapsed(
+                                            hintText: appLocalization
+                                                .getTraslateValue("message")),
+                                      ),
+                                    ),
                                   ),
                                 ),
                                 controller.text?.isEmpty &&
@@ -398,41 +404,49 @@ class _InputMessageWidget extends State<InputMessage> {
                   return Future.value(false);
                 },
                 child: Container(
-                    height: 220.0,
-                    child: EmojiKeybord(
-                      onTap: (emoji) {
+                  height: 220.0,
+                  child: EmojiKeyboard(
+                    onEmojiSelected: (d) {
+                      if (controller.text.isEmpty) {
                         setState(() {
-                          controller.text = controller.text + emoji.toString();
+                          controller.text = controller.text + d.toString();
                         });
-                      },
-                    )),
+                      } else {
+                        controller.text = controller.text + d.toString();
+                      }
+                    },
+                  ),
+                ),
               )
             : SizedBox(),
       ],
     );
   }
 
-  void onChange(String str)  {
-    messageText = str;
-    if (str.isEmpty) {
-      _showMentionList = false;
-      setState(() {});
-      return;
-    }
-    try {
-      query = "";
-      int i = str.lastIndexOf("@");
-      if (i != 0 && str[i - 1] != " ") {
+  void onChange(String str) {
+    if (widget.currentRoom.roomId.getUid().category == Categories.GROUP) {
+      if (str.isEmpty) {
+        _showMentionList = false;
+        setState(() {});
         return;
       }
-      if (i != -1 && !str.contains(" ", i)) {
-        query = str.substring(i + 1, str.length);
-        _showMentionList = true;
-      } else {
-        _showMentionList = false;
-      }
-    } catch (e) {}
-    setState(() {});
+      try {
+        query = "";
+        int i = str.lastIndexOf("@");
+        if (i != 0 && str[i - 1] != " ") {
+          return;
+        }
+        if (i != -1 && !str.contains(" ", i)) {
+          query = str.substring(i + 1, str.length);
+          _showMentionList = true;
+        } else {
+          _showMentionList = false;
+        }
+      } catch (e) {}
+      setState(() {});
+    } else if (controller.text.length <= 1) {
+      setState(() {});
+    }
   }
 
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;
