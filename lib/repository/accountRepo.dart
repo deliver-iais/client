@@ -12,6 +12,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:device_info/device_info.dart';
 
 import 'package:get_it/get_it.dart';
@@ -48,6 +49,9 @@ class AccountRepo {
 
   var authServiceStub = AuthServiceClient(ProfileServicesClientChannel);
   var _userServices = UserServiceClient(ProfileServicesClientChannel);
+
+  final QueryServiceClient _queryServiceClient =
+      GetIt.I.get<QueryServiceClient>();
 
   Future<void> init() async {
     var accessToken = await sharedPrefs.get(ACCESS_TOKEN_KEY);
@@ -136,9 +140,13 @@ class AccountRepo {
     var result = await _userServices.getUserProfile(GetUserProfileReq(),
         options:
             CallOptions(metadata: {'accessToken': await getAccessToken()}));
-    if (result.profile.hasUsername()) {
+    var getIdRequest = await _queryServiceClient
+        .getIdByUid(GetIdByUidReq()..uid = currentUserUid);
+    if (getIdRequest.hasId()) {
+      sharedPrefs.set(USERNAME, getIdRequest.id);
+    }
+    if (result.profile.hasFirstName()) {
       _saveProfilePrivateDate(
-          username: result.profile.username,
           firstName: result.profile.firstName,
           lastName: result.profile.lastName,
           email: result.profile.email);
@@ -184,24 +192,11 @@ class AccountRepo {
   }
 
   Future<bool> checkUserName(String username) async {
-    CheckUsernameRes checkUsernameRes = await _userServices.checkUsername(
-        CheckUsernameReq()..username = username,
+    var checkUsernameRes = await _queryServiceClient.idIsAvailable(
+        IdIsAvailableReq()..id = username,
         options:
             CallOptions(metadata: {'accessToken': await getAccessToken()}));
-    switch (checkUsernameRes.status) {
-      case CheckUsernameRes_Status.REGEX_IS_WRONG:
-        return false;
-        break;
-      case CheckUsernameRes_Status.ALREADY_EXIST:
-        //todo delete
-        return true;
-        break;
-      case CheckUsernameRes_Status.OK:
-        return true;
-        break;
-    }
-
-    return false;
+    return checkUsernameRes.isAvailable;
   }
 
   Future<bool> setAccountDetails(
@@ -212,9 +207,6 @@ class AccountRepo {
   ) async {
     try {
       SaveUserProfileReq saveUserProfileReq = SaveUserProfileReq();
-      if (username != null) {
-        saveUserProfileReq.username = username;
-      }
       if (firstName != null) {
         saveUserProfileReq.firstName = firstName;
       }
@@ -243,9 +235,6 @@ class AccountRepo {
 
   _saveProfilePrivateDate(
       {String username, String firstName, String lastName, String email}) {
-    if (username != null) {
-      sharedPrefs.set(USERNAME, username);
-    }
     sharedPrefs.set(FIRST_NAME, firstName);
     sharedPrefs.set(LAST_NAME, lastName);
     sharedPrefs.set(EMAIL, email);

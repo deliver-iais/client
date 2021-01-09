@@ -1,5 +1,4 @@
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/sticker.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 
 extension JsonMapper on String {
@@ -7,9 +6,9 @@ extension JsonMapper on String {
     return File.fromJson(this);
   }
 
-  Sticker toSticker() {
-    return Sticker.fromJson(this);
-  }
+  // Sticker toSticker() {
+  //   return Sticker.fromJson(this);
+  // }
 
   Text toText() {
     return Text.fromJson(this);

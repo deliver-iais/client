@@ -143,21 +143,20 @@ class _ProfilePageState extends State<ProfilePage> {
                                                   return _showUsername(
                                                       snapshot.data.username);
                                                 } else {
-                                                  return FutureBuilder<
-                                                      UserAsContact>(
+                                                  return FutureBuilder<String>(
                                                     future: _contactRepo
                                                         .searchUserByUid(
                                                             widget.userUid),
                                                     builder: (BuildContext
                                                             context,
                                                         AsyncSnapshot<
-                                                                UserAsContact>
+                                                                String>
                                                             snapshot) {
                                                       if (snapshot.data !=
                                                           null) {
                                                         return _showUsername(
                                                             snapshot
-                                                                .data.username);
+                                                                .data);
                                                       } else {
                                                         return SizedBox
                                                             .shrink();

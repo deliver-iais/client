@@ -20,6 +20,7 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -327,10 +328,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
     return Expanded(
       child: Column(
         children: [
-          FutureBuilder<List<UserAsContact>>(
+          FutureBuilder<List<SearchUidByIdOrNameRes_SearchUidItem>>(
               future: contactRepo.searchUser(query),
               builder:
-                  (BuildContext c, AsyncSnapshot<List<UserAsContact>> snaps) {
+                  (BuildContext c, AsyncSnapshot<List<SearchUidByIdOrNameRes_SearchUidItem>> snaps) {
                 if (snaps.data != null && snaps.data.length > 0) {
                   return Container(
                       child: Expanded(
@@ -349,9 +350,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                             },
                             child: _contactResultWidget(
                                 uid: snaps.data[index].uid,
-                                lastName: snaps.data[index].lastName,
-                                firstName: snaps.data[index].firstName,
-                                username: snaps.data[index].username,
+                                firstName: snaps.data[index].name,
+                                username: snaps.data[index].id,
                                 context: c),
                           ),
                         ),

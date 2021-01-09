@@ -72,7 +72,7 @@ dependencies:
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://gitlab.iais.co/deliver/protocol/pub-dart-artifactory.git
-      ref: tags/v1.6.3
+      ref: tags/v1.7.0-pre.17
   grpc: 2.2.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   protobuf: 1.0.1 # (WEB NOT SUPPORTED BI-Directional Streaming)
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)

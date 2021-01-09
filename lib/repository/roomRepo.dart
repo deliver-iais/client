@@ -70,9 +70,9 @@ class RoomRepo {
   }
 
   Future<String> _searchByUid(Uid uid) async {
-    UserAsContact userAsContact = await _contactRepo.searchUserByUid(uid);
-    if (userAsContact != null) {
-      return userAsContact.username;
+    String username = await _contactRepo.searchUserByUid(uid);
+    if (username != null) {
+      return username;
     }
     return "Unknown";
   }
