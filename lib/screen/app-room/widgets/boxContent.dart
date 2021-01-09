@@ -2,9 +2,11 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/locatioin_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/message_ui.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/reply_widgets/reply_widget_in_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/text_message/text_ui.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -17,12 +19,16 @@ class BoxContent extends StatefulWidget {
   final double maxWidth;
   final bool isSender;
   final Function scrollToMessage;
+  final bool isSeen;
+  final Function onUsernameClick;
 
   const BoxContent(
       {Key key,
       this.message,
       this.maxWidth,
       this.isSender,
+      this.isSeen,
+      this.onUsernameClick,
       this.scrollToMessage})
       : super(key: key);
 
@@ -103,10 +109,14 @@ class _BoxContentState extends State<BoxContent> {
         future: _roomRepo.getRoomDisplayName(widget.message.forwardedFrom.uid),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
-            return GestureDetector(child:  Text(
-                "${_appLocalization.getTraslateValue("Forwarded_From")} ${snapshot.data}",
-                style: TextStyle(color: ExtraTheme.of(context).text)),onTap:() {_routingServices.openRoom(widget.message.forwardedFrom);},);
-
+            return GestureDetector(
+              child: Text(
+                  "${_appLocalization.getTraslateValue("Forwarded_From")} ${snapshot.data}",
+                  style: TextStyle(color: ExtraTheme.of(context).text)),
+              onTap: () {
+                _routingServices.openRoom(widget.message.forwardedFrom);
+              },
+            );
           } else {
             return Text(
                 "${_appLocalization.getTraslateValue("Forwarded_From")} Unknown",
@@ -118,23 +128,53 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget messageBox() {
-    if (widget.message.type == MessageType.TEXT) {
-      return Padding(
-        padding: const EdgeInsets.only(right: 8.0, top: 8, bottom: 8),
-        child: TextUi(
+    switch (widget.message.type) {
+      case MessageType.TEXT:
+        return Padding(
+          padding: const EdgeInsets.only(right: 8.0, top: 8, bottom: 8),
+          child: TextUi(
+            message: widget.message,
+            maxWidth: widget.maxWidth,
+            isSender: widget.isSender,
+            isCaption: false,
+            onUsernameClick: widget.onUsernameClick,
+            isSeen: widget.isSeen,
+          ),
+        );
+        break;
+      case MessageType.FILE:
+        return FileMessageUi(
+            message: widget.message,
+            maxWidth: widget.maxWidth,
+            lastCross: initialLastCross,
+            isSender: widget.isSender,
+            last: last);
+        break;
+      case MessageType.STICKER:
+        // TODO: Handle this case.
+        break;
+      case MessageType.LOCATION:
+        return LocationMessage(
           message: widget.message,
-          maxWidth: widget.maxWidth,
+          isSeen: widget.isSeen,
           isSender: widget.isSender,
-          isCaption: false,
-        ),
-      );
-    } else if (widget.message.type == MessageType.FILE) {
-      return FileMessageUi(
-          message: widget.message,
-          maxWidth: widget.maxWidth,
-          lastCross: initialLastCross,
-          isSender: widget.isSender,
-          last: last);
+        );
+        break;
+      case MessageType.LIVE_LOCATION:
+        // TODO: Handle this case.
+        break;
+      case MessageType.POLL:
+        // TODO: Handle this case.
+        break;
+      case MessageType.FORM:
+        // TODO: Handle this case.
+        break;
+      case MessageType.PERSISTENT_EVENT:
+        // TODO: Handle this case.
+        break;
+      case MessageType.NOT_SET:
+        // TODO: Handle this case.
+        break;
     }
     return Container();
   }

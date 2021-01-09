@@ -5,6 +5,7 @@ import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/localSearchResult.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
+import 'package:deliver_flutter/repository/mucRepo.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -20,51 +21,60 @@ class RoomRepo {
   var _contactDao = GetIt.I.get<ContactDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
+  var _mucRepo = GetIt.I.get<MucRepo>();
 
-  Future<String> getRoomDisplayName(Uid uid) async {
-    switch (uid.category) {
+  Future<String> getRoomDisplayName(Uid roomUid) async {
+    switch (roomUid.category) {
       case Categories.SYSTEM:
         return "Deliver";
         break;
       case Categories.USER:
-        String name = await _roomNameCache.get(uid.asString());
+        String name = await _roomNameCache.get(roomUid.asString());
         if (name != null && !name.contains("null")) {
           return name;
         } else {
-          var contact = await _contactDao.getContactByUid(uid.asString());
+          var contact = await _contactDao.getContactByUid(roomUid.asString());
           if (contact != null) {
             String contactName = "${contact.firstName}";
-            _roomNameCache.set(uid.asString(), contactName);
+            _roomNameCache.set(roomUid.asString(), contactName);
             return contactName;
           } else
-            return _searchByUid(uid);
+            return _searchByUid(roomUid);
         }
         break;
 
       case Categories.GROUP:
       case Categories.CHANNEL:
-        String name = _roomNameCache.get(uid.asString());
+        String name = _roomNameCache.get(roomUid.asString());
         if (name != null) {
           return name;
         } else {
-          var muc = await _mucDao.getMucByUid(uid.asString());
-          _roomNameCache.set(uid.asString(), muc.name);
-          if(muc != null){
+          var muc = await _mucDao.getMucByUid(roomUid.asString());
+          if (muc != null) {
+            _roomNameCache.set(roomUid.asString(), muc.name);
             return muc.name;
+          } else {
+            String mucName = await _mucRepo.fetchMucInfo(roomUid);
+            if (mucName != null) {
+              _roomNameCache.set(roomUid.asString(), mucName);
+              return mucName;
+            } else {
+              return "UnKnown";
+            }
           }
         }
         break;
     }
     return "Unknown";
-   //todo  return await _searchByUid(uid);
+    //todo  return await _searchByUid(uid);
   }
 
   Future<String> _searchByUid(Uid uid) async {
     UserAsContact userAsContact = await _contactRepo.searchUserByUid(uid);
-    if(userAsContact != null){
+    if (userAsContact != null) {
       return userAsContact.username;
     }
-   return "Unknown";
+    return "Unknown";
   }
 
   updateRoomName(Uid uid, String name) {
@@ -72,7 +82,8 @@ class RoomRepo {
   }
 
   changeRoomMuteTye({String roomId, bool mute}) async {
-    _roomDao.updateRoom(RoomsCompanion(roomId: Value(roomId), mute: Value(mute)));
+    _roomDao
+        .updateRoom(RoomsCompanion(roomId: Value(roomId), mute: Value(mute)));
   }
 
   Stream<Room> roomIsMute(String roomId) {
@@ -115,5 +126,17 @@ class RoomRepo {
       }
     }
     return searchResult;
+  }
+
+  searchByUsername(String username) async {
+    if (username.contains('@')) {
+      username = username.substring(username.indexOf('@') + 1, username.length);
+    }
+    var contact = await _contactDao.searchByUserName(username);
+    if (contact != null) {
+      return contact.uid;
+    } else {
+      // todo
+    }
   }
 }

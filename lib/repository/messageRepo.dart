@@ -30,13 +30,14 @@ import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
+import 'package:location/location.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/foundation.dart';
 import 'mucRepo.dart';
 
-enum TitleStatusConditions { Disconnected, Updating, Normal }
+enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
 const int MAX_REMAINING_RETRIES = 3;
 
@@ -51,7 +52,6 @@ class MessageRepo {
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
-  var _mucRepo = GetIt.I.get<MucRepo>();
 
   var _coreServices = GetIt.I.get<CoreServices>();
 
@@ -63,14 +63,18 @@ class MessageRepo {
 
   MessageRepo() {
     _coreServices.connectionStatus.listen((mode) {
-      if (mode == ConnectionStatus.Disconnected) {
-        updatingStatus.add(TitleStatusConditions.Disconnected);
-      }
-      if (mode == ConnectionStatus.Connected) {
-        print('updating -----------------');
-        updating();
-        // TODO, change the position of calling this function, maybe needed periodic sending
-        sendPendingMessages();
+      switch (mode) {
+        case ConnectionStatus.Connected:
+          print('updating -----------------');
+          updating();
+          sendPendingMessages();
+          break;
+        case ConnectionStatus.Disconnected:
+          updatingStatus.add(TitleStatusConditions.Disconnected);
+          break;
+        case ConnectionStatus.Connecting:
+          updatingStatus.add(TitleStatusConditions.Connecting);
+          break;
       }
     });
   }
@@ -108,10 +112,6 @@ class MessageRepo {
           List<Message> messages =
               await _saveFetchMessages(fetchMessagesRes.messages);
 
-          if (userRoomMeta.roomUid.category != Categories.USER) {
-            await _mucRepo.saveMucInfo(userRoomMeta.roomUid);
-          }
-
           // TODO if there is Pending Message this line has a bug!!
           if (messages.isNotEmpty) {
             _roomDao.insertRoomCompanion(RoomsCompanion.insert(
@@ -142,6 +142,35 @@ class MessageRepo {
       replyToId: replyId != null ? Value(replyId) : Value.absent(),
       forwardedFrom: Value(forwardedFromAsString),
       type: MessageType.TEXT,
+      json: json,
+    );
+
+    int dbId = await _messageDao.insertMessageCompanion(message);
+    await _savePendingMessage(
+        room.asString(), dbId, packetId, SendingStatus.PENDING);
+    _updateRoomLastMessage(
+      room.asString(),
+      dbId,
+    );
+    // Send Message
+    await _sendMessageToServer(dbId);
+  }
+
+  sendLocationMessage(LocationData locationData, Uid room,
+      {String forwardedFromAsString}) async {
+    String packetId = _getPacketId();
+    String json = (MessageProto.Location()
+          ..longitude = locationData.longitude
+          ..latitude = locationData.latitude)
+        .writeToJson();
+    MessagesCompanion message = MessagesCompanion.insert(
+      roomId: room.asString(),
+      packetId: packetId,
+      time: now(),
+      from: _accountRepo.currentUserUid.asString(),
+      to: room.asString(),
+      forwardedFrom: Value(forwardedFromAsString),
+      type: MessageType.LOCATION,
       json: json,
     );
 
@@ -257,7 +286,6 @@ class MessageRepo {
       return;
     }
 
-
     MessageProto.MessageByClient byClient = _createMessageByClient(message);
 
     if (message.replyToId != null)
@@ -308,6 +336,10 @@ class MessageRepo {
       case MessageType.FILE:
         byClient.file = FileProto.File.fromJson(message.json);
         break;
+      case MessageType.LOCATION:
+        byClient.location = MessageProto.Location.fromJson(message.json);
+
+        break;
       default:
         break;
     }
@@ -351,7 +383,7 @@ class MessageRepo {
     _pendingMessageDao.insertPendingMessage(pendingMessage);
   }
 
-  sendSeenMessage(int messageId, Uid to, Uid roomId) {
+  sendSeenMessage(int messageId, Uid to) {
     _coreServices.sendSeenMessage(SeenByClient()
       ..to = to
       ..id = Int64.parseInt(messageId.toString()));
@@ -437,12 +469,17 @@ class MessageRepo {
       List<MessageProto.Message> messages) async {
     List<Message> msgList = [];
     for (MessageProto.Message message in messages) {
-      msgList.add(await _coreServices.saveMessageInMessagesDB(message));
+      msgList.add(
+          await saveMessageInMessagesDB(_accountRepo, _messageDao, message));
     }
     return msgList;
   }
 
   String _findType(String path) {
     return mime(path) ?? "application/octet-stream";
+  }
+
+  void setCoreSetting() {
+    _coreServices.sendPingMessage();
   }
 }

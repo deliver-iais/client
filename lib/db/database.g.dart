@@ -3639,8 +3639,14 @@ class Member extends DataClass implements Insertable<Member> {
   final String memberUid;
   final String mucUid;
   final MucRole role;
+  final String name;
+  final String username;
   Member(
-      {@required this.memberUid, @required this.mucUid, @required this.role});
+      {@required this.memberUid,
+      @required this.mucUid,
+      @required this.role,
+      this.name,
+      this.username});
   factory Member.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -3653,6 +3659,9 @@ class Member extends DataClass implements Insertable<Member> {
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}muc_uid']),
       role: $MembersTable.$converter0.mapToDart(
           intType.mapFromDatabaseResponse(data['${effectivePrefix}role'])),
+      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      username: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}username']),
     );
   }
   @override
@@ -3668,6 +3677,12 @@ class Member extends DataClass implements Insertable<Member> {
       final converter = $MembersTable.$converter0;
       map['role'] = Variable<int>(converter.mapToSql(role));
     }
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    if (!nullToAbsent || username != null) {
+      map['username'] = Variable<String>(username);
+    }
     return map;
   }
 
@@ -3679,6 +3694,10 @@ class Member extends DataClass implements Insertable<Member> {
       mucUid:
           mucUid == null && nullToAbsent ? const Value.absent() : Value(mucUid),
       role: role == null && nullToAbsent ? const Value.absent() : Value(role),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      username: username == null && nullToAbsent
+          ? const Value.absent()
+          : Value(username),
     );
   }
 
@@ -3689,6 +3708,8 @@ class Member extends DataClass implements Insertable<Member> {
       memberUid: serializer.fromJson<String>(json['memberUid']),
       mucUid: serializer.fromJson<String>(json['mucUid']),
       role: serializer.fromJson<MucRole>(json['role']),
+      name: serializer.fromJson<String>(json['name']),
+      username: serializer.fromJson<String>(json['username']),
     );
   }
   @override
@@ -3698,49 +3719,71 @@ class Member extends DataClass implements Insertable<Member> {
       'memberUid': serializer.toJson<String>(memberUid),
       'mucUid': serializer.toJson<String>(mucUid),
       'role': serializer.toJson<MucRole>(role),
+      'name': serializer.toJson<String>(name),
+      'username': serializer.toJson<String>(username),
     };
   }
 
-  Member copyWith({String memberUid, String mucUid, MucRole role}) => Member(
+  Member copyWith(
+          {String memberUid,
+          String mucUid,
+          MucRole role,
+          String name,
+          String username}) =>
+      Member(
         memberUid: memberUid ?? this.memberUid,
         mucUid: mucUid ?? this.mucUid,
         role: role ?? this.role,
+        name: name ?? this.name,
+        username: username ?? this.username,
       );
   @override
   String toString() {
     return (StringBuffer('Member(')
           ..write('memberUid: $memberUid, ')
           ..write('mucUid: $mucUid, ')
-          ..write('role: $role')
+          ..write('role: $role, ')
+          ..write('name: $name, ')
+          ..write('username: $username')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      $mrjf($mrjc(memberUid.hashCode, $mrjc(mucUid.hashCode, role.hashCode)));
+  int get hashCode => $mrjf($mrjc(
+      memberUid.hashCode,
+      $mrjc(mucUid.hashCode,
+          $mrjc(role.hashCode, $mrjc(name.hashCode, username.hashCode)))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Member &&
           other.memberUid == this.memberUid &&
           other.mucUid == this.mucUid &&
-          other.role == this.role);
+          other.role == this.role &&
+          other.name == this.name &&
+          other.username == this.username);
 }
 
 class MembersCompanion extends UpdateCompanion<Member> {
   final Value<String> memberUid;
   final Value<String> mucUid;
   final Value<MucRole> role;
+  final Value<String> name;
+  final Value<String> username;
   const MembersCompanion({
     this.memberUid = const Value.absent(),
     this.mucUid = const Value.absent(),
     this.role = const Value.absent(),
+    this.name = const Value.absent(),
+    this.username = const Value.absent(),
   });
   MembersCompanion.insert({
     @required String memberUid,
     @required String mucUid,
     @required MucRole role,
+    this.name = const Value.absent(),
+    this.username = const Value.absent(),
   })  : memberUid = Value(memberUid),
         mucUid = Value(mucUid),
         role = Value(role);
@@ -3748,20 +3791,30 @@ class MembersCompanion extends UpdateCompanion<Member> {
     Expression<String> memberUid,
     Expression<String> mucUid,
     Expression<int> role,
+    Expression<String> name,
+    Expression<String> username,
   }) {
     return RawValuesInsertable({
       if (memberUid != null) 'member_uid': memberUid,
       if (mucUid != null) 'muc_uid': mucUid,
       if (role != null) 'role': role,
+      if (name != null) 'name': name,
+      if (username != null) 'username': username,
     });
   }
 
   MembersCompanion copyWith(
-      {Value<String> memberUid, Value<String> mucUid, Value<MucRole> role}) {
+      {Value<String> memberUid,
+      Value<String> mucUid,
+      Value<MucRole> role,
+      Value<String> name,
+      Value<String> username}) {
     return MembersCompanion(
       memberUid: memberUid ?? this.memberUid,
       mucUid: mucUid ?? this.mucUid,
       role: role ?? this.role,
+      name: name ?? this.name,
+      username: username ?? this.username,
     );
   }
 
@@ -3778,6 +3831,12 @@ class MembersCompanion extends UpdateCompanion<Member> {
       final converter = $MembersTable.$converter0;
       map['role'] = Variable<int>(converter.mapToSql(role.value));
     }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (username.present) {
+      map['username'] = Variable<String>(username.value);
+    }
     return map;
   }
 
@@ -3786,7 +3845,9 @@ class MembersCompanion extends UpdateCompanion<Member> {
     return (StringBuffer('MembersCompanion(')
           ..write('memberUid: $memberUid, ')
           ..write('mucUid: $mucUid, ')
-          ..write('role: $role')
+          ..write('role: $role, ')
+          ..write('name: $name, ')
+          ..write('username: $username')
           ..write(')'))
         .toString();
   }
@@ -3832,8 +3893,33 @@ class $MembersTable extends Members with TableInfo<$MembersTable, Member> {
     );
   }
 
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  GeneratedTextColumn _name;
   @override
-  List<GeneratedColumn> get $columns => [memberUid, mucUid, role];
+  GeneratedTextColumn get name => _name ??= _constructName();
+  GeneratedTextColumn _constructName() {
+    return GeneratedTextColumn(
+      'name',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _usernameMeta = const VerificationMeta('username');
+  GeneratedTextColumn _username;
+  @override
+  GeneratedTextColumn get username => _username ??= _constructUsername();
+  GeneratedTextColumn _constructUsername() {
+    return GeneratedTextColumn(
+      'username',
+      $tableName,
+      true,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns =>
+      [memberUid, mucUid, role, name, username];
   @override
   $MembersTable get asDslTable => this;
   @override
@@ -3858,6 +3944,14 @@ class $MembersTable extends Members with TableInfo<$MembersTable, Member> {
       context.missing(_mucUidMeta);
     }
     context.handle(_roleMeta, const VerificationResult.success());
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
+    }
+    if (data.containsKey('username')) {
+      context.handle(_usernameMeta,
+          username.isAcceptableOrUnknown(data['username'], _usernameMeta));
+    }
     return context;
   }
 

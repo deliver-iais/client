@@ -16,7 +16,7 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>  with WidgetsBindingObserver{
   final _routingService = GetIt.I.get<RoutingService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
@@ -32,7 +32,6 @@ class _HomePageState extends State<HomePage> {
     }
     _coreServices.initStreamConnection();
   }
-
   checkShareFile(BuildContext context) {
     ReceiveSharingIntent.getMediaStream().listen((List<SharedMediaFile> value) {
       if (value != null) {

@@ -42,6 +42,7 @@ class _VerificationPageState extends State<VerificationPage> {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
         _accountRepo.saveTokens(accessTokenResponse);
         _fireBaseServices.sendFireBaseToken();
+        _accountRepo.setNotificationState("true");
         _navigationToHome();
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {

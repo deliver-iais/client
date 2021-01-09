@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 // ignore: non_constant_identifier_names
 ThemeData DarkTheme = ThemeData(
         brightness: Brightness.dark,
-        fontFamily: "Vazir",
-        platform: TargetPlatform.macOS)
+        fontFamily: "Vazir")
     .copyWith(
         visualDensity: VisualDensity.adaptivePlatformDensity,
         primaryColor: Color(0xFF2699FB),

@@ -1,27 +1,36 @@
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/file.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/music.dart';
+import 'package:deliver_flutter/services/check_permissions_service.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
+import 'package:location/location.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
   final int replyMessageId;
   final Function resetRoomPageDetails;
+  final Function scrollToLastSentMessage;
 
   const ShareBox(
       {Key key,
       this.currentRoomId,
       this.replyMessageId,
-      this.resetRoomPageDetails})
+      this.resetRoomPageDetails,
+      this.scrollToLastSentMessage})
       : super(key: key);
 
   @override
@@ -41,12 +50,21 @@ class _ShareBoxState extends State<ShareBox> {
 
   final finalSelected = Map<int, String>();
 
+  Location location = new Location();
+
+  LocationData _locationData;
+
+  CheckPermissionsService _checkPermissionsService =
+      GetIt.I.get<CheckPermissionsService>();
+
   int playAudioIndex;
 
   bool selected = false;
 
   var fileRepo = GetIt.I.get<FileRepo>();
   var messageRepo = GetIt.I.get<MessageRepo>();
+
+  var _routingServices = GetIt.I.get<RoutingService>();
 
   var currentPage = Page.Gallery;
 
@@ -155,133 +173,144 @@ class _ShareBoxState extends State<ShareBox> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
-                  isSelected()
-                      ? Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                  if (isSelected())
+                    Container(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          Stack(
                             children: <Widget>[
-                              Stack(
-                                children: <Widget>[
-                                  Container(
-                                    child: circleButton(
-                                      () {
-                                        if(widget.replyMessageId != null){
-                                          messageRepo.sendFileMessageDeprecated(
-                                              widget.currentRoomId, finalSelected.values.toList(),
-                                              replyToId: widget.replyMessageId);
-                                        }else{
-                                          messageRepo.sendFileMessageDeprecated(
-                                            widget.currentRoomId,
-                                            finalSelected.values.toList(),
-                                          );
-                                        }
-                                        setState(() {
-                                          finalSelected.clear();
-                                          selectedAudio.clear();
-                                          selectedImages.clear();
-                                          selectedFiles.clear();
-                                        });
-                                      },
-                                      Icons.send,
-                                      "",
-                                      50,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      boxShadow: [
-                                        new BoxShadow(
-                                            blurRadius: 20.0, spreadRadius: 0.0)
-                                      ],
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    child: Container(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          Text(
-                                            finalSelected.values.length
-                                                .toString(),
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 12),
-                                          ),
-                                        ],
-                                      ),
-                                      width: 16.0,
-                                      height: 16.0,
-                                      decoration: new BoxDecoration(
-                                        color: Colors.blue,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.white,
-                                          width: 2,
-                                        ),
-                                      ),
-                                    ),
-                                    top: 35.0,
-                                    right: 0.0,
-                                    left: 31,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                width: 30,
-                              )
-                            ],
-                          ),
-                        )
-                      : Container(
-                          padding: const EdgeInsetsDirectional.only(bottom: 10),
-                          color: Colors.white,
-                          child: Column(
-                            children: <Widget>[
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: <Widget>[
-                                  circleButton(() {
-                                    setState(() {
-                                      audioPlayer.stop();
+                              Container(
+                                child: circleButton(
+                                  () {
+                                    if (widget.replyMessageId != null) {
+                                      messageRepo.sendFileMessageDeprecated(
+                                          widget.currentRoomId,
+                                          finalSelected.values.toList(),
+                                          replyToId: widget.replyMessageId);
+                                    } else {
+                                      messageRepo.sendFileMessageDeprecated(
+                                        widget.currentRoomId,
+                                        finalSelected.values.toList(),
+                                      );
+                                    }
 
-                                      currentPage = Page.Gallery;
+                                    Navigator.pop(context);
+                                    Timer(Duration(seconds: 2), () {
+                                      widget.scrollToLastSentMessage();
                                     });
-                                  },
-                                      Icons.insert_drive_file,
-                                      appLocalization
-                                          .getTraslateValue("gallery"),
-                                      40),
-                                  circleButton(() {
                                     setState(() {
-                                      audioPlayer.stop();
-                                      currentPage = Page.Files;
+                                      finalSelected.clear();
+                                      selectedAudio.clear();
+                                      selectedImages.clear();
+                                      selectedFiles.clear();
                                     });
                                   },
-                                      Icons.file_upload,
-                                      appLocalization.getTraslateValue("file"),
-                                      40),
-                                  circleButton(() async {
-                                    audioPlayer.stop();
-                                  },
-                                      Icons.location_on,
-                                      appLocalization
-                                          .getTraslateValue("location"),
-                                      40),
-                                  circleButton(() {
-                                    setState(() {
-                                      currentPage = Page.Music;
-                                    });
-                                  },
-                                      Icons.music_note,
-                                      appLocalization.getTraslateValue("music"),
-                                      40),
-                                ],
+                                  Icons.send,
+                                  "",
+                                  50,
+                                ),
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    new BoxShadow(
+                                        blurRadius: 20.0, spreadRadius: 0.0)
+                                  ],
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              Positioned(
+                                child: Container(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Text(
+                                        finalSelected.values.length.toString(),
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
+                                  width: 16.0,
+                                  height: 16.0,
+                                  decoration: new BoxDecoration(
+                                    color: Colors.blue,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                                top: 35.0,
+                                right: 0.0,
+                                left: 31,
                               ),
                             ],
                           ),
-                        )
+                          SizedBox(
+                            width: 30,
+                          )
+                        ],
+                      ),
+                    )
+                  else
+                    Container(
+                      padding: const EdgeInsetsDirectional.only(bottom: 10),
+                      color: Colors.white,
+                      child: Column(
+                        children: <Widget>[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: <Widget>[
+                              circleButton(() {
+                                setState(() {
+                                  audioPlayer.stop();
+
+                                  currentPage = Page.Gallery;
+                                });
+                              },
+                                  Icons.insert_drive_file,
+                                  appLocalization.getTraslateValue("gallery"),
+                                  40),
+                              circleButton(() {
+                                setState(() {
+                                  audioPlayer.stop();
+                                  currentPage = Page.Files;
+                                });
+                              }, Icons.file_upload,
+                                  appLocalization.getTraslateValue("file"), 40),
+                              circleButton(() async {
+                                audioPlayer.stop();
+                                if (await _checkPermissionsService
+                                    .checkLocationPermission()) {
+                                  _locationData = await location.getLocation();
+                                  if (_locationData != null) {
+                                    Navigator.pop(context);
+                                    _routingServices.openLocation(
+                                        roomUid: widget.currentRoomId,
+                                        locationData: _locationData,
+                                        scrollToLast:
+                                            widget.scrollToLastSentMessage);
+                                  }
+                                }
+                              },
+                                  Icons.location_on,
+                                  appLocalization.getTraslateValue("location"),
+                                  40),
+                              circleButton(() {
+                                setState(() {
+                                  currentPage = Page.Music;
+                                });
+                              },
+                                  Icons.music_note,
+                                  appLocalization.getTraslateValue("music"),
+                                  40),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
                 ],
               )
             ],

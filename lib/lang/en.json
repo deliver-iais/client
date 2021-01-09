@@ -112,9 +112,9 @@
   "deleteChannel": "Delete Channel",
   "saved_message": "Saved Message",
   "send_Contacts_message": "Deliver needs access to your contacts so that you can connect with your friend across all your device. your contacts will be continuously synced with Dliver's  heavily encrypted cloud servers.",
-  "connecting": "connecting",
+  "connecting": "Connecting...",
   "UnreadMessages": "Unread Messages",
-  "updating": "updating",
+  "updating": "updating...",
   "disconnected": "Disconnected",
   "connected": "Connected",
   "contactNotExit": "Contact not Exist",
@@ -130,5 +130,6 @@
   "create_channel": "create Channel",
   "create_group": "Create Group",
   "change_channel_avatar": "Change Channel Avatar",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "disconnect": "Disconnect"
 }

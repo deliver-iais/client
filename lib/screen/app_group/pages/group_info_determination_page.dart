@@ -177,6 +177,7 @@ class _MucInfoDeterminationPageState
                       controller.clear();
                     }
                     if(micUid !=null) {
+                      _createMucService.reset();
                       _routingService.openRoom(micUid.asString());
                     }else{
                       Fluttertoast.showToast(msg: appLocalization.getTraslateValue("error_occurred"));

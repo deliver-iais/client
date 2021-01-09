@@ -13,6 +13,7 @@ class NewMessageInput extends StatelessWidget {
   final bool waitingForForward;
   final Function sendForwardMessage;
   final _roomDao = GetIt.I.get<RoomDao>();
+  final Function scrollToLastSentMessage;
 
   NewMessageInput(
       {Key key,
@@ -20,7 +21,8 @@ class NewMessageInput extends StatelessWidget {
       this.replyMessageId,
       this.resetRoomPageDetails,
       this.waitingForForward,
-      this.sendForwardMessage})
+      this.sendForwardMessage,
+      this.scrollToLastSentMessage})
       : super(key: key);
 
   @override
@@ -37,9 +39,10 @@ class NewMessageInput extends StatelessWidget {
               resetRoomPageDetails: resetRoomPageDetails,
               waitingForForward: waitingForForward,
               sendForwardMessage: sendForwardMessage,
+                scrollToLastSentMessage:scrollToLastSentMessage
             );
           } else {
-            _roomDao.insertRoom(Room(roomId: currentRoomId,mute: false));
+            _roomDao.insertRoom(Room(roomId: currentRoomId,));
             return SizedBox.shrink();
           }
         });

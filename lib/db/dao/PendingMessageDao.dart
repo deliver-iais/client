@@ -21,8 +21,10 @@ class PendingMessageDao extends DatabaseAccessor<Database>
   Future deletePendingMessage(String packetId) async {
     var q = await (select(pendingMessages)
           ..where((pm) => pm.messagePacketId.equals(packetId)))
-        .getSingle();
-    delete(pendingMessages).delete(q);
+        .get();
+    for (var s in q) {
+      delete(pendingMessages).delete(s);
+    }
   }
 
   Future updatePendingMessage(PendingMessage updatedPendingMessage) =>
@@ -43,7 +45,7 @@ class PendingMessageDao extends DatabaseAccessor<Database>
           ..where((pm) => pm.roomId.equals(roomId))
           ..orderBy([
             (pm) => OrderingTerm(
-                expression: pm.messageDbId, mode: OrderingMode.asc),
+                expression: pm.messageDbId, mode: OrderingMode.desc),
           ]))
         .watch();
   }
