@@ -3,6 +3,7 @@ import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart' as db;
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
@@ -32,7 +33,6 @@ class FireBaseServices {
   _sendFireBaseToken(String fireBaseToken) async {
     String firabase_setting = await _prefs.get(Firabase_Setting_Is_Set);
     if (firabase_setting == null) {
-
       try {
         await fireBaseServices.registration(
             RegistrationReq()..tokenId = fireBaseToken,
@@ -50,23 +50,25 @@ class FireBaseServices {
     try {
       _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
+          var _coreServices = GetIt.I.get<CoreServices>();
+          _coreServices.sendPingMessage();
           if (message.containsKey("notification")) {
-            // nothing
+            // print("f");l
           }
           if (message.containsKey("data")) {
-            //nothing
+            // print("fff");
           }
         },
         onBackgroundMessage: myBackgroundMessageHandler,
         onLaunch: (Map<String, dynamic> message) async {
           if (message.containsKey("notification")) {
-            //nothing
+            // print("fff");
 
           }
         },
         onResume: (Map<String, dynamic> message) async {
           if (message.containsKey("notification")) {
-            // npthing
+            // print("fff");
           }
         },
       );
@@ -87,32 +89,44 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
   var database = db.Database();
   var contactDao = database.contactDao;
   var mucDao = database.mucDao;
+  var roomDao = database.roomDao;
+  var messageDao = database.messageDao;
+  var sharedPreferencesDao = database.sharedPreferencesDao;
+  var accountRepo = AccountRepo(sharedPrefs: sharedPreferencesDao);
 
   if (message.containsKey('data')) {
-    Message mes = _decodeMessage(message["data"]["body"]);
+    Message msg = _decodeMessage(message["data"]["body"]);
     String roomName;
-    if (mes.to.category != Categories.USER) {
-      var muc = await mucDao.getMucByUid(mes.to.asString());
-      if(muc !=  null){
-        roomName = muc.name;
-      }else{
-        roomName = "Unknown";
-      }
 
-    } else {
-      db.Contact contact =
-          await contactDao.getContactByUid(mes.from.asString());
-      if (contact != null) {
-        roomName =
-            contact.firstName != null ? contact.firstName : contact.username;
-        if (contact.lastName != null) {
-          roomName = "$roomName ${contact.lastName}";
-        }
+    CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg);
+
+    if (msg.to.category != Categories.USER) {
+      var muc = await mucDao.getMucByUid(msg.to.asString());
+      if (muc != null) {
+        roomName = muc.name;
       } else {
         roomName = "Unknown";
       }
+    } else {
+      if (msg.from.category == Categories.SYSTEM) {
+        roomName = "Deliver";
+      } else {
+        db.Contact contact =
+            await contactDao.getContactByUid(msg.from.asString());
+        if (contact != null) {
+          roomName =
+              contact.firstName != null ? contact.firstName : contact.username;
+          if (contact.lastName != null) {
+            roomName = "$roomName ${contact.lastName}";
+          }
+        } else {
+          roomName = "Unknown";
+        }
+      }
     }
-    _notificationServices.showNotification(mes, mes.from.asString(), roomName);
+    if ((await accountRepo.notification).contains("true"))
+      _notificationServices.showNotification(
+          msg, msg.from.asString(), roomName);
   }
   if (message.containsKey('notification')) {
     //todo

@@ -34,23 +34,36 @@ class SeenDao extends DatabaseAccessor<Database> with _$SeenDaoMixin {
     return false;
   }
 
-  // Future<bool> isSeenRecievedMessage(Message message) async {
-  //   final query = select(seens)
-  //     ..where((seen) =>
-  //         seen.roomId.equals(message.roomId) &
-  //         seen.user.equals(message.to) &
-  //         seen.messageId.isBiggerOrEqualValue(message.id));
-  //   final res = await query.get();
-  //   if (res.isEmpty)
-  //     return false;
-  //   else
-  //     return true;
-  // }
+  Future<Seen> getRoomLastSeenId(String roomId) async {
+    return (select(seens)
+          ..orderBy([
+            (s) => OrderingTerm(
+                  expression: s.messageId,
+                  mode: OrderingMode.desc,
+                ),
+          ])
+          ..where((tbl) => tbl.roomId.equals(roomId))
+          ..limit(1))
+        .getSingle();
+  }
 
   Stream<Seen> getByMessageId(int messageId, String roomId) {
     return (select(seens)
           ..where(
               (s) => s.messageId.equals(messageId) & s.roomId.equals(roomId)))
+        .watchSingle();
+  }
+
+  Stream<Seen> getRoomLastSeen(String roomId) {
+    return (select(seens)
+          ..orderBy([
+            (s) => OrderingTerm(
+                  expression: s.messageId,
+                  mode: OrderingMode.desc,
+                ),
+          ])
+          ..where((tbl) => tbl.roomId.equals(roomId))
+          ..limit(1))
         .watchSingle();
   }
 

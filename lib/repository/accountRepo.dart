@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/account.dart';
@@ -12,7 +13,6 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:device_info/device_info.dart';
-
 
 import 'package:get_it/get_it.dart';
 
@@ -32,6 +32,10 @@ const PHONE_NUMBER = "phoneNumber";
 const NOTIFICATION = "notification";
 
 class AccountRepo {
+  final SharedPreferencesDao sharedPrefs;
+
+  AccountRepo({@required this.sharedPrefs});
+
   // TODO add account name protocol to server
   String currentUsername = "@john_doe";
   Uid currentUserUid = Uid.create()
@@ -42,15 +46,12 @@ class AccountRepo {
   String _accessToken;
   String _refreshToken;
 
-  // Dependencies
-  SharedPreferencesDao _prefs = GetIt.I.get<SharedPreferencesDao>();
-
   var authServiceStub = AuthServiceClient(ProfileServicesClientChannel);
   var _userServices = UserServiceClient(ProfileServicesClientChannel);
 
   Future<void> init() async {
-    var accessToken = await _prefs.get(ACCESS_TOKEN_KEY);
-    var refreshToken = await _prefs.get(REFRESH_TOKEN_KEY);
+    var accessToken = await sharedPrefs.get(ACCESS_TOKEN_KEY);
+    var refreshToken = await sharedPrefs.get(REFRESH_TOKEN_KEY);
     _setTokensAndCurrentUserUid(accessToken, refreshToken);
   }
 
@@ -129,7 +130,7 @@ class AccountRepo {
   }
 
   Future<bool> usernameIsSet() async {
-    if( null != await _prefs.get(USERNAME)){
+    if (null != await sharedPrefs.get(USERNAME)) {
       return true;
     }
     var result = await _userServices.getUserProfile(GetUserProfileReq(),
@@ -156,8 +157,8 @@ class AccountRepo {
     }
     _accessToken = accessToken;
     _refreshToken = refreshToken;
-    _prefs.set(REFRESH_TOKEN_KEY, refreshToken);
-    _prefs.set(ACCESS_TOKEN_KEY, accessToken);
+    sharedPrefs.set(REFRESH_TOKEN_KEY, refreshToken);
+    sharedPrefs.set(ACCESS_TOKEN_KEY, accessToken);
     setCurrentUid(accessToken);
   }
 
@@ -173,13 +174,13 @@ class AccountRepo {
 
   Future<Account> getAccount() async {
     return Account()
-      ..phoneNumber = await _prefs.get(PHONE_NUMBER)
-      ..userName = await _prefs.get(USERNAME)
-      ..firstName = await _prefs.get(FIRST_NAME)
-      ..lastName = await _prefs.get(LAST_NAME)
-      ..email = await _prefs.get(EMAIL)
-      ..password = await _prefs.get(PASSWORD)
-      ..description = await _prefs.get(DESCRIPTION);
+      ..phoneNumber = await sharedPrefs.get(PHONE_NUMBER)
+      ..userName = await sharedPrefs.get(USERNAME)
+      ..firstName = await sharedPrefs.get(FIRST_NAME)
+      ..lastName = await sharedPrefs.get(LAST_NAME)
+      ..email = await sharedPrefs.get(EMAIL)
+      ..password = await sharedPrefs.get(PASSWORD)
+      ..description = await sharedPrefs.get(DESCRIPTION);
   }
 
   Future<bool> checkUserName(String username) async {
@@ -243,21 +244,21 @@ class AccountRepo {
   _saveProfilePrivateDate(
       {String username, String firstName, String lastName, String email}) {
     if (username != null) {
-      _prefs.set(USERNAME, username);
+      sharedPrefs.set(USERNAME, username);
     }
-    _prefs.set(FIRST_NAME, firstName);
-    _prefs.set(LAST_NAME, lastName);
-    _prefs.set(EMAIL, email);
+    sharedPrefs.set(FIRST_NAME, firstName);
+    sharedPrefs.set(LAST_NAME, lastName);
+    sharedPrefs.set(EMAIL, email);
   }
 
   _savePhoneNumber() {
-    _prefs.set(PHONE_NUMBER,
+    sharedPrefs.set(PHONE_NUMBER,
         "${this.phoneNumber.countryCode}${this.phoneNumber.nationalNumber}");
   }
 
   setNotificationState(String notif) {
-    _prefs.set(NOTIFICATION, notif);
+    sharedPrefs.set(NOTIFICATION, notif);
   }
 
-  Future<String> get notification => _prefs.get(NOTIFICATION);
+  Future<String> get notification => sharedPrefs.get(NOTIFICATION);
 }

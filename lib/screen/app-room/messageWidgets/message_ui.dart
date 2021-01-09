@@ -11,6 +11,7 @@ class FileMessageUi extends StatefulWidget {
   final double maxWidth;
   final Function lastCross;
   final bool isSender;
+  final Function onUsernameClick;
   final CrossAxisAlignment last;
 
   const FileMessageUi(
@@ -19,6 +20,7 @@ class FileMessageUi extends StatefulWidget {
       this.maxWidth,
       this.lastCross,
       this.isSender,
+      this.onUsernameClick,
       this.last})
       : super(key: key);
 
@@ -45,6 +47,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
               maxWidth: widget.maxWidth,
               lastCross: widget.lastCross,
               isSender: widget.isSender,
+              onUsernameClick: widget.onUsernameClick,
               isCaption: true,
             ),
           )

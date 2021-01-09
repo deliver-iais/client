@@ -112,9 +112,9 @@
   "deleteGroup": "حذف گروه",
   "deleteChannel": "حذف کانال",
   "saved_message": "پیام های ذخیره شده",
-  "connecting": "در حال اتصال",
+  "connecting": "درحال اتصال ...",
   "UnreadMessages": "پیام های خوانده نشده",
-  "updating": "در حال به روزرسانی",
+  "updating": " بروزرسانی...",
   "disconnected": "قطع ارتباط",
   "connected": "ارتباط برقرار شد",
   "contactNotExit": "مخاطب وجود ندارد.",
@@ -130,5 +130,6 @@
   "kick_from_muc": "از گروه حذف کرد.",
   "create_channel": "کانال  را ایجاد کرد",
   "create_group": "گروه را ساخت.",
-  "cancel": "لغو"
+  "cancel": "لغو",
+  "disconnect": "قطع اتصال"
 }

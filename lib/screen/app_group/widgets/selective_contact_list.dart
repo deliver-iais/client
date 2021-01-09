@@ -164,6 +164,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                                   widget.mucUid, users);
                               if (usersAdd) {
                                 _routingService.pop();
+                                _routingService.reset();
                               } else {
                                 Fluttertoast.showToast(
                                     msg: appLocalization
