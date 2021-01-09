@@ -16,31 +16,28 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'dart:io';
 
-class VideoTabUi extends StatefulWidget{
+class VideoTabUi extends StatefulWidget {
   final Uid userUid;
   final int videoCount;
 
-  VideoTabUi({Key key,this.userUid,this.videoCount})
-      :super(key: key);
+  VideoTabUi({Key key, this.userUid, this.videoCount}) : super(key: key);
 
   @override
   _VideoTabUiState createState() => _VideoTabUiState();
-
 }
-class _VideoTabUiState extends State<VideoTabUi>{
+
+class _VideoTabUiState extends State<VideoTabUi> {
   var mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   var fileRepo = GetIt.I.get<FileRepo>();
   var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 30));
   Duration duration;
   String videoLength;
 
-
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Media>>(
         future: mediaQueryRepo.getMedia(
-            widget.userUid,FetchMediasReq_MediaType.VIDEOS, widget.videoCount),
+            widget.userUid, FetchMediasReq_MediaType.VIDEOS, widget.videoCount),
         builder: (BuildContext c, AsyncSnapshot snaps) {
           if (!snaps.hasData ||
               snaps.data == null ||
@@ -59,71 +56,104 @@ class _VideoTabUiState extends State<VideoTabUi>{
                 itemBuilder: (context, position) {
                   var fileId = jsonDecode(snaps.data[position].json)["uuid"];
                   var fileName = jsonDecode(snaps.data[position].json)["name"];
-                  var videoDuration = jsonDecode(snaps.data[position].json)["duration"];
+                  var videoDuration =
+                      jsonDecode(snaps.data[position].json)["duration"];
                   duration = Duration(seconds: videoDuration.round());
                   if (duration.inHours == 0) {
                     videoLength = duration.inMinutes > 9
                         ? duration.toString().substring(2, 7)
                         : duration.toString().substring(3, 7);
                   } else {
-                    videoLength = duration.toString().split('.').first.padLeft(8, "0");
+                    videoLength =
+                        duration.toString().split('.').first.padLeft(8, "0");
                   }
-                 // var file = _fileCache.get(fileId);
-                 // if (file == null)
-                          return  FutureBuilder<File>(
-                              future: fileRepo.getFileIfExist(fileId, fileName+"png",thumbnailSize: ThumbnailSize.small),
-                              builder: (BuildContext c, AsyncSnapshot snaps) {
-                                if (snaps.hasData &&
-                                    snaps.data != null&&
-                                    snaps.connectionState==ConnectionState.done) {
-                                  //_fileCache.set(fileId, snaps.data);
-                                 return VideoThumbnail(snaps.data,videoLength,true);
-                                }
-                                else if(snaps.data==null && snaps.connectionState==ConnectionState.done) {
-                                  return FutureBuilder<File>(
-                                    future: fileRepo.downloadFile(fileId, fileName+"png",thumbnailSize: ThumbnailSize.small),
-                                    builder: (BuildContext c, AsyncSnapshot downloadedFile){
-                                      if(downloadedFile.hasData && downloadedFile.data!=null&& downloadedFile.connectionState==
-                                      ConnectionState.done){
-                                        return VideoThumbnail(downloadedFile.data, videoLength, false);
-                                      }else{
-                                        return Container(width: 0,height: 0,);
-                                      }
-                                    },
+                  // var file = _fileCache.get(fileId);
+                  // if (file == null)
+                  return FutureBuilder<bool>(
+                      future: fileRepo.isExist(fileId, fileName),
+                      builder: (BuildContext c, AsyncSnapshot videoFile) {
+                        if (videoFile.hasData &&
+                            videoFile.data != null &&
+                            videoFile.connectionState == ConnectionState.done &&
+                            videoFile.data == true) {
+                          //_fileCache.set(fileId, snaps.data);
+                          return FutureBuilder<File>(
+                              future: fileRepo.getFile(fileId, fileName + "png",
+                                  thumbnailSize: ThumbnailSize.small),
+                              builder: (BuildContext buildContext,
+                                  AsyncSnapshot thumbFile) {
+                                if (thumbFile.data != null &&
+                                    thumbFile.hasData &&
+                                    thumbFile.connectionState ==
+                                        ConnectionState.done) {
+                                  return VideoThumbnail(
+                                      thumbFile.data, videoLength, true);
+                                } else {
+                                  return Container(
+                                    width: 0,
+                                    height: 0,
                                   );
-                                }else{
-                                  return Container(width: 0,height: 0,);
                                 }
                               });
-                        });
-                  // else {
-                  //   return GestureDetector(
-                  //     // onTap: () {
-                  //     //   _routingService.openShowAllMedia(
-                  //     //     uid: widget.userUid,
-                  //     //     hasPermissionToDeletePic: true,
-                  //     //     mediaPosition: position,
-                  //     //     heroTag: "btn$position",
-                  //     //     mediasLength: imagesCount,
-                  //     //   );
-                  //     // },
-                  //     child: Hero(
-                  //       tag: "btn$position",
-                  //       child: Container(
-                  //           decoration: new BoxDecoration(
-                  //             image: new DecorationImage(
-                  //               image: Image.file(file).image,
-                  //               fit: BoxFit.cover,
-                  //             ),
-                  //             border: Border.all(
-                  //               width: 1,
-                  //               color: ExtraTheme.of(context).secondColor,
-                  //             ),
-                  //           )),
-                  //       transitionOnUserGestures: true,
-                  //     ),
-                  //   );
-                  // }
-                }});
+                        } else if (videoFile.data != null &&
+                            videoFile.connectionState == ConnectionState.done &&
+                            videoFile.data == false) {
+                          return FutureBuilder<File>(
+                            future: fileRepo.getFile(fileId, fileName + "png",
+                                thumbnailSize: ThumbnailSize.small),
+                            builder:
+                                (BuildContext c, AsyncSnapshot thumbnailFile) {
+                              if (thumbnailFile.hasData &&
+                                  thumbnailFile.data != null &&
+                                  thumbnailFile.connectionState ==
+                                      ConnectionState.done) {
+                                return VideoThumbnail(
+                                    thumbnailFile.data, videoLength, false);
+                              } else {
+                                return Container(
+                                  width: 0,
+                                  height: 0,
+                                );
+                              }
+                            },
+                          );
+                        } else {
+                          return Container(
+                            width: 0,
+                            height: 0,
+                          );
+                        }
+                      });
+                });
+            // else {
+            //   return GestureDetector(
+            //     // onTap: () {
+            //     //   _routingService.openShowAllMedia(
+            //     //     uid: widget.userUid,
+            //     //     hasPermissionToDeletePic: true,
+            //     //     mediaPosition: position,
+            //     //     heroTag: "btn$position",
+            //     //     mediasLength: imagesCount,
+            //     //   );
+            //     // },
+            //     child: Hero(
+            //       tag: "btn$position",
+            //       child: Container(
+            //           decoration: new BoxDecoration(
+            //             image: new DecorationImage(
+            //               image: Image.file(file).image,
+            //               fit: BoxFit.cover,
+            //             ),
+            //             border: Border.all(
+            //               width: 1,
+            //               color: ExtraTheme.of(context).secondColor,
+            //             ),
+            //           )),
+            //       transitionOnUserGestures: true,
+            //     ),
+            //   );
+            // }
           }
-        }
+        });
+  }
+}
