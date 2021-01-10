@@ -1,22 +1,22 @@
 import 'package:grpc/grpc.dart';
 
 // ignore: non_constant_identifier_names
-final QueryClientChannel = ClientChannel("89.37.13.110",
-    port: 30101,
+final QueryClientChannel = ClientChannel("172.16.121.37",
+    port: 8081,
     options: ChannelOptions(
         credentials: ChannelCredentials.insecure(),
         connectionTimeout: Duration(seconds: 2)));
 
 // ignore: non_constant_identifier_names
-final MucServicesClientChannel = ClientChannel("89.37.13.110",
-    port: 30101,
+final MucServicesClientChannel = ClientChannel("172.16.121.37",
+    port: 8081,
     options: ChannelOptions(
         credentials: ChannelCredentials.insecure(),
         connectionTimeout: Duration(seconds: 2)));
 
 // ignore: non_constant_identifier_names
-final CoreServicesClientChannel = ClientChannel("89.37.13.110",
-    port: 30100,
+final CoreServicesClientChannel = ClientChannel("172.16.121.37",
+    port: 8080,
     options: ChannelOptions(
         credentials: ChannelCredentials.insecure(),
         connectionTimeout: Duration(seconds: 2)));

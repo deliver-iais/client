@@ -33,16 +33,16 @@ class FireBaseServices {
   _sendFireBaseToken(String fireBaseToken) async {
     String firabase_setting = await _prefs.get(Firabase_Setting_Is_Set);
     if (firabase_setting == null) {
-      try {
-        await fireBaseServices.registration(
-            RegistrationReq()..tokenId = fireBaseToken,
-            options: CallOptions(metadata: {
-              'accessToken': await _accountRepo.getAccessToken()
-            }));
-        _prefs.set(Firabase_Setting_Is_Set, "true");
-      } catch (e) {
-        print(e.toString());
-      }
+      // try {
+      //   await fireBaseServices.registration(
+      //       RegistrationReq()..tokenId = fireBaseToken,
+      //       options: CallOptions(metadata: {
+      //         'accessToken': await _accountRepo.getAccessToken()
+      //       }));
+      //   _prefs.set(Firabase_Setting_Is_Set, "true");
+      // } catch (e) {
+      //   print(e.toString());
+      // }
     }
   }
 

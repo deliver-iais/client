@@ -72,6 +72,8 @@ void setupDI() {
 
   // Order is important, don't change it!
   getIt.registerSingleton<UxService>(UxService());
+  getIt.registerSingleton<QueryServiceClient>(
+      QueryServiceClient(QueryClientChannel));
   getIt.registerSingleton<AccountRepo>(AccountRepo(sharedPrefs: db.sharedPreferencesDao));
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   getIt.registerSingleton<FileService>(FileService());
@@ -87,8 +89,7 @@ void setupDI() {
   getIt.registerSingleton<CoreServiceClient>(
       CoreServiceClient(CoreServicesClientChannel));
   getIt.registerSingleton<CoreServices>(CoreServices());
-  getIt.registerSingleton<QueryServiceClient>(
-      QueryServiceClient(QueryClientChannel));
+
   getIt.registerSingleton<MessageRepo>(MessageRepo());
 
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
