@@ -409,7 +409,7 @@ class _InputMessageWidget extends State<InputMessage> {
                   return Future.value(false);
                 },
                 child: Container(
-                    height: 220.0,
+                    height: 250.0,
                     child: EmojiKeybord(
                       onTap: (emoji) {
                         setState(() {
