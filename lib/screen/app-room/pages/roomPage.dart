@@ -279,6 +279,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                               _itemCount = _currentRoom.lastMessageId +
                                   pendingMessages.length; //TODO chang
                             }
+                            _lastSeenDao.insertLastSeen(LastSeen(
+                                roomId: widget.roomId,
+                                messageId: _currentRoom.lastMessageId));
                             return Flexible(
                               fit: FlexFit.tight,
                               child: Container(
@@ -399,8 +402,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) {
-        _lastSeenDao.insertLastSeen(LastSeen(
-            roomId: widget.roomId, messageId: _currentRoom.lastMessageId));
         bool isPendingMessage = (currentRoom.lastMessageId == null)
             ? true
             : _itemCount > currentRoom.lastMessageId &&
@@ -476,8 +477,21 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                           messages[0].id == _replayMessageId)
                                   ? Theme.of(context).disabledColor
                                   : Theme.of(context).backgroundColor,
-                              child: normalMessage(messages[0], _maxWidth,
-                                  currentRoom, pendingMessages),
+                              child: GestureDetector(
+                                child: normalMessage(messages[0], _maxWidth,
+                                    currentRoom, pendingMessages),
+                                onTap: () {
+                                  _selectMultiMessage
+                                      ? _addForwardMessage(messages[0])
+                                      : _showCustomMenu(messages[0]);
+                                },
+                                onLongPress: () {
+                                  setState(() {
+                                    _selectMultiMessage = true;
+                                  });
+                                },
+                                onTapDown: storePosition,
+                              ),
                             )
                           : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -632,88 +646,60 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget showSentMessage(Message message, double _maxWidth, int lastMessageId,
       int pendingMessagesLength) {
-    return GestureDetector(
-      onTap: () {
-        _selectMultiMessage
-            ? _addForwardMessage(message)
-            : _showCustomMenu(message);
-      },
-      onLongPress: () {
-        setState(() {
-          _selectMultiMessage = true;
-        });
-      },
-      onTapDown: storePosition,
-      child: SingleChildScrollView(
+    return SingleChildScrollView(
         child: Stack(
-          alignment: AlignmentDirectional.bottomStart,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                SentMessageBox(
-                  message: message,
-                  maxWidth: _maxWidth,
-                  isSeen: message.id != null && message.id <= lastSeenMessageId,
-                  scrollToMessage: (int id) {
-                    _scrollToMessage(
-                        id: id, position: pendingMessagesLength + id);
-                  },
-                  omUsernameClick: onUsernameClick,
-                )
-              ],
-            ),
-            if (_selectMultiMessage) selectMultiMessage(message: message)
+      alignment: AlignmentDirectional.bottomStart,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            SentMessageBox(
+              message: message,
+              maxWidth: _maxWidth,
+              isSeen: message.id != null && message.id <= lastSeenMessageId,
+              scrollToMessage: (int id) {
+                _scrollToMessage(id: id, position: pendingMessagesLength + id);
+              },
+              omUsernameClick: onUsernameClick,
+            )
           ],
         ),
-      ),
-    );
+        if (_selectMultiMessage) selectMultiMessage(message: message)
+      ],
+    ));
   }
 
   Widget showReceivedMessage(Message message, double _maxWidth,
       int lastMessageId, int pendingMessagesLength) {
-    return GestureDetector(
-        onTap: () {
-          _selectMultiMessage
-              ? _addForwardMessage(message)
-              : _showCustomMenu(message);
-        },
-        onLongPress: () {
-          setState(() {
-            _selectMultiMessage = true;
-          });
-        },
-        onTapDown: storePosition,
-        child: Stack(
-          alignment: AlignmentDirectional.bottomStart,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                widget.roomId.getUid().category == Categories.GROUP
-                    ? Padding(
-                        padding: const EdgeInsets.only(
-                            bottom: 8.0, left: 5.0, right: 3.0),
-                        child: CircleAvatarWidget(message.from.uid, 18),
-                      )
-                    : Container(),
-                if (_selectMultiMessage) selectMultiMessage(message: message),
-                RecievedMessageBox(
-                  message: message,
-                  maxWidth: _maxWidth,
-                  isGroup: widget.roomId.uid.category == Categories.GROUP,
-                  scrollToMessage: (int id) {
-                    _scrollToMessage(
-                        id: id, position: pendingMessagesLength + id);
-                  },
-                  omUsernameClick: onUsernameClick,
-                )
-              ],
-            ),
+    return Stack(
+      alignment: AlignmentDirectional.bottomStart,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            widget.roomId.getUid().category == Categories.GROUP
+                ? Padding(
+                    padding: const EdgeInsets.only(
+                        bottom: 8.0, left: 5.0, right: 3.0),
+                    child: CircleAvatarWidget(message.from.uid, 18),
+                  )
+                : Container(),
+            if (_selectMultiMessage) selectMultiMessage(message: message),
+            RecievedMessageBox(
+              message: message,
+              maxWidth: _maxWidth,
+              isGroup: widget.roomId.uid.category == Categories.GROUP,
+              scrollToMessage: (int id) {
+                _scrollToMessage(id: id, position: pendingMessagesLength + id);
+              },
+              omUsernameClick: onUsernameClick,
+            )
           ],
-        ));
+        ),
+      ],
+    );
   }
 
   scrollToLast() {

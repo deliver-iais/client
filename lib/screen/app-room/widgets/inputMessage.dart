@@ -14,7 +14,6 @@ import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:flutter_emoji_keyboard/flutter_emoji_keyboard.dart';
 import 'package:flutter_timer/flutter_timer.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -139,8 +138,7 @@ class _InputMessageWidget extends State<InputMessage> {
                             child: Center(
                               child: Icon(
                                 Icons.keyboard_voice,
-                                size: 14 * (size - 1) +
-                                    IconTheme.of(context).size,
+                                size: 30,
                                 color: Colors.white,
                               ),
                             ),
@@ -158,6 +156,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 IconButton(
                                   icon: Icon(
                                     showEmoji ? Icons.keyboard : Icons.mood,
+                                    size: 30,
                                     color: Colors.white,
                                   ),
                                   onPressed: () {
@@ -192,9 +191,13 @@ class _InputMessageWidget extends State<InputMessage> {
                                         onChanged: (str) {
                                           onChange(str);
                                         },
-                                        decoration: InputDecoration.collapsed(
-                                            hintText: appLocalization
-                                                .getTraslateValue("message")),
+                                        decoration: controller.text.isEmpty
+                                            ? InputDecoration.collapsed(
+                                                hintText: appLocalization
+                                                    .getTraslateValue(
+                                                        "message"))
+                                            : InputDecoration.collapsed(
+                                                hintText: ""),
                                       ),
                                     ),
                                   ),
@@ -205,6 +208,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     ? IconButton(
                                         icon: Icon(
                                           Icons.attach_file,
+                                          size: 30,
                                           color: IconTheme.of(context).color,
                                         ),
                                         onPressed: () {
@@ -219,6 +223,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     : IconButton(
                                         icon: Icon(
                                           Icons.send,
+                                          size: 30,
                                           color: Theme.of(context).primaryColor,
                                         ),
                                         color: Colors.white,
@@ -404,19 +409,14 @@ class _InputMessageWidget extends State<InputMessage> {
                   return Future.value(false);
                 },
                 child: Container(
-                  height: 220.0,
-                  child: EmojiKeyboard(
-                    onEmojiSelected: (d) {
-                      if (controller.text.isEmpty) {
+                    height: 220.0,
+                    child: EmojiKeybord(
+                      onTap: (emoji) {
                         setState(() {
-                          controller.text = controller.text + d.toString();
+                          controller.text = controller.text + emoji.toString();
                         });
-                      } else {
-                        controller.text = controller.text + d.toString();
-                      }
-                    },
-                  ),
-                ),
+                      },
+                    )),
               )
             : SizedBox(),
       ],
