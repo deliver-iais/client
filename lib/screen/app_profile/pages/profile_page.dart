@@ -416,8 +416,8 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
                          var fileId = jsonDecode(snaps.data[position].json)["uuid"];
                          var fileName = jsonDecode(snaps.data[position].json)["name"];
                          var file = mediaCache.get(fileId);
-                         if(file==null)
-                         return FutureBuilder(
+                if (file == null)
+                  return FutureBuilder(
                              future: fileRepo.getFile(fileId, fileName),
                              builder: (BuildContext c, AsyncSnapshot snaps) {
                                if (snaps.hasData &&
