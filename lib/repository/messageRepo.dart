@@ -291,7 +291,7 @@ class MessageRepo {
     if (message.replyToId != null)
       byClient.replyToId = Int64(message.replyToId);
     else
-      byClient.replyToId = Int64(-1);
+      byClient.replyToId = Int64(0);
 
     if (message.forwardedFrom != null)
       byClient.forwardFrom = message.forwardedFrom.getUid();
