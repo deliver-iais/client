@@ -672,7 +672,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget showReceivedMessage(Message message, double _maxWidth,
       int lastMessageId, int pendingMessagesLength) {
-    return Stack(
+    return SingleChildScrollView(child: Stack(
       alignment: AlignmentDirectional.bottomStart,
       children: [
         Row(
@@ -699,7 +699,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           ],
         ),
       ],
-    );
+    ));
   }
 
   scrollToLast() {
