@@ -13,7 +13,6 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
 
   RoomDao(this.db) : super(db);
 
-
   @deprecated
   Future insertRoom(Room newRoom) {
     return into(rooms).insertOnConflictUpdate(newRoom);
@@ -38,8 +37,6 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
         lastMessageId:
             newMessageId != null ? Value(newMessageId) : Value.absent()));
   }
-
-
 
 //TODO need to edit
   Stream<List<RoomWithMessage>> getAllRoomsWithMessage() {
@@ -69,11 +66,11 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
       leftOuterJoin(
         messages,
         messages.roomId.equalsExp(rooms.roomId) &
-        messages.dbId.equalsExp(rooms.lastMessageDbId),
+            messages.dbId.equalsExp(rooms.lastMessageDbId),
       )
     ])
-      ..orderBy([OrderingTerm.desc(messages.time)])).get();
-
+          ..orderBy([OrderingTerm.desc(messages.time)]))
+        .get();
   }
 
   Stream<Room> getByRoomId(String rid) {

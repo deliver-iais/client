@@ -78,12 +78,12 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             stream: _avatarRepo.getAvatar(widget.uid, false),
             builder: (cont, snapshot) {
               if (!snapshot.hasData || snapshot.data == null) {
-                return Center();
+                return Center(child: CircularProgressIndicator(backgroundColor: Colors.blue,),);
               } else {
                 _allAvatars = snapshot.data;
                 if (_allAvatars.length <= 0) {
                   _routingService.pop();
-                  return Center();
+                  return Center(child: CircularProgressIndicator(backgroundColor: Colors.blue,),);
                 }
                 return Swiper(
                     scrollDirection: Axis.horizontal,
@@ -164,7 +164,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                   ),
                                 );
                               } else {
-                                return Center();
+                                return Center(child: CircularProgressIndicator(backgroundColor: Colors.blue,),);
                               }
                             });
                       }
