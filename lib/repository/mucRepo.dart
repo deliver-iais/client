@@ -29,6 +29,8 @@ class MucRepo {
   var messageDao = GetIt.I.get<MessageDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
 
+  var _accountRepo = GetIt.I.get<AccountRepo>();
+
   Future<Uid> makeNewGroup(List<Uid> memberUids, String groupName) async {
     Uid groupUid = await mucServices.createNewGroup(groupName);
     if (groupUid != null) {
@@ -47,8 +49,10 @@ class MucRepo {
     if (channelUid != null) {
       sendMembers(channelUid, memberUids);
       _insertToDb(channelUid, channelName, memberUids.length + 1);
+      fetchMucInfo(channelUid);
       return channelUid;
     }
+
     getChannelMembers(channelUid);
     return null;
   }
@@ -111,7 +115,6 @@ class MucRepo {
           uid: mucUid.asString(),
         ));
       getGroupMembers(mucUid);
-      print(group.info.name);
       return group.info.name;
     } else {
       GetChannelRes channel = await getChannelInfo(mucUid);
@@ -121,6 +124,13 @@ class MucRepo {
           members: channel.population.toInt(),
           uid: mucUid.asString(),
         ));
+      insertUserInDb(mucUid, [
+        Member(
+            memberUid: _accountRepo.currentUserUid.asString(),
+            mucUid: mucUid.asString(),
+            role: getLocalRole(channel.requesterRole))
+      ]);
+
       getChannelMembers(mucUid);
       return channel.info.name ?? "";
     }
@@ -337,7 +347,8 @@ class MucRepo {
     for (Member member in members) {
       _memberDao.insertMember(member);
     }
-    _mucDao.updateMuc(mucUid.asString(), members.length);
+    if (members.length > 0)
+      _mucDao.updateMuc(mucUid.asString(), members.length);
   }
 
   MucPro.Role getRole(MucRole role) {

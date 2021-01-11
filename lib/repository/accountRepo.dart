@@ -134,14 +134,17 @@ class AccountRepo {
   }
 
   Future<bool> usernameIsSet() async {
+    return true;
     if (null != await sharedPrefs.get(USERNAME)) {
       return true;
     }
     var result = await _userServices.getUserProfile(GetUserProfileReq(),
         options:
             CallOptions(metadata: {'accessToken': await getAccessToken()}));
-    var getIdRequest = await _queryServiceClient
-        .getIdByUid(GetIdByUidReq()..uid = currentUserUid);
+    var getIdRequest = await _queryServiceClient.getIdByUid(
+        GetIdByUidReq()..uid = currentUserUid,
+        options:
+            CallOptions(metadata: {'accessToken': await getAccessToken()}));
     if (getIdRequest.hasId()) {
       sharedPrefs.set(USERNAME, getIdRequest.id);
     }
@@ -206,6 +209,10 @@ class AccountRepo {
     String email,
   ) async {
     try {
+      _queryServiceClient.setId(SetIdReq()..id = username,
+          options:
+              CallOptions(metadata: {"accessToken": await getAccessToken()}));
+
       SaveUserProfileReq saveUserProfileReq = SaveUserProfileReq();
       if (firstName != null) {
         saveUserProfileReq.firstName = firstName;

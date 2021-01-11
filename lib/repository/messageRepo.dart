@@ -113,6 +113,7 @@ class MessageRepo {
               await _saveFetchMessages(fetchMessagesRes.messages);
 
           // TODO if there is Pending Message this line has a bug!!
+          print(fetchMessagesRes.messages.toString());
           if (messages.isNotEmpty) {
             _roomDao.insertRoomCompanion(RoomsCompanion.insert(
                 roomId: userRoomMeta.roomUid.asString(),
@@ -186,7 +187,7 @@ class MessageRepo {
   }
 
   sendFileMessage(Uid room, String path,
-      {String caption = "", int replyToId = -1}) async {
+      {String caption = "", int replyToId = 0}) async {
     String packetId = _getPacketId();
 
     // Create MessageCompanion
