@@ -402,6 +402,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) {
+        if (index == -1) index = 0;
         bool isPendingMessage = (currentRoom.lastMessageId == null)
             ? true
             : _itemCount > currentRoom.lastMessageId &&
@@ -672,7 +673,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget showReceivedMessage(Message message, double _maxWidth,
       int lastMessageId, int pendingMessagesLength) {
-    return SingleChildScrollView(child: Stack(
+    return SingleChildScrollView(
+        child: Stack(
       alignment: AlignmentDirectional.bottomStart,
       children: [
         Row(
