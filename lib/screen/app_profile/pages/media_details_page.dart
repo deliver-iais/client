@@ -26,7 +26,7 @@ class MediaDetailsPage extends StatefulWidget {
   bool hasPermissionToDeletePic = false;
 
   MediaDetailsPage.showMedia(
-      {Key key,this.hasPermissionToDeletePic ,this.uid, this.mediaPosition, this.mediasLength, this.heroTag})
+      {Key key,this.hasPermissionToDeletePic , @required this.uid,@required this.mediaPosition, this.mediasLength, this.heroTag})
       : super(key: key);
 
   MediaDetailsPage.showAvatar(

@@ -1,37 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:audioplayers/audioplayers.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/mediaType.dart';
-//import 'package:deliver_flutter/models/memberType.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
-import 'package:deliver_flutter/repository/memberRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/audio_play_progress.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/audio_progress_indicator.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/play_audio_status.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/load-file-status.dart';
-import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/document_and_File_ui.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/group_Ui_widget.dart';
+import 'package:deliver_flutter/screen/app_profile/widgets/image_ui.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/memberWidget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/music_and_audio_ui.dart';
-import 'package:deliver_flutter/screen/app_profile/widgets/music_play_progress.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/video_tab_ui.dart';
-import 'package:deliver_flutter/services/audio_player_service.dart';
-import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -40,14 +24,9 @@ import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:flutter_link_preview/flutter_link_preview.dart';
-import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
-import 'package:open_file/open_file.dart';
 
 class ProfilePage extends StatefulWidget {
   final Uid userUid;
@@ -93,7 +72,6 @@ class _ProfilePageState extends State<ProfilePage> {
         if (snapshot.hasData) {
           if (snapshot.data.imagesCount != 0) {
             tabsCount = tabsCount + 1;
-            print(snapshot.data);
           }
           if (snapshot.data.videosCount != 0) {
             tabsCount = tabsCount + 1;
@@ -390,8 +368,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ]),
                           ),
                         if (snapshot.data.imagesCount != 0)
-                          imageWidget(widget.userUid, _mediaQueryRepo,
-                              _fileRepo, _fileCache, snapshot.data.imagesCount),
+                          ImageUi(snapshot.data.imagesCount,widget.userUid),
                         if (snapshot.data.videosCount != 0)
                           VideoTabUi(userUid:widget.userUid,videoCount:snapshot.data.videosCount),
                         if (snapshot.data.filesCount != 0)
@@ -426,107 +403,6 @@ class _ProfilePageState extends State<ProfilePage> {
       },
     );
   }
-}
-
-Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo,
-    FileRepo fileRepo, LruCache mediaCache, int imagesCount) {
-  var _routingService = GetIt.I.get<RoutingService>();
-
-  return FutureBuilder<List<Media>>(
-      future: mediaQueryRepo.getMedia(
-          userUid, FetchMediasReq_MediaType.IMAGES, imagesCount),
-      builder: (BuildContext c, AsyncSnapshot snaps) {
-        if (!snaps.hasData ||
-            snaps.data == null ||
-            snaps.connectionState == ConnectionState.waiting) {
-          return Container(width: 0.0, height: 0.0);
-        } else {
-          return GridView.builder(
-              shrinkWrap: true,
-              padding: EdgeInsets.zero,
-              itemCount: imagesCount,
-              scrollDirection: Axis.vertical,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
-              ),
-              itemBuilder: (context, position) {
-                var fileId = jsonDecode(snaps.data[position].json)["uuid"];
-                var fileName = jsonDecode(snaps.data[position].json)["name"];
-                var file = mediaCache.get(fileId);
-                if (file == null)
-                  return FutureBuilder(
-                      future: fileRepo.getFile(fileId, fileName),
-                      builder: (BuildContext c, AsyncSnapshot snaps) {
-                        if (snaps.hasData &&
-                            snaps.data != null &&
-                            snaps.connectionState == ConnectionState.done) {
-                          print(
-                              "*******getfileeeeeeeeeeeeeeeeeee*************$position");
-                          mediaCache.set(fileId, snaps.data);
-                          return GestureDetector(
-                            onTap: () {
-                              _routingService.openShowAllMedia(
-                                uid: userUid,
-                                hasPermissionToDeletePic: true,
-                                mediaPosition: position,
-                                heroTag: "btn$position",
-                                mediasLength: imagesCount,
-                              );
-                            },
-                            child: Hero(
-                              tag: "btn$position",
-                              child: Container(
-                                  decoration: new BoxDecoration(
-                                image: new DecorationImage(
-                                  image: Image.file(
-                                    snaps.data,
-                                  ).image,
-                                  fit: BoxFit.cover,
-                                ),
-                                border: Border.all(
-                                  width: 1,
-                                  color: ExtraTheme.of(context).secondColor,
-                                ),
-                              )),
-                              transitionOnUserGestures: true,
-                            ),
-                          );
-                        } else {
-                          return Container(width: 0.0, height: 0.0);
-                        }
-                      });
-                else {
-                  return GestureDetector(
-                    onTap: () {
-                      _routingService.openShowAllMedia(
-                        uid: userUid,
-                        hasPermissionToDeletePic: true,
-                        mediaPosition: position,
-                        heroTag: "btn$position",
-                        mediasLength: imagesCount,
-                      );
-                    },
-                    child: Hero(
-                      tag: "btn$position",
-                      child: Container(
-                          decoration: new BoxDecoration(
-                        image: new DecorationImage(
-                          image: Image.file(file).image,
-                          fit: BoxFit.cover,
-                        ),
-                        border: Border.all(
-                          width: 1,
-                          color: ExtraTheme.of(context).secondColor,
-                        ),
-                      )),
-                      transitionOnUserGestures: true,
-                    ),
-                  );
-                }
-              });
-        }
-      });
 }
 
 Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {

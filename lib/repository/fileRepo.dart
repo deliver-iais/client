@@ -72,6 +72,7 @@ class FileRepo {
 
   Future<File> getFile(String uuid, String filename,
       {ThumbnailSize thumbnailSize}) async {
+    print("aaaaaaaaakkkssssssssssssssssssssssssss$filename");
     File file =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
     if (file != null) {

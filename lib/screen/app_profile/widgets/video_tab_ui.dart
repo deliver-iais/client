@@ -29,7 +29,8 @@ class VideoTabUi extends StatefulWidget {
 class _VideoTabUiState extends State<VideoTabUi> {
   var mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   var fileRepo = GetIt.I.get<FileRepo>();
-  var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 30));
+  var _isExistCache = LruCache<String, bool>(storage: SimpleStorage(size: 30));
+  var _thumbCache = LruCache<String,File>(storage: SimpleStorage(size: 30));
   Duration duration;
   String videoLength;
 
@@ -51,7 +52,6 @@ class _VideoTabUiState extends State<VideoTabUi> {
                 scrollDirection: Axis.vertical,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
-                  //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
                 ),
                 itemBuilder: (context, position) {
                   var fileId = jsonDecode(snaps.data[position].json)["uuid"];
@@ -67,8 +67,8 @@ class _VideoTabUiState extends State<VideoTabUi> {
                     videoLength =
                         duration.toString().split('.').first.padLeft(8, "0");
                   }
-                  // var file = _fileCache.get(fileId);
-                  // if (file == null)
+                   // var isExist = _isExistCache.get(fileId);
+                   // if (isExist == null)
                   return FutureBuilder<bool>(
                       future: fileRepo.isExist(fileId, fileName),
                       builder: (BuildContext c, AsyncSnapshot videoFile) {
@@ -76,7 +76,10 @@ class _VideoTabUiState extends State<VideoTabUi> {
                             videoFile.data != null &&
                             videoFile.connectionState == ConnectionState.done &&
                             videoFile.data == true) {
-                          //_fileCache.set(fileId, snaps.data);
+
+                          // _isExistCache.set(fileId, videoFile.data);
+                          // var thumb = _thumbCache.get(fileId);
+                          // if(thumb==null)
                           return FutureBuilder<File>(
                               future: fileRepo.getFile(fileId, fileName + "png",
                                   thumbnailSize: ThumbnailSize.small),
@@ -86,6 +89,10 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                     thumbFile.hasData &&
                                     thumbFile.connectionState ==
                                         ConnectionState.done) {
+
+                                  print("FilevideoooooooPosition$position");
+
+                                  // _thumbCache.set(fileId, thumbFile.data);
                                   return VideoThumbnail(
                                       thumbFile.data, videoLength, true);
                                 } else {
@@ -95,9 +102,17 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                   );
                                 }
                               });
+                          // else{
+                          //   return VideoThumbnail(
+                          //       thumb, videoLength, true);
+                          // }
                         } else if (videoFile.data != null &&
                             videoFile.connectionState == ConnectionState.done &&
                             videoFile.data == false) {
+
+                          // _isExistCache.set(fileId, videoFile.data);
+                          // var thumb = _thumbCache.get(fileId);
+                          // if(thumb==null)
                           return FutureBuilder<File>(
                             future: fileRepo.getFile(fileId, fileName + "png",
                                 thumbnailSize: ThumbnailSize.small),
@@ -107,6 +122,9 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                   thumbnailFile.data != null &&
                                   thumbnailFile.connectionState ==
                                       ConnectionState.done) {
+                                print("FilevideoooooooPosition$position");
+
+                                // _thumbCache.set(fileId, thumbnailFile.data);
                                 return VideoThumbnail(
                                     thumbnailFile.data, videoLength, false);
                               } else {
@@ -117,6 +135,10 @@ class _VideoTabUiState extends State<VideoTabUi> {
                               }
                             },
                           );
+                          // else{
+                          //   return VideoThumbnail(
+                          //       thumb, videoLength, false);
+                          // }
                         } else {
                           return Container(
                             width: 0,
@@ -124,6 +146,51 @@ class _VideoTabUiState extends State<VideoTabUi> {
                           );
                         }
                       });
+                   // else{
+                   //      if(isExist==true){
+                   //        return FutureBuilder<File>(
+                   //            future: fileRepo.getFile(fileId, fileName + "png",
+                   //                thumbnailSize: ThumbnailSize.small),
+                   //            builder: (BuildContext buildContext,
+                   //                AsyncSnapshot thumbFile) {
+                   //              print("FilevideoooooooPosition$position");
+                   //              if (thumbFile.data != null &&
+                   //                  thumbFile.hasData &&
+                   //                  thumbFile.connectionState ==
+                   //                      ConnectionState.done) {
+                   //                return VideoThumbnail(
+                   //                    thumbFile.data, videoLength, true);
+                   //              } else {
+                   //                return Container(
+                   //                  width: 0,
+                   //                  height: 0,
+                   //                );
+                   //              }
+                   //            });
+                   //
+                   //      }else{
+                   //        return FutureBuilder<File>(
+                   //          future: fileRepo.getFile(fileId, fileName + "png",
+                   //              thumbnailSize: ThumbnailSize.small),
+                   //          builder:
+                   //              (BuildContext c, AsyncSnapshot thumbnailFile) {
+                   //            print("FileeeeevideoooooooPosition$position");
+                   //            if (thumbnailFile.hasData &&
+                   //                thumbnailFile.data != null &&
+                   //                thumbnailFile.connectionState ==
+                   //                    ConnectionState.done) {
+                   //              return VideoThumbnail(
+                   //                  thumbnailFile.data, videoLength, false);
+                   //            } else {
+                   //              return Container(
+                   //                width: 0,
+                   //                height: 0,
+                   //              );
+                   //            }
+                   //          },
+                   //        );
+                   //      }
+                   // }
                 });
             // else {
             //   return GestureDetector(
@@ -136,23 +203,6 @@ class _VideoTabUiState extends State<VideoTabUi> {
             //     //     mediasLength: imagesCount,
             //     //   );
             //     // },
-            //     child: Hero(
-            //       tag: "btn$position",
-            //       child: Container(
-            //           decoration: new BoxDecoration(
-            //             image: new DecorationImage(
-            //               image: Image.file(file).image,
-            //               fit: BoxFit.cover,
-            //             ),
-            //             border: Border.all(
-            //               width: 1,
-            //               color: ExtraTheme.of(context).secondColor,
-            //             ),
-            //           )),
-            //       transitionOnUserGestures: true,
-            //     ),
-            //   );
-            // }
           }
         });
   }
