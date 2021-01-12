@@ -399,6 +399,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) {
+        if(index<0)index=0;
         _lastSeenDao.insertLastSeen(LastSeen(
             roomId: widget.roomId, messageId: _currentRoom.lastMessageId));
         bool isPendingMessage = (currentRoom.lastMessageId == null)
