@@ -10,7 +10,7 @@ import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/document_and_File_ui.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/group_Ui_widget.dart';
-import 'package:deliver_flutter/screen/app_profile/widgets/image_ui.dart';
+import 'package:deliver_flutter/screen/app_profile/widgets/image_tab_ui.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/memberWidget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/music_and_audio_ui.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/video_tab_ui.dart';
@@ -48,7 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
 
-  int tabsCount;
+  // int tabsCount;
   var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 30));
   @override
   void initState() {
@@ -65,10 +65,12 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
 
+
     return StreamBuilder(
       stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
       builder: (context, snapshot) {
-        tabsCount = 0;
+        int tabsCount = 0;
+
         if (snapshot.hasData) {
           if (snapshot.data.imagesCount != 0) {
             tabsCount = tabsCount + 1;

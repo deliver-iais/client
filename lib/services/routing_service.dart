@@ -85,7 +85,7 @@ class RoutingService {
       {Uid uid, bool hasPermissionToDeleteAvatar, String heroTag}) {
     var widget = MediaDetailsPage.showAvatar(
       key: ValueKey("/media-details"),
-      uid: uid,
+      userUid: uid,
       hasPermissionToDeletePic: hasPermissionToDeleteAvatar,
       heroTag: heroTag
     );
@@ -101,7 +101,7 @@ class RoutingService {
   void openShowAllMedia({Uid uid,bool hasPermissionToDeletePic,int mediaPosition, int mediasLength, String heroTag}) {
     var widget = MediaDetailsPage.showMedia(
       key: ValueKey("/media-details"),
-      uid: uid,
+      userUid: uid,
       hasPermissionToDeletePic: hasPermissionToDeletePic,
       mediaPosition: mediaPosition,
       mediasLength: mediasLength,

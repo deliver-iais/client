@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
@@ -19,11 +21,14 @@ class ImageUi extends StatefulWidget {
 }
 
 class _ImageUiState extends State<ImageUi> {
+  var fileId;
+  var fileName;
   @override
   Widget build(BuildContext context) {
     var _routingService = GetIt.I.get<RoutingService>();
     var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
     var _fileRepo = GetIt.I.get<FileRepo>();
+    var fileCache =LruCache<String,File>(storage: SimpleStorage(size: 5));
 
     return FutureBuilder<List<Media>>(
         future: _mediaQueryRepo.getMedia(widget.userUid,
@@ -44,14 +49,17 @@ class _ImageUiState extends State<ImageUi> {
                   //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
                 ),
                 itemBuilder: (context, position) {
-                  var fileId = jsonDecode(snaps.data[position].json)["uuid"];
-                  var fileName = jsonDecode(snaps.data[position].json)["name"];
+                   fileId = jsonDecode(snaps.data[position].json)["uuid"];
+                   fileName = jsonDecode(snaps.data[position].json)["name"];
+                   // var file = fileCache.get(fileId);
+                   // if(file==null)
                   return FutureBuilder(
                       future: _fileRepo.getFile(fileId, fileName),
                       builder: (BuildContext c, AsyncSnapshot snaps) {
                         if (snaps.hasData &&
                             snaps.data != null &&
                             snaps.connectionState == ConnectionState.done) {
+                          // fileCache.set(fileId, snaps.data);
                           print(
                               "*******getfileeeeeeeeeeeeeeeeeee*************$position");
                           return GestureDetector(
@@ -86,6 +94,36 @@ class _ImageUiState extends State<ImageUi> {
                           return Container(width: 0.0, height: 0.0);
                         }
                       });
+                  // else{
+                   //   return GestureDetector(
+                   //     onTap: () {
+                   //       _routingService.openShowAllMedia(
+                   //         uid: widget.userUid,
+                   //         hasPermissionToDeletePic: true,
+                   //         mediaPosition: position,
+                   //         heroTag: "btn$position",
+                   //         mediasLength: widget.imagesCount,
+                   //       );
+                   //     },
+                   //     child: Hero(
+                   //       tag: "btn$position",
+                   //       child: Container(
+                   //           decoration: new BoxDecoration(
+                   //             image: new DecorationImage(
+                   //               image: Image.file(
+                   //                 file,
+                   //               ).image,
+                   //               fit: BoxFit.cover,
+                   //             ),
+                   //             border: Border.all(
+                   //               width: 1,
+                   //               color: ExtraTheme.of(context).secondColor,
+                   //             ),
+                   //           )),
+                   //       transitionOnUserGestures: true,
+                   //     ),
+                   //   );
+                   // }
                 });
           }
         });

@@ -21,21 +21,27 @@ class MediaDetailsPage extends StatefulWidget {
   String heroTag;
   int mediaPosition;
   int mediasLength;
-  Uid uid;
+  Uid userUid;
   bool isAvatar = false;
+  bool isVideo=false;
   bool hasPermissionToDeletePic = false;
 
   MediaDetailsPage.showMedia(
-      {Key key,this.hasPermissionToDeletePic , @required this.uid,@required this.mediaPosition, this.mediasLength, this.heroTag})
+      {Key key,this.hasPermissionToDeletePic , @required this.userUid,@required this.mediaPosition, this.mediasLength, this.heroTag})
       : super(key: key);
 
   MediaDetailsPage.showAvatar(
       {Key key,
-      this.uid,
+      this.userUid,
       this.hasPermissionToDeletePic = false,
       this.heroTag})
       : super(key: key) {
     this.isAvatar = true;
+  }
+
+  MediaDetailsPage.showVideo({Key key,@required this.userUid,@required this.mediaPosition,@required this.mediasLength})
+      :super(key: key){
+    this.isVideo=true;
   }
 
   @override
@@ -71,7 +77,10 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   Widget build(BuildContext context) {
     if (widget.isAvatar == true) {
       return buildAvatar(context);
-    } else {
+    } else if(widget.isVideo==true){
+      return buildVideo(context);
+    }
+    else {
       return buildMedia(context);
     }
   }
@@ -81,7 +90,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     return Scaffold(
       body: Container(
         child: StreamBuilder<List<Avatar>>(
-            stream: _avatarRepo.getAvatar(widget.uid, false),
+            stream: _avatarRepo.getAvatar(widget.userUid, false),
             builder: (cont, snapshot) {
               if (!snapshot.hasData || snapshot.data == null) {
                 return Center();
@@ -198,7 +207,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             if (media == null) {
               widget.heroTag = "btn$i";
               return FutureBuilder<List<Media>>(
-                  future: _mediaQueryRepo.getMediaAround(widget.uid.asString(), i,
+                  future: _mediaQueryRepo.getMediaAround(widget.userUid.asString(), i,
                       FetchMediasReq_MediaType.IMAGES.value),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData || snapshot.data == null) {
@@ -364,6 +373,20 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           viewportFraction: 1.0,
           scale: 0.9,
           loop: false,
+        ),
+      ),
+    );
+  }
+
+  Widget buildVideo(BuildContext context){
+    return Scaffold(
+      body: Container(
+        child: Swiper(
+            scrollDirection: Axis.horizontal,
+            index: widget.mediaPosition,
+            itemBuilder: (context, i) {
+
+            }
         ),
       ),
     );
