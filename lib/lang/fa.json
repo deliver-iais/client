@@ -131,5 +131,8 @@
   "create_channel": "کانال  را ایجاد کرد",
   "create_group": "گروه را ساخت.",
   "cancel": "لغو",
-  "disconnect": "قطع اتصال"
+  "disconnect": "قطع اتصال",
+  "isTyping": "در حال نوشتن...",
+  "sendingFileActivity":"در حال ار سال فایل...",
+  "recordAudioActivity": "در حال ضبط صدا..."
 }

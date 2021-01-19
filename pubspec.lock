@@ -285,11 +285,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.7.0-pre.20"
-      resolved-ref: "22b24216448d9ec19d29d050f2a848ab78e56138"
+      ref: "tags/v1.7.0-pre.24"
+      resolved-ref: f25a7dfc901a7618b448a0efb122f22dbfe9449f
       url: "https://gitlab.iais.co/deliver/protocol/pub-dart-artifactory.git"
     source: git
-    version: "1.7.0-pre.20"
+    version: "1.7.0-pre.24"
   device_info:
     dependency: "direct main"
     description:

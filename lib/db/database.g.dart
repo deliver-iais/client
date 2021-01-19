@@ -718,12 +718,14 @@ class Room extends DataClass implements Insertable<Room> {
   final bool mentioned;
   final int lastMessageId;
   final bool mute;
+  final DateTime lastActivity;
   final int lastMessageDbId;
   Room(
       {@required this.roomId,
       this.mentioned,
       this.lastMessageId,
       @required this.mute,
+      this.lastActivity,
       this.lastMessageDbId});
   factory Room.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
@@ -731,6 +733,7 @@ class Room extends DataClass implements Insertable<Room> {
     final stringType = db.typeSystem.forDartType<String>();
     final boolType = db.typeSystem.forDartType<bool>();
     final intType = db.typeSystem.forDartType<int>();
+    final dateTimeType = db.typeSystem.forDartType<DateTime>();
     return Room(
       roomId:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
@@ -739,6 +742,8 @@ class Room extends DataClass implements Insertable<Room> {
       lastMessageId: intType
           .mapFromDatabaseResponse(data['${effectivePrefix}last_message_id']),
       mute: boolType.mapFromDatabaseResponse(data['${effectivePrefix}mute']),
+      lastActivity: dateTimeType
+          .mapFromDatabaseResponse(data['${effectivePrefix}last_activity']),
       lastMessageDbId: intType.mapFromDatabaseResponse(
           data['${effectivePrefix}last_message_db_id']),
     );
@@ -758,6 +763,9 @@ class Room extends DataClass implements Insertable<Room> {
     if (!nullToAbsent || mute != null) {
       map['mute'] = Variable<bool>(mute);
     }
+    if (!nullToAbsent || lastActivity != null) {
+      map['last_activity'] = Variable<DateTime>(lastActivity);
+    }
     if (!nullToAbsent || lastMessageDbId != null) {
       map['last_message_db_id'] = Variable<int>(lastMessageDbId);
     }
@@ -775,6 +783,9 @@ class Room extends DataClass implements Insertable<Room> {
           ? const Value.absent()
           : Value(lastMessageId),
       mute: mute == null && nullToAbsent ? const Value.absent() : Value(mute),
+      lastActivity: lastActivity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastActivity),
       lastMessageDbId: lastMessageDbId == null && nullToAbsent
           ? const Value.absent()
           : Value(lastMessageDbId),
@@ -789,6 +800,7 @@ class Room extends DataClass implements Insertable<Room> {
       mentioned: serializer.fromJson<bool>(json['mentioned']),
       lastMessageId: serializer.fromJson<int>(json['lastMessageId']),
       mute: serializer.fromJson<bool>(json['mute']),
+      lastActivity: serializer.fromJson<DateTime>(json['lastActivity']),
       lastMessageDbId: serializer.fromJson<int>(json['lastMessageDbId']),
     );
   }
@@ -800,6 +812,7 @@ class Room extends DataClass implements Insertable<Room> {
       'mentioned': serializer.toJson<bool>(mentioned),
       'lastMessageId': serializer.toJson<int>(lastMessageId),
       'mute': serializer.toJson<bool>(mute),
+      'lastActivity': serializer.toJson<DateTime>(lastActivity),
       'lastMessageDbId': serializer.toJson<int>(lastMessageDbId),
     };
   }
@@ -809,12 +822,14 @@ class Room extends DataClass implements Insertable<Room> {
           bool mentioned,
           int lastMessageId,
           bool mute,
+          DateTime lastActivity,
           int lastMessageDbId}) =>
       Room(
         roomId: roomId ?? this.roomId,
         mentioned: mentioned ?? this.mentioned,
         lastMessageId: lastMessageId ?? this.lastMessageId,
         mute: mute ?? this.mute,
+        lastActivity: lastActivity ?? this.lastActivity,
         lastMessageDbId: lastMessageDbId ?? this.lastMessageDbId,
       );
   @override
@@ -824,6 +839,7 @@ class Room extends DataClass implements Insertable<Room> {
           ..write('mentioned: $mentioned, ')
           ..write('lastMessageId: $lastMessageId, ')
           ..write('mute: $mute, ')
+          ..write('lastActivity: $lastActivity, ')
           ..write('lastMessageDbId: $lastMessageDbId')
           ..write(')'))
         .toString();
@@ -834,8 +850,10 @@ class Room extends DataClass implements Insertable<Room> {
       roomId.hashCode,
       $mrjc(
           mentioned.hashCode,
-          $mrjc(lastMessageId.hashCode,
-              $mrjc(mute.hashCode, lastMessageDbId.hashCode)))));
+          $mrjc(
+              lastMessageId.hashCode,
+              $mrjc(mute.hashCode,
+                  $mrjc(lastActivity.hashCode, lastMessageDbId.hashCode))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -844,6 +862,7 @@ class Room extends DataClass implements Insertable<Room> {
           other.mentioned == this.mentioned &&
           other.lastMessageId == this.lastMessageId &&
           other.mute == this.mute &&
+          other.lastActivity == this.lastActivity &&
           other.lastMessageDbId == this.lastMessageDbId);
 }
 
@@ -852,12 +871,14 @@ class RoomsCompanion extends UpdateCompanion<Room> {
   final Value<bool> mentioned;
   final Value<int> lastMessageId;
   final Value<bool> mute;
+  final Value<DateTime> lastActivity;
   final Value<int> lastMessageDbId;
   const RoomsCompanion({
     this.roomId = const Value.absent(),
     this.mentioned = const Value.absent(),
     this.lastMessageId = const Value.absent(),
     this.mute = const Value.absent(),
+    this.lastActivity = const Value.absent(),
     this.lastMessageDbId = const Value.absent(),
   });
   RoomsCompanion.insert({
@@ -865,6 +886,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     this.mentioned = const Value.absent(),
     this.lastMessageId = const Value.absent(),
     this.mute = const Value.absent(),
+    this.lastActivity = const Value.absent(),
     this.lastMessageDbId = const Value.absent(),
   }) : roomId = Value(roomId);
   static Insertable<Room> custom({
@@ -872,6 +894,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     Expression<bool> mentioned,
     Expression<int> lastMessageId,
     Expression<bool> mute,
+    Expression<DateTime> lastActivity,
     Expression<int> lastMessageDbId,
   }) {
     return RawValuesInsertable({
@@ -879,6 +902,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
       if (mentioned != null) 'mentioned': mentioned,
       if (lastMessageId != null) 'last_message_id': lastMessageId,
       if (mute != null) 'mute': mute,
+      if (lastActivity != null) 'last_activity': lastActivity,
       if (lastMessageDbId != null) 'last_message_db_id': lastMessageDbId,
     });
   }
@@ -888,12 +912,14 @@ class RoomsCompanion extends UpdateCompanion<Room> {
       Value<bool> mentioned,
       Value<int> lastMessageId,
       Value<bool> mute,
+      Value<DateTime> lastActivity,
       Value<int> lastMessageDbId}) {
     return RoomsCompanion(
       roomId: roomId ?? this.roomId,
       mentioned: mentioned ?? this.mentioned,
       lastMessageId: lastMessageId ?? this.lastMessageId,
       mute: mute ?? this.mute,
+      lastActivity: lastActivity ?? this.lastActivity,
       lastMessageDbId: lastMessageDbId ?? this.lastMessageDbId,
     );
   }
@@ -913,6 +939,9 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     if (mute.present) {
       map['mute'] = Variable<bool>(mute.value);
     }
+    if (lastActivity.present) {
+      map['last_activity'] = Variable<DateTime>(lastActivity.value);
+    }
     if (lastMessageDbId.present) {
       map['last_message_db_id'] = Variable<int>(lastMessageDbId.value);
     }
@@ -926,6 +955,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
           ..write('mentioned: $mentioned, ')
           ..write('lastMessageId: $lastMessageId, ')
           ..write('mute: $mute, ')
+          ..write('lastActivity: $lastActivity, ')
           ..write('lastMessageDbId: $lastMessageDbId')
           ..write(')'))
         .toString();
@@ -980,6 +1010,20 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
         defaultValue: Constant(false));
   }
 
+  final VerificationMeta _lastActivityMeta =
+      const VerificationMeta('lastActivity');
+  GeneratedDateTimeColumn _lastActivity;
+  @override
+  GeneratedDateTimeColumn get lastActivity =>
+      _lastActivity ??= _constructLastActivity();
+  GeneratedDateTimeColumn _constructLastActivity() {
+    return GeneratedDateTimeColumn(
+      'last_activity',
+      $tableName,
+      true,
+    );
+  }
+
   final VerificationMeta _lastMessageDbIdMeta =
       const VerificationMeta('lastMessageDbId');
   GeneratedIntColumn _lastMessageDbId;
@@ -993,7 +1037,7 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
 
   @override
   List<GeneratedColumn> get $columns =>
-      [roomId, mentioned, lastMessageId, mute, lastMessageDbId];
+      [roomId, mentioned, lastMessageId, mute, lastActivity, lastMessageDbId];
   @override
   $RoomsTable get asDslTable => this;
   @override
@@ -1024,6 +1068,12 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
     if (data.containsKey('mute')) {
       context.handle(
           _muteMeta, mute.isAcceptableOrUnknown(data['mute'], _muteMeta));
+    }
+    if (data.containsKey('last_activity')) {
+      context.handle(
+          _lastActivityMeta,
+          lastActivity.isAcceptableOrUnknown(
+              data['last_activity'], _lastActivityMeta));
     }
     if (data.containsKey('last_message_db_id')) {
       context.handle(

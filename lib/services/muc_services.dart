@@ -95,7 +95,10 @@ class MucServices {
   Future<List<Member>> getGroupMembers(
       Uid groupUid, int limit, int pointer) async {
     var request = await groupServices.getMembers(
-        GroupServices.GetMembersReq()..uid = groupUid,
+        GroupServices.GetMembersReq()
+          ..uid = groupUid
+          ..pointer = pointer
+          ..limit = limit,
         options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
     return request.members;
@@ -262,10 +265,14 @@ class MucServices {
       Uid channelUid, int limit, int pointer) async {
     try {
       var request = await channelServices.getMembers(
-          ChannelServices.GetMembersReq()..uid = channelUid,
+          ChannelServices.GetMembersReq()
+            ..uid = channelUid
+            ..limit = limit
+            ..pointer = pointer,
           options: CallOptions(
               timeout: Duration(seconds: 2),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      print(request.members.toString());
       return request.members;
     } catch (e) {
       return null;

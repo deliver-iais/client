@@ -59,8 +59,9 @@ class MucRepo {
 
   getGroupMembers(Uid groupUid) async {
     try {
-      var result = await mucServices.getGroupMembers(groupUid, 1, 1);
+      var result = await mucServices.getGroupMembers(groupUid, 10, 1);
       List<Member> members = new List();
+
       for (MucPro.Member member in result) {
         members.add(await fetchMemberNameAndUsername(Member(
             mucUid: groupUid.asString(),
@@ -74,8 +75,10 @@ class MucRepo {
   }
 
   getChannelMembers(Uid channelUid) async {
+
+    //todo none role
     try {
-      var result = await mucServices.getChannelMembers(channelUid, 1, 1);
+      var result = await mucServices.getChannelMembers(channelUid, 10, 1);
       List<Member> members = new List();
       for (MucPro.Member member in result) {
         members.add(await fetchMemberNameAndUsername(Member(

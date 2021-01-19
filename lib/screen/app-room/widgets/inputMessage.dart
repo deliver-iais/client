@@ -9,6 +9,7 @@ import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ import 'package:flutter_timer/flutter_timer.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:random_string/random_string.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
@@ -66,6 +68,11 @@ class _InputMessageWidget extends State<InputMessage> {
 
   bool startAudioRecorder = false;
 
+  Subject<ActivityType> isTypingSubject =
+      BehaviorSubject.seeded(ActivityType.NO_ACTIVITY);
+  Subject<ActivityType> noActivitySubject =
+      BehaviorSubject.seeded(ActivityType.NO_ACTIVITY);
+
   void showButtonSheet() {
     if (isDesktop()) {
       _attachFileInWindowsMode();
@@ -77,11 +84,10 @@ class _InputMessageWidget extends State<InputMessage> {
           backgroundColor: Colors.transparent,
           builder: (context) {
             return ShareBox(
-              currentRoomId: currentRoom.roomId.uid,
-              replyMessageId: widget.replyMessageId,
-              resetRoomPageDetails: widget.resetRoomPageDetails,
-                scrollToLastSentMessage:widget.scrollToLastSentMessage
-            );
+                currentRoomId: currentRoom.roomId.uid,
+                replyMessageId: widget.replyMessageId,
+                resetRoomPageDetails: widget.resetRoomPageDetails,
+                scrollToLastSentMessage: widget.scrollToLastSentMessage);
           });
     }
   }
@@ -89,6 +95,14 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   void initState() {
     super.initState();
+    isTypingSubject.listen((activityType) {
+      messageRepo.sendActivityMessage(
+          widget.currentRoom.roomId.getUid(), activityType);
+    });
+    noActivitySubject.debounceTime(Duration(seconds: 3)).listen((event) {
+      messageRepo.sendActivityMessage(
+          widget.currentRoom.roomId.getUid(), ActivityType.NO_ACTIVITY);
+    });
     controller = TextEditingController();
     currentRoom = widget.currentRoom;
   }
@@ -171,10 +185,10 @@ class _InputMessageWidget extends State<InputMessage> {
                                     });
                                   },
                                 ),
-
                                 Container(
                                   child: Flexible(
-                                    child: SizedBox(child:  TextField(
+                                    child: SizedBox(
+                                        child: TextField(
                                       // onTap: () {
                                       //   showEmoji = false;
                                       // },
@@ -185,6 +199,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                       controller: controller,
                                       onSubmitted: null,
                                       onChanged: (str) {
+                                        isTypingSubject
+                                            .add(ActivityType.TYPING);
                                         onChange(str);
                                       },
                                       decoration: InputDecoration.collapsed(
@@ -223,6 +239,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                                         false)
                                             ? () async {}
                                             : () {
+                                                isTypingSubject.add(
+                                                    ActivityType.NO_ACTIVITY);
                                                 if (widget.waitingForForward ==
                                                     true) {
                                                   widget.sendForwardMessage();
@@ -412,7 +430,7 @@ class _InputMessageWidget extends State<InputMessage> {
     );
   }
 
-  void onChange(String str)  {
+  void onChange(String str) {
     messageText = str;
     if (str.isEmpty) {
       _showMentionList = false;

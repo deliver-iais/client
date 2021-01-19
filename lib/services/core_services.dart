@@ -56,6 +56,7 @@ class CoreServices {
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _routingServices = GetIt.I.get<RoutingService>();
 
+
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
 
@@ -185,10 +186,10 @@ class CoreServices {
     }
   }
 
-  sendActivityMessage(ActivityByClient activity) {
+  sendActivityMessage(ActivityByClient activity,String id) {
     _clientPacket.add(ClientPacket()
       ..activity = activity
-      ..id = "1");
+      ..id = id);
   }
 
   _saveSeenMessage(Seen seen) {
@@ -213,7 +214,9 @@ class CoreServices {
         roomId: roomId.asString()));
   }
 
-  _saveActivityMessage(Activity activity) {}
+  _saveActivityMessage(Activity activity) {
+    _roomRepo.updateActivity(activity);
+  }
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
     if (messageDeliveryAck.id.toInt() == 0) {

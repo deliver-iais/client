@@ -8,11 +8,13 @@ import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:moor/moor.dart';
+import 'package:rxdart/rxdart.dart';
 
 class RoomRepo {
   Cache _roomNameCache =
@@ -22,6 +24,7 @@ class RoomRepo {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
+  Map<Uid, BehaviorSubject<Activity>> activityObject = Map() ;
 
   Future<String> getRoomDisplayName(Uid roomUid) async {
     switch (roomUid.category) {
@@ -75,6 +78,10 @@ class RoomRepo {
       return username;
     }
     return "Unknown";
+  }
+
+  void updateActivity (Activity activity){
+    activityObject[activity.to ].add(activity);
   }
 
   updateRoomName(Uid uid, String name) {
