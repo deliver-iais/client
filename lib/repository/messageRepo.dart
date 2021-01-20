@@ -15,9 +15,9 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
-as FileProto;
+    as FileProto;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
-as MessageProto;
+    as MessageProto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user_room_meta.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
@@ -54,15 +54,14 @@ class MessageRepo {
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
-  var _roomRepo = GetIt.I.get<RoomRepo>();
 
   var _coreServices = GetIt.I.get<CoreServices>();
 
   final QueryServiceClient _queryServiceClient =
-  GetIt.I.get<QueryServiceClient>();
+      GetIt.I.get<QueryServiceClient>();
 
   BehaviorSubject<TitleStatusConditions> updatingStatus =
-  BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
+      BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
 
   MessageRepo() {
     _coreServices.connectionStatus.listen((mode) {
@@ -95,7 +94,7 @@ class MessageRepo {
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
         var room =
-        await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.asString());
+            await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.asString());
         if (room != null &&
             room.lastMessageId != null &&
             room.lastMessageId >= userRoomMeta.lastMessageId.toInt() &&
@@ -113,7 +112,7 @@ class MessageRepo {
                 'accessToken': await _accountRepo.getAccessToken()
               }));
           List<Message> messages =
-          await _saveFetchMessages(fetchMessagesRes.messages);
+              await _saveFetchMessages(fetchMessagesRes.messages);
 
           // TODO if there is Pending Message this line has a bug!!
           print(fetchMessagesRes.messages.toString());
@@ -136,8 +135,7 @@ class MessageRepo {
   sendTextMessage(Uid room, String text,
       {int replyId, String forwardedFromAsString}) async {
     String packetId = _getPacketId();
-    String json = (MessageProto.Text()
-      ..text = text).writeToJson();
+    String json = (MessageProto.Text()..text = text).writeToJson();
     MessagesCompanion message = MessagesCompanion.insert(
       roomId: room.asString(),
       packetId: packetId,
@@ -165,8 +163,8 @@ class MessageRepo {
       {String forwardedFromAsString}) async {
     String packetId = _getPacketId();
     String json = (MessageProto.Location()
-      ..longitude = locationData.longitude
-      ..latitude = locationData.latitude)
+          ..longitude = locationData.longitude
+          ..latitude = locationData.latitude)
         .writeToJson();
     MessagesCompanion message = MessagesCompanion.insert(
       roomId: room.asString(),
@@ -193,6 +191,7 @@ class MessageRepo {
   sendFileMessage(Uid room, String path,
       {String caption = "", int replyToId = 0}) async {
     String packetId = _getPacketId();
+    _fileRepo.initUploadProgress(packetId);
 
     // Create MessageCompanion
     var file = DartFile.File(path);
@@ -207,9 +206,7 @@ class MessageRepo {
     }
 
     // Get type with file name
-    final tempFileSize = file
-        .statSync()
-        .size;
+    final tempFileSize = file.statSync().size;
 
     FileProto.File sendingFakeFile = FileProto.File()
       ..uuid = packetId
@@ -218,15 +215,11 @@ class MessageRepo {
       ..height = tempDimension.height
       ..type = tempType
       ..size = Int64(tempFileSize)
-      ..name = path
-          .split(".")
-          .last
+      ..name = path.split(".").last
       ..duration = 0;
 
     await _fileRepo.cloneFileInLocalDirectory(
-        file, packetId, path
-        .split('.')
-        .last);
+        file, packetId, path.split('.').last);
 
     MessagesCompanion message = MessagesCompanion.insert(
         roomId: room.asString(),
@@ -258,7 +251,7 @@ class MessageRepo {
     var pendingMessage = await _pendingMessageDao.getByMessageDbId(dbId);
 
     if (!_canPendingMessageResendAndDecreaseRemainingRetries(
-        pendingMessage, message) ||
+            pendingMessage, message) ||
         pendingMessage.status != SendingStatus.SENDING_FILE) {
       return;
     }
@@ -269,8 +262,8 @@ class MessageRepo {
     var roomId = message.roomId;
 
     // Upload to file server
-    FileProto.File fileInfo =
-    await _fileRepo.uploadClonedFile(packetId, fakeFileInfo.name,sendActivity: (){
+    FileProto.File fileInfo = await _fileRepo
+        .uploadClonedFile(packetId, fakeFileInfo.name, sendActivity: () {
       sendActivityMessage(message.to.uid, ActivityType.SENDING_FILE);
     });
 
@@ -295,7 +288,7 @@ class MessageRepo {
     var message = await _messageDao.getPendingMessage(dbId);
     var pendingMessage = await _pendingMessageDao.getByMessageDbId(dbId);
     if (!_canPendingMessageResendAndDecreaseRemainingRetries(
-        pendingMessage, message) ||
+            pendingMessage, message) ||
         pendingMessage.status != SendingStatus.PENDING) {
       return;
     }
@@ -369,7 +362,7 @@ class MessageRepo {
   @visibleForTesting
   sendPendingMessages() async {
     List<PendingMessage> pendingMessages =
-    await _pendingMessageDao.getAllPendingMessages();
+        await _pendingMessageDao.getAllPendingMessages();
     for (var pendingMessage in pendingMessages) {
       switch (pendingMessage.status) {
         case SendingStatus.SENDING_FILE:
@@ -500,16 +493,16 @@ class MessageRepo {
     if (to.category == Categories.GROUP || to.category == Categories.USER) {
       ActivityByClient activityByClient = ActivityByClient()
         ..typeOfActivity = activityType
-        ..to =to;
+        ..to = to;
       _coreServices.sendActivityMessage(activityByClient, _getPacketId());
     }
   }
 
   void getLastActivityTime(Uid currentRoomUid) async {
     var lastActivityTime = await _queryServiceClient.getLastActivity(
-        GetLastActivityReq()
-          ..uid = currentRoomUid, options: CallOptions(
-        metadata: {"accessToken": await _accountRepo.getAccessToken()}));
+        GetLastActivityReq()..uid = currentRoomUid,
+        options: CallOptions(
+            metadata: {"accessToken": await _accountRepo.getAccessToken()}));
     if (lastActivityTime != null) {
       _roomDao.updateRoom(RoomsCompanion(
           roomId: Value(currentRoomUid.asString()),

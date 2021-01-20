@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -92,17 +93,20 @@ class FileService {
     file.writeAsBytesSync(res.data);
     return file;
   }
+  void initUpoadProgrss(String uploadId){
+    BehaviorSubject<double> behaviorSubject = BehaviorSubject();
+    filesUploadStatus[uploadId] = behaviorSubject;
+
+  }
+
 
   // TODO, refactoring needed
   uploadFile(String filePath, {String uploadKey, Function sendActivity}) async {
-    BehaviorSubject<double> behaviorSubject = BehaviorSubject();
     _dio.interceptors
         .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
       options.onSendProgress = (int i, int j) {
         sendActivity();
-        behaviorSubject.add((i / j));
-        print("upload progress ${(i / j)}");
-        filesUploadStatus[uploadKey] = behaviorSubject;
+        filesUploadStatus[uploadKey].add((i/j)) ;
       };
       return options; //continue
     }));

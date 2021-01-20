@@ -7,6 +7,7 @@ import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/UsernameDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/localSearchResult.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 
@@ -86,28 +87,27 @@ class RoomRepo {
 
   Future<String> _searchByUid(Uid uid) async {
     String username = await _contactRepo.searchUserByUid(uid);
-    if (username != null) {
-      _usernameDao
-          .insertUsername(Username(uid: uid.asString(), username: username));
-      return username;
-    }
-    return "Unknown";
+    _usernameDao
+        .insertUsername(Username(uid: uid.asString(), username: username));
+    return username;
   }
 
   void updateActivity(Activity activity) {
-    if (activityObject[activity.from.node] == null) {
+    Uid roomUid =
+        activity.to.category == Categories.GROUP ? activity.to : activity.from;
+    if (activityObject[roomUid.node] == null) {
       BehaviorSubject<Activity> subject = BehaviorSubject();
       subject.add(activity);
-      activityObject[activity.from.node] = subject;
+      activityObject[roomUid.node] = subject;
     } else {
-      activityObject[activity.from.node].add(activity);
+      activityObject[roomUid.node].add(activity);
       if (activity.typeOfActivity != ActivityType.NO_ACTIVITY)
         Timer(Duration(seconds: 10), () {
           Activity noActivity = Activity()
             ..from = activity.from
             ..typeOfActivity = ActivityType.NO_ACTIVITY
             ..to = activity.to;
-          activityObject[activity.from.node].add(noActivity);
+          activityObject[roomUid.node].add(noActivity);
         });
     }
   }

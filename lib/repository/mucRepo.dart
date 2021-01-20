@@ -59,7 +59,7 @@ class MucRepo {
 
   getGroupMembers(Uid groupUid) async {
     try {
-      var result = await mucServices.getGroupMembers(groupUid, 10, 1);
+      var result = await mucServices.getGroupMembers(groupUid, 10, 0);
       List<Member> members = new List();
 
       for (MucPro.Member member in result) {
@@ -75,10 +75,9 @@ class MucRepo {
   }
 
   getChannelMembers(Uid channelUid) async {
-
     //todo none role
     try {
-      var result = await mucServices.getChannelMembers(channelUid, 10, 1);
+      var result = await mucServices.getChannelMembers(channelUid, 10, 0);
       List<Member> members = new List();
       for (MucPro.Member member in result) {
         members.add(await fetchMemberNameAndUsername(Member(
@@ -111,14 +110,15 @@ class MucRepo {
   Future<String> fetchMucInfo(Uid mucUid) async {
     if (mucUid.category == Categories.GROUP) {
       MucPro.GetGroupRes group = await getGroupInfo(mucUid);
-      if (group != null)
+      if (group != null) {
         _mucDao.insertMuc(Muc(
           name: group.info.name,
           members: group.population.toInt(),
           uid: mucUid.asString(),
         ));
-      getGroupMembers(mucUid);
-      return group.info.name;
+        getGroupMembers(mucUid);
+        return group.info.name;
+      }
     } else {
       GetChannelRes channel = await getChannelInfo(mucUid);
       if (channel != null)
@@ -378,6 +378,8 @@ class MucRepo {
         break;
       case Role.OWNER:
         return MucRole.OWNER;
+      case Role.NONE:
+        return MucRole.NONE;
     }
     throw Exception("Not Valid Role! $role");
   }

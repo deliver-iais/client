@@ -88,14 +88,6 @@ class _TitleStatusState extends State<TitleStatus> {
               case ActivityType.NO_ACTIVITY:
                 return _showLastActivity();
                 break;
-              case ActivityType.TYPING:
-                break;
-
-              case ActivityType.RECORDING_VOICE:
-                break;
-
-              case ActivityType.SENDING_FILE:
-                break;
             }
           });
         } else {

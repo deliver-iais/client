@@ -58,7 +58,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
+  //  _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
   }
 
 
@@ -71,7 +71,6 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context, snapshot) {
         tabsCount = 0;
         if (snapshot.hasData) {
-          print("mediaaaaaaaaaaaaaaaaaaaaCounttttttttttttttttt${snapshot.data.imagesCount}");
 
           if (snapshot.data.imagesCount != 0) {
             tabsCount = tabsCount + 1;

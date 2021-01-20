@@ -17,7 +17,7 @@ class UsernameDao extends DatabaseAccessor<Database> with _$UsernameDaoMixin {
   }
 
  Future<Username> getUsername (String uid){
-    (select(usernames)..where((tbl) => tbl.uid.equals(uid))).getSingle();
+    return(select(usernames)..where((tbl) => tbl.uid.equals(uid))).getSingle();
   }
 
 }

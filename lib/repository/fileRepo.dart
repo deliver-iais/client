@@ -110,4 +110,8 @@ class FileRepo {
   Future<FileInfo> _getFileInfoInDB(String size, String uuid) async {
     return await _fileDao.getFileInfo(uuid, enumToString(size));
   }
+
+  void initUploadProgress(String uploadId) {
+    _fileService.initUpoadProgrss(uploadId);
+  }
 }

@@ -35,7 +35,7 @@ class ActivityStatuse extends StatelessWidget {
             builder: (c, s) {
               if (s.hasData && s.data != null) {
                 return Text(
-                  "$s ${appLocalization.getTraslateValue('isTyping')} ",
+                  "${s.data} ${appLocalization.getTraslateValue('isTyping')} ",
                   style: textStyle(),
                 );
               } else {
@@ -57,7 +57,7 @@ class ActivityStatuse extends StatelessWidget {
             builder: (c, s) {
               if (s.hasData && s.data != null) {
                 return Text(
-                  "$s ${appLocalization.getTraslateValue('recordAudioActivity')} ",
+                  "${s.data} ${appLocalization.getTraslateValue('recordAudioActivity')} ",
                   style: textStyle(),
                 );
               } else {
@@ -79,7 +79,7 @@ class ActivityStatuse extends StatelessWidget {
             builder: (c, s) {
               if (s.hasData && s.data != null) {
                 return Text(
-                  "$s ${appLocalization.getTraslateValue('sendingFileActivity')} ",
+                  "${s.data} ${appLocalization.getTraslateValue('sendingFileActivity')} ",
                   style: textStyle(),
                 );
               } else {
@@ -95,11 +95,6 @@ class ActivityStatuse extends StatelessWidget {
           style: textStyle(),
         );
       }
-    } else {
-      return Text(
-        appLocalization.getTraslateValue("sendingFileActivity"),
-        style: textStyle(),
-      );
     }
   }
 }
