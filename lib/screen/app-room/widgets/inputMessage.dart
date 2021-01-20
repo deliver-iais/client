@@ -99,10 +99,11 @@ class _InputMessageWidget extends State<InputMessage> {
   void initState() {
     super.initState();
     activityObject.listen((activityType) {
+      noActivitySubject.add(ActivityType.NO_ACTIVITY);
       messageRepo.sendActivityMessage(
           widget.currentRoom.roomId.getUid(), activityType);
     });
-    noActivitySubject.debounceTime(Duration(seconds: 3)).listen((event) {
+    noActivitySubject.debounceTime(Duration(seconds: 10)).listen((event) {
       messageRepo.sendActivityMessage(
           widget.currentRoom.roomId.getUid(), ActivityType.NO_ACTIVITY);
     });
@@ -184,6 +185,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                         FocusScope.of(context)
                                             .requestFocus(new FocusNode());
                                         showEmoji = true;
+
                                       }
                                     });
                                   },
@@ -192,9 +194,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                   child: Flexible(
                                     child: SizedBox(
                                         child: TextField(
-                                      // onTap: () {
-                                      //   showEmoji = false;
-                                      // },
+                                      onTap: () {
+                                        showEmoji = false;
+                                      },
                                       minLines: 1,
                                       maxLines: 15,
                                       autofocus: autofocus,

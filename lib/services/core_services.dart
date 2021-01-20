@@ -34,7 +34,8 @@ const MAX_BACKOFF_TIME = 32;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
-  StreamController<ClientPacket> _clientPacket ;
+  StreamController<ClientPacket> _clientPacket;
+
   ResponseStream<ServerPacket> _responseStream;
   @visibleForTesting
   int backoffTime = MIN_BACKOFF_TIME;
@@ -55,7 +56,6 @@ class CoreServices {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _routingServices = GetIt.I.get<RoutingService>();
-
 
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
@@ -79,7 +79,6 @@ class CoreServices {
 
   @visibleForTesting
   startCheckerTimer() async {
-
     if (_clientPacket.isClosed || _clientPacket.isPaused) {
       await startStream();
     }
@@ -157,7 +156,7 @@ class CoreServices {
   }
 
   sendMessage(MessageByClient message) {
-    if (_clientPacket != null&& !_clientPacket.isClosed) {
+    if (_clientPacket != null && !_clientPacket.isClosed) {
       _clientPacket.add(ClientPacket()
         ..message = message
         ..id = message.packetId);
@@ -186,7 +185,7 @@ class CoreServices {
     }
   }
 
-  sendActivityMessage(ActivityByClient activity,String id) {
+  sendActivityMessage(ActivityByClient activity, String id) {
     _clientPacket.add(ClientPacket()
       ..activity = activity
       ..id = id);
@@ -272,6 +271,8 @@ class CoreServices {
             roomId: roomUid.asString(),
             lastMessageId: Value(message.id.toInt()),
             mentioned: Value(isMention),
+            lastActivity: Value(
+                DateTime.fromMillisecondsSinceEpoch(message.time.toInt())),
             lastMessageDbId: Value(msg.dbId)),
       );
     } else {

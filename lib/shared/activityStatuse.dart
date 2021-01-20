@@ -4,6 +4,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ActivityStatuse extends StatelessWidget {
@@ -17,8 +18,15 @@ class ActivityStatuse extends StatelessWidget {
 
   AppLocalization appLocalization;
 
+  BuildContext buildContext;
+
+  TextStyle textStyle(){
+    return TextStyle(fontSize: 14,color: Theme.of(buildContext).primaryColor);
+  }
+
   @override
   Widget build(BuildContext context) {
+    buildContext = context;
     appLocalization = AppLocalization.of(context);
     if (activity.typeOfActivity == ActivityType.TYPING) {
       if (roomUid.category == Categories.GROUP) {
@@ -28,19 +36,19 @@ class ActivityStatuse extends StatelessWidget {
               if (s.hasData && s.data != null) {
                 return Text(
                   "$s ${appLocalization.getTraslateValue('isTyping')} ",
-                  style: style,
+                  style: textStyle(),
                 );
               } else {
                 return Text(
-                  "unKnoun ${appLocalization.getTraslateValue("isTyping")}",
-                  style: style,
+                  "unKnown ${appLocalization.getTraslateValue("isTyping")}",
+                  style: textStyle(),
                 );
               }
             });
       }
       return Text(
         appLocalization.getTraslateValue("isTyping"),
-        style: this.style,
+        style: textStyle(),
       );
     } else if (activity.typeOfActivity == ActivityType.RECORDING_VOICE) {
       if (roomUid.category == Categories.GROUP) {
@@ -50,41 +58,48 @@ class ActivityStatuse extends StatelessWidget {
               if (s.hasData && s.data != null) {
                 return Text(
                   "$s ${appLocalization.getTraslateValue('recordAudioActivity')} ",
-                  style: style,
+                  style: textStyle(),
                 );
               } else {
                 return Text(
-                  "unKnoun ${appLocalization.getTraslateValue("recordAudioActivity")}",
-                  style: style,
+                  "unKnown ${appLocalization.getTraslateValue("recordAudioActivity")}",
+                  style: textStyle(),
                 );
               }
             });
       }
       return Text(
         appLocalization.getTraslateValue("recordAudioActivity"),
-        style: this.style,
+        style: textStyle(),
       );
     } else if (activity.typeOfActivity == ActivityType.SENDING_FILE) {
+      if (roomUid.category == Categories.GROUP) {
+        return FutureBuilder<String>(
+            future: _roomRepo.getRoomDisplayName(activity.from),
+            builder: (c, s) {
+              if (s.hasData && s.data != null) {
+                return Text(
+                  "$s ${appLocalization.getTraslateValue('sendingFileActivity')} ",
+                  style: textStyle(),
+                );
+              } else {
+                return Text(
+                  "unKnown ${appLocalization.getTraslateValue("sendingFileActivity")}",
+                  style: textStyle(),
+                );
+              }
+            });
+      }else{
+        return Text(
+          appLocalization.getTraslateValue("sendingFileActivity"),
+          style: textStyle(),
+        );
+      }
     } else {
-      return FutureBuilder<String>(
-          future: _roomRepo.getRoomDisplayName(activity.from),
-          builder: (c, s) {
-            if (s.hasData && s.data != null) {
-              return Text(
-                "$s ${appLocalization.getTraslateValue('sendingFileActivity')} ",
-                style: style,
-              );
-            } else {
-              return Text(
-                "unKnoun ${appLocalization.getTraslateValue("sendingFileActivity")}",
-                style: style,
-              );
-            }
-          });
+      return Text(
+        appLocalization.getTraslateValue("sendingFileActivity"),
+        style: textStyle(),
+      );
     }
-    return Text(
-      appLocalization.getTraslateValue("sendingFileActivity"),
-      style: this.style,
-    );
   }
 }

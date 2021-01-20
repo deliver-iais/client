@@ -38,6 +38,7 @@ class _TitleStatusState extends State<TitleStatus> {
 
   @override
   void initState() {
+    _roomRepo.initActivity(widget.currentRoomUid.node);
     _messageRepo.getLastActivityTime(widget.currentRoomUid);
   }
 
@@ -115,13 +116,18 @@ class _TitleStatusState extends State<TitleStatus> {
 
   Widget activityWidget() {
     return StreamBuilder<Activity>(
-        stream: _roomRepo.activityObject[widget.currentRoomUid],
+        stream: _roomRepo.activityObject[widget.currentRoomUid.node],
         builder: (c, activity) {
+          print(_roomRepo.activityObject.toString());
           if (activity.hasData && activity.data != null) {
             if (activity.data.typeOfActivity == ActivityType.NO_ACTIVITY) {
               return normalActivity();
-            }else
-              return ActivityStatuse(activity: activity.data,roomUid: widget.currentRoomUid,style: widget.style,);
+            } else
+              return ActivityStatuse(
+                activity: activity.data,
+                roomUid: widget.currentRoomUid,
+                style: widget.style,
+              );
           } else {
             return normalActivity();
           }
@@ -136,9 +142,17 @@ class _TitleStatusState extends State<TitleStatus> {
             if (room.hasData &&
                 room.data != null &&
                 room.data.lastActivity != null) {
-              String lastActivityTime = room.data.lastActivity.dateTimeFormat();
-              return Text(
-                  "${appLocalization.getTraslateValue('lastSeen')} ${lastActivityTime} ");
+              if(DateTime.now().second-room.data.lastActivity.second<=30){
+                return Text(appLocalization.getTraslateValue('online'),style: TextStyle(fontSize: 14,color: Theme.of(context).primaryColor),);
+              }
+              else{
+                String lastActivityTime = room.data.lastActivity.dateTimeFormat();
+                return Text(
+                  "${appLocalization.getTraslateValue('lastSeen')} ${lastActivityTime} ",
+                  style: TextStyle(fontSize: 12),
+                );
+              }
+
             }
             return SizedBox.shrink();
           });

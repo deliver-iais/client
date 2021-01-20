@@ -250,6 +250,7 @@ class MessageRepo {
 
     // Send message
     await _sendMessageToServer(dbId);
+    sendActivityMessage(message.to.value.getUid(), ActivityType.NO_ACTIVITY);
   }
 
   _sendFileToServerOfPendingMessage(int dbId) async {
@@ -351,7 +352,6 @@ class MessageRepo {
         break;
       case MessageType.LOCATION:
         byClient.location = MessageProto.Location.fromJson(message.json);
-
         break;
       default:
         break;
@@ -500,7 +500,7 @@ class MessageRepo {
     if (to.category == Categories.GROUP || to.category == Categories.USER) {
       ActivityByClient activityByClient = ActivityByClient()
         ..typeOfActivity = activityType
-        ..to;
+        ..to =to;
       _coreServices.sendActivityMessage(activityByClient, _getPacketId());
     }
   }

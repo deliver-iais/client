@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
@@ -10,7 +12,7 @@ import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
+
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:moor/moor.dart';
@@ -24,7 +26,8 @@ class RoomRepo {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
-  Map<Uid, BehaviorSubject<Activity>> activityObject = Map() ;
+
+  Map<String, BehaviorSubject<Activity>> activityObject = Map();
 
   Future<String> getRoomDisplayName(Uid roomUid) async {
     switch (roomUid.category) {
@@ -41,8 +44,10 @@ class RoomRepo {
             String contactName = "${contact.firstName}";
             _roomNameCache.set(roomUid.asString(), contactName);
             return contactName;
-          } else
-            return _searchByUid(roomUid);
+          } else {
+            String s = await _searchByUid(roomUid);
+            return s;
+          }
         }
         break;
 
@@ -80,8 +85,29 @@ class RoomRepo {
     return "Unknown";
   }
 
-  void updateActivity (Activity activity){
-    activityObject[activity.to ].add(activity);
+  void updateActivity(Activity activity) {
+    if (activityObject[activity.from.node] == null) {
+      BehaviorSubject<Activity> subject = BehaviorSubject();
+      subject.add(activity);
+      activityObject[activity.from.node] = subject;
+    } else {
+      activityObject[activity.from.node].add(activity);
+      if (activity.typeOfActivity != ActivityType.NO_ACTIVITY)
+        Timer(Duration(seconds: 10), () {
+          Activity noActivity = Activity()
+            ..from = activity.from
+            ..typeOfActivity = ActivityType.NO_ACTIVITY
+            ..to = activity.to;
+          activityObject[activity.from.node].add(noActivity);
+        });
+    }
+  }
+
+  void initActivity(String roomId) {
+    if (activityObject[roomId] == null) {
+      BehaviorSubject<Activity> subject = BehaviorSubject();
+      activityObject[roomId] = subject;
+    }
   }
 
   updateRoomName(Uid uid, String name) {

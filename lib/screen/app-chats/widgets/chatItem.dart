@@ -29,6 +29,7 @@ class ChatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _roomRepo.initActivity(roomWithMessage.room.roomId.uid.node);
     AppLocalization _appLocalization = AppLocalization.of(context);
     String messageType = roomWithMessage.lastMessage.from
             .isSameEntity(_accountRepo.currentUserUid)
@@ -84,11 +85,11 @@ class ChatItem extends StatelessWidget {
                                 })),
                     StreamBuilder<Activity>(
                         stream: _roomRepo
-                            .activityObject[roomWithMessage.room.roomId.uid],
+                            .activityObject[roomWithMessage.room.roomId.uid.node],
                         builder: (c, s) {
                           if (s.hasData &&
                               s.data != null &&
-                              s.data.typeOfActivity ==
+                              s.data.typeOfActivity !=
                                   ActivityType.NO_ACTIVITY) {
                             return ActivityStatuse(
                               activity: s.data,
