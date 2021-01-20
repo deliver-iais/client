@@ -134,5 +134,6 @@
   "disconnect": "قطع اتصال",
   "isTyping": "در حال نوشتن...",
   "sendingFileActivity":"در حال ار سال فایل...",
-  "recordAudioActivity": "در حال ضبط صدا..."
+  "recordAudioActivity": "در حال ضبط صدا...",
+  "lastSeen": "آخرین بازدید "
 }

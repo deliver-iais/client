@@ -8,6 +8,7 @@ import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/shared/methods/dateTimeFormat.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -111,7 +112,7 @@ class _TitleStatusState extends State<TitleStatus> {
     }
   }
 
-  Future<Widget> activityWidget() async {
+  Widget activityWidget() {
     return StreamBuilder<Activity>(
         stream: _roomRepo.activityObject[widget.currentRoomUid],
         builder: (c, activity) {
@@ -119,33 +120,86 @@ class _TitleStatusState extends State<TitleStatus> {
             if (activity.data.typeOfActivity == ActivityType.NO_ACTIVITY) {
               return Text("f");
             } else if (activity.data.typeOfActivity == ActivityType.TYPING) {
-              return Text(appLocalization.getTraslateValue("isTyping"));
+              if (widget.currentRoomUid.category == Categories.GROUP) {
+                return FutureBuilder<String>(
+                    future: _roomRepo.getRoomDisplayName(activity.data.from),
+                    builder: (c, s) {
+                      if (s.hasData && s.data != null) {
+                        return Text(
+                          "$s ${appLocalization.getTraslateValue('isTyping')} ",
+                          style: widget.style,
+                        );
+                      } else {
+                        return Text(
+                          "unKnoun ${appLocalization.getTraslateValue("isTyping")}",
+                          style: widget.style,
+                        );
+                      }
+                    });
+              }
+              return Text(
+                appLocalization.getTraslateValue("isTyping"),
+                style: this.widget.style,
+              );
             } else if (activity.data.typeOfActivity ==
                 ActivityType.RECORDING_VOICE) {
-              return Text("f");
+              if (widget.currentRoomUid.category == Categories.GROUP) {
+                return FutureBuilder<String>(
+                    future: _roomRepo.getRoomDisplayName(activity.data.from),
+                    builder: (c, s) {
+                      if (s.hasData && s.data != null) {
+                        return Text(
+                          "$s ${appLocalization.getTraslateValue('recordAudioActivity')} ",
+                          style: widget.style,
+                        );
+                      } else {
+                        return Text(
+                          "unKnoun ${appLocalization.getTraslateValue("recordAudioActivity")}",
+                          style: widget.style,
+                        );
+                      }
+                    });
+              }
+              return Text(
+                appLocalization.getTraslateValue("recordAudioActivity"),
+                style: this.widget.style,
+              );
+            } else if (activity.data.typeOfActivity ==
+                ActivityType.SENDING_FILE) {
             } else {
-              return Text("ff");
+              return FutureBuilder<String>(
+                  future: _roomRepo.getRoomDisplayName(activity.data.from),
+                  builder: (c, s) {
+                    if (s.hasData && s.data != null) {
+                      return Text(
+                        "$s ${appLocalization.getTraslateValue('sendingFileActivity')} ",
+                        style: widget.style,
+                      );
+                    } else {
+                      return Text(
+                        "unKnoun ${appLocalization.getTraslateValue("sendingFileActivity")}",
+                        style: widget.style,
+                      );
+                    }
+                  });
             }
+            return Text(
+              appLocalization.getTraslateValue("sendingFileActivity"),
+              style: this.widget.style,
+            );
           } else {
-            return Text("f");
+            if(widget.currentRoomUid.category == Categories.USER){
+              return StreamBuilder<Room>(stream : _roomDao.getByRoomId(widget.currentRoomUid.asString()),builder: (c,room){
+                if(room.hasData && room.data != null && room.data.lastActivity != null){
+                  String  lastActivityTime = room.data.lastActivity.dateTimeFormat();
+                  return Text("${appLocalization.getTraslateValue('lastSeen')} ${lastActivityTime} ");
+                }
+                return SizedBox.shrink();
+              });
+            }else{
+              return widget.normalConditionWidget;
+            }
           }
-
-          // switch (activity.data.typeOfActivity) {
-          //   case ActivityType.NO_ACTIVITY:
-          //    return Text("");
-          //     break;
-          //   case ActivityType.TYPING:
-          //     return Text("");
-          //     break;
-          //
-          //   case ActivityType.RECORDING_VOICE:
-          //     return Text(":f");
-          //     break;
-          //
-          //   case ActivityType.SENDING_FILE:
-          //     return Text("rr");
-          //     break;
-          // }
         });
   }
 }

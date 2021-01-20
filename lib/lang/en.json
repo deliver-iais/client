@@ -134,5 +134,6 @@
   "disconnect": "Disconnect",
   "isTyping": "typing...",
   "sendingFileActivity": "sending file ...",
-  "recordAudioActivity": "record audio..."
+  "recordAudioActivity": "record audio...",
+  "lastSeen": "last Seen "
 }
