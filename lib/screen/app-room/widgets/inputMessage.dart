@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:audio_recorder/audio_recorder.dart';
@@ -10,6 +11,7 @@ import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/event.pbenum.dart';
 import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -63,12 +65,13 @@ class _InputMessageWidget extends State<InputMessage> {
   double DX = 150.0;
   bool recordAudioPermission = false;
   String query;
+  Timer recordAudioTimer;
 
   bool _showMentionList = false;
 
   bool startAudioRecorder = false;
 
-  Subject<ActivityType> isTypingSubject =
+  Subject<ActivityType> activityObject =
       BehaviorSubject.seeded(ActivityType.NO_ACTIVITY);
   Subject<ActivityType> noActivitySubject =
       BehaviorSubject.seeded(ActivityType.NO_ACTIVITY);
@@ -95,7 +98,7 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   void initState() {
     super.initState();
-    isTypingSubject.listen((activityType) {
+    activityObject.listen((activityType) {
       messageRepo.sendActivityMessage(
           widget.currentRoom.roomId.getUid(), activityType);
     });
@@ -199,8 +202,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       controller: controller,
                                       onSubmitted: null,
                                       onChanged: (str) {
-                                        isTypingSubject
-                                            .add(ActivityType.TYPING);
+                                        activityObject.add(ActivityType.TYPING);
                                         onChange(str);
                                       },
                                       decoration: InputDecoration.collapsed(
@@ -239,7 +241,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                                         false)
                                             ? () async {}
                                             : () {
-                                                isTypingSubject.add(
+                                                activityObject.add(
                                                     ActivityType.NO_ACTIVITY);
                                                 if (widget.waitingForForward ==
                                                     true) {
@@ -358,6 +360,7 @@ class _InputMessageWidget extends State<InputMessage> {
                             },
                             onLongPressStart: (dw) async {
                               if (recordAudioPermission) {
+                                sendRecordActivity();
                                 Vibration.vibrate(duration: 200);
                                 setState(() {
                                   startAudioRecorder = true;
@@ -365,6 +368,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   started = true;
                                   time = DateTime.now();
                                 });
+
                                 await AudioRecorder.start(
                                     path: await ExtStorage
                                         .getExternalStoragePublicDirectory(
@@ -373,6 +377,8 @@ class _InputMessageWidget extends State<InputMessage> {
                               }
                             },
                             onLongPressEnd: (s) async {
+                              recordAudioTimer.cancel();
+                              noActivitySubject.add(ActivityType.NO_ACTIVITY);
                               setState(() {
                                 startAudioRecorder = false;
                                 x = 0;
@@ -428,6 +434,13 @@ class _InputMessageWidget extends State<InputMessage> {
             : SizedBox(),
       ],
     );
+  }
+
+  void sendRecordActivity() {
+    recordAudioTimer = Timer(Duration(seconds: 2), () {
+      activityObject.add(ActivityType.RECORDING_VOICE);
+      sendRecordActivity();
+    });
   }
 
   void onChange(String str) {

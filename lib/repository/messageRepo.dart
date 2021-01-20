@@ -8,6 +8,7 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -53,6 +54,7 @@ class MessageRepo {
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
+  var _roomRepo = GetIt.I.get<RoomRepo>();
 
   var _coreServices = GetIt.I.get<CoreServices>();
 
@@ -267,7 +269,9 @@ class MessageRepo {
 
     // Upload to file server
     FileProto.File fileInfo =
-    await _fileRepo.uploadClonedFile(packetId, fakeFileInfo.name);
+    await _fileRepo.uploadClonedFile(packetId, fakeFileInfo.name,sendActivity: (){
+      sendActivityMessage(message.to.uid, ActivityType.SENDING_FILE);
+    });
 
     fileInfo.caption = fakeFileInfo.caption;
 

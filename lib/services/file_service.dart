@@ -17,6 +17,7 @@ enum ThumbnailSize { small, medium, large }
 class FileService {
   var _checkPermission = GetIt.I.get<CheckPermissionsService>();
   var accountRepo = GetIt.I.get<AccountRepo>();
+
   var _dio = Dio();
   Map<String, BehaviorSubject<double>> filesUploadStatus = Map();
 
@@ -93,11 +94,12 @@ class FileService {
   }
 
   // TODO, refactoring needed
-  uploadFile(String filePath, {String uploadKey}) async {
+  uploadFile(String filePath, {String uploadKey, Function sendActivity}) async {
     BehaviorSubject<double> behaviorSubject = BehaviorSubject();
     _dio.interceptors
         .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
       options.onSendProgress = (int i, int j) {
+        sendActivity();
         behaviorSubject.add((i / j));
         print("upload progress ${(i / j)}");
         filesUploadStatus[uploadKey] = behaviorSubject;
