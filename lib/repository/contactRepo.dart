@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
+import 'package:deliver_flutter/db/dao/UsernameDao.dart';
 import 'package:deliver_flutter/db/database.dart' as Database;
 
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
@@ -33,6 +34,8 @@ class ContactRepo {
   var _checkPermission = GetIt.I.get<CheckPermissionsService>();
 
   var contactServices = ContactServiceClient(ProfileServicesClientChannel);
+
+  var _usernameDao = GetIt.I.get<UsernameDao>();
 
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
@@ -190,6 +193,9 @@ class ContactRepo {
           phoneNumber: contact.phoneNumber.nationalNumber.toString(),
           username: usernameReq.id,
           uid: contact.uid.asString()));
+
+      _usernameDao.insertUsername(Database.Username(
+          uid: contact.uid.asString(), username: usernameReq.id));
     }
   }
 }

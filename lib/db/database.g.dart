@@ -5031,6 +5031,200 @@ class $MediasMetaDataTable extends MediasMetaData
   }
 }
 
+class Username extends DataClass implements Insertable<Username> {
+  final String uid;
+  final String username;
+  Username({@required this.uid, this.username});
+  factory Username.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    return Username(
+      uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
+      username: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}username']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
+    if (!nullToAbsent || username != null) {
+      map['username'] = Variable<String>(username);
+    }
+    return map;
+  }
+
+  UsernamesCompanion toCompanion(bool nullToAbsent) {
+    return UsernamesCompanion(
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
+      username: username == null && nullToAbsent
+          ? const Value.absent()
+          : Value(username),
+    );
+  }
+
+  factory Username.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return Username(
+      uid: serializer.fromJson<String>(json['uid']),
+      username: serializer.fromJson<String>(json['username']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'uid': serializer.toJson<String>(uid),
+      'username': serializer.toJson<String>(username),
+    };
+  }
+
+  Username copyWith({String uid, String username}) => Username(
+        uid: uid ?? this.uid,
+        username: username ?? this.username,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Username(')
+          ..write('uid: $uid, ')
+          ..write('username: $username')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(uid.hashCode, username.hashCode));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is Username &&
+          other.uid == this.uid &&
+          other.username == this.username);
+}
+
+class UsernamesCompanion extends UpdateCompanion<Username> {
+  final Value<String> uid;
+  final Value<String> username;
+  const UsernamesCompanion({
+    this.uid = const Value.absent(),
+    this.username = const Value.absent(),
+  });
+  UsernamesCompanion.insert({
+    @required String uid,
+    this.username = const Value.absent(),
+  }) : uid = Value(uid);
+  static Insertable<Username> custom({
+    Expression<String> uid,
+    Expression<String> username,
+  }) {
+    return RawValuesInsertable({
+      if (uid != null) 'uid': uid,
+      if (username != null) 'username': username,
+    });
+  }
+
+  UsernamesCompanion copyWith({Value<String> uid, Value<String> username}) {
+    return UsernamesCompanion(
+      uid: uid ?? this.uid,
+      username: username ?? this.username,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (username.present) {
+      map['username'] = Variable<String>(username.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UsernamesCompanion(')
+          ..write('uid: $uid, ')
+          ..write('username: $username')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $UsernamesTable extends Usernames
+    with TableInfo<$UsernamesTable, Username> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $UsernamesTable(this._db, [this._alias]);
+  final VerificationMeta _uidMeta = const VerificationMeta('uid');
+  GeneratedTextColumn _uid;
+  @override
+  GeneratedTextColumn get uid => _uid ??= _constructUid();
+  GeneratedTextColumn _constructUid() {
+    return GeneratedTextColumn(
+      'uid',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _usernameMeta = const VerificationMeta('username');
+  GeneratedTextColumn _username;
+  @override
+  GeneratedTextColumn get username => _username ??= _constructUsername();
+  GeneratedTextColumn _constructUsername() {
+    return GeneratedTextColumn(
+      'username',
+      $tableName,
+      true,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [uid, username];
+  @override
+  $UsernamesTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'usernames';
+  @override
+  final String actualTableName = 'usernames';
+  @override
+  VerificationContext validateIntegrity(Insertable<Username> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid'], _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('username')) {
+      context.handle(_usernameMeta,
+          username.isAcceptableOrUnknown(data['username'], _usernameMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {uid};
+  @override
+  Username map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return Username.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $UsernamesTable createAlias(String alias) {
+    return $UsernamesTable(_db, alias);
+  }
+}
+
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $MessagesTable _messages;
@@ -5064,6 +5258,8 @@ abstract class _$Database extends GeneratedDatabase {
   $MediasMetaDataTable _mediasMetaData;
   $MediasMetaDataTable get mediasMetaData =>
       _mediasMetaData ??= $MediasMetaDataTable(this);
+  $UsernamesTable _usernames;
+  $UsernamesTable get usernames => _usernames ??= $UsernamesTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
@@ -5096,6 +5292,8 @@ abstract class _$Database extends GeneratedDatabase {
   MediaMetaDataDao _mediaMetaDataDao;
   MediaMetaDataDao get mediaMetaDataDao =>
       _mediaMetaDataDao ??= MediaMetaDataDao(this as Database);
+  UsernameDao _usernameDao;
+  UsernameDao get usernameDao => _usernameDao ??= UsernameDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
@@ -5113,6 +5311,7 @@ abstract class _$Database extends GeneratedDatabase {
         members,
         mucs,
         lastSeens,
-        mediasMetaData
+        mediasMetaData,
+        usernames
       ];
 }

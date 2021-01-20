@@ -13,10 +13,12 @@ import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
+import 'package:deliver_flutter/db/dao/UsernameDao.dart';
 import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/models/role.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
 import 'package:path_provider/path_provider.dart';
@@ -32,6 +34,7 @@ import 'Member.dart';
 import 'Rooms.dart';
 import 'Seens.dart';
 import 'PendingMessages.dart';
+import 'Usernames.dart';
 import 'dao/LastSeenDao.dart';
 import 'dao/MediaMetaDataDao.dart';
 import 'dao/MemberDao.dart';
@@ -55,6 +58,7 @@ part 'database.g.dart';
   Mucs,
   LastSeens,
   MediasMetaData,
+  Usernames
 ], daos: [
   MessageDao,
   RoomDao,
@@ -70,6 +74,7 @@ part 'database.g.dart';
   MucDao,
   LastSeenDao,
   MediaMetaDataDao,
+  UsernameDao,
 ])
 class Database extends _$Database {
   Database()
