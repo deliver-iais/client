@@ -138,5 +138,6 @@
   "lastSeen": "last Seen ",
   "online": "online",
   "channelId_not_empty": "channel Id dont empty",
-  "channel_id_length": " length less 5"
+  "channel_id_length": " length less 5",
+  "inter_Muc_Name": "inter name"
 }

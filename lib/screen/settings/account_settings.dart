@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -33,7 +34,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   Account _account;
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
-  bool _userNameAlreadyExist = false;
+  bool usernameIsAvailable = true;
   bool _userNameCorrect = false;
   final _routingService = GetIt.I.get<RoutingService>();
 
@@ -48,14 +49,15 @@ class _AccountSettingsState extends State<AccountSettings> {
         if (_lastUserName != username) {
           bool validUsername = await _accountRepo.checkUserName(username);
           setState(() {
-            _userNameAlreadyExist = !validUsername;
+            usernameIsAvailable = validUsername;
+          });
+        } else if (_lastUserName != null) {
+          setState(() {
+            usernameIsAvailable = true;
           });
         }
       }
     });
-    // if (widget.forceToSetUsernameAndName) {
-    //   _requestPermissions();
-    // }
   }
 
   @override
@@ -143,7 +145,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                       ],
                                     )
                                   : SizedBox.shrink(),
-                              _userNameAlreadyExist
+                              !usernameIsAvailable
                                   ? Row(
                                       children: [
                                         Text(
@@ -258,13 +260,13 @@ class _AccountSettingsState extends State<AccountSettings> {
     if (value.isEmpty) {
       setState(() {
         _userNameCorrect = false;
-        _userNameAlreadyExist = false;
+        usernameIsAvailable = true;
       });
       return _appLocalization.getTraslateValue("username_not_empty");
     } else if (!regex.hasMatch(value)) {
       setState(() {
         _userNameCorrect = false;
-        _userNameAlreadyExist = false;
+        usernameIsAvailable = true;
       });
       return _appLocalization.getTraslateValue("username_length");
     } else {
@@ -292,7 +294,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     if (checkUserName) {
       bool isValidated = _formKey?.currentState?.validate() ?? false;
       if (isValidated) {
-        if (!_userNameAlreadyExist) {
+        if (usernameIsAvailable) {
           bool setPrivateInfo = await _accountRepo.setAccountDetails(
               _username.isNotEmpty ? _username : _account.userName,
               _firstName.isNotEmpty ? _firstName : _account.firstName,

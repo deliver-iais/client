@@ -47,7 +47,7 @@ class MucRepo {
     return null;
   }
 
-  Future<Uid> makeNewChannel(String channelId, List<Uid> memberUids,
+  Future<Uid> createNewChannel(String channelId, List<Uid> memberUids,
       String channelName, ChannelType channelType) async {
     Uid channelUid =
         await mucServices.createNewChannel(channelName, channelType, channelId);
