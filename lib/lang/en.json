@@ -136,5 +136,6 @@
   "sendingFileActivity": "sending file ...",
   "recordAudioActivity": "record audio...",
   "lastSeen": "last Seen ",
-  "online": "online"
+  "online": "online",
+  "channelId_not_empty": "channel Id dont empty"
 }

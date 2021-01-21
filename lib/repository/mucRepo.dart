@@ -17,8 +17,10 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart' as MucPro;
 import 'package:deliver_public_protocol/pub/v1/models/muc.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:grpc/grpc.dart';
 
 class MucRepo {
   MucDao _mucDao = GetIt.I.get<MucDao>();
@@ -28,6 +30,8 @@ class MucRepo {
   var accountRepo = GetIt.I.get<AccountRepo>();
   var messageDao = GetIt.I.get<MessageDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
+
+  var _queryServices = GetIt.I.get<QueryServiceClient>();
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
@@ -55,6 +59,13 @@ class MucRepo {
 
     getChannelMembers(channelUid);
     return null;
+  }
+
+  Future<bool> channelIdIsAvailable(String id) async {
+    var result = await _queryServices.idIsAvailable(IdIsAvailableReq()..id = id,
+        options: CallOptions(
+            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+    return result.isAvailable;
   }
 
   getGroupMembers(Uid groupUid) async {
@@ -364,6 +375,9 @@ class MucRepo {
         break;
       case MucRole.OWNER:
         return MucPro.Role.OWNER;
+      case MucRole.NONE:
+        return MucPro.Role.NONE;
+        break;
     }
     return MucPro.Role.NONE;
   }

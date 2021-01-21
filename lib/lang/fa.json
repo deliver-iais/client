@@ -133,8 +133,9 @@
   "cancel": "لغو",
   "disconnect": "قطع اتصال",
   "isTyping": "در حال نوشتن...",
-  "sendingFileActivity":"در حال ار سال فایل...",
+  "sendingFileActivity": "در حال ار سال فایل...",
   "recordAudioActivity": "در حال ضبط صدا...",
   "lastSeen": "آخرین بازدید ",
-  "online": "انلاین"
+  "online": "انلاین",
+  "channelId_not_empty": "آیدی کانال نباید خالی باشد."
 }

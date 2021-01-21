@@ -7,23 +7,25 @@ import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:rxdart/rxdart.dart';
 
 class MucInfoDeterminationPage extends StatefulWidget {
-  final isChannel;
-  const MucInfoDeterminationPage({Key key,this.isChannel}) : super(key: key);
+  final bool isChannel;
+
+  const MucInfoDeterminationPage({Key key, this.isChannel}) : super(key: key);
 
   @override
   _MucInfoDeterminationPageState createState() =>
       _MucInfoDeterminationPageState();
 }
 
-class _MucInfoDeterminationPageState
-    extends State<MucInfoDeterminationPage> {
+class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   TextEditingController controller;
   TextEditingController idController;
 
@@ -35,21 +37,35 @@ class _MucInfoDeterminationPageState
   var _routingService = GetIt.I.get<RoutingService>();
   var _createMucService = GetIt.I.get<CreateMucService>();
   MucRepo _mucRepo = GetIt.I.get<MucRepo>();
+  bool idIsAvailable = false;
+  bool _channelIdIsCorrect = false;
+  AppLocalization _appLocalization;
+
+  BehaviorSubject<String> behaviorSubject = BehaviorSubject();
 
   @override
   void initState() {
     super.initState();
+    if (widget.isChannel) {
+      behaviorSubject.stream.debounceTime(Duration(microseconds: 100)).listen((
+          id) async {
+        if (id != null && id.isNotEmpty)
+          idIsAvailable = await _mucRepo.channelIdIsAvailable(id);
+      });
+    }
     controller = TextEditingController();
     idController = TextEditingController();
   }
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+   _appLocalization = AppLocalization.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: _routingService.backButtonLeading(),
-        title: Text(widget.isChannel? appLocalization.getTraslateValue("newChannel"):appLocalization.getTraslateValue("newGroup")),
+        title: Text(widget.isChannel
+            ? _appLocalization.getTraslateValue("newChannel")
+            : _appLocalization.getTraslateValue("newGroup")),
       ),
       body: FluidContainerWidget(
         child: Stack(
@@ -75,38 +91,40 @@ class _MucInfoDeterminationPageState
                           });
                         },
                         decoration: InputDecoration(
-                          hintText: widget.isChannel?appLocalization
-                              .getTraslateValue("enter-channel-name"):appLocalization
+                          hintText: widget.isChannel
+                              ? _appLocalization
+                              .getTraslateValue("enter-channel-name")
+                              : _appLocalization
                               .getTraslateValue("enter-group-name"),
                         ),
                       ),
                     ),
                   ],
                 ),
-                widget.isChannel?Row(
+                widget.isChannel ? Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Flexible(
-                      child: TextField(
+                      child: TextFormField(
                         minLines: 1,
                         maxLines: 1,
                         autofocus: autofocus,
                         textInputAction: TextInputAction.send,
                         controller: idController,
-                        onSubmitted: null,
+                        validator: validateUsername,
                         onChanged: (str) {
                           setState(() {
                             channelId = str;
                           });
                         },
                         decoration: InputDecoration(
-                          hintText: appLocalization
-                              .getTraslateValue("enter-channel-id")
+                            hintText: _appLocalization
+                                .getTraslateValue("enter-channel-id")
                         ),
                       ),
                     ),
                   ],
-                ):SizedBox.shrink(),
+                ) : SizedBox.shrink(),
                 SizedBox(
                   height: 20,
                 ),
@@ -117,9 +135,12 @@ class _MucInfoDeterminationPageState
                         return SizedBox.shrink();
                       }
                       return Text(
-                        '${snapshot.data} ${appLocalization.getTraslateValue("members")}',
+                        '${snapshot.data} ${_appLocalization.getTraslateValue(
+                            "members")}',
                         style: TextStyle(
-                            color: Theme.of(context).primaryColor,
+                            color: Theme
+                                .of(context)
+                                .primaryColor,
                             fontWeight: FontWeight.bold,
                             fontSize: 15),
                       );
@@ -147,14 +168,16 @@ class _MucInfoDeterminationPageState
             Positioned(
               bottom: 0,
               right: 0,
-              child:_showIcon? Container(
+              child: _showIcon ? Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(context).primaryColor,
+                  color: Theme
+                      .of(context)
+                      .primaryColor,
                 ),
-                child:  IconButton(
+                child: IconButton(
                   alignment: Alignment.center,
                   padding: EdgeInsets.all(0),
                   icon: Icon(Icons.check),
@@ -167,27 +190,29 @@ class _MucInfoDeterminationPageState
                     for (var i = 0; i < _createMucService.members.length; i++) {
                       memberUidList.add(_createMucService.members[i].uid.uid);
                     }
-                    if(widget.isChannel ){
+                    if (widget.isChannel && ) {
                       micUid = await _mucRepo.makeNewChannel(idController.text,
-                          memberUidList, controller.text,ChannelType.PUBLIC);
+                          memberUidList, controller.text, ChannelType.PUBLIC);
                       controller.clear();
-                    }else {
+                    } else {
                       micUid = await _mucRepo.makeNewGroup(
                           memberUidList, controller.text);
                       controller.clear();
                     }
-                    if(micUid !=null) {
+                    if (micUid != null) {
                       _createMucService.reset();
                       _routingService.openRoom(micUid.asString());
-                    }else{
-                      Fluttertoast.showToast(msg: appLocalization.getTraslateValue("error_occurred"));
+                    } else {
+                      Fluttertoast.showToast(
+                          msg: _appLocalization.getTraslateValue(
+                              "error_occurred"));
                       setState(() {
                         _showIcon = true;
                       });
                     }
                   },
                 ),
-              ):SizedBox.shrink(),
+              ) : SizedBox.shrink(),
             ),
             Positioned(
               bottom: 0,
@@ -197,7 +222,9 @@ class _MucInfoDeterminationPageState
                 height: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(context).primaryColor,
+                  color: Theme
+                      .of(context)
+                      .primaryColor,
                 ),
                 child: IconButton(
                   alignment: Alignment.center,
@@ -211,7 +238,31 @@ class _MucInfoDeterminationPageState
             ),
           ],
         ),
-      ),
+      )
+      ,
     );
+  }
+
+  String validateUsername(String value) {
+    Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
+    RegExp regex = new RegExp(pattern);
+    if (value.isEmpty) {
+      setState(() {
+        _channelIdIsCorrect = false;
+        idIsAvailable = false;
+      });
+      return _appLocalization.getTraslateValue("username_not_empty");
+    } else if (!regex.hasMatch(value)) {
+      setState(() {
+        _channelIdIsCorrect = false;
+        idIsAvailable = false;
+      });
+      return _appLocalization.getTraslateValue("username_length");
+    } else {
+      setState(() {
+        _channelIdIsCorrect = true;
+      });
+    }
+    return null;
   }
 }
