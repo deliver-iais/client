@@ -137,5 +137,6 @@
   "recordAudioActivity": "در حال ضبط صدا...",
   "lastSeen": "آخرین بازدید ",
   "online": "انلاین",
-  "channelId_not_empty": "آیدی کانال نباید خالی باشد."
+  "channelId_not_empty": "آیدی کانال نباید خالی باشد.",
+  "channel_id_length": " طول کم تر از 5"
 }

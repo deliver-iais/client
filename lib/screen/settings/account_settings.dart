@@ -47,14 +47,8 @@ class _AccountSettingsState extends State<AccountSettings> {
       if (_userNameCorrect) {
         if (_lastUserName != username) {
           bool validUsername = await _accountRepo.checkUserName(username);
-          if (!validUsername) {
-            setState(() {
-              _userNameAlreadyExist = true;
-            });
-          }
-        } else {
           setState(() {
-            _userNameAlreadyExist = false;
+            _userNameAlreadyExist = !validUsername;
           });
         }
       }

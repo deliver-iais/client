@@ -137,5 +137,6 @@
   "recordAudioActivity": "record audio...",
   "lastSeen": "last Seen ",
   "online": "online",
-  "channelId_not_empty": "channel Id dont empty"
+  "channelId_not_empty": "channel Id dont empty",
+  "channel_id_length": " length less 5"
 }
