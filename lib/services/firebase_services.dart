@@ -93,6 +93,7 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
   var messageDao = database.messageDao;
   var sharedPreferencesDao = database.sharedPreferencesDao;
   var accountRepo = AccountRepo(sharedPrefs: sharedPreferencesDao);
+  var _userInfoDao = database.userInfoDao;
 
   if (message.containsKey('data')) {
     Message msg = _decodeMessage(message["data"]["body"]);
@@ -124,6 +125,9 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
         }
       }
     }
+    if (msg.from.category == Categories.USER)
+      updateLastActivityTime(_userInfoDao, msg.from,
+          DateTime.fromMillisecondsSinceEpoch(msg.time.toInt()));
     if ((await accountRepo.notification).contains("true"))
       _notificationServices.showNotification(
           msg, msg.from.asString(), roomName);

@@ -1,6 +1,8 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
+import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/repository/lastActivityRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/shared/activityStatuse.dart';
@@ -29,17 +31,18 @@ class TitleStatus extends StatefulWidget {
 
 class _TitleStatusState extends State<TitleStatus> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
-
   final _roomRepo = GetIt.I.get<RoomRepo>();
-
   final _roomDao = GetIt.I.get<RoomDao>();
+  final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
+  final _userInfoDao = GetIt.I.get<UserInfoDao>();
 
   AppLocalization appLocalization;
 
   @override
   void initState() {
+    if (widget.currentRoomUid.category == Categories.USER)
+      _lastActivityRepo.updateLastActivity(widget.currentRoomUid);
     _roomRepo.initActivity(widget.currentRoomUid.node);
-    _messageRepo.getLastActivityTime(widget.currentRoomUid);
   }
 
   @override
@@ -128,23 +131,27 @@ class _TitleStatusState extends State<TitleStatus> {
 
   Widget normalActivity() {
     if (widget.currentRoomUid.category == Categories.USER) {
-      return StreamBuilder<Room>(
-          stream: _roomDao.getByRoomId(widget.currentRoomUid.asString()),
-          builder: (c, room) {
-            if (room.hasData &&
-                room.data != null &&
-                room.data.lastActivity != null) {
-              if(DateTime.now().second-room.data.lastActivity.second<=30){
-                return Text(appLocalization.getTraslateValue('online'),style: TextStyle(fontSize: 14,color: Theme.of(context).primaryColor),);
-              }
-              else{
-                String lastActivityTime = room.data.lastActivity.dateTimeFormat();
+      return StreamBuilder<UserInfo>(
+          stream:_userInfoDao.getUserInfoAsStream(widget.currentRoomUid.asString()),
+          builder: (c, userInfo) {
+            if (userInfo.hasData &&
+                userInfo.data != null &&
+                userInfo.data.lastActivity != null) {
+
+              if (DateTime.now().millisecondsSinceEpoch - userInfo.data.lastActivity.millisecondsSinceEpoch<= 30000) {
+                return Text(
+                  appLocalization.getTraslateValue('online'),
+                  style: TextStyle(
+                      fontSize: 14, color: Theme.of(context).primaryColor),
+                );
+              } else {
+                String lastActivityTime =
+                    userInfo.data.lastActivity.dateTimeFormat();
                 return Text(
                   "${appLocalization.getTraslateValue('lastSeen')} ${lastActivityTime} ",
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 12,color: Theme.of(context).primaryColor),
                 );
               }
-
             }
             return SizedBox.shrink();
           });

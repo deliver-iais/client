@@ -10,8 +10,6 @@ class Rooms extends Table {
 
   BoolColumn get mute => boolean().withDefault(Constant(false))();
 
-  DateTimeColumn get lastActivity => dateTime().nullable()();
-
   IntColumn get lastMessageDbId =>
       integer().customConstraint('REFERENCES messages(db_id)').nullable()();
 

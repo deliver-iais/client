@@ -8,8 +8,6 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
@@ -498,16 +496,4 @@ class MessageRepo {
     }
   }
 
-  void getLastActivityTime(Uid currentRoomUid) async {
-    var lastActivityTime = await _queryServiceClient.getLastActivity(
-        GetLastActivityReq()..uid = currentRoomUid,
-        options: CallOptions(
-            metadata: {"accessToken": await _accountRepo.getAccessToken()}));
-    if (lastActivityTime != null) {
-      _roomDao.updateRoom(RoomsCompanion(
-          roomId: Value(currentRoomUid.asString()),
-          lastActivity: Value(DateTime.fromMillisecondsSinceEpoch(
-              lastActivityTime.lastActivityTime.toInt()))));
-    }
-  }
 }

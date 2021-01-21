@@ -10,12 +10,13 @@ import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/LastAvatarDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
-import 'package:deliver_flutter/db/dao/UsernameDao.dart';
+import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/lastActivityRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
@@ -70,7 +71,7 @@ void setupDI() {
   getIt.registerSingleton<MemberDao>(db.memberDao);
   getIt.registerSingleton<LastSeenDao>(db.lastSeenDao);
   getIt.registerSingleton<MediaMetaDataDao>(db.mediaMetaDataDao);
-  getIt.registerSingleton<UsernameDao>(db.usernameDao);
+  getIt.registerSingleton<UserInfoDao>(db.userInfoDao);
 
   // Order is important, don't change it!
   getIt.registerSingleton<UxService>(UxService());
@@ -101,6 +102,7 @@ void setupDI() {
 
   getIt.registerSingleton<MemberRepo>(MemberRepo());
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
+  getIt.registerSingleton<LastActivityRepo>(LastActivityRepo());
 
 }
 

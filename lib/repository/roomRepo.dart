@@ -4,7 +4,7 @@ import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/dao/UsernameDao.dart';
+import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/localSearchResult.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -28,7 +28,7 @@ class RoomRepo {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
-  var _usernameDao = GetIt.I.get<UsernameDao>();
+  var _usernameDao = GetIt.I.get<UserInfoDao>();
 
   Map<String, BehaviorSubject<Activity>> activityObject = Map();
 
@@ -48,7 +48,7 @@ class RoomRepo {
             _roomNameCache.set(roomUid.asString(), contactName);
             return contactName;
           } else {
-            var username = await _usernameDao.getUsername(roomUid.asString());
+            var username = await _usernameDao.getUserInfo(roomUid.asString());
             if (username != null) {
               _roomNameCache.set(roomUid.asString(), username.username);
               return username.username;
@@ -88,7 +88,7 @@ class RoomRepo {
   Future<String> _searchByUid(Uid uid) async {
     String username = await _contactRepo.searchUserByUid(uid);
     _usernameDao
-        .insertUsername(Username(uid: uid.asString(), username: username));
+        .upsertUserInfo(UserInfo(uid: uid.asString(), username: username));
     return username;
   }
 

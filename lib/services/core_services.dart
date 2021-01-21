@@ -6,6 +6,7 @@ import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
+import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart' as Database;
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/models/messageType.dart';
@@ -59,6 +60,7 @@ class CoreServices {
 
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
+  var _userInfoDAo = GetIt.I.get<UserInfoDao>();
 
   Timer _connectionTimer;
 
@@ -211,10 +213,12 @@ class CoreServices {
         messageId: seen.id.toInt(),
         user: seen.from.asString(),
         roomId: roomId.asString()));
+    updateLastActivityTime(_userInfoDAo, seen.from, DateTime.now());
   }
 
   _saveActivityMessage(Activity activity) {
     _roomRepo.updateActivity(activity);
+    updateLastActivityTime(_userInfoDAo, activity.from, DateTime.now());
   }
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
@@ -242,6 +246,9 @@ class CoreServices {
     if ((await _accountRepo.notification).contains("true")) {
       showNotification(roomUid, message);
     }
+    if (message.from.category == Categories.USER)
+      updateLastActivityTime(_userInfoDAo, message.from,
+          DateTime.fromMillisecondsSinceEpoch(message.time.toInt()));
   }
 
   Future showNotification(Uid roomUid, Message message) async {
@@ -271,8 +278,6 @@ class CoreServices {
             roomId: roomUid.asString(),
             lastMessageId: Value(message.id.toInt()),
             mentioned: Value(isMention),
-            lastActivity: Value(
-                DateTime.fromMillisecondsSinceEpoch(message.time.toInt())),
             lastMessageDbId: Value(msg.dbId)),
       );
     } else {
@@ -284,6 +289,14 @@ class CoreServices {
 
     return roomUid;
   }
+}
+
+void updateLastActivityTime(
+    UserInfoDao userInfoDao, Uid userUid, DateTime lastActivityTime) {
+  userInfoDao.upsertUserInfo(Database.UserInfo(
+      uid: userUid.asString(),
+      lastActivity: lastActivityTime,
+      lastTimeActivityUpdated: DateTime.now()));
 }
 
 Future<bool> checkMention(String text, AccountRepo accountRepo) async {

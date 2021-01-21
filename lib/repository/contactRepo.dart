@@ -1,6 +1,6 @@
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/dao/UsernameDao.dart';
+import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart' as Database;
 
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
@@ -35,7 +35,7 @@ class ContactRepo {
 
   var contactServices = ContactServiceClient(ProfileServicesClientChannel);
 
-  var _usernameDao = GetIt.I.get<UsernameDao>();
+  var _usernameDao = GetIt.I.get<UserInfoDao>();
 
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
@@ -194,7 +194,7 @@ class ContactRepo {
           username: usernameReq.id,
           uid: contact.uid.asString()));
 
-      _usernameDao.insertUsername(Database.Username(
+      _usernameDao.upsertUserInfo(Database.UserInfo(
           uid: contact.uid.asString(), username: usernameReq.id));
     }
   }
