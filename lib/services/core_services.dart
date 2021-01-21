@@ -242,8 +242,8 @@ class CoreServices {
   _saveIncomingMessage(Message message) async {
     Uid roomUid =
         await saveMessage(_accountRepo, _messageDao, _roomDao, message);
-
-    if ((await _accountRepo.notification).contains("true")) {
+     Database.Room room = await _roomDao.getByRoomIdFuture(roomUid.asString());
+    if ((await _accountRepo.notification).contains("true") && !room.mute) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)

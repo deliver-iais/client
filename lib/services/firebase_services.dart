@@ -7,6 +7,7 @@ import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -33,16 +34,16 @@ class FireBaseServices {
   _sendFireBaseToken(String fireBaseToken) async {
     String firabase_setting = await _prefs.get(Firabase_Setting_Is_Set);
     if (firabase_setting == null) {
-      // try {
-      //   await fireBaseServices.registration(
-      //       RegistrationReq()..tokenId = fireBaseToken,
-      //       options: CallOptions(metadata: {
-      //         'accessToken': await _accountRepo.getAccessToken()
-      //       }));
-      //   _prefs.set(Firabase_Setting_Is_Set, "true");
-      // } catch (e) {
-      //   print(e.toString());
-      // }
+      try {
+        await fireBaseServices.registration(
+            RegistrationReq()..tokenId = fireBaseToken,
+            options: CallOptions(metadata: {
+              'accessToken': await _accountRepo.getAccessToken()
+            }));
+        _prefs.set(Firabase_Setting_Is_Set, "true");
+      } catch (e) {
+        print(e.toString());
+      }
     }
   }
 
@@ -126,11 +127,14 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
       }
     }
     if (msg.from.category == Categories.USER)
-      updateLastActivityTime(_userInfoDao, msg.from,
+      updateLastActivityTime(_userInfoDao, getRoomId(accountRepo, msg),
           DateTime.fromMillisecondsSinceEpoch(msg.time.toInt()));
-    if ((await accountRepo.notification).contains("true"))
+
+    Uid roomUid = getRoomId(accountRepo, msg);
+    db.Room room = await roomDao.getByRoomIdFuture(roomUid.asString());
+    if ((await accountRepo.notification).contains("true") && !room.mute)
       _notificationServices.showNotification(
-          msg, msg.from.asString(), roomName);
+          msg, getRoomId(accountRepo, msg).asString(), roomName);
   }
   if (message.containsKey('notification')) {
     //todo

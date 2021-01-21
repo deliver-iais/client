@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
@@ -30,6 +31,7 @@ class MucRepo {
   var accountRepo = GetIt.I.get<AccountRepo>();
   var messageDao = GetIt.I.get<MessageDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
+  var contactDao = GetIt.I.get<ContactDao>();
 
   var _queryServices = GetIt.I.get<QueryServiceClient>();
 
@@ -72,7 +74,6 @@ class MucRepo {
     try {
       var result = await mucServices.getGroupMembers(groupUid, 10, 0);
       List<Member> members = new List();
-
       for (MucPro.Member member in result) {
         members.add(await fetchMemberNameAndUsername(Member(
             mucUid: groupUid.asString(),
@@ -80,6 +81,7 @@ class MucRepo {
             role: getLocalRole(member.role))));
       }
       insertUserInDb(groupUid, members);
+      fetchMembersUserName(members);
     } catch (e) {
       print(e.toString());
     }
@@ -117,7 +119,6 @@ class MucRepo {
     }
   }
 
-  // TODO remove later on if Add User to group message feature is implemented
   Future<String> fetchMucInfo(Uid mucUid) async {
     if (mucUid.category == Categories.GROUP) {
       MucPro.GetGroupRes group = await getGroupInfo(mucUid);
@@ -127,26 +128,29 @@ class MucRepo {
           members: group.population.toInt(),
           uid: mucUid.asString(),
         ));
+
         getGroupMembers(mucUid);
         return group.info.name;
       }
     } else {
       GetChannelRes channel = await getChannelInfo(mucUid);
-      if (channel != null)
+      if (channel != null){
         _mucDao.insertMuc(Muc(
           name: channel.info.name,
           members: channel.population.toInt(),
           uid: mucUid.asString(),
         ));
-      insertUserInDb(mucUid, [
-        Member(
-            memberUid: _accountRepo.currentUserUid.asString(),
-            mucUid: mucUid.asString(),
-            role: getLocalRole(channel.requesterRole))
-      ]);
+        insertUserInDb(mucUid, [
+          Member(
+              memberUid: _accountRepo.currentUserUid.asString(),
+              mucUid: mucUid.asString(),
+              role: getLocalRole(channel.requesterRole))
+        ]);
+        if (channel.requesterRole != MucPro.Role.NONE)
+          getChannelMembers(mucUid);
+        return channel.info.name;
+      }
 
-      getChannelMembers(mucUid);
-      return channel.info.name ?? "";
     }
   }
 
@@ -396,5 +400,25 @@ class MucRepo {
         return MucRole.NONE;
     }
     throw Exception("Not Valid Role! $role");
+  }
+
+  void fetchMembersUserName(List<Member> members) async {
+    for (var member in members) {
+      var contact = await contactDao.getContactByUid(member.memberUid);
+      if (contact != null)
+        member = member.copyWith(
+            name: contact.firstName, username: contact.username);
+    }
+    for (var member in members) {
+      if (member.username == null) {
+        var username = await _queryServices.getIdByUid(
+            GetIdByUidReq()..uid = member.memberUid.getUid(),
+            options: CallOptions(metadata: {
+              'accessToken': await _accountRepo.getAccessToken()
+            }));
+        member = member.copyWith(username: username.id);
+      }
+      _memberDao.insertMember(member);
+    }
   }
 }

@@ -93,20 +93,23 @@ class FileService {
     file.writeAsBytesSync(res.data);
     return file;
   }
-  void initUpoadProgrss(String uploadId){
+
+  void initUpoadProgrss(String uploadId) {
     BehaviorSubject<double> behaviorSubject = BehaviorSubject();
     filesUploadStatus[uploadId] = behaviorSubject;
-
   }
-
 
   // TODO, refactoring needed
   uploadFile(String filePath, {String uploadKey, Function sendActivity}) async {
     _dio.interceptors
         .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
       options.onSendProgress = (int i, int j) {
-        sendActivity();
-        filesUploadStatus[uploadKey].add((i/j)) ;
+        if (sendActivity != null) sendActivity();
+        if (filesUploadStatus[uploadKey] == null) {
+          BehaviorSubject<double> d = BehaviorSubject();
+          filesUploadStatus[uploadKey] = d;
+        }
+        filesUploadStatus[uploadKey].add((i / j));
       };
       return options; //continue
     }));

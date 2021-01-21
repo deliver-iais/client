@@ -71,10 +71,8 @@ class _InputMessageWidget extends State<InputMessage> {
 
   bool startAudioRecorder = false;
 
-  Subject<ActivityType> activityObject =
-      BehaviorSubject.seeded(ActivityType.NO_ACTIVITY);
-  Subject<ActivityType> noActivitySubject =
-      BehaviorSubject.seeded(ActivityType.NO_ACTIVITY);
+  Subject<ActivityType> activityObject = BehaviorSubject();
+  Subject<ActivityType> noActivitySubject = BehaviorSubject();
 
   void showButtonSheet() {
     if (isDesktop()) {
@@ -98,8 +96,9 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   void initState() {
     super.initState();
-    activityObject.listen((activityType) {
-      noActivitySubject.add(ActivityType.NO_ACTIVITY);
+    activityObject
+        .debounceTime(Duration(milliseconds: 700))
+        .listen((activityType) {
       messageRepo.sendActivityMessage(
           widget.currentRoom.roomId.getUid(), activityType);
     });
@@ -185,7 +184,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                         FocusScope.of(context)
                                             .requestFocus(new FocusNode());
                                         showEmoji = true;
-
                                       }
                                     });
                                   },
