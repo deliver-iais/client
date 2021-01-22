@@ -39,6 +39,7 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -77,7 +78,10 @@ void setupDI() {
   getIt.registerSingleton<UxService>(UxService());
   getIt.registerSingleton<QueryServiceClient>(
       QueryServiceClient(QueryClientChannel));
-  getIt.registerSingleton<AccountRepo>(AccountRepo(sharedPrefs: db.sharedPreferencesDao));
+  getIt.registerSingleton<StickerServiceClient>(
+      StickerServiceClient(StickerClientChannel));
+  getIt.registerSingleton<AccountRepo>(
+      AccountRepo(sharedPrefs: db.sharedPreferencesDao));
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
@@ -103,7 +107,6 @@ void setupDI() {
   getIt.registerSingleton<MemberRepo>(MemberRepo());
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
   getIt.registerSingleton<LastActivityRepo>(LastActivityRepo());
-
 }
 
 setupFlutterNotification() async {
@@ -132,12 +135,9 @@ void main() {
   }
 
   if (isAndroid()) {
-    SmsAutoFill()
-        .getAppSignature
-        .then((signCode) {
-          //Fluttertoast.showToast(msg:"hash $signCode");
+    SmsAutoFill().getAppSignature.then((signCode) {
+      //Fluttertoast.showToast(msg:"hash $signCode");
     });
-
   }
 
   setupDIAndRunApp();

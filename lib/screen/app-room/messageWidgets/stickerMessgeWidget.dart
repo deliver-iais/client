@@ -4,6 +4,7 @@ import 'package:deliver_flutter/db/dao/StickerDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/stickerRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as FileProto;
 import 'package:flutter/cupertino.dart';
@@ -26,14 +27,16 @@ class StickerMessageWidget extends StatefulWidget {
 class _StickerMessageWidgetState extends State<StickerMessageWidget> {
   var fileRepo = GetIt.I.get<FileRepo>();
 
-  var stickerDao = GetIt.I.get<StickerDao>();
+
+
+  var _stickerRepo = GetIt.I.get<StickerRepo>();
 
   @override
   Widget build(BuildContext context) {
-    FileProto.File sticker = widget.message.json.toFile();
+    FileProto.File stickerMessage = widget.message.json.toFile();
     return Container(
       child: FutureBuilder<File>(
-        future: fileRepo.getFile(sticker.uuid, sticker.name),
+        future: fileRepo.getFile(stickerMessage.uuid, stickerMessage.name),
         builder: (c, sticker) {
           if (sticker.hasData && sticker.data != null) {
             return GestureDetector(
@@ -46,7 +49,8 @@ class _StickerMessageWidgetState extends State<StickerMessageWidget> {
                 showDialog(
                     context: c,
                     child: Flexible(
-                      child: StreamBuilder<List<Sticker>>(
+                      child: FutureBuilder<List<Sticker>>(
+                        future: _stickerRepo.getStickerPackByUUId(stickerMessage.uuid),
                         builder: (c, stickers) {
                           if (stickers.hasData && stickers.data != null) {
                             return GridView.count(

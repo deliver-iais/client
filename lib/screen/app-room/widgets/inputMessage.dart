@@ -428,8 +428,8 @@ class _InputMessageWidget extends State<InputMessage> {
                         setState(() {
                           controller.text = controller.text + emoji.toString();
                         });
-                      },onStickerTap: (String stickerUuid){
-                        messageRepo.sendStickerMessage(roomUid:widget.currentRoom.roomId.getUid(),stickerUuid:stickerUuid);
+                      },onStickerTap: (Sticker sticker){
+                        messageRepo.sendStickerMessage(roomUid:widget.currentRoom.roomId.getUid(),sticker:sticker);
                     },
                     )),
               )

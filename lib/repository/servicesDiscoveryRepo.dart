@@ -7,6 +7,12 @@ final QueryClientChannel = ClientChannel("172.16.121.37",
         credentials: ChannelCredentials.insecure(),
         connectionTimeout: Duration(seconds: 2)));
 
+final StickerClientChannel = ClientChannel("172.16.121.37",
+    port: 8081,
+    options: ChannelOptions(
+        credentials: ChannelCredentials.insecure(),
+        connectionTimeout: Duration(seconds: 2)));
+
 // ignore: non_constant_identifier_names
 final MucServicesClientChannel = ClientChannel("172.16.121.37",
     port: 8081,
