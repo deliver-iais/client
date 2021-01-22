@@ -10,6 +10,7 @@ import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/LastAvatarDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
+import 'package:deliver_flutter/db/dao/StickerDao.dart';
 import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -22,6 +23,7 @@ import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/repository/stickerRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart' as R;
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
@@ -73,6 +75,7 @@ void setupDI() {
   getIt.registerSingleton<LastSeenDao>(db.lastSeenDao);
   getIt.registerSingleton<MediaMetaDataDao>(db.mediaMetaDataDao);
   getIt.registerSingleton<UserInfoDao>(db.userInfoDao);
+  getIt.registerSingleton<StickerDao>(db.stickerDao);
 
   // Order is important, don't change it!
   getIt.registerSingleton<UxService>(UxService());
@@ -84,6 +87,7 @@ void setupDI() {
       AccountRepo(sharedPrefs: db.sharedPreferencesDao));
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   getIt.registerSingleton<FileService>(FileService());
+  getIt.registerSingleton<StickerRepo>(StickerRepo());
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<ContactRepo>(ContactRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
