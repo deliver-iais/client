@@ -28,7 +28,7 @@ ChatItemToShareFile({Key key, this.uid, this.sharedText,this.sharedFilePath})
                 SizedBox(
                   width: 12,
                 ),
-                ContactPic(true, uid),
+                ContactPic(uid),
                 SizedBox(
                   width: 12,
                 ),

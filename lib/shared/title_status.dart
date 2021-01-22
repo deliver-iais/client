@@ -60,7 +60,7 @@ class _TitleStatusState extends State<TitleStatus> {
               case TitleStatusConditions.Disconnected:
               case TitleStatusConditions.Connecting:
                 return Text(title(appLocalization, snapshot.data),
-                    style: this.widget.style);
+                    style: TextStyle(fontSize: 12,color: Theme.of(context).primaryColor));
                 break;
             }
             if (snapshot.data == TitleStatusConditions.Normal &&

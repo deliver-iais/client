@@ -188,9 +188,13 @@ class CoreServices {
   }
 
   sendActivityMessage(ActivityByClient activity, String id) {
-    _clientPacket.add(ClientPacket()
-      ..activity = activity
-      ..id = id);
+    if (!_clientPacket.isClosed)
+      _clientPacket.add(ClientPacket()
+        ..activity = activity
+        ..id = id);
+    else{
+      startStream();
+    }
   }
 
   _saveSeenMessage(Seen seen) {
@@ -242,8 +246,8 @@ class CoreServices {
   _saveIncomingMessage(Message message) async {
     Uid roomUid =
         await saveMessage(_accountRepo, _messageDao, _roomDao, message);
-     Database.Room room = await _roomDao.getByRoomIdFuture(roomUid.asString());
-    if ((await _accountRepo.notification).contains("true") && !room.mute) {
+    Database.Room room = await _roomDao.getByRoomIdFuture(roomUid.asString());
+    if ((await _accountRepo.notification).contains("true") && (room!= null &&!room.mute)) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)

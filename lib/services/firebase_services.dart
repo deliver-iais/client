@@ -132,7 +132,8 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
 
     Uid roomUid = getRoomId(accountRepo, msg);
     db.Room room = await roomDao.getByRoomIdFuture(roomUid.asString());
-    if ((await accountRepo.notification).contains("true") && !room.mute)
+    if ((await accountRepo.notification).contains("true") &&
+        (room != null && !room.mute))
       _notificationServices.showNotification(
           msg, getRoomId(accountRepo, msg).asString(), roomName);
   }
