@@ -244,6 +244,40 @@ class MessageRepo {
     sendActivityMessage(message.to.value.getUid(), ActivityType.NO_ACTIVITY);
   }
 
+  sendStickerMessage(
+      {Uid roomUid,
+      Sticker sticker,
+      int replyId,
+      String forwardedFromAsString}) async {
+    FileProto.File sendingFakeFile = FileProto.File()
+      ..uuid = sticker.uuid
+      ..type = "image"
+      ..name = sticker.name
+      ..duration = 0;
+    String packetId = _getPacketId();
+    MessagesCompanion message = MessagesCompanion.insert(
+      roomId: roomUid.asString(),
+      packetId: packetId,
+      time: now(),
+      from: _accountRepo.currentUserUid.asString(),
+      to: roomUid.asString(),
+      replyToId: replyId != null ? Value(replyId) : Value.absent(),
+      forwardedFrom: Value(forwardedFromAsString),
+      type: MessageType.STICKER,
+      json: sendingFakeFile.writeToJson(),
+    );
+
+    int dbId = await _messageDao.insertMessageCompanion(message);
+    await _savePendingMessage(
+        roomUid.asString(), dbId, packetId, SendingStatus.PENDING);
+    _updateRoomLastMessage(
+      roomUid.asString(),
+      dbId,
+    );
+    // Send Message
+    await _sendMessageToServer(dbId);
+  }
+
   _sendFileToServerOfPendingMessage(int dbId) async {
     var message = await _messageDao.getPendingMessage(dbId);
     var pendingMessage = await _pendingMessageDao.getByMessageDbId(dbId);
@@ -343,6 +377,9 @@ class MessageRepo {
         break;
       case MessageType.LOCATION:
         byClient.location = MessageProto.Location.fromJson(message.json);
+        break;
+      case MessageType.STICKER:
+        byClient.sticker = FileProto.File.fromJson(message.json);
         break;
       default:
         break;
@@ -495,5 +532,4 @@ class MessageRepo {
       _coreServices.sendActivityMessage(activityByClient, _getPacketId());
     }
   }
-
 }

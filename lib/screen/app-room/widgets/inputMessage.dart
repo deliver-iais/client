@@ -422,13 +422,15 @@ class _InputMessageWidget extends State<InputMessage> {
                   return Future.value(false);
                 },
                 child: Container(
-                    height: 220.0,
+                    height: 240.0,
                     child: EmojiKeybord(
                       onTap: (emoji) {
                         setState(() {
                           controller.text = controller.text + emoji.toString();
                         });
-                      },
+                      },onStickerTap: (String stickerUuid){
+                        messageRepo.sendStickerMessage(roomUid:widget.currentRoom.roomId.getUid(),stickerUuid:stickerUuid);
+                    },
                     )),
               )
             : SizedBox(),

@@ -150,6 +150,8 @@ flutter:
   assets:
     - assets/images/a.flr
     - assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png
+    - assets/icons/stickerIcon.png
+    - assets/icons/emojiIcon.png
     - assets/audios/r.mp3
     - lib/lang/fa.json
     - lib/lang/en.json

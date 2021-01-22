@@ -8,12 +8,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
-class LocationMessage extends StatelessWidget {
+class LocationMessageWidget extends StatelessWidget {
   final db.Message message;
   final bool isSender;
   final bool isSeen;
 
-  LocationMessage({this.message, this.isSeen, this.isSender});
+  LocationMessageWidget({this.message, this.isSeen, this.isSender});
 
   @override
   Widget build(BuildContext context) {

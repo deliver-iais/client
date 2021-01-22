@@ -143,8 +143,6 @@ class CoreServices {
             break;
           case ServerPacket_Type.liveLocationStatusChanged:
             break;
-          case ServerPacket_Type.message:
-            break;
           case ServerPacket_Type.pong:
             break;
           case ServerPacket_Type.notSet:

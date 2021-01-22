@@ -5289,6 +5289,243 @@ class $UserInfosTable extends UserInfos
   }
 }
 
+class Sticker extends DataClass implements Insertable<Sticker> {
+  final String uuid;
+  final String packId;
+  final String name;
+  Sticker({@required this.uuid, @required this.packId, @required this.name});
+  factory Sticker.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    return Sticker(
+      uuid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uuid']),
+      packId:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}pack_id']),
+      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || uuid != null) {
+      map['uuid'] = Variable<String>(uuid);
+    }
+    if (!nullToAbsent || packId != null) {
+      map['pack_id'] = Variable<String>(packId);
+    }
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    return map;
+  }
+
+  StickersCompanion toCompanion(bool nullToAbsent) {
+    return StickersCompanion(
+      uuid: uuid == null && nullToAbsent ? const Value.absent() : Value(uuid),
+      packId:
+          packId == null && nullToAbsent ? const Value.absent() : Value(packId),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+    );
+  }
+
+  factory Sticker.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return Sticker(
+      uuid: serializer.fromJson<String>(json['uuid']),
+      packId: serializer.fromJson<String>(json['packId']),
+      name: serializer.fromJson<String>(json['name']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'uuid': serializer.toJson<String>(uuid),
+      'packId': serializer.toJson<String>(packId),
+      'name': serializer.toJson<String>(name),
+    };
+  }
+
+  Sticker copyWith({String uuid, String packId, String name}) => Sticker(
+        uuid: uuid ?? this.uuid,
+        packId: packId ?? this.packId,
+        name: name ?? this.name,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Sticker(')
+          ..write('uuid: $uuid, ')
+          ..write('packId: $packId, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      $mrjf($mrjc(uuid.hashCode, $mrjc(packId.hashCode, name.hashCode)));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is Sticker &&
+          other.uuid == this.uuid &&
+          other.packId == this.packId &&
+          other.name == this.name);
+}
+
+class StickersCompanion extends UpdateCompanion<Sticker> {
+  final Value<String> uuid;
+  final Value<String> packId;
+  final Value<String> name;
+  const StickersCompanion({
+    this.uuid = const Value.absent(),
+    this.packId = const Value.absent(),
+    this.name = const Value.absent(),
+  });
+  StickersCompanion.insert({
+    @required String uuid,
+    @required String packId,
+    @required String name,
+  })  : uuid = Value(uuid),
+        packId = Value(packId),
+        name = Value(name);
+  static Insertable<Sticker> custom({
+    Expression<String> uuid,
+    Expression<String> packId,
+    Expression<String> name,
+  }) {
+    return RawValuesInsertable({
+      if (uuid != null) 'uuid': uuid,
+      if (packId != null) 'pack_id': packId,
+      if (name != null) 'name': name,
+    });
+  }
+
+  StickersCompanion copyWith(
+      {Value<String> uuid, Value<String> packId, Value<String> name}) {
+    return StickersCompanion(
+      uuid: uuid ?? this.uuid,
+      packId: packId ?? this.packId,
+      name: name ?? this.name,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (uuid.present) {
+      map['uuid'] = Variable<String>(uuid.value);
+    }
+    if (packId.present) {
+      map['pack_id'] = Variable<String>(packId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StickersCompanion(')
+          ..write('uuid: $uuid, ')
+          ..write('packId: $packId, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $StickersTable extends Stickers with TableInfo<$StickersTable, Sticker> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $StickersTable(this._db, [this._alias]);
+  final VerificationMeta _uuidMeta = const VerificationMeta('uuid');
+  GeneratedTextColumn _uuid;
+  @override
+  GeneratedTextColumn get uuid => _uuid ??= _constructUuid();
+  GeneratedTextColumn _constructUuid() {
+    return GeneratedTextColumn(
+      'uuid',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _packIdMeta = const VerificationMeta('packId');
+  GeneratedTextColumn _packId;
+  @override
+  GeneratedTextColumn get packId => _packId ??= _constructPackId();
+  GeneratedTextColumn _constructPackId() {
+    return GeneratedTextColumn(
+      'pack_id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  GeneratedTextColumn _name;
+  @override
+  GeneratedTextColumn get name => _name ??= _constructName();
+  GeneratedTextColumn _constructName() {
+    return GeneratedTextColumn(
+      'name',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [uuid, packId, name];
+  @override
+  $StickersTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'stickers';
+  @override
+  final String actualTableName = 'stickers';
+  @override
+  VerificationContext validateIntegrity(Insertable<Sticker> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('uuid')) {
+      context.handle(
+          _uuidMeta, uuid.isAcceptableOrUnknown(data['uuid'], _uuidMeta));
+    } else if (isInserting) {
+      context.missing(_uuidMeta);
+    }
+    if (data.containsKey('pack_id')) {
+      context.handle(_packIdMeta,
+          packId.isAcceptableOrUnknown(data['pack_id'], _packIdMeta));
+    } else if (isInserting) {
+      context.missing(_packIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {uuid};
+  @override
+  Sticker map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return Sticker.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $StickersTable createAlias(String alias) {
+    return $StickersTable(_db, alias);
+  }
+}
+
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $MessagesTable _messages;
@@ -5324,6 +5561,8 @@ abstract class _$Database extends GeneratedDatabase {
       _mediasMetaData ??= $MediasMetaDataTable(this);
   $UserInfosTable _userInfos;
   $UserInfosTable get userInfos => _userInfos ??= $UserInfosTable(this);
+  $StickersTable _stickers;
+  $StickersTable get stickers => _stickers ??= $StickersTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
@@ -5358,6 +5597,8 @@ abstract class _$Database extends GeneratedDatabase {
       _mediaMetaDataDao ??= MediaMetaDataDao(this as Database);
   UserInfoDao _userInfoDao;
   UserInfoDao get userInfoDao => _userInfoDao ??= UserInfoDao(this as Database);
+  StickerDao _stickerDao;
+  StickerDao get stickerDao => _stickerDao ??= StickerDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
@@ -5376,6 +5617,7 @@ abstract class _$Database extends GeneratedDatabase {
         mucs,
         lastSeens,
         mediasMetaData,
-        userInfos
+        userInfos,
+        stickers
       ];
 }

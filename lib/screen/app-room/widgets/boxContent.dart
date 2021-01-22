@@ -5,6 +5,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/locatioin_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/message_ui.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/reply_widgets/reply_widget_in_message.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/stickerMessgeWidget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/text_message/text_ui.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -151,10 +152,10 @@ class _BoxContentState extends State<BoxContent> {
             last: last);
         break;
       case MessageType.STICKER:
-        // TODO: Handle this case.
+        return StickerMessageWidget(widget.message, widget.isSender, widget.isSeen);
         break;
       case MessageType.LOCATION:
-        return LocationMessage(
+        return LocationMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
