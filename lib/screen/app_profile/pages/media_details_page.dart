@@ -8,8 +8,11 @@ import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_ui.dart';
+import 'package:deliver_flutter/screen/app_profile/widgets/video_playing_details_ui.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/services/video_player_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
@@ -64,6 +67,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   var _mediaCache = LruCache<String, Media>(storage: SimpleStorage(size: 50));
   var _mediaSenderCache = LruCache<String, String>(storage: SimpleStorage(size: 50));
   var _isVideoThumnailExistCache = LruCache<String,bool>(storage: SimpleStorage(size: 50));
+  VideoPlayerService videoPlayerService = GetIt.I.get<VideoPlayerService>();
+
   bool _isVideoThumnailExist;
 
   var isDeleting = false;
@@ -383,6 +388,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   }
 
   Widget buildVideo(BuildContext context){
+
     return Scaffold(
       body: Container(
         child: Swiper(
@@ -427,7 +433,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                isExistSnap.data == true){
                              _isVideoThumnailExistCache.set(fileId, true);
                              return FutureBuilder(
-                                 future: _fileRepo.getFile(fileId, fileName + "png",thumbnailSize: ThumbnailSize.small),
+                                 future: _fileRepo.getFile(fileId, fileName),
                                  builder: (BuildContext c, AsyncSnapshot snaps) {
                                    if (snaps.hasData &&
                                        snaps.data != null &&
@@ -450,32 +456,34 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                                //   tag: widget.heroTag,
                                                   child: Stack(
                                                     children:[
-                                                      Container(
-                                                       decoration: new BoxDecoration(
-                                                         image: new DecorationImage(
-                                                           image: Image.file(
-                                                             snaps.data,
-                                                           ).image,
-                                                           fit: BoxFit.fitWidth,
-                                                         ),
-                                                       ),
-                                                     ),
-                                                      Center(
-                                                          child: Container(
-                                                            width: 50,
-                                                            height: 50,
-                                                            decoration: BoxDecoration(
-                                                              shape: BoxShape.circle,
-                                                              color: Colors.black.withOpacity(0.5),
-                                                            ),
-                                                            child: IconButton(
-                                                                icon: Icon(Icons.play_arrow),
-                                                                color:  Colors.white10,
-                                                                // onPressed: () {
-                                                                //   videoPlayerService.videoPlayerController.play();
-                                                                // }
-                                                                ),
-                                                          ))
+                                                     //  Container(
+                                                     //   decoration: new BoxDecoration(
+                                                     //     image: new DecorationImage(
+                                                     //       image: Image.file(
+                                                     //         snaps.data,
+                                                     //       ).image,
+                                                     //       fit: BoxFit.fitWidth,
+                                                     //     ),
+                                                     //   ),
+                                                     // ),
+                                   VideoUi(video: snaps.data,),
+                                                      // Center(
+                                                      //     child: Container(
+                                                      //       width: 50,
+                                                      //       height: 50,
+                                                      //       decoration: BoxDecoration(
+                                                      //         shape: BoxShape.circle,
+                                                      //         color: Colors.black.withOpacity(0.5),
+                                                      //       ),
+                                                      //       child: IconButton(
+                                                      //           icon: Icon(Icons.play_arrow),
+                                                      //           color:  Colors.white10,
+                                                      //           onPressed: () async {
+                                                      //             VideoUi(video: snaps.data,);
+                                                      //             // videoPlayerService.videoPlayerController.play();
+                                                      //           }
+                                                      //           ),
+                                                      //     ))
                                                     ],
                                                   ),
                                                //   transitionOnUserGestures: true,
@@ -620,9 +628,10 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                         child: IconButton(
                                           icon: Icon(Icons.play_arrow),
                                           color:  Colors.white10,
-                                          // onPressed: () {
-                                          //   videoPlayerService.videoPlayerController.play();
-                                          // }
+                                            onPressed: () async {
+                                              // playVideo(fileId, fileName);
+                                              // videoPlayerService.videoPlayerController.play();
+                                            }
                                         ),
                                       ))
                                 ],
@@ -731,9 +740,10 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                                   child: IconButton(
                                                     icon: Icon(Icons.play_arrow),
                                                     color:  Colors.white10,
-                                                    // onPressed: () {
-                                                    //   videoPlayerService.videoPlayerController.play();
-                                                    // }
+                                                      onPressed: ()async {
+                                                        // playVideo(fileId, fileName);
+                                                        // videoPlayerService.videoPlayerController.play();
+                                                      }
                                                   ),
                                                 ))
                                           ],
@@ -841,6 +851,12 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         ),
       ),
     );
+  }
+
+  playVideo(File file) async{
+   //File file=await _fileRepo.getFile(fileId, fileName);
+   await videoPlayerService.videoControllerInitialization(file);
+   videoPlayerService.videoPlayerController.play();
   }
 
   setMediaUrlCache(int currentPosition, List<Media> mediaList) {

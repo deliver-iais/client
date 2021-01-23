@@ -56,11 +56,11 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
     super.initState();
 
   }
- // @override
- // void dispose() {
- //   _tabController.dispose();
- //   super.dispose();
- // }
+ @override
+ void dispose() {
+   _tabController.dispose();
+   super.dispose();
+ }
 
 
  download(String uuid, String name) async {
