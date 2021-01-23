@@ -4,6 +4,7 @@ import 'package:deliver_flutter/db/LastAvatar.dart';
 import 'package:deliver_flutter/db/MediaMetaData.dart';
 import 'package:deliver_flutter/db/Messages.dart';
 import 'package:deliver_flutter/db/SharedPreferences.dart';
+import 'package:deliver_flutter/db/StickerId.dart';
 import 'package:deliver_flutter/db/Stickers.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
@@ -15,12 +16,12 @@ import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
+import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
 import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/models/role.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
 import 'package:path_provider/path_provider.dart';
@@ -61,7 +62,8 @@ part 'database.g.dart';
   LastSeens,
   MediasMetaData,
   UserInfos,
-  Stickers
+  Stickers,
+  StickerIds
 ], daos: [
   MessageDao,
   RoomDao,
@@ -78,7 +80,8 @@ part 'database.g.dart';
   LastSeenDao,
   MediaMetaDataDao,
   UserInfoDao,
-  StickerDao
+  StickerDao,
+  StickerIdDao
 ])
 class Database extends _$Database {
   Database()

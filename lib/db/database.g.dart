@@ -5578,6 +5578,205 @@ class $StickersTable extends Stickers with TableInfo<$StickersTable, Sticker> {
   }
 }
 
+class StickerId extends DataClass implements Insertable<StickerId> {
+  final String packId;
+  final String packName;
+  StickerId({@required this.packId, @required this.packName});
+  factory StickerId.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    return StickerId(
+      packId:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}pack_id']),
+      packName: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}pack_name']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || packId != null) {
+      map['pack_id'] = Variable<String>(packId);
+    }
+    if (!nullToAbsent || packName != null) {
+      map['pack_name'] = Variable<String>(packName);
+    }
+    return map;
+  }
+
+  StickerIdsCompanion toCompanion(bool nullToAbsent) {
+    return StickerIdsCompanion(
+      packId:
+          packId == null && nullToAbsent ? const Value.absent() : Value(packId),
+      packName: packName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(packName),
+    );
+  }
+
+  factory StickerId.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return StickerId(
+      packId: serializer.fromJson<String>(json['packId']),
+      packName: serializer.fromJson<String>(json['packName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'packId': serializer.toJson<String>(packId),
+      'packName': serializer.toJson<String>(packName),
+    };
+  }
+
+  StickerId copyWith({String packId, String packName}) => StickerId(
+        packId: packId ?? this.packId,
+        packName: packName ?? this.packName,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('StickerId(')
+          ..write('packId: $packId, ')
+          ..write('packName: $packName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(packId.hashCode, packName.hashCode));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is StickerId &&
+          other.packId == this.packId &&
+          other.packName == this.packName);
+}
+
+class StickerIdsCompanion extends UpdateCompanion<StickerId> {
+  final Value<String> packId;
+  final Value<String> packName;
+  const StickerIdsCompanion({
+    this.packId = const Value.absent(),
+    this.packName = const Value.absent(),
+  });
+  StickerIdsCompanion.insert({
+    @required String packId,
+    @required String packName,
+  })  : packId = Value(packId),
+        packName = Value(packName);
+  static Insertable<StickerId> custom({
+    Expression<String> packId,
+    Expression<String> packName,
+  }) {
+    return RawValuesInsertable({
+      if (packId != null) 'pack_id': packId,
+      if (packName != null) 'pack_name': packName,
+    });
+  }
+
+  StickerIdsCompanion copyWith({Value<String> packId, Value<String> packName}) {
+    return StickerIdsCompanion(
+      packId: packId ?? this.packId,
+      packName: packName ?? this.packName,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (packId.present) {
+      map['pack_id'] = Variable<String>(packId.value);
+    }
+    if (packName.present) {
+      map['pack_name'] = Variable<String>(packName.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StickerIdsCompanion(')
+          ..write('packId: $packId, ')
+          ..write('packName: $packName')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $StickerIdsTable extends StickerIds
+    with TableInfo<$StickerIdsTable, StickerId> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $StickerIdsTable(this._db, [this._alias]);
+  final VerificationMeta _packIdMeta = const VerificationMeta('packId');
+  GeneratedTextColumn _packId;
+  @override
+  GeneratedTextColumn get packId => _packId ??= _constructPackId();
+  GeneratedTextColumn _constructPackId() {
+    return GeneratedTextColumn(
+      'pack_id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _packNameMeta = const VerificationMeta('packName');
+  GeneratedTextColumn _packName;
+  @override
+  GeneratedTextColumn get packName => _packName ??= _constructPackName();
+  GeneratedTextColumn _constructPackName() {
+    return GeneratedTextColumn(
+      'pack_name',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [packId, packName];
+  @override
+  $StickerIdsTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'sticker_ids';
+  @override
+  final String actualTableName = 'sticker_ids';
+  @override
+  VerificationContext validateIntegrity(Insertable<StickerId> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('pack_id')) {
+      context.handle(_packIdMeta,
+          packId.isAcceptableOrUnknown(data['pack_id'], _packIdMeta));
+    } else if (isInserting) {
+      context.missing(_packIdMeta);
+    }
+    if (data.containsKey('pack_name')) {
+      context.handle(_packNameMeta,
+          packName.isAcceptableOrUnknown(data['pack_name'], _packNameMeta));
+    } else if (isInserting) {
+      context.missing(_packNameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {packId};
+  @override
+  StickerId map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return StickerId.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $StickerIdsTable createAlias(String alias) {
+    return $StickerIdsTable(_db, alias);
+  }
+}
+
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $MessagesTable _messages;
@@ -5615,6 +5814,8 @@ abstract class _$Database extends GeneratedDatabase {
   $UserInfosTable get userInfos => _userInfos ??= $UserInfosTable(this);
   $StickersTable _stickers;
   $StickersTable get stickers => _stickers ??= $StickersTable(this);
+  $StickerIdsTable _stickerIds;
+  $StickerIdsTable get stickerIds => _stickerIds ??= $StickerIdsTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
@@ -5651,6 +5852,9 @@ abstract class _$Database extends GeneratedDatabase {
   UserInfoDao get userInfoDao => _userInfoDao ??= UserInfoDao(this as Database);
   StickerDao _stickerDao;
   StickerDao get stickerDao => _stickerDao ??= StickerDao(this as Database);
+  StickerIdDao _stickerIdDao;
+  StickerIdDao get stickerIdDao =>
+      _stickerIdDao ??= StickerIdDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
@@ -5670,6 +5874,7 @@ abstract class _$Database extends GeneratedDatabase {
         lastSeens,
         mediasMetaData,
         userInfos,
-        stickers
+        stickers,
+        stickerIds
       ];
 }

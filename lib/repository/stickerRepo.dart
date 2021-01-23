@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/stickerPacket.dart';
@@ -30,22 +32,26 @@ class StickerRepo {
                 name: stickerFile.name,
                 packName: result.pack.name));
           }
-          // _stickerDao.saveStikers(newStickers);
           return StickerPacket(stickers: newStickers, isExit: false);
         }
       }
       return StickerPacket(stickers: stickers, isExit: true);
     }
   }
+
   void saveStickers(List<Sticker> stickers) {
     _stickerDao.saveStikers(stickers);
   }
+
+
 
   getTrendPacks() async {
     var result = await _stickerServices.getTrendPacks(GetTrendPacksReq(),
         options: CallOptions(
             metadata: {"accessToken": await _accountRepo.getAccessToken()}));
-    if (result != null) {}
+    if (result != null) {
+
+    }
   }
 
   Stream<List<Sticker>> getAllSticker() {
@@ -77,6 +83,4 @@ class StickerRepo {
         packId: "1"));
     _stickerDao.saveStikers(stickers);
   }
-
-
 }
