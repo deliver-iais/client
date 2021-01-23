@@ -53,7 +53,11 @@ class MediaQueryRepo {
       mediaResponse = await _queryServiceClient.getMediaMetadata(getMediaMetaDataReq,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      Uid access=await  _accountRepo.currentUserUid;
+      print("accessssssssssstokkkkkkkkkkkeeeeen$uid");
+
       print("tttttttttttttttttttttttt${mediaResponse}");
+
       await insertMediaMetaData(uid, mediaResponse);
     } catch (e) {
       print("metaDataEroorrrr$e");
@@ -89,7 +93,7 @@ class MediaQueryRepo {
     //insertMediaMetaData(uid, mediaResponse);
   }
 
-  insertMediaMetaData(
+  Future insertMediaMetaData(
       Uid uid, queryObject.GetMediaMetadataRes mediaResponse) async {
     await _mediaMetaDataDao.upsertMetaData(MediasMetaDataData(
       roomId: uid.asString(),

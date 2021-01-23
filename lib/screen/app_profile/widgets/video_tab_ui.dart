@@ -29,10 +29,9 @@ class VideoTabUi extends StatefulWidget {
 class _VideoTabUiState extends State<VideoTabUi> {
   var mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   var fileRepo = GetIt.I.get<FileRepo>();
-  var _isExistCache = LruCache<String, bool>(storage: SimpleStorage(size: 30));
-  var _thumbCache = LruCache<String,File>(storage: SimpleStorage(size: 30));
   Duration duration;
   String videoLength;
+  bool isExist;
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +55,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                 itemBuilder: (context, position) {
                   var fileId = jsonDecode(snaps.data[position].json)["uuid"];
                   var fileName = jsonDecode(snaps.data[position].json)["name"];
-                  var videoDuration =
-                      jsonDecode(snaps.data[position].json)["duration"];
+                  var videoDuration = jsonDecode(snaps.data[position].json)["duration"];
                   duration = Duration(seconds: videoDuration.round());
                   if (duration.inHours == 0) {
                     videoLength = duration.inMinutes > 9
@@ -67,8 +65,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                     videoLength =
                         duration.toString().split('.').first.padLeft(8, "0");
                   }
-                   // var isExist = _isExistCache.get(fileId);
-                   // if (isExist == null)
+
                   return FutureBuilder<bool>(
                       future: fileRepo.isExist(fileId, fileName),
                       builder: (BuildContext c, AsyncSnapshot videoFile) {
@@ -76,10 +73,6 @@ class _VideoTabUiState extends State<VideoTabUi> {
                             videoFile.data != null &&
                             videoFile.connectionState == ConnectionState.done &&
                             videoFile.data == true) {
-
-                          // _isExistCache.set(fileId, videoFile.data);
-                          // var thumb = _thumbCache.get(fileId);
-                          // if(thumb==null)
                           return FutureBuilder<File>(
                               future: fileRepo.getFile(fileId, fileName + "png",
                                   thumbnailSize: ThumbnailSize.small),
@@ -91,10 +84,13 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                         ConnectionState.done) {
 
                                   print("FilevideoooooooPosition$position");
-
-                                  // _thumbCache.set(fileId, thumbFile.data);
                                   return VideoThumbnail(
-                                      thumbFile.data, videoLength, true);
+                                    userUid: widget.userUid,
+                                  thumbnail: thumbFile.data,
+                                    videoCount: widget.videoCount,
+                                    isExist: true,
+                                  mediaPosition: position,
+                                  videoLength: videoLength,);
                                 } else {
                                   return Container(
                                     width: 0,
@@ -102,17 +98,10 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                   );
                                 }
                               });
-                          // else{
-                          //   return VideoThumbnail(
-                          //       thumb, videoLength, true);
-                          // }
+
                         } else if (videoFile.data != null &&
                             videoFile.connectionState == ConnectionState.done &&
                             videoFile.data == false) {
-
-                          // _isExistCache.set(fileId, videoFile.data);
-                          // var thumb = _thumbCache.get(fileId);
-                          // if(thumb==null)
                           return FutureBuilder<File>(
                             future: fileRepo.getFile(fileId, fileName + "png",
                                 thumbnailSize: ThumbnailSize.small),
@@ -123,10 +112,14 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                   thumbnailFile.connectionState ==
                                       ConnectionState.done) {
                                 print("FilevideoooooooPosition$position");
-
-                                // _thumbCache.set(fileId, thumbnailFile.data);
                                 return VideoThumbnail(
-                                    thumbnailFile.data, videoLength, false);
+                                  userUid: widget.userUid,
+                                  thumbnail: thumbnailFile.data,
+                                  videoCount: widget.videoCount,
+                                  isExist: false,
+                                  mediaPosition: position,
+                                  videoLength: videoLength,
+                                );
                               } else {
                                 return Container(
                                   width: 0,
@@ -135,10 +128,6 @@ class _VideoTabUiState extends State<VideoTabUi> {
                               }
                             },
                           );
-                          // else{
-                          //   return VideoThumbnail(
-                          //       thumb, videoLength, false);
-                          // }
                         } else {
                           return Container(
                             width: 0,
@@ -146,63 +135,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                           );
                         }
                       });
-                   // else{
-                   //      if(isExist==true){
-                   //        return FutureBuilder<File>(
-                   //            future: fileRepo.getFile(fileId, fileName + "png",
-                   //                thumbnailSize: ThumbnailSize.small),
-                   //            builder: (BuildContext buildContext,
-                   //                AsyncSnapshot thumbFile) {
-                   //              print("FilevideoooooooPosition$position");
-                   //              if (thumbFile.data != null &&
-                   //                  thumbFile.hasData &&
-                   //                  thumbFile.connectionState ==
-                   //                      ConnectionState.done) {
-                   //                return VideoThumbnail(
-                   //                    thumbFile.data, videoLength, true);
-                   //              } else {
-                   //                return Container(
-                   //                  width: 0,
-                   //                  height: 0,
-                   //                );
-                   //              }
-                   //            });
-                   //
-                   //      }else{
-                   //        return FutureBuilder<File>(
-                   //          future: fileRepo.getFile(fileId, fileName + "png",
-                   //              thumbnailSize: ThumbnailSize.small),
-                   //          builder:
-                   //              (BuildContext c, AsyncSnapshot thumbnailFile) {
-                   //            print("FileeeeevideoooooooPosition$position");
-                   //            if (thumbnailFile.hasData &&
-                   //                thumbnailFile.data != null &&
-                   //                thumbnailFile.connectionState ==
-                   //                    ConnectionState.done) {
-                   //              return VideoThumbnail(
-                   //                  thumbnailFile.data, videoLength, false);
-                   //            } else {
-                   //              return Container(
-                   //                width: 0,
-                   //                height: 0,
-                   //              );
-                   //            }
-                   //          },
-                   //        );
-                   //      }
-                   // }
                 });
-            // else {
-            //   return GestureDetector(
-            //     // onTap: () {
-            //     //   _routingService.openShowAllMedia(
-            //     //     uid: widget.userUid,
-            //     //     hasPermissionToDeletePic: true,
-            //     //     mediaPosition: position,
-            //     //     heroTag: "btn$position",
-            //     //     mediasLength: imagesCount,
-            //     //   );
-            //     // },
           }
         });
   }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:auto_route/auto_route.dart';
 import 'package:dcache/dcache.dart';
+import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -37,26 +38,32 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
-  var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  List<String> mediaUrls = [];
+class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderStateMixin {
+ final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  var _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   var mediasLength;
-  Room currentRoomId;
-  List<Media> _fetchedMedia;
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
-
-  // int tabsCount;
+  TabController _tabController;
+ // int tabsCount=0;
   var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 30));
   @override
   void initState() {
-    super.initState();
     _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
-  }
+    _tabController = TabController(length: 3,vsync: this);
+    super.initState();
 
-  download(String uuid, String name) async {
+  }
+ // @override
+ // void dispose() {
+ //   _tabController.dispose();
+ //   super.dispose();
+ // }
+
+
+ download(String uuid, String name) async {
     await GetIt.I.get<FileRepo>().getFile(uuid, name);
     setState(() {});
   }
@@ -64,40 +71,41 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
+    int tabsCount=0;
 
 
-    return StreamBuilder(
-      stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
-      builder: (context, snapshot) {
-        int tabsCount = 0;
-
-        if (snapshot.hasData) {
-          if (snapshot.data.imagesCount != 0) {
-            tabsCount = tabsCount + 1;
-          }
-          if (snapshot.data.videosCount != 0) {
-            tabsCount = tabsCount + 1;
-          }
-          if (snapshot.data.linkCount != 0) {
-            tabsCount = tabsCount + 1;
-          }
-          if (snapshot.data.filesCount != 0) {
-            tabsCount = tabsCount + 1;
-          }
-          if (snapshot.data.documentsCount != 0) {
-            tabsCount = tabsCount + 1;
-          }
-          if (snapshot.data.musicsCount != 0) {
-            tabsCount = tabsCount + 1;
-          }
-          if (snapshot.data.audiosCount != 0) {
-            tabsCount = tabsCount + 1;
-          }
+    // return StreamBuilder<MediasMetaDataData>(
+    //   stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
+    //   builder: ( context, AsyncSnapshot<MediasMetaDataData> snapshot) {
+    //       tabsCount = 0;
+    //     if (snapshot.hasData && snapshot.data!=null) {
+    //       if (snapshot.data.imagesCount != 0) {
+    //         tabsCount = tabsCount + 1;
+    //       }
+    //       if (snapshot.data.videosCount != 0) {
+    //         tabsCount = tabsCount + 1;
+    //       }
+    //       if (snapshot.data.linkCount != 0) {
+    //         tabsCount = tabsCount + 1;
+    //       }
+    //       if (snapshot.data.filesCount != 0) {
+    //         tabsCount = tabsCount + 1;
+    //       }
+    //       if (snapshot.data.documentsCount != 0) {
+    //         tabsCount = tabsCount + 1;
+    //       }
+    //       if (snapshot.data.musicsCount != 0) {
+    //         tabsCount = tabsCount + 1;
+    //       }
+    //       if (snapshot.data.audiosCount != 0) {
+    //         tabsCount = tabsCount + 1;
+    //       }
           return Scaffold(
               body: DefaultTabController(
                   length: widget.userUid.category == Categories.USER
-                      ? tabsCount
-                      : tabsCount + 1,
+                      ? 3
+                      : 3 + 1,
+                  initialIndex: _tabController.index,
                   child: NestedScrollView(
                       headerSliverBuilder:
                           (BuildContext context, bool innerBoxIsScrolled) {
@@ -323,38 +331,40 @@ class _ProfilePageState extends State<ProfilePage> {
                                         text: appLocalization
                                             .getTraslateValue("members"),
                                       ),
-                                    if (snapshot.data.imagesCount != 0)
+                                    // if (snapshot.data.imagesCount != 0)
                                       Tab(
                                         text: appLocalization
                                             .getTraslateValue("images"),
                                       ),
-                                    if (snapshot.data.videosCount != 0)
+                                    // if (snapshot.data.videosCount != 0)
                                       Tab(
                                         text: appLocalization
                                             .getTraslateValue("videos"),
                                       ),
-                                    if (snapshot.data.filesCount != 0)
-                                      Tab(
-                                        text: appLocalization
-                                            .getTraslateValue("file"),
-                                      ),
-                                    if (snapshot.data.linkCount != 0)
-                                      Tab(
-                                          text: appLocalization
-                                              .getTraslateValue("links")),
-                                    if (snapshot.data.documentsCount != 0)
-                                      Tab(
-                                          text: appLocalization
-                                              .getTraslateValue("documents")),
-                                    if (snapshot.data.musicsCount != 0)
+                                    // if (snapshot.data.filesCount != 0)
+                                    //   Tab(
+                                    //     text: appLocalization
+                                    //         .getTraslateValue("file"),
+                                    //   ),
+                                    // if (snapshot.data.linkCount != 0)
+                                    //   Tab(
+                                    //       text: appLocalization
+                                    //           .getTraslateValue("links")),
+                                    // if (snapshot.data.documentsCount != 0)
+                                    //   Tab(
+                                    //       text: appLocalization
+                                    //           .getTraslateValue("documents")),
+                                    // if (snapshot.data.musicsCount != 0)
                                       Tab(
                                           text: appLocalization
                                               .getTraslateValue("musics")),
-                                    if (snapshot.data.audiosCount != 0)
-                                      Tab(
-                                          text: appLocalization
-                                              .getTraslateValue("audios")),
-                                  ]),
+                                    // if (snapshot.data.audiosCount != 0)
+                                    //   Tab(
+                                    //       text: appLocalization
+                                    //           .getTraslateValue("audios")),
+                                  ],
+                                    controller: _tabController,
+                                  ),
                                 )),
                           ),
                         ];
@@ -369,41 +379,43 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ]),
                           ),
-                        if (snapshot.data.imagesCount != 0)
-                          ImageUi(snapshot.data.imagesCount,widget.userUid),
-                        if (snapshot.data.videosCount != 0)
-                          VideoTabUi(userUid:widget.userUid,videoCount:snapshot.data.videosCount),
-                        if (snapshot.data.filesCount != 0)
-                          DocumentAndFileUi(
-                            userUid: widget.userUid,
-                            documentCount: snapshot.data.filesCount,
-                            type: FetchMediasReq_MediaType.FILES,
-                          ),
-                        if (snapshot.data.linkCount != 0)
-                          linkWidget(widget.userUid, _mediaQueryRepo,
-                              snapshot.data.linkCount),
-                        if (snapshot.data.documentsCount != 0)
-                          DocumentAndFileUi(
-                            userUid: widget.userUid,
-                            documentCount: snapshot.data.documentsCount,
-                            type: FetchMediasReq_MediaType.DOCUMENTS,
-                          ),
-                        if (snapshot.data.musicsCount != 0)
+                        // if (snapshot.data.imagesCount != 0)
+                           ImageUi(20,widget.userUid),
+                        // if (snapshot.data.videosCount != 0)
+                          VideoTabUi(userUid:widget.userUid,videoCount:4),
+                        // if (snapshot.data.filesCount != 0)
+                        //   DocumentAndFileUi(
+                        //     userUid: widget.userUid,
+                        //     documentCount: 0,
+                        //     type: FetchMediasReq_MediaType.FILES,
+                        //   ),
+                        // if (snapshot.data.linkCount != 0)
+                        //   linkWidget(widget.userUid, _mediaQueryRepo,
+                        //       0),
+                        // if (snapshot.data.documentsCount != 0)
+                        //   DocumentAndFileUi(
+                        //     userUid: widget.userUid,
+                        //     documentCount: 0,
+                        //     type: FetchMediasReq_MediaType.DOCUMENTS,
+                        //   ),
+                        // if (snapshot.data.musicsCount != 0)
                           MusicAndAudioUi(userUid: widget.userUid,type: FetchMediasReq_MediaType.MUSICS,
-                          mediaCount:snapshot.data.musicsCount,),
+                          mediaCount:6),
 
-                        if (snapshot.data.audiosCount != 0)
-                          MusicAndAudioUi(userUid: widget.userUid,type: FetchMediasReq_MediaType.AUDIOS,
-                            mediaCount:snapshot.data.audiosCount,),
-                          ])))));
-        } else {
-          return Container(
-            width: 100,
-            height: 100,
-          );
-        }
-      },
-    );
+                        // if (snapshot.data.audiosCount != 0)
+                        //   MusicAndAudioUi(userUid: widget.userUid,type: FetchMediasReq_MediaType.AUDIOS,
+                        //     mediaCount:10),
+                          ],
+                            controller: _tabController,
+                          )))));
+        // } else {
+        //   return Container(
+        //     width: 100,
+        //     height: 100,
+        //   );
+        // }
+    //   },
+    // );
   }
 }
 

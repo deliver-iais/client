@@ -1,26 +1,32 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class VideoThumbnail extends StatelessWidget {
   File thumbnail;
+  int videoCount;
   String videoLength;
   bool isExist;
-  VideoThumbnail(this.thumbnail, this.videoLength, this.isExist);
+  Uid userUid;
+  int mediaPosition;
+  var _routingService = GetIt.I.get<RoutingService>();
+
+  VideoThumbnail({@required this.userUid,@required this.mediaPosition,@required this.videoLength,this.thumbnail, this.videoCount, this.isExist});
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        // onTap: () {
-        //   _routingService.openShowAllMedia(
-        //     uid: userUid,
-        //     hasPermissionToDeletePic: true,
-        //     mediaPosition: position,
-        //     heroTag: "btn$position",
-        //     mediasLength: imagesCount,
-        //   );
-        // },
+        onTap: () {
+          _routingService.openShowAllVideos(
+            uid: userUid,
+            mediaPosition: mediaPosition,
+            mediasLength: videoCount,
+          );
+        },
         child: Stack(
       children: [
         Container(
