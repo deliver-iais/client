@@ -139,5 +139,7 @@
   "online": "انلاین",
   "channelId_not_empty": "آیدی کانال نباید خالی باشد.",
   "channel_id_length": " طول کم تر از 5",
-  "inter_Muc_Name": "نام را وارد کنید."
+  "inter_Muc_Name": "نام را وارد کنید.",
+  "close": "بستن",
+  "add_sticker": "اضافه کردن استیکر ها "
 }

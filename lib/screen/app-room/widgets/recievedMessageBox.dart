@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/boxContent.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,13 @@ class RecievedMessageBox extends StatelessWidget {
   final Function scrollToMessage;
   final Function omUsernameClick;
 
-  const RecievedMessageBox({Key key, this.message, this.maxWidth, this.isGroup,this.scrollToMessage,this.omUsernameClick})
+  const RecievedMessageBox(
+      {Key key,
+      this.message,
+      this.maxWidth,
+      this.isGroup,
+      this.scrollToMessage,
+      this.omUsernameClick})
       : super(key: key);
 
   @override
@@ -26,15 +33,28 @@ class RecievedMessageBox extends StatelessWidget {
           }
           return Padding(
             padding: const EdgeInsets.all(8.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-              child: Container(
-                color: ExtraTheme.of(context).secondColor,
-                padding: const EdgeInsets.all(2),
-                child: BoxContent(
-                    message: message, maxWidth: maxWidth, isSender: false,scrollToMessage:scrollToMessage,onUsernameClick: this.omUsernameClick,),
-              ),
-            ),
+            child: message.type == MessageType.STICKER
+                ? BoxContent(
+                    message: message,
+                    maxWidth: maxWidth,
+                    isSender: false,
+                    scrollToMessage: scrollToMessage,
+                    onUsernameClick: this.omUsernameClick,
+                  )
+                : ClipRRect(
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    child: Container(
+                      color: ExtraTheme.of(context).secondColor,
+                      padding: const EdgeInsets.all(2),
+                      child: BoxContent(
+                        message: message,
+                        maxWidth: maxWidth,
+                        isSender: false,
+                        scrollToMessage: scrollToMessage,
+                        onUsernameClick: this.omUsernameClick,
+                      ),
+                    ),
+                  ),
           );
         });
   }

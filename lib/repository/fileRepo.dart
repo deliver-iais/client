@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:deliver_flutter/db/dao/FileDao.dart';
+import 'package:deliver_flutter/db/dao/StickerDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
@@ -24,7 +25,6 @@ class FileRepo {
     await _saveFileInfo(uploadKey, localFile, name, "real");
     await _saveFileInfo(uploadKey, localFile, name, "large");
   }
-
   Future<FileProto.File> uploadClonedFile(String uploadKey, String name,{Function sendActivity}) async {
     final clonedFilePath = await _fileService.localFilePath(uploadKey, name);
 
@@ -71,17 +71,6 @@ class FileRepo {
     }
     return null;
   }
-
-  //todo delete
-  Future<List<File>> getStickers()async {
-    List<File> stickers = new List();
-    stickers.add(await getFile('eda821dc-878d-4020-ab3b-51f346ff4689', "c579e39a-cb80-4cf9-be2c-4cde24a18b50.image_picker4382935534051180548.jpg"));
-    stickers.add(await getFile("ecf4fbb6-e975-459f-8958-d79de57829eb", "c579e39a-cb80-4cf9-be2c-4cde24a18b50.image_picker5222062023281853666.jpg"));
-    stickers.add(await getFile("bb04b15c-cfaf-4dc3-9282-33866b1b842c", "c579e39a-cb80-4cf9-be2c-4cde24a18b50.image_picker558697332465276485.png"));
-    return stickers;
-
-   }
-
   Future<File> getFile(String uuid, String filename,
       {ThumbnailSize thumbnailSize}) async {
     File file =

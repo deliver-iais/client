@@ -11,9 +11,9 @@ class StickerDao extends DatabaseAccessor<Database> with _$StickerDaoMixin {
 
   StickerDao(this.database) : super(database);
 
-  addSticker(Sticker sticker) {
+  addSticker(Sticker sticker) =>
     into(stickers).insertOnConflictUpdate(sticker);
-  }
+
 
   Future<Sticker> getSticker(String uuid) {
     return (select(stickers)..where((tbl) => tbl.uuid.equals(uuid)))
@@ -28,5 +28,9 @@ class StickerDao extends DatabaseAccessor<Database> with _$StickerDaoMixin {
     for (Sticker sticker in newStickers) {
       addSticker(sticker);
     }
+  }
+
+  Stream<List<Sticker>> getAllSticker() {
+    return (select(stickers).watch());
   }
 }

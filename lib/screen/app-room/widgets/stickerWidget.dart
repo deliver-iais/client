@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
+
+import 'package:deliver_flutter/repository/stickerRepo.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class StickerWidget extends StatefulWidget {
@@ -17,46 +19,56 @@ class StickerWidget extends StatefulWidget {
 
 class _StickerWidgetState extends State<StickerWidget> {
   var fileRepo = GetIt.I.get<FileRepo>();
+  var _stickerRepo = GetIt.I.get<StickerRepo>();
+
+  @override
+  void initState() {
+    _stickerRepo.addSticker();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: FutureBuilder<List<File>>(
-        future: fileRepo.getStickers(),
-        builder: (c, s) {
-          if (s.hasData && s.data != null) {
+      child: StreamBuilder<List<Sticker>>(
+        stream: _stickerRepo.getAllSticker(),
+        builder: (c, stickers) {
+          if (stickers.hasData && stickers.data != null) {
             return Column(
               children: [
                 Flexible(
                   child: GridView.count(
                     crossAxisCount: 3,
-                    children: List.generate(3, (index) {
-                      return GestureDetector(
-                          onTap: () {
-                            widget.onStickerTap(Sticker(
-                              uuid: "eda821dc-878d-4020-ab3b-51f346ff4689",
-                              name:
-                                  "c579e39a-cb80-4cf9-be2c-4cde24a18b50.image_picker4382935534051180548.jpg",
-                            ));
-                            Navigator.pop(context);
-                          },
-                          child: Stack(
-                              alignment: AlignmentDirectional.center,
-                              children: [
-                                Image.file(
-                                  File(s.data[index].path),
-                                  height: 100,
-                                  width: 100,
-                                  fit: BoxFit.cover,
-                                )
-                              ]));
+                    children: List.generate(stickers.data.length, (index) {
+                      return FutureBuilder<File>(future: fileRepo.getFile(stickers.data[index].uuid,stickers.data[index].name),builder: (c, stickerFile) {
+                        if (stickerFile.hasData && stickerFile != null) {
+                          return GestureDetector(
+                              onTap: () {
+                                widget.onStickerTap(stickers.data[index]);
+                              },
+                              child: Stack(
+                                  alignment: AlignmentDirectional.center,
+                                  children: [
+                                    Image.file(
+                                      File(stickerFile.data.path),
+                                      height: 100,
+                                      width: 100,
+                                      fit: BoxFit.cover,
+                                    )
+                                  ]));
+                        } else
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                      });
                     }),
                   ),
                 ),
               ],
             );
           } else {
-            return SizedBox.shrink();
+            return Center(
+              child: CircularProgressIndicator(),
+            );
           }
         },
       ),

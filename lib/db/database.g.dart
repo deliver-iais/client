@@ -5293,7 +5293,12 @@ class Sticker extends DataClass implements Insertable<Sticker> {
   final String uuid;
   final String packId;
   final String name;
-  Sticker({@required this.uuid, @required this.packId, @required this.name});
+  final String packName;
+  Sticker(
+      {@required this.uuid,
+      @required this.packId,
+      @required this.name,
+      @required this.packName});
   factory Sticker.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -5303,6 +5308,8 @@ class Sticker extends DataClass implements Insertable<Sticker> {
       packId:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}pack_id']),
       name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      packName: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}pack_name']),
     );
   }
   @override
@@ -5317,6 +5324,9 @@ class Sticker extends DataClass implements Insertable<Sticker> {
     if (!nullToAbsent || name != null) {
       map['name'] = Variable<String>(name);
     }
+    if (!nullToAbsent || packName != null) {
+      map['pack_name'] = Variable<String>(packName);
+    }
     return map;
   }
 
@@ -5326,6 +5336,9 @@ class Sticker extends DataClass implements Insertable<Sticker> {
       packId:
           packId == null && nullToAbsent ? const Value.absent() : Value(packId),
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      packName: packName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(packName),
     );
   }
 
@@ -5336,6 +5349,7 @@ class Sticker extends DataClass implements Insertable<Sticker> {
       uuid: serializer.fromJson<String>(json['uuid']),
       packId: serializer.fromJson<String>(json['packId']),
       name: serializer.fromJson<String>(json['name']),
+      packName: serializer.fromJson<String>(json['packName']),
     );
   }
   @override
@@ -5345,70 +5359,86 @@ class Sticker extends DataClass implements Insertable<Sticker> {
       'uuid': serializer.toJson<String>(uuid),
       'packId': serializer.toJson<String>(packId),
       'name': serializer.toJson<String>(name),
+      'packName': serializer.toJson<String>(packName),
     };
   }
 
-  Sticker copyWith({String uuid, String packId, String name}) => Sticker(
+  Sticker copyWith(
+          {String uuid, String packId, String name, String packName}) =>
+      Sticker(
         uuid: uuid ?? this.uuid,
         packId: packId ?? this.packId,
         name: name ?? this.name,
+        packName: packName ?? this.packName,
       );
   @override
   String toString() {
     return (StringBuffer('Sticker(')
           ..write('uuid: $uuid, ')
           ..write('packId: $packId, ')
-          ..write('name: $name')
+          ..write('name: $name, ')
+          ..write('packName: $packName')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      $mrjf($mrjc(uuid.hashCode, $mrjc(packId.hashCode, name.hashCode)));
+  int get hashCode => $mrjf($mrjc(uuid.hashCode,
+      $mrjc(packId.hashCode, $mrjc(name.hashCode, packName.hashCode))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Sticker &&
           other.uuid == this.uuid &&
           other.packId == this.packId &&
-          other.name == this.name);
+          other.name == this.name &&
+          other.packName == this.packName);
 }
 
 class StickersCompanion extends UpdateCompanion<Sticker> {
   final Value<String> uuid;
   final Value<String> packId;
   final Value<String> name;
+  final Value<String> packName;
   const StickersCompanion({
     this.uuid = const Value.absent(),
     this.packId = const Value.absent(),
     this.name = const Value.absent(),
+    this.packName = const Value.absent(),
   });
   StickersCompanion.insert({
     @required String uuid,
     @required String packId,
     @required String name,
+    @required String packName,
   })  : uuid = Value(uuid),
         packId = Value(packId),
-        name = Value(name);
+        name = Value(name),
+        packName = Value(packName);
   static Insertable<Sticker> custom({
     Expression<String> uuid,
     Expression<String> packId,
     Expression<String> name,
+    Expression<String> packName,
   }) {
     return RawValuesInsertable({
       if (uuid != null) 'uuid': uuid,
       if (packId != null) 'pack_id': packId,
       if (name != null) 'name': name,
+      if (packName != null) 'pack_name': packName,
     });
   }
 
   StickersCompanion copyWith(
-      {Value<String> uuid, Value<String> packId, Value<String> name}) {
+      {Value<String> uuid,
+      Value<String> packId,
+      Value<String> name,
+      Value<String> packName}) {
     return StickersCompanion(
       uuid: uuid ?? this.uuid,
       packId: packId ?? this.packId,
       name: name ?? this.name,
+      packName: packName ?? this.packName,
     );
   }
 
@@ -5424,6 +5454,9 @@ class StickersCompanion extends UpdateCompanion<Sticker> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
+    if (packName.present) {
+      map['pack_name'] = Variable<String>(packName.value);
+    }
     return map;
   }
 
@@ -5432,7 +5465,8 @@ class StickersCompanion extends UpdateCompanion<Sticker> {
     return (StringBuffer('StickersCompanion(')
           ..write('uuid: $uuid, ')
           ..write('packId: $packId, ')
-          ..write('name: $name')
+          ..write('name: $name, ')
+          ..write('packName: $packName')
           ..write(')'))
         .toString();
   }
@@ -5478,8 +5512,20 @@ class $StickersTable extends Stickers with TableInfo<$StickersTable, Sticker> {
     );
   }
 
+  final VerificationMeta _packNameMeta = const VerificationMeta('packName');
+  GeneratedTextColumn _packName;
   @override
-  List<GeneratedColumn> get $columns => [uuid, packId, name];
+  GeneratedTextColumn get packName => _packName ??= _constructPackName();
+  GeneratedTextColumn _constructPackName() {
+    return GeneratedTextColumn(
+      'pack_name',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [uuid, packId, name, packName];
   @override
   $StickersTable get asDslTable => this;
   @override
@@ -5508,6 +5554,12 @@ class $StickersTable extends Stickers with TableInfo<$StickersTable, Sticker> {
           _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('pack_name')) {
+      context.handle(_packNameMeta,
+          packName.isAcceptableOrUnknown(data['pack_name'], _packNameMeta));
+    } else if (isInserting) {
+      context.missing(_packNameMeta);
     }
     return context;
   }
