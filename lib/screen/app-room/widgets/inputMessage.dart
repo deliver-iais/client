@@ -71,8 +71,10 @@ class _InputMessageWidget extends State<InputMessage> {
 
   bool startAudioRecorder = false;
 
-  Subject<ActivityType> activityObject = BehaviorSubject();
-  Subject<ActivityType> noActivitySubject = BehaviorSubject();
+  int textLenght = 0;
+
+  Subject<ActivityType> activityObject1 = BehaviorSubject();
+  Subject<ActivityType> activitySubject2 = BehaviorSubject();
 
   void showButtonSheet() {
     if (isDesktop()) {
@@ -96,15 +98,15 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   void initState() {
     super.initState();
-    activityObject
-        .debounceTime(Duration(milliseconds: 700))
+    activityObject1
+        .throttle((_) => TimerStream(true, Duration(seconds: 10)))
         .listen((activityType) {
       messageRepo.sendActivityMessage(
           widget.currentRoom.roomId.getUid(), activityType);
     });
-    noActivitySubject.debounceTime(Duration(seconds: 10)).listen((event) {
+    activitySubject2.listen((event) {
       messageRepo.sendActivityMessage(
-          widget.currentRoom.roomId.getUid(), ActivityType.NO_ACTIVITY);
+          widget.currentRoom.roomId.getUid(), event);
     });
     controller = TextEditingController();
     currentRoom = widget.currentRoom;
@@ -202,7 +204,11 @@ class _InputMessageWidget extends State<InputMessage> {
                                       controller: controller,
                                       onSubmitted: null,
                                       onChanged: (str) {
-                                        activityObject.add(ActivityType.TYPING);
+                                        if (str?.length > 0)
+                                          activityObject1
+                                              .add(ActivityType.TYPING);
+                                        else activitySubject2
+                                            .add(ActivityType.NO_ACTIVITY);
                                         onChange(str);
                                       },
                                       decoration: InputDecoration.collapsed(
@@ -241,7 +247,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                                         false)
                                             ? () async {}
                                             : () {
-                                                activityObject.add(
+                                                activityObject1.add(
                                                     ActivityType.NO_ACTIVITY);
                                                 if (widget.waitingForForward ==
                                                     true) {
@@ -378,7 +384,7 @@ class _InputMessageWidget extends State<InputMessage> {
                             },
                             onLongPressEnd: (s) async {
                               recordAudioTimer.cancel();
-                              noActivitySubject.add(ActivityType.NO_ACTIVITY);
+                              activitySubject2.add(ActivityType.NO_ACTIVITY);
                               setState(() {
                                 startAudioRecorder = false;
                                 x = 0;
@@ -423,15 +429,21 @@ class _InputMessageWidget extends State<InputMessage> {
                 },
                 child: Container(
                     height: 240.0,
-                    child: EmojiKeybord(
+                    child:
+                    EmojiKeybord(
                       onTap: (emoji) {
                         setState(() {
                           controller.text = controller.text + emoji.toString();
                         });
-                      },onStickerTap: (Sticker sticker){
-                        messageRepo.sendStickerMessage(roomUid:widget.currentRoom.roomId.getUid(),sticker:sticker);
-                    },
-                    )),
+                      },
+                      onStickerTap: (Sticker sticker) {
+                        messageRepo.sendStickerMessage(
+                            roomUid: widget.currentRoom.roomId.getUid(),
+                            sticker: sticker);
+                        widget.scrollToLastSentMessage();
+                      },
+                    )
+                ),
               )
             : SizedBox(),
       ],
@@ -440,7 +452,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   void sendRecordActivity() {
     recordAudioTimer = Timer(Duration(seconds: 2), () {
-      activityObject.add(ActivityType.RECORDING_VOICE);
+      activityObject1.add(ActivityType.RECORDING_VOICE);
       sendRecordActivity();
     });
   }

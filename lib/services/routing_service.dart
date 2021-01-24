@@ -61,12 +61,17 @@ class RoutingService {
     reset();
   }
 
-  void openRoom(String roomId, {List<Message> forwardedMessages = const []}) {
-    var widget = RoomPage(
-      key: ValueKey("/room/$roomId"),
-      roomId: roomId,
-      forwardedMessages: forwardedMessages,
-    );
+  void openRoom(String roomId,{List<Message> forwardedMessages = const []}) {
+    var widget = WillPopScope(
+        onWillPop: () {
+
+
+        },
+        child: RoomPage(
+          key: ValueKey("/room/$roomId"),
+          roomId: roomId,
+          forwardedMessages: forwardedMessages,
+        ));
     _popAllAndPush(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,

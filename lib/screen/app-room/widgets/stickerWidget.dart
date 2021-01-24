@@ -17,7 +17,7 @@ class StickerWidget extends StatefulWidget {
   @override
   _StickerWidgetState createState() => _StickerWidgetState();
 
-  StickerWidget({this.onStickerTap});
+  StickerWidget({this.onStickerTap,});
 }
 
 class _StickerWidgetState extends State<StickerWidget> {

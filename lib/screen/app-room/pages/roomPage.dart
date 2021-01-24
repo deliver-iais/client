@@ -254,7 +254,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _maxWidth = min(_maxWidth, 300);
     var deviceHeight = MediaQuery.of(context).size.height;
 
-    return StreamBuilder<bool>(
+    return  StreamBuilder<bool>(
       stream: _audioPlayerService.isOn,
       builder: (context, snapshot) {
         return Scaffold(
@@ -392,7 +392,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       Room currentRoom, List pendingMessages, double _maxWidth) {
     return ScrollablePositionedList.builder(
       itemCount: _itemCount,
-      initialScrollIndex: _itemCount-1,
+      initialScrollIndex: _itemCount,
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
