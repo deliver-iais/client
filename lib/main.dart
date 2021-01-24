@@ -11,6 +11,7 @@ import 'package:deliver_flutter/db/dao/LastAvatarDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
+import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
 import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -76,6 +77,7 @@ void setupDI() {
   getIt.registerSingleton<MediaMetaDataDao>(db.mediaMetaDataDao);
   getIt.registerSingleton<UserInfoDao>(db.userInfoDao);
   getIt.registerSingleton<StickerDao>(db.stickerDao);
+  getIt.registerSingleton<StickerIdDao>(db.stickerIdDao);
 
   // Order is important, don't change it!
   getIt.registerSingleton<UxService>(UxService());

@@ -5579,39 +5579,63 @@ class $StickersTable extends Stickers with TableInfo<$StickersTable, Sticker> {
 }
 
 class StickerId extends DataClass implements Insertable<StickerId> {
+  final DateTime getPackTime;
   final String packId;
   final String packName;
-  StickerId({@required this.packId, @required this.packName});
+  final bool packISDownloaded;
+  StickerId(
+      {@required this.getPackTime,
+      @required this.packId,
+      @required this.packName,
+      @required this.packISDownloaded});
   factory StickerId.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
+    final dateTimeType = db.typeSystem.forDartType<DateTime>();
     final stringType = db.typeSystem.forDartType<String>();
+    final boolType = db.typeSystem.forDartType<bool>();
     return StickerId(
+      getPackTime: dateTimeType
+          .mapFromDatabaseResponse(data['${effectivePrefix}get_pack_time']),
       packId:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}pack_id']),
       packName: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}pack_name']),
+      packISDownloaded: boolType.mapFromDatabaseResponse(
+          data['${effectivePrefix}pack_i_s_downloaded']),
     );
   }
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || getPackTime != null) {
+      map['get_pack_time'] = Variable<DateTime>(getPackTime);
+    }
     if (!nullToAbsent || packId != null) {
       map['pack_id'] = Variable<String>(packId);
     }
     if (!nullToAbsent || packName != null) {
       map['pack_name'] = Variable<String>(packName);
     }
+    if (!nullToAbsent || packISDownloaded != null) {
+      map['pack_i_s_downloaded'] = Variable<bool>(packISDownloaded);
+    }
     return map;
   }
 
   StickerIdsCompanion toCompanion(bool nullToAbsent) {
     return StickerIdsCompanion(
+      getPackTime: getPackTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(getPackTime),
       packId:
           packId == null && nullToAbsent ? const Value.absent() : Value(packId),
       packName: packName == null && nullToAbsent
           ? const Value.absent()
           : Value(packName),
+      packISDownloaded: packISDownloaded == null && nullToAbsent
+          ? const Value.absent()
+          : Value(packISDownloaded),
     );
   }
 
@@ -5619,79 +5643,120 @@ class StickerId extends DataClass implements Insertable<StickerId> {
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return StickerId(
+      getPackTime: serializer.fromJson<DateTime>(json['getPackTime']),
       packId: serializer.fromJson<String>(json['packId']),
       packName: serializer.fromJson<String>(json['packName']),
+      packISDownloaded: serializer.fromJson<bool>(json['packISDownloaded']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'getPackTime': serializer.toJson<DateTime>(getPackTime),
       'packId': serializer.toJson<String>(packId),
       'packName': serializer.toJson<String>(packName),
+      'packISDownloaded': serializer.toJson<bool>(packISDownloaded),
     };
   }
 
-  StickerId copyWith({String packId, String packName}) => StickerId(
+  StickerId copyWith(
+          {DateTime getPackTime,
+          String packId,
+          String packName,
+          bool packISDownloaded}) =>
+      StickerId(
+        getPackTime: getPackTime ?? this.getPackTime,
         packId: packId ?? this.packId,
         packName: packName ?? this.packName,
+        packISDownloaded: packISDownloaded ?? this.packISDownloaded,
       );
   @override
   String toString() {
     return (StringBuffer('StickerId(')
+          ..write('getPackTime: $getPackTime, ')
           ..write('packId: $packId, ')
-          ..write('packName: $packName')
+          ..write('packName: $packName, ')
+          ..write('packISDownloaded: $packISDownloaded')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(packId.hashCode, packName.hashCode));
+  int get hashCode => $mrjf($mrjc(
+      getPackTime.hashCode,
+      $mrjc(packId.hashCode,
+          $mrjc(packName.hashCode, packISDownloaded.hashCode))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is StickerId &&
+          other.getPackTime == this.getPackTime &&
           other.packId == this.packId &&
-          other.packName == this.packName);
+          other.packName == this.packName &&
+          other.packISDownloaded == this.packISDownloaded);
 }
 
 class StickerIdsCompanion extends UpdateCompanion<StickerId> {
+  final Value<DateTime> getPackTime;
   final Value<String> packId;
   final Value<String> packName;
+  final Value<bool> packISDownloaded;
   const StickerIdsCompanion({
+    this.getPackTime = const Value.absent(),
     this.packId = const Value.absent(),
     this.packName = const Value.absent(),
+    this.packISDownloaded = const Value.absent(),
   });
   StickerIdsCompanion.insert({
+    @required DateTime getPackTime,
     @required String packId,
     @required String packName,
-  })  : packId = Value(packId),
+    this.packISDownloaded = const Value.absent(),
+  })  : getPackTime = Value(getPackTime),
+        packId = Value(packId),
         packName = Value(packName);
   static Insertable<StickerId> custom({
+    Expression<DateTime> getPackTime,
     Expression<String> packId,
     Expression<String> packName,
+    Expression<bool> packISDownloaded,
   }) {
     return RawValuesInsertable({
+      if (getPackTime != null) 'get_pack_time': getPackTime,
       if (packId != null) 'pack_id': packId,
       if (packName != null) 'pack_name': packName,
+      if (packISDownloaded != null) 'pack_i_s_downloaded': packISDownloaded,
     });
   }
 
-  StickerIdsCompanion copyWith({Value<String> packId, Value<String> packName}) {
+  StickerIdsCompanion copyWith(
+      {Value<DateTime> getPackTime,
+      Value<String> packId,
+      Value<String> packName,
+      Value<bool> packISDownloaded}) {
     return StickerIdsCompanion(
+      getPackTime: getPackTime ?? this.getPackTime,
       packId: packId ?? this.packId,
       packName: packName ?? this.packName,
+      packISDownloaded: packISDownloaded ?? this.packISDownloaded,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (getPackTime.present) {
+      map['get_pack_time'] = Variable<DateTime>(getPackTime.value);
+    }
     if (packId.present) {
       map['pack_id'] = Variable<String>(packId.value);
     }
     if (packName.present) {
       map['pack_name'] = Variable<String>(packName.value);
+    }
+    if (packISDownloaded.present) {
+      map['pack_i_s_downloaded'] = Variable<bool>(packISDownloaded.value);
     }
     return map;
   }
@@ -5699,8 +5764,10 @@ class StickerIdsCompanion extends UpdateCompanion<StickerId> {
   @override
   String toString() {
     return (StringBuffer('StickerIdsCompanion(')
+          ..write('getPackTime: $getPackTime, ')
           ..write('packId: $packId, ')
-          ..write('packName: $packName')
+          ..write('packName: $packName, ')
+          ..write('packISDownloaded: $packISDownloaded')
           ..write(')'))
         .toString();
   }
@@ -5711,6 +5778,20 @@ class $StickerIdsTable extends StickerIds
   final GeneratedDatabase _db;
   final String _alias;
   $StickerIdsTable(this._db, [this._alias]);
+  final VerificationMeta _getPackTimeMeta =
+      const VerificationMeta('getPackTime');
+  GeneratedDateTimeColumn _getPackTime;
+  @override
+  GeneratedDateTimeColumn get getPackTime =>
+      _getPackTime ??= _constructGetPackTime();
+  GeneratedDateTimeColumn _constructGetPackTime() {
+    return GeneratedDateTimeColumn(
+      'get_pack_time',
+      $tableName,
+      false,
+    );
+  }
+
   final VerificationMeta _packIdMeta = const VerificationMeta('packId');
   GeneratedTextColumn _packId;
   @override
@@ -5735,8 +5816,20 @@ class $StickerIdsTable extends StickerIds
     );
   }
 
+  final VerificationMeta _packISDownloadedMeta =
+      const VerificationMeta('packISDownloaded');
+  GeneratedBoolColumn _packISDownloaded;
   @override
-  List<GeneratedColumn> get $columns => [packId, packName];
+  GeneratedBoolColumn get packISDownloaded =>
+      _packISDownloaded ??= _constructPackISDownloaded();
+  GeneratedBoolColumn _constructPackISDownloaded() {
+    return GeneratedBoolColumn('pack_i_s_downloaded', $tableName, false,
+        defaultValue: Constant(false));
+  }
+
+  @override
+  List<GeneratedColumn> get $columns =>
+      [getPackTime, packId, packName, packISDownloaded];
   @override
   $StickerIdsTable get asDslTable => this;
   @override
@@ -5748,6 +5841,14 @@ class $StickerIdsTable extends StickerIds
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('get_pack_time')) {
+      context.handle(
+          _getPackTimeMeta,
+          getPackTime.isAcceptableOrUnknown(
+              data['get_pack_time'], _getPackTimeMeta));
+    } else if (isInserting) {
+      context.missing(_getPackTimeMeta);
+    }
     if (data.containsKey('pack_id')) {
       context.handle(_packIdMeta,
           packId.isAcceptableOrUnknown(data['pack_id'], _packIdMeta));
@@ -5759,6 +5860,12 @@ class $StickerIdsTable extends StickerIds
           packName.isAcceptableOrUnknown(data['pack_name'], _packNameMeta));
     } else if (isInserting) {
       context.missing(_packNameMeta);
+    }
+    if (data.containsKey('pack_i_s_downloaded')) {
+      context.handle(
+          _packISDownloadedMeta,
+          packISDownloaded.isAcceptableOrUnknown(
+              data['pack_i_s_downloaded'], _packISDownloadedMeta));
     }
     return context;
   }

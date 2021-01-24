@@ -16,8 +16,16 @@ class StickerIdDao extends DatabaseAccessor<Database> with _$StickerIdDaoMixin {
   }
 
   Future<List<StickerId>> getStickerIds() {
-    // todo
-
+    return (select(stickerIds).get());
   }
 
+  Future<List<StickerId>> getDownloadStickerPackId() {
+    return (select(stickerIds)
+          ..where((tbl) => tbl.packISDownloaded.equals(true))
+          ..orderBy([
+            (s) =>
+                OrderingTerm(expression: s.getPackTime, mode: OrderingMode.asc)
+          ]))
+        .get();
+  }
 }
