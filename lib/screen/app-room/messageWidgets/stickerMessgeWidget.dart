@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/stickerPacket.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/stickerRepo.dart';
@@ -59,7 +60,20 @@ class _StickerMessageWidgetState extends State<StickerMessageWidget> {
                             title: Container(
                                 height: 30,
                                 color: Colors.blue,
-                                child: Center(child: Text("pack1"))),
+                                child: Center(
+                                    child: FutureBuilder<Sticker>(
+                                  future: _stickerRepo
+                                      .getSticker(stickerMessage.uuid),
+                                  builder: (c, packname) {
+                                    if (packname.hasData && packname != null) {
+                                      return Text(packname.data.packName,
+                                          style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .primaryColor));
+                                    }
+                                    return SizedBox.shrink();
+                                  },
+                                ))),
                             titlePadding:
                                 EdgeInsets.only(left: 0, right: 0, top: 0),
                             actionsPadding:
@@ -111,9 +125,10 @@ class _StickerMessageWidgetState extends State<StickerMessageWidget> {
                                                           height: 80,
                                                           width: 80,
                                                           fit: BoxFit.cover,
-                                                        ),onTap: (){
+                                                        ),
+                                                        onTap: () {
                                                           //todo
-                                                      },
+                                                        },
                                                       )
                                                     ]);
                                               } else {

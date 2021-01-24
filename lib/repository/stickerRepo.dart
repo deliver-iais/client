@@ -41,6 +41,11 @@ class StickerRepo {
     }
   }
 
+  Future<Sticker> getSticker(String uuid)async {
+    var sticker = await _stickerDao.getSticker(uuid);
+    return sticker;
+  }
+
   void saveStickers(List<Sticker> stickers) {
     _stickerDao.saveStikers(stickers);
   }
@@ -119,4 +124,6 @@ class StickerRepo {
         packId: "1"));
     _stickerDao.saveStikers(stickers);
   }
+
+
 }

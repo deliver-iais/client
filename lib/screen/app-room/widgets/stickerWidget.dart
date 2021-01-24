@@ -6,6 +6,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 
 import 'package:deliver_flutter/repository/stickerRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -22,6 +23,7 @@ class StickerWidget extends StatefulWidget {
 class _StickerWidgetState extends State<StickerWidget> {
   var _fileRepo = GetIt.I.get<FileRepo>();
   var _stickerRepo = GetIt.I.get<StickerRepo>();
+  var _routingServices = GetIt.I.get<RoutingService>();
 
 
   @override
@@ -92,7 +94,9 @@ class _StickerWidgetState extends State<StickerWidget> {
                                   });
                             }),
                       ),
-                    CircleButton(() {}, Icons.add, "", 30, context: c),
+                    CircleButton(() {
+                      _routingServices.openAddStickerPcakPage();
+                    }, Icons.add, "", 30, context: c),
                   ],
                 ),
               ),

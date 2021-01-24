@@ -4,6 +4,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/app-contacts/widgets/new_Contact.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/addStickerPack.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
 import 'package:deliver_flutter/screen/app_group/pages/group_info_determination_page.dart';
 import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dart';
@@ -73,8 +74,14 @@ class RoutingService {
         path: "/room/$roomId"));
   }
 
-  void openLocation({Uid roomUid, LocationData locationData, Function scrollToLast}){
-    var widget = MapWidget(key: ValueKey("/map-widget"),roomUid: roomUid,locationData: locationData,scrollToLast: scrollToLast,);
+  void openLocation(
+      {Uid roomUid, LocationData locationData, Function scrollToLast}) {
+    var widget = MapWidget(
+      key: ValueKey("/map-widget"),
+      roomUid: roomUid,
+      locationData: locationData,
+      scrollToLast: scrollToLast,
+    );
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,
@@ -155,7 +162,7 @@ class RoutingService {
   }
 
   void openMemberSelection({bool isChannel, Uid mucUid}) {
-   // _createMucService.reset();
+    // _createMucService.reset();
     var widget = MemberSelectionPage(
       key: ValueKey("/member-selection-page"),
       isChannel: isChannel,
@@ -201,6 +208,17 @@ class RoutingService {
         largePageMain: widget,
         smallPageMain: widget,
         path: "/group-info-determination-page"));
+  }
+
+  void openAddStickerPcakPage() {
+    var widget = AddStickerPack(
+      key: ValueKey("/add-sticker-pack-page"),
+    );
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/add-sticker-pack-page"));
   }
 
   _push(Page p) {
