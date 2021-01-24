@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
+import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/stickerPacket.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -10,6 +11,7 @@ import 'package:grpc/grpc.dart';
 
 class StickerRepo {
   var _stickerDao = GetIt.I.get<StickerDao>();
+  var _stickerIdDao = GetIt.I.get<StickerIdDao>();
   var _stickerServices = GetIt.I.get<StickerServiceClient>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
@@ -43,19 +45,53 @@ class StickerRepo {
     _stickerDao.saveStikers(stickers);
   }
 
+  Future<List<StickerId>> getStickersId() async {
+    List<StickerId> stickerPackId = await _stickerIdDao.getStickerIds();
+    return stickerPackId;
+  }
 
+  Stream<List<StickerId>> getnotDownlodedPackId() {
+    return _stickerIdDao.getNotDownloadStickerPackId();
+  }
+
+  Future<Sticker> getFirstStickerFromPack(String packId) async {
+    List<Sticker> stickers = await _stickerDao.getStickerByPacKId(packId);
+    return stickers[0];
+  }
 
   getTrendPacks() async {
     var result = await _stickerServices.getTrendPacks(GetTrendPacksReq(),
         options: CallOptions(
             metadata: {"accessToken": await _accountRepo.getAccessToken()}));
     if (result != null) {
-
+      for(String packId in result.packIdList)
+      _stickerIdDao.upsertStickerPack(StickerId(getPackTime: DateTime.now(), packId: packId, packISDownloaded: false));
     }
   }
 
   Stream<List<Sticker>> getAllSticker() {
     return _stickerDao.getAllSticker();
+  }
+
+  Future<StickerPack> downloadStickerPackByPackId(String packId) async {
+    var result = await _stickerServices.getStickerPackByID(
+        GetStickerPackByIDReq()..id = packId,
+        options: CallOptions(
+            metadata: {"accessToken": await _accountRepo.getAccessToken()}));
+    result.pack;
+  }
+
+  void InsertStickerPack(StickerPack stickerPack){
+    for(var sticker in stickerPack.files){
+      _stickerDao.addSticker(Sticker(uuid: sticker.uuid,packName: stickerPack.name,name: sticker.name,packId: stickerPack.id));
+    }
+    _stickerIdDao.upsertStickerPack(StickerId(getPackTime: DateTime.now(), packId: stickerPack.id, packISDownloaded: true));
+  }
+
+
+  Future<List<Sticker>> getStickerPackByPackId(String packId) async {
+    List<Sticker> stickers = await _stickerDao.gatStickerPack(packId);
+    return stickers;
   }
 
   void addSticker() {

@@ -70,28 +70,6 @@ class _ShareBoxState extends State<ShareBox> {
 
   AudioPlayer audioPlayer = AudioPlayer();
 
-  Widget circleButton(Function onTap, IconData icon, String text, double size) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        ClipOval(
-          child: Material(
-            color: Colors.blue, // button color
-            child: InkWell(
-                splashColor: Colors.red, // inkwell color
-                child: SizedBox(width: size, height: size, child: Icon(icon)),
-                onTap: onTap),
-          ),
-        ),
-        Text(
-          text,
-          style:
-              TextStyle(fontSize: 10, color: Theme.of(context).backgroundColor),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
@@ -181,35 +159,30 @@ class _ShareBoxState extends State<ShareBox> {
                           Stack(
                             children: <Widget>[
                               Container(
-                                child: circleButton(
-                                  () {
-                                    if (widget.replyMessageId != null) {
-                                      messageRepo.sendFileMessageDeprecated(
-                                          widget.currentRoomId,
-                                          finalSelected.values.toList(),
-                                          replyToId: widget.replyMessageId);
-                                    } else {
-                                      messageRepo.sendFileMessageDeprecated(
+                                child: CircleButton(() {
+                                  if (widget.replyMessageId != null) {
+                                    messageRepo.sendFileMessageDeprecated(
                                         widget.currentRoomId,
                                         finalSelected.values.toList(),
-                                      );
-                                    }
+                                        replyToId: widget.replyMessageId);
+                                  } else {
+                                    messageRepo.sendFileMessageDeprecated(
+                                      widget.currentRoomId,
+                                      finalSelected.values.toList(),
+                                    );
+                                  }
 
-                                    Navigator.pop(context);
-                                    Timer(Duration(seconds: 2), () {
-                                      widget.scrollToLastSentMessage();
-                                    });
-                                    setState(() {
-                                      finalSelected.clear();
-                                      selectedAudio.clear();
-                                      selectedImages.clear();
-                                      selectedFiles.clear();
-                                    });
-                                  },
-                                  Icons.send,
-                                  "",
-                                  50,
-                                ),
+                                  Navigator.pop(context);
+                                  Timer(Duration(seconds: 2), () {
+                                    widget.scrollToLastSentMessage();
+                                  });
+                                  setState(() {
+                                    finalSelected.clear();
+                                    selectedAudio.clear();
+                                    selectedImages.clear();
+                                    selectedFiles.clear();
+                                  });
+                                }, Icons.send, "", 50, context: context),
                                 decoration: BoxDecoration(
                                   boxShadow: [
                                     new BoxShadow(
@@ -263,7 +236,7 @@ class _ShareBoxState extends State<ShareBox> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: <Widget>[
-                              circleButton(() {
+                              CircleButton(() {
                                 setState(() {
                                   audioPlayer.stop();
 
@@ -272,15 +245,17 @@ class _ShareBoxState extends State<ShareBox> {
                               },
                                   Icons.insert_drive_file,
                                   appLocalization.getTraslateValue("gallery"),
-                                  40),
-                              circleButton(() {
+                                  40,
+                                  context: context),
+                              CircleButton(() {
                                 setState(() {
                                   audioPlayer.stop();
                                   currentPage = Page.Files;
                                 });
                               }, Icons.file_upload,
-                                  appLocalization.getTraslateValue("file"), 40),
-                              circleButton(() async {
+                                  appLocalization.getTraslateValue("file"), 40,
+                                  context: context),
+                              CircleButton(() async {
                                 audioPlayer.stop();
                                 if (await _checkPermissionsService
                                     .checkLocationPermission()) {
@@ -297,15 +272,15 @@ class _ShareBoxState extends State<ShareBox> {
                               },
                                   Icons.location_on,
                                   appLocalization.getTraslateValue("location"),
-                                  40),
-                              circleButton(() {
+                                  40,
+                                  context: context),
+                              CircleButton(() {
                                 setState(() {
                                   currentPage = Page.Music;
                                 });
-                              },
-                                  Icons.music_note,
-                                  appLocalization.getTraslateValue("music"),
-                                  40),
+                              }, Icons.music_note,
+                                  appLocalization.getTraslateValue("music"), 40,
+                                  context: context),
                             ],
                           ),
                         ],
@@ -321,4 +296,27 @@ class _ShareBoxState extends State<ShareBox> {
   }
 
   isSelected() => finalSelected.values.length > 0;
+}
+
+Widget CircleButton(Function onTap, IconData icon, String text, double size,
+    {BuildContext context}) {
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: <Widget>[
+      ClipOval(
+        child: Material(
+          color: Colors.blue, // button color
+          child: InkWell(
+              splashColor: Colors.red, // inkwell color
+              child: SizedBox(width: size, height: size, child: Icon(icon)),
+              onTap: onTap),
+        ),
+      ),
+      Text(
+        text,
+        style:
+            TextStyle(fontSize: 10, color: Theme.of(context).backgroundColor),
+      ),
+    ],
+  );
 }

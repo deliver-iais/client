@@ -141,5 +141,6 @@
   "channel_id_length": " length less 5",
   "inter_Muc_Name": "inter name",
   "close": "Close",
-  "add_sticker": "Add Stickers"
+  "add_sticker": "Add Stickers",
+  "add": "ADD"
 }

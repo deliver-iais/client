@@ -6,7 +6,6 @@ class StickerIds extends Table {
 
   TextColumn get packId => text()();
 
-  TextColumn get packName => text()();
 
   BoolColumn get packISDownloaded => boolean().withDefault(Constant(false))();
 

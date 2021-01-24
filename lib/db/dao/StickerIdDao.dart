@@ -11,21 +11,21 @@ class StickerIdDao extends DatabaseAccessor<Database> with _$StickerIdDaoMixin {
 
   StickerIdDao(this.database) : super(database);
 
-  addStickerId(StickerId stickerId) {
-    into(stickerIds).insert(stickerId);
+  upsertStickerPack(StickerId stickerId) {
+    into(stickerIds).insertOnConflictUpdate(stickerId);
   }
 
   Future<List<StickerId>> getStickerIds() {
     return (select(stickerIds).get());
   }
 
-  Future<List<StickerId>> getDownloadStickerPackId() {
+  Stream<List<StickerId>> getNotDownloadStickerPackId() {
     return (select(stickerIds)
-          ..where((tbl) => tbl.packISDownloaded.equals(true))
+          ..where((tbl) => tbl.packISDownloaded.equals(false))
           ..orderBy([
             (s) =>
                 OrderingTerm(expression: s.getPackTime, mode: OrderingMode.asc)
           ]))
-        .get();
+        .watch();
   }
 }
