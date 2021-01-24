@@ -392,7 +392,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       Room currentRoom, List pendingMessages, double _maxWidth) {
     return ScrollablePositionedList.builder(
       itemCount: _itemCount,
-      initialScrollIndex: _itemCount,
+      initialScrollIndex: _itemCount-1,
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
@@ -719,7 +719,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   scrollToLast() {
     _itemScrollController.scrollTo(
-        index: _itemCount, duration: Duration(seconds: 4));
+        index: _itemCount, duration: Duration(seconds: 1));
   }
 
   onUsernameClick(String username) async {

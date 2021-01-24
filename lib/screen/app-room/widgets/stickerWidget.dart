@@ -25,7 +25,6 @@ class _StickerWidgetState extends State<StickerWidget> {
   var _stickerRepo = GetIt.I.get<StickerRepo>();
   var _routingServices = GetIt.I.get<RoutingService>();
 
-
   @override
   void initState() {
     _stickerRepo.addSticker();
@@ -42,6 +41,8 @@ class _StickerWidgetState extends State<StickerWidget> {
         if (stickersId.hasData && stickersId.data != null) {
           List<StickerId> downloadedPacketId =
               _getDownlodedPackId(stickersId.data);
+          if (_currentPackId.isEmpty)
+            _currentPackId = downloadedPacketId[0].packId;
           return Column(
             children: [
               Container(
@@ -65,28 +66,33 @@ class _StickerWidgetState extends State<StickerWidget> {
                                               sticker.data.uuid,
                                               sticker.data.name),
                                           builder: (c, stickerFile) {
-                                            return GestureDetector(
-                                                onTap: () {
-                                                  setState(() {
-                                                    _currentPackId =
-                                                        downloadedPacketId[
-                                                                index]
-                                                            .packId;
-                                                  });
-                                                },
-                                                child: Stack(
-                                                    alignment:
-                                                        AlignmentDirectional
-                                                            .center,
-                                                    children: [
-                                                      Image.file(
-                                                        File(stickerFile
-                                                            .data.path),
-                                                        height: 20,
-                                                        width: 20,
-                                                        fit: BoxFit.cover,
-                                                      )
-                                                    ]));
+                                            if (stickerFile.hasData &&
+                                                stickerFile != null)
+                                              return GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      _currentPackId =
+                                                          downloadedPacketId[
+                                                                  index]
+                                                              .packId;
+                                                    });
+                                                  },
+                                                  child: Stack(
+                                                      alignment:
+                                                          AlignmentDirectional
+                                                              .center,
+                                                      children: [
+                                                        Image.file(
+                                                          File(stickerFile
+                                                              .data.path),
+                                                          height: 25,
+                                                          width: 25,
+                                                          fit: BoxFit.cover,
+                                                        )
+                                                      ]));
+                                            else {
+                                              return SizedBox.shrink();
+                                            }
                                           });
                                     } else {
                                       return SizedBox.shrink();
@@ -103,41 +109,49 @@ class _StickerWidgetState extends State<StickerWidget> {
               FutureBuilder<List<Sticker>>(
                   future: _stickerRepo.getStickerPackByPackId(_currentPackId),
                   builder: (c, stickers) {
-                    return Flexible(
-                      child: GridView.count(
-                        crossAxisCount: 3,
-                        children: List.generate(stickers.data.length, (index) {
-                          return FutureBuilder<File>(
-                              future: _fileRepo.getFile(
-                                  stickers.data[index].uuid,
-                                  stickers.data[index].name),
-                              builder: (c, stickerFile) {
-                                if (stickerFile.hasData &&
-                                    stickerFile != null) {
-                                  return GestureDetector(
-                                      onTap: () {
-                                        widget
-                                            .onStickerTap(stickers.data[index]);
-                                      },
-                                      child: Stack(
-                                          alignment:
-                                              AlignmentDirectional.center,
-                                          children: [
-                                            Image.file(
-                                              File(stickerFile.data.path),
-                                              height: 80,
-                                              width: 80,
-                                              fit: BoxFit.cover,
-                                            )
-                                          ]));
-                                } else
-                                  return Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                              });
-                        }),
-                      ),
-                    );
+                    if (stickers.hasData && stickers.data != null)
+                      return Flexible(
+                        child: GridView.count(
+                          crossAxisCount: 3,
+                          children:
+                              List.generate(stickers.data.length, (index) {
+                            return FutureBuilder<File>(
+                                future: _fileRepo.getFile(
+                                    stickers.data[index].uuid,
+                                    stickers.data[index].name),
+                                builder: (c, stickerFile) {
+                                  if (stickerFile.hasData &&
+                                      stickerFile != null) {
+                                    return GestureDetector(
+                                        onTap: () {
+                                          widget.onStickerTap(
+                                              stickers.data[index]);
+                                        },
+                                        child: Stack(
+                                            alignment:
+                                                AlignmentDirectional.center,
+                                            children: [
+                                              Image.file(
+                                                File(stickerFile.data.path),
+                                                height: 80,
+                                                width: 80,
+                                                fit: BoxFit.cover,
+                                              )
+                                            ]));
+                                  } else
+                                    return Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                });
+                          }),
+                        ),
+                      );
+                    else
+                      return Center(
+                        child: CircularProgressIndicator(
+                          backgroundColor: Colors.blue,
+                        ),
+                      );
                   }),
             ],
           );
