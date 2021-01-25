@@ -32,7 +32,7 @@ class RecievedMessageBox extends StatelessWidget {
             seenDao.updateSeen(snapshot.data.copyWith(messageId: message.id));
           }
           return Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(bottom: 8.0, left: 5.0),
             child: message.type == MessageType.STICKER
                 ? BoxContent(
                     message: message,

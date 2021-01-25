@@ -42,6 +42,8 @@ class Page {
       this.path});
 }
 
+BehaviorSubject<bool> backSubject = BehaviorSubject.seeded(false);
+
 class RoutingService {
   BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
 
@@ -61,10 +63,16 @@ class RoutingService {
     reset();
   }
 
-  void openRoom(String roomId,{List<Message> forwardedMessages = const []}) {
+  void openRoom(String roomId, {List<Message> forwardedMessages = const []}) {
+    backSubject.add(false);
     var widget = WillPopScope(
         onWillPop: () {
-
+          if(!backSubject.value){
+            return Future.value(true);
+          }else{
+            backSubject.add(false);
+            return Future.value(false);
+          }
 
         },
         child: RoomPage(

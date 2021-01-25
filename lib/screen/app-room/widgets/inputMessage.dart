@@ -7,6 +7,7 @@ import 'package:deliver_flutter/screen/app-room/widgets/emojiKeybord.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/showMentionList.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -19,6 +20,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:flutter_timer/flutter_timer.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:image_size_getter/image_size_getter.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
@@ -71,10 +73,8 @@ class _InputMessageWidget extends State<InputMessage> {
 
   bool startAudioRecorder = false;
 
-  int textLenght = 0;
-
-  Subject<ActivityType> activityObject1 = BehaviorSubject();
-  Subject<ActivityType> activitySubject2 = BehaviorSubject();
+  Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
+  Subject<ActivityType> NoActivitySubject = BehaviorSubject();
 
   void showButtonSheet() {
     if (isDesktop()) {
@@ -98,13 +98,13 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   void initState() {
     super.initState();
-    activityObject1
+    isTypingActivitySubject
         .throttle((_) => TimerStream(true, Duration(seconds: 10)))
         .listen((activityType) {
       messageRepo.sendActivityMessage(
           widget.currentRoom.roomId.getUid(), activityType);
     });
-    activitySubject2.listen((event) {
+    NoActivitySubject.listen((event) {
       messageRepo.sendActivityMessage(
           widget.currentRoom.roomId.getUid(), event);
     });
@@ -172,43 +172,53 @@ class _InputMessageWidget extends State<InputMessage> {
                         ? Expanded(
                             child: Row(
                               children: <Widget>[
-                                IconButton(
-                                  icon: Icon(
-                                    showEmoji ? Icons.keyboard : Icons.mood,
-                                    color: Colors.white,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      if (showEmoji) {
-                                        showEmoji = false;
-                                        autofocus = true;
-                                      } else {
-                                        FocusScope.of(context)
-                                            .requestFocus(new FocusNode());
-                                        showEmoji = true;
-                                      }
-                                    });
-                                  },
-                                ),
+                                StreamBuilder<bool>(
+                                    stream: backSubject.stream,
+                                    builder: (c, back) {
+                                      return IconButton(
+                                        icon: Icon(
+                                          back.hasData && back.data
+                                              ? Icons.keyboard
+                                              : Icons.mood,
+                                          color: Colors.white,
+                                        ),
+                                        onPressed: () {
+                                          if (back.data) {
+                                            backSubject.add(false);
+                                            setState(() {
+                                              FocusScope.of(context).unfocus();
+                                            });
+                                          } else if (!back.data) {
+                                            FocusScope.of(context)
+                                                .requestFocus(new FocusNode());
+                                            Timer(Duration(milliseconds: 50),
+                                                () {
+                                              backSubject.add(true);
+                                            });
+                                          }
+                                        },
+                                      );
+                                    }),
                                 Container(
                                   child: Flexible(
                                     child: SizedBox(
                                         child: TextField(
                                       onTap: () {
-                                        showEmoji = false;
+                                        backSubject.add(false);
                                       },
                                       minLines: 1,
                                       maxLines: 15,
-                                      autofocus: autofocus,
+                                      autofocus: false,
                                       textInputAction: TextInputAction.newline,
                                       controller: controller,
                                       onSubmitted: null,
                                       onChanged: (str) {
                                         if (str?.length > 0)
-                                          activityObject1
+                                          isTypingActivitySubject
                                               .add(ActivityType.TYPING);
-                                        else activitySubject2
-                                            .add(ActivityType.NO_ACTIVITY);
+                                        else
+                                          NoActivitySubject.add(
+                                              ActivityType.NO_ACTIVITY);
                                         onChange(str);
                                       },
                                       decoration: InputDecoration.collapsed(
@@ -226,7 +236,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                           color: IconTheme.of(context).color,
                                         ),
                                         onPressed: () {
-                                          showEmoji = false;
+                                          backSubject.add(false);
                                           showButtonSheet();
                                         })
                                     : SizedBox(),
@@ -247,7 +257,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                                         false)
                                             ? () async {}
                                             : () {
-                                                activityObject1.add(
+                                                isTypingActivitySubject.add(
                                                     ActivityType.NO_ACTIVITY);
                                                 if (widget.waitingForForward ==
                                                     true) {
@@ -384,7 +394,7 @@ class _InputMessageWidget extends State<InputMessage> {
                             },
                             onLongPressEnd: (s) async {
                               recordAudioTimer.cancel();
-                              activitySubject2.add(ActivityType.NO_ACTIVITY);
+                              NoActivitySubject.add(ActivityType.NO_ACTIVITY);
                               setState(() {
                                 startAudioRecorder = false;
                                 x = 0;
@@ -419,18 +429,13 @@ class _InputMessageWidget extends State<InputMessage> {
             ),
           ),
         ),
-        showEmoji
-            ? WillPopScope(
-                onWillPop: () {
-                  setState(() {
-                    showEmoji = false;
-                  });
-                  return Future.value(false);
-                },
-                child: Container(
-                    height: 240.0,
-                    child:
-                    EmojiKeybord(
+        StreamBuilder(
+            stream: backSubject.stream,
+            builder: (context, back) {
+              if (back.hasData && back.data) {
+                return Container(
+                    height: 270.0,
+                    child: EmojiKeybord(
                       onTap: (emoji) {
                         setState(() {
                           controller.text = controller.text + emoji.toString();
@@ -442,17 +447,18 @@ class _InputMessageWidget extends State<InputMessage> {
                             sticker: sticker);
                         widget.scrollToLastSentMessage();
                       },
-                    )
-                ),
-              )
-            : SizedBox(),
+                    ));
+              } else {
+              return SizedBox.shrink();
+              }
+            }),
       ],
     );
   }
 
   void sendRecordActivity() {
     recordAudioTimer = Timer(Duration(seconds: 2), () {
-      activityObject1.add(ActivityType.RECORDING_VOICE);
+      isTypingActivitySubject.add(ActivityType.RECORDING_VOICE);
       sendRecordActivity();
     });
   }

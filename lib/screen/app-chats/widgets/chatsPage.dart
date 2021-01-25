@@ -40,7 +40,7 @@ class ChatsPage extends StatelessWidget {
                                 roomsWithMessages[index]
                                     .room
                                     .roomId
-                                    .toString(),context:context);
+                                    .toString(),);
                           },
                         );
                       }

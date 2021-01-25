@@ -75,28 +75,32 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   AppLocalization _appLocalization;
   bool _selectMultiMessage = false;
   int _lastShowedMessageId = -1;
-  int _itemCount;
+  int _itemCount = 0;
+  BehaviorSubject<int> _itemCountSubject = BehaviorSubject.seeded(0);
+
   bool _scrollToNewMessage = true;
   Room _currentRoom;
   int _replayMessageId = -1;
   int currentIndex = 0;
+  int lastRecevdMessageId = 0;
   ScrollPhysics _scrollPhysics = AlwaysScrollableScrollPhysics();
   int _currentMessageSearchId = -1;
   final ItemScrollController _itemScrollController = ItemScrollController();
   Subject<int> _lastSeenSubject = BehaviorSubject.seeded(-1);
   final ItemPositionsListener _itemPositionsListener =
-      ItemPositionsListener.create();
+  ItemPositionsListener.create();
   Subject<int> _scrollSubject = BehaviorSubject.seeded(-2);
-  int _currentPosition = 0;
+  BehaviorSubject<int> _positionSubject = BehaviorSubject.seeded(0);
+  int _minCurrentPosition = 0;
   Cache<int, Message> _cache =
-      LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
+  LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
 
   Map<String, int> _messagesPacketId = Map();
 
   int unreadMessageScroll = 0;
 
   Cache<int, Widget> widgetCache =
-      LruCache<int, Widget>(storage: SimpleStorage(size: 100));
+  LruCache<int, Widget>(storage: SimpleStorage(size: 100));
 
   // TODO, get previous message
   Future<List<Message>> _getPendingMessage(dbId) async {
@@ -122,7 +126,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     }
     int page = (id / PAGE_SIZE).floor();
     List<Message> messages =
-        await _messageRepo.getPage(page, roomId, id, pageSize: PAGE_SIZE);
+    await _messageRepo.getPage(page, roomId, id, pageSize: PAGE_SIZE);
     for (int i = 0; i < messages.length; i = i + 1) {
       _cache.set(messages[i].id, messages[i]);
       try {
@@ -195,24 +199,25 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   void initState() {
     super.initState();
+    _getLastShowMessageId();
     _getLastSeen();
     _itemPositionsListener.itemPositions.addListener(() {
-      List<ItemPosition> p =
-          _itemPositionsListener.itemPositions.value.toList();
-      for (var i in p) {
-        if (_currentPosition == -1 || _currentPosition >= i.index) {
-          _currentPosition = i.index;
-          _scrollToNewMessage = false;
-        } else {
-          _scrollToNewMessage = true;
-        }
+      List<ItemPosition> positionList =
+      _itemPositionsListener.itemPositions.value.toList();
+      for (var pos in positionList) {
+        _positionSubject.add(pos.index);
       }
     });
+    _itemCountSubject.distinct().listen((event) {
+     if(event != 0){
+
+
+     }
+    });
     _messageRepo.setCoreSetting();
-    _getLastShowMessageId();
+
     _scrollSubject.distinct().listen((event) {
-      if (_scrollToNewMessage && event > 0) {
-        _currentPosition = event;
+      if (_itemCount - event < 2 && _itemCount == _lastShowedMessageId) {
         _scrollToMessage(position: event);
       } else if (event == -1 && !_scrollToNewMessage) {
         setState(() {
@@ -224,7 +229,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _roomDao.insertRoom(Room(roomId: widget.roomId, mentioned: false));
     _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.uid.category == Categories.GROUP ||
-            widget.roomId.uid.category == Categories.CHANNEL
+        widget.roomId.uid.category == Categories.CHANNEL
         ? true
         : false;
     _waitingForForwardedMessage = widget.forwardedMessages != null
@@ -232,29 +237,47 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         : false;
     sendInputSharedFile();
     //TODO check
-    _lastSeenSubject.distinct().listen((event) {
-      if (event != null && _lastShowedMessageId < event) {
-        _messageRepo.sendSeenMessage(event, widget.roomId.uid);
-      }
+    _lastSeenSubject
+        .where((event) =>
+    lastRecevdMessageId < event && event > _lastShowedMessageId)
+        .map((event) {
+      lastRecevdMessageId = event;
+      return lastRecevdMessageId;
+    })
+        .distinct()
+        .debounceTime(Duration(milliseconds: 100))
+        .listen((event) {
+      _messageRepo.sendSeenMessage(event, widget.roomId.uid);
     });
 
-    if (widget.roomId.getUid().category != Categories.USER)
+    if (widget.roomId
+        .getUid()
+        .category != Categories.USER)
       _mucRepo.fetchMucInfo(widget.roomId.getUid());
   }
 
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
-    double _maxWidth = MediaQuery.of(context).size.width * 0.7;
+    double _maxWidth = MediaQuery
+        .of(context)
+        .size
+        .width * 0.7;
     if (isLarge(context)) {
       _maxWidth =
-          (MediaQuery.of(context).size.width - navigationPanelSize()) * 0.7;
+          (MediaQuery
+              .of(context)
+              .size
+              .width - navigationPanelSize()) * 0.7;
     }
 
     _maxWidth = min(_maxWidth, 300);
-    var deviceHeight = MediaQuery.of(context).size.height;
+    var deviceHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
 
-    return  StreamBuilder<bool>(
+    return StreamBuilder<bool>(
       stream: _audioPlayerService.isOn,
       builder: (context, snapshot) {
         return Scaffold(
@@ -273,79 +296,99 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         builder: (context, currentRoomStream) {
                           if (currentRoomStream.hasData) {
                             _currentRoom = currentRoomStream.data;
+                            int i = 0;
                             if (_currentRoom.lastMessageId == null) {
-                              _itemCount = pendingMessages.length;
+                              i = pendingMessages.length;
                             } else {
-                              _itemCount = _currentRoom.lastMessageId +
+                              i = _currentRoom.lastMessageId +
                                   pendingMessages.length; //TODO chang
                             }
+                            if (_itemCount != 0 && i != _itemCount)
+                              _itemCountSubject.add(_itemCount);
+                            _itemCount = i;
+
                             return Flexible(
                               fit: FlexFit.tight,
                               child: Container(
                                   height: deviceHeight,
                                   // color: Colors.amber,
                                   child: Stack(
-                                    alignment: AlignmentDirectional.bottomStart,
+                                    alignment: AlignmentDirectional.topStart,
                                     children: [
                                       buildMessagesListView(_currentRoom,
                                           pendingMessages, _maxWidth),
-                                      if (unreadMessageScroll > 0)
-                                        Positioned(
-                                            right: 5,
-                                            bottom: 7,
-                                            child: FloatingActionButton(
-                                                mini: true,
-                                                child: Column(
-                                                  children: [
-                                                    Text(unreadMessageScroll
-                                                        .toString()),
-                                                    Icon(
-                                                      Icons
-                                                          .arrow_downward_sharp,
-                                                      color: Colors.blue,
-                                                    )
-                                                  ],
-                                                ),
-                                                onPressed: () {
-                                                  _scrollToMessage(
-                                                      position:
-                                                          _lastShowedMessageId);
-                                                  setState(() {
-                                                    unreadMessageScroll = 0;
-                                                  });
-                                                })),
+                                      StreamBuilder(
+                                          stream: _positionSubject.stream,
+                                          builder: (c, position) {
+                                            if (position.hasData &&
+                                                _itemCount - position.data >
+                                                    15) {
+                                              return Positioned(
+                                                  right: 7,
+                                                  bottom: 9,
+                                                  child: FloatingActionButton(
+                                                      backgroundColor:
+                                                      Colors.white,
+                                                      mini: true,
+                                                      child: Column(
+                                                        children: [
+                                                          Text(
+                                                              unreadMessageScroll
+                                                                  .toString()),
+                                                          Icon(
+                                                            Icons
+                                                                .arrow_downward_rounded,
+                                                            color: Colors.red,
+                                                          )
+                                                        ],
+                                                      ),
+                                                      onPressed: () {
+                                                        _scrollToMessage(
+                                                            position:
+                                                            _lastShowedMessageId);
+                                                        setState(() {
+                                                          unreadMessageScroll =
+                                                          0;
+                                                        });
+                                                      }));
+                                            } else {
+                                              return SizedBox.shrink();
+                                            }
+                                          }),
                                     ],
                                   )),
                             );
                           } else {
-                            return Container();
+                            return SizedBox.shrink();
                           }
                         });
                   }),
               _repliedMessage != null
                   ? ReplyWidget(
-                      message: _repliedMessage,
-                      resetRoomPageDetails: _resetRoomPageDetails)
+                  message: _repliedMessage,
+                  resetRoomPageDetails: _resetRoomPageDetails)
                   : Container(),
               _waitingForForwardedMessage
                   ? ForwardWidget(
-                      forwardedMessages: widget.forwardedMessages,
-                      onClick: () {
-                        setState(() {
-                          _waitingForForwardedMessage = false;
-                        });
-                      },
-                    )
+                forwardedMessages: widget.forwardedMessages,
+                onClick: () {
+                  setState(() {
+                    _waitingForForwardedMessage = false;
+                  });
+                },
+              )
                   : Container(),
               widget.roomId.uid.category != Categories.CHANNEL
                   ? buildNewMessageInput()
                   : MuteAndUnMuteRoomWidget(
-                      roomId: widget.roomId,
-                      inputMessage: buildNewMessageInput(),
-                    )
+                roomId: widget.roomId,
+                inputMessage: buildNewMessageInput(),
+              )
             ],
           ),
-          backgroundColor: Theme.of(context).backgroundColor,
+          backgroundColor: Theme
+              .of(context)
+              .backgroundColor,
         );
       },
     );
@@ -379,38 +422,38 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           child: _selectMultiMessage
               ? _selectMultiMessageAppBar()
               : _isMuc
-                  ? MucAppbarTitle(mucUid: widget.roomId)
-                  : UserAppbar(
-                      userUid: widget.roomId.uid,
-                    ),
+              ? MucAppbarTitle(mucUid: widget.roomId)
+              : UserAppbar(
+            userUid: widget.roomId.uid,
+          ),
         ),
       ),
     );
   }
 
-  ScrollablePositionedList buildMessagesListView(
-      Room currentRoom, List pendingMessages, double _maxWidth) {
+  ScrollablePositionedList buildMessagesListView(Room currentRoom,
+      List pendingMessages, double _maxWidth) {
     return ScrollablePositionedList.builder(
       itemCount: _itemCount,
-      initialScrollIndex: _itemCount,
+      initialScrollIndex: _lastShowedMessageId,
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) {
-        if(index<0)index=0;
+        if (index < 0) index = 0;
         _lastSeenDao.insertLastSeen(LastSeen(
             roomId: widget.roomId, messageId: _currentRoom.lastMessageId));
         bool isPendingMessage = (currentRoom.lastMessageId == null)
             ? true
             : _itemCount > currentRoom.lastMessageId &&
-                _itemCount - index <= pendingMessages.length;
+            _itemCount - index <= pendingMessages.length;
 
         return FutureBuilder<List<Message>>(
           future: isPendingMessage
               ? _getPendingMessage(
-                  pendingMessages[_itemCount - index - 1].messageDbId)
+              pendingMessages[_itemCount - index - 1].messageDbId)
               : _getMessageAndPreviousMessage(index + 1),
           builder: (context, messagesFuture) {
             if (index >= currentIndex) currentIndex = index;
@@ -425,11 +468,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 if (!(messages[0]
                     .from
                     .isSameEntity(_accountRepo.currentUserUid))) {
-                  if (index >= _itemCount - 1) {
-                    _scrollSubject.add(index);
-                  } else if (_itemCount > currentIndex + 1) {
-                    _scrollSubject.add(-1);
-                  }
+                  _scrollSubject.add(index);
+                  // if (index >= _itemCount - 1 &&
+                  //     index > _lastShowedMessageId &&
+                  //     _itemCount > _lastShowedMessageId) {
+                  //   _scrollSubject.add(index);
+                  // } else if (_itemCount > currentIndex + 1) {
+                  //   _scrollSubject.add(-1);
+                  // }
                   _lastSeenSubject.add(messages[0].id);
                 }
               }
@@ -464,32 +510,38 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       color: Colors.white,
                       child: Text(
                         _appLocalization.getTraslateValue("UnreadMessages"),
-                        style: TextStyle(color: Theme.of(context).primaryColor),
+                        style: TextStyle(color: Theme
+                            .of(context)
+                            .primaryColor),
                       ),
                     ),
                   messages[0].packetId == null
                       ? SizedBox.shrink()
                       : messages[0].type != MessageType.PERSISTENT_EVENT
-                          ? Container(
-                              color: _selectedMessages
-                                          .containsKey(messages[0].id) ||
-                                      (messages[0].id != null &&
-                                          messages[0].id == _replayMessageId)
-                                  ? Theme.of(context).disabledColor
-                                  : Theme.of(context).backgroundColor,
-                              child: normalMessage(messages[0], _maxWidth,
-                                  currentRoom, pendingMessages),
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                PersistentEventMessage(
-                                  message: messages[0],
-                                  showLastMessage: false,
-                                ),
-                              ],
-                            ),
+                      ? Container(
+                    color: _selectedMessages
+                        .containsKey(messages[0].id) ||
+                        (messages[0].id != null &&
+                            messages[0].id == _replayMessageId)
+                        ? Theme
+                        .of(context)
+                        .disabledColor
+                        : Theme
+                        .of(context)
+                        .backgroundColor,
+                    child: normalMessage(messages[0], _maxWidth,
+                        currentRoom, pendingMessages),
+                  )
+                      : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      PersistentEventMessage(
+                        message: messages[0],
+                        showLastMessage: false,
+                      ),
+                    ],
+                  ),
                 ],
               );
             } else {
@@ -525,7 +577,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     }
     if (widgetCache.containsKey(message.id)) return widgetCache.get(message.id);
     Widget widget =
-        _createWidget(message, maxWidth, currentRoom, pendingMessages);
+    _createWidget(message, maxWidth, currentRoom, pendingMessages);
     widgetCache.set(message.id, widget);
     return widget;
   }
@@ -592,11 +644,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           message: _appLocalization.getTraslateValue("cancel"),
           child: Badge(
             animationType: BadgeAnimationType.fade,
-            badgeColor: Theme.of(context).primaryColor,
+            badgeColor: Theme
+                .of(context)
+                .primaryColor,
             badgeContent: Text(_selectedMessages.length.toString()),
             animationDuration: Duration(milliseconds: 125),
             child: IconButton(
-                color: Theme.of(context).primaryColor,
+                color: Theme
+                    .of(context)
+                    .primaryColor,
                 icon: Icon(Icons.clear),
                 onPressed: () {
                   setState(() {
@@ -611,11 +667,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           message: _appLocalization.getTraslateValue("Forward"),
           child: Badge(
             animationType: BadgeAnimationType.fade,
-            badgeColor: Theme.of(context).primaryColor,
+            badgeColor: Theme
+                .of(context)
+                .primaryColor,
             badgeContent: Text(_selectedMessages.length.toString()),
             animationDuration: Duration(milliseconds: 125),
             child: IconButton(
-                color: Theme.of(context).primaryColor,
+                color: Theme
+                    .of(context)
+                    .primaryColor,
                 icon: Icon(
                   Icons.arrow_forward,
                   size: 30,
@@ -686,40 +746,43 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           });
         },
         onTapDown: storePosition,
-        child: Stack(
-          alignment: AlignmentDirectional.bottomStart,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                widget.roomId.getUid().category == Categories.GROUP
-                    ? Padding(
+        child: SingleChildScrollView(
+            child: Stack(
+              alignment: AlignmentDirectional.bottomEnd,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    if (widget.roomId
+                        .getUid()
+                        .category == Categories.GROUP)
+                      Padding(
                         padding: const EdgeInsets.only(
                             bottom: 8.0, left: 5.0, right: 3.0),
                         child: CircleAvatarWidget(message.from.uid, 18),
-                      )
-                    : Container(),
-                if (_selectMultiMessage) selectMultiMessage(message: message),
-                RecievedMessageBox(
-                  message: message,
-                  maxWidth: _maxWidth,
-                  isGroup: widget.roomId.uid.category == Categories.GROUP,
-                  scrollToMessage: (int id) {
-                    _scrollToMessage(
-                        id: id, position: pendingMessagesLength + id);
-                  },
-                  omUsernameClick: onUsernameClick,
-                )
+                      ),
+                    if (_selectMultiMessage) selectMultiMessage(
+                        message: message),
+                    RecievedMessageBox(
+                      message: message,
+                      maxWidth: _maxWidth,
+                      isGroup: widget.roomId.uid.category == Categories.GROUP,
+                      scrollToMessage: (int id) {
+                        _scrollToMessage(
+                            id: id, position: pendingMessagesLength + id);
+                      },
+                      omUsernameClick: onUsernameClick,
+                    )
+                  ],
+                ),
               ],
-            ),
-          ],
-        ));
+            )));
   }
 
   scrollToLast() {
     _itemScrollController.scrollTo(
-        index: _itemCount, duration: Duration(seconds: 1));
+        index: _itemCount, duration: Duration(milliseconds: 10));
   }
 
   onUsernameClick(String username) async {
