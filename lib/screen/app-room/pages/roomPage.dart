@@ -81,7 +81,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   bool _scrollToNewMessage = true;
   Room _currentRoom;
   int _replayMessageId = -1;
-  int currentIndex = 0;
   int lastRecevdMessageId = 0;
   ScrollPhysics _scrollPhysics = AlwaysScrollableScrollPhysics();
   int _currentMessageSearchId = -1;
@@ -89,7 +88,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Subject<int> _lastSeenSubject = BehaviorSubject.seeded(-1);
   final ItemPositionsListener _itemPositionsListener =
       ItemPositionsListener.create();
-  Subject<int> _scrollSubject = BehaviorSubject.seeded(-2);
   BehaviorSubject<int> _positionSubject = BehaviorSubject.seeded(0);
   Cache<int, Message> _cache =
       LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
@@ -210,6 +208,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _itemCountSubject.distinct().listen((event) {
       if (event != 0) {
         if (_scrollToNewMessage) {
+          unReadMessageScrollSubjet.add(0);
           scrollToLast();
         } else {
           unReadMessageScrollSubjet.add(unReadMessageScrollSubjet.value + 1);
@@ -302,43 +301,41 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                           stream: _positionSubject.stream,
                                           builder: (c, position) {
                                             if ((position.hasData &&
-                                                    _itemCount - position.data >
-                                                        15 || unReadMessageScrollSubjet.value>0)) {
-                                              return Positioned(
-                                                  right: 7,
-                                                  bottom: 9,
-                                                  child: FloatingActionButton(
-                                                      backgroundColor:
-                                                          Colors.white,
-                                                      mini: true,
-                                                      child: Column(
-                                                        children: [
-                                                          if (unReadMessageScrollSubjet
-                                                                  .value >
-                                                              0)
-                                                            Text(unReadMessageScrollSubjet
-                                                                .value
-                                                                .toString()),
-                                                          Icon(
-                                                            Icons
-                                                                .arrow_downward_rounded,
-                                                            color: Colors.red,
-                                                          )
-                                                        ],
-                                                      ),
-                                                      onPressed: () {
-                                                        _scrollToMessage(
-                                                            position:
-                                                                _lastShowedMessageId);
+                                                position.data != null)) {
+                                              if (_itemCount - position.data >
+                                                  3) {
+                                                _scrollToNewMessage = false;
+                                                return StreamBuilder<int>(
+                                                    stream:
                                                         unReadMessageScrollSubjet
-                                                            .add(0);
-                                                      }));
-                                            } else if (position.hasData &&
-                                                _itemCount - position.data >
-                                                    3) {
-                                              _scrollToNewMessage = false;
-                                              return SizedBox.shrink();
+                                                            .stream,
+                                                    builder: (c, count) {
+                                                      if (count.hasData &&
+                                                          count.data != null &&
+                                                          count.data > 0) {
+                                                        return scrollWidget(
+                                                            count.data);
+                                                      } else {
+                                                        if (position.hasData &&
+                                                            _itemCount -
+                                                                    position
+                                                                        .data >
+                                                                15) {
+                                                          return scrollWidget(
+                                                              0);
+                                                        } else {
+                                                          return SizedBox
+                                                              .shrink();
+                                                        }
+                                                      }
+                                                    });
+                                              }else{
+                                                unReadMessageScrollSubjet.add(0);
+                                                _scrollToNewMessage = true;
+                                                return SizedBox.shrink();
+                                              }
                                             } else {
+                                              unReadMessageScrollSubjet.add(0);
                                               _scrollToNewMessage = true;
                                               return SizedBox.shrink();
                                             }
@@ -378,6 +375,28 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         );
       },
     );
+  }
+
+  Widget scrollWidget(int count) {
+    return Positioned(
+        right: 7,
+        bottom: 9,
+        child: FloatingActionButton(
+            backgroundColor: Colors.white,
+            mini: true,
+            child: Column(
+              children: [
+                if (count > 0) Text(count.toString()),
+                Icon(
+                  Icons.arrow_downward_rounded,
+                  color: Colors.red,
+                )
+              ],
+            ),
+            onPressed: () {
+              _scrollToMessage(position: _lastShowedMessageId);
+              unReadMessageScrollSubjet.add(0);
+            }));
   }
 
   NewMessageInput buildNewMessageInput() {
@@ -442,7 +461,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   pendingMessages[_itemCount - index - 1].messageDbId)
               : _getMessageAndPreviousMessage(index + 1),
           builder: (context, messagesFuture) {
-            if (index >= currentIndex) currentIndex = index;
             if (messagesFuture.hasData && messagesFuture.data[0] != null) {
               if (index - _currentMessageSearchId > 49) {
                 _currentMessageSearchId = -1;
@@ -454,14 +472,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 if (!(messages[0]
                     .from
                     .isSameEntity(_accountRepo.currentUserUid))) {
-                  _scrollSubject.add(index);
-                  // if (index >= _itemCount - 1 &&
-                  //     index > _lastShowedMessageId &&
-                  //     _itemCount > _lastShowedMessageId) {
-                  //   _scrollSubject.add(index);
-                  // } else if (_itemCount > currentIndex + 1) {
-                  //   _scrollSubject.add(-1);
-                  // }
                   _lastSeenSubject.add(messages[0].id);
                 }
               }
