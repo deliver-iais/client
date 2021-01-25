@@ -88,19 +88,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final ItemScrollController _itemScrollController = ItemScrollController();
   Subject<int> _lastSeenSubject = BehaviorSubject.seeded(-1);
   final ItemPositionsListener _itemPositionsListener =
-  ItemPositionsListener.create();
+      ItemPositionsListener.create();
   Subject<int> _scrollSubject = BehaviorSubject.seeded(-2);
   BehaviorSubject<int> _positionSubject = BehaviorSubject.seeded(0);
-  int _minCurrentPosition = 0;
   Cache<int, Message> _cache =
-  LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
+      LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
 
   Map<String, int> _messagesPacketId = Map();
 
-  int unreadMessageScroll = 0;
+  BehaviorSubject<int> unReadMessageScrollSubjet = BehaviorSubject.seeded(0);
 
   Cache<int, Widget> widgetCache =
-  LruCache<int, Widget>(storage: SimpleStorage(size: 100));
+      LruCache<int, Widget>(storage: SimpleStorage(size: 100));
 
   // TODO, get previous message
   Future<List<Message>> _getPendingMessage(dbId) async {
@@ -126,7 +125,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     }
     int page = (id / PAGE_SIZE).floor();
     List<Message> messages =
-    await _messageRepo.getPage(page, roomId, id, pageSize: PAGE_SIZE);
+        await _messageRepo.getPage(page, roomId, id, pageSize: PAGE_SIZE);
     for (int i = 0; i < messages.length; i = i + 1) {
       _cache.set(messages[i].id, messages[i]);
       try {
@@ -203,33 +202,26 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _getLastSeen();
     _itemPositionsListener.itemPositions.addListener(() {
       List<ItemPosition> positionList =
-      _itemPositionsListener.itemPositions.value.toList();
+          _itemPositionsListener.itemPositions.value.toList();
       for (var pos in positionList) {
         _positionSubject.add(pos.index);
       }
     });
     _itemCountSubject.distinct().listen((event) {
-     if(event != 0){
-
-
-     }
-    });
-    _messageRepo.setCoreSetting();
-
-    _scrollSubject.distinct().listen((event) {
-      if (_itemCount - event < 2 && _itemCount == _lastShowedMessageId) {
-        _scrollToMessage(position: event);
-      } else if (event == -1 && !_scrollToNewMessage) {
-        setState(() {
-          unreadMessageScroll = unreadMessageScroll + 1;
-        });
+      if (event != 0) {
+        if (_scrollToNewMessage) {
+          scrollToLast();
+        } else {
+          unReadMessageScrollSubjet.add(unReadMessageScrollSubjet.value + 1);
+        }
       }
     });
+    _messageRepo.setCoreSetting();
 
     _roomDao.insertRoom(Room(roomId: widget.roomId, mentioned: false));
     _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.uid.category == Categories.GROUP ||
-        widget.roomId.uid.category == Categories.CHANNEL
+            widget.roomId.uid.category == Categories.CHANNEL
         ? true
         : false;
     _waitingForForwardedMessage = widget.forwardedMessages != null
@@ -239,43 +231,32 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     //TODO check
     _lastSeenSubject
         .where((event) =>
-    lastRecevdMessageId < event && event > _lastShowedMessageId)
+            lastRecevdMessageId < event && event > _lastShowedMessageId)
         .map((event) {
-      lastRecevdMessageId = event;
-      return lastRecevdMessageId;
-    })
+          lastRecevdMessageId = event;
+          return lastRecevdMessageId;
+        })
         .distinct()
         .debounceTime(Duration(milliseconds: 100))
         .listen((event) {
-      _messageRepo.sendSeenMessage(event, widget.roomId.uid);
-    });
+          _messageRepo.sendSeenMessage(event, widget.roomId.uid);
+        });
 
-    if (widget.roomId
-        .getUid()
-        .category != Categories.USER)
+    if (widget.roomId.getUid().category != Categories.USER)
       _mucRepo.fetchMucInfo(widget.roomId.getUid());
   }
 
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
-    double _maxWidth = MediaQuery
-        .of(context)
-        .size
-        .width * 0.7;
+    double _maxWidth = MediaQuery.of(context).size.width * 0.7;
     if (isLarge(context)) {
       _maxWidth =
-          (MediaQuery
-              .of(context)
-              .size
-              .width - navigationPanelSize()) * 0.7;
+          (MediaQuery.of(context).size.width - navigationPanelSize()) * 0.7;
     }
 
     _maxWidth = min(_maxWidth, 300);
-    var deviceHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
+    var deviceHeight = MediaQuery.of(context).size.height;
 
     return StreamBuilder<bool>(
       stream: _audioPlayerService.isOn,
@@ -320,21 +301,24 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                       StreamBuilder(
                                           stream: _positionSubject.stream,
                                           builder: (c, position) {
-                                            if (position.hasData &&
-                                                _itemCount - position.data >
-                                                    15) {
+                                            if ((position.hasData &&
+                                                    _itemCount - position.data >
+                                                        15 || unReadMessageScrollSubjet.value>0)) {
                                               return Positioned(
                                                   right: 7,
                                                   bottom: 9,
                                                   child: FloatingActionButton(
                                                       backgroundColor:
-                                                      Colors.white,
+                                                          Colors.white,
                                                       mini: true,
                                                       child: Column(
                                                         children: [
-                                                          Text(
-                                                              unreadMessageScroll
-                                                                  .toString()),
+                                                          if (unReadMessageScrollSubjet
+                                                                  .value >
+                                                              0)
+                                                            Text(unReadMessageScrollSubjet
+                                                                .value
+                                                                .toString()),
                                                           Icon(
                                                             Icons
                                                                 .arrow_downward_rounded,
@@ -345,13 +329,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                       onPressed: () {
                                                         _scrollToMessage(
                                                             position:
-                                                            _lastShowedMessageId);
-                                                        setState(() {
-                                                          unreadMessageScroll =
-                                                          0;
-                                                        });
+                                                                _lastShowedMessageId);
+                                                        unReadMessageScrollSubjet
+                                                            .add(0);
                                                       }));
+                                            } else if (position.hasData &&
+                                                _itemCount - position.data >
+                                                    3) {
+                                              _scrollToNewMessage = false;
+                                              return SizedBox.shrink();
                                             } else {
+                                              _scrollToNewMessage = true;
                                               return SizedBox.shrink();
                                             }
                                           }),
@@ -365,30 +353,28 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   }),
               _repliedMessage != null
                   ? ReplyWidget(
-                  message: _repliedMessage,
-                  resetRoomPageDetails: _resetRoomPageDetails)
+                      message: _repliedMessage,
+                      resetRoomPageDetails: _resetRoomPageDetails)
                   : Container(),
               _waitingForForwardedMessage
                   ? ForwardWidget(
-                forwardedMessages: widget.forwardedMessages,
-                onClick: () {
-                  setState(() {
-                    _waitingForForwardedMessage = false;
-                  });
-                },
-              )
+                      forwardedMessages: widget.forwardedMessages,
+                      onClick: () {
+                        setState(() {
+                          _waitingForForwardedMessage = false;
+                        });
+                      },
+                    )
                   : Container(),
               widget.roomId.uid.category != Categories.CHANNEL
                   ? buildNewMessageInput()
                   : MuteAndUnMuteRoomWidget(
-                roomId: widget.roomId,
-                inputMessage: buildNewMessageInput(),
-              )
+                      roomId: widget.roomId,
+                      inputMessage: buildNewMessageInput(),
+                    )
             ],
           ),
-          backgroundColor: Theme
-              .of(context)
-              .backgroundColor,
+          backgroundColor: Theme.of(context).backgroundColor,
         );
       },
     );
@@ -422,17 +408,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           child: _selectMultiMessage
               ? _selectMultiMessageAppBar()
               : _isMuc
-              ? MucAppbarTitle(mucUid: widget.roomId)
-              : UserAppbar(
-            userUid: widget.roomId.uid,
-          ),
+                  ? MucAppbarTitle(mucUid: widget.roomId)
+                  : UserAppbar(
+                      userUid: widget.roomId.uid,
+                    ),
         ),
       ),
     );
   }
 
-  ScrollablePositionedList buildMessagesListView(Room currentRoom,
-      List pendingMessages, double _maxWidth) {
+  ScrollablePositionedList buildMessagesListView(
+      Room currentRoom, List pendingMessages, double _maxWidth) {
     return ScrollablePositionedList.builder(
       itemCount: _itemCount,
       initialScrollIndex: _lastShowedMessageId,
@@ -448,12 +434,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         bool isPendingMessage = (currentRoom.lastMessageId == null)
             ? true
             : _itemCount > currentRoom.lastMessageId &&
-            _itemCount - index <= pendingMessages.length;
+                _itemCount - index <= pendingMessages.length;
 
         return FutureBuilder<List<Message>>(
           future: isPendingMessage
               ? _getPendingMessage(
-              pendingMessages[_itemCount - index - 1].messageDbId)
+                  pendingMessages[_itemCount - index - 1].messageDbId)
               : _getMessageAndPreviousMessage(index + 1),
           builder: (context, messagesFuture) {
             if (index >= currentIndex) currentIndex = index;
@@ -510,38 +496,32 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       color: Colors.white,
                       child: Text(
                         _appLocalization.getTraslateValue("UnreadMessages"),
-                        style: TextStyle(color: Theme
-                            .of(context)
-                            .primaryColor),
+                        style: TextStyle(color: Theme.of(context).primaryColor),
                       ),
                     ),
                   messages[0].packetId == null
                       ? SizedBox.shrink()
                       : messages[0].type != MessageType.PERSISTENT_EVENT
-                      ? Container(
-                    color: _selectedMessages
-                        .containsKey(messages[0].id) ||
-                        (messages[0].id != null &&
-                            messages[0].id == _replayMessageId)
-                        ? Theme
-                        .of(context)
-                        .disabledColor
-                        : Theme
-                        .of(context)
-                        .backgroundColor,
-                    child: normalMessage(messages[0], _maxWidth,
-                        currentRoom, pendingMessages),
-                  )
-                      : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      PersistentEventMessage(
-                        message: messages[0],
-                        showLastMessage: false,
-                      ),
-                    ],
-                  ),
+                          ? Container(
+                              color: _selectedMessages
+                                          .containsKey(messages[0].id) ||
+                                      (messages[0].id != null &&
+                                          messages[0].id == _replayMessageId)
+                                  ? Theme.of(context).disabledColor
+                                  : Theme.of(context).backgroundColor,
+                              child: normalMessage(messages[0], _maxWidth,
+                                  currentRoom, pendingMessages),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                PersistentEventMessage(
+                                  message: messages[0],
+                                  showLastMessage: false,
+                                ),
+                              ],
+                            ),
                 ],
               );
             } else {
@@ -577,7 +557,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     }
     if (widgetCache.containsKey(message.id)) return widgetCache.get(message.id);
     Widget widget =
-    _createWidget(message, maxWidth, currentRoom, pendingMessages);
+        _createWidget(message, maxWidth, currentRoom, pendingMessages);
     widgetCache.set(message.id, widget);
     return widget;
   }
@@ -644,15 +624,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           message: _appLocalization.getTraslateValue("cancel"),
           child: Badge(
             animationType: BadgeAnimationType.fade,
-            badgeColor: Theme
-                .of(context)
-                .primaryColor,
+            badgeColor: Theme.of(context).primaryColor,
             badgeContent: Text(_selectedMessages.length.toString()),
             animationDuration: Duration(milliseconds: 125),
             child: IconButton(
-                color: Theme
-                    .of(context)
-                    .primaryColor,
+                color: Theme.of(context).primaryColor,
                 icon: Icon(Icons.clear),
                 onPressed: () {
                   setState(() {
@@ -667,15 +643,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           message: _appLocalization.getTraslateValue("Forward"),
           child: Badge(
             animationType: BadgeAnimationType.fade,
-            badgeColor: Theme
-                .of(context)
-                .primaryColor,
+            badgeColor: Theme.of(context).primaryColor,
             badgeContent: Text(_selectedMessages.length.toString()),
             animationDuration: Duration(milliseconds: 125),
             child: IconButton(
-                color: Theme
-                    .of(context)
-                    .primaryColor,
+                color: Theme.of(context).primaryColor,
                 icon: Icon(
                   Icons.arrow_forward,
                   size: 30,
@@ -748,36 +720,33 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         onTapDown: storePosition,
         child: SingleChildScrollView(
             child: Stack(
-              alignment: AlignmentDirectional.bottomEnd,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    if (widget.roomId
-                        .getUid()
-                        .category == Categories.GROUP)
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            bottom: 8.0, left: 5.0, right: 3.0),
-                        child: CircleAvatarWidget(message.from.uid, 18),
-                      ),
-                    if (_selectMultiMessage) selectMultiMessage(
-                        message: message),
-                    RecievedMessageBox(
-                      message: message,
-                      maxWidth: _maxWidth,
-                      isGroup: widget.roomId.uid.category == Categories.GROUP,
-                      scrollToMessage: (int id) {
-                        _scrollToMessage(
-                            id: id, position: pendingMessagesLength + id);
-                      },
-                      omUsernameClick: onUsernameClick,
-                    )
-                  ],
-                ),
+          alignment: AlignmentDirectional.bottomEnd,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                if (widget.roomId.getUid().category == Categories.GROUP)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        bottom: 8.0, left: 5.0, right: 3.0),
+                    child: CircleAvatarWidget(message.from.uid, 18),
+                  ),
+                if (_selectMultiMessage) selectMultiMessage(message: message),
+                RecievedMessageBox(
+                  message: message,
+                  maxWidth: _maxWidth,
+                  isGroup: widget.roomId.uid.category == Categories.GROUP,
+                  scrollToMessage: (int id) {
+                    _scrollToMessage(
+                        id: id, position: pendingMessagesLength + id);
+                  },
+                  omUsernameClick: onUsernameClick,
+                )
               ],
-            )));
+            ),
+          ],
+        )));
   }
 
   scrollToLast() {
