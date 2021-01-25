@@ -52,7 +52,7 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
   @override
   void initState() {
     _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
-    _tabController = TabController(length: 2,vsync: this);
+    _tabController = TabController(length: 3,vsync: this);
     super.initState();
 
   }
@@ -355,9 +355,9 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
                                     //       text: appLocalization
                                     //           .getTraslateValue("documents")),
                                     // if (snapshot.data.musicsCount != 0)
-                                    //   Tab(
-                                    //       text: appLocalization
-                                    //           .getTraslateValue("musics")),
+                                      Tab(
+                                          text: appLocalization
+                                              .getTraslateValue("musics")),
                                     // if (snapshot.data.audiosCount != 0)
                                     //   Tab(
                                     //       text: appLocalization
@@ -399,8 +399,8 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
                         //     type: FetchMediasReq_MediaType.DOCUMENTS,
                         //   ),
                         // if (snapshot.data.musicsCount != 0)
-                        //   MusicAndAudioUi(userUid: widget.userUid,type: FetchMediasReq_MediaType.MUSICS,
-                        //   mediaCount:6),
+                          MusicAndAudioUi(userUid: widget.userUid,type: FetchMediasReq_MediaType.MUSICS,
+                          mediaCount:1),
 
                         // if (snapshot.data.audiosCount != 0)
                         //   MusicAndAudioUi(userUid: widget.userUid,type: FetchMediasReq_MediaType.AUDIOS,

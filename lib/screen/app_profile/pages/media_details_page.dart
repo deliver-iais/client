@@ -29,11 +29,16 @@ class MediaDetailsPage extends StatefulWidget {
   int mediasLength;
   Uid userUid;
   bool isAvatar = false;
-  bool isVideo=false;
+  bool isVideo = false;
   bool hasPermissionToDeletePic = false;
 
   MediaDetailsPage.showMedia(
-      {Key key,this.hasPermissionToDeletePic , @required this.userUid,@required this.mediaPosition, this.mediasLength, this.heroTag})
+      {Key key,
+      this.hasPermissionToDeletePic,
+      @required this.userUid,
+      @required this.mediaPosition,
+      this.mediasLength,
+      this.heroTag})
       : super(key: key);
 
   MediaDetailsPage.showAvatar(
@@ -45,9 +50,13 @@ class MediaDetailsPage extends StatefulWidget {
     this.isAvatar = true;
   }
 
-  MediaDetailsPage.showVideo({Key key,@required this.userUid,@required this.mediaPosition,@required this.mediasLength})
-      :super(key: key){
-    this.isVideo=true;
+  MediaDetailsPage.showVideo(
+      {Key key,
+      @required this.userUid,
+      @required this.mediaPosition,
+      @required this.mediasLength})
+      : super(key: key) {
+    this.isVideo = true;
   }
 
   @override
@@ -64,11 +73,14 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   var _fileRepo = GetIt.I.get<FileRepo>();
   var _avatarRepo = GetIt.I.get<AvatarRepo>();
   var _routingService = GetIt.I.get<RoutingService>();
+  var _videoPlayerService = GetIt.I.get<VideoPlayerService>();
+
   var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 5));
   var _mediaCache = LruCache<String, Media>(storage: SimpleStorage(size: 50));
-  var _mediaSenderCache = LruCache<String, String>(storage: SimpleStorage(size: 50));
-  var _thumnailChache = LruCache<String,File>(storage: SimpleStorage(size: 5));
-  var _isVideoThumnailExistCache = LruCache<String,bool>(storage: SimpleStorage(size: 50));
+  var _mediaSenderCache =
+      LruCache<String, String>(storage: SimpleStorage(size: 50));
+  var _thumnailChache = LruCache<String, File>(storage: SimpleStorage(size: 5));
+  Map isPlayingVideo = new Map<int,bool>();
 
   download(String uuid, String name) async {
     await GetIt.I.get<FileRepo>().getFile(uuid, name);
@@ -90,10 +102,9 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   Widget build(BuildContext context) {
     if (widget.isAvatar == true) {
       return buildAvatar(context);
-    } else if(widget.isVideo==true){
+    } else if (widget.isVideo == true) {
       return buildVideo(context);
-    }
-    else {
+    } else {
       return buildMedia(context);
     }
   }
@@ -220,7 +231,9 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             if (media == null) {
               widget.heroTag = "btn$i";
               return FutureBuilder<List<Media>>(
-                  future: _mediaQueryRepo.getMediaAround(widget.userUid.asString(), i,
+                  future: _mediaQueryRepo.getMediaAround(
+                      widget.userUid.asString(),
+                      i,
                       FetchMediasReq_MediaType.IMAGES.value),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData || snapshot.data == null) {
@@ -232,17 +245,20 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                             .data[snapshot.data.length - 1].json)["uuid"];
                         fileName = jsonDecode(snapshot
                             .data[snapshot.data.length - 1].json)["name"];
-                         mediaSender = snapshot.data[snapshot.data.length-1].createdBy.uid;
-                        createdOn =DateTime.fromMillisecondsSinceEpoch(snapshot.data[snapshot.data.length-1].createdOn);
+                        mediaSender = snapshot
+                            .data[snapshot.data.length - 1].createdBy.uid;
+                        createdOn = DateTime.fromMillisecondsSinceEpoch(
+                            snapshot.data[snapshot.data.length - 1].createdOn);
                         senderName = _mediaSenderCache.get(fileId);
-
                       } else {
                         fileId = jsonDecode(snapshot
                             .data[snapshot.data.length - 2].json)["uuid"];
                         fileName = jsonDecode(snapshot
                             .data[snapshot.data.length - 2].json)["name"];
-                         mediaSender = snapshot.data[snapshot.data.length-2].createdBy.uid;
-                        createdOn =DateTime.fromMillisecondsSinceEpoch(snapshot.data[snapshot.data.length-2].createdOn);
+                        mediaSender = snapshot
+                            .data[snapshot.data.length - 2].createdBy.uid;
+                        createdOn = DateTime.fromMillisecondsSinceEpoch(
+                            snapshot.data[snapshot.data.length - 2].createdOn);
                         senderName = _mediaSenderCache.get(fileId);
                       }
 
@@ -281,7 +297,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                           transitionOnUserGestures: true,
                                         ),
                                       ),
-                                      buildBottomAppBar(mediaSender,createdOn,senderName,fileId),
+                                      buildBottomAppBar(mediaSender, createdOn,
+                                          senderName, fileId),
                                     ],
                                   ),
                                 ),
@@ -297,9 +314,9 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               var fileId = jsonDecode(media.json)["uuid"];
               var fileName = jsonDecode(media.json)["name"];
               mediaSender = media.createdBy.uid;
-              createdOn =DateTime.fromMillisecondsSinceEpoch(media.createdOn);
+              createdOn = DateTime.fromMillisecondsSinceEpoch(media.createdOn);
               var file = _fileCache.get(fileId);
-              senderName=_mediaSenderCache.get(fileId);
+              senderName = _mediaSenderCache.get(fileId);
 
               if (file != null)
                 return Center(
@@ -330,7 +347,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                             transitionOnUserGestures: true,
                           ),
                         ),
-                        buildBottomAppBar(mediaSender,createdOn,senderName,fileId),
+                        buildBottomAppBar(
+                            mediaSender, createdOn, senderName, fileId),
                       ],
                     ),
                   ), // transitionOnUserGestures: true,
@@ -369,7 +387,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                   transitionOnUserGestures: true,
                                 ),
                               ),
-                              buildBottomAppBar(mediaSender,createdOn,senderName,fileId),
+                              buildBottomAppBar(
+                                  mediaSender, createdOn, senderName, fileId),
                             ],
                           ),
                         ),
@@ -391,241 +410,308 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     );
   }
 
-  Widget buildVideo(BuildContext context){
-
+  Widget buildVideo(BuildContext context) {
     return Scaffold(
       body: Container(
         child: Swiper(
-            scrollDirection: Axis.horizontal,
-            index: widget.mediaPosition,
-            itemBuilder: (context, i) {
-              var media = _mediaCache.get("$i");
-              if (media == null) {
-                //widget.heroTag = "btn$i";
-                return FutureBuilder<List<Media>>(
-                    future: _mediaQueryRepo.getMediaAround(widget.userUid.asString(), i,
-                        FetchMediasReq_MediaType.VIDEOS.value),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData || snapshot.data == null) {
-                        return Center();
+          scrollDirection: Axis.horizontal,
+          index: widget.mediaPosition,
+          onIndexChanged: (index){
+            isPlayingVideo[index+1]=false;
+          },
+          itemBuilder: (context, i) {
+            var media = _mediaCache.get("$i");
+            if (media == null) {
+              //widget.heroTag = "btn$i";
+              return FutureBuilder<List<Media>>(
+                  future: _mediaQueryRepo.getMediaAround(
+                      widget.userUid.asString(),
+                      i,
+                      FetchMediasReq_MediaType.VIDEOS.value),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData || snapshot.data == null) {
+                      return Center();
+                    } else {
+                      setMediaUrlCache(i, snapshot.data);
+                      if (i == widget.mediasLength - 1) {
+                        fileId = jsonDecode(snapshot
+                            .data[snapshot.data.length - 1].json)["uuid"];
+                        fileName = jsonDecode(snapshot
+                            .data[snapshot.data.length - 1].json)["name"];
+                        mediaSender = snapshot
+                            .data[snapshot.data.length - 1].createdBy.uid;
+                        createdOn = DateTime.fromMillisecondsSinceEpoch(
+                            snapshot.data[snapshot.data.length - 1].createdOn);
+                        senderName = _mediaSenderCache.get(fileId);
                       } else {
-                        setMediaUrlCache(i, snapshot.data);
-                        if (i == widget.mediasLength - 1) {
-                          fileId = jsonDecode(snapshot
-                              .data[snapshot.data.length - 1].json)["uuid"];
-                          fileName = jsonDecode(snapshot
-                              .data[snapshot.data.length - 1].json)["name"];
-                          mediaSender = snapshot.data[snapshot.data.length-1].createdBy.uid;
-                          createdOn =DateTime.fromMillisecondsSinceEpoch(snapshot.data[snapshot.data.length-1].createdOn);
-                          senderName = _mediaSenderCache.get(fileId);
+                        fileId = jsonDecode(snapshot
+                            .data[snapshot.data.length - 2].json)["uuid"];
+                        fileName = jsonDecode(snapshot
+                            .data[snapshot.data.length - 2].json)["name"];
+                        mediaSender = snapshot
+                            .data[snapshot.data.length - 2].createdBy.uid;
+                        createdOn = DateTime.fromMillisecondsSinceEpoch(
+                            snapshot.data[snapshot.data.length - 2].createdOn);
+                        senderName = _mediaSenderCache.get(fileId);
+                      }
+                      return FutureBuilder(
+                          future: _fileRepo.getFileIfExist(fileId, fileName),
+                          builder: (BuildContext c, AsyncSnapshot snaps) {
+                            if (snaps.hasData &&
+                                snaps.data != null &&
+                                snaps.connectionState == ConnectionState.done) {
+                              _fileCache.set(fileId, snaps.data);
+                              isPlayingVideo[i]=true;
+                              return Center(
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  height: MediaQuery.of(context).size.height,
+                                  child: Stack(
+                                    alignment: Alignment.centerLeft,
+                                    children: [
+                                      buildAppBar(i, widget.mediasLength),
+                                      Positioned(
+                                        top: 80,
+                                        left: 0.0,
+                                        bottom: 0.0,
+                                        right: 0.0,
+                                        // child: Hero(
+                                        //   tag: widget.heroTag,
+                                        child: VideoPlayingDetails(
+                                          video: snaps.data,
+                                        ),
+                                        //   transitionOnUserGestures: true,
+                                        // ),
+                                      ),
+                                      buildBottomAppBar(mediaSender, createdOn,
+                                          senderName, fileId),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            } else if (snaps.data == null &&
+                                snaps.connectionState == ConnectionState.done) {
+                              return FutureBuilder(
+                                  future: _fileRepo.getFile(
+                                      fileId, fileName + "png",
+                                      thumbnailSize: ThumbnailSize.small),
+                                  builder:
+                                      (BuildContext c, AsyncSnapshot snaps) {
+                                    if (snaps.hasData &&
+                                        snaps.data != null &&
+                                        snaps.connectionState ==
+                                            ConnectionState.done) {
+                                      _thumnailChache.set(fileId, snaps.data);
+                                      return Center(
+                                        child: Container(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          height: MediaQuery.of(context)
+                                              .size
+                                              .height,
+                                          child: Stack(
+                                            alignment: Alignment.centerLeft,
+                                            children: [
+                                              buildAppBar(
+                                                  i, widget.mediasLength),
+                                              Positioned(
+                                                top: 80,
+                                                left: 0.0,
+                                                bottom: 0.0,
+                                                right: 0.0,
+                                                // child: Hero(
+                                                //   tag: widget.heroTag,
+                                                child: Stack(
+                                                  children: [
+                                                    Container(
+                                                      decoration:
+                                                          new BoxDecoration(
+                                                        image:
+                                                            new DecorationImage(
+                                                          image: Image.file(
+                                                            snaps.data,
+                                                          ).image,
+                                                          fit: BoxFit.fitWidth,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Center(
+                                                        child: Container(
+                                                      width: 50,
+                                                      height: 50,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: Colors.black
+                                                            .withOpacity(0.5),
+                                                      ),
+                                                      child: IconButton(
+                                                        icon: Icon(Icons
+                                                            .arrow_downward_sharp),
+                                                        color: Colors.white10,
+                                                      ),
+                                                    ))
+                                                  ],
+                                                ),
+                                                //   transitionOnUserGestures: true,
+                                                // ),
+                                              ),
+                                              buildBottomAppBar(
+                                                  mediaSender,
+                                                  createdOn,
+                                                  senderName,
+                                                  fileId),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      return Center();
+                                    }
+                                  });
+                            } else {
+                              return Container(
+                                width: 0,
+                                height: 0,
+                              );
+                            }
+                          });
+                    }
+                  });
+            } else {
+              // widget.heroTag = "btn$i";
+              var fileId = jsonDecode(media.json)["uuid"];
+              var fileName = jsonDecode(media.json)["name"];
+              mediaSender = media.createdBy.uid;
+              createdOn = DateTime.fromMillisecondsSinceEpoch(media.createdOn);
+              var videoFile = _fileCache.get(fileId);
+              var thumnailFile = _thumnailChache.get(fileId);
+              senderName = _mediaSenderCache.get(fileId);
 
-                        } else {
-                          fileId = jsonDecode(snapshot
-                              .data[snapshot.data.length - 2].json)["uuid"];
-                          fileName = jsonDecode(snapshot
-                              .data[snapshot.data.length - 2].json)["name"];
-                          mediaSender = snapshot.data[snapshot.data.length-2].createdBy.uid;
-                          createdOn =DateTime.fromMillisecondsSinceEpoch(snapshot.data[snapshot.data.length-2].createdOn);
-                          senderName = _mediaSenderCache.get(fileId);
-                        }
-                             return FutureBuilder(
-                                 future: _fileRepo.getFileIfExist(fileId, fileName),
-                                 builder: (BuildContext c, AsyncSnapshot snaps) {
-                                   if (snaps.hasData &&
-                                       snaps.data != null &&
-                                       snaps.connectionState == ConnectionState.done) {
-                                     _fileCache.set(fileId, snaps.data);
-                                     return Center(
-                                       child: Container(
-                                         width: MediaQuery.of(context).size.width,
-                                         height: MediaQuery.of(context).size.height,
-                                         child: Stack(
-                                           alignment: Alignment.centerLeft,
-                                           children: [
-                                             buildAppBar(i, widget.mediasLength),
-                                             Positioned(
-                                               top: 80,
-                                               left: 0.0,
-                                               bottom: 0.0,
-                                               right: 0.0,
-                                               // child: Hero(
-                                               //   tag: widget.heroTag,
-                                               child: VideoPlayingDetails(video: snaps.data,),
-                                               //   transitionOnUserGestures: true,
-                                               // ),
-                                             ),
-                                             buildBottomAppBar(mediaSender,createdOn,senderName,fileId),
-                                           ],
-                                         ),
-                                       ),
-                                     );
-                                   } else if(snaps.data==null && snaps.connectionState == ConnectionState.done){
-                                     return FutureBuilder(
-                                         future: _fileRepo.getFile(fileId, fileName + "png",thumbnailSize: ThumbnailSize.small),
-                                         builder: (BuildContext c, AsyncSnapshot snaps) {
-                                           if (snaps.hasData &&
-                                               snaps.data != null &&
-                                               snaps.connectionState == ConnectionState.done) {
-                                             _thumnailChache.set(fileId, snaps.data);
-                                             return Center(
-                                               child: Container(
-                                                 width: MediaQuery.of(context).size.width,
-                                                 height: MediaQuery.of(context).size.height,
-                                                 child: Stack(
-                                                   alignment: Alignment.centerLeft,
-                                                   children: [
-                                                     buildAppBar(i, widget.mediasLength),
-                                                     Positioned(
-                                                       top: 80,
-                                                       left: 0.0,
-                                                       bottom: 0.0,
-                                                       right: 0.0,
-                                                       // child: Hero(
-                                                       //   tag: widget.heroTag,
-                                                       child: Stack(
-                                                         children: [
-                                                           Container(
-                                                             decoration: new BoxDecoration(
-                                                               image: new DecorationImage(
-                                                                 image: Image.file(
-                                                                   snaps.data,
-                                                                 ).image,
-                                                                 fit: BoxFit.fitWidth,
-                                                               ),
-                                                             ),
-                                                           ),
-                                                           Center(
-                                                               child: Container(
-                                                                 width: 50,
-                                                                 height: 50,
-                                                                 decoration: BoxDecoration(
-                                                                   shape: BoxShape.circle,
-                                                                   color: Colors.black.withOpacity(0.5),
-                                                                 ),
-                                                                 child: IconButton(
-                                                                   icon: Icon(Icons.arrow_downward_sharp),
-                                                                   color: Colors.white10,
-                                                                 ),
-                                                               ))
-                                                         ],
-                                                       ),
-                                                       //   transitionOnUserGestures: true,
-                                                       // ),
-                                                     ),
-                                                     buildBottomAppBar(mediaSender,createdOn,senderName,fileId),
-                                                   ],
-                                                 ),
-                                               ),
-                                             );
-                                           } else {
-                                             return Center();
-                                           }
-                                         });}else{
-                                     return Container(width: 0,height: 0,);
-                                   }
-                                 });}
-                           // else if (isExistSnap.data != null &&
-                           //     isExistSnap.connectionState == ConnectionState.done &&
-                           //     isExistSnap.data == false){
-                           //   _isVideoThumnailExistCache.set(fileId, false);
-                           //   return FutureBuilder(
-                           //       future: _fileRepo.getFile(fileId, fileName + "png",thumbnailSize: ThumbnailSize.small),
-                           //       builder: (BuildContext c, AsyncSnapshot snaps) {
-                           //         if (snaps.hasData &&
-                           //             snaps.data != null &&
-                           //             snaps.connectionState == ConnectionState.done) {
-                           //           _fileCache.set(fileId, snaps.data);
-                           //           return Center(
-                           //             child: Container(
-                           //               width: MediaQuery.of(context).size.width,
-                           //               height: MediaQuery.of(context).size.height,
-                           //               child: Stack(
-                           //                 alignment: Alignment.centerLeft,
-                           //                 children: [
-                           //                   buildAppBar(i, widget.mediasLength),
-                           //                   Positioned(
-                           //                     top: 80,
-                           //                     left: 0.0,
-                           //                     bottom: 0.0,
-                           //                     right: 0.0,
-                           //                     // child: Hero(
-                           //                     //   tag: widget.heroTag,
-                           //                     child: Stack(
-                           //                       children: [
-                           //                         Container(
-                           //                         decoration: new BoxDecoration(
-                           //                           image: new DecorationImage(
-                           //                             image: Image.file(
-                           //                               snaps.data,
-                           //                             ).image,
-                           //                             fit: BoxFit.fitWidth,
-                           //                           ),
-                           //                         ),
-                           //                       ),
-                           //                         Center(
-                           //                             child: Container(
-                           //                               width: 50,
-                           //                               height: 50,
-                           //                               decoration: BoxDecoration(
-                           //                                 shape: BoxShape.circle,
-                           //                                 color: Colors.black.withOpacity(0.5),
-                           //                               ),
-                           //                               child: IconButton(
-                           //                                 icon: Icon(Icons.arrow_downward_sharp),
-                           //                                 color: Colors.white10,
-                           //                                 // onPressed: () {
-                           //                                 //   videoPlayerService.videoPlayerController.play();
-                           //                                 // }
-                           //                               ),
-                           //                             ))
-                           //                       ],
-                           //                     ),
-                           //                     //   transitionOnUserGestures: true,
-                           //                     // ),
-                           //                   ),
-                           //                   buildBottomAppBar(mediaSender,createdOn,senderName,fileId),
-                           //                 ],
-                           //               ),
-                           //             ),
-                           //           );
-                           //         } else {
-                           //           return Center();
-                           //         }
-                           //       });
-                           // }
-                           // else {
-                           //   return Container(
-                           //     width: 0,
-                           //     height: 0,
-                           //   );
-                           // }
+              if (videoFile == null && thumnailFile == null)
+                return FutureBuilder(
+                    future: _fileRepo.getFileIfExist(fileId, fileName),
+                    builder: (BuildContext c, AsyncSnapshot snaps) {
+                      if (snaps.hasData &&
+                          snaps.data != null &&
+                          snaps.connectionState == ConnectionState.done) {
+                        _fileCache.set(fileId, snaps.data);
+                        isPlayingVideo[i]=true;
+                        return Center(
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
+                            child: Stack(
+                              alignment: Alignment.centerLeft,
+                              children: [
+                                buildAppBar(i, widget.mediasLength),
+                                Positioned(
+                                  top: 80,
+                                  left: 0.0,
+                                  bottom: 0.0,
+                                  right: 0.0,
+                                  // child: Hero(
+                                  //   tag: widget.heroTag,
+                                  child: VideoPlayingDetails(
+                                    video: snaps.data,
+                                  ),
+                                  //   transitionOnUserGestures: true,
+                                  // ),
+                                ),
+                                buildBottomAppBar(
+                                    mediaSender, createdOn, senderName, fileId),
+                              ],
+                            ),
+                          ),
+                        );
+                      } else if (snaps.data == null &&
+                          snaps.connectionState == ConnectionState.done) {
+                        return FutureBuilder(
+                            future: _fileRepo.getFile(fileId, fileName + "png",
+                                thumbnailSize: ThumbnailSize.small),
+                            builder: (BuildContext c, AsyncSnapshot snaps) {
+                              if (snaps.hasData &&
+                                  snaps.data != null &&
+                                  snaps.connectionState ==
+                                      ConnectionState.done) {
+                                _thumnailChache.set(fileId, snaps.data);
+                                return Center(
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    height: MediaQuery.of(context).size.height,
+                                    child: Stack(
+                                      alignment: Alignment.centerLeft,
+                                      children: [
+                                        buildAppBar(i, widget.mediasLength),
+                                        Positioned(
+                                          top: 80,
+                                          left: 0.0,
+                                          bottom: 0.0,
+                                          right: 0.0,
+                                          // child: Hero(
+                                          //   tag: widget.heroTag,
+                                          child: Stack(
+                                            children: [
+                                              Container(
+                                                decoration: new BoxDecoration(
+                                                  image: new DecorationImage(
+                                                    image: Image.file(
+                                                      snaps.data,
+                                                    ).image,
+                                                    fit: BoxFit.fitWidth,
+                                                  ),
+                                                ),
+                                              ),
+                                              Center(
+                                                  child: Container(
+                                                width: 50,
+                                                height: 50,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.black
+                                                      .withOpacity(0.5),
+                                                ),
+                                                child: IconButton(
+                                                  icon: Icon(Icons
+                                                      .arrow_downward_sharp),
+                                                  color: Colors.white10,
+                                                ),
+                                              ))
+                                            ],
+                                          ),
+                                          //   transitionOnUserGestures: true,
+                                          // ),
+                                        ),
+                                        buildBottomAppBar(mediaSender,
+                                            createdOn, senderName, fileId),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                return Center();
+                              }
+                            });
+                      } else {
+                        return Container(
+                          width: 0,
+                          height: 0,
+                        );
+                      }
+                    });
+              else if (videoFile != null) {
+                if (isPlayingVideo[i]==true) {
+                  _videoPlayerService.videoPlayerController.pause();
 
-                        //   }
-                        //
-                        // );
-                      });
-                    //});
-              } else {
-               // widget.heroTag = "btn$i";
-                var fileId = jsonDecode(media.json)["uuid"];
-                var fileName = jsonDecode(media.json)["name"];
-                mediaSender = media.createdBy.uid;
-                createdOn =DateTime.fromMillisecondsSinceEpoch(media.createdOn);
-                var videoFile = _fileCache.get(fileId);
-                var thumnailFile = _thumnailChache.get(fileId);
-                bool isExist = _isVideoThumnailExistCache.get(fileId);
-                senderName=_mediaSenderCache.get(fileId);
-
-                if (videoFile != null)
+                }
+                else{
                   return Center(
                     child: Container(
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height,
                       child: Stack(
                         alignment: Alignment.centerLeft,
-                        children: <Widget>[
+                        children: [
                           buildAppBar(i, widget.mediasLength),
-                          isExist==true?
                           Positioned(
                             top: 80,
                             left: 0.0,
@@ -633,245 +719,77 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                             right: 0.0,
                             // child: Hero(
                             //   tag: widget.heroTag,
-                              child: Stack(
-                                children:[
-                                  Container(
-                                  decoration: new BoxDecoration(
-                                    image: new DecorationImage(
-                                      image: Image.file(
-                                        videoFile,
-                                      ).image,
-                                      fit: BoxFit.fitWidth,
-                                    ),
-                                  ),
-                                ),
-                                  Center(
-                                      child: Container(
-                                        width: 50,
-                                        height: 50,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.black.withOpacity(0.5),
-                                        ),
-                                        child: IconButton(
-                                          icon: Icon(Icons.play_arrow),
-                                          color:  Colors.white10,
-                                            onPressed: () async {
-                                              // playVideo(fileId, fileName);
-                                              // videoPlayerService.videoPlayerController.play();
-                                            }
-                                        ),
-                                      ))
-                                ],
-                              ),
-                            //   transitionOnUserGestures: true,
-                            // ),
-                          ):
-                          Positioned(
-                            top: 80,
-                            left: 0.0,
-                            bottom: 0.0,
-                            right: 0.0,
-                            // child: Hero(
-                            //   tag: widget.heroTag,
-                            child: Stack(
-                              children:[
-                                Container(
-                                  decoration: new BoxDecoration(
-                                    image: new DecorationImage(
-                                      image: Image.file(
-                                        videoFile,
-                                      ).image,
-                                      fit: BoxFit.fitWidth,
-                                    ),
-                                  ),
-                                ),
-                                Center(
-                                    child: Container(
-                                      width: 50,
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Colors.black.withOpacity(0.5),
-                                      ),
-                                      child: IconButton(
-                                        icon: Icon(Icons.arrow_downward_sharp),
-                                        color:  Colors.white10,
-                                        // onPressed: () {
-                                        //   videoPlayerService.videoPlayerController.play();
-                                        // }
-                                      ),
-                                    ))
-                              ],
+                            child: VideoPlayingDetails(
+                              video: videoFile,
                             ),
                             //   transitionOnUserGestures: true,
                             // ),
                           ),
-
-
-                          buildBottomAppBar(mediaSender,createdOn,senderName,fileId),
+                          buildBottomAppBar(
+                              mediaSender, createdOn, senderName, fileId),
                         ],
                       ),
-                    ), // transitionOnUserGestures: true,
-                  );
-                else {
-                  return FutureBuilder(
-                    future: _fileRepo.isExist(fileId, fileName),
-                    builder: (BuildContext context, AsyncSnapshot existSnap){
-                      if(existSnap.hasData &&
-                          existSnap.data != null &&
-                          existSnap.connectionState == ConnectionState.done &&
-                          existSnap.data == true){
-                        _isVideoThumnailExistCache.set(fileId, true);
-                        return FutureBuilder(
-                          future: _fileRepo.getFile(fileId, fileName + "png",thumbnailSize: ThumbnailSize.small),
-                          builder: (BuildContext c, AsyncSnapshot snaps) {
-                            if (snaps.hasData &&
-                                snaps.data != null &&
-                                snaps.connectionState == ConnectionState.done) {
-                              _fileCache.set(fileId, snaps.data);
-                              return Center(
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  height: MediaQuery.of(context).size.height,
-                                  child: Stack(
-                                    alignment: Alignment.centerLeft,
-                                    children: <Widget>[
-                                      buildAppBar(i, widget.mediasLength),
-                                      Positioned(
-                                        top: 80,
-                                        left: 0.0,
-                                        bottom: 0.0,
-                                        right: 0.0,
-                                        // child: Hero(
-                                        //   tag: widget.heroTag,
-                                        child: Stack(
-                                          children:[
-                                            Container(
-                                              decoration: new BoxDecoration(
-                                                image: new DecorationImage(
-                                                  image: Image.file(
-                                                    snaps.data,
-                                                  ).image,
-                                                  fit: BoxFit.fitWidth,
-                                                ),
-                                              ),
-                                            ),
-                                            Center(
-                                                child: Container(
-                                                  width: 50,
-                                                  height: 50,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: Colors.black.withOpacity(0.5),
-                                                  ),
-                                                  child: IconButton(
-                                                    icon: Icon(Icons.play_arrow),
-                                                    color:  Colors.white10,
-                                                      onPressed: ()async {
-                                                        // playVideo(fileId, fileName);
-                                                        // videoPlayerService.videoPlayerController.play();
-                                                      }
-                                                  ),
-                                                ))
-                                          ],
-                                        ),
-                                        //transitionOnUserGestures: true,
-                                        // ),
-                                      ),
-                                      buildBottomAppBar(mediaSender,createdOn,senderName,fileId),
-                                    ],
+                    ),
+                  );}
+              } else if (thumnailFile != null) {
+                return Center(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    child: Stack(
+                      alignment: Alignment.centerLeft,
+                      children: [
+                        buildAppBar(i, widget.mediasLength),
+                        Positioned(
+                          top: 80,
+                          left: 0.0,
+                          bottom: 0.0,
+                          right: 0.0,
+                          // child: Hero(
+                          //   tag: widget.heroTag,
+                          child: Stack(
+                            children: [
+                              Container(
+                                decoration: new BoxDecoration(
+                                  image: new DecorationImage(
+                                    image: Image.file(
+                                      thumnailFile,
+                                    ).image,
+                                    fit: BoxFit.fitWidth,
                                   ),
                                 ),
-                              );
-                            } else {
-                              return Center();
-                            }
-                          },
-                        );
-                      }else if(existSnap.data != null &&
-                          existSnap.connectionState == ConnectionState.done &&
-                          existSnap.data == false){
-                        _isVideoThumnailExistCache.set(fileId, false);
-
-                        return FutureBuilder(
-                          future: _fileRepo.getFile(fileId, fileName + "png",thumbnailSize: ThumbnailSize.small),
-                          builder: (BuildContext c, AsyncSnapshot snaps) {
-                            if (snaps.hasData &&
-                                snaps.data != null &&
-                                snaps.connectionState == ConnectionState.done) {
-                              _fileCache.set(fileId, snaps.data);
-                              return Center(
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  height: MediaQuery.of(context).size.height,
-                                  child: Stack(
-                                    alignment: Alignment.centerLeft,
-                                    children: <Widget>[
-                                      buildAppBar(i, widget.mediasLength),
-                                      Positioned(
-                                        top: 80,
-                                        left: 0.0,
-                                        bottom: 0.0,
-                                        right: 0.0,
-                                        // child: Hero(
-                                        //   tag: widget.heroTag,
-                                        child: Stack(
-                                          children:[
-                                            Container(
-                                              decoration: new BoxDecoration(
-                                                image: new DecorationImage(
-                                                  image: Image.file(
-                                                    snaps.data,
-                                                  ).image,
-                                                  fit: BoxFit.fitWidth,
-                                                ),
-                                              ),
-                                            ),
-                                            Center(
-                                                child: Container(
-                                                  width: 50,
-                                                  height: 50,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: Colors.black.withOpacity(0.5),
-                                                  ),
-                                                  child: IconButton(
-                                                    icon: Icon(Icons.arrow_downward_sharp),
-                                                    color:  Colors.white10,
-                                                    // onPressed: () {
-                                                    //   videoPlayerService.videoPlayerController.play();
-                                                    // }
-                                                  ),
-                                                ))
-                                          ],
-                                        ),
-                                        //transitionOnUserGestures: true,
-                                        // ),
-                                      ),
-                                      buildBottomAppBar(mediaSender,createdOn,senderName,fileId),
-                                    ],
-                                  ),
+                              ),
+                              Center(
+                                  child: Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.black.withOpacity(0.5),
                                 ),
-                              );
-                            } else {
-                              return Center();
-                            }
-                          },
-                        );
-                      }else{
-                        return Container(
-                          width: 0,
-                          height: 0,
-                        );
-                      }
-                    },
-
-                  );
-                }
+                                child: IconButton(
+                                  icon: Icon(Icons.arrow_downward_sharp),
+                                  color: Colors.white10,
+                                ),
+                              ))
+                            ],
+                          ),
+                          //   transitionOnUserGestures: true,
+                          // ),
+                        ),
+                        buildBottomAppBar(
+                            mediaSender, createdOn, senderName, fileId),
+                      ],
+                    ),
+                  ),
+                );
               }
-
-            },
+            }
+            return Container(
+              width: 0,
+              height: 0,
+            );
+          },
           itemCount: widget.mediasLength,
           viewportFraction: 1.0,
           scale: 0.9,
@@ -881,7 +799,6 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     );
   }
 
-
   setMediaUrlCache(int currentPosition, List<Media> mediaList) {
     int shift = currentPosition == 0 ? 0 : -1;
 
@@ -889,56 +806,60 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       _mediaCache.set("${currentPosition + shift + j}", mediaList[j]);
     }
   }
-  Widget buildBottomAppBar(Uid mediaSender,DateTime createdOn,var name,var fileId){
 
-    if(name==null){
+  Widget buildBottomAppBar(
+      Uid mediaSender, DateTime createdOn, var name, var fileId) {
+    if (name == null) {
       return FutureBuilder<String>(
-      future: _roomRepo.getRoomDisplayName(mediaSender),
-      builder: (BuildContext c, AsyncSnapshot s) {
-        if(!s.hasData || s.data==null || s.connectionState==ConnectionState.waiting){
-          return Center();
-        }else {
-          print("frombuilderrrrrrrrrrrrrrrrrrrrr");
-          _mediaSenderCache.set(fileId,s.data);
-          return Positioned(
-            bottom: 0,
-            left: 0,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  10, 0, 0, 5),
-              child: Wrap(
-                direction: Axis.vertical,
-                runSpacing: 40,
-                children: [
-                  Text("${s.data}"),
-                  SizedBox(height: 10),
-                  Text("$createdOn"),
-                ],
+        future: _roomRepo.getRoomDisplayName(mediaSender),
+        builder: (BuildContext c, AsyncSnapshot s) {
+          if (!s.hasData ||
+              s.data == null ||
+              s.connectionState == ConnectionState.waiting) {
+            return Center();
+          } else {
+            print("frombuilderrrrrrrrrrrrrrrrrrrrr");
+            _mediaSenderCache.set(fileId, s.data);
+            return Positioned(
+              bottom: 0,
+              left: 0,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 0, 0, 5),
+                child: Wrap(
+                  direction: Axis.vertical,
+                  runSpacing: 40,
+                  children: [
+                    Text("${s.data}"),
+                    SizedBox(height: 10),
+                    Text("$createdOn"),
+                  ],
+                ),
               ),
-            ),
-          );
-        }
-      },
-    );} else{
+            );
+          }
+        },
+      );
+    } else {
       print("fromcacheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
       return Positioned(
-      bottom: 0,
-      left: 0,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-            10, 0, 0, 5),
-        child: Wrap(
-          direction: Axis.vertical,
-          runSpacing: 40,
-          children: [
-            Text("$name"),
-            SizedBox(height: 10),
-            Text("$createdOn"),
-          ],
+        bottom: 0,
+        left: 0,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 0, 0, 5),
+          child: Wrap(
+            direction: Axis.vertical,
+            runSpacing: 40,
+            children: [
+              Text("$name"),
+              SizedBox(height: 10),
+              Text("$createdOn"),
+            ],
+          ),
         ),
-      ),
-    );}
+      );
+    }
   }
+
   Widget buildAppBar(int currentPosition, totalLength) {
     return AppBar(
       leading: _routingService.backButtonLeading(),
@@ -965,12 +886,11 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                         setState(() {});
                       },
                     )),
-              if(widget.hasPermissionToDeletePic && !widget.isAvatar)
-                PopupMenuItem(
-                    child: GestureDetector(
+                  if (widget.hasPermissionToDeletePic && !widget.isAvatar)
+                    PopupMenuItem(
+                        child: GestureDetector(
                       child: Text("delete"),
-                      onTap: () {
-                      },
+                      onTap: () {},
                     )),
                 ])
         //     : PopupMenuButton(
