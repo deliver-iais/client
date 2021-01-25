@@ -52,7 +52,7 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
   @override
   void initState() {
     _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
-    _tabController = TabController(length: 3,vsync: this);
+    _tabController = TabController(length: 2,vsync: this);
     super.initState();
 
   }
@@ -104,7 +104,7 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
               body: DefaultTabController(
                   length: widget.userUid.category == Categories.USER
                       ? 3
-                      : 3 + 1,
+                      : 2 + 1,
                   initialIndex: _tabController.index,
                   child: NestedScrollView(
                       headerSliverBuilder:
@@ -355,9 +355,9 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
                                     //       text: appLocalization
                                     //           .getTraslateValue("documents")),
                                     // if (snapshot.data.musicsCount != 0)
-                                      Tab(
-                                          text: appLocalization
-                                              .getTraslateValue("musics")),
+                                    //   Tab(
+                                    //       text: appLocalization
+                                    //           .getTraslateValue("musics")),
                                     // if (snapshot.data.audiosCount != 0)
                                     //   Tab(
                                     //       text: appLocalization
@@ -380,7 +380,7 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
                             ]),
                           ),
                         // if (snapshot.data.imagesCount != 0)
-                           ImageUi(20,widget.userUid),
+                           ImageUi(5,widget.userUid),
                         // if (snapshot.data.videosCount != 0)
                           VideoTabUi(userUid:widget.userUid,videoCount:4),
                         // if (snapshot.data.filesCount != 0)
@@ -399,8 +399,8 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
                         //     type: FetchMediasReq_MediaType.DOCUMENTS,
                         //   ),
                         // if (snapshot.data.musicsCount != 0)
-                          MusicAndAudioUi(userUid: widget.userUid,type: FetchMediasReq_MediaType.MUSICS,
-                          mediaCount:6),
+                        //   MusicAndAudioUi(userUid: widget.userUid,type: FetchMediasReq_MediaType.MUSICS,
+                        //   mediaCount:6),
 
                         // if (snapshot.data.audiosCount != 0)
                         //   MusicAndAudioUi(userUid: widget.userUid,type: FetchMediasReq_MediaType.AUDIOS,

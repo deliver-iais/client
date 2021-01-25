@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:video_player/video_player.dart';
 
 class MediaDetailsPage extends StatefulWidget {
   String heroTag;
@@ -66,10 +67,13 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 5));
   var _mediaCache = LruCache<String, Media>(storage: SimpleStorage(size: 50));
   var _mediaSenderCache = LruCache<String, String>(storage: SimpleStorage(size: 50));
+  var _thumnailChache = LruCache<String,File>(storage: SimpleStorage(size: 5));
   var _isVideoThumnailExistCache = LruCache<String,bool>(storage: SimpleStorage(size: 50));
-  VideoPlayerService videoPlayerService = GetIt.I.get<VideoPlayerService>();
 
-  bool _isVideoThumnailExist;
+  download(String uuid, String name) async {
+    await GetIt.I.get<FileRepo>().getFile(uuid, name);
+    setState(() {});
+  }
 
   var isDeleting = false;
   List<Avatar> _allAvatars;
@@ -424,16 +428,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                           createdOn =DateTime.fromMillisecondsSinceEpoch(snapshot.data[snapshot.data.length-2].createdOn);
                           senderName = _mediaSenderCache.get(fileId);
                         }
-                        return FutureBuilder(
-                          future: _fileRepo.isExist(fileId, fileName),
-                          builder: (BuildContext context,AsyncSnapshot isExistSnap){
-                           if( isExistSnap.hasData &&
-                               isExistSnap.data != null &&
-                               isExistSnap.connectionState == ConnectionState.done &&
-                               isExistSnap.data == true){
-                             _isVideoThumnailExistCache.set(fileId, true);
                              return FutureBuilder(
-                                 future: _fileRepo.getFile(fileId, fileName),
+                                 future: _fileRepo.getFileIfExist(fileId, fileName),
                                  builder: (BuildContext c, AsyncSnapshot snaps) {
                                    if (snaps.hasData &&
                                        snaps.data != null &&
@@ -454,38 +450,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                                right: 0.0,
                                                // child: Hero(
                                                //   tag: widget.heroTag,
-                                                  child: Stack(
-                                                    children:[
-                                                     //  Container(
-                                                     //   decoration: new BoxDecoration(
-                                                     //     image: new DecorationImage(
-                                                     //       image: Image.file(
-                                                     //         snaps.data,
-                                                     //       ).image,
-                                                     //       fit: BoxFit.fitWidth,
-                                                     //     ),
-                                                     //   ),
-                                                     // ),
-                                   VideoUi(video: snaps.data,),
-                                                      // Center(
-                                                      //     child: Container(
-                                                      //       width: 50,
-                                                      //       height: 50,
-                                                      //       decoration: BoxDecoration(
-                                                      //         shape: BoxShape.circle,
-                                                      //         color: Colors.black.withOpacity(0.5),
-                                                      //       ),
-                                                      //       child: IconButton(
-                                                      //           icon: Icon(Icons.play_arrow),
-                                                      //           color:  Colors.white10,
-                                                      //           onPressed: () async {
-                                                      //             VideoUi(video: snaps.data,);
-                                                      //             // videoPlayerService.videoPlayerController.play();
-                                                      //           }
-                                                      //           ),
-                                                      //     ))
-                                                    ],
-                                                  ),
+                                               child: VideoPlayingDetails(video: snaps.data,),
                                                //   transitionOnUserGestures: true,
                                                // ),
                                              ),
@@ -494,101 +459,164 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                          ),
                                        ),
                                      );
-                                   } else {
-                                     return Center();
+                                   } else if(snaps.data==null && snaps.connectionState == ConnectionState.done){
+                                     return FutureBuilder(
+                                         future: _fileRepo.getFile(fileId, fileName + "png",thumbnailSize: ThumbnailSize.small),
+                                         builder: (BuildContext c, AsyncSnapshot snaps) {
+                                           if (snaps.hasData &&
+                                               snaps.data != null &&
+                                               snaps.connectionState == ConnectionState.done) {
+                                             _thumnailChache.set(fileId, snaps.data);
+                                             return Center(
+                                               child: Container(
+                                                 width: MediaQuery.of(context).size.width,
+                                                 height: MediaQuery.of(context).size.height,
+                                                 child: Stack(
+                                                   alignment: Alignment.centerLeft,
+                                                   children: [
+                                                     buildAppBar(i, widget.mediasLength),
+                                                     Positioned(
+                                                       top: 80,
+                                                       left: 0.0,
+                                                       bottom: 0.0,
+                                                       right: 0.0,
+                                                       // child: Hero(
+                                                       //   tag: widget.heroTag,
+                                                       child: Stack(
+                                                         children: [
+                                                           Container(
+                                                             decoration: new BoxDecoration(
+                                                               image: new DecorationImage(
+                                                                 image: Image.file(
+                                                                   snaps.data,
+                                                                 ).image,
+                                                                 fit: BoxFit.fitWidth,
+                                                               ),
+                                                             ),
+                                                           ),
+                                                           Center(
+                                                               child: Container(
+                                                                 width: 50,
+                                                                 height: 50,
+                                                                 decoration: BoxDecoration(
+                                                                   shape: BoxShape.circle,
+                                                                   color: Colors.black.withOpacity(0.5),
+                                                                 ),
+                                                                 child: IconButton(
+                                                                   icon: Icon(Icons.arrow_downward_sharp),
+                                                                   color: Colors.white10,
+                                                                 ),
+                                                               ))
+                                                         ],
+                                                       ),
+                                                       //   transitionOnUserGestures: true,
+                                                       // ),
+                                                     ),
+                                                     buildBottomAppBar(mediaSender,createdOn,senderName,fileId),
+                                                   ],
+                                                 ),
+                                               ),
+                                             );
+                                           } else {
+                                             return Center();
+                                           }
+                                         });}else{
+                                     return Container(width: 0,height: 0,);
                                    }
                                  });}
-                           else if (isExistSnap.data != null &&
-                               isExistSnap.connectionState == ConnectionState.done &&
-                               isExistSnap.data == false){
-                             _isVideoThumnailExistCache.set(fileId, false);
-                             return FutureBuilder(
-                                 future: _fileRepo.getFile(fileId, fileName + "png",thumbnailSize: ThumbnailSize.small),
-                                 builder: (BuildContext c, AsyncSnapshot snaps) {
-                                   if (snaps.hasData &&
-                                       snaps.data != null &&
-                                       snaps.connectionState == ConnectionState.done) {
-                                     _fileCache.set(fileId, snaps.data);
-                                     return Center(
-                                       child: Container(
-                                         width: MediaQuery.of(context).size.width,
-                                         height: MediaQuery.of(context).size.height,
-                                         child: Stack(
-                                           alignment: Alignment.centerLeft,
-                                           children: [
-                                             buildAppBar(i, widget.mediasLength),
-                                             Positioned(
-                                               top: 80,
-                                               left: 0.0,
-                                               bottom: 0.0,
-                                               right: 0.0,
-                                               // child: Hero(
-                                               //   tag: widget.heroTag,
-                                               child: Stack(
-                                                 children: [
-                                                   Container(
-                                                   decoration: new BoxDecoration(
-                                                     image: new DecorationImage(
-                                                       image: Image.file(
-                                                         snaps.data,
-                                                       ).image,
-                                                       fit: BoxFit.fitWidth,
-                                                     ),
-                                                   ),
-                                                 ),
-                                                   Center(
-                                                       child: Container(
-                                                         width: 50,
-                                                         height: 50,
-                                                         decoration: BoxDecoration(
-                                                           shape: BoxShape.circle,
-                                                           color: Colors.black.withOpacity(0.5),
-                                                         ),
-                                                         child: IconButton(
-                                                           icon: Icon(Icons.arrow_downward_sharp),
-                                                           color: Colors.white10,
-                                                           // onPressed: () {
-                                                           //   videoPlayerService.videoPlayerController.play();
-                                                           // }
-                                                         ),
-                                                       ))
-                                                 ],
-                                               ),
-                                               //   transitionOnUserGestures: true,
-                                               // ),
-                                             ),
-                                             buildBottomAppBar(mediaSender,createdOn,senderName,fileId),
-                                           ],
-                                         ),
-                                       ),
-                                     );
-                                   } else {
-                                     return Center();
-                                   }
-                                 });
-                           }else {
-                             return Container(
-                               width: 0,
-                               height: 0,
-                             );
-                           }
+                           // else if (isExistSnap.data != null &&
+                           //     isExistSnap.connectionState == ConnectionState.done &&
+                           //     isExistSnap.data == false){
+                           //   _isVideoThumnailExistCache.set(fileId, false);
+                           //   return FutureBuilder(
+                           //       future: _fileRepo.getFile(fileId, fileName + "png",thumbnailSize: ThumbnailSize.small),
+                           //       builder: (BuildContext c, AsyncSnapshot snaps) {
+                           //         if (snaps.hasData &&
+                           //             snaps.data != null &&
+                           //             snaps.connectionState == ConnectionState.done) {
+                           //           _fileCache.set(fileId, snaps.data);
+                           //           return Center(
+                           //             child: Container(
+                           //               width: MediaQuery.of(context).size.width,
+                           //               height: MediaQuery.of(context).size.height,
+                           //               child: Stack(
+                           //                 alignment: Alignment.centerLeft,
+                           //                 children: [
+                           //                   buildAppBar(i, widget.mediasLength),
+                           //                   Positioned(
+                           //                     top: 80,
+                           //                     left: 0.0,
+                           //                     bottom: 0.0,
+                           //                     right: 0.0,
+                           //                     // child: Hero(
+                           //                     //   tag: widget.heroTag,
+                           //                     child: Stack(
+                           //                       children: [
+                           //                         Container(
+                           //                         decoration: new BoxDecoration(
+                           //                           image: new DecorationImage(
+                           //                             image: Image.file(
+                           //                               snaps.data,
+                           //                             ).image,
+                           //                             fit: BoxFit.fitWidth,
+                           //                           ),
+                           //                         ),
+                           //                       ),
+                           //                         Center(
+                           //                             child: Container(
+                           //                               width: 50,
+                           //                               height: 50,
+                           //                               decoration: BoxDecoration(
+                           //                                 shape: BoxShape.circle,
+                           //                                 color: Colors.black.withOpacity(0.5),
+                           //                               ),
+                           //                               child: IconButton(
+                           //                                 icon: Icon(Icons.arrow_downward_sharp),
+                           //                                 color: Colors.white10,
+                           //                                 // onPressed: () {
+                           //                                 //   videoPlayerService.videoPlayerController.play();
+                           //                                 // }
+                           //                               ),
+                           //                             ))
+                           //                       ],
+                           //                     ),
+                           //                     //   transitionOnUserGestures: true,
+                           //                     // ),
+                           //                   ),
+                           //                   buildBottomAppBar(mediaSender,createdOn,senderName,fileId),
+                           //                 ],
+                           //               ),
+                           //             ),
+                           //           );
+                           //         } else {
+                           //           return Center();
+                           //         }
+                           //       });
+                           // }
+                           // else {
+                           //   return Container(
+                           //     width: 0,
+                           //     height: 0,
+                           //   );
+                           // }
 
-                          }
-
-                        );
-                      }
-                    });
+                        //   }
+                        //
+                        // );
+                      });
+                    //});
               } else {
                // widget.heroTag = "btn$i";
                 var fileId = jsonDecode(media.json)["uuid"];
                 var fileName = jsonDecode(media.json)["name"];
                 mediaSender = media.createdBy.uid;
                 createdOn =DateTime.fromMillisecondsSinceEpoch(media.createdOn);
-                var file = _fileCache.get(fileId);
-                var isExist = _isVideoThumnailExistCache.get(fileId);
+                var videoFile = _fileCache.get(fileId);
+                var thumnailFile = _thumnailChache.get(fileId);
+                bool isExist = _isVideoThumnailExistCache.get(fileId);
                 senderName=_mediaSenderCache.get(fileId);
 
-                if (file != null)
+                if (videoFile != null)
                   return Center(
                     child: Container(
                       width: MediaQuery.of(context).size.width,
@@ -611,7 +639,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                   decoration: new BoxDecoration(
                                     image: new DecorationImage(
                                       image: Image.file(
-                                        file,
+                                        videoFile,
                                       ).image,
                                       fit: BoxFit.fitWidth,
                                     ),
@@ -652,7 +680,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                   decoration: new BoxDecoration(
                                     image: new DecorationImage(
                                       image: Image.file(
-                                        file,
+                                        videoFile,
                                       ).image,
                                       fit: BoxFit.fitWidth,
                                     ),
@@ -853,11 +881,6 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     );
   }
 
-  playVideo(File file) async{
-   //File file=await _fileRepo.getFile(fileId, fileName);
-   await videoPlayerService.videoControllerInitialization(file);
-   videoPlayerService.videoPlayerController.play();
-  }
 
   setMediaUrlCache(int currentPosition, List<Media> mediaList) {
     int shift = currentPosition == 0 ? 0 : -1;
