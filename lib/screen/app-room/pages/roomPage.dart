@@ -388,7 +388,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             mini: true,
             child: Column(
               children: [
-                if (count > 0) Text(count.toString()),
+                count > 0 ?Text(count.toString()):SizedBox(width: 2,height: 8,),
                 Icon(
                   Icons.arrow_downward_rounded,
                   color: Colors.red,
