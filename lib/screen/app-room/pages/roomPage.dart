@@ -73,7 +73,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Message _repliedMessage;
   Map<int, Message> _selectedMessages = Map();
   AppLocalization _appLocalization;
-  bool _selectMultiMessage = false;
+  BehaviorSubject<bool> _selectMultiMessageSubject =
+      BehaviorSubject.seeded(false);
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
   BehaviorSubject<int> _itemCountSubject = BehaviorSubject.seeded(0);
@@ -329,8 +330,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                         }
                                                       }
                                                     });
-                                              }else{
-                                                unReadMessageScrollSubjet.add(0);
+                                              } else {
+                                                unReadMessageScrollSubjet
+                                                    .add(0);
                                                 _scrollToNewMessage = true;
                                                 return SizedBox.shrink();
                                               }
@@ -394,7 +396,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               ],
             ),
             onPressed: () {
-              _scrollToMessage(position: _lastShowedMessageId);
+              _scrollToMessage(
+                  position: count > 0 ? _lastShowedMessageId : _itemCount);
               unReadMessageScrollSubjet.add(0);
             }));
   }
@@ -423,15 +426,22 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           }),
         ),
         title: Align(
-          alignment: Alignment.centerLeft,
-          child: _selectMultiMessage
-              ? _selectMultiMessageAppBar()
-              : _isMuc
-                  ? MucAppbarTitle(mucUid: widget.roomId)
-                  : UserAppbar(
+            alignment: Alignment.centerLeft,
+            child: StreamBuilder<bool>(
+              stream: _selectMultiMessageSubject.stream,
+              builder: (c, sm) {
+                if (sm.hasData && sm.data) {
+                  return _selectMultiMessageAppBar();
+                } else {
+                  if (_isMuc)
+                    return MucAppbarTitle(mucUid: widget.roomId);
+                  else
+                    return UserAppbar(
                       userUid: widget.roomId.uid,
-                    ),
-        ),
+                    );
+                }
+              },
+            )),
       ),
     );
   }
@@ -583,17 +593,19 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Widget selectMultiMessage({Message message}) {
-    return GestureDetector(
-      child: Padding(
-        padding: EdgeInsets.only(bottom: 8),
-        child: _selectedMessages.containsKey(message.id)
-            ? Icon(Icons.check_circle_outline)
-            : Icon(Icons.panorama_fish_eye),
-      ),
-      onTap: () {
-        _addForwardMessage(message);
-      },
-    );
+    // return GestureDetector(
+    //   child: Padding(
+    //     padding: EdgeInsets.only(bottom: 8),
+    //     child: _selectedMessages.containsKey(message.id)
+    //         ? Icon(Icons.check_circle_outline)
+    //         : Icon(Icons.panorama_fish_eye),
+    //   ),
+    //   onTap: () {
+    //     _addForwardMessage(message);
+    //     setState(() {
+    //     });
+    //   },
+    // );
   }
 
   _addForwardMessage(Message message) {
@@ -602,9 +614,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           ? _selectedMessages.remove(message.id)
           : _selectedMessages[message.id] = message;
       if (_selectedMessages.values.length == 0) {
-        setState(() {
-          _selectMultiMessage = false;
-        });
+        _selectMultiMessageSubject.add(false);
       }
     });
   }
@@ -641,9 +651,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 color: Theme.of(context).primaryColor,
                 icon: Icon(Icons.clear),
                 onPressed: () {
+                  _selectMultiMessageSubject.add(false);
+                  _selectedMessages.clear();
                   setState(() {
-                    _selectMultiMessage = false;
-                    _selectedMessages.clear();
                   });
                 }),
           ),
@@ -677,14 +687,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       int pendingMessagesLength) {
     return GestureDetector(
       onTap: () {
-        _selectMultiMessage
+        _selectMultiMessageSubject.stream.value
             ? _addForwardMessage(message)
             : _showCustomMenu(message);
       },
       onLongPress: () {
-        setState(() {
-          _selectMultiMessage = true;
-        });
+        _selectMultiMessageSubject.add(true);
+        _addForwardMessage(message);
+
       },
       onTapDown: storePosition,
       child: SingleChildScrollView(
@@ -707,7 +717,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 )
               ],
             ),
-            if (_selectMultiMessage) selectMultiMessage(message: message)
+            // StreamBuilder(stream : _selectMultiMessageSubject.stream,builder: (c, s) {
+            //   if (s.hasData && s.data) {
+            //     return selectMultiMessage(message: message);
+            //   } else {
+            //     return SizedBox.shrink();
+            //   }
+           //})
           ],
         ),
       ),
@@ -718,14 +734,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       int lastMessageId, int pendingMessagesLength) {
     return GestureDetector(
         onTap: () {
-          _selectMultiMessage
+          _selectMultiMessageSubject.stream.value
               ? _addForwardMessage(message)
               : _showCustomMenu(message);
         },
         onLongPress: () {
-          setState(() {
-            _selectMultiMessage = true;
-          });
+          _selectMultiMessageSubject.add(true);
+          _addForwardMessage(message);
         },
         onTapDown: storePosition,
         child: SingleChildScrollView(
@@ -742,7 +757,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         bottom: 8.0, left: 5.0, right: 3.0),
                     child: CircleAvatarWidget(message.from.uid, 18),
                   ),
-                if (_selectMultiMessage) selectMultiMessage(message: message),
+                // StreamBuilder<bool>(stream:_selectMultiMessageSubject.stream,builder: (c,sm){
+                //   if(sm.hasData &&  sm.data){
+                //    return selectMultiMessage(message: message);
+                //   }else{
+                //     return SizedBox.shrink();
+                //   }
+                // }),
+
                 RecievedMessageBox(
                   message: message,
                   maxWidth: _maxWidth,

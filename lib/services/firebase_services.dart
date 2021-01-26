@@ -89,7 +89,6 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
   var _notificationServices = NotificationServices();
   var database = db.Database();
   var contactDao = database.contactDao;
-  var mucDao = database.mucDao;
   var roomDao = database.roomDao;
   var messageDao = database.messageDao;
   var sharedPreferencesDao = database.sharedPreferencesDao;
@@ -98,38 +97,26 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
 
   if (message.containsKey('data')) {
     Message msg = _decodeMessage(message["data"]["body"]);
-    String roomName;
+    String roomName = message['data']['title'];
 
     CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg);
 
-    if (msg.to.category != Categories.USER) {
-      var muc = await mucDao.getMucByUid(msg.to.asString());
-      if (muc != null) {
-        roomName = muc.name;
-      } else {
-        roomName = "Unknown";
-      }
-    } else {
-      if (msg.from.category == Categories.SYSTEM) {
-        roomName = "Deliver";
-      } else {
-        db.Contact contact =
-            await contactDao.getContactByUid(msg.from.asString());
-        if (contact != null) {
-          roomName =
-              contact.firstName != null ? contact.firstName : contact.username;
-          if (contact.lastName != null) {
-            roomName = "$roomName ${contact.lastName}";
-          }
-        } else {
-          roomName = "Unknown";
+    if (msg.to.category == Categories.USER) {
+      db.Contact contact =
+          await contactDao.getContactByUid(msg.from.asString());
+      if (contact != null) {
+        roomName =
+            contact.firstName != null ? contact.firstName : contact.username;
+        if (contact.lastName != null) {
+          roomName = "$roomName ${contact.lastName}";
         }
       }
+    } else if (msg.from.category == Categories.SYSTEM) {
+      roomName = "Deliver";
     }
     if (msg.from.category == Categories.USER)
       updateLastActivityTime(_userInfoDao, getRoomId(accountRepo, msg),
           DateTime.fromMillisecondsSinceEpoch(msg.time.toInt()));
-
     Uid roomUid = getRoomId(accountRepo, msg);
     db.Room room = await roomDao.getByRoomIdFuture(roomUid.asString());
     if ((await accountRepo.notification).contains("true") &&
