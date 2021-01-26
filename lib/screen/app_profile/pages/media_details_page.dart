@@ -417,7 +417,9 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           scrollDirection: Axis.horizontal,
           index: widget.mediaPosition,
           onIndexChanged: (index){
+            isPlayingVideo.remove(index+1);
             isPlayingVideo[index+1]=false;
+
           },
           itemBuilder: (context, i) {
             var media = _mediaCache.get("$i");
