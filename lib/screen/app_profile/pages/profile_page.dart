@@ -49,7 +49,6 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
   var _uxService = GetIt.I.get<UxService>();
   var _fileRepo = GetIt.I.get<FileRepo>();
   TabController _tabController;
- // int tabsCount=0;
   var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 30));
   @override
   void initState() {
@@ -77,7 +76,9 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    int tabsCount=0;
+    _tabController.addListener((){
+      _uxService.setTabIndex(widget.userUid.asString(),_tabController.index );
+    });
 
     // return StreamBuilder<MediasMetaDataData>(
     //   stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
@@ -110,7 +111,6 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
                   length: widget.userUid.category == Categories.USER
                       ? 3
                       : 2 + 1,
-                  initialIndex: _uxService.getTabIndex(widget.userUid.asString()),
                   child: NestedScrollView(
                       headerSliverBuilder:
                           (BuildContext context, bool innerBoxIsScrolled) {
