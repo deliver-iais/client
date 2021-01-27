@@ -80,7 +80,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   var _mediaSenderCache =
       LruCache<String, String>(storage: SimpleStorage(size: 50));
   var _thumnailChache = LruCache<String, File>(storage: SimpleStorage(size: 5));
-  Map isPlayingVideo = new Map<int,bool>();
+  String currentVideo;
+  // Map isPlayingVideo = new Map<int,bool>();
 
   download(String uuid, String name) async {
     await GetIt.I.get<FileRepo>().getFile(uuid, name);
@@ -416,11 +417,17 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         child: Swiper(
           scrollDirection: Axis.horizontal,
           index: widget.mediaPosition,
-          onIndexChanged: (index){
-            isPlayingVideo.remove(index+1);
-            isPlayingVideo[index+1]=false;
-
-          },
+          // onIndexChanged: (index){
+          //  // isPlayingVideo.remove(index+1);
+          //  // isPlayingVideo
+          //  //   isPlayingVideo[index-1]=false;
+          //   isPlayingVideo.forEach((key, value) {
+          //     if(key!=index){
+          //       isPlayingVideo[key]=false;
+          //     }
+          //   });
+          //
+          // },
           itemBuilder: (context, i) {
             var media = _mediaCache.get("$i");
             if (media == null) {
@@ -463,7 +470,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                 snaps.data != null &&
                                 snaps.connectionState == ConnectionState.done) {
                               _fileCache.set(fileId, snaps.data);
-                              isPlayingVideo[i]=true;
+                              // isPlayingVideo[i]=true;
+                              currentVideo = fileId;
                               return Center(
                                 child: Container(
                                   width: MediaQuery.of(context).size.width,
@@ -597,7 +605,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                           snaps.data != null &&
                           snaps.connectionState == ConnectionState.done) {
                         _fileCache.set(fileId, snaps.data);
-                        isPlayingVideo[i]=true;
+                        // isPlayingVideo[i]=true;
+                        currentVideo=fileId;
                         return Center(
                           child: Container(
                             width: MediaQuery.of(context).size.width,
@@ -701,11 +710,12 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                       }
                     });
               else if (videoFile != null) {
-                if (isPlayingVideo[i]==true) {
+                if (currentVideo==fileId) {
                   _videoPlayerService.videoPlayerController.pause();
 
                 }
                 else{
+                  currentVideo=fileId;
                   return Center(
                     child: Container(
                       width: MediaQuery.of(context).size.width,
@@ -862,7 +872,11 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     }
   }
 
-  Widget buildAppBar(int currentPosition, totalLength) {
+  Widget buildAppBar(int currentPosition, totalLength)
+
+
+
+  {
     return AppBar(
       leading: _routingService.backButtonLeading(),
       title: Align(

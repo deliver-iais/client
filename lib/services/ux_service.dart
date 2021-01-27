@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
 class UxService {
+  Map tabIndexMap = new Map<String,int>();
+
   BehaviorSubject<ThemeData> _theme = BehaviorSubject.seeded(DarkTheme);
   BehaviorSubject<ExtraThemeData> _extraTheme = BehaviorSubject.seeded(
       DarkExtraTheme);
@@ -39,5 +41,13 @@ class UxService {
 
   changeLanguage(Language language) {
     _language.add(language);
+  }
+
+ int getTabIndex(String fileId){
+   return tabIndexMap[fileId];
+  }
+
+  setTabIndex(String fileId,int index){
+    tabIndexMap[fileId]= index;
   }
 }

@@ -16,6 +16,7 @@ import 'package:deliver_flutter/screen/app_profile/widgets/memberWidget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/music_and_audio_ui.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/video_tab_ui.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -45,6 +46,7 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
+  var _uxService = GetIt.I.get<UxService>();
   var _fileRepo = GetIt.I.get<FileRepo>();
   TabController _tabController;
  // int tabsCount=0;
@@ -52,7 +54,11 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
   @override
   void initState() {
     _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
-    _tabController = TabController(length: 3,vsync: this);
+    if(_uxService.getTabIndex(widget.userUid.asString())==null){
+      _uxService.setTabIndex(widget.userUid.asString(),0 );
+    }
+    _tabController = TabController(length: 3,vsync: this,initialIndex:_uxService.getTabIndex(widget.userUid.asString()) );
+
     super.initState();
 
   }
@@ -72,7 +78,6 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
     int tabsCount=0;
-
 
     // return StreamBuilder<MediasMetaDataData>(
     //   stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
@@ -105,7 +110,7 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
                   length: widget.userUid.category == Categories.USER
                       ? 3
                       : 2 + 1,
-                  initialIndex: _tabController.index,
+                  initialIndex: _uxService.getTabIndex(widget.userUid.asString()),
                   child: NestedScrollView(
                       headerSliverBuilder:
                           (BuildContext context, bool innerBoxIsScrolled) {
@@ -324,7 +329,11 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
                                 minHeight: 60,
                                 child: Container(
                                   color: Theme.of(context).backgroundColor,
-                                  child: TabBar(tabs: [
+                                  child: TabBar(
+                                    onTap: (index){
+                                      _uxService.setTabIndex(widget.userUid.asString(), index);
+                                    },
+                                    tabs: [
                                     if (widget.userUid.category !=
                                         Categories.USER)
                                       Tab(
