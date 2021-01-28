@@ -81,9 +81,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       LruCache<String, String>(storage: SimpleStorage(size: 50));
   var _thumnailChache = LruCache<String, File>(storage: SimpleStorage(size: 5));
   String currentVideo;
+
   // Map isPlayingVideo = new Map<int,bool>();
-
-
 
   var isDeleting = false;
   List<Avatar> _allAvatars;
@@ -116,12 +115,20 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             stream: _avatarRepo.getAvatar(widget.userUid, false),
             builder: (cont, snapshot) {
               if (!snapshot.hasData || snapshot.data == null) {
-                return Center(child: CircularProgressIndicator(backgroundColor: Colors.blue,),);
+                return Center(
+                  child: CircularProgressIndicator(
+                    backgroundColor: Colors.blue,
+                  ),
+                );
               } else {
                 _allAvatars = snapshot.data;
                 if (_allAvatars.length <= 0) {
                   _routingService.pop();
-                  return Center(child: CircularProgressIndicator(backgroundColor: Colors.blue,),);
+                  return Center(
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.blue,
+                    ),
+                  );
                 }
                 return Swiper(
                     scrollDirection: Axis.horizontal,
@@ -204,7 +211,11 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                   ),
                                 );
                               } else {
-                                return Center(child: CircularProgressIndicator(backgroundColor: Colors.blue,),);
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    backgroundColor: Colors.blue,
+                                  ),
+                                );
                               }
                             });
                       }
@@ -411,27 +422,20 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
 
   Widget buildVideo(BuildContext context) {
     download(String uuid, String name) async {
-      await GetIt.I.get<FileRepo>().getFile(uuid, name);
+      await _fileRepo.getFile(uuid, name);
       setState(() {
         _thumnailChache.clear();
       });
     }
+
     return Scaffold(
       body: Container(
         child: Swiper(
           scrollDirection: Axis.horizontal,
           index: widget.mediaPosition,
-          // onIndexChanged: (index){
-          //  // isPlayingVideo.remove(index+1);
-          //  // isPlayingVideo
-          //  //   isPlayingVideo[index-1]=false;
-          //   isPlayingVideo.forEach((key, value) {
-          //     if(key!=index){
-          //       isPlayingVideo[key]=false;
-          //     }
-          //   });
-          //
-          // },
+          onIndexChanged: (index) {
+            print(index.toString());
+          },
           itemBuilder: (context, i) {
             var media = _mediaCache.get("$i");
             if (media == null) {
@@ -467,7 +471,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                             snapshot.data[snapshot.data.length - 2].createdOn);
                         senderName = _mediaSenderCache.get(fileId);
                       }
-                      return FutureBuilder(
+                      return FutureBuilder<File>(
                           future: _fileRepo.getFileIfExist(fileId, fileName),
                           builder: (BuildContext c, AsyncSnapshot snaps) {
                             if (snaps.hasData &&
@@ -478,29 +482,10 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                               currentVideo = fileId;
                               return Center(
                                 child: Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  height: MediaQuery.of(context).size.height,
-                                  child: Stack(
-                                    alignment: Alignment.centerLeft,
-                                    children: [
-                                      buildAppBar(i, widget.mediasLength),
-                                      Positioned(
-                                        top: 80,
-                                        left: 0.0,
-                                        bottom: 0.0,
-                                        right: 0.0,
-                                        // child: Hero(
-                                        //   tag: widget.heroTag,
-                                        child: VideoPlayingDetails(
-                                          video: snaps.data,
-                                        ),
-                                        //   transitionOnUserGestures: true,
-                                        // ),
-                                      ),
-                                      buildBottomAppBar(mediaSender, createdOn,
-                                          senderName, fileId),
-                                    ],
-                                  ),
+                                  width: MediaQuery.of(context).size.width / 2,
+                                  height:
+                                      MediaQuery.of(context).size.height / 2,
+                                  child: buildVeidoWidget(i, snaps),
                                 ),
                               );
                             } else if (snaps.data == null &&
@@ -523,60 +508,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                           height: MediaQuery.of(context)
                                               .size
                                               .height,
-                                          child: Stack(
-                                            alignment: Alignment.centerLeft,
-                                            children: [
-                                              buildAppBar(
-                                                  i, widget.mediasLength),
-                                              Positioned(
-                                                top: 80,
-                                                left: 0.0,
-                                                bottom: 0.0,
-                                                right: 0.0,
-                                                // child: Hero(
-                                                //   tag: widget.heroTag,
-                                                child: Stack(
-                                                  children: [
-                                                    Container(
-                                                      decoration:
-                                                          new BoxDecoration(
-                                                        image:
-                                                            new DecorationImage(
-                                                          image: Image.file(
-                                                            snaps.data,
-                                                          ).image,
-                                                          fit: BoxFit.fitWidth,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Center(
-                                                        child: Container(
-                                                          width: 50,
-                                                          height: 50,
-                                                          decoration: BoxDecoration(
-                                                            shape: BoxShape.circle,
-                                                            color: Colors.black.withOpacity(0.5),
-                                                          ),
-                                                          child: IconButton(
-                                                            icon: Icon(Icons.arrow_downward_sharp),
-                                                            color: Colors.white10,
-                                                            onPressed: (){
-                                                              download(fileId, fileName);
-                                                            },
-                                                          ),
-                                                        ))
-                                                  ],
-                                                ),
-                                                //   transitionOnUserGestures: true,
-                                                // ),
-                                              ),
-                                              buildBottomAppBar(
-                                                  mediaSender,
-                                                  createdOn,
-                                                  senderName,
-                                                  fileId),
-                                            ],
-                                          ),
+                                          child: thumbnsilvedioWidget(
+                                              i, snaps, download),
                                         ),
                                       );
                                     } else {
@@ -593,9 +526,9 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                     }
                   });
             } else {
-              // widget.heroTag = "btn$i";
               var fileId = jsonDecode(media.json)["uuid"];
               var fileName = jsonDecode(media.json)["name"];
+              int duration = jsonDecode(media.json)["size"];
               mediaSender = media.createdBy.uid;
               createdOn = DateTime.fromMillisecondsSinceEpoch(media.createdOn);
               var videoFile = _fileCache.get(fileId);
@@ -603,7 +536,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               senderName = _mediaSenderCache.get(fileId);
 
               if (videoFile == null && thumnailFile == null)
-                return FutureBuilder(
+                return FutureBuilder<File>(
                     future: _fileRepo.getFileIfExist(fileId, fileName),
                     builder: (BuildContext c, AsyncSnapshot snaps) {
                       if (snaps.hasData &&
@@ -611,27 +544,18 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                           snaps.connectionState == ConnectionState.done) {
                         _fileCache.set(fileId, snaps.data);
                         // isPlayingVideo[i]=true;
-                        currentVideo=fileId;
+                        currentVideo = fileId;
                         return Center(
                           child: Container(
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height,
+                            width: MediaQuery.of(context).size.width/2,
+                            height: MediaQuery.of(context).size.height/2,
                             child: Stack(
                               alignment: Alignment.centerLeft,
                               children: [
                                 buildAppBar(i, widget.mediasLength),
-                                Positioned(
-                                  top: 80,
-                                  left: 0.0,
-                                  bottom: 0.0,
-                                  right: 0.0,
-                                  // child: Hero(
-                                  //   tag: widget.heroTag,
-                                  child: VideoPlayingDetails(
-                                    video: snaps.data,
-                                  ),
-                                  //   transitionOnUserGestures: true,
-                                  // ),
+                                VideoUi(
+                                  duration: 63473,
+                                  video: snaps.data,
                                 ),
                                 buildBottomAppBar(
                                     mediaSender, createdOn, senderName, fileId),
@@ -652,8 +576,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                 _thumnailChache.set(fileId, snaps.data);
                                 return Center(
                                   child: Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    height: MediaQuery.of(context).size.height,
+                                    width: MediaQuery.of(context).size.width/2,
+                                    height: MediaQuery.of(context).size.height/2,
                                     child: Stack(
                                       alignment: Alignment.centerLeft,
                                       children: [
@@ -679,20 +603,24 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                               ),
                                               Center(
                                                   child: Container(
-                                                    width: 50,
-                                                    height: 50,
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      color: Colors.black.withOpacity(0.5),
-                                                    ),
-                                                    child: IconButton(
-                                                      icon: Icon(Icons.arrow_downward_sharp),
-                                                      color: Colors.white10,
-                                                      onPressed: (){
-                                                        download(fileId, fileName);
-                                                      },
-                                                    ),
-                                                  ))
+                                                width: 50,
+                                                height: 50,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.black
+                                                      .withOpacity(0.5),
+                                                ),
+                                                child: IconButton(
+                                                  icon: Icon(Icons
+                                                      .arrow_downward_sharp),
+                                                  color: Colors.white10,
+                                                  onPressed: () {
+                                                    download(fileId, fileName);
+                                                    setState(() {
+                                                    });
+                                                  },
+                                                ),
+                                              ))
                                             ],
                                           ),
                                           //   transitionOnUserGestures: true,
@@ -716,16 +644,14 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                       }
                     });
               else if (videoFile != null) {
-                if (currentVideo==fileId) {
-                  _videoPlayerService.videoPlayerController.pause();
-
-                }
-                else{
-                  currentVideo=fileId;
+                if (currentVideo == fileId) {
+                  // _videoPlayerService.videoPlayerController.pause();
+                } else {
+                  currentVideo = fileId;
                   return Center(
                     child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width/2,
+                      height: MediaQuery.of(context).size.height/2,
                       child: Stack(
                         alignment: Alignment.centerLeft,
                         children: [
@@ -737,7 +663,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                             right: 0.0,
                             // child: Hero(
                             //   tag: widget.heroTag,
-                            child: VideoPlayingDetails(
+                            child: VideoUi(
+                              duration: 25252,
                               video: videoFile,
                             ),
                             //   transitionOnUserGestures: true,
@@ -748,7 +675,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                         ],
                       ),
                     ),
-                  );}
+                  );
+                }
               } else if (thumnailFile != null) {
                 return Center(
                   child: Container(
@@ -788,7 +716,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                 child: IconButton(
                                   icon: Icon(Icons.arrow_downward_sharp),
                                   color: Colors.white10,
-                                  onPressed: (){
+                                  onPressed: () {
                                     download(fileId, fileName);
                                   },
                                 ),
@@ -817,6 +745,81 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           loop: false,
         ),
       ),
+    );
+  }
+
+  Stack thumbnsilvedioWidget(int i, AsyncSnapshot snaps,
+      Future<dynamic> download(String uuid, String name)) {
+    return Stack(
+      alignment: Alignment.centerLeft,
+      children: [
+        buildAppBar(i, widget.mediasLength),
+        Positioned(
+          top: 80,
+          left: 0.0,
+          bottom: 0.0,
+          right: 0.0,
+          // child: Hero(
+          //   tag: widget.heroTag,
+          child: Stack(
+            children: [
+              Container(
+                decoration: new BoxDecoration(
+                  image: new DecorationImage(
+                    image: Image.file(
+                      snaps.data,
+                    ).image,
+                    fit: BoxFit.fitWidth,
+                  ),
+                ),
+              ),
+              Center(
+                  child: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black.withOpacity(0.5),
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.arrow_downward_sharp),
+                  color: Colors.white10,
+                  onPressed: () {
+                    download(fileId, fileName);
+                  },
+                ),
+              ))
+            ],
+          ),
+          //   transitionOnUserGestures: true,
+          // ),
+        ),
+        buildBottomAppBar(mediaSender, createdOn, senderName, fileId),
+      ],
+    );
+  }
+
+  Stack buildVeidoWidget(int i, AsyncSnapshot snaps) {
+    return Stack(
+      alignment: Alignment.centerLeft,
+      children: [
+        buildAppBar(i, widget.mediasLength),
+        Positioned(
+          top: 80,
+          left: 0.0,
+          bottom: 0.0,
+          right: 0.0,
+          // child: Hero(
+          //   tag: widget.heroTag,
+          child: VideoUi(
+            duration: 33333,
+            video: snaps.data,
+          ),
+          //   transitionOnUserGestures: true,
+          // ),
+        ),
+        buildBottomAppBar(mediaSender, createdOn, senderName, fileId),
+      ],
     );
   }
 
@@ -881,11 +884,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     }
   }
 
-  Widget buildAppBar(int currentPosition, totalLength)
-
-
-
-  {
+  Widget buildAppBar(int currentPosition, totalLength) {
     return AppBar(
       leading: _routingService.backButtonLeading(),
       title: Align(
