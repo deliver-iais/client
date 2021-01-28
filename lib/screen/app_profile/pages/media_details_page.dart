@@ -83,10 +83,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   String currentVideo;
   // Map isPlayingVideo = new Map<int,bool>();
 
-  download(String uuid, String name) async {
-    await GetIt.I.get<FileRepo>().getFile(uuid, name);
-    setState(() {});
-  }
+
 
   var isDeleting = false;
   List<Avatar> _allAvatars;
@@ -97,6 +94,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   void dispose() {
     super.dispose();
     _fileCache.clear();
+    _thumnailChache.clear();
   }
 
   @override
@@ -412,6 +410,12 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   }
 
   Widget buildVideo(BuildContext context) {
+    download(String uuid, String name) async {
+      await GetIt.I.get<FileRepo>().getFile(uuid, name);
+      setState(() {
+        _thumnailChache.clear();
+      });
+    }
     return Scaffold(
       body: Container(
         child: Swiper(
@@ -547,19 +551,20 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                                     ),
                                                     Center(
                                                         child: Container(
-                                                      width: 50,
-                                                      height: 50,
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        color: Colors.black
-                                                            .withOpacity(0.5),
-                                                      ),
-                                                      child: IconButton(
-                                                        icon: Icon(Icons
-                                                            .arrow_downward_sharp),
-                                                        color: Colors.white10,
-                                                      ),
-                                                    ))
+                                                          width: 50,
+                                                          height: 50,
+                                                          decoration: BoxDecoration(
+                                                            shape: BoxShape.circle,
+                                                            color: Colors.black.withOpacity(0.5),
+                                                          ),
+                                                          child: IconButton(
+                                                            icon: Icon(Icons.arrow_downward_sharp),
+                                                            color: Colors.white10,
+                                                            onPressed: (){
+                                                              download(fileId, fileName);
+                                                            },
+                                                          ),
+                                                        ))
                                                   ],
                                                 ),
                                                 //   transitionOnUserGestures: true,
@@ -674,19 +679,20 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                               ),
                                               Center(
                                                   child: Container(
-                                                width: 50,
-                                                height: 50,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: Colors.black
-                                                      .withOpacity(0.5),
-                                                ),
-                                                child: IconButton(
-                                                  icon: Icon(Icons
-                                                      .arrow_downward_sharp),
-                                                  color: Colors.white10,
-                                                ),
-                                              ))
+                                                    width: 50,
+                                                    height: 50,
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: Colors.black.withOpacity(0.5),
+                                                    ),
+                                                    child: IconButton(
+                                                      icon: Icon(Icons.arrow_downward_sharp),
+                                                      color: Colors.white10,
+                                                      onPressed: (){
+                                                        download(fileId, fileName);
+                                                      },
+                                                    ),
+                                                  ))
                                             ],
                                           ),
                                           //   transitionOnUserGestures: true,
@@ -782,6 +788,9 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                 child: IconButton(
                                   icon: Icon(Icons.arrow_downward_sharp),
                                   color: Colors.white10,
+                                  onPressed: (){
+                                    download(fileId, fileName);
+                                  },
                                 ),
                               ))
                             ],
