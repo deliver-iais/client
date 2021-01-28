@@ -73,9 +73,9 @@ class FileService {
   // TODO, refactoring needed
   Future<File> _getFile(String uuid, String filename) async {
     BehaviorSubject<double> behaviorSubject = BehaviorSubject();
+    filesDownloadStatus[uuid] = behaviorSubject;
     var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
-      behaviorSubject.add((i / j));
-      filesDownloadStatus[uuid] = behaviorSubject;
+      filesDownloadStatus[uuid].add((i / j));
     }, options: Options(responseType: ResponseType.bytes));
     final file = await localFile(uuid, filename.split('.').last);
     file.writeAsBytesSync(res.data);
@@ -95,12 +95,12 @@ class FileService {
   // TODO, refactoring needed
   uploadFile(String filePath, {String uploadKey}) async {
     BehaviorSubject<double> behaviorSubject = BehaviorSubject();
+    filesUploadStatus[uploadKey] = behaviorSubject;
     _dio.interceptors
         .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
       options.onSendProgress = (int i, int j) {
         behaviorSubject.add((i / j));
-        print("upload progress ${(i / j)}");
-        filesUploadStatus[uploadKey] = behaviorSubject;
+        filesUploadStatus[uploadKey].add((i/j));
       };
       return options; //continue
     }));

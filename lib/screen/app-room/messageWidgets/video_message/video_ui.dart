@@ -19,9 +19,10 @@ class VideoUi extends StatefulWidget {
 }
 
 class _VideoUiState extends State<VideoUi> {
-  VideoPlayerService videoPlayerService = GetIt.I.get<VideoPlayerService>();
+  VideoPlayerService videoPlayerService = new  VideoPlayerService();
   BehaviorSubject<bool> isPlaySubject = BehaviorSubject.seeded(false);
   double currentPosition = 0.0;
+  BehaviorSubject<double> _currentPositionSubject = BehaviorSubject.seeded(0.0);
 
   @override
   void dispose() {
@@ -40,7 +41,6 @@ class _VideoUiState extends State<VideoUi> {
     return Stack(
       children: [
         VideoPlayer(videoPlayerService.videoPlayerController),
-        // Positioned(child: Icon(Icons.more_vert), top: 5, right: 0),
         Center(
             child: StreamBuilder<bool>(
           stream: isPlaySubject.stream,
@@ -68,12 +68,10 @@ class _VideoUiState extends State<VideoUi> {
                           videoPlayerService.videoPlayerController.play();
                           videoPlayerService.videoPlayerController
                               .addListener(() async {
-                            currentPosition = (await videoPlayerService
+                            _currentPositionSubject.add((await videoPlayerService
                                     .videoPlayerController.position)
                                 .inSeconds
-                                .toDouble();
-                            if (currentPosition != null &&
-                                currentPosition > 0.0) setState(() {});
+                                .toDouble());
                           });
                           isPlaySubject.add(true);
                         }),
@@ -92,20 +90,19 @@ class _VideoUiState extends State<VideoUi> {
               inactiveTrackColor: ExtraTheme.of(context).text,
               thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
             ),
-            child: StreamBuilder<Duration>(
+            child: StreamBuilder<double>(
               stream:
-                  videoPlayerService.videoPlayerController.position.asStream(),
+                  _currentPositionSubject.stream,
               builder: (c, s) {
                 if (s.hasData)
                   return Slider(
-                      value: currentPosition,
+                      value: s.data,
                       min: 0.0,
                       max: widget.duration,
                       onChanged: (double value) {
                         videoPlayerService.videoPlayerController
                             .seekTo(Duration(seconds: value.toInt()));
                         currentPosition = value;
-                        setState(() {});
                       });
                 else
                   return Container();
