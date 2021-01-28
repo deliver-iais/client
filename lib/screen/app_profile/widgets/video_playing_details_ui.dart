@@ -20,7 +20,7 @@ class _VideoPlayingDetailsState extends State<VideoPlayingDetails> {
 
   @override
   void dispose() {
-    videoPlayerService.videoControllerDispose();
+    // videoPlayerService.videoControllerDispose();
     super.dispose();
   }
 
