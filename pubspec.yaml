@@ -33,7 +33,7 @@ dependencies:
   flare_flutter: 2.0.6 # Animation Viewer Library
   date_time_format: 1.0.0+4
 
-  emojis: 0.9.3
+  emojis:
   permissions_plugin: 1.1.4 # ANDROID ONLY SUPPORTED
   synchronized: 2.2.0+2
 
@@ -112,6 +112,7 @@ dependencies:
   receive_sharing_intent: 1.4.1
 
   flutter_icons: 1.1.0
+
 
   assets_audio_player: 2.0.13+1
 

@@ -48,7 +48,6 @@ class _ProfilePageState extends State<ProfilePage> {
   List<String> mediaUrls = [];
   var mediasLength;
   Room currentRoomId;
-  List<Media> _fetchedMedia;
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
@@ -66,16 +65,14 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
 
-    return StreamBuilder(
+    return StreamBuilder<MediasMetaDataData>(
       stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
       builder: (context, snapshot) {
         tabsCount = 0;
         if (snapshot.hasData) {
-          print("mediaaaaaaaaaaaaaaaaaaaaCounttttttttttttttttt${snapshot.data.imagesCount}");
 
           if (snapshot.data.imagesCount != 0) {
             tabsCount = tabsCount + 1;
-            print(snapshot.data);
           }
           if (snapshot.data.videosCount != 0) {
             tabsCount = tabsCount + 1;
@@ -373,7 +370,6 @@ class _ProfilePageState extends State<ProfilePage> {
                             ]),
                           ),
                         if (snapshot.data.imagesCount != 0)
-                          //Text("imagesssssssssssssss"),
                           imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo, _fileCache,snapshot.data.imagesCount),
                         if (snapshot.data.videosCount != 0)
                           Text("videooooooooooooooo"),
@@ -415,20 +411,18 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
                        scrollDirection: Axis.vertical,
                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                          crossAxisCount: 3,
-                         //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
                        ),
                        itemBuilder: (context, position) {
                          var fileId = jsonDecode(snaps.data[position].json)["uuid"];
                          var fileName = jsonDecode(snaps.data[position].json)["name"];
                          var file = mediaCache.get(fileId);
-                         if(file==null)
-                         return FutureBuilder(
+                if (file == null)
+                  return FutureBuilder(
                              future: fileRepo.getFile(fileId, fileName),
                              builder: (BuildContext c, AsyncSnapshot snaps) {
                                if (snaps.hasData &&
                                    snaps.data != null &&
                                    snaps.connectionState == ConnectionState.done) {
-                                 print("*******getfileeeeeeeeeeeeeeeeeee*************$position");
                                  mediaCache.set(fileId, snaps.data);
                                  return GestureDetector(
                                    onTap: () {
@@ -497,57 +491,8 @@ Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo
 
 
 
-  // child: GestureDetector(
-  //   // onTap: () {
-  //   //   _routingService.openShowAllMedia(
-  //   //     mediaPosition: position,
-  //   //     heroTag: "btn$position",
-  //   //     mediasLength: medias.length,
-  //   //   );
-  //   // },
-  //  child: Hero(
-  //       tag: "btn$position",
-  //       child: Container(
-  //         decoration: new BoxDecoration(
-  //           image: new DecorationImage(
-  //               // image: new NetworkImage(
-  //               //   medias[position].mediaUrl,
-  //               //    //imageList[position],
-  //               // ),
-  //               fit: BoxFit.cover),
-  //           border: Border.all(
-  //             width: 1,
-  //             color: ExtraTheme.of(context).secondColor,
-  //           ),
-  //         ),
-  //       ), // transitionOnUserGestures: true,
-  //
-  //   ),
-  // ),
-  //);
 
 }
-
-// Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo){
-//  return FutureBuilder<List<Media>>(
-//       future:  mediaQueryRepo.getLastMediasList(userUid.string, DateTime.now().microsecondsSinceEpoch,2020, FetchMediasReq_MediaType.LINKS, 50),
-//   builder: (BuildContext context,
-//   AsyncSnapshot<List<Media>> snapshot) {
-//   if (snapshot.hasData && snapshot.data.length != null) {
-//     return ListView(
-//       padding: EdgeInsets.zero,
-//       children: <Widget>[
-//         Text("File"),
-//         Text("File"),
-//         Text("File"),
-//         Text("File"),
-//         Text("File"),
-//       ],
-//     );
-//   }
-//   });
-//
-// }
 
 Widget _showUsername(String username) {
   return Padding(

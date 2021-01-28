@@ -39,33 +39,27 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
                   child: FutureBuilder<List<Uid>>(
                     future: _roomRepo.getAllRooms(),
                     builder: (context, snapshot) {
-                      if(snapshot.hasData  && snapshot.data !=null && snapshot.data.length>0){
+                      if (snapshot.hasData &&
+                          snapshot.data != null &&
+                          snapshot.data.length > 0) {
                         return Container(
                           child: ListView.builder(
                             itemCount: snapshot.data.length,
                             itemBuilder: (BuildContext ctx, int index) {
-                              return GestureDetector(
-                                child: ChatItemToForward(uid: snapshot.data[index],forwardedMessages: widget.forwardedMessages,),
-                                onTap: () {
-                                  // ExtendedNavigator.of(context)
-                                  //     .pushAndRemoveUntilPath(
-                                  //   Routes.roomPage,
-                                  //   Routes.homePage,
-                                  //   arguments: RoomPageArguments(
-                                  //     roomId: rooms[index].roomId.toString(),
-                                  //     forwardedMessages: widget.forwardedMessages,
-                                  //   ),
-                                  // );
-                                },
+                              return ChatItemToForward(
+                                uid: snapshot.data[index],
+                                forwardedMessages: widget.forwardedMessages,
                               );
                             },
                           ),
                         );
-
-                      } else{
-                        return SizedBox.shrink();
+                      } else {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            backgroundColor: Colors.blue,
+                          ),
+                        );
                       }
-
                     },
                   ),
                 ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:audio_recorder/audio_recorder.dart';
@@ -77,11 +78,10 @@ class _InputMessageWidget extends State<InputMessage> {
           backgroundColor: Colors.transparent,
           builder: (context) {
             return ShareBox(
-              currentRoomId: currentRoom.roomId.uid,
-              replyMessageId: widget.replyMessageId,
-              resetRoomPageDetails: widget.resetRoomPageDetails,
-                scrollToLastSentMessage:widget.scrollToLastSentMessage
-            );
+                currentRoomId: currentRoom.roomId.uid,
+                replyMessageId: widget.replyMessageId,
+                resetRoomPageDetails: widget.resetRoomPageDetails,
+                scrollToLastSentMessage: widget.scrollToLastSentMessage);
           });
     }
   }
@@ -138,8 +138,7 @@ class _InputMessageWidget extends State<InputMessage> {
                             child: Center(
                               child: Icon(
                                 Icons.keyboard_voice,
-                                size: 14 * (size - 1) +
-                                    IconTheme.of(context).size,
+                                size: 30,
                                 color: Colors.white,
                               ),
                             ),
@@ -152,10 +151,12 @@ class _InputMessageWidget extends State<InputMessage> {
                     !startAudioRecorder
                         ? Expanded(
                             child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: <Widget>[
                                 IconButton(
                                   icon: Icon(
                                     showEmoji ? Icons.keyboard : Icons.mood,
+                                    size: 30,
                                     color: Colors.white,
                                   ),
                                   onPressed: () {
@@ -166,31 +167,39 @@ class _InputMessageWidget extends State<InputMessage> {
                                       } else {
                                         FocusScope.of(context)
                                             .requestFocus(new FocusNode());
-                                        showEmoji = true;
+                                        Timer(Duration(microseconds: 10), () {
+                                          showEmoji = true;
+                                        });
                                       }
                                     });
                                   },
                                 ),
-
                                 Container(
                                   child: Flexible(
-                                    child: SizedBox(child:  TextField(
-                                      // onTap: () {
-                                      //   showEmoji = false;
-                                      // },
-                                      minLines: 1,
-                                      maxLines: 15,
-                                      autofocus: autofocus,
-                                      textInputAction: TextInputAction.newline,
-                                      controller: controller,
-                                      onSubmitted: null,
-                                      onChanged: (str) {
-                                        onChange(str);
-                                      },
-                                      decoration: InputDecoration.collapsed(
-                                          hintText: appLocalization
-                                              .getTraslateValue("message")),
-                                    )),
+                                    child: SizedBox(
+                                      child: TextField(
+                                        onTap: () {
+                                          showEmoji = false;
+                                        },
+                                        minLines: 2,
+                                        maxLines: 15,
+                                        autofocus: autofocus,
+                                        textInputAction:
+                                            TextInputAction.newline,
+                                        controller: controller,
+                                        onSubmitted: null,
+                                        onChanged: (str) {
+                                          onChange(str);
+                                        },
+                                        decoration: controller.text.isEmpty
+                                            ? InputDecoration.collapsed(
+                                                hintText: appLocalization
+                                                    .getTraslateValue(
+                                                        "message"))
+                                            : InputDecoration.collapsed(
+                                                hintText: ""),
+                                      ),
+                                    ),
                                   ),
                                 ),
                                 controller.text?.isEmpty &&
@@ -199,6 +208,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     ? IconButton(
                                         icon: Icon(
                                           Icons.attach_file,
+                                          size: 30,
                                           color: IconTheme.of(context).color,
                                         ),
                                         onPressed: () {
@@ -213,6 +223,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     : IconButton(
                                         icon: Icon(
                                           Icons.send,
+                                          size: 30,
                                           color: Theme.of(context).primaryColor,
                                         ),
                                         color: Colors.white,
@@ -398,7 +409,7 @@ class _InputMessageWidget extends State<InputMessage> {
                   return Future.value(false);
                 },
                 child: Container(
-                    height: 220.0,
+                    height: 250.0,
                     child: EmojiKeybord(
                       onTap: (emoji) {
                         setState(() {
@@ -412,27 +423,30 @@ class _InputMessageWidget extends State<InputMessage> {
     );
   }
 
-  void onChange(String str)  {
-    messageText = str;
-    if (str.isEmpty) {
-      _showMentionList = false;
-      setState(() {});
-      return;
-    }
-    try {
-      query = "";
-      int i = str.lastIndexOf("@");
-      if (i != 0 && str[i - 1] != " ") {
+  void onChange(String str) {
+    if (widget.currentRoom.roomId.getUid().category == Categories.GROUP) {
+      if (str.isEmpty) {
+        _showMentionList = false;
+        setState(() {});
         return;
       }
-      if (i != -1 && !str.contains(" ", i)) {
-        query = str.substring(i + 1, str.length);
-        _showMentionList = true;
-      } else {
-        _showMentionList = false;
-      }
-    } catch (e) {}
-    setState(() {});
+      try {
+        query = "";
+        int i = str.lastIndexOf("@");
+        if (i != 0 && str[i - 1] != " ") {
+          return;
+        }
+        if (i != -1 && !str.contains(" ", i)) {
+          query = str.substring(i + 1, str.length);
+          _showMentionList = true;
+        } else {
+          _showMentionList = false;
+        }
+      } catch (e) {}
+      setState(() {});
+    } else if (controller.text.length <= 1) {
+      setState(() {});
+    }
   }
 
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;
