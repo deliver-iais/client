@@ -36,6 +36,8 @@ class TitleStatus extends StatelessWidget {
     switch (statusConditions) {
       case TitleStatusConditions.Disconnected:
         return appLocalization.getTraslateValue("disconnected");
+      case TitleStatusConditions.Connecting:
+        return appLocalization.getTraslateValue("connecting");
       case TitleStatusConditions.Updating:
         return appLocalization.getTraslateValue("updating");
       case TitleStatusConditions.Normal:

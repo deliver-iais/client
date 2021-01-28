@@ -4,6 +4,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/app-contacts/widgets/new_Contact.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
 import 'package:deliver_flutter/screen/app_group/pages/group_info_determination_page.dart';
 import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
@@ -20,6 +21,7 @@ import 'package:flutter/material.dart';
 
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
+import 'package:location/location.dart';
 import 'package:rxdart/subjects.dart';
 
 class Page {
@@ -40,7 +42,6 @@ class Page {
 }
 
 class RoutingService {
-  var _createMucService = GetIt.I.get<CreateMucService>();
   BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
 
   Widget _navigationCenter;
@@ -72,12 +73,22 @@ class RoutingService {
         path: "/room/$roomId"));
   }
 
+  void openLocation({Uid roomUid, LocationData locationData, Function scrollToLast}){
+    var widget = MapWidget(key: ValueKey("/map-widget"),roomUid: roomUid,locationData: locationData,scrollToLast: scrollToLast,);
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/map-widget"));
+  }
+
   void openSettings() {
     var widget = SettingsPage(key: ValueKey("/settings"));
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,
         smallPageMain: widget,
+        singlePageMain: widget,
         path: "/settings"));
   }
 

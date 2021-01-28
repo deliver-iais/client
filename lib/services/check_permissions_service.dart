@@ -46,6 +46,14 @@ extension PermissionsExtension on CheckPermissionsService {
     }
   }
 
+  Future<bool> checkLocationPermission() async {
+    if (!await check([Permission.ACCESS_FINE_LOCATION])) {
+      return request([Permission.ACCESS_FINE_LOCATION]);
+    } else {
+      return true;
+    }
+  }
+
   Future<bool> checkStoragePermission() async {
     if (!await check([
       Permission.READ_EXTERNAL_STORAGE,
@@ -60,9 +68,4 @@ extension PermissionsExtension on CheckPermissionsService {
     }
   }
 
-  checkLocationPermission() async {
-    if (!await check([Permission.ACCESS_FINE_LOCATION])) {
-      request([Permission.ACCESS_FINE_LOCATION]);
-    }
-  }
 }

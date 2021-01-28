@@ -40,6 +40,7 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:rxdart/rxdart.dart';
@@ -51,7 +52,7 @@ import 'db/dao/MucDao.dart';
 import 'db/dao/RoomDao.dart';
 import 'repository/mucRepo.dart';
 
-void setupDB() {
+void setupDI() {
   GetIt getIt = GetIt.instance;
   Database db = Database();
   getIt.registerSingleton<MessageDao>(db.messageDao);
@@ -68,24 +69,21 @@ void setupDB() {
   getIt.registerSingleton<MemberDao>(db.memberDao);
   getIt.registerSingleton<LastSeenDao>(db.lastSeenDao);
   getIt.registerSingleton<MediaMetaDataDao>(db.mediaMetaDataDao);
-}
 
-void setupRepositories() {
   // Order is important, don't change it!
-  GetIt getIt = GetIt.instance;
   getIt.registerSingleton<UxService>(UxService());
-  getIt.registerSingleton<AccountRepo>(AccountRepo());
+  getIt.registerSingleton<AccountRepo>(AccountRepo(sharedPrefs: db.sharedPreferencesDao));
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<ContactRepo>(ContactRepo());
-  getIt.registerSingleton<RoomRepo>(RoomRepo());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<CreateMucService>(CreateMucService());
   getIt.registerSingleton<RoutingService>(RoutingService());
   getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<MucRepo>(MucRepo());
+  getIt.registerSingleton<RoomRepo>(RoomRepo());
   getIt.registerSingleton<CoreServiceClient>(
       CoreServiceClient(CoreServicesClientChannel));
   getIt.registerSingleton<CoreServices>(CoreServices());
@@ -107,8 +105,7 @@ setupFlutterNotification() async {
 }
 
 void setupDIAndRunApp() {
-  setupDB();
-  setupRepositories();
+  setupDI();
 
   // TODO: Android just now is available
   if (isAndroid()) {
@@ -131,7 +128,10 @@ void main() {
   if (isAndroid()) {
     SmsAutoFill()
         .getAppSignature
-        .then((signCode) => print("APP_SIGN_CODE for SMS: $signCode"));
+        .then((signCode) {
+          Fluttertoast.showToast(msg:"hash $signCode");
+    });
+
   }
 
   setupDIAndRunApp();

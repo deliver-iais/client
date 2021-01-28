@@ -43,6 +43,7 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   var _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   var mediasLength;
+  Room currentRoomId;
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();

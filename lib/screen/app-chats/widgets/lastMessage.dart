@@ -30,7 +30,8 @@ class LastMessage extends StatelessWidget {
         ? (message.json.toText().text.split('\n'))[0]
         : message.type == MessageType.PERSISTENT_EVENT
             ? jsonDecode(message.json)["type"]
-            : 'File';
+            : message.type == MessageType.FILE ?_appLocalization.getTraslateValue("file"): message.type == MessageType.LOCATION?_appLocalization.getTraslateValue("location"):"message"
+    ;
     if (oneLine.isPersian()) {
       td = TextDirection.rtl;
     } else

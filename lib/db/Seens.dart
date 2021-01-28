@@ -1,6 +1,8 @@
 import 'package:moor/moor.dart';
 
-class Seens extends Table {
+class
+
+Seens extends Table {
   IntColumn get dbId => integer().autoIncrement()();
 
   TextColumn get roomId => text()();

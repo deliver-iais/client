@@ -31,26 +31,18 @@ class MediaQueryRepo {
   int count;
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _mediaDao = GetIt.I.get<MediaDao>();
-  var _fileRepo = GetIt.I.get<FileRepo>();
-  var _messageRepo = GetIt.I.get<MessageRepo>();
   var _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   int lastTime;
   final QueryServiceClient _queryServiceClient =
-  GetIt.I.get<QueryServiceClient>();
-  // static ClientChannel clientChannel = ClientChannel(
-  //     ServicesDiscoveryRepo().mediaConnection.host,
-  //     port: ServicesDiscoveryRepo().mediaConnection.port,
-  //     options: ChannelOptions(credentials: ChannelCredentials.insecure()));
-
- // var mediaServices = QueryServiceClient(clientChannel);
+      GetIt.I.get<QueryServiceClient>();
 
   getMediaMetaDataReq(Uid uid) async {
-   // var mediaServices = QueryServiceClient(clientChannel);
     var mediaResponse;
     var getMediaMetaDataReq = GetMediaMetadataReq();
     getMediaMetaDataReq..with_1 = uid;
     try {
-      mediaResponse = await _queryServiceClient.getMediaMetadata(getMediaMetaDataReq,
+      mediaResponse = await _queryServiceClient.getMediaMetadata(
+          getMediaMetaDataReq,
           options: CallOptions(
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       Uid access=await  _accountRepo.currentUserUid;
@@ -95,7 +87,7 @@ class MediaQueryRepo {
 
   Future insertMediaMetaData(
       Uid uid, queryObject.GetMediaMetadataRes mediaResponse) async {
-    await _mediaMetaDataDao.upsertMetaData(MediasMetaDataData(
+    _mediaMetaDataDao.upsertMetaData(MediasMetaDataData(
       roomId: uid.asString(),
       imagesCount: mediaResponse.allImagesCount.toInt(),
       videosCount: mediaResponse.allVideosCount.toInt(),
@@ -227,6 +219,7 @@ class MediaQueryRepo {
   Future<List<Media>> _saveFetchedMedias(List<MediaObject.Media> getMedias,
       Uid roomUid, FetchMediasReq_MediaType mediaType) async {
     List<Media> mediaList = [];
+    print(getMedias.length.toString());
     for (MediaObject.Media media in getMedias) {
       MediaType type = findFetchedMediaType(mediaType);
       String json = findFetchedMediaJson(media);

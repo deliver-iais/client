@@ -132,7 +132,7 @@ class _Emojikeybord extends State<EmojiKeybord> {
                 },
                 child: Text(
                   emojis.elementAt(index).toString(),
-                  style: TextStyle(fontSize: 24),
+                  style: TextStyle(fontSize: 26),
                 ),
               );
             }),

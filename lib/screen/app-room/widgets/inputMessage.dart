@@ -1,12 +1,15 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:audio_recorder/audio_recorder.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/emojiKeybord.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/showMentionList.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +30,8 @@ class InputMessage extends StatefulWidget {
   final Function resetRoomPageDetails;
   final bool waitingForForward;
   final Function sendForwardMessage;
+  final Function showMentionList;
+  final Function scrollToLastSentMessage;
 
   @override
   _InputMessageWidget createState() => _InputMessageWidget();
@@ -36,7 +41,9 @@ class InputMessage extends StatefulWidget {
       this.replyMessageId,
       this.resetRoomPageDetails,
       this.waitingForForward,
-      this.sendForwardMessage});
+      this.sendForwardMessage,
+      this.showMentionList,
+      this.scrollToLastSentMessage});
 }
 
 class _InputMessageWidget extends State<InputMessage> {
@@ -54,6 +61,9 @@ class _InputMessageWidget extends State<InputMessage> {
   DateTime time = DateTime.now();
   double DX = 150.0;
   bool recordAudioPermission = false;
+  String query;
+
+  bool _showMentionList = false;
 
   bool startAudioRecorder = false;
 
@@ -68,10 +78,10 @@ class _InputMessageWidget extends State<InputMessage> {
           backgroundColor: Colors.transparent,
           builder: (context) {
             return ShareBox(
-              currentRoomId: currentRoom.roomId.uid,
-              replyMessageId: widget.replyMessageId,
-              resetRoomPageDetails: widget.resetRoomPageDetails,
-            );
+                currentRoomId: currentRoom.roomId.uid,
+                replyMessageId: widget.replyMessageId,
+                resetRoomPageDetails: widget.resetRoomPageDetails,
+                scrollToLastSentMessage: widget.scrollToLastSentMessage);
           });
     }
   }
@@ -85,10 +95,24 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   Widget build(BuildContext context) {
+    controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: controller.text.length));
     AppLocalization appLocalization = AppLocalization.of(context);
     DX = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
       children: <Widget>[
+        if (_showMentionList &&
+            widget.currentRoom.roomId.getUid().category == Categories.GROUP)
+          ShowMentionList(
+            query: query,
+            onSelected: (s) {
+              controller.text = "${controller.text}${s} ";
+              setState(() {
+                _showMentionList = false;
+              });
+            },
+            roomUid: widget.currentRoom.roomId,
+          ),
         IconTheme(
           data: IconThemeData(color: Theme.of(context).accentColor),
           child: Container(
@@ -114,8 +138,7 @@ class _InputMessageWidget extends State<InputMessage> {
                             child: Center(
                               child: Icon(
                                 Icons.keyboard_voice,
-                                size: 14 * (size - 1) +
-                                    IconTheme.of(context).size,
+                                size: 30,
                                 color: Colors.white,
                               ),
                             ),
@@ -128,10 +151,12 @@ class _InputMessageWidget extends State<InputMessage> {
                     !startAudioRecorder
                         ? Expanded(
                             child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: <Widget>[
                                 IconButton(
                                   icon: Icon(
                                     showEmoji ? Icons.keyboard : Icons.mood,
+                                    size: 30,
                                     color: Colors.white,
                                   ),
                                   onPressed: () {
@@ -142,30 +167,39 @@ class _InputMessageWidget extends State<InputMessage> {
                                       } else {
                                         FocusScope.of(context)
                                             .requestFocus(new FocusNode());
-                                        showEmoji = true;
+                                        Timer(Duration(microseconds: 10), () {
+                                          showEmoji = true;
+                                        });
                                       }
                                     });
                                   },
                                 ),
-                                Flexible(
-                                  child: TextField(
-                                    onTap: () {
-                                      showEmoji = false;
-                                    },
-                                    minLines: 1,
-                                    maxLines: 15,
-                                    autofocus: autofocus,
-                                    textInputAction: TextInputAction.send,
-                                    controller: controller,
-                                    onSubmitted: null,
-                                    onChanged: (str) {
-                                      setState(() {
-                                        messageText = str;
-                                      });
-                                    },
-                                    decoration: InputDecoration.collapsed(
-                                        hintText: appLocalization
-                                            .getTraslateValue("message")),
+                                Container(
+                                  child: Flexible(
+                                    child: SizedBox(
+                                      child: TextField(
+                                        onTap: () {
+                                          showEmoji = false;
+                                        },
+                                        minLines: 2,
+                                        maxLines: 15,
+                                        autofocus: autofocus,
+                                        textInputAction:
+                                            TextInputAction.newline,
+                                        controller: controller,
+                                        onSubmitted: null,
+                                        onChanged: (str) {
+                                          onChange(str);
+                                        },
+                                        decoration: controller.text.isEmpty
+                                            ? InputDecoration.collapsed(
+                                                hintText: appLocalization
+                                                    .getTraslateValue(
+                                                        "message"))
+                                            : InputDecoration.collapsed(
+                                                hintText: ""),
+                                      ),
+                                    ),
                                   ),
                                 ),
                                 controller.text?.isEmpty &&
@@ -174,6 +208,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     ? IconButton(
                                         icon: Icon(
                                           Icons.attach_file,
+                                          size: 30,
                                           color: IconTheme.of(context).color,
                                         ),
                                         onPressed: () {
@@ -188,6 +223,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     : IconButton(
                                         icon: Icon(
                                           Icons.send,
+                                          size: 30,
                                           color: Theme.of(context).primaryColor,
                                         ),
                                         color: Colors.white,
@@ -214,8 +250,10 @@ class _InputMessageWidget extends State<InputMessage> {
                                                       replyId:
                                                           widget.replyMessageId,
                                                     );
-                                                    widget
-                                                        .resetRoomPageDetails();
+                                                    if (widget.replyMessageId !=
+                                                        -1)
+                                                      widget
+                                                          .resetRoomPageDetails();
                                                   } else {
                                                     messageRepo.sendTextMessage(
                                                         currentRoom.roomId.uid,
@@ -224,7 +262,11 @@ class _InputMessageWidget extends State<InputMessage> {
 
                                                   controller.clear();
                                                   messageText = "";
+
+                                                  _showMentionList = false;
                                                 }
+                                                widget
+                                                    .scrollToLastSentMessage();
                                               },
                                       ),
                               ],
@@ -367,7 +409,7 @@ class _InputMessageWidget extends State<InputMessage> {
                   return Future.value(false);
                 },
                 child: Container(
-                    height: 220.0,
+                    height: 250.0,
                     child: EmojiKeybord(
                       onTap: (emoji) {
                         setState(() {
@@ -379,6 +421,32 @@ class _InputMessageWidget extends State<InputMessage> {
             : SizedBox(),
       ],
     );
+  }
+
+  void onChange(String str) {
+    if (widget.currentRoom.roomId.getUid().category == Categories.GROUP) {
+      if (str.isEmpty) {
+        _showMentionList = false;
+        setState(() {});
+        return;
+      }
+      try {
+        query = "";
+        int i = str.lastIndexOf("@");
+        if (i != 0 && str[i - 1] != " ") {
+          return;
+        }
+        if (i != -1 && !str.contains(" ", i)) {
+          query = str.substring(i + 1, str.length);
+          _showMentionList = true;
+        } else {
+          _showMentionList = false;
+        }
+      } catch (e) {}
+      setState(() {});
+    } else if (controller.text.length <= 1) {
+      setState(() {});
+    }
   }
 
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;
