@@ -67,21 +67,19 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   var fileName;
   Uid mediaSender;
   DateTime createdOn;
+  double duration;
   var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
   var _avatarRepo = GetIt.I.get<AvatarRepo>();
   var _routingService = GetIt.I.get<RoutingService>();
-  var _videoPlayerService = GetIt.I.get<VideoPlayerService>();
 
   var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 5));
   var _mediaCache = LruCache<String, Media>(storage: SimpleStorage(size: 50));
   var _mediaSenderCache =
       LruCache<String, String>(storage: SimpleStorage(size: 50));
   var _thumnailChache = LruCache<String, File>(storage: SimpleStorage(size: 5));
-  // String currentVideo;
 
-  // Map isPlayingVideo = new Map<int,bool>();
 
   var isDeleting = false;
   List<Avatar> _allAvatars;
@@ -432,9 +430,6 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         child: Swiper(
           scrollDirection: Axis.horizontal,
           index: widget.mediaPosition,
-          onIndexChanged: (index) {
-            print(index.toString());
-          },
           itemBuilder: (context, i) {
             var media = _mediaCache.get("$i");
             if (media == null) {
@@ -459,6 +454,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                         createdOn = DateTime.fromMillisecondsSinceEpoch(
                             snapshot.data[snapshot.data.length - 1].createdOn);
                         senderName = _mediaSenderCache.get(fileId);
+                        duration = jsonDecode(snapshot.data[snapshot.data.length-1].json)["duration"];
+
                       } else {
                         fileId = jsonDecode(snapshot
                             .data[snapshot.data.length - 2].json)["uuid"];
@@ -469,6 +466,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                         createdOn = DateTime.fromMillisecondsSinceEpoch(
                             snapshot.data[snapshot.data.length - 2].createdOn);
                         senderName = _mediaSenderCache.get(fileId);
+                        duration = jsonDecode(snapshot.data[snapshot.data.length-2].json)["duration"];
+
                       }
                       return FutureBuilder<File>(
                           future: _fileRepo.getFileIfExist(fileId, fileName),
@@ -477,13 +476,14 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                 snaps.data != null &&
                                 snaps.connectionState == ConnectionState.done) {
                               _fileCache.set(fileId, snaps.data);
+                              print("**********************media null video hast pos $i");
 
                               return Center(
                                 child: Container(
                                   width: MediaQuery.of(context).size.width,
                                   height:
                                       MediaQuery.of(context).size.height,
-                                  child: buildVeidoWidget(i, snaps),
+                                  child: buildVeidoWidget(i, snaps.data,duration,mediaSender,createdOn,senderName,fileId),
                                 ),
                               );
                             } else if (snaps.data == null &&
@@ -499,6 +499,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                         snaps.connectionState ==
                                             ConnectionState.done) {
                                       _thumnailChache.set(fileId, snaps.data);
+                                      print("****************media null thumnail hast pos $i");
+
                                       return Center(
                                         child: Container(
                                           width:
@@ -526,7 +528,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             } else {
               var fileId = jsonDecode(media.json)["uuid"];
               var fileName = jsonDecode(media.json)["name"];
-              int duration = jsonDecode(media.json)["size"];
+               duration = jsonDecode(media.json)["duration"];
               mediaSender = media.createdBy.uid;
               createdOn = DateTime.fromMillisecondsSinceEpoch(media.createdOn);
               var videoFile = _fileCache.get(fileId);
@@ -534,12 +536,15 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               senderName = _mediaSenderCache.get(fileId);
 
               if (videoFile == null && thumnailFile == null)
-                return FutureBuilder<File>(
+
+              return FutureBuilder<File>(
                     future: _fileRepo.getFileIfExist(fileId, fileName),
                     builder: (BuildContext c, AsyncSnapshot snaps) {
                       if (snaps.hasData &&
                           snaps.data != null &&
                           snaps.connectionState == ConnectionState.done) {
+                        print("*******************media has video nis dar cache thumnail nis dar cache namayesh video pos $i");
+
                         _fileCache.set(fileId, snaps.data);
 
                         return Center(
@@ -551,7 +556,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                               children: [
                                 buildAppBar(i, widget.mediasLength),
                                 VideoUi(
-                                  duration: 63473,
+                                  duration: duration,
                                   video: snaps.data,
                                 ),
                                 buildBottomAppBar(
@@ -570,6 +575,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                   snaps.data != null &&
                                   snaps.connectionState ==
                                       ConnectionState.done) {
+                                print("***********************media has video nis dar cache thumnail nis dar cache namayesh thumnail pos $i");
+
                                 _thumnailChache.set(fileId, snaps.data);
                                 return Center(
                                   child: Container(
@@ -640,37 +647,18 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                       }
                     });
               else if (videoFile != null) {
-
+                print("*******************************media has video dar cache hast pos $i");
                   return Center(
                     child: Container(
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height,
-                      child: Stack(
-                        alignment: Alignment.centerLeft,
-                        children: [
-                          buildAppBar(i, widget.mediasLength),
-                          Positioned(
-                            top: 80,
-                            left: 0.0,
-                            bottom: 0.0,
-                            right: 0.0,
-                            // child: Hero(
-                            //   tag: widget.heroTag,
-                            child: VideoUi(
-                              duration: 25252,
-                              video: videoFile,
-                            ),
-                            //   transitionOnUserGestures: true,
-                            // ),
-                          ),
-                          buildBottomAppBar(
-                              mediaSender, createdOn, senderName, fileId),
-                        ],
-                      ),
+                      child: buildVeidoWidget(i,videoFile,duration,mediaSender,createdOn,senderName,fileId),
                     ),
                   );
                 // }
               } else if (thumnailFile != null) {
+                print("************************media has thumnail dar cache hast pos $i");
+
                 return Center(
                   child: Container(
                     width: MediaQuery.of(context).size.width,
@@ -792,7 +780,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     );
   }
 
-  Stack buildVeidoWidget(int i, AsyncSnapshot snaps) {
+  Stack buildVeidoWidget(int i, File snaps ,double duration,Uid mediaSender,DateTime createdOn,String senderName,var fileId) {
     return Stack(
       alignment: Alignment.centerLeft,
       children: [
@@ -805,8 +793,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           // child: Hero(
           //   tag: widget.heroTag,
           child: VideoUi(
-            duration: 33333,
-            video: snaps.data,
+            duration: duration,
+            video: snaps,
           ),
           //   transitionOnUserGestures: true,
           // ),
@@ -835,7 +823,6 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               s.connectionState == ConnectionState.waiting) {
             return Center();
           } else {
-            print("frombuilderrrrrrrrrrrrrrrrrrrrr");
             _mediaSenderCache.set(fileId, s.data);
             return Positioned(
               bottom: 0,
@@ -857,7 +844,6 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         },
       );
     } else {
-      print("fromcacheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
       return Positioned(
         bottom: 0,
         left: 0,

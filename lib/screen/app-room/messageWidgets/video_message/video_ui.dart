@@ -19,20 +19,28 @@ class VideoUi extends StatefulWidget {
 }
 
 class _VideoUiState extends State<VideoUi> {
-  VideoPlayerService videoPlayerService = new  VideoPlayerService();
+   VideoPlayerService videoPlayerService = new  VideoPlayerService();
+  VideoPlayerController videoPlayerController;
   BehaviorSubject<bool> isPlaySubject = BehaviorSubject.seeded(false);
   double currentPosition = 0.0;
   BehaviorSubject<double> _currentPositionSubject = BehaviorSubject.seeded(0.0);
 
   @override
   void dispose() {
-    videoPlayerService.videoPlayerController.addListener(() {});
-    videoPlayerService.videoPlayerController.pause();
+     // videoPlayerService.videoPlayerController.addListener(() {});
+     videoPlayerService.videoPlayerController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
+    // videoPlayerController=VideoPlayerController.file(widget.video);
+    // videoPlayerController.setLooping(true);
+    // videoPlayerController.setVolume(0.5);
+    // videoPlayerController.initialize().then((_){
+    //   setState(() {
+    //   });
+    // });
     videoPlayerService.videoControllerInitialization(widget.video);
   }
 
@@ -50,7 +58,11 @@ class _VideoUiState extends State<VideoUi> {
                 child: SizedBox(
                     width:   MediaQuery.of(context).size.width,
                     height:  MediaQuery.of(context).size.height/2,
-                    child: VideoPlayer(videoPlayerService.videoPlayerController)),
+                    child:
+                    // videoPlayerController.value.initialized?
+                     VideoPlayer(videoPlayerService.videoPlayerController)
+                        // :Container()
+                ),
               ),
     ),
         ),
@@ -71,9 +83,15 @@ class _VideoUiState extends State<VideoUi> {
                         icon: Icon(Icons.pause),
                         onPressed: () {
                           videoPlayerService.videoPlayerController.pause();
-                          isPlaySubject.add(false);
                           videoPlayerService.videoPlayerController
-                              .addListener(() {});
+                              .addListener(() async {
+                            _currentPositionSubject.add((await videoPlayerService
+                                .videoPlayerController.position)
+                                .inSeconds
+                                .toDouble());
+                          });
+                          isPlaySubject.add(false);
+
                         })
                     : IconButton(
                         icon: Icon(Icons.play_arrow),
@@ -115,7 +133,14 @@ class _VideoUiState extends State<VideoUi> {
                       onChanged: (double value) {
                         videoPlayerService.videoPlayerController
                             .seekTo(Duration(seconds: value.toInt()));
-                        currentPosition = value;
+                        videoPlayerService.videoPlayerController
+                            .addListener(() async {
+                          _currentPositionSubject.add((await videoPlayerService
+                              .videoPlayerController.position)
+                              .inSeconds
+                              .toDouble());
+                        });
+                        // currentPosition = value;
                       });
                 else
                   return Container();
