@@ -9,7 +9,6 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_ui.dart';
-import 'package:deliver_flutter/screen/app_profile/widgets/video_playing_details_ui.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/video_player_service.dart';
@@ -80,7 +79,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   var _mediaSenderCache =
       LruCache<String, String>(storage: SimpleStorage(size: 50));
   var _thumnailChache = LruCache<String, File>(storage: SimpleStorage(size: 5));
-  String currentVideo;
+  // String currentVideo;
 
   // Map isPlayingVideo = new Map<int,bool>();
 
@@ -478,13 +477,12 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                 snaps.data != null &&
                                 snaps.connectionState == ConnectionState.done) {
                               _fileCache.set(fileId, snaps.data);
-                              // isPlayingVideo[i]=true;
-                              currentVideo = fileId;
+
                               return Center(
                                 child: Container(
-                                  width: MediaQuery.of(context).size.width / 2,
+                                  width: MediaQuery.of(context).size.width,
                                   height:
-                                      MediaQuery.of(context).size.height / 2,
+                                      MediaQuery.of(context).size.height,
                                   child: buildVeidoWidget(i, snaps),
                                 ),
                               );
@@ -543,12 +541,11 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                           snaps.data != null &&
                           snaps.connectionState == ConnectionState.done) {
                         _fileCache.set(fileId, snaps.data);
-                        // isPlayingVideo[i]=true;
-                        currentVideo = fileId;
+
                         return Center(
                           child: Container(
-                            width: MediaQuery.of(context).size.width/2,
-                            height: MediaQuery.of(context).size.height/2,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
                             child: Stack(
                               alignment: Alignment.centerLeft,
                               children: [
@@ -576,8 +573,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                 _thumnailChache.set(fileId, snaps.data);
                                 return Center(
                                   child: Container(
-                                    width: MediaQuery.of(context).size.width/2,
-                                    height: MediaQuery.of(context).size.height/2,
+                                    width: MediaQuery.of(context).size.width,
+                                    height: MediaQuery.of(context).size.height,
                                     child: Stack(
                                       alignment: Alignment.centerLeft,
                                       children: [
@@ -616,8 +613,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                                   color: Colors.white10,
                                                   onPressed: () {
                                                     download(fileId, fileName);
-                                                    setState(() {
-                                                    });
+
                                                   },
                                                 ),
                                               ))
@@ -644,14 +640,11 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                       }
                     });
               else if (videoFile != null) {
-                if (currentVideo == fileId) {
-                  // _videoPlayerService.videoPlayerController.pause();
-                } else {
-                  currentVideo = fileId;
+
                   return Center(
                     child: Container(
-                      width: MediaQuery.of(context).size.width/2,
-                      height: MediaQuery.of(context).size.height/2,
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
                       child: Stack(
                         alignment: Alignment.centerLeft,
                         children: [
@@ -676,7 +669,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                       ),
                     ),
                   );
-                }
+                // }
               } else if (thumnailFile != null) {
                 return Center(
                   child: Container(

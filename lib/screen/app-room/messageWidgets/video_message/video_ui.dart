@@ -40,7 +40,20 @@ class _VideoUiState extends State<VideoUi> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        VideoPlayer(videoPlayerService.videoPlayerController),
+        Container(
+          width:   MediaQuery.of(context).size.width,
+          height:  MediaQuery.of(context).size.height,
+          child: FittedBox(
+              fit: BoxFit.fitWidth,
+              child:
+              Center(
+                child: SizedBox(
+                    width:   MediaQuery.of(context).size.width,
+                    height:  MediaQuery.of(context).size.height/2,
+                    child: VideoPlayer(videoPlayerService.videoPlayerController)),
+              ),
+    ),
+        ),
         Center(
             child: StreamBuilder<bool>(
           stream: isPlaySubject.stream,
