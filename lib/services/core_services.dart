@@ -190,7 +190,7 @@ class CoreServices {
       _clientPacket.add(ClientPacket()
         ..activity = activity
         ..id = id);
-    else{
+    else {
       startStream();
     }
   }
@@ -242,10 +242,15 @@ class CoreServices {
   }
 
   _saveIncomingMessage(Message message) async {
-    Uid roomUid =
-        await saveMessage(_accountRepo, _messageDao, _roomDao, message);
+    Uid roomUid = getRoomId(_accountRepo, message);
     Database.Room room = await _roomDao.getByRoomIdFuture(roomUid.asString());
-    if ((await _accountRepo.notification).contains("true") && (room!= null &&!room.mute)) {
+    if (room != null && room.isBlock) {
+      return;
+    }
+    saveMessage(_accountRepo, _messageDao, _roomDao, message, roomUid);
+
+    if ((await _accountRepo.notification).contains("true") &&
+        (room != null && !room.mute)) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)
@@ -264,10 +269,9 @@ class CoreServices {
   }
 
   static Future<Uid> saveMessage(AccountRepo accountRepo, MessageDao messageDao,
-      RoomDao roomDao, Message message) async {
+      RoomDao roomDao, Message message, Uid roomUid) async {
     var msg = await saveMessageInMessagesDB(accountRepo, messageDao, message);
 
-    Uid roomUid = getRoomId(accountRepo, message);
     bool isMention = false;
     if (roomUid.category == Categories.GROUP) {
       if (message.text.text.contains("@")) {

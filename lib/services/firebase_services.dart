@@ -98,9 +98,12 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
   if (message.containsKey('data')) {
     Message msg = _decodeMessage(message["data"]["body"]);
     String roomName = message['data']['title'];
-
-    CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg);
-
+    Uid roomUid = getRoomId(accountRepo, msg);
+    db.Room room = await roomDao.getByRoomIdFuture(roomUid.asString());
+    if (room != null && room.isBlock) {
+      return;
+    }
+   CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg, roomUid);
     if (msg.to.category == Categories.USER) {
       db.Contact contact =
           await contactDao.getContactByUid(msg.from.asString());
@@ -117,8 +120,6 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
     if (msg.from.category == Categories.USER)
       updateLastActivityTime(_userInfoDao, getRoomId(accountRepo, msg),
           DateTime.fromMillisecondsSinceEpoch(msg.time.toInt()));
-    Uid roomUid = getRoomId(accountRepo, msg);
-    db.Room room = await roomDao.getByRoomIdFuture(roomUid.asString());
     if ((await accountRepo.notification).contains("true") &&
         (room != null && !room.mute))
       _notificationServices.showNotification(
