@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
