@@ -128,6 +128,14 @@ class MessageRepo {
       print(e);
     }
     updatingStatus.add(TitleStatusConditions.Normal);
+    getBlockedRoom();
+  }
+
+  getBlockedRoom() async {
+    var result =  await _queryServiceClient.getBlockedList(GetBlockedListReq(),options: CallOptions(metadata: {"accessToken": await _accountRepo.getAccessToken()}));
+    for(var blockRoomUid in result.uidList){
+      _roomDao.insertRoomCompanion(RoomsCompanion(roomId: Value(blockRoomUid.asString()),isBlock:Value(true)));
+    }
   }
 
   sendTextMessage(Uid room, String text,
@@ -393,6 +401,7 @@ class MessageRepo {
       await sendFileMessage(room, path, caption: caption, replyToId: replyToId);
     }
   }
+
 
   @visibleForTesting
   sendPendingMessages() async {

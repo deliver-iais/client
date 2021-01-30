@@ -143,5 +143,9 @@
   "close": "بستن",
   "add_sticker": "اضافه کردن استیکر ها ",
   "add": "اضافه کردن",
-  "add_sticker_Pack": " اضافه استیکر"
+  "add_sticker_Pack": " اضافه استیکر",
+  "unBlockRoom": "رفع مسدودیت ",
+  "blockRoom": "مسدود",
+  "report": "گزارش",
+  "report_result": "از گزارش شما متشکریم"
 }

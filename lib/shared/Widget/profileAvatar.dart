@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/db/dao/RoomDao.dart';
+import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/muc_type.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
@@ -50,6 +52,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   var _memberRepo = GetIt.I.get<MemberRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
+  var _roomDao = GetIt.I.get<RoomDao>();
   AppLocalization _appLocalization;
   MucType _mucType;
   var _routingServices = GetIt.I.get<RoutingService>();
@@ -142,6 +145,23 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         break;
       case "deleteMuc":
         _mucType == MucType.GROUP ? _deleteGroup() : _deleteChannel();
+        break;
+      case "unBlockRoom":
+        _roomRepo.unBlockRoom(widget.roomUid);
+        break;
+      case "blockRoom":
+        _roomRepo.blockRoom(widget.roomUid);
+        break;
+      case "report":
+        _roomRepo.reportRoom(widget.roomUid);
+        Fluttertoast.showToast(msg: "report_result");
+
+
+
+
+
+        `                                                                                                                     r
+
     }
   }
 
@@ -255,10 +275,40 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                           child: Text(
                               _appLocalization.getTraslateValue("setProfile")),
                           value: "select"),
+                    new PopupMenuItem<String>(
+                        child: Text(
+                            _appLocalization.getTraslateValue("report")),
+                        value: "report"),
                   ],
                   onSelected: onSelected,
                 )
-              : SizedBox.shrink()
+              : StreamBuilder<Room>(
+                  stream: _roomDao.getByRoomId(widget.roomUid.asString()),
+                  builder: (c, room) {
+                    if (room.hasData && room.data != null) {
+                      return PopupMenuButton(
+                        icon: Icon(Icons.more_vert),
+                        itemBuilder: (_) => <PopupMenuItem<String>>[
+                          new PopupMenuItem<String>(
+                              child: Text(room.data.isBlock
+                                  ? _appLocalization
+                                      .getTraslateValue("unBlockRoom")
+                                  : _appLocalization
+                                      .getTraslateValue("blockRoom")),
+                              value: room.data.isBlock
+                                  ? "unBlockRoom"
+                                  : "BlockRoom"),
+                          new PopupMenuItem<String>(
+                              child: Text(
+                                  _appLocalization.getTraslateValue("report")),
+                              value: "report"),
+                        ],
+                        onSelected: onSelected,
+                      );
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  }),
         ],
         forceElevated: widget.innerBoxIsScrolled,
         leading: routingService.backButtonLeading(),

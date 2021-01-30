@@ -14,9 +14,12 @@ import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:flutter/services.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:grpc/grpc_web.dart';
 import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -29,6 +32,10 @@ class RoomRepo {
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _usernameDao = GetIt.I.get<UserInfoDao>();
+  var  _queryServiceClient =
+  GetIt.I.get<QueryServiceClient>();
+
+  var _accountRepo =  GetIt.I.get<AccountRepo>();
 
   Map<String, BehaviorSubject<Activity>> activityObject = Map();
 
@@ -180,5 +187,20 @@ class RoomRepo {
     } else {
       // todo
     }
+  }
+
+  void unBlockRoom(Uid roomUid) async{
+
+    await _queryServiceClient.unblock(UnblockReq()..uid = roomUid,options: CallOptions(metadata: {"accessToken": await _accountRepo.getAccessToken()} ));
+    _roomDao.insertRoomCompanion(RoomsCompanion(roomId: Value(roomUid.asString()),isBlock: Value(false)));
+  }
+
+  void blockRoom(Uid roomUid)async {
+    await _queryServiceClient.block(BlockReq()..uid = roomUid,options: CallOptions(metadata: {"accessToken": await _accountRepo.getAccessToken()} ));
+    _roomDao.insertRoomCompanion(RoomsCompanion(roomId: Value(roomUid.asString()),isBlock: Value(true)));
+  }
+
+  void reportRoom(Uid roomUid)async {
+   _queryServiceClient.report(ReportReq()..uid = roomUid ,options: CallOptions(metadata: {"accessToken": await _accountRepo.getAccessToken()} ));
   }
 }

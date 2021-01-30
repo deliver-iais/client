@@ -143,5 +143,9 @@
   "close": "Close",
   "add_sticker": "Add Stickers",
   "add": "ADD",
-  "add_sticker_Pack" :" Add StickerPack"
+  "add_sticker_Pack" :" Add StickerPack",
+  "unBlockRoom": "un Block Room",
+  "blockRoom": "block Room",
+  "report":"report" ,
+  "report_result": "Thank you for this report"
 }
