@@ -6,7 +6,7 @@ import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/localSearchResult.dart';
+import 'package:deliver_flutter/models/searchInRoom.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
@@ -153,23 +153,23 @@ class RoomRepo {
     return finalList.values.toList();
   }
 
-  Future<List<LocalSearchResult>> searchInRoomAndContacts(
+  Future<List<SearchInRoom>> searchInRoomAndContacts(
       String text, bool searchInRooms) async {
-    List<LocalSearchResult> searchResult = List();
+    List<SearchInRoom> searchResult = List();
     List<Contact> searchInContact = await _contactDao.getContactByName(text);
-    print(searchInContact.length.toString());
+
     for (Contact contact in searchInContact) {
-      searchResult.add(LocalSearchResult()
+      searchResult.add(SearchInRoom()
         ..username = contact.username
-        ..firstName = contact.firstName
+        ..name = contact.firstName
         ..lastName = contact.lastName
         ..uid = contact.uid != null ? contact.uid.uid : null);
     }
     if (searchInRooms) {
       List<Muc> searchInMucs = await _mucDao.getMucByName(text);
       for (Muc group in searchInMucs) {
-        searchResult.add(LocalSearchResult()
-          ..firstName = group.name
+        searchResult.add(SearchInRoom()
+          ..name = group.name
           ..lastName
           ..uid = group.uid.uid);
       }

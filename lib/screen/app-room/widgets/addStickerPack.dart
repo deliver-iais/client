@@ -80,12 +80,11 @@ class AddStickerPack extends StatelessWidget {
                                                           future:
                                                               _fileRepo.getFile(
                                                                   stickerPck
-                                                                      .data
-                                                                      .files[i]
+                                                                      .data.stickers[0].file
                                                                       .uuid,
                                                                   stickerPck
-                                                                      .data
-                                                                      .files[i]
+                                                                      .data.stickers[0]
+                                                                      .file
                                                                       .name),
                                                           builder: (c, file) {
                                                             if (file.hasData &&

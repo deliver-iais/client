@@ -40,6 +40,7 @@ import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
@@ -83,6 +84,7 @@ void setupDI() {
   getIt.registerSingleton<UxService>(UxService());
   getIt.registerSingleton<QueryServiceClient>(
       QueryServiceClient(QueryClientChannel));
+  getIt.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel));
   getIt.registerSingleton<StickerServiceClient>(
       StickerServiceClient(StickerClientChannel));
   getIt.registerSingleton<AccountRepo>(

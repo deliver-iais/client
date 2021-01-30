@@ -155,13 +155,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       case "report":
         _roomRepo.reportRoom(widget.roomUid);
         Fluttertoast.showToast(msg: "report_result");
-
-
-
-
-
-        `                                                                                                                     r
-
     }
   }
 

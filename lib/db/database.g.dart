@@ -5875,6 +5875,303 @@ class $StickerIdsTable extends StickerIds
   }
 }
 
+class BotInfo extends DataClass implements Insertable<BotInfo> {
+  final String description;
+  final String name;
+  final String username;
+  final String commands;
+  BotInfo(
+      {@required this.description,
+      this.name,
+      @required this.username,
+      @required this.commands});
+  factory BotInfo.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    return BotInfo(
+      description: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}description']),
+      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      username: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}username']),
+      commands: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}commands']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    if (!nullToAbsent || username != null) {
+      map['username'] = Variable<String>(username);
+    }
+    if (!nullToAbsent || commands != null) {
+      map['commands'] = Variable<String>(commands);
+    }
+    return map;
+  }
+
+  BotInfosCompanion toCompanion(bool nullToAbsent) {
+    return BotInfosCompanion(
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      username: username == null && nullToAbsent
+          ? const Value.absent()
+          : Value(username),
+      commands: commands == null && nullToAbsent
+          ? const Value.absent()
+          : Value(commands),
+    );
+  }
+
+  factory BotInfo.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return BotInfo(
+      description: serializer.fromJson<String>(json['description']),
+      name: serializer.fromJson<String>(json['name']),
+      username: serializer.fromJson<String>(json['username']),
+      commands: serializer.fromJson<String>(json['commands']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'description': serializer.toJson<String>(description),
+      'name': serializer.toJson<String>(name),
+      'username': serializer.toJson<String>(username),
+      'commands': serializer.toJson<String>(commands),
+    };
+  }
+
+  BotInfo copyWith(
+          {String description,
+          String name,
+          String username,
+          String commands}) =>
+      BotInfo(
+        description: description ?? this.description,
+        name: name ?? this.name,
+        username: username ?? this.username,
+        commands: commands ?? this.commands,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('BotInfo(')
+          ..write('description: $description, ')
+          ..write('name: $name, ')
+          ..write('username: $username, ')
+          ..write('commands: $commands')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(description.hashCode,
+      $mrjc(name.hashCode, $mrjc(username.hashCode, commands.hashCode))));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is BotInfo &&
+          other.description == this.description &&
+          other.name == this.name &&
+          other.username == this.username &&
+          other.commands == this.commands);
+}
+
+class BotInfosCompanion extends UpdateCompanion<BotInfo> {
+  final Value<String> description;
+  final Value<String> name;
+  final Value<String> username;
+  final Value<String> commands;
+  const BotInfosCompanion({
+    this.description = const Value.absent(),
+    this.name = const Value.absent(),
+    this.username = const Value.absent(),
+    this.commands = const Value.absent(),
+  });
+  BotInfosCompanion.insert({
+    @required String description,
+    this.name = const Value.absent(),
+    @required String username,
+    @required String commands,
+  })  : description = Value(description),
+        username = Value(username),
+        commands = Value(commands);
+  static Insertable<BotInfo> custom({
+    Expression<String> description,
+    Expression<String> name,
+    Expression<String> username,
+    Expression<String> commands,
+  }) {
+    return RawValuesInsertable({
+      if (description != null) 'description': description,
+      if (name != null) 'name': name,
+      if (username != null) 'username': username,
+      if (commands != null) 'commands': commands,
+    });
+  }
+
+  BotInfosCompanion copyWith(
+      {Value<String> description,
+      Value<String> name,
+      Value<String> username,
+      Value<String> commands}) {
+    return BotInfosCompanion(
+      description: description ?? this.description,
+      name: name ?? this.name,
+      username: username ?? this.username,
+      commands: commands ?? this.commands,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (username.present) {
+      map['username'] = Variable<String>(username.value);
+    }
+    if (commands.present) {
+      map['commands'] = Variable<String>(commands.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BotInfosCompanion(')
+          ..write('description: $description, ')
+          ..write('name: $name, ')
+          ..write('username: $username, ')
+          ..write('commands: $commands')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BotInfosTable extends BotInfos with TableInfo<$BotInfosTable, BotInfo> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $BotInfosTable(this._db, [this._alias]);
+  final VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  GeneratedTextColumn _description;
+  @override
+  GeneratedTextColumn get description =>
+      _description ??= _constructDescription();
+  GeneratedTextColumn _constructDescription() {
+    return GeneratedTextColumn(
+      'description',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  GeneratedTextColumn _name;
+  @override
+  GeneratedTextColumn get name => _name ??= _constructName();
+  GeneratedTextColumn _constructName() {
+    return GeneratedTextColumn(
+      'name',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _usernameMeta = const VerificationMeta('username');
+  GeneratedTextColumn _username;
+  @override
+  GeneratedTextColumn get username => _username ??= _constructUsername();
+  GeneratedTextColumn _constructUsername() {
+    return GeneratedTextColumn(
+      'username',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _commandsMeta = const VerificationMeta('commands');
+  GeneratedTextColumn _commands;
+  @override
+  GeneratedTextColumn get commands => _commands ??= _constructCommands();
+  GeneratedTextColumn _constructCommands() {
+    return GeneratedTextColumn(
+      'commands',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [description, name, username, commands];
+  @override
+  $BotInfosTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'bot_infos';
+  @override
+  final String actualTableName = 'bot_infos';
+  @override
+  VerificationContext validateIntegrity(Insertable<BotInfo> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description'], _descriptionMeta));
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
+    }
+    if (data.containsKey('username')) {
+      context.handle(_usernameMeta,
+          username.isAcceptableOrUnknown(data['username'], _usernameMeta));
+    } else if (isInserting) {
+      context.missing(_usernameMeta);
+    }
+    if (data.containsKey('commands')) {
+      context.handle(_commandsMeta,
+          commands.isAcceptableOrUnknown(data['commands'], _commandsMeta));
+    } else if (isInserting) {
+      context.missing(_commandsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {username};
+  @override
+  BotInfo map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return BotInfo.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $BotInfosTable createAlias(String alias) {
+    return $BotInfosTable(_db, alias);
+  }
+}
+
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $MessagesTable _messages;
@@ -5914,6 +6211,8 @@ abstract class _$Database extends GeneratedDatabase {
   $StickersTable get stickers => _stickers ??= $StickersTable(this);
   $StickerIdsTable _stickerIds;
   $StickerIdsTable get stickerIds => _stickerIds ??= $StickerIdsTable(this);
+  $BotInfosTable _botInfos;
+  $BotInfosTable get botInfos => _botInfos ??= $BotInfosTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
@@ -5953,6 +6252,8 @@ abstract class _$Database extends GeneratedDatabase {
   StickerIdDao _stickerIdDao;
   StickerIdDao get stickerIdDao =>
       _stickerIdDao ??= StickerIdDao(this as Database);
+  BotInfoDao _botInfoDao;
+  BotInfoDao get botInfoDao => _botInfoDao ??= BotInfoDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
@@ -5973,6 +6274,7 @@ abstract class _$Database extends GeneratedDatabase {
         mediasMetaData,
         userInfos,
         stickers,
-        stickerIds
+        stickerIds,
+        botInfos
       ];
 }

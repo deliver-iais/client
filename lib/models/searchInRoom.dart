@@ -1,9 +1,10 @@
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
-class LocalSearchResult{
+class SearchInRoom{
   Uid uid;
-  String firstName;
+  String name;
   String lastName;
   String username;
 
+  SearchInRoom({this.uid, this.name, this.lastName, this.username});
 }

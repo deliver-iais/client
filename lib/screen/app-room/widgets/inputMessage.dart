@@ -3,7 +3,10 @@ import 'dart:math';
 
 import 'package:audio_recorder/audio_recorder.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/bot_commandsWidget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/emojiKeybord.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/recordAudioAnimation.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/recordAudioslideWidget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/showMentionList.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
@@ -26,8 +29,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
-
-const ANIMATION_DURATION = const Duration(milliseconds: 100);
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -142,28 +144,9 @@ class _InputMessageWidget extends State<InputMessage> {
                 controller.text.isEmpty &&
                         (widget.waitingForForward == null ||
                             widget.waitingForForward == false)
-                    ? AnimatedPositioned(
-                        duration: ANIMATION_DURATION,
-                        bottom: (1 - size) * 25,
-                        right: x + ((1 - size) * 25),
-                        child: ClipOval(
-                          child: AnimatedContainer(
-                            duration: ANIMATION_DURATION,
-                            width: 50 * size,
-                            height: 50 * size,
-                            color: (1 - size) == 0
-                                ? Colors.transparent
-                                : Colors.blue,
-                            child: Center(
-                              child: Icon(
-                                Icons.keyboard_voice,
-                                size: 14 * (size - 1) +
-                                    IconTheme.of(context).size,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
+                    ? RecordAudioAnimation(
+                        righPadding: x,
+                        size: size,
                       )
                     : SizedBox.shrink(),
                 Row(
@@ -172,33 +155,59 @@ class _InputMessageWidget extends State<InputMessage> {
                         ? Expanded(
                             child: Row(
                               children: <Widget>[
-                                StreamBuilder<bool>(
-                                    stream: backSubject.stream,
-                                    builder: (c, back) {
-                                      return IconButton(
-                                        icon: Icon(
-                                          back.hasData && back.data
-                                              ? Icons.keyboard
-                                              : Icons.mood,
-                                          color: Colors.white,
-                                        ),
-                                        onPressed: () {
-                                          if (back.data) {
-                                            backSubject.add(false);
-                                            setState(() {
-                                              FocusScope.of(context).unfocus();
-                                            });
-                                          } else if (!back.data) {
-                                            FocusScope.of(context)
-                                                .requestFocus(new FocusNode());
-                                            Timer(Duration(milliseconds: 50),
-                                                () {
-                                              backSubject.add(true);
-                                            });
-                                          }
+                                if (currentRoom.roomId.getUid().category !=
+                                    Categories.BOT)
+                                  StreamBuilder<bool>(
+                                      stream: backSubject.stream,
+                                      builder: (c, back) {
+                                        return IconButton(
+                                          icon: Icon(
+                                            back.hasData && back.data
+                                                ? Icons.keyboard
+                                                : Icons.mood,
+                                            color: Colors.white,
+                                          ),
+                                          onPressed: () {
+                                            if (back.data) {
+                                              backSubject.add(false);
+                                              setState(() {
+                                                FocusScope.of(context)
+                                                    .unfocus();
+                                              });
+                                            } else if (!back.data) {
+                                              FocusScope.of(context)
+                                                  .requestFocus(
+                                                      new FocusNode());
+                                              Timer(Duration(milliseconds: 50),
+                                                  () {
+                                                backSubject.add(true);
+                                              });
+                                            }
+                                          },
+                                        );
+                                      }),
+                                if (currentRoom.roomId.getUid().category ==
+                                    Categories.BOT)
+                                  GestureDetector(
+                                    child: Text(
+                                      " \ ",
+                                      style: TextStyle(
+                                          color:
+                                              Theme.of(context).primaryColor),
+                                    ),
+                                    onTap: () {
+                                      BotCommandsWidget(
+                                        botUid:
+                                            widget.currentRoom.roomId.getUid(),
+                                        onCommandClick: (String command) {
+                                          messageRepo.sendTextMessage(
+                                              widget.currentRoom.roomId
+                                                  .getUid(),
+                                              command);
                                         },
                                       );
-                                    }),
+                                    },
+                                  ),
                                 Container(
                                   child: Flexible(
                                     child: SizedBox(
@@ -257,97 +266,16 @@ class _InputMessageWidget extends State<InputMessage> {
                                                         false)
                                             ? () async {}
                                             : () {
-                                                isTypingActivitySubject.add(
-                                                    ActivityType.NO_ACTIVITY);
-                                                if (widget.waitingForForward ==
-                                                    true) {
-                                                  widget.sendForwardMessage();
-                                                }
-                                                if (controller
-                                                    .text.isNotEmpty) {
-                                                  if (controller.text
-                                                      .isNotEmpty) if (widget
-                                                          .replyMessageId !=
-                                                      null) {
-                                                    messageRepo.sendTextMessage(
-                                                      currentRoom.roomId.uid,
-                                                      controller.text,
-                                                      replyId:
-                                                          widget.replyMessageId,
-                                                    );
-                                                    if (widget.replyMessageId !=
-                                                        -1)
-                                                      widget
-                                                          .resetRoomPageDetails();
-                                                  } else {
-                                                    messageRepo.sendTextMessage(
-                                                        currentRoom.roomId.uid,
-                                                        controller.text);
-                                                  }
-
-                                                  controller.clear();
-                                                  messageText = "";
-
-                                                  _showMentionList = false;
-                                                }
-                                                widget
-                                                    .scrollToLastSentMessage();
+                                                sendMessage();
                                               },
                                       ),
                               ],
                             ),
                           )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
-                                child: Stack(
-                                  children: <Widget>[
-                                    Opacity(
-                                      opacity: 1.0 - opacity(),
-                                      child: Icon(
-                                        Icons.delete_outline,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                    Opacity(
-                                      opacity: opacity(),
-                                      child: Icon(
-                                        Icons.fiber_manual_record,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              TikTikTimer(
-                                height: 20,
-                                width: 70,
-                                timerTextStyle: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).primaryColor),
-                                initialDate: time,
-                                running: startAudioRecorder,
-                                backgroundColor:
-                                    ExtraTheme.of(context).secondColor,
-                                borderRadius: 0,
-                              ),
-                              Opacity(
-                                opacity: opacity(),
-                                child: Row(
-                                  children: <Widget>[
-                                    Icon(Icons.chevron_left),
-                                    Text(
-                                        appLocalization
-                                            .getTraslateValue("slideToCancel"),
-                                        style: TextStyle(
-                                            fontSize: 12, color: Colors.white)),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                        : RecordAudioSlideWidget(
+                            opacity: opacity(),
+                            time: time,
+                            rinning: startAudioRecorder),
                     controller.text.isEmpty &&
                             (widget.waitingForForward == null ||
                                 widget.waitingForForward == false)
@@ -449,11 +377,36 @@ class _InputMessageWidget extends State<InputMessage> {
                       },
                     ));
               } else {
-              return SizedBox.shrink();
+                return SizedBox.shrink();
               }
             }),
       ],
     );
+  }
+
+  void sendMessage() {
+    isTypingActivitySubject.add(ActivityType.NO_ACTIVITY);
+    if (widget.waitingForForward == true) {
+      widget.sendForwardMessage();
+    }
+    if (controller.text.isNotEmpty) {
+      if (controller.text.isNotEmpty) if (widget.replyMessageId != null) {
+        messageRepo.sendTextMessage(
+          currentRoom.roomId.uid,
+          controller.text,
+          replyId: widget.replyMessageId,
+        );
+        if (widget.replyMessageId != -1) widget.resetRoomPageDetails();
+      } else {
+        messageRepo.sendTextMessage(currentRoom.roomId.uid, controller.text);
+      }
+
+      controller.clear();
+      messageText = "";
+
+      _showMentionList = false;
+    }
+    widget.scrollToLastSentMessage();
   }
 
   void sendRecordActivity() {
