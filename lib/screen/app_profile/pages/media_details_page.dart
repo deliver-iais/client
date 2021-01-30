@@ -834,7 +834,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                   runSpacing: 40,
                   children: [
                     Text("${s.data}"),
-                    SizedBox(height: 10),
+                     SizedBox(height: 10),
                     Text("$createdOn"),
                   ],
                 ),

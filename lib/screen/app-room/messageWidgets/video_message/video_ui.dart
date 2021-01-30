@@ -82,29 +82,45 @@ class _VideoUiState extends State<VideoUi> {
                     ? IconButton(
                         icon: Icon(Icons.pause),
                         onPressed: () {
-                          videoPlayerService.videoPlayerController.pause();
-                          videoPlayerService.videoPlayerController
-                              .addListener(() async {
-                            _currentPositionSubject.add((await videoPlayerService
-                                .videoPlayerController.position)
-                                .inSeconds
-                                .toDouble());
+                          // setState(() {
+                          //
+                          //   getPosition();
+                          //
+                          // });
+                          setState(() {
+                            videoPlayerService.videoPlayerController.pause();
+                            videoPlayerService.videoPlayerController
+                                .addListener(() async {
+                              _currentPositionSubject.add((await videoPlayerService
+                                  .videoPlayerController.position)
+                                  .inSeconds
+                                  .toDouble());
+                            });
+                            isPlaySubject.add(false);
                           });
-                          isPlaySubject.add(false);
+
 
                         })
                     : IconButton(
                         icon: Icon(Icons.play_arrow),
-                        onPressed: () {
-                          videoPlayerService.videoPlayerController.play();
-                          videoPlayerService.videoPlayerController
-                              .addListener(() async {
-                            _currentPositionSubject.add((await videoPlayerService
-                                    .videoPlayerController.position)
-                                .inSeconds
-                                .toDouble());
+                        onPressed: ()async {
+                          // setState(() {
+                          //  await getPosition();
+                          // });
+                          setState(() {
+                            videoPlayerService.videoPlayerController
+                                .addListener(() async {
+                              _currentPositionSubject.add((await videoPlayerService
+                                  .videoPlayerController.position)
+                                  .inSeconds
+                                  .toDouble());
+                            });
+                            videoPlayerService.videoPlayerController.play();
+                            isPlaySubject.add(true);
                           });
-                          isPlaySubject.add(true);
+
+
+
                         }),
               );
             } else {
@@ -112,8 +128,9 @@ class _VideoUiState extends State<VideoUi> {
             }
           },
         )),
-        Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-          SliderTheme(
+        Padding(
+           padding: const EdgeInsets.fromLTRB(0, 500, 0,0),
+          child: SliderTheme(
             data: SliderThemeData(
               thumbColor: ExtraTheme.of(context).active,
               trackHeight: 2.25,
@@ -133,13 +150,16 @@ class _VideoUiState extends State<VideoUi> {
                       onChanged: (double value) {
                         videoPlayerService.videoPlayerController
                             .seekTo(Duration(seconds: value.toInt()));
-                        videoPlayerService.videoPlayerController
-                            .addListener(() async {
-                          _currentPositionSubject.add((await videoPlayerService
-                              .videoPlayerController.position)
-                              .inSeconds
-                              .toDouble());
-                        });
+                        // videoPlayerService.videoPlayerController
+                        //     .addListener(() async {
+                        //   _currentPositionSubject.add((await videoPlayerService
+                        //       .videoPlayerController.position)
+                        //       .inSeconds
+                        //       .toDouble());
+                        // });
+                        // setState(() {
+                          _currentPositionSubject.add(value);
+                        // });
                         // currentPosition = value;
                       });
                 else
@@ -147,8 +167,14 @@ class _VideoUiState extends State<VideoUi> {
               },
             ),
           ),
-        ]),
+        ),
       ],
     );
   }
+   // Future getPosition() async{
+   // var pos= await videoPlayerService.videoPlayerController.position;
+   //   _currentPositionSubject.add(pos.inSeconds.toDouble());
+   //
+   // }
 }
+
