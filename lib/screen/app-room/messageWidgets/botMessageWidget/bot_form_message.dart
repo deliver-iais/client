@@ -31,8 +31,9 @@ class _BotFormMessageState extends State<BotFormMessage> {
   }
 
   Map<String, String> formResultMap = Map();
-  Map<String, GlobalKey> _formKeyMap = Map();
+  Map<String, GlobalKey<FormBuilderState>> _formKeyMap = Map();
   AppLocalization _appLocalization;
+  bool validate = false;
 
   @override
   Widget build(BuildContext context) {
@@ -121,10 +122,19 @@ class _BotFormMessageState extends State<BotFormMessage> {
                   return SizedBox.shrink();
                 }),
           ),
-          RaisedButton(child: Text(_appLocalization.getTraslateValue("submit"),style: TextStyle(color: Theme.of(context).primaryColor),),onPressed: () {
-            _messageRepo.sendFormMessage(widget.message.from,formResultMap);
+          RaisedButton(
+              child: Text(
+                _appLocalization.getTraslateValue("submit"),
+                style: TextStyle(color: Theme.of(context).primaryColor),
+              ),
+              onPressed: () {
+                for (var field in form.fields) {
+                  if (_formKeyMap[field.id]?.currentState?.validate())
+                    _messageRepo.sendFormMessage(
+                        widget.message.from, formResultMap);
+                }
 
-          })
+              })
         ],
       ),
     );

@@ -22,8 +22,6 @@ class FormTextFieldWidget extends StatelessWidget {
     return Column(
       children: [
         Container(
-          child: Form(
-            key: null,
             child: TextFormField(
               minLines: 1,
               textInputAction: TextInputAction.send,
@@ -37,7 +35,6 @@ class FormTextFieldWidget extends StatelessWidget {
                   : formFieldType == proto.Form_Field_Type.numberField
                       ? TextInputType.number
                       : TextInputType.datetime,
-              validator: validateFormTextField,
               decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   suffix: formField.isOptional
@@ -48,14 +45,14 @@ class FormTextFieldWidget extends StatelessWidget {
                       : SizedBox.shrink(),
                   labelText: formField.label),
             ),
-          ),
+
         ),
       ],
     );
   }
 
   String validateFormTextField(String value) {
-    if(value.isNotEmpty && !formField.isOptional){
+    if(value.isEmpty && formField.isOptional){
       return null;
     }
    else if (value != null && value.length > formField.textField.max) {
