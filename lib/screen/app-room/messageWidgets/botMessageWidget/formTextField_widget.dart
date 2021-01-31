@@ -45,17 +45,6 @@ class FormTextFieldWidget extends StatelessWidget {
             ),
           ),
         ),
-        StreamBuilder(
-            stream: validateIsCheck.stream,
-            builder: (c, s) {
-              if (s.hasData && s.data) {
-                return RaisedButton(
-                    child: Text(_appLocalization.getTraslateValue("submit")),
-                    onPressed: () {});
-              } else {
-                return SizedBox.shrink();
-              }
-            })
       ],
     );
   }
