@@ -29,7 +29,6 @@ import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -68,6 +67,7 @@ class _InputMessageWidget extends State<InputMessage> {
   DateTime time = DateTime.now();
   double DX = 150.0;
   bool recordAudioPermission = false;
+  BehaviorSubject<bool> _showBotCommands = BehaviorSubject.seeded(false);
   String query;
   Timer recordAudioTimer;
 
@@ -134,6 +134,22 @@ class _InputMessageWidget extends State<InputMessage> {
             },
             roomUid: widget.currentRoom.roomId,
           ),
+        StreamBuilder(
+            stream: _showBotCommands.stream,
+            builder: (c, show) {
+              if (show.hasData && show.data) {
+                return BotCommandsWidget(
+                  botUid: widget.currentRoom.roomId.getUid(),
+                  onCommandClick: (String command) {
+                    controller.text = command;
+                    _showBotCommands.add(false);
+                    setState(() {});
+                  },
+                );
+              } else {
+                return SizedBox.shrink();
+              }
+            }),
         IconTheme(
           data: IconThemeData(color: Theme.of(context).accentColor),
           child: Container(
@@ -196,16 +212,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                               Theme.of(context).primaryColor),
                                     ),
                                     onTap: () {
-                                      BotCommandsWidget(
-                                        botUid:
-                                            widget.currentRoom.roomId.getUid(),
-                                        onCommandClick: (String command) {
-                                          messageRepo.sendTextMessage(
-                                              widget.currentRoom.roomId
-                                                  .getUid(),
-                                              command);
-                                        },
-                                      );
+                                    _showBotCommands.add(true);
                                     },
                                   ),
                                 Container(
@@ -418,24 +425,34 @@ class _InputMessageWidget extends State<InputMessage> {
 
   void onChange(String str) {
     messageText = str;
-    if (str.isEmpty) {
-      _showMentionList = false;
-      setState(() {});
-      return;
-    }
-    try {
-      query = "";
-      int i = str.lastIndexOf("@");
-      if (i != 0 && str[i - 1] != " ") {
+    if (currentRoom.roomId.getUid().category == Categories.GROUP) {
+      if (str.isEmpty) {
+        _showMentionList = false;
+        setState(() {});
         return;
       }
-      if (i != -1 && !str.contains(" ", i)) {
-        query = str.substring(i + 1, str.length);
-        _showMentionList = true;
+      try {
+        query = "";
+        int i = str.lastIndexOf("@");
+        if (i != 0 && str[i - 1] != " ") {
+          return;
+        }
+        if (i != -1 && !str.contains(" ", i)) {
+          query = str.substring(i + 1, str.length);
+          _showMentionList = true;
+        } else {
+          _showMentionList = false;
+        }
+      } catch (e) {}
+    }
+    if (currentRoom.roomId.getUid().category == Categories.BOT) {
+      if (str.isNotEmpty && str.length == 1 && str.contains(" \ ")) {
+        _showBotCommands.add(true);
       } else {
-        _showMentionList = false;
+       _showBotCommands.add(false);
       }
-    } catch (e) {}
+    }
+
     setState(() {});
   }
 
