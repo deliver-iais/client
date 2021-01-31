@@ -20,9 +20,9 @@ class VideoUi extends StatefulWidget {
 
 class _VideoUiState extends State<VideoUi> {
   VideoPlayerService videoPlayerService = new VideoPlayerService();
-  VideoPlayerController videoPlayerController;
-  BehaviorSubject<bool> isPlaySubject = BehaviorSubject.seeded(false);
-  double currentPosition = 0.0;
+  // VideoPlayerController videoPlayerController;
+   BehaviorSubject<bool> isPlaySubject = BehaviorSubject.seeded(false);
+  // double currentPosition = 0.0;
   BehaviorSubject<double> _currentPositionSubject ;
 
   @override
