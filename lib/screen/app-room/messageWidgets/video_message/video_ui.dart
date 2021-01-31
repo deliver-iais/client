@@ -12,14 +12,14 @@ class VideoUi extends StatefulWidget {
   final File video;
   final double duration;
 
-  const VideoUi({Key key, this.video, this.duration}) : super(key: key);
+  VideoUi({Key key, this.video, this.duration}) : super(key: key);
 
   @override
   _VideoUiState createState() => _VideoUiState();
 }
 
 class _VideoUiState extends State<VideoUi> {
-   VideoPlayerService videoPlayerService = new  VideoPlayerService();
+  VideoPlayerService videoPlayerService = new VideoPlayerService();
   VideoPlayerController videoPlayerController;
   BehaviorSubject<bool> isPlaySubject = BehaviorSubject.seeded(false);
   double currentPosition = 0.0;
@@ -27,21 +27,22 @@ class _VideoUiState extends State<VideoUi> {
 
   @override
   void dispose() {
-     // videoPlayerService.videoPlayerController.addListener(() {});
-     videoPlayerService.videoPlayerController.dispose();
+    videoPlayerService.videoPlayerController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
-    // videoPlayerController=VideoPlayerController.file(widget.video);
-    // videoPlayerController.setLooping(true);
-    // videoPlayerController.setVolume(0.5);
-    // videoPlayerController.initialize().then((_){
-    //   setState(() {
-    //   });
-    // });
+    videoPlayerController = new VideoPlayerController.file(widget.video);
+    videoPlayerController.setLooping(true);
+    videoPlayerController.setVolume(0.5);
     videoPlayerService.videoControllerInitialization(widget.video);
+    videoPlayerService.videoPlayerController.addListener(() async {
+      _currentPositionSubject.add(
+          (await videoPlayerService.videoPlayerController.position)
+              .inSeconds
+              .toDouble());
+    });
   }
 
   @override
@@ -49,22 +50,17 @@ class _VideoUiState extends State<VideoUi> {
     return Stack(
       children: [
         Container(
-          width:   MediaQuery.of(context).size.width,
-          height:  MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
           child: FittedBox(
-              fit: BoxFit.fitWidth,
-              child:
-              Center(
-                child: SizedBox(
-                    width:   MediaQuery.of(context).size.width,
-                    height:  MediaQuery.of(context).size.height/2,
-                    child:
-                    // videoPlayerController.value.initialized?
-                     VideoPlayer(videoPlayerService.videoPlayerController)
-                        // :Container()
-                ),
-              ),
-    ),
+            fit: BoxFit.fitWidth,
+            child: Center(
+              child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height / 2,
+                  child: VideoPlayer(videoPlayerService.videoPlayerController)),
+            ),
+          ),
         ),
         Center(
             child: StreamBuilder<bool>(
@@ -82,45 +78,15 @@ class _VideoUiState extends State<VideoUi> {
                     ? IconButton(
                         icon: Icon(Icons.pause),
                         onPressed: () {
-                          // setState(() {
-                          //
-                          //   getPosition();
-                          //
-                          // });
-                          setState(() {
-                            videoPlayerService.videoPlayerController.pause();
-                            videoPlayerService.videoPlayerController
-                                .addListener(() async {
-                              _currentPositionSubject.add((await videoPlayerService
-                                  .videoPlayerController.position)
-                                  .inSeconds
-                                  .toDouble());
-                            });
-                            isPlaySubject.add(false);
-                          });
-
-
+                          isPlaySubject.add(false);
+                          videoPlayerService.videoPlayerController.pause();
                         })
                     : IconButton(
                         icon: Icon(Icons.play_arrow),
-                        onPressed: ()async {
-                          // setState(() {
-                          //  await getPosition();
-                          // });
-                          setState(() {
-                            videoPlayerService.videoPlayerController
-                                .addListener(() async {
-                              _currentPositionSubject.add((await videoPlayerService
-                                  .videoPlayerController.position)
-                                  .inSeconds
-                                  .toDouble());
-                            });
-                            videoPlayerService.videoPlayerController.play();
-                            isPlaySubject.add(true);
-                          });
+                        onPressed: () async {
+                          isPlaySubject.add(true);
 
-
-
+                          videoPlayerService.videoPlayerController.play();
                         }),
               );
             } else {
@@ -129,7 +95,7 @@ class _VideoUiState extends State<VideoUi> {
           },
         )),
         Padding(
-           padding: const EdgeInsets.fromLTRB(0, 500, 0,0),
+          padding: const EdgeInsets.fromLTRB(0, 180, 0, 0),
           child: SliderTheme(
             data: SliderThemeData(
               thumbColor: ExtraTheme.of(context).active,
@@ -139,8 +105,7 @@ class _VideoUiState extends State<VideoUi> {
               thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
             ),
             child: StreamBuilder<double>(
-              stream:
-                  _currentPositionSubject.stream,
+              stream: _currentPositionSubject.stream,
               builder: (c, s) {
                 if (s.hasData)
                   return Slider(
@@ -150,17 +115,6 @@ class _VideoUiState extends State<VideoUi> {
                       onChanged: (double value) {
                         videoPlayerService.videoPlayerController
                             .seekTo(Duration(seconds: value.toInt()));
-                        // videoPlayerService.videoPlayerController
-                        //     .addListener(() async {
-                        //   _currentPositionSubject.add((await videoPlayerService
-                        //       .videoPlayerController.position)
-                        //       .inSeconds
-                        //       .toDouble());
-                        // });
-                        // setState(() {
-                          _currentPositionSubject.add(value);
-                        // });
-                        // currentPosition = value;
                       });
                 else
                   return Container();
@@ -171,10 +125,4 @@ class _VideoUiState extends State<VideoUi> {
       ],
     );
   }
-   // Future getPosition() async{
-   // var pos= await videoPlayerService.videoPlayerController.position;
-   //   _currentPositionSubject.add(pos.inSeconds.toDouble());
-   //
-   // }
 }
-
