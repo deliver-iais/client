@@ -7,12 +7,13 @@ import 'package:rxdart/rxdart.dart';
 class FormTextFieldWidget extends StatelessWidget {
   proto.Form_Field formField;
 
-  FormTextFieldWidget({this.formField});
+  Function setResult;
+
+  FormTextFieldWidget({this.formField,this.setResult});
 
   AppLocalization _appLocalization;
   proto.Form_Field_Type formFieldType;
-
-  BehaviorSubject<bool> validateIsCheck = BehaviorSubject.seeded(false);
+  final fieldValidator = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +27,11 @@ class FormTextFieldWidget extends StatelessWidget {
             child: TextFormField(
               minLines: 1,
               textInputAction: TextInputAction.send,
-              onChanged: (str) {},
+              onChanged: (str) {
+                if( fieldValidator.currentState?.validate()){
+                  setResult(str);
+                }
+              },
               keyboardType: formFieldType == proto.Form_Field_Type.textField
                   ? TextInputType.text
                   : formFieldType == proto.Form_Field_Type.numberField
@@ -50,14 +55,16 @@ class FormTextFieldWidget extends StatelessWidget {
   }
 
   String validateFormTextField(String value) {
-    if (value != null && value.length > formField.textField.max) {
+    if(value.isNotEmpty && !formField.isOptional){
+      return null;
+    }
+   else if (value != null && value.length > formField.textField.max) {
       return _appLocalization
           .getTraslateValue("max_length ${formField.textField.max}");
     } else if (value == null || value.length < formField.textField.min) {
       return _appLocalization
           .getTraslateValue("min_length ${formField.textField.min}");
     } else {
-      validateIsCheck.add(true);
       return null;
     }
   }

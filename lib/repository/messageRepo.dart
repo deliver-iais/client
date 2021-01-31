@@ -541,4 +541,15 @@ class MessageRepo {
       _coreServices.sendActivityMessage(activityByClient, _getPacketId());
     }
   }
+
+  void sendFormMessage(String to, Map<String, String> formResultMap) {
+
+    MessageProto.MessageByClient messageByClient = MessageProto.MessageByClient();
+    messageByClient.to = to.getUid();
+    for(var key in formResultMap.keys){
+      messageByClient.formResult.values[key] = formResultMap[key];
+    }
+
+
+  }
 }

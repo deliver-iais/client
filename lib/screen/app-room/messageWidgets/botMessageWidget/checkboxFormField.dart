@@ -8,7 +8,9 @@ import 'package:rxdart/rxdart.dart';
 class CheckBoxFormField extends StatefulWidget {
   proto.Form_Field formField;
 
-  CheckBoxFormField({this.formField});
+  Function selected;
+
+  CheckBoxFormField({this.formField, this.selected});
 
   @override
   _CheckBoxFormFieldState createState() => _CheckBoxFormFieldState();
@@ -28,6 +30,7 @@ class _CheckBoxFormFieldState extends State<CheckBoxFormField> {
             onChanged: (value) {
               setState(() {
                 _selected = value;
+                widget.selected(value.toString());
               });
             },
           ),

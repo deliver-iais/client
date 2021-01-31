@@ -151,6 +151,8 @@
   "bots": "Bots",
   "submit":"Submit",
   "max_length": "Max length",
-  "min_length": "Min length"
+  "min_length": "Min length",
+  "select_on_of_Item" : "select on of Item "
+
 
 }
