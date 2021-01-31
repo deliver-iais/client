@@ -148,5 +148,8 @@
   "blockRoom": "مسدود",
   "report": "گزارش",
   "report_result": "از گزارش شما متشکریم",
-  "bots": "بات ها"
+  "bots": "بات ها",
+  "submit":"ارسال",
+  "max_length": "حداکثر طول ",
+  "min_length": "حداقل طول"
 }

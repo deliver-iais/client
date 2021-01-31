@@ -2,6 +2,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'file:///F:/deliver-flutter3/lib/screen/app-room/messageWidgets/botMessageWidget/bot_form_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/locatioin_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/message_ui.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/reply_widgets/reply_widget_in_message.dart';
@@ -152,7 +153,8 @@ class _BoxContentState extends State<BoxContent> {
             last: last);
         break;
       case MessageType.STICKER:
-        return StickerMessageWidget(widget.message, widget.isSender, widget.isSeen);
+        return StickerMessageWidget(
+            widget.message, widget.isSender, widget.isSeen);
         break;
       case MessageType.LOCATION:
         return LocationMessageWidget(
@@ -168,7 +170,7 @@ class _BoxContentState extends State<BoxContent> {
         // TODO: Handle this case.
         break;
       case MessageType.FORM:
-        // TODO: Handle this case.
+        return BotFormMessage(message: widget.message,);
         break;
       case MessageType.PERSISTENT_EVENT:
         // TODO: Handle this case.

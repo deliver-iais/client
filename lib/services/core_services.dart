@@ -126,7 +126,7 @@ class CoreServices {
         gotResponse();
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:
-            _saveIncomingMessage(serverPacket.message);
+            _saveIncomingMessage(serverPacket.message.form);
             break;
           case ServerPacket_Type.messageDeliveryAck:
             _saveAckMessage(serverPacket.messageDeliveryAck);

@@ -148,5 +148,9 @@
   "blockRoom": "block Room",
   "report":"report" ,
   "report_result": "Thank you for this report",
-  "bots": "Bots"
+  "bots": "Bots",
+  "submit":"Submit",
+  "max_length": "Max length",
+  "min_length": "Min length"
+
 }
