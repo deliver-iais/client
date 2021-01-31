@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:video_player/video_player.dart';
 
 class MediaDetailsPage extends StatefulWidget {
@@ -73,23 +74,27 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   var _fileRepo = GetIt.I.get<FileRepo>();
   var _avatarRepo = GetIt.I.get<AvatarRepo>();
   var _routingService = GetIt.I.get<RoutingService>();
+  var fileServices = GetIt.I.get<FileService>();
 
   var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 5));
   var _mediaCache = LruCache<String, Media>(storage: SimpleStorage(size: 50));
-  var _mediaSenderCache =
-      LruCache<String, String>(storage: SimpleStorage(size: 50));
+  var _mediaSenderCache = LruCache<String, String>(storage: SimpleStorage(size: 50));
   var _thumnailChache = LruCache<String, File>(storage: SimpleStorage(size: 5));
+  var isDeleting = false;
+  List<Avatar> _allAvatars;
+  var swipePosition;
+  String senderName;
+  bool startDownloading = false;
 
   download(String uuid, String name) async {
+    setState(() {
+      startDownloading=true;
+    });
     await _fileRepo.getFile(uuid, name);
     setState(() {
       _thumnailChache.clear();
     });
   }
-  var isDeleting = false;
-  List<Avatar> _allAvatars;
-  var swipePosition;
-  String senderName;
 
   @override
   void dispose() {
@@ -653,6 +658,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                   ),
                 ),
               ),
+              !startDownloading?
               Center(
                   child: Container(
                 width: 50,
@@ -661,14 +667,40 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                   shape: BoxShape.circle,
                   color: Colors.black.withOpacity(0.5),
                 ),
-                child: IconButton(
-                  icon: Icon(Icons.arrow_downward_sharp),
-                  color: Colors.white10,
-                  onPressed: () {
+                child:
+                IconButton(
+                  icon: Icon(Icons.arrow_downward),
+                  onPressed: () async{
                     download(fileId,fileName);
                   },
-                ),
-              ))
+                )
+                  )):
+              StreamBuilder<double>(
+                stream: fileServices.filesDownloadStatus[fileId],
+                  builder: (c, snapshot) {
+              if (snapshot.hasData && snapshot.data != null) {
+                return Center(
+              child: CircularPercentIndicator(
+              radius: 40.0,
+              lineWidth: 4.0,
+              percent: snapshot.data,
+              center: Icon(Icons.arrow_downward),
+              progressColor: Colors.white,
+            ),
+                );
+          } else {
+            return Center(
+              child: CircularPercentIndicator(
+                radius: 40.0,
+                lineWidth: 4.0,
+                percent: 0.1,
+                center: Icon(Icons.arrow_downward),
+                progressColor: Colors.white,
+              ),
+            );
+          }
+        }
+    )
             ],
           ),
           //   transitionOnUserGestures: true,
