@@ -785,19 +785,9 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       alignment: Alignment.centerLeft,
       children: [
         buildAppBar(i, widget.mediasLength),
-        Positioned(
-          top: 80,
-          left: 0.0,
-          bottom: 0.0,
-          right: 0.0,
-          // child: Hero(
-          //   tag: widget.heroTag,
-          child: VideoUi(
-            duration: duration,
-            video: snaps,
-          ),
-          //   transitionOnUserGestures: true,
-          // ),
+        VideoUi(
+          duration: duration,
+          video: snaps,
         ),
         buildBottomAppBar(mediaSender, createdOn, senderName, fileId),
       ],
