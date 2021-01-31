@@ -32,7 +32,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
   Duration duration;
   String videoLength;
   bool isExist;
-
+  Map<int,String> totalDuration = Map();
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Media>>(
@@ -61,9 +61,12 @@ class _VideoTabUiState extends State<VideoTabUi> {
                     videoLength = duration.inMinutes > 9
                         ? duration.toString().substring(2, 7)
                         : duration.toString().substring(3, 7);
+                    totalDuration[position]=videoLength;
                   } else {
                     videoLength =
                         duration.toString().split('.').first.padLeft(8, "0");
+                    totalDuration[position]=videoLength;
+
                   }
 
                   return FutureBuilder<bool>(
@@ -90,7 +93,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                     videoCount: widget.videoCount,
                                     isExist: true,
                                   mediaPosition: position,
-                                  videoLength: videoLength,);
+                                  videoLength: totalDuration[position],);
                                 } else {
                                   return Container(
                                     width: 0,
@@ -118,7 +121,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                   videoCount: widget.videoCount,
                                   isExist: false,
                                   mediaPosition: position,
-                                  videoLength: videoLength,
+                                  videoLength: totalDuration[position],
                                 );
                               } else {
                                 return Container(
