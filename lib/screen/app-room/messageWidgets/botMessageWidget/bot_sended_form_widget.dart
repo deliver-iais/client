@@ -2,10 +2,13 @@ import 'dart:convert';
 
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
+
+import '../timeAndSeenStatus.dart';
 
 class BotSendedFormWidget extends StatelessWidget {
   final Message message;
@@ -39,7 +42,8 @@ class BotSendedFormWidget extends StatelessWidget {
                         Text(formResult[form.fields[index].id] ?? "",style: TextStyle(fontSize: 14,color: Colors.white),)
                       ],
                     );
-                  }))
+                  })),
+                  TimeAndSeenStatus(message, true, true)
                 ],
               ),
             );

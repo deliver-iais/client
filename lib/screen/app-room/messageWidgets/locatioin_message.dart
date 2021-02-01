@@ -19,8 +19,7 @@ class LocationMessageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     Location location = message.json.toLocation();
     return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+      child: Stack(
         children: [
           SizedBox(
             width: 270,
@@ -55,19 +54,22 @@ class LocationMessageWidget extends StatelessWidget {
               ],
             ),
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              MsgTime(
-                time: message.time,
-              ),
-              if (isSender)
-                SeenStatus(
-                  message,
-                  isSeen: isSeen,
-                )
-            ],
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, top: 5),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                MsgTime(
+                  time: message.time,
+                ),
+                if (isSender)
+                  SeenStatus(
+                    message,
+                    isSeen: isSeen,
+                  )
+              ],
+            ),
           ),
         ],
       ),

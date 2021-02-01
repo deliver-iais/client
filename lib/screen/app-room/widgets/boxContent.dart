@@ -2,6 +2,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/bot_sended_form_widget.dart';
 import 'file:///F:/deliver-flutter3/lib/screen/app-room/messageWidgets/botMessageWidget/bot_form_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/locatioin_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/message_ui.dart';
@@ -171,7 +172,7 @@ class _BoxContentState extends State<BoxContent> {
         break;
       case MessageType.FORM:
         if(widget.isSender){
-
+          BotSendedFormWidget(message: widget.message,);
         }
         else{
         return  BotFormMessage(message: widget.message,);
