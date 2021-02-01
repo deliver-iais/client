@@ -349,19 +349,22 @@ Uid getRoomId(AccountRepo accountRepo, Message message) {
 
 String messageToJson(Message message) {
   var type = findFetchMessageType(message);
-  var json = Object();
+  var jsonString = Object();
   if (type == MessageType.TEXT)
     return message.text.writeToJson();
   else if (type == MessageType.FILE)
     return message.file.writeToJson();
-  else if (type == MessageType.FORM)
-    return message.form.writeToJson();
-  else if (type == MessageType.STICKER)
+  else if (type == MessageType.FORM) {
+    if (message.from.category != Categories.BOT)
+      return json.encode(message.formResult);
+    else
+      return message.writeToJson();
+  } else if (type == MessageType.STICKER)
     return message.sticker.writeToJson();
   else if (type == MessageType.PERSISTENT_EVENT)
     switch (message.persistEvent.whichType()) {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
-        json = {
+        jsonString = {
           "type": "MUC_EVENT",
           "issueType": getIssueType(
               message.persistEvent.mucSpecificPersistentEvent.issue),
@@ -377,7 +380,7 @@ String messageToJson(Message message) {
       case PersistentEvent_Type.adminSpecificPersistentEvent:
         switch (message.persistEvent.adminSpecificPersistentEvent.event) {
           case AdminSpecificPersistentEvent_Event.NEW_CONTACT_ADDED:
-            json = {"type": "ADMIN_EVENT"};
+            jsonString = {"type": "ADMIN_EVENT"};
             break;
         }
 
@@ -392,7 +395,7 @@ String messageToJson(Message message) {
     return message.location.writeToJson();
   else if (type == MessageType.LIVE_LOCATION)
     return message.liveLocation.writeToJson();
-  return jsonEncode(json);
+  return jsonEncode(jsonString);
 }
 
 MessageType getMessageType(Message_Type messageType) {

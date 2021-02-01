@@ -58,7 +58,7 @@ class _BoxContentState extends State<BoxContent> {
         if (widget.message.roomId.uid.category == Categories.GROUP &&
             !widget.isSender)
           senderNameBox(),
-        if (widget.message.replyToId != null && widget.message.replyToId > 0)
+        if (widget.message.to.getUid().category != Categories.BOT &&  widget.message.replyToId != null && widget.message.replyToId > 0)
           replyToIdBox(),
         if (widget.message.forwardedFrom != null &&
             widget.message.forwardedFrom.length > 3)
@@ -170,7 +170,13 @@ class _BoxContentState extends State<BoxContent> {
         // TODO: Handle this case.
         break;
       case MessageType.FORM:
-        return BotFormMessage(message: widget.message,);
+        if(widget.isSender){
+
+        }
+        else{
+        return  BotFormMessage(message: widget.message,);
+        }
+
         break;
       case MessageType.PERSISTENT_EVENT:
         // TODO: Handle this case.

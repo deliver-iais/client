@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io' as DartFile;
 
@@ -113,7 +114,6 @@ class MessageRepo {
               await _saveFetchMessages(fetchMessagesRes.messages);
 
           // TODO if there is Pending Message this line has a bug!!
-          print(fetchMessagesRes.messages.toString());
           if (messages.isNotEmpty) {
             _roomDao.insertRoomCompanion(RoomsCompanion.insert(
                 roomId: userRoomMeta.roomUid.asString(),
@@ -132,9 +132,12 @@ class MessageRepo {
   }
 
   getBlockedRoom() async {
-    var result =  await _queryServiceClient.getBlockedList(GetBlockedListReq(),options: CallOptions(metadata: {"accessToken": await _accountRepo.getAccessToken()}));
-    for(var blockRoomUid in result.uidList){
-      _roomDao.insertRoomCompanion(RoomsCompanion(roomId: Value(blockRoomUid.asString()),isBlock:Value(true)));
+    var result = await _queryServiceClient.getBlockedList(GetBlockedListReq(),
+        options: CallOptions(
+            metadata: {"accessToken": await _accountRepo.getAccessToken()}));
+    for (var blockRoomUid in result.uidList) {
+      _roomDao.insertRoomCompanion(RoomsCompanion(
+          roomId: Value(blockRoomUid.asString()), isBlock: Value(true)));
     }
   }
 
@@ -389,6 +392,9 @@ class MessageRepo {
       case MessageType.STICKER:
         byClient.sticker = FileProto.File.fromJson(message.json);
         break;
+      case MessageType.FORM:
+        byClient.formResult = json.decode(message.json);
+        break;
       default:
         break;
     }
@@ -401,7 +407,6 @@ class MessageRepo {
       await sendFileMessage(room, path, caption: caption, replyToId: replyToId);
     }
   }
-
 
   @visibleForTesting
   sendPendingMessages() async {
@@ -542,14 +547,30 @@ class MessageRepo {
     }
   }
 
-  void sendFormMessage(String to, Map<String, String> formResultMap) {
+  void sendFormMessage(
+      String botUid, Map<String, String> formResultMap, int formMessageId,
+      {String forwardFromAsString}) async {
+    String packetId = _getPacketId();
+    String jsonString = json.encode(formResultMap);
+    MessagesCompanion message = MessagesCompanion.insert(
+      roomId: botUid,
+      packetId: packetId,
+      time: now(),
+      from: _accountRepo.currentUserUid.asString(),
+      to: botUid,
+      replyToId: Value(formMessageId),
+      forwardedFrom: Value(forwardFromAsString),
+      type: MessageType.FORM,
+      json: jsonString,
+    );
 
-    MessageProto.MessageByClient messageByClient = MessageProto.MessageByClient();
-    messageByClient.to = to.getUid();
-    for(var key in formResultMap.keys){
-      messageByClient.formResult.values[key] = formResultMap[key];
-    }
-
-
+    int dbId = await _messageDao.insertMessageCompanion(message);
+    await _savePendingMessage(botUid, dbId, packetId, SendingStatus.PENDING);
+    _updateRoomLastMessage(
+      botUid,
+      dbId,
+    );
+    // Send Message
+    await _sendMessageToServer(dbId);
   }
 }
