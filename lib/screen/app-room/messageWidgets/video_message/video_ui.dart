@@ -20,10 +20,9 @@ class VideoUi extends StatefulWidget {
 
 class _VideoUiState extends State<VideoUi> {
   VideoPlayerService videoPlayerService = new VideoPlayerService();
-   BehaviorSubject<bool> isPlaySubject = BehaviorSubject.seeded(false);
-  BehaviorSubject<double> _currentPositionSubject ;
-  bool isPlaying=false;
-
+  BehaviorSubject<bool> isPlaySubject = BehaviorSubject.seeded(false);
+  BehaviorSubject<double> _currentPositionSubject;
+  bool isPlaying = false;
 
   @override
   void dispose() {
@@ -55,84 +54,83 @@ class _VideoUiState extends State<VideoUi> {
             child: Stack(
               children: [
                 Center(
-                child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height / 2,
-                    child: VideoPlayer(videoPlayerService.videoPlayerController)),
-              ),
-                if(isPlaying==true)
-                Positioned(
-                  top: 80,
-                  left: 0.0,
-                  bottom: 0.0,
-                  right: 0.0,
-                  child: SliderTheme(
-                    data: SliderThemeData(
-                      thumbColor: ExtraTheme.of(context).active,
-                      trackHeight: 2.25,
-                      activeTrackColor: ExtraTheme.of(context).active,
-                      inactiveTrackColor: ExtraTheme.of(context).text,
-                      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
-                    ),
-                    child: StreamBuilder<double>(
-                      stream: _currentPositionSubject.stream,
-                      builder: (c, s) {
-                        if (s.hasData)
-                          return Slider(
-                              value: s.data,
-                              min: 0.0,
-                              max: widget.duration,
-                              onChanged: (double value) {
-                                videoPlayerService.videoPlayerController
-                                    .seekTo(Duration(seconds: value.toInt()));
-                              });
-                        else
-                          return Container();
-                      },
+                  child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height / 2,
+                      child: VideoPlayer(
+                          videoPlayerService.videoPlayerController)),
+                ),
+                if (isPlaying == true)
+                  Positioned(
+                    top: 80,
+                    left: 0.0,
+                    bottom: 0.0,
+                    right: 0.0,
+                    child: SliderTheme(
+                      data: SliderThemeData(
+                        thumbColor: ExtraTheme.of(context).active,
+                        trackHeight: 2.25,
+                        activeTrackColor: ExtraTheme.of(context).active,
+                        inactiveTrackColor: ExtraTheme.of(context).text,
+                        thumbShape:
+                            RoundSliderThumbShape(enabledThumbRadius: 4.5),
+                      ),
+                      child: StreamBuilder<double>(
+                        stream: _currentPositionSubject.stream,
+                        builder: (c, s) {
+                          if (s.hasData)
+                            return Slider(
+                                value: s.data,
+                                min: 0.0,
+                                max: widget.duration,
+                                onChanged: (double value) {
+                                  videoPlayerService.videoPlayerController
+                                      .seekTo(Duration(seconds: value.toInt()));
+                                });
+                          else
+                            return Container();
+                        },
+                      ),
                     ),
                   ),
-                ),
-
               ],
             ),
           ),
         ),
-
-
         Center(
             child: StreamBuilder<bool>(
-              stream: isPlaySubject.stream,
-              builder: (c, s) {
-                if (s.hasData) {
-                  return Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.black.withOpacity(0.5),
-                    ),
-                    child: s.data
-                        ? IconButton(
+          stream: isPlaySubject.stream,
+          builder: (c, s) {
+            if (s.hasData) {
+              return Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black.withOpacity(0.5),
+                ),
+                child: s.data
+                    ? IconButton(
                         icon: Icon(Icons.pause),
                         onPressed: () {
                           isPlaySubject.add(false);
                           videoPlayerService.videoPlayerController.pause();
                         })
-                        : IconButton(
+                    : IconButton(
                         icon: Icon(Icons.play_arrow),
                         onPressed: () async {
                           setState(() {
-                            isPlaying=true;
+                            isPlaying = true;
                           });
                           isPlaySubject.add(true);
                           videoPlayerService.videoPlayerController.play();
                         }),
-                  );
-                } else {
-                  return Container();
-                }
-              },
-            )),
+              );
+            } else {
+              return Container();
+            }
+          },
+        )),
       ],
     );
   }

@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:auto_route/auto_route.dart';
-import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
@@ -39,37 +37,33 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderStateMixin {
- final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  var _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
+class _ProfilePageState extends State<ProfilePage>
+    with TickerProviderStateMixin {
+  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   var mediasLength;
   Room currentRoomId;
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _uxService = GetIt.I.get<UxService>();
-  var _fileRepo = GetIt.I.get<FileRepo>();
   TabController _tabController;
-  var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 30));
   int tabsCount;
   @override
   void initState() {
     _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
-    if(_uxService.getTabIndex(widget.userUid.asString())==null){
-      _uxService.setTabIndex(widget.userUid.asString(),0 );
+    if (_uxService.getTabIndex(widget.userUid.asString()) == null) {
+      _uxService.setTabIndex(widget.userUid.asString(), 0);
     }
-
     super.initState();
-
   }
- @override
- void dispose() {
-   _tabController.dispose();
-   super.dispose();
- }
 
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
- download(String uuid, String name) async {
+  download(String uuid, String name) async {
     await GetIt.I.get<FileRepo>().getFile(uuid, name);
     setState(() {});
   }
@@ -78,12 +72,11 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
 
-
     return StreamBuilder<MediasMetaDataData>(
       stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
-      builder: ( context, AsyncSnapshot<MediasMetaDataData> snapshot) {
-          tabsCount = 0;
-        if (snapshot.hasData && snapshot.data!=null) {
+      builder: (context, AsyncSnapshot<MediasMetaDataData> snapshot) {
+        tabsCount = 0;
+        if (snapshot.hasData && snapshot.data != null) {
           if (snapshot.data.imagesCount != 0) {
             tabsCount = tabsCount + 1;
           }
@@ -105,9 +98,13 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
           if (snapshot.data.audiosCount != 0) {
             tabsCount = tabsCount + 1;
           }
-          _tabController = TabController(length:tabsCount,vsync: this,initialIndex:_uxService.getTabIndex(widget.userUid.asString()) );
-          _tabController.addListener((){
-            _uxService.setTabIndex(widget.userUid.asString(),_tabController.index );
+          _tabController = TabController(
+              length: tabsCount,
+              vsync: this,
+              initialIndex: _uxService.getTabIndex(widget.userUid.asString()));
+          _tabController.addListener(() {
+            _uxService.setTabIndex(
+                widget.userUid.asString(), _tabController.index);
           });
           return Scaffold(
               body: DefaultTabController(
@@ -333,48 +330,49 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
                                 child: Container(
                                   color: Theme.of(context).backgroundColor,
                                   child: TabBar(
-                                    onTap: (index){
-                                      _uxService.setTabIndex(widget.userUid.asString(), index);
+                                    onTap: (index) {
+                                      _uxService.setTabIndex(
+                                          widget.userUid.asString(), index);
                                     },
                                     tabs: [
-                                    if (widget.userUid.category !=
-                                        Categories.USER)
-                                      Tab(
-                                        text: appLocalization
-                                            .getTraslateValue("members"),
-                                      ),
-                                    if (snapshot.data.imagesCount != 0)
-                                      Tab(
-                                        text: appLocalization
-                                            .getTraslateValue("images"),
-                                      ),
-                                    if (snapshot.data.videosCount != 0)
-                                      Tab(
-                                        text: appLocalization
-                                            .getTraslateValue("videos"),
-                                      ),
-                                    if (snapshot.data.filesCount != 0)
-                                      Tab(
-                                        text: appLocalization
-                                            .getTraslateValue("file"),
-                                      ),
-                                    if (snapshot.data.linkCount != 0)
-                                      Tab(
+                                      if (widget.userUid.category !=
+                                          Categories.USER)
+                                        Tab(
                                           text: appLocalization
-                                              .getTraslateValue("links")),
-                                    if (snapshot.data.documentsCount != 0)
-                                      Tab(
+                                              .getTraslateValue("members"),
+                                        ),
+                                      if (snapshot.data.imagesCount != 0)
+                                        Tab(
                                           text: appLocalization
-                                              .getTraslateValue("documents")),
-                                    if (snapshot.data.musicsCount != 0)
-                                      Tab(
+                                              .getTraslateValue("images"),
+                                        ),
+                                      if (snapshot.data.videosCount != 0)
+                                        Tab(
                                           text: appLocalization
-                                              .getTraslateValue("musics")),
-                                    if (snapshot.data.audiosCount != 0)
-                                      Tab(
+                                              .getTraslateValue("videos"),
+                                        ),
+                                      if (snapshot.data.filesCount != 0)
+                                        Tab(
                                           text: appLocalization
-                                              .getTraslateValue("audios")),
-                                  ],
+                                              .getTraslateValue("file"),
+                                        ),
+                                      if (snapshot.data.linkCount != 0)
+                                        Tab(
+                                            text: appLocalization
+                                                .getTraslateValue("links")),
+                                      if (snapshot.data.documentsCount != 0)
+                                        Tab(
+                                            text: appLocalization
+                                                .getTraslateValue("documents")),
+                                      if (snapshot.data.musicsCount != 0)
+                                        Tab(
+                                            text: appLocalization
+                                                .getTraslateValue("musics")),
+                                      if (snapshot.data.audiosCount != 0)
+                                        Tab(
+                                            text: appLocalization
+                                                .getTraslateValue("audios")),
+                                    ],
                                     controller: _tabController,
                                   ),
                                 )),
@@ -382,44 +380,50 @@ class _ProfilePageState extends State<ProfilePage>  with SingleTickerProviderSta
                         ];
                       },
                       body: Container(
-                          child: TabBarView(children: [
-                        if (widget.userUid.category != Categories.USER)
-                          SingleChildScrollView(
-                            child: Column(children: [
-                              MucMemberWidget(
-                                mucUid: widget.userUid,
-                              ),
-                            ]),
-                          ),
-                        if (snapshot.data.imagesCount != 0)
-                           ImageUi(snapshot.data.imagesCount,widget.userUid),
-                        if (snapshot.data.videosCount != 0)
-                          VideoTabUi(userUid:widget.userUid,videoCount:snapshot.data.videosCount),
-                        if (snapshot.data.filesCount != 0)
-                          DocumentAndFileUi(
-                            userUid: widget.userUid,
-                            documentCount: snapshot.data.filesCount,
-                            type: FetchMediasReq_MediaType.FILES,
-                          ),
-                        if (snapshot.data.linkCount != 0)
-                          linkWidget(widget.userUid, _mediaQueryRepo,
-                              snapshot.data.linkCount),
-                        if (snapshot.data.documentsCount != 0)
-                          DocumentAndFileUi(
-                            userUid: widget.userUid,
-                            documentCount: snapshot.data.documentsCount,
-                            type: FetchMediasReq_MediaType.DOCUMENTS,
-                          ),
-                        if (snapshot.data.musicsCount != 0)
-                          MusicAndAudioUi(userUid: widget.userUid,type: FetchMediasReq_MediaType.MUSICS,
-                          mediaCount:snapshot.data.musicsCount),
-
-                        if (snapshot.data.audiosCount != 0)
-                          MusicAndAudioUi(userUid: widget.userUid,type: FetchMediasReq_MediaType.AUDIOS,
-                            mediaCount:snapshot.data.audiosCount),
-                          ],
-                            controller: _tabController,
-                          )))));
+                          child: TabBarView(
+                        children: [
+                          if (widget.userUid.category != Categories.USER)
+                            SingleChildScrollView(
+                              child: Column(children: [
+                                MucMemberWidget(
+                                  mucUid: widget.userUid,
+                                ),
+                              ]),
+                            ),
+                          if (snapshot.data.imagesCount != 0)
+                            ImageUi(snapshot.data.imagesCount, widget.userUid),
+                          if (snapshot.data.videosCount != 0)
+                            VideoTabUi(
+                                userUid: widget.userUid,
+                                videoCount: snapshot.data.videosCount),
+                          if (snapshot.data.filesCount != 0)
+                            DocumentAndFileUi(
+                              userUid: widget.userUid,
+                              documentCount: snapshot.data.filesCount,
+                              type: FetchMediasReq_MediaType.FILES,
+                            ),
+                          if (snapshot.data.linkCount != 0)
+                            linkWidget(widget.userUid, _mediaQueryRepo,
+                                snapshot.data.linkCount),
+                          if (snapshot.data.documentsCount != 0)
+                            DocumentAndFileUi(
+                              userUid: widget.userUid,
+                              documentCount: snapshot.data.documentsCount,
+                              type: FetchMediasReq_MediaType.DOCUMENTS,
+                            ),
+                          if (snapshot.data.musicsCount != 0)
+                            MusicAndAudioUi(
+                                userUid: widget.userUid,
+                                type: FetchMediasReq_MediaType.MUSICS,
+                                mediaCount: snapshot.data.musicsCount),
+                          if (snapshot.data.audiosCount != 0)
+                            MusicAndAudioUi(
+                                userUid: widget.userUid,
+                                type: FetchMediasReq_MediaType.AUDIOS,
+                                mediaCount: snapshot.data.audiosCount),
+                        ],
+                        controller: _tabController,
+                      )))));
         } else {
           return Container(
             width: 100,

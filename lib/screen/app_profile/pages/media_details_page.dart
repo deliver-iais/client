@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
@@ -11,8 +10,6 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/services/video_player_service.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,7 +18,6 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:video_player/video_player.dart';
 
 class MediaDetailsPage extends StatefulWidget {
   String heroTag;
@@ -78,7 +74,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
 
   var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 5));
   var _mediaCache = LruCache<String, Media>(storage: SimpleStorage(size: 50));
-  var _mediaSenderCache = LruCache<String, String>(storage: SimpleStorage(size: 50));
+  var _mediaSenderCache =
+      LruCache<String, String>(storage: SimpleStorage(size: 50));
   var _thumnailChache = LruCache<String, File>(storage: SimpleStorage(size: 5));
   var isDeleting = false;
   List<Avatar> _allAvatars;
@@ -88,7 +85,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
 
   download(String uuid, String name) async {
     setState(() {
-      startDownloading=true;
+      startDownloading = true;
     });
     await _fileRepo.getFile(uuid, name);
     setState(() {
@@ -115,7 +112,6 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   }
 
   Widget buildAvatar(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
     return Scaffold(
       body: Container(
         child: StreamBuilder<List<Avatar>>(
@@ -428,8 +424,6 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   }
 
   Widget buildVideo(BuildContext context) {
-
-
     return Scaffold(
       body: Container(
         child: Swiper(
@@ -459,8 +453,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                         createdOn = DateTime.fromMillisecondsSinceEpoch(
                             snapshot.data[snapshot.data.length - 1].createdOn);
                         senderName = _mediaSenderCache.get(fileId);
-                        duration = jsonDecode(snapshot.data[snapshot.data.length-1].json)["duration"];
-
+                        duration = jsonDecode(snapshot
+                            .data[snapshot.data.length - 1].json)["duration"];
                       } else {
                         fileId = jsonDecode(snapshot
                             .data[snapshot.data.length - 2].json)["uuid"];
@@ -471,8 +465,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                         createdOn = DateTime.fromMillisecondsSinceEpoch(
                             snapshot.data[snapshot.data.length - 2].createdOn);
                         senderName = _mediaSenderCache.get(fileId);
-                        duration = jsonDecode(snapshot.data[snapshot.data.length-2].json)["duration"];
-
+                        duration = jsonDecode(snapshot
+                            .data[snapshot.data.length - 2].json)["duration"];
                       }
                       return FutureBuilder<File>(
                           future: _fileRepo.getFileIfExist(fileId, fileName),
@@ -485,9 +479,15 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                               return Center(
                                 child: Container(
                                   width: MediaQuery.of(context).size.width,
-                                  height:
-                                      MediaQuery.of(context).size.height,
-                                  child: buildVeidoWidget(i, snaps.data,duration,mediaSender,createdOn,senderName,fileId),
+                                  height: MediaQuery.of(context).size.height,
+                                  child: buildVeidoWidget(
+                                      i,
+                                      snaps.data,
+                                      duration,
+                                      mediaSender,
+                                      createdOn,
+                                      senderName,
+                                      fileId),
                                 ),
                               );
                             } else if (snaps.data == null &&
@@ -511,8 +511,14 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                           height: MediaQuery.of(context)
                                               .size
                                               .height,
-                                          child: thumbnsilvedioWidget(i: i,fileId: fileId,senderName: senderName,
-                                              createdOn: createdOn,mediaSender: mediaSender,snaps: snaps.data,fileName: fileName),
+                                          child: thumbnsilvedioWidget(
+                                              i: i,
+                                              fileId: fileId,
+                                              senderName: senderName,
+                                              createdOn: createdOn,
+                                              mediaSender: mediaSender,
+                                              snaps: snaps.data,
+                                              fileName: fileName),
                                         ),
                                       );
                                     } else {
@@ -531,7 +537,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             } else {
               var fileId = jsonDecode(media.json)["uuid"];
               var fileName = jsonDecode(media.json)["name"];
-               duration = jsonDecode(media.json)["duration"];
+              duration = jsonDecode(media.json)["duration"];
               mediaSender = media.createdBy.uid;
               createdOn = DateTime.fromMillisecondsSinceEpoch(media.createdOn);
               var videoFile = _fileCache.get(fileId);
@@ -539,14 +545,12 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               senderName = _mediaSenderCache.get(fileId);
 
               if (videoFile == null && thumnailFile == null)
-
-              return FutureBuilder<File>(
+                return FutureBuilder<File>(
                     future: _fileRepo.getFileIfExist(fileId, fileName),
                     builder: (BuildContext c, AsyncSnapshot snaps) {
                       if (snaps.hasData &&
                           snaps.data != null &&
                           snaps.connectionState == ConnectionState.done) {
-
                         _fileCache.set(fileId, snaps.data);
 
                         return Center(
@@ -577,14 +581,19 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                                   snaps.data != null &&
                                   snaps.connectionState ==
                                       ConnectionState.done) {
-
                                 _thumnailChache.set(fileId, snaps.data);
                                 return Center(
                                   child: Container(
                                     width: MediaQuery.of(context).size.width,
                                     height: MediaQuery.of(context).size.height,
-                                    child:  thumbnsilvedioWidget(i: i,fileId: fileId,senderName: senderName,
-                                        createdOn: createdOn,mediaSender: mediaSender,snaps: snaps.data,fileName: fileName),
+                                    child: thumbnsilvedioWidget(
+                                        i: i,
+                                        fileId: fileId,
+                                        senderName: senderName,
+                                        createdOn: createdOn,
+                                        mediaSender: mediaSender,
+                                        snaps: snaps.data,
+                                        fileName: fileName),
                                   ),
                                 );
                               } else {
@@ -599,22 +608,28 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                       }
                     });
               else if (videoFile != null) {
-                  return Center(
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      child: buildVeidoWidget(i,videoFile,duration,mediaSender,createdOn,senderName,fileId),
-                    ),
-                  );
-                // }
-              } else if (thumnailFile != null) {
-
                 return Center(
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
-                    child:  thumbnsilvedioWidget(i: i,fileId: fileId,senderName: senderName,
-                        createdOn: createdOn,mediaSender: mediaSender,snaps: thumnailFile,fileName: fileName),
+                    child: buildVeidoWidget(i, videoFile, duration, mediaSender,
+                        createdOn, senderName, fileId),
+                  ),
+                );
+                // }
+              } else if (thumnailFile != null) {
+                return Center(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    child: thumbnsilvedioWidget(
+                        i: i,
+                        fileId: fileId,
+                        senderName: senderName,
+                        createdOn: createdOn,
+                        mediaSender: mediaSender,
+                        snaps: thumnailFile,
+                        fileName: fileName),
                   ),
                 );
               }
@@ -633,8 +648,14 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     );
   }
 
-  Stack thumbnsilvedioWidget({int i, File snaps,var fileName,
-     Uid mediaSender,DateTime createdOn,String senderName,var fileId}) {
+  Stack thumbnsilvedioWidget(
+      {int i,
+      File snaps,
+      var fileName,
+      Uid mediaSender,
+      DateTime createdOn,
+      String senderName,
+      var fileId}) {
     return Stack(
       alignment: Alignment.centerLeft,
       children: [
@@ -658,49 +679,46 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                   ),
                 ),
               ),
-              !startDownloading?
-              Center(
-                  child: Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withOpacity(0.5),
-                ),
-                child:
-                IconButton(
-                  icon: Icon(Icons.arrow_downward),
-                  onPressed: () async{
-                    download(fileId,fileName);
-                  },
-                )
-                  )):
-              StreamBuilder<double>(
-                stream: fileServices.filesDownloadStatus[fileId],
-                  builder: (c, snapshot) {
-              if (snapshot.hasData && snapshot.data != null) {
-                return Center(
-              child: CircularPercentIndicator(
-              radius: 40.0,
-              lineWidth: 4.0,
-              percent: snapshot.data,
-              center: Icon(Icons.arrow_downward),
-              progressColor: Colors.white,
-            ),
-                );
-          } else {
-            return Center(
-              child: CircularPercentIndicator(
-                radius: 40.0,
-                lineWidth: 4.0,
-                percent: 0.1,
-                center: Icon(Icons.arrow_downward),
-                progressColor: Colors.white,
-              ),
-            );
-          }
-        }
-    )
+              !startDownloading
+                  ? Center(
+                      child: Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.black.withOpacity(0.5),
+                          ),
+                          child: IconButton(
+                            icon: Icon(Icons.arrow_downward),
+                            onPressed: () async {
+                              download(fileId, fileName);
+                            },
+                          )))
+                  : StreamBuilder<double>(
+                      stream: fileServices.filesDownloadStatus[fileId],
+                      builder: (c, snapshot) {
+                        if (snapshot.hasData && snapshot.data != null) {
+                          return Center(
+                            child: CircularPercentIndicator(
+                              radius: 40.0,
+                              lineWidth: 4.0,
+                              percent: snapshot.data,
+                              center: Icon(Icons.arrow_downward),
+                              progressColor: Colors.white,
+                            ),
+                          );
+                        } else {
+                          return Center(
+                            child: CircularPercentIndicator(
+                              radius: 40.0,
+                              lineWidth: 4.0,
+                              percent: 0.1,
+                              center: Icon(Icons.arrow_downward),
+                              progressColor: Colors.white,
+                            ),
+                          );
+                        }
+                      })
             ],
           ),
           //   transitionOnUserGestures: true,
@@ -711,7 +729,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     );
   }
 
-  Stack buildVeidoWidget(int i, File snaps ,double duration,Uid mediaSender,DateTime createdOn,String senderName,var fileId) {
+  Stack buildVeidoWidget(int i, File snaps, double duration, Uid mediaSender,
+      DateTime createdOn, String senderName, var fileId) {
     return Stack(
       alignment: Alignment.centerLeft,
       children: [
@@ -755,7 +774,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                   runSpacing: 40,
                   children: [
                     Text("${s.data}"),
-                     SizedBox(height: 10),
+                    SizedBox(height: 10),
                     Text("$createdOn"),
                   ],
                 ),

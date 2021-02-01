@@ -1,15 +1,9 @@
 import 'dart:convert';
-import 'dart:ui';
-
-import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/size_formater.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/thumbnail_video_ui.dart';
 import 'package:deliver_flutter/services/file_service.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +26,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
   Duration duration;
   String videoLength;
   bool isExist;
-  Map<int,String> totalDuration = Map();
+  Map<int, String> totalDuration = Map();
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Media>>(
@@ -55,18 +49,18 @@ class _VideoTabUiState extends State<VideoTabUi> {
                 itemBuilder: (context, position) {
                   var fileId = jsonDecode(snaps.data[position].json)["uuid"];
                   var fileName = jsonDecode(snaps.data[position].json)["name"];
-                  var videoDuration = jsonDecode(snaps.data[position].json)["duration"];
+                  var videoDuration =
+                      jsonDecode(snaps.data[position].json)["duration"];
                   duration = Duration(seconds: videoDuration.round());
                   if (duration.inHours == 0) {
                     videoLength = duration.inMinutes > 9
                         ? duration.toString().substring(2, 7)
                         : duration.toString().substring(3, 7);
-                    totalDuration[position]=videoLength;
+                    totalDuration[position] = videoLength;
                   } else {
                     videoLength =
                         duration.toString().split('.').first.padLeft(8, "0");
-                    totalDuration[position]=videoLength;
-
+                    totalDuration[position] = videoLength;
                   }
 
                   return FutureBuilder<bool>(
@@ -85,15 +79,15 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                     thumbFile.hasData &&
                                     thumbFile.connectionState ==
                                         ConnectionState.done) {
-
                                   print("FilevideoooooooPosition$position");
                                   return VideoThumbnail(
                                     userUid: widget.userUid,
-                                  thumbnail: thumbFile.data,
+                                    thumbnail: thumbFile.data,
                                     videoCount: widget.videoCount,
                                     isExist: true,
-                                  mediaPosition: position,
-                                  videoLength: totalDuration[position],);
+                                    mediaPosition: position,
+                                    videoLength: totalDuration[position],
+                                  );
                                 } else {
                                   return Container(
                                     width: 0,
@@ -101,7 +95,6 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                   );
                                 }
                               });
-
                         } else if (videoFile.data != null &&
                             videoFile.connectionState == ConnectionState.done &&
                             videoFile.data == false) {
