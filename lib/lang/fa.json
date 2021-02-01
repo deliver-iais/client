@@ -152,5 +152,6 @@
   "submit":"ارسال",
   "max_length": "حداکثر طول ",
   "min_length": "حداقل طول",
-  "select_on_of_Item" : "یک گزینه را انتخاب کنید. "
+  "select_on_of_Item" : "یک گزینه را انتخاب کنید. ",
+  "start": "شروع"
 }

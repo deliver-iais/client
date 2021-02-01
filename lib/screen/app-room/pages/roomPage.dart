@@ -17,6 +17,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/forward_widget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/operation_on_message_entry.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/bot_start_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/chatTime.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
@@ -402,7 +403,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             }));
   }
 
-  NewMessageInput buildNewMessageInput() {
+  Widget buildNewMessageInput() {
+    if(widget.roomId.getUid().category == Categories.BOT && _currentRoom.lastMessageId == null){
+      return BotStartWidget(botUid: widget.roomId.getUid()) ;
+    }else
     return NewMessageInput(
       currentRoomId: widget.roomId,
       replyMessageId: _repliedMessage != null ? _repliedMessage.id ?? -1 : -1,
