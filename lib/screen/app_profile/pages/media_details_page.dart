@@ -137,90 +137,15 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (ccc, i) {
                       swipePosition = i;
-
                       var fileId = _allAvatars[i].fileId;
                       var fileName = _allAvatars[i].fileName;
                       var file = _fileCache.get(fileId);
-
                       if (file != null) {
-                        return Center(
-                          child: Container(
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height,
-                            child: Stack(
-                              children: [
-                                buildAppBar(i, _allAvatars.length),
-                                Positioned(
-                                  top: 80,
-                                  left: 0.0,
-                                  bottom: 0.0,
-                                  right: 0.0,
-                                  child: Hero(
-                                    tag: "avatar$i",
-                                    child: Container(
-                                      decoration: new BoxDecoration(
-                                        image: new DecorationImage(
-                                          image: Image.file(file).image,
-                                          fit: BoxFit.fitWidth,
-                                        ),
-                                      ),
-                                    ),
-                                    transitionOnUserGestures: true,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        );
+                        return buildMeidaCenter(
+                            context, i, file, fileId, "avatar$i");
                       } else {
-                        return FutureBuilder(
-                            future: _fileRepo.getFile(fileId, fileName),
-                            builder: (BuildContext c, AsyncSnapshot snaps) {
-                              if (snaps.hasData &&
-                                  snaps.data != null &&
-                                  snaps.connectionState ==
-                                      ConnectionState.done) {
-                                _fileCache.set(fileId, snaps.data);
-                                return Center(
-                                  child: Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    height: MediaQuery.of(context).size.height,
-                                    child: Stack(
-                                      alignment: Alignment.centerLeft,
-                                      children: [
-                                        buildAppBar(i, _allAvatars.length),
-                                        Positioned(
-                                          top: 80,
-                                          left: 0.0,
-                                          bottom: 0.0,
-                                          right: 0.0,
-                                          child: Hero(
-                                            tag: "avatar$i",
-                                            child: Container(
-                                              decoration: new BoxDecoration(
-                                                image: new DecorationImage(
-                                                  image: Image.file(
-                                                    snaps.data,
-                                                  ).image,
-                                                  fit: BoxFit.fitWidth,
-                                                ),
-                                              ),
-                                            ),
-                                            transitionOnUserGestures: true,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    backgroundColor: Colors.blue,
-                                  ),
-                                );
-                              }
-                            });
+                        return buildFutureMediaBuilder(
+                            fileId, fileName, context, i);
                       }
                     },
                     itemCount: snapshot.data.length,
@@ -254,163 +179,25 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                     } else {
                       setMediaUrlCache(i, snapshot.data);
                       if (i == widget.mediasLength - 1) {
-                        fileId = jsonDecode(snapshot
-                            .data[snapshot.data.length - 1].json)["uuid"];
-                        fileName = jsonDecode(snapshot
-                            .data[snapshot.data.length - 1].json)["name"];
-                        mediaSender = snapshot
-                            .data[snapshot.data.length - 1].createdBy.uid;
-                        createdOn = DateTime.fromMillisecondsSinceEpoch(
-                            snapshot.data[snapshot.data.length - 1].createdOn);
-                        senderName = _mediaSenderCache.get(fileId);
+                        buildMediaPropertise(
+                            snapshot.data[snapshot.data.length - 1]);
                       } else {
-                        fileId = jsonDecode(snapshot
-                            .data[snapshot.data.length - 2].json)["uuid"];
-                        fileName = jsonDecode(snapshot
-                            .data[snapshot.data.length - 2].json)["name"];
-                        mediaSender = snapshot
-                            .data[snapshot.data.length - 2].createdBy.uid;
-                        createdOn = DateTime.fromMillisecondsSinceEpoch(
-                            snapshot.data[snapshot.data.length - 2].createdOn);
-                        senderName = _mediaSenderCache.get(fileId);
+                        buildMediaPropertise(
+                            snapshot.data[snapshot.data.length - 2]);
                       }
-
-                      return FutureBuilder(
-                          future: _fileRepo.getFile(fileId, fileName),
-                          builder: (BuildContext c, AsyncSnapshot snaps) {
-                            if (snaps.hasData &&
-                                snaps.data != null &&
-                                snaps.connectionState == ConnectionState.done) {
-                              _fileCache.set(fileId, snaps.data);
-                              return Center(
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  height: MediaQuery.of(context).size.height,
-                                  child: Stack(
-                                    alignment: Alignment.centerLeft,
-                                    children: [
-                                      buildAppBar(i, widget.mediasLength),
-                                      Positioned(
-                                        top: 80,
-                                        left: 0.0,
-                                        bottom: 0.0,
-                                        right: 0.0,
-                                        child: Hero(
-                                          tag: widget.heroTag,
-                                          child: Container(
-                                            decoration: new BoxDecoration(
-                                              image: new DecorationImage(
-                                                image: Image.file(
-                                                  snaps.data,
-                                                ).image,
-                                                fit: BoxFit.fitWidth,
-                                              ),
-                                            ),
-                                          ),
-                                          transitionOnUserGestures: true,
-                                        ),
-                                      ),
-                                      buildBottomAppBar(mediaSender, createdOn,
-                                          senderName, fileId),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            } else {
-                              return Center();
-                            }
-                          });
+                      return buildFutureMediaBuilder(
+                          fileId, fileName, context, i);
                     }
                   });
             } else {
               widget.heroTag = "btn$i";
-              var fileId = jsonDecode(media.json)["uuid"];
-              var fileName = jsonDecode(media.json)["name"];
-              mediaSender = media.createdBy.uid;
-              createdOn = DateTime.fromMillisecondsSinceEpoch(media.createdOn);
-              var file = _fileCache.get(fileId);
-              senderName = _mediaSenderCache.get(fileId);
-
-              if (file != null)
-                return Center(
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    child: Stack(
-                      alignment: Alignment.centerLeft,
-                      children: <Widget>[
-                        buildAppBar(i, widget.mediasLength),
-                        Positioned(
-                          top: 80,
-                          left: 0.0,
-                          bottom: 0.0,
-                          right: 0.0,
-                          child: Hero(
-                            tag: widget.heroTag,
-                            child: Container(
-                              decoration: new BoxDecoration(
-                                image: new DecorationImage(
-                                  image: Image.file(
-                                    file,
-                                  ).image,
-                                  fit: BoxFit.fitWidth,
-                                ),
-                              ),
-                            ),
-                            transitionOnUserGestures: true,
-                          ),
-                        ),
-                        buildBottomAppBar(
-                            mediaSender, createdOn, senderName, fileId),
-                      ],
-                    ),
-                  ), // transitionOnUserGestures: true,
-                );
+              buildMediaPropertise(media);
+              var mediaFile = _fileCache.get(fileId);
+              if (mediaFile != null)
+                return buildMeidaCenter(
+                    context, i, mediaFile, fileId, widget.heroTag);
               else {
-                return FutureBuilder(
-                  future: _fileRepo.getFile(fileId, fileName),
-                  builder: (BuildContext c, AsyncSnapshot snaps) {
-                    if (snaps.hasData &&
-                        snaps.data != null &&
-                        snaps.connectionState == ConnectionState.done) {
-                      _fileCache.set(fileId, snaps.data);
-                      return Center(
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height,
-                          child: Stack(
-                            alignment: Alignment.centerLeft,
-                            children: <Widget>[
-                              buildAppBar(i, widget.mediasLength),
-                              Positioned(
-                                top: 80,
-                                left: 0.0,
-                                bottom: 0.0,
-                                right: 0.0,
-                                child: Hero(
-                                  tag: widget.heroTag,
-                                  child: Container(
-                                    decoration: new BoxDecoration(
-                                      image: new DecorationImage(
-                                        image: Image.file(snaps.data).image,
-                                        fit: BoxFit.fitWidth,
-                                      ),
-                                    ),
-                                  ),
-                                  transitionOnUserGestures: true,
-                                ),
-                              ),
-                              buildBottomAppBar(
-                                  mediaSender, createdOn, senderName, fileId),
-                            ],
-                          ),
-                        ),
-                      );
-                    } else {
-                      return Center();
-                    }
-                  },
-                );
+                return buildFutureMediaBuilder(fileId, fileName, context, i);
               }
             }
           },
@@ -423,6 +210,61 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     );
   }
 
+  FutureBuilder<File> buildFutureMediaBuilder(
+      fileId, fileName, BuildContext context, int i) {
+    return FutureBuilder<File>(
+      future: _fileRepo.getFile(fileId, fileName),
+      builder: (BuildContext c, AsyncSnapshot snaps) {
+        if (snaps.hasData &&
+            snaps.data != null &&
+            snaps.connectionState == ConnectionState.done) {
+          _fileCache.set(fileId, snaps.data);
+          return buildMeidaCenter(
+              context, i, snaps.data, fileId, widget.heroTag);
+        } else {
+          return Center();
+        }
+      },
+    );
+  }
+
+  Center buildMeidaCenter(
+      BuildContext context, int i, File mediaFile, fileId, Object tag) {
+    return Center(
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        child: Stack(
+          alignment: Alignment.centerLeft,
+          children: <Widget>[
+            buildAppBar(i, widget.mediasLength),
+            Positioned(
+              top: 80,
+              left: 0.0,
+              bottom: 0.0,
+              right: 0.0,
+              child: Hero(
+                tag: tag,
+                child: Container(
+                  decoration: new BoxDecoration(
+                    image: new DecorationImage(
+                      image: Image.file(
+                        mediaFile,
+                      ).image,
+                      fit: BoxFit.fitWidth,
+                    ),
+                  ),
+                ),
+                transitionOnUserGestures: true,
+              ),
+            ),
+            buildBottomAppBar(mediaSender, createdOn, senderName, fileId),
+          ],
+        ),
+      ), // transitionOnUserGestures: true,
+    );
+  }
+
   Widget buildVideo(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -432,7 +274,6 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           itemBuilder: (context, i) {
             var media = _mediaCache.get("$i");
             if (media == null) {
-              //widget.heroTag = "btn$i";
               return FutureBuilder<List<Media>>(
                   future: _mediaQueryRepo.getMediaAround(
                       widget.userUid.asString(),
@@ -444,169 +285,21 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                     } else {
                       setMediaUrlCache(i, snapshot.data);
                       if (i == widget.mediasLength - 1) {
-                        fileId = jsonDecode(snapshot
-                            .data[snapshot.data.length - 1].json)["uuid"];
-                        fileName = jsonDecode(snapshot
-                            .data[snapshot.data.length - 1].json)["name"];
-                        mediaSender = snapshot
-                            .data[snapshot.data.length - 1].createdBy.uid;
-                        createdOn = DateTime.fromMillisecondsSinceEpoch(
-                            snapshot.data[snapshot.data.length - 1].createdOn);
-                        senderName = _mediaSenderCache.get(fileId);
-                        duration = jsonDecode(snapshot
-                            .data[snapshot.data.length - 1].json)["duration"];
+                        buildMediaPropertise(
+                            snapshot.data[snapshot.data.length - 1]);
                       } else {
-                        fileId = jsonDecode(snapshot
-                            .data[snapshot.data.length - 2].json)["uuid"];
-                        fileName = jsonDecode(snapshot
-                            .data[snapshot.data.length - 2].json)["name"];
-                        mediaSender = snapshot
-                            .data[snapshot.data.length - 2].createdBy.uid;
-                        createdOn = DateTime.fromMillisecondsSinceEpoch(
-                            snapshot.data[snapshot.data.length - 2].createdOn);
-                        senderName = _mediaSenderCache.get(fileId);
-                        duration = jsonDecode(snapshot
-                            .data[snapshot.data.length - 2].json)["duration"];
+                        buildMediaPropertise(
+                            snapshot.data[snapshot.data.length - 2]);
                       }
-                      return FutureBuilder<File>(
-                          future: _fileRepo.getFileIfExist(fileId, fileName),
-                          builder: (BuildContext c, AsyncSnapshot snaps) {
-                            if (snaps.hasData &&
-                                snaps.data != null &&
-                                snaps.connectionState == ConnectionState.done) {
-                              _fileCache.set(fileId, snaps.data);
-
-                              return Center(
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  height: MediaQuery.of(context).size.height,
-                                  child: buildVeidoWidget(
-                                      i,
-                                      snaps.data,
-                                      duration,
-                                      mediaSender,
-                                      createdOn,
-                                      senderName,
-                                      fileId),
-                                ),
-                              );
-                            } else if (snaps.data == null &&
-                                snaps.connectionState == ConnectionState.done) {
-                              return FutureBuilder(
-                                  future: _fileRepo.getFile(
-                                      fileId, fileName + "png",
-                                      thumbnailSize: ThumbnailSize.small),
-                                  builder:
-                                      (BuildContext c, AsyncSnapshot snaps) {
-                                    if (snaps.hasData &&
-                                        snaps.data != null &&
-                                        snaps.connectionState ==
-                                            ConnectionState.done) {
-                                      _thumnailChache.set(fileId, snaps.data);
-
-                                      return Center(
-                                        child: Container(
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          height: MediaQuery.of(context)
-                                              .size
-                                              .height,
-                                          child: thumbnsilvedioWidget(
-                                              i: i,
-                                              fileId: fileId,
-                                              senderName: senderName,
-                                              createdOn: createdOn,
-                                              mediaSender: mediaSender,
-                                              snaps: snaps.data,
-                                              fileName: fileName),
-                                        ),
-                                      );
-                                    } else {
-                                      return Center();
-                                    }
-                                  });
-                            } else {
-                              return Container(
-                                width: 0,
-                                height: 0,
-                              );
-                            }
-                          });
+                      return buildFutureBuilder(context, i);
                     }
                   });
             } else {
-              var fileId = jsonDecode(media.json)["uuid"];
-              var fileName = jsonDecode(media.json)["name"];
-              duration = jsonDecode(media.json)["duration"];
-              mediaSender = media.createdBy.uid;
-              createdOn = DateTime.fromMillisecondsSinceEpoch(media.createdOn);
+              buildMediaPropertise(media);
               var videoFile = _fileCache.get(fileId);
               var thumnailFile = _thumnailChache.get(fileId);
-              senderName = _mediaSenderCache.get(fileId);
-
               if (videoFile == null && thumnailFile == null)
-                return FutureBuilder<File>(
-                    future: _fileRepo.getFileIfExist(fileId, fileName),
-                    builder: (BuildContext c, AsyncSnapshot snaps) {
-                      if (snaps.hasData &&
-                          snaps.data != null &&
-                          snaps.connectionState == ConnectionState.done) {
-                        _fileCache.set(fileId, snaps.data);
-
-                        return Center(
-                          child: Container(
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height,
-                            child: Stack(
-                              alignment: Alignment.centerLeft,
-                              children: [
-                                buildAppBar(i, widget.mediasLength),
-                                VideoUi(
-                                  duration: duration,
-                                  video: snaps.data,
-                                ),
-                                buildBottomAppBar(
-                                    mediaSender, createdOn, senderName, fileId),
-                              ],
-                            ),
-                          ),
-                        );
-                      } else if (snaps.data == null &&
-                          snaps.connectionState == ConnectionState.done) {
-                        return FutureBuilder(
-                            future: _fileRepo.getFile(fileId, fileName + "png",
-                                thumbnailSize: ThumbnailSize.small),
-                            builder: (BuildContext c, AsyncSnapshot snaps) {
-                              if (snaps.hasData &&
-                                  snaps.data != null &&
-                                  snaps.connectionState ==
-                                      ConnectionState.done) {
-                                _thumnailChache.set(fileId, snaps.data);
-                                return Center(
-                                  child: Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    height: MediaQuery.of(context).size.height,
-                                    child: thumbnsilvedioWidget(
-                                        i: i,
-                                        fileId: fileId,
-                                        senderName: senderName,
-                                        createdOn: createdOn,
-                                        mediaSender: mediaSender,
-                                        snaps: snaps.data,
-                                        fileName: fileName),
-                                  ),
-                                );
-                              } else {
-                                return Center();
-                              }
-                            });
-                      } else {
-                        return Container(
-                          width: 0,
-                          height: 0,
-                        );
-                      }
-                    });
+                buildFutureBuilder(context, i);
               else if (videoFile != null) {
                 return Center(
                   child: Container(
@@ -622,7 +315,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
-                    child: thumbnsilvedioWidget(
+                    child: thumbnsilVedioWidget(
                         i: i,
                         fileId: fileId,
                         senderName: senderName,
@@ -648,7 +341,70 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     );
   }
 
-  Stack thumbnsilvedioWidget(
+  void buildMediaPropertise(Media media) {
+    fileId = jsonDecode(media.json)["uuid"];
+    fileName = jsonDecode(media.json)["name"];
+    mediaSender = media.createdBy.uid;
+    createdOn = DateTime.fromMillisecondsSinceEpoch(media.createdOn);
+    senderName = _mediaSenderCache.get(fileId);
+    duration = jsonDecode(media.json)["duration"];
+  }
+
+  FutureBuilder<File> buildFutureBuilder(BuildContext context, int i) {
+    return FutureBuilder<File>(
+        future: _fileRepo.getFileIfExist(fileId, fileName),
+        builder: (BuildContext c, AsyncSnapshot snaps) {
+          if (snaps.hasData &&
+              snaps.data != null &&
+              snaps.connectionState == ConnectionState.done) {
+            _fileCache.set(fileId, snaps.data);
+
+            return Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                child: buildVeidoWidget(i, snaps.data, duration, mediaSender,
+                    createdOn, senderName, fileId),
+              ),
+            );
+          } else if (snaps.data == null &&
+              snaps.connectionState == ConnectionState.done) {
+            return FutureBuilder(
+                future: _fileRepo.getFile(fileId, fileName + "png",
+                    thumbnailSize: ThumbnailSize.small),
+                builder: (BuildContext c, AsyncSnapshot snaps) {
+                  if (snaps.hasData &&
+                      snaps.data != null &&
+                      snaps.connectionState == ConnectionState.done) {
+                    _thumnailChache.set(fileId, snaps.data);
+                    return Center(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        child: thumbnsilVedioWidget(
+                            i: i,
+                            fileId: fileId,
+                            senderName: senderName,
+                            createdOn: createdOn,
+                            mediaSender: mediaSender,
+                            snaps: snaps.data,
+                            fileName: fileName),
+                      ),
+                    );
+                  } else {
+                    return Center();
+                  }
+                });
+          } else {
+            return Container(
+              width: 0,
+              height: 0,
+            );
+          }
+        });
+  }
+
+  Stack thumbnsilVedioWidget(
       {int i,
       File snaps,
       var fileName,
@@ -764,43 +520,32 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             return Center();
           } else {
             _mediaSenderCache.set(fileId, s.data);
-            return Positioned(
-              bottom: 0,
-              left: 0,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(10, 0, 0, 5),
-                child: Wrap(
-                  direction: Axis.vertical,
-                  runSpacing: 40,
-                  children: [
-                    Text("${s.data}"),
-                    SizedBox(height: 10),
-                    Text("$createdOn"),
-                  ],
-                ),
-              ),
-            );
+            return buildNameWidget(s.data, createdOn);
           }
         },
       );
     } else {
-      return Positioned(
-        bottom: 0,
-        left: 0,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 0, 0, 5),
-          child: Wrap(
-            direction: Axis.vertical,
-            runSpacing: 40,
-            children: [
-              Text("$name"),
-              SizedBox(height: 10),
-              Text("$createdOn"),
-            ],
-          ),
-        ),
-      );
+      buildNameWidget(name, createdOn);
     }
+  }
+
+  Positioned buildNameWidget(String name, DateTime createdOn) {
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 0, 0, 5),
+        child: Wrap(
+          direction: Axis.vertical,
+          runSpacing: 40,
+          children: [
+            Text("${name}"),
+            SizedBox(height: 10),
+            Text("$createdOn"),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget buildAppBar(int currentPosition, totalLength) {
@@ -836,14 +581,6 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                       onTap: () {},
                     )),
                 ])
-        //     : PopupMenuButton(
-        //   icon: Icon(
-        //     Icons.more_vert,
-        //     color: Colors.white,
-        //     size: 20,
-        //   ),
-        //   itemBuilder: (cc) => [],
-        // )
       ],
     );
   }
