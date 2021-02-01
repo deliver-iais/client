@@ -37,4 +37,12 @@ extension JsonMapper on String {
   PersistentEvent toPersistentEvent() {
     return PersistentEvent.fromJson(this);
   }
+
+  FormResult toFormResult(){
+    return FormResult.fromJson(this);
+  }
+
+  Buttons toButtons (){
+    return Buttons.fromJson(this);
+  }
 }

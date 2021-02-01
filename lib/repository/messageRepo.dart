@@ -392,8 +392,11 @@ class MessageRepo {
       case MessageType.STICKER:
         byClient.sticker = FileProto.File.fromJson(message.json);
         break;
-      case MessageType.FORM:
-        byClient.formResult = json.decode(message.json);
+      case MessageType.FORM_RESULT:
+        byClient.formResult = MessageProto.FormResult.fromJson(message.json);
+        break;
+      case MessageType.SHARE_UID:
+        byClient.shareUid = MessageProto.ShareUid.fromJson(message.json);
         break;
       default:
         break;
@@ -560,7 +563,7 @@ class MessageRepo {
       to: botUid,
       replyToId: Value(formMessageId),
       forwardedFrom: Value(forwardFromAsString),
-      type: MessageType.FORM,
+      type: MessageType.FORM_RESULT,
       json: jsonString,
     );
 

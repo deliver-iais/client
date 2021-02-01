@@ -14,11 +14,11 @@ class BotSendedFormWidget extends StatelessWidget {
   BotSendedFormWidget({this.message});
 
   MessageDao _messageDao = GetIt.I.get<MessageDao>();
-  Map<String, String> formResult = Map();
+  proto.FormResult formResult;
 
   @override
   Widget build(BuildContext context) {
-    formResult = json.decode(message.json);
+    formResult = message.json.toFormResult();
     return StreamBuilder<Message>(
         stream: _messageDao.getById(message.replyToId, message.to),
         builder: (c, messageByForm) {
@@ -37,7 +37,7 @@ class BotSendedFormWidget extends StatelessWidget {
                         Text("${form.fields[index].label} : ",
                           style: TextStyle(fontSize: 13,color: Colors.black
                           ),),
-                        Text(formResult[form.fields[index].id] ?? "",style: TextStyle(fontSize: 14,color: Colors.white),)
+                        Text(formResult.values[form.fields[index].id] ?? "",style: TextStyle(fontSize: 14,color: Colors.white),)
                       ],
                     );
                   })),

@@ -348,19 +348,23 @@ Uid getRoomId(AccountRepo accountRepo, Message message) {
 }
 
 String messageToJson(Message message) {
-  var type = findFetchMessageType(message);
+  var type = getMessageType(message.whichType());
   var jsonString = Object();
   if (type == MessageType.TEXT)
     return message.text.writeToJson();
   else if (type == MessageType.FILE)
     return message.file.writeToJson();
   else if (type == MessageType.FORM) {
-    if (message.from.category != Categories.BOT)
-      return json.encode(message.formResult);
-    else
-      return message.writeToJson();
-  } else if (type == MessageType.STICKER)
+      return message.form.writeToJson();
+  } else if(type == MessageType.FORM_RESULT){
+    return message.formResult.writeToJson();
+  }else if (type == MessageType.STICKER)
     return message.sticker.writeToJson();
+  else if(type == MessageType.SHARE_UID){
+    return message.shareUid.writeToJson();
+  }else if(type == MessageType.BUTTONS){
+    return message.buttons.writeToJson();
+  }
   else if (type == MessageType.PERSISTENT_EVENT)
     switch (message.persistEvent.whichType()) {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
@@ -416,31 +420,17 @@ MessageType getMessageType(Message_Type messageType) {
       return MessageType.FORM;
     case Message_Type.persistEvent:
       return MessageType.PERSISTENT_EVENT;
+    case Message_Type.formResult:
+      return MessageType.FORM_RESULT;
+    case Message_Type.buttons:
+      return MessageType.BUTTONS;
+    case Message_Type.shareUid:
+      return MessageType.SHARE_UID;
     default:
       return MessageType.NOT_SET;
   }
 }
 
-MessageType findFetchMessageType(Message message) {
-  if (message.hasText())
-    return MessageType.TEXT;
-  else if (message.hasFile())
-    return MessageType.FILE;
-  else if (message.hasForm())
-    return MessageType.FORM;
-  else if (message.hasSticker())
-    return MessageType.STICKER;
-  else if (message.hasPersistEvent())
-    return MessageType.PERSISTENT_EVENT;
-  else if (message.hasPoll())
-    return MessageType.POLL;
-  else if (message.hasLiveLocation())
-    return MessageType.LIVE_LOCATION;
-  else if (message.hasLocation())
-    return MessageType.LOCATION;
-  else
-    return MessageType.NOT_SET;
-}
 
 String getIssueType(MucSpecificPersistentEvent_Issue issue) {
   switch (issue) {

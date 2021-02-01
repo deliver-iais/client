@@ -170,14 +170,12 @@ class _BoxContentState extends State<BoxContent> {
       case MessageType.POLL:
         // TODO: Handle this case.
         break;
+      case MessageType.FORM_RESULT:
+       return  BotSendedFormWidget(message: widget.message,);
       case MessageType.FORM:
-        if(widget.isSender){
-          BotSendedFormWidget(message: widget.message,);
-        }
-        else{
         return  BotFormMessage(message: widget.message,);
-        }
-
+      case MessageType.BUTTONS:
+        return BotButtonsWidget(message:widget.message);
         break;
       case MessageType.PERSISTENT_EVENT:
         // TODO: Handle this case.
