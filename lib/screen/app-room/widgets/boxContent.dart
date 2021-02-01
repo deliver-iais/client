@@ -2,6 +2,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/bot_buttons_widget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/bot_sended_form_widget.dart';
 import 'file:///F:/deliver-flutter3/lib/screen/app-room/messageWidgets/botMessageWidget/bot_form_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/locatioin_message.dart';
@@ -180,9 +181,13 @@ class _BoxContentState extends State<BoxContent> {
       case MessageType.PERSISTENT_EVENT:
         // TODO: Handle this case.
         break;
+      case MessageType.SHARE_UID:
+
+        break;
       case MessageType.NOT_SET:
         // TODO: Handle this case.
         break;
+
     }
     return Container();
   }

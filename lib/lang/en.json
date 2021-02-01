@@ -153,7 +153,9 @@
   "max_length": "Max length",
   "min_length": "Min length",
   "select_on_of_Item" : "select on of Item ",
-  "start": "Start"
+  "start": "Start",
+  "joint_to_group": "Joint To Group",
+  "left_the_group":"Left the Group"
 
 
 }

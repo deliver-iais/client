@@ -45,4 +45,7 @@ extension JsonMapper on String {
   Buttons toButtons (){
     return Buttons.fromJson(this);
   }
+  ShareUid toShareUid(){
+    return ShareUid.fromJson(this);
+  }
 }

@@ -153,5 +153,7 @@
   "max_length": "حداکثر طول ",
   "min_length": "حداقل طول",
   "select_on_of_Item" : "یک گزینه را انتخاب کنید. ",
-  "start": "شروع"
+  "start": "شروع",
+  "joint_to_group": "به گروه پیوست.",
+  "left_the_group":"گروه را ترک کرد."
 }

@@ -350,55 +350,44 @@ Uid getRoomId(AccountRepo accountRepo, Message message) {
 String messageToJson(Message message) {
   var type = getMessageType(message.whichType());
   var jsonString = Object();
-  if (type == MessageType.TEXT)
-    return message.text.writeToJson();
-  else if (type == MessageType.FILE)
-    return message.file.writeToJson();
-  else if (type == MessageType.FORM) {
+  switch (type) {
+    case MessageType.TEXT:
+      return message.text.writeToJson();
+      break;
+    case MessageType.FILE:
+      return message.file.writeToJson();
+      break;
+    case MessageType.STICKER:
+      return message.sticker.writeToJson();
+      break;
+    case MessageType.LOCATION:
+      return message.location.writeToJson();
+      break;
+    case MessageType.LIVE_LOCATION:
+      return message.liveLocation.writeToJson();
+      break;
+    case MessageType.POLL:
+      return message.poll.writeToJson();
+      break;
+    case MessageType.FORM:
       return message.form.writeToJson();
-  } else if(type == MessageType.FORM_RESULT){
-    return message.formResult.writeToJson();
-  }else if (type == MessageType.STICKER)
-    return message.sticker.writeToJson();
-  else if(type == MessageType.SHARE_UID){
-    return message.shareUid.writeToJson();
-  }else if(type == MessageType.BUTTONS){
-    return message.buttons.writeToJson();
+      break;
+    case MessageType.PERSISTENT_EVENT:
+      return message.persistEvent.writeToJson();
+      break;
+    case MessageType.BUTTONS:
+      return message.buttons.writeToJson();
+      break;
+    case MessageType.SHARE_UID:
+      return message.shareUid.writeToJson();
+      break;
+    case MessageType.FORM_RESULT:
+      return message.formResult.writeToJson();
+      break;
+    case MessageType.NOT_SET:
+      // TODO: Handle this case.
+      break;
   }
-  else if (type == MessageType.PERSISTENT_EVENT)
-    switch (message.persistEvent.whichType()) {
-      case PersistentEvent_Type.mucSpecificPersistentEvent:
-        jsonString = {
-          "type": "MUC_EVENT",
-          "issueType": getIssueType(
-              message.persistEvent.mucSpecificPersistentEvent.issue),
-          "issuer":
-              message.persistEvent.mucSpecificPersistentEvent.issuer.asString(),
-          "assignee": message.persistEvent.mucSpecificPersistentEvent.assignee
-              .asString()
-        };
-        break;
-      case PersistentEvent_Type.messageManipulationPersistentEvent:
-        //todo
-        break;
-      case PersistentEvent_Type.adminSpecificPersistentEvent:
-        switch (message.persistEvent.adminSpecificPersistentEvent.event) {
-          case AdminSpecificPersistentEvent_Event.NEW_CONTACT_ADDED:
-            jsonString = {"type": "ADMIN_EVENT"};
-            break;
-        }
-
-        break;
-      case PersistentEvent_Type.notSet:
-        // TODO: Handle this case.
-        break;
-    }
-  else if (type == MessageType.POLL)
-    return message.poll.writeToJson();
-  else if (type == MessageType.LOCATION)
-    return message.location.writeToJson();
-  else if (type == MessageType.LIVE_LOCATION)
-    return message.liveLocation.writeToJson();
   return jsonEncode(jsonString);
 }
 
@@ -431,24 +420,3 @@ MessageType getMessageType(Message_Type messageType) {
   }
 }
 
-
-String getIssueType(MucSpecificPersistentEvent_Issue issue) {
-  switch (issue) {
-    case MucSpecificPersistentEvent_Issue.ADD_USER:
-      return "ADD_USER";
-    case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-      return "AVATAR_CHANGED";
-    case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-      return "MUC_CREATED";
-    case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-      return "LEAVE_USER";
-    case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-      return "NAME_CHANGED";
-    case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-      return "PIN_MESSAGE";
-    case MucSpecificPersistentEvent_Issue.KICK_USER:
-      return "KICK_USER";
-    default:
-      return "UNKNOWN";
-  }
-}
