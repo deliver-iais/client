@@ -299,7 +299,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               var videoFile = _fileCache.get(fileId);
               var thumnailFile = _thumnailChache.get(fileId);
               if (videoFile == null && thumnailFile == null)
-                buildFutureBuilder(context, i);
+               return buildFutureBuilder(context, i);
               else if (videoFile != null) {
                 return Center(
                   child: Container(
@@ -358,7 +358,6 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               snaps.data != null &&
               snaps.connectionState == ConnectionState.done) {
             _fileCache.set(fileId, snaps.data);
-
             return Center(
               child: Container(
                 width: MediaQuery.of(context).size.width,
@@ -490,7 +489,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     return Stack(
       alignment: Alignment.centerLeft,
       children: [
-        buildAppBar(i, widget.mediasLength),
+      buildAppBar(i, widget.mediasLength),
         VideoUi(
           duration: duration,
           video: snaps,
@@ -525,7 +524,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         },
       );
     } else {
-      buildNameWidget(name, createdOn);
+     return buildNameWidget(name, createdOn);
     }
   }
 
