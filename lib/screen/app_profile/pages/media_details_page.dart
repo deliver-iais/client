@@ -7,6 +7,7 @@ import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/download_video_widget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -81,12 +82,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   List<Avatar> _allAvatars;
   var swipePosition;
   String senderName;
-  bool startDownloading = false;
 
   download(String uuid, String name) async {
-    setState(() {
-      startDownloading = true;
-    });
     await _fileRepo.getFile(uuid, name);
     setState(() {
       _thumnailChache.clear();
@@ -105,9 +102,9 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     if (widget.isAvatar == true) {
       return buildAvatar(context);
     } else if (widget.isVideo == true) {
-      return buildVideo(context);
+      return buildMediaOrVideoWidget(context, true);
     } else {
-      return buildMedia(context);
+      return buildMediaOrVideoWidget(context, false);
     }
   }
 
@@ -158,48 +155,15 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     );
   }
 
-  Widget buildMedia(BuildContext context) {
+  Widget buildMediaOrVideoWidget(BuildContext context, isVideo) {
     return Scaffold(
       body: Container(
         child: Swiper(
           scrollDirection: Axis.horizontal,
           index: widget.mediaPosition,
           itemBuilder: (context, i) {
-            var media = _mediaCache.get("$i");
-            if (media == null) {
-              widget.heroTag = "btn$i";
-              return FutureBuilder<List<Media>>(
-                  future: _mediaQueryRepo.getMediaAround(
-                      widget.userUid.asString(),
-                      i,
-                      FetchMediasReq_MediaType.IMAGES.value),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData || snapshot.data == null) {
-                      return Center();
-                    } else {
-                      setMediaUrlCache(i, snapshot.data);
-                      if (i == widget.mediasLength - 1) {
-                        buildMediaPropertise(
-                            snapshot.data[snapshot.data.length - 1]);
-                      } else {
-                        buildMediaPropertise(
-                            snapshot.data[snapshot.data.length - 2]);
-                      }
-                      return buildFutureMediaBuilder(
-                          fileId, fileName, context, i);
-                    }
-                  });
-            } else {
-              widget.heroTag = "btn$i";
-              buildMediaPropertise(media);
-              var mediaFile = _fileCache.get(fileId);
-              if (mediaFile != null)
-                return buildMeidaCenter(
-                    context, i, mediaFile, fileId, widget.heroTag);
-              else {
-                return buildFutureMediaBuilder(fileId, fileName, context, i);
-              }
-            }
+            if (isVideo) return vedioSwiper(i, context);
+            return mediaSuper(i, context);
           },
           itemCount: widget.mediasLength,
           viewportFraction: 1.0,
@@ -208,6 +172,38 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         ),
       ),
     );
+  }
+
+  Widget mediaSuper(int i, BuildContext context) {
+    var media = _mediaCache.get("$i");
+    if (media == null) {
+      widget.heroTag = "btn$i";
+      return FutureBuilder<List<Media>>(
+          future: _mediaQueryRepo.getMediaAround(widget.userUid.asString(), i,
+              FetchMediasReq_MediaType.IMAGES.value),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData || snapshot.data == null) {
+              return Center();
+            } else {
+              setMediaUrlCache(i, snapshot.data);
+              if (i == widget.mediasLength - 1) {
+                buildMediaPropertise(snapshot.data[snapshot.data.length - 1]);
+              } else {
+                buildMediaPropertise(snapshot.data[snapshot.data.length - 2]);
+              }
+              return buildFutureMediaBuilder(fileId, fileName, context, i);
+            }
+          });
+    } else {
+      widget.heroTag = "btn$i";
+      buildMediaPropertise(media);
+      var mediaFile = _fileCache.get(fileId);
+      if (mediaFile != null)
+        return buildMeidaCenter(context, i, mediaFile, fileId, widget.heroTag);
+      else {
+        return buildFutureMediaBuilder(fileId, fileName, context, i);
+      }
+    }
   }
 
   FutureBuilder<File> buildFutureMediaBuilder(
@@ -265,79 +261,61 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     );
   }
 
-  Widget buildVideo(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        child: Swiper(
-          scrollDirection: Axis.horizontal,
-          index: widget.mediaPosition,
-          itemBuilder: (context, i) {
-            var media = _mediaCache.get("$i");
-            if (media == null) {
-              return FutureBuilder<List<Media>>(
-                  future: _mediaQueryRepo.getMediaAround(
-                      widget.userUid.asString(),
-                      i,
-                      FetchMediasReq_MediaType.VIDEOS.value),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData || snapshot.data == null) {
-                      return Center();
-                    } else {
-                      setMediaUrlCache(i, snapshot.data);
-                      if (i == widget.mediasLength - 1) {
-                        buildMediaPropertise(
-                            snapshot.data[snapshot.data.length - 1]);
-                      } else {
-                        buildMediaPropertise(
-                            snapshot.data[snapshot.data.length - 2]);
-                      }
-                      return buildFutureBuilder(context, i);
-                    }
-                  });
+  Widget vedioSwiper(int i, BuildContext context) {
+    var media = _mediaCache.get("$i");
+    if (media == null) {
+      return FutureBuilder<List<Media>>(
+          future: _mediaQueryRepo.getMediaAround(widget.userUid.asString(), i,
+              FetchMediasReq_MediaType.VIDEOS.value),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData || snapshot.data == null) {
+              return Center();
             } else {
-              buildMediaPropertise(media);
-              var videoFile = _fileCache.get(fileId);
-              var thumnailFile = _thumnailChache.get(fileId);
-              if (videoFile == null && thumnailFile == null)
-               return buildFutureBuilder(context, i);
-              else if (videoFile != null) {
-                return Center(
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    child: buildVeidoWidget(i, videoFile, duration, mediaSender,
-                        createdOn, senderName, fileId),
-                  ),
-                );
-                // }
-              } else if (thumnailFile != null) {
-                return Center(
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    child: thumbnsilVedioWidget(
-                        i: i,
-                        fileId: fileId,
-                        senderName: senderName,
-                        createdOn: createdOn,
-                        mediaSender: mediaSender,
-                        snaps: thumnailFile,
-                        fileName: fileName),
-                  ),
-                );
+              setMediaUrlCache(i, snapshot.data);
+              if (i == widget.mediasLength - 1) {
+                buildMediaPropertise(snapshot.data[snapshot.data.length - 1]);
+              } else {
+                buildMediaPropertise(snapshot.data[snapshot.data.length - 2]);
               }
+              return buildFutureBuilder(context, i);
             }
-            return Container(
-              width: 0,
-              height: 0,
-            );
-          },
-          itemCount: widget.mediasLength,
-          viewportFraction: 1.0,
-          scale: 0.9,
-          loop: false,
-        ),
-      ),
+          });
+    } else {
+      buildMediaPropertise(media);
+      var videoFile = _fileCache.get(fileId);
+      var thumnailFile = _thumnailChache.get(fileId);
+      if (videoFile == null && thumnailFile == null)
+        return buildFutureBuilder(context, i);
+      else if (videoFile != null) {
+        return Center(
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: buildVeidoWidget(i, videoFile, duration, mediaSender,
+                createdOn, senderName, fileId),
+          ),
+        );
+        // }
+      } else if (thumnailFile != null) {
+        return Center(
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: thumbnsilVedioWidget(
+                i: i,
+                fileId: fileId,
+                senderName: senderName,
+                createdOn: createdOn,
+                mediaSender: mediaSender,
+                snaps: thumnailFile,
+                fileName: fileName),
+          ),
+        );
+      }
+    }
+    return Container(
+      width: 0,
+      height: 0,
     );
   }
 
@@ -434,46 +412,12 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                   ),
                 ),
               ),
-              !startDownloading
-                  ? Center(
-                      child: Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.black.withOpacity(0.5),
-                          ),
-                          child: IconButton(
-                            icon: Icon(Icons.arrow_downward),
-                            onPressed: () async {
-                              download(fileId, fileName);
-                            },
-                          )))
-                  : StreamBuilder<double>(
-                      stream: fileServices.filesDownloadStatus[fileId],
-                      builder: (c, snapshot) {
-                        if (snapshot.hasData && snapshot.data != null) {
-                          return Center(
-                            child: CircularPercentIndicator(
-                              radius: 40.0,
-                              lineWidth: 4.0,
-                              percent: snapshot.data,
-                              center: Icon(Icons.arrow_downward),
-                              progressColor: Colors.white,
-                            ),
-                          );
-                        } else {
-                          return Center(
-                            child: CircularPercentIndicator(
-                              radius: 40.0,
-                              lineWidth: 4.0,
-                              percent: 0.1,
-                              center: Icon(Icons.arrow_downward),
-                              progressColor: Colors.white,
-                            ),
-                          );
-                        }
-                      })
+              DownloadVideoWidget(
+                uuid: fileId,
+                download: () async {
+                  await download(fileId, fileName);
+                },
+              )
             ],
           ),
           //   transitionOnUserGestures: true,
@@ -489,7 +433,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     return Stack(
       alignment: Alignment.centerLeft,
       children: [
-      buildAppBar(i, widget.mediasLength),
+        buildAppBar(i, widget.mediasLength),
         VideoUi(
           duration: duration,
           video: snaps,
@@ -524,7 +468,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         },
       );
     } else {
-     return buildNameWidget(name, createdOn);
+      return buildNameWidget(name, createdOn);
     }
   }
 

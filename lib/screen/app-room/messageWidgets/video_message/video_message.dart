@@ -13,6 +13,7 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 
 import '../size_formater.dart';
 import '../timeAndSeenStatus.dart';
+import 'download_video_widget.dart';
 
 class VideoMessage extends StatefulWidget {
   final Message message;
@@ -91,51 +92,11 @@ class _VideoMessageState extends State<VideoMessage> {
                     ),
 
                     Positioned(child: Icon(Icons.more_vert), top: 5, right: 0),
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.black.withOpacity(0.5),
-                        ),
-                        child: startDownload
-                            ? StreamBuilder<double>(
-                                stream:
-                                    fileServices.filesDownloadStatus[video.uuid],
-                                builder: (c, snapshot) {
-                                  if (snapshot.hasData && snapshot.data != null) {
-                                    return CircularPercentIndicator(
-                                      radius: 35.0,
-                                      lineWidth: 4.0,
-                                      percent: snapshot.data,
-                                      center: Icon(Icons.arrow_downward),
-                                      progressColor: Colors.red,
-                                    );
-                                  } else {
-                                    return CircularPercentIndicator(
-                                      radius: 35.0,
-                                      lineWidth: 4.0,
-                                      percent: 0.1,
-                                      center: Icon(Icons.arrow_downward),
-                                      progressColor: Colors.red,
-                                    );
-                                  }
-                                },
-                              )
-                            : IconButton(
-                                icon: Icon(Icons.file_download),
-                                onPressed: () async {
-                                  setState(() {
-                                    startDownload = true;
-                                  });
-                                await  _fileRepo.getFile(video.uuid, video.name);
-                                setState(() {
-                                });
-                                },
-                              ),
-                      ),
-                    ),
+                    DownloadVideoWidget(uuid: video.uuid,download: ()async{
+                      await _fileRepo.getFile(video.uuid, video.name);
+                      setState(() {
+                      });
+                    },),
                     video.caption.isEmpty
                         ? (!isDesktop()) | (isDesktop() & showTime)
                             ? SizedBox.shrink()
