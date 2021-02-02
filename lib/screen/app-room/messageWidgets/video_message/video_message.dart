@@ -71,7 +71,11 @@ class _VideoMessageState extends State<VideoMessage> {
               if (s.hasData && s.data != null) {
                 return Stack(
                   children: [
-                    VideoUi(video: s.data,duration: video.duration,showSlider: false,),
+                    VideoUi(
+                      video: s.data,
+                      duration: video.duration,
+                      showSlider: false,
+                    ),
                     video.caption.isEmpty
                         ? (!isDesktop()) | (isDesktop() & showTime)
                             ? SizedBox.shrink()
@@ -84,19 +88,20 @@ class _VideoMessageState extends State<VideoMessage> {
                 return Stack(
                   children: [
                     Column(
-                      crossAxisAlignment:CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(videoLength),
                         Text(sizeFormater(video.size.toInt())),
                       ],
                     ),
-
-                    Positioned(child: Icon(Icons.more_vert), top: 5, right: 0),
-                    DownloadVideoWidget(uuid: video.uuid,download: ()async{
-                      await _fileRepo.getFile(video.uuid, video.name);
-                      setState(() {
-                      });
-                    },),
+                //    Positioned(child: Icon(Icons.more_vert), top: 5, right: 0),
+                    DownloadVideoWidget(
+                      uuid: video.uuid,
+                      download: () async {
+                        await _fileRepo.getFile(video.uuid, video.name);
+                        setState(() {});
+                      },
+                    ),
                     video.caption.isEmpty
                         ? (!isDesktop()) | (isDesktop() & showTime)
                             ? SizedBox.shrink()
