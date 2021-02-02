@@ -11,8 +11,10 @@ import 'package:video_player/video_player.dart';
 class VideoUi extends StatefulWidget {
   final File video;
   final double duration;
+  final bool showSlider;
 
-  VideoUi({Key key, this.video, this.duration}) : super(key: key);
+  VideoUi({Key key, this.video, this.duration, this.showSlider})
+      : super(key: key);
 
   @override
   _VideoUiState createState() => _VideoUiState();
@@ -97,40 +99,41 @@ class _VideoUiState extends State<VideoUi> {
             ),
           ),
         ),
-        Center(
-            child: StreamBuilder<bool>(
-          stream: isPlaySubject.stream,
-          builder: (c, s) {
-            if (s.hasData) {
-              return Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withOpacity(0.5),
-                ),
-                child: s.data
-                    ? IconButton(
-                        icon: Icon(Icons.pause),
-                        onPressed: () {
-                          isPlaySubject.add(false);
-                          videoPlayerService.videoPlayerController.pause();
-                        })
-                    : IconButton(
-                        icon: Icon(Icons.play_arrow),
-                        onPressed: () async {
-                          setState(() {
-                            isPlaying = true;
-                          });
-                          isPlaySubject.add(true);
-                          videoPlayerService.videoPlayerController.play();
-                        }),
-              );
-            } else {
-              return Container();
-            }
-          },
-        )),
+        if (widget.showSlider)
+          Center(
+              child: StreamBuilder<bool>(
+            stream: isPlaySubject.stream,
+            builder: (c, s) {
+              if (s.hasData) {
+                return Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                  child: s.data
+                      ? IconButton(
+                          icon: Icon(Icons.pause),
+                          onPressed: () {
+                            isPlaySubject.add(false);
+                            videoPlayerService.videoPlayerController.pause();
+                          })
+                      : IconButton(
+                          icon: Icon(Icons.play_arrow),
+                          onPressed: () async {
+                            setState(() {
+                              isPlaying = true;
+                            });
+                            isPlaySubject.add(true);
+                            videoPlayerService.videoPlayerController.play();
+                          }),
+                );
+              } else {
+                return Container();
+              }
+            },
+          )),
       ],
     );
   }

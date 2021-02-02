@@ -71,7 +71,7 @@ class _VideoMessageState extends State<VideoMessage> {
               if (s.hasData && s.data != null) {
                 return Stack(
                   children: [
-                    VideoUi(video: s.data,duration: video.duration,),
+                    VideoUi(video: s.data,duration: video.duration,showSlider: false,),
                     video.caption.isEmpty
                         ? (!isDesktop()) | (isDesktop() & showTime)
                             ? SizedBox.shrink()
