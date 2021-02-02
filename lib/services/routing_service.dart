@@ -6,6 +6,7 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/s
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/addStickerPack.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
 import 'package:deliver_flutter/screen/app_group/pages/group_info_determination_page.dart';
 import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
@@ -115,10 +116,11 @@ class RoutingService {
   void openShowAllAvatars(
       {Uid uid, bool hasPermissionToDeleteAvatar, String heroTag}) {
     var widget = MediaDetailsPage.showAvatar(
-        key: ValueKey("/media-details"),
-        uid: uid,
-        hasPermissionToDeletePic: hasPermissionToDeleteAvatar,
-        heroTag: heroTag);
+      key: ValueKey("/media-details"),
+      userUid: uid,
+      hasPermissionToDeletePic: hasPermissionToDeleteAvatar,
+      heroTag: heroTag
+    );
     _push(Page(
       //largePageNavigator: _navigationCenter,
       //largePageMain: widget,
@@ -128,15 +130,26 @@ class RoutingService {
     ));
   }
 
-  void openShowAllMedia(
-      {Uid uid,
-      bool hasPermissionToDeletePic,
-      int mediaPosition,
-      int mediasLength,
-      String heroTag}) {
+  void openShowAllVideos({Uid uid,int mediaPosition, int mediasLength}){
+    var widget = MediaDetailsPage.showVideo(
+        key: ValueKey("/media-details"),
+        userUid: uid,
+        mediaPosition: mediaPosition,
+        mediasLength: mediasLength,
+
+    );
+    _push(Page(
+      largePageNavigator: _navigationCenter,
+      largePageMain: widget,
+      smallPageMain: widget,
+      path: "/media-details",
+    ));
+  }
+
+  void openShowAllMedia({Uid uid,bool hasPermissionToDeletePic,int mediaPosition, int mediasLength, String heroTag}) {
     var widget = MediaDetailsPage.showMedia(
       key: ValueKey("/media-details"),
-      uid: uid,
+      userUid: uid,
       hasPermissionToDeletePic: hasPermissionToDeletePic,
       mediaPosition: mediaPosition,
       mediasLength: mediasLength,

@@ -10,11 +10,12 @@ import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class LoadFileStatus extends StatefulWidget {
-  final File file;
+  final String fileId;
+  final String fileName;
   final int dbId;
   final Function onPressed;
 
-  const LoadFileStatus({Key key, this.file, this.dbId, this.onPressed})
+  const LoadFileStatus({Key key, this.fileId,this.fileName, this.dbId, this.onPressed})
       : super(key: key);
 
   @override
@@ -40,7 +41,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                       ? pendingMessage.data.status == SendingStatus.SENDING_FILE
                           ? StreamBuilder<double>(
                               stream: fileService
-                                  .filesUploadStatus[widget.file.uuid],
+                                  .filesUploadStatus[widget.fileId],
                               builder: (context, snapshot) {
                                 if (snapshot.hasData) {
                                   return CircularPercentIndicator(
@@ -67,7 +68,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                       ? Container(
                           child: StreamBuilder<double>(
                               stream: fileService
-                                  .filesDownloadStatus[widget.file.uuid],
+                                  .filesDownloadStatus[widget.fileId],
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null) {
                                   return CircularPercentIndicator(
@@ -87,11 +88,11 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                   );
                                 }
                               }))
-                      : Padding(
-                          padding: EdgeInsets.only(left: 5, top: 7),
-                          child: Container(
-                            width: 45,
-                            height: 45,
+                       : Padding(
+                            padding: EdgeInsets.only(left: 3,top: 4),
+                            child: Container(
+                            width: 50,
+                            height: 50,
                             decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: ExtraTheme.of(context).text),
@@ -118,7 +119,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                         startDownload = true;
                                       });
                                       widget.onPressed(
-                                          widget.file.uuid, widget.file.name);
+                                          widget.fileId, widget.fileName);
                                     },
                                   ),
                           ),

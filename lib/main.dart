@@ -89,6 +89,7 @@ void setupDI() {
       StickerServiceClient(StickerClientChannel));
   getIt.registerSingleton<AccountRepo>(
       AccountRepo(sharedPrefs: db.sharedPreferencesDao));
+  getIt.registerSingleton<AccountRepo>(AccountRepo(sharedPrefs: db.sharedPreferencesDao));
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<StickerRepo>(StickerRepo());

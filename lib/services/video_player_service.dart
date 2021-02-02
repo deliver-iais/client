@@ -7,7 +7,7 @@ class VideoPlayerService {
 
   Future<void> videoControllerInitialization(File file) {
     videoPlayerController = VideoPlayerController.file(file);
-    videoPlayerController.setLooping(true);
+    videoPlayerController.setLooping(false);
     videoPlayerController.setVolume(0.5);
     return videoPlayerController.initialize();
   }

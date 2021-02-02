@@ -27,8 +27,9 @@ class CircularFileStatusIndicator extends StatelessWidget {
       if (isExist && sendingStatus == null) {
         return file.type.contains("audio") || file.type.contains("mp3")
             ? PlayAudioStatus(
-                file: file,
-                dbId: messageDbId,
+                fileId: file.uuid,
+               fileName: file.name,
+               // dbId: messageDbId,
               )
             : file.type == 'file'
                 ? OpenFileStatus(
@@ -38,7 +39,9 @@ class CircularFileStatusIndicator extends StatelessWidget {
                 : Container();
       } else {
         return new LoadFileStatus(
-          file: file,
+          //file: file,
+          fileId: file.uuid,
+          fileName: file.name,
           dbId: messageDbId,
           onPressed: onPressed,
         );

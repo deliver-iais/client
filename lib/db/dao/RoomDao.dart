@@ -13,8 +13,6 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
 
   RoomDao(this.db) : super(db);
 
-  Future<List<Room>> getAllRooms() => select(rooms).get();
-
   @deprecated
   Future insertRoom(Room newRoom) {
     return into(rooms).insertOnConflictUpdate(newRoom);
@@ -62,6 +60,18 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
             },
           ).toList(),
         );
+  }
+
+  Future<List<TypedResult>> getFutureAllRoomsWithMessage() {
+    return (select(rooms).join([
+      leftOuterJoin(
+        messages,
+        messages.roomId.equalsExp(rooms.roomId) &
+            messages.dbId.equalsExp(rooms.lastMessageDbId),
+      )
+    ])
+          ..orderBy([OrderingTerm.desc(messages.time)]))
+        .get();
   }
 
   Stream<Room> getByRoomId(String rid) {

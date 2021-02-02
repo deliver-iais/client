@@ -1,26 +1,21 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:auto_route/auto_route.dart';
-import 'package:dcache/dcache.dart';
+import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/mediaType.dart';
-//import 'package:deliver_flutter/models/memberType.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
-import 'package:deliver_flutter/repository/memberRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/screen/app_profile/widgets/document_and_File_ui.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/group_Ui_widget.dart';
+import 'package:deliver_flutter/screen/app_profile/widgets/image_tab_ui.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/memberWidget.dart';
+import 'package:deliver_flutter/screen/app_profile/widgets/music_and_audio_ui.dart';
+import 'package:deliver_flutter/screen/app_profile/widgets/video_tab_ui.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
+import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -29,10 +24,9 @@ import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:flutter_link_preview/flutter_link_preview.dart';
 
 class ProfilePage extends StatefulWidget {
   final Uid userUid;
@@ -43,38 +37,48 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
-  var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  List<String> mediaUrls = [];
+class _ProfilePageState extends State<ProfilePage>
+    with TickerProviderStateMixin {
+  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   var mediasLength;
   Room currentRoomId;
-  List<Media> _fetchedMedia;
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
-  var _fileRepo = GetIt.I.get<FileRepo>();
+  var _uxService = GetIt.I.get<UxService>();
+  TabController _tabController;
   int tabsCount;
-  var _fileCache = LruCache<String, File>(storage: SimpleStorage(size: 30));
   @override
   void initState() {
+    _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
+    if (_uxService.getTabIndex(widget.userUid.asString()) == null) {
+      _uxService.setTabIndex(widget.userUid.asString(), 0);
+    }
     super.initState();
-  //  _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
   }
 
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  download(String uuid, String name) async {
+    await GetIt.I.get<FileRepo>().getFile(uuid, name);
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
 
-    return StreamBuilder(
+    return StreamBuilder<MediasMetaDataData>(
       stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
-      builder: (context, snapshot) {
+      builder: (context, AsyncSnapshot<MediasMetaDataData> snapshot) {
         tabsCount = 0;
-        if (snapshot.hasData) {
-
+        if (snapshot.hasData && snapshot.data != null) {
           if (snapshot.data.imagesCount != 0) {
             tabsCount = tabsCount + 1;
-            print(snapshot.data);
           }
           if (snapshot.data.videosCount != 0) {
             tabsCount = tabsCount + 1;
@@ -94,6 +98,14 @@ class _ProfilePageState extends State<ProfilePage> {
           if (snapshot.data.audiosCount != 0) {
             tabsCount = tabsCount + 1;
           }
+          _tabController = TabController(
+              length: tabsCount,
+              vsync: this,
+              initialIndex: _uxService.getTabIndex(widget.userUid.asString()));
+          _tabController.addListener(() {
+            _uxService.setTabIndex(
+                widget.userUid.asString(), _tabController.index);
+          });
           return Scaffold(
               body: DefaultTabController(
                   length: widget.userUid.category == Categories.USER
@@ -166,7 +178,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                               },
                                             ),
                                           ]),
-                                      // )
                                     ),
                                   ),
                                   SizedBox(height: 20),
@@ -190,13 +201,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                           SizedBox(
                                             width: 10,
                                           ),
-                                          //  SizedBox(width: 10),
                                           Text(appLocalization
                                               .getTraslateValue("sendMessage")),
                                         ]),
                                         onTap: () {
-                                          _routingService
-                                              .openRoom(widget.userUid.asString());
+                                          _routingService.openRoom(
+                                              widget.userUid.asString());
                                         },
                                       )),
                                   Container(
@@ -244,7 +254,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                       setState(() {
                                                         _roomDao.insertRoom(Room(
                                                             roomId: widget
-                                                                .userUid.asString(),
+                                                                .userUid
+                                                                .asString(),
                                                             mute:
                                                                 !newNotifState));
                                                       });
@@ -317,75 +328,101 @@ class _ProfilePageState extends State<ProfilePage> {
                                 minHeight: 60,
                                 child: Container(
                                   color: Theme.of(context).backgroundColor,
-                                  child: TabBar(tabs: [
-                                    if (widget.userUid.category !=
-                                        Categories.USER)
-                                      Tab(
-                                        text: appLocalization
-                                            .getTraslateValue("members"),
-                                      ),
-                                    if (snapshot.data.imagesCount != 0)
-                                      Tab(
-                                        text: appLocalization
-                                            .getTraslateValue("images"),
-                                      ),
-                                    if (snapshot.data.videosCount != 0)
-                                      Tab(
-                                        text: appLocalization
-                                            .getTraslateValue("videos"),
-                                      ),
-                                    if (snapshot.data.filesCount != 0)
-                                      Tab(
-                                        text: appLocalization
-                                            .getTraslateValue("file"),
-                                      ),
-                                    if (snapshot.data.linkCount != 0)
-                                      Tab(
+                                  child: TabBar(
+                                    onTap: (index) {
+                                      _uxService.setTabIndex(
+                                          widget.userUid.asString(), index);
+                                    },
+                                    tabs: [
+                                      if (widget.userUid.category !=
+                                          Categories.USER)
+                                        Tab(
                                           text: appLocalization
-                                              .getTraslateValue("links")),
-                                    if (snapshot.data.documentsCount != 0)
-                                      Tab(
+                                              .getTraslateValue("members"),
+                                        ),
+                                      if (snapshot.data.imagesCount != 0)
+                                        Tab(
                                           text: appLocalization
-                                              .getTraslateValue("documents")),
-                                    if (snapshot.data.musicsCount != 0)
-                                      Tab(
+                                              .getTraslateValue("images"),
+                                        ),
+                                      if (snapshot.data.videosCount != 0)
+                                        Tab(
                                           text: appLocalization
-                                              .getTraslateValue("musics")),
-                                    if (snapshot.data.audiosCount != 0)
-                                      Tab(
+                                              .getTraslateValue("videos"),
+                                        ),
+                                      if (snapshot.data.filesCount != 0)
+                                        Tab(
                                           text: appLocalization
-                                              .getTraslateValue("audios")),
-                                  ]),
+                                              .getTraslateValue("file"),
+                                        ),
+                                      if (snapshot.data.linkCount != 0)
+                                        Tab(
+                                            text: appLocalization
+                                                .getTraslateValue("links")),
+                                      if (snapshot.data.documentsCount != 0)
+                                        Tab(
+                                            text: appLocalization
+                                                .getTraslateValue("documents")),
+                                      if (snapshot.data.musicsCount != 0)
+                                        Tab(
+                                            text: appLocalization
+                                                .getTraslateValue("musics")),
+                                      if (snapshot.data.audiosCount != 0)
+                                        Tab(
+                                            text: appLocalization
+                                                .getTraslateValue("audios")),
+                                    ],
+                                    controller: _tabController,
+                                  ),
                                 )),
                           ),
                         ];
                       },
                       body: Container(
-                          child: TabBarView(children: [
-                        if (widget.userUid.category != Categories.USER)
-                          SingleChildScrollView(
-                            child: Column(children: [
-                              MucMemberWidget(
-                                mucUid: widget.userUid,
-                              ),
-                            ]),
-                          ),
-                        if (snapshot.data.imagesCount != 0)
-                          //Text("imagesssssssssssssss"),
-                          imageWidget(widget.userUid, _mediaQueryRepo, _fileRepo, _fileCache,snapshot.data.imagesCount),
-                        if (snapshot.data.videosCount != 0)
-                          Text("videooooooooooooooo"),
-                        if (snapshot.data.filesCount != 0)
-                          Text("fileeeeeeeeeee"),
-                        if (snapshot.data.linkCount != 0)
-                          Text("linkkkkkkkkkkk"),
-                        if (snapshot.data.documentsCount != 0)
-                          Text("dooooooooccccccccc"),
-                        if (snapshot.data.musicsCount != 0)
-                          Text("musiccccccccccc"),
-                        if (snapshot.data.audiosCount != 0)
-                          Text("audioooooooo"),
-                      ])))));
+                          child: TabBarView(
+                        children: [
+                          if (widget.userUid.category != Categories.USER)
+                            SingleChildScrollView(
+                              child: Column(children: [
+                                MucMemberWidget(
+                                  mucUid: widget.userUid,
+                                ),
+                              ]),
+                            ),
+                          if (snapshot.data.imagesCount != 0)
+                            ImageUi(snapshot.data.imagesCount, widget.userUid),
+                          if (snapshot.data.videosCount != 0)
+                            VideoTabUi(
+                                userUid: widget.userUid,
+                                videoCount: snapshot.data.videosCount),
+                          if (snapshot.data.filesCount != 0)
+                            DocumentAndFileUi(
+                              userUid: widget.userUid,
+                              documentCount: snapshot.data.filesCount,
+                              type: FetchMediasReq_MediaType.FILES,
+                            ),
+                          if (snapshot.data.linkCount != 0)
+                            linkWidget(widget.userUid, _mediaQueryRepo,
+                                snapshot.data.linkCount),
+                          if (snapshot.data.documentsCount != 0)
+                            DocumentAndFileUi(
+                              userUid: widget.userUid,
+                              documentCount: snapshot.data.documentsCount,
+                              type: FetchMediasReq_MediaType.DOCUMENTS,
+                            ),
+                          if (snapshot.data.musicsCount != 0)
+                            MusicAndAudioUi(
+                                userUid: widget.userUid,
+                                type: FetchMediasReq_MediaType.MUSICS,
+                                mediaCount: snapshot.data.musicsCount),
+                          if (snapshot.data.audiosCount != 0)
+                            MusicAndAudioUi(
+                                userUid: widget.userUid,
+                                type: FetchMediasReq_MediaType.AUDIOS,
+                                mediaCount: snapshot.data.audiosCount),
+                        ],
+                        controller: _tabController,
+                      )))));
         } else {
           return Container(
             width: 100,
@@ -397,155 +434,42 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-Widget imageWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, FileRepo fileRepo,LruCache mediaCache,int imagesCount) {
-  var _routingService = GetIt.I.get<RoutingService>();
-
-  return FutureBuilder(
-          future: mediaQueryRepo.getMedia(userUid, FetchMediasReq_MediaType.IMAGES,imagesCount),
-          builder: (BuildContext c, AsyncSnapshot snaps) {
-            if (!snaps.hasData ||snaps.data == null || snaps.connectionState == ConnectionState.waiting) {
-                      return Container(width: 0.0, height: 0.0);}
-                 else {
-                   return GridView.builder(
-                       shrinkWrap: true,
-                       padding: EdgeInsets.zero,
-                       itemCount: imagesCount,
-                       scrollDirection: Axis.vertical,
-                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                         crossAxisCount: 3,
-                         //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
-                       ),
-                       itemBuilder: (context, position) {
-                         var fileId = jsonDecode(snaps.data[position].json)["uuid"];
-                         var fileName = jsonDecode(snaps.data[position].json)["name"];
-                         var file = mediaCache.get(fileId);
-                         if(file==null)
-                         return FutureBuilder(
-                             future: fileRepo.getFile(fileId, fileName),
-                             builder: (BuildContext c, AsyncSnapshot snaps) {
-                               if (snaps.hasData &&
-                                   snaps.data != null &&
-                                   snaps.connectionState == ConnectionState.done) {
-                                 print("*******getfileeeeeeeeeeeeeeeeeee*************$position");
-                                 mediaCache.set(fileId, snaps.data);
-                                 return GestureDetector(
-                                   onTap: () {
-                                       _routingService.openShowAllMedia(
-                                         uid: userUid,
-                                         hasPermissionToDeletePic: true,
-                                         mediaPosition: position,
-                                         heroTag: "btn$position",
-                                         mediasLength: imagesCount,
-                                       );
-                                     },
-                                   child: Hero(
-                                     tag:  "btn$position",
-                                     child: Container(
-                                         decoration: new BoxDecoration(
-                                           image: new DecorationImage(
-                                             image: Image.file(
-                                               snaps.data,
-                                             ).image,
-                                             fit: BoxFit.cover,
-                                           ),
-                                           border: Border.all(
-                                             width: 1,
-                                             color: ExtraTheme.of(context).secondColor,
-                                           ),
-                                         )),
-                                   ),
-                                 );
-                               } else {
-                                 return Container(width: 0.0, height: 0.0);
-                               }
-                             });else{
-                               return GestureDetector(
-                                 onTap: () {
-                                   _routingService.openShowAllMedia(
-                                     uid:userUid,
-                                     hasPermissionToDeletePic: true,
-                                     mediaPosition: position,
-                                     heroTag: "btn$position",
-                                     mediasLength: imagesCount,
-                                   );
-                                 },
-                                 child: Hero(
-                                   tag: "btn$position",
-                                   child: Container(
-                                       decoration: new BoxDecoration(
-                                         image: new DecorationImage(
-                                           image: Image.file(
-                                             file
-                                           ).image,
-                                           fit: BoxFit.cover,
-                                         ),
-                                         border: Border.all(
-                                           width: 1,
-                                           color: ExtraTheme.of(context).secondColor,
-                                         ),
-                                       )),
-                                 ),
-                               );
-                         }
-                       }
-                   );
-            }}
-        );
-
-
-
-
-  // child: GestureDetector(
-  //   // onTap: () {
-  //   //   _routingService.openShowAllMedia(
-  //   //     mediaPosition: position,
-  //   //     heroTag: "btn$position",
-  //   //     mediasLength: medias.length,
-  //   //   );
-  //   // },
-  //  child: Hero(
-  //       tag: "btn$position",
-  //       child: Container(
-  //         decoration: new BoxDecoration(
-  //           image: new DecorationImage(
-  //               // image: new NetworkImage(
-  //               //   medias[position].mediaUrl,
-  //               //    //imageList[position],
-  //               // ),
-  //               fit: BoxFit.cover),
-  //           border: Border.all(
-  //             width: 1,
-  //             color: ExtraTheme.of(context).secondColor,
-  //           ),
-  //         ),
-  //       ), // transitionOnUserGestures: true,
-  //
-  //   ),
-  // ),
-  //);
-
+Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
+  //TODO i just implemented and not tested because server problem
+  return FutureBuilder<List<Media>>(
+      future: mediaQueryRepo.getMedia(
+          userUid, FetchMediasReq_MediaType.LINKS, linksCount),
+      builder: (BuildContext context, AsyncSnapshot<List<Media>> snapshot) {
+        if (!snapshot.hasData ||
+            snapshot.data == null ||
+            snapshot.connectionState == ConnectionState.waiting) {
+          return Container(width: 0.0, height: 0.0);
+        } else {
+          return ListView.builder(
+            itemCount: linksCount,
+            itemBuilder: (BuildContext ctx, int index) {
+              return Column(
+                children: [
+                  ListTile(
+                    title: FlutterLinkPreview(
+                      url: jsonDecode(snapshot.data[index].json)["url"],
+                      bodyStyle: TextStyle(
+                        fontSize: 10.0,
+                      ),
+                      titleStyle: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Divider(),
+                ],
+              );
+            },
+          );
+        }
+      });
 }
-
-// Widget linkWidget(Uid userUid , MediaQueryRepo mediaQueryRepo){
-//  return FutureBuilder<List<Media>>(
-//       future:  mediaQueryRepo.getLastMediasList(userUid.string, DateTime.now().microsecondsSinceEpoch,2020, FetchMediasReq_MediaType.LINKS, 50),
-//   builder: (BuildContext context,
-//   AsyncSnapshot<List<Media>> snapshot) {
-//   if (snapshot.hasData && snapshot.data.length != null) {
-//     return ListView(
-//       padding: EdgeInsets.zero,
-//       children: <Widget>[
-//         Text("File"),
-//         Text("File"),
-//         Text("File"),
-//         Text("File"),
-//         Text("File"),
-//       ],
-//     );
-//   }
-//   });
-//
-// }
 
 Widget _showUsername(String username) {
   return Padding(

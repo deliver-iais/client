@@ -103,7 +103,7 @@ class _ShareBoxState extends State<ShareBox> {
                             setState(() {
                               if (playAudioIndex == index) {
                                 audioPlayer.pause();
-                                icons[index] = Icons.play_circle_filled;
+                                icons[index] = Icons.play_arrow;
                                 playAudioIndex = -1;
                               } else {
                                 audioPlayer.play(path);

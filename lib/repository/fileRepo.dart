@@ -86,6 +86,14 @@ class FileRepo {
     return downloadedFile;
   }
 
+  Future<File> downloadFile(String uuid , String fileName,{ThumbnailSize thumbnailSize}) async{
+    var downloadedFile =
+    await _fileService.getFile(uuid, fileName, size: thumbnailSize);
+    await _saveFileInfo(uuid, downloadedFile, fileName,
+        thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
+    return downloadedFile;
+  }
+
   Future<FileInfo> _saveFileInfo(
       String fileId, File file, String name, String compressionSize) async {
     FileInfo fileInfo = FileInfo(

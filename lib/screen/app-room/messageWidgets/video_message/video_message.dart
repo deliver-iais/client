@@ -13,6 +13,7 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 
 import '../size_formater.dart';
 import '../timeAndSeenStatus.dart';
+import 'download_video_widget.dart';
 
 class VideoMessage extends StatefulWidget {
   final Message message;
@@ -70,7 +71,11 @@ class _VideoMessageState extends State<VideoMessage> {
               if (s.hasData && s.data != null) {
                 return Stack(
                   children: [
-                    VideoUi(video: s.data,duration: video.duration,),
+                    VideoUi(
+                      video: s.data,
+                      duration: video.duration,
+                      showSlider: false,
+                    ),
                     video.caption.isEmpty
                         ? (!isDesktop()) | (isDesktop() & showTime)
                             ? SizedBox.shrink()
@@ -83,58 +88,19 @@ class _VideoMessageState extends State<VideoMessage> {
                 return Stack(
                   children: [
                     Column(
-                      crossAxisAlignment:CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(videoLength),
                         Text(sizeFormater(video.size.toInt())),
                       ],
                     ),
-
-                    Positioned(child: Icon(Icons.more_vert), top: 5, right: 0),
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.black.withOpacity(0.5),
-                        ),
-                        child: startDownload
-                            ? StreamBuilder<double>(
-                                stream:
-                                    fileServices.filesDownloadStatus[video.uuid],
-                                builder: (c, snapshot) {
-                                  if (snapshot.hasData && snapshot.data != null) {
-                                    return CircularPercentIndicator(
-                                      radius: 35.0,
-                                      lineWidth: 4.0,
-                                      percent: snapshot.data,
-                                      center: Icon(Icons.arrow_downward),
-                                      progressColor: Colors.red,
-                                    );
-                                  } else {
-                                    return CircularPercentIndicator(
-                                      radius: 35.0,
-                                      lineWidth: 4.0,
-                                      percent: 0.1,
-                                      center: Icon(Icons.arrow_downward),
-                                      progressColor: Colors.red,
-                                    );
-                                  }
-                                },
-                              )
-                            : IconButton(
-                                icon: Icon(Icons.file_download),
-                                onPressed: () async {
-                                  setState(() {
-                                    startDownload = true;
-                                  });
-                                await  _fileRepo.getFile(video.uuid, video.name);
-                                setState(() {
-                                });
-                                },
-                              ),
-                      ),
+                //    Positioned(child: Icon(Icons.more_vert), top: 5, right: 0),
+                    DownloadVideoWidget(
+                      uuid: video.uuid,
+                      download: () async {
+                        await _fileRepo.getFile(video.uuid, video.name);
+                        setState(() {});
+                      },
                     ),
                     video.caption.isEmpty
                         ? (!isDesktop()) | (isDesktop() & showTime)

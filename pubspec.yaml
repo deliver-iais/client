@@ -27,16 +27,17 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
+  flutter_link_preview: ^1.4.2
+
   carousel_slider: 2.3.1
   dots_indicator: 1.2.0
 
   flare_flutter: 2.0.6 # Animation Viewer Library
   date_time_format: 1.0.0+4
 
-  emojis: 0.9.3
+  emojis:
   permissions_plugin: 1.1.4 # ANDROID ONLY SUPPORTED
   synchronized: 2.2.0+2
-
   ext_storage: 1.0.3
   path_provider: 1.6.8
   path:
@@ -115,6 +116,7 @@ dependencies:
 
   flutter_icons: 1.1.0
 
+
   assets_audio_player: 2.0.13+1
 
   flutter_parsed_text: 1.2.5
@@ -179,3 +181,7 @@ flutter:
           weight: 700
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+analyzer:
+  strong-mode: true
+  language:
+    enableSuperMixins: true
