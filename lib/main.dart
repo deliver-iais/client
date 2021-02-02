@@ -87,8 +87,6 @@ void setupDI() {
   getIt.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel));
   getIt.registerSingleton<StickerServiceClient>(
       StickerServiceClient(StickerClientChannel));
-  getIt.registerSingleton<AccountRepo>(
-      AccountRepo(sharedPrefs: db.sharedPreferencesDao));
   getIt.registerSingleton<AccountRepo>(AccountRepo(sharedPrefs: db.sharedPreferencesDao));
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   getIt.registerSingleton<FileService>(FileService());

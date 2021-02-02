@@ -53,15 +53,15 @@ void main() {
       when(mockQueryServiceClient.fetchMessages(any,
               options: anyNamed('options')))
           .thenAnswer((_) => MockResponseFuture<FetchMessagesRes>(res));
-      when(mockCoreServices
-              .saveMessageInMessagesDB(MessageProto.Message()..id = Int64(0)))
-          .thenAnswer((realInvocation) async => Message(id: 0));
-      when(mockCoreServices
-              .saveMessageInMessagesDB(MessageProto.Message()..id = Int64(1)))
-          .thenAnswer((realInvocation) async => Message(id: 1));
-      when(mockCoreServices
-              .saveMessageInMessagesDB(MessageProto.Message()..id = Int64(2)))
-          .thenAnswer((realInvocation) async => Message(id: 2));
+      // when(mockCoreServices
+      //         .saveMessageInMessagesDB(MessageProto.Message()..id = Int64(0)))
+      //     .thenAnswer((realInvocation) async => Message(id: 0));
+      // when(mockCoreServices
+      //         .saveMessageInMessagesDB(MessageProto.Message()..id = Int64(1)))
+      //     .thenAnswer((realInvocation) async => Message(id: 1));
+      // when(mockCoreServices
+      //         .saveMessageInMessagesDB(MessageProto.Message()..id = Int64(2)))
+      //    .thenAnswer((realInvocation) async => Message(id: 2));
       expect(await messageRepo.getPage(page, roomId, containsId), messages);
     });
     test(

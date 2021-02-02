@@ -141,14 +141,10 @@ class RoomRepo {
 
   Future<List<Uid>> getAllRooms() async {
     Map<Uid, Uid> finalList = Map();
-
-    var allUser = await _contactDao.getAllUser();
-    for (var contact in allUser) {
-      finalList[contact.uid.uid] = contact.uid.uid;
-    }
-    var allRooms = await _roomDao.getAllRooms();
-    for (var room in allRooms) {
-      finalList[room.roomId.uid] = room.roomId.uid;
+    var res = await _roomDao.getFutureAllRoomsWithMessage();
+    for (var room in res) {
+      Uid uid = (room.rawData.data["rooms.room_id"].toString()).getUid();
+      finalList[uid] = uid;
     }
     return finalList.values.toList();
   }

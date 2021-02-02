@@ -10,7 +10,7 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/message_ui.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/reply_widgets/reply_widget_in_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/stickerMessgeWidget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/text_message/text_ui.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
+
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
