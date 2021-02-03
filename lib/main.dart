@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
+import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
@@ -16,6 +17,7 @@ import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/lastActivityRepo.dart';
@@ -79,6 +81,7 @@ void setupDI() {
   getIt.registerSingleton<UserInfoDao>(db.userInfoDao);
   getIt.registerSingleton<StickerDao>(db.stickerDao);
   getIt.registerSingleton<StickerIdDao>(db.stickerIdDao);
+  getIt.registerSingleton<BotInfoDao>(db.botInfoDao);
 
   // Order is important, don't change it!
   getIt.registerSingleton<UxService>(UxService());
@@ -87,7 +90,10 @@ void setupDI() {
   getIt.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel));
   getIt.registerSingleton<StickerServiceClient>(
       StickerServiceClient(StickerClientChannel));
+
   getIt.registerSingleton<AccountRepo>(AccountRepo(sharedPrefs: db.sharedPreferencesDao));
+  getIt.registerSingleton<BotRepo>(BotRepo());
+
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   getIt.registerSingleton<FileService>(FileService());
   getIt.registerSingleton<StickerRepo>(StickerRepo());

@@ -747,8 +747,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _addForwardMessage(message);
         },
         onTapDown: storePosition,
-        child: SingleChildScrollView(
-            child: Stack(
+        child: Stack(
           alignment: AlignmentDirectional.bottomEnd,
           children: [
             Row(
@@ -782,7 +781,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               ],
             ),
           ],
-        )));
+        ));
   }
 
   scrollToLast() {
