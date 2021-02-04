@@ -35,8 +35,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
   Map<String, GlobalKey<FormBuilderState>> _formKeyMap = Map();
   AppLocalization _appLocalization;
   bool validate = false;
-  Map<String,GlobalKey<FormState>>  textFielidKey = Map();
-
+  Map<String, GlobalKey<FormState>> textFielidKey = Map();
 
   @override
   Widget build(BuildContext context) {
@@ -67,10 +66,11 @@ class _BotFormMessageState extends State<BotFormMessage> {
                 itemBuilder: (c, index) {
                   switch (form.fields[index].whichType()) {
                     case proto.Form_Field_Type.textField:
-                      textFielidKey[form.fields[index].id] = new GlobalKey<FormState>();
+                      textFielidKey[form.fields[index].id] =
+                          new GlobalKey<FormState>();
                       return FormTextFieldWidget(
                         formField: form.fields[index],
-                       formValidator: textFielidKey[form.fields[index].id] ,
+                        formValidator: textFielidKey[form.fields[index].id],
                         setResult: (value) {
                           setResult(index, value);
                         },
@@ -109,24 +109,24 @@ class _BotFormMessageState extends State<BotFormMessage> {
                       );
                       break;
                     case proto.Form_Field_Type.radioButtonList:
-                      return FormBuilder(
-                          key: _formKeyMap[form.fields[index].id],
-                          child: FormButtonList_Widget(
-                            formField: form.fields[index],
-                            selected: (value) {
-                              setResult(index, value);
-                            },
-                          ));
+                      return FormButtonList_Widget(
+                        formField: form.fields[index],
+                        formValidator: textFielidKey[form.fields[index].id],
+                        selected: (value) {
+                          setResult(index, value);
+                        },
+                      );
                       break;
                     case proto.Form_Field_Type.list:
-                      return FormBuilder(
-                          key: _formKeyMap[form.fields[index].id],
-                          child: FormButtonList_Widget(
-                            formField: form.fields[index],
-                            selected: (value) {
-                              setResult(index, value);
-                            },
-                          ));
+                      textFielidKey[form.fields[index].id] =
+                          new GlobalKey<FormState>();
+                      return FormButtonList_Widget(
+                        formField: form.fields[index],
+                        formValidator: textFielidKey[form.fields[index].id],
+                        selected: (value) {
+                          setResult(index, value);
+                        },
+                      );
                       break;
                     case proto.Form_Field_Type.notSet:
                       return SizedBox.shrink();
@@ -143,11 +143,16 @@ class _BotFormMessageState extends State<BotFormMessage> {
           onPressed: () {
             for (var field in textFielidKey.values) {
               if (field.currentState?.validate()) {
-                _messageRepo.sendFormMessage(
-                    widget.message.from, formResultMap, widget.message.id);
-              }
-
+                validate = true;
+              }else
+                validate = false;
+                break;
             }
+            if(validate== true){
+              _messageRepo.sendFormMessage(
+                  widget.message.from, formResultMap, widget.message.id);
+            }
+
           },
           child: Text(
             _appLocalization.getTraslateValue("submit"),

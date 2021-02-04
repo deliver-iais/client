@@ -11,7 +11,6 @@ class FormTextFieldWidget extends StatelessWidget {
 
 
   Function setResult;
-
   FormTextFieldWidget({this.formField, this.setResult,this.formValidator});
 
   AppLocalization _appLocalization;
