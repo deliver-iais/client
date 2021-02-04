@@ -2,18 +2,21 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:rxdart/rxdart.dart';
 
 class FormTextFieldWidget extends StatelessWidget {
   proto.Form_Field formField;
+  final GlobalKey<FormState> formValidator;
+
 
   Function setResult;
 
-  FormTextFieldWidget({this.formField,this.setResult});
+  FormTextFieldWidget({this.formField, this.setResult,this.formValidator});
 
   AppLocalization _appLocalization;
   proto.Form_Field_Type formFieldType;
-  final fieldValidator = GlobalKey<FormState>();
+
 
   @override
   Widget build(BuildContext context) {
@@ -21,14 +24,18 @@ class FormTextFieldWidget extends StatelessWidget {
     _appLocalization = AppLocalization.of(context);
     return Column(
       children: [
+        SizedBox(
+          height: 5,
+        ),
         Container(
+          child: Form(
+            key: formValidator,
             child: TextFormField(
               minLines: 1,
               textInputAction: TextInputAction.send,
+              validator: validateFormTextField,
               onChanged: (str) {
-                if( fieldValidator.currentState?.validate()){
                   setResult(str);
-                }
               },
               keyboardType: formFieldType == proto.Form_Field_Type.textField
                   ? TextInputType.text
@@ -36,6 +43,7 @@ class FormTextFieldWidget extends StatelessWidget {
                       ? TextInputType.number
                       : TextInputType.datetime,
               decoration: InputDecoration(
+                  focusColor: Colors.red,
                   border: OutlineInputBorder(),
                   suffix: formField.isOptional
                       ? Text(
@@ -43,24 +51,23 @@ class FormTextFieldWidget extends StatelessWidget {
                           style: TextStyle(color: Colors.red),
                         )
                       : SizedBox.shrink(),
-                  labelText: formField.label),
+                  labelText: formField.label,
+                  labelStyle: TextStyle(color: Colors.blue)),
             ),
-
-        ),
+          ),
+        )
       ],
     );
   }
 
   String validateFormTextField(String value) {
-    if(value.isEmpty && formField.isOptional){
+    if (value.isEmpty && !formField.isOptional) {
       return null;
-    }
-   else if (value != null && value.length > formField.textField.max) {
-      return _appLocalization
-          .getTraslateValue("max_length ${formField.textField.max}");
+    } else if (value != null && value.length > formField.textField.max) {
+      return  "${_appLocalization
+          .getTraslateValue("max_length")}  ${formField.textField.max}";
     } else if (value == null || value.length < formField.textField.min) {
-      return _appLocalization
-          .getTraslateValue("min_length ${formField.textField.min}");
+      return  " ${_appLocalization.getTraslateValue("min_length")} ${formField.textField.min}";
     } else {
       return null;
     }

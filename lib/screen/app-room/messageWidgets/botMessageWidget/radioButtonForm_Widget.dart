@@ -18,68 +18,68 @@ class FormButtonList_Widget extends StatefulWidget {
 class _FormButtonList_WidgetState extends State<FormButtonList_Widget> {
   proto.Form_Field_Type formFieldType;
 
-  String selectedItem = "";
+  String selectedItem;
 
   AppLocalization _appLocalization;
-
 
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
     formFieldType = widget.formField.whichType();
     return Container(
-        child: Row(
-          children: [
-            Text(
+        child: SizedBox(
+      width: 100,
+      height: 100,
+      child: Center(
+        child: DropdownButtonFormField(
+            hint: Text(
               widget.formField.label,
-              style: TextStyle(fontSize: 15, color: Theme
-                  .of(context)
-                  .primaryColor),
+              style: TextStyle(
+                  fontSize: 15, color: Theme.of(context).primaryColor),
             ),
-            SizedBox(
-              width: 2,
-            ),
-            Text(selectedItem),
-            DropdownButtonFormField(
-              validator: (value) {
-                if (!widget.formField.isOptional) {
-                  return null;
-                }
-                else {
-                  return _appLocalization.getTraslateValue("this_filed_not_empty");
-                }
-              },
-              items: widget.formField.radioButtonList.values
-                  .map<DropdownMenuItem<String>>((value) =>
-                  DropdownMenuItem(
-                    child: formFieldType == proto.Form_Field_Type.checkbox
-                        ? RadioListTile(
-                      groupValue: selectedItem,
-                      title: Text(value),
-                      value: value,
-                      onChanged: (val) {
-                        setState(() {
-                          selectedItem = val;
-                        });
-                        widget.selected(val);
-                      },
-                    )
-                        : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Text(value),
-                      ],
-                    ),
-                  ))
-                  .toList(),
-              onChanged: (String value) {
-                setState(() {
-                  selectedItem = value;
-                });
-                widget.selected(value);
-              },
-            )
-          ],
-        ));
+            value: selectedItem,
+            validator: (value) {
+              if (!widget.formField.isOptional) {
+                return null;
+              } else {
+                return _appLocalization
+                    .getTraslateValue("this_filed_not_empty");
+              }
+            },
+            onChanged: (String valu) {
+              setState(() {
+                selectedItem = valu;
+              });
+              widget.selected(valu);
+            },
+            items: widget.formField.whichType() ==
+                    proto.Form_Field_Type.radioButtonList
+                ? widget.formField.radioButtonList.values
+                : widget.formField.list.values
+                    .map<DropdownMenuItem<String>>((val) => DropdownMenuItem(
+                          value: val,
+                          child: formFieldType == proto.Form_Field_Type.checkbox
+                              ? RadioListTile(
+                                  groupValue: selectedItem,
+                                  title: Text(val),
+                                  value: val,
+                                  onChanged: (val) {
+                                    setState(() {
+                                      selectedItem = val;
+                                    });
+                                    widget.selected(val);
+                                  },
+                                )
+                              : Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    Text(val),
+                                  ],
+                                ),
+                        ))
+                    .toList()),
+      ),
+    ));
   }
 }

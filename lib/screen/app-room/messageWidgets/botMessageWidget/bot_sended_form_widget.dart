@@ -19,6 +19,7 @@ class BotSendedFormWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     formResult = message.json.toFormResult();
+
     return StreamBuilder<Message>(
         stream: _messageDao.getById(message.replyToId, message.to),
         builder: (c, messageByForm) {
@@ -27,21 +28,35 @@ class BotSendedFormWidget extends StatelessWidget {
             return Container(
               child: Column(
                 children: [
-                  Text(form.title, style: TextStyle(fontSize: 16, color: Theme
-                      .of(context)
-                      .primaryColor),),
-                  Expanded(child: ListView.builder(
-                      itemCount: form.fields.length, itemBuilder: (c, index) {
-                    return Row(
-                      children: [
-                        Text("${form.fields[index].label} : ",
-                          style: TextStyle(fontSize: 13,color: Colors.black
-                          ),),
-                        Text(formResult.values[form.fields[index].id] ?? "",style: TextStyle(fontSize: 14,color: Colors.white),)
-                      ],
-                    );
-                  })),
-                  TimeAndSeenStatus(message, true, true)
+                  Text(
+                    form.title,
+                    style: TextStyle(fontSize: 16, color: Colors.black),
+                  ),
+                  SizedBox(height: 10,),
+                  Container(
+                    child: SizedBox(
+                      height: formResult.values.length>4?400:20*formResult.values.length.toDouble(),
+                        width: 200,
+                        child: ListView.builder(
+                            itemCount: form.fields.length,
+                            itemBuilder: (c, index) {
+                              return Row(
+                                children: [
+                                  Text(
+                                    "${form.fields[index].label} : ",
+                                    style: TextStyle(
+                                        fontSize: 13, color: Colors.black),
+                                  ),
+                                  Text(
+                                    formResult.values[form.fields[index].id],
+                                    style: TextStyle(
+                                        fontSize: 14, color: Colors.white),
+                                  )
+                                ],
+                              );
+                            })),
+                  ),
+                  //   TimeAndSeenStatus(message, true, true)
                 ],
               ),
             );

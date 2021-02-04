@@ -35,6 +35,8 @@ class _BotFormMessageState extends State<BotFormMessage> {
   Map<String, GlobalKey<FormBuilderState>> _formKeyMap = Map();
   AppLocalization _appLocalization;
   bool validate = false;
+  Map<String,GlobalKey<FormState>>  textFielidKey = Map();
+
 
   @override
   Widget build(BuildContext context) {
@@ -44,102 +46,120 @@ class _BotFormMessageState extends State<BotFormMessage> {
       _formKeyMap[fileId.id] = _formKey;
     }
     return Container(
-      child: Column(
-        children: [
-          Text(
-            form.title,
-            style:
-                TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
-          ),
-          Container(
-            child: Expanded(
-                child: ListView.builder(
-                    itemCount: form.fields.length,
-                    itemBuilder: (c, index) {
-                      switch (form.fields[index].whichType()) {
-                        case proto.Form_Field_Type.textField:
-                          return FormTextFieldWidget(
-                            formField: form.fields[index],
-                            setResult: (value) {
-                              setResult(index, value);
-                            },
-                          );
-                          break;
-                        case proto.Form_Field_Type.numberField:
-                          return FormTextFieldWidget(
-                            formField: form.fields[index],
-                            setResult: (value) {
-                              setResult(index, value);
-                            },
-                          );
-                          break;
-                        case proto.Form_Field_Type.dateField:
-                          return FormTextFieldWidget(
-                            formField: form.fields[index],
-                            setResult: (value) {
-                              setResult(index, value);
-                            },
-                          );
-                          break;
-                        case proto.Form_Field_Type.timeField:
-                          return FormTextFieldWidget(
-                            formField: form.fields[index],
-                            setResult: (value) {
-                              setResult(index, value);
-                            },
-                          );
-                          break;
-                        case proto.Form_Field_Type.checkbox:
-                          return CheckBoxFormField(
+        child: Column(
+      children: [
+        Text(
+          form.title,
+          style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 20),
+        ),
+        SizedBox(
+          height: 20,
+        ),
+        Container(
+          child: SizedBox(
+            height: form.fields.length > 4
+                ? 400
+                : 80 * form.fields.length.toDouble(),
+            width: 230,
+            child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: form.fields.length,
+                itemBuilder: (c, index) {
+                  switch (form.fields[index].whichType()) {
+                    case proto.Form_Field_Type.textField:
+                      textFielidKey[form.fields[index].id] = new GlobalKey<FormState>();
+                      return FormTextFieldWidget(
+                        formField: form.fields[index],
+                       formValidator: textFielidKey[form.fields[index].id] ,
+                        setResult: (value) {
+                          setResult(index, value);
+                        },
+                      );
+                      break;
+                    case proto.Form_Field_Type.numberField:
+                      return FormTextFieldWidget(
+                        formField: form.fields[index],
+                        setResult: (value) {
+                          setResult(index, value);
+                        },
+                      );
+                      break;
+                    case proto.Form_Field_Type.dateField:
+                      return FormTextFieldWidget(
+                        formField: form.fields[index],
+                        setResult: (value) {
+                          setResult(index, value);
+                        },
+                      );
+                      break;
+                    case proto.Form_Field_Type.timeField:
+                      return FormTextFieldWidget(
+                        formField: form.fields[index],
+                        setResult: (value) {
+                          setResult(index, value);
+                        },
+                      );
+                      break;
+                    case proto.Form_Field_Type.checkbox:
+                      return CheckBoxFormField(
+                        formField: form.fields[index],
+                        selected: (value) {
+                          setResult(index, value);
+                        },
+                      );
+                      break;
+                    case proto.Form_Field_Type.radioButtonList:
+                      return FormBuilder(
+                          key: _formKeyMap[form.fields[index].id],
+                          child: FormButtonList_Widget(
                             formField: form.fields[index],
                             selected: (value) {
                               setResult(index, value);
                             },
-                          );
-                          break;
-                        case proto.Form_Field_Type.radioButtonList:
-                          return FormBuilder(
-                              key: _formKeyMap[form.fields[index].id],
-                              child: FormButtonList_Widget(
-                                formField: form.fields[index],
-                                selected: (value) {
-                                  setResult(index, value);
-                                },
-                              ));
-                          break;
-                        case proto.Form_Field_Type.list:
-                          return FormBuilder(
-                              key: _formKeyMap[form.fields[index].id],
-                              child: FormButtonList_Widget(
-                                formField: form.fields[index],
-                                selected: (value) {
-                                  setResult(index, value);
-                                },
-                              ));
-                          break;
-                        case proto.Form_Field_Type.notSet:
-                          return SizedBox.shrink();
-                          break;
-                      }
+                          ));
+                      break;
+                    case proto.Form_Field_Type.list:
+                      return FormBuilder(
+                          key: _formKeyMap[form.fields[index].id],
+                          child: FormButtonList_Widget(
+                            formField: form.fields[index],
+                            selected: (value) {
+                              setResult(index, value);
+                            },
+                          ));
+                      break;
+                    case proto.Form_Field_Type.notSet:
                       return SizedBox.shrink();
-                    })),
+                      break;
+                  }
+                  return SizedBox.shrink();
+                }),
           ),
-          RaisedButton(
-              child: Text(
-                _appLocalization.getTraslateValue("submit"),
-                style: TextStyle(color: Theme.of(context).primaryColor),
-              ),
-              onPressed: () {
-                for (var field in form.fields) {
-                  if (_formKeyMap[field.id]?.currentState?.validate())
-                    _messageRepo.sendFormMessage(
-                        widget.message.from, formResultMap, widget.message.id);
-                }
-              }),
-          TimeAndSeenStatus(widget.message, false, true)
-        ],
-      ),
-    );
+        ),
+        FlatButton(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18.0),
+              side: BorderSide(color: Colors.blue)),
+          onPressed: () {
+            for (var field in textFielidKey.values) {
+              if (field.currentState?.validate()) {
+                _messageRepo.sendFormMessage(
+                    widget.message.from, formResultMap, widget.message.id);
+              }
+
+            }
+          },
+          child: Text(
+            _appLocalization.getTraslateValue("submit"),
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 160),
+          child: TimeAndSeenStatus(widget.message, false, true),
+        )
+      ],
+    ));
   }
 
   void setResult(int index, value) {

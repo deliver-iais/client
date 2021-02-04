@@ -554,7 +554,13 @@ class MessageRepo {
       String botUid, Map<String, String> formResultMap, int formMessageId,
       {String forwardFromAsString}) async {
     String packetId = _getPacketId();
-    String jsonString = json.encode(formResultMap);
+    MessageProto.FormResult formResult = MessageProto.FormResult();
+    for(var fileId in formResultMap.keys){
+      formResult.values[fileId] = formResultMap[fileId];
+    }
+
+    String jsonString = (formResult)
+        .writeToJson();
     MessagesCompanion message = MessagesCompanion.insert(
       roomId: botUid,
       packetId: packetId,
