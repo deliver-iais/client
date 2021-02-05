@@ -156,7 +156,8 @@
   "start": "Start",
   "joint_to_group": "Joint To Group",
   "left_the_group":"Left the Group",
-  "this_filed_not_empty": "This Filed Not Empty"
+  "this_filed_not_empty": "This Filed Not Empty",
+  "please_select_one": "please select one"
 
 
 }

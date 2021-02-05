@@ -156,6 +156,7 @@ class CoreServices {
   }
 
   sendMessage(MessageByClient message) {
+    print(message.toString());
     if (_clientPacket != null && !_clientPacket.isClosed) {
       _clientPacket.add(ClientPacket()
         ..message = message

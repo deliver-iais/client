@@ -21,41 +21,40 @@ class BotButtonsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     buttons = message.json.toButtons();
     return Container(
-      child:Column(
-        children: [
-          SizedBox(
-            height: 50*buttons.buttons.length.toDouble() ,
-            width: 150,
-            child: ListView.builder(
-                itemCount: buttons.buttons.length,
-                itemBuilder: (c, index) {
-                  return Center(
-                    child: Column(
-                      children: [
-                        FlatButton(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18.0),
-                                side: BorderSide(color: Colors.blue)),
-                            onPressed: () {
-                              _messageRepo.sendTextMessage(
-                                  message.from.getUid(), buttons.buttons[index]);
-                            },
-                            child: Text(buttons.buttons[index])),
-                        SizedBox(height: 5,)
-                      ],
-                    ),
-                  );
-                }),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 100),
-            child:  TimeAndSeenStatus(message, false, true),
-            ),
-
-
-
-        ],
-      )
-    );
+        child: Column(
+      children: [
+        SizedBox(
+          height: 50 * buttons.buttons.length.toDouble(),
+          width: 200,
+          child: ListView.builder(
+              itemCount: buttons.buttons.length,
+              itemBuilder: (c, index) {
+                return Center(
+                  child: Column(
+                    children: [
+                      FlatButton(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                              side: BorderSide(color: Colors.blue)),
+                          color: Colors.blueAccent,
+                          onPressed: () {
+                            _messageRepo.sendTextMessage(
+                                message.from.getUid(), buttons.buttons[index]);
+                          },
+                          child: Text(buttons.buttons[index])),
+                      SizedBox(
+                        height: 5,
+                      )
+                    ],
+                  ),
+                );
+              }),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 100),
+          child: TimeAndSeenStatus(message, false, true),
+        ),
+      ],
+    ));
   }
 }

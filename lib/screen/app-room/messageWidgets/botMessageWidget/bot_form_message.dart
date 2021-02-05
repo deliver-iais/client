@@ -3,13 +3,13 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/checkboxFormField.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/form_TextField_widget.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/radioButtonForm_Widget.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/form_list_Widget.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/radio_button_filed_widget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:get_it/get_it.dart';
 
 class BotFormMessage extends StatefulWidget {
@@ -25,10 +25,17 @@ class _BotFormMessageState extends State<BotFormMessage> {
   proto.Form form;
 
   var _messageRepo = GetIt.I.get<MessageRepo>();
+  double height = 0;
 
   @override
   void initState() {
     form = widget.message.json.toForm();
+    height = form.fields.length > 4 ? 300 : 80* form.fields.length.toDouble();
+    for (var i in form.fields) {
+      if (i.whichType() == proto.Form_Field_Type.radioButtonList) {
+        height = height + (45 * i.list.values.length).toDouble();
+      }
+    }
   }
 
   Map<String, String> formResultMap = Map();
@@ -53,12 +60,10 @@ class _BotFormMessageState extends State<BotFormMessage> {
         Container(
           color: Colors.black26,
           child: SizedBox(
-            height: form.fields.length > 4
-                ? 400
-                : 80 * form.fields.length.toDouble(),
+            height: height,
             width: 230,
             child: Scrollbar(
-              isAlwaysShown: false,
+                isAlwaysShown: false,
                 child: ListView.builder(
                     shrinkWrap: true,
                     itemCount: form.fields.length,
@@ -110,8 +115,8 @@ class _BotFormMessageState extends State<BotFormMessage> {
                             },
                           );
                           break;
-                        case proto.Form_Field_Type.radioButtonList:
-                          return FormList_Widget(
+                        case proto.Form_Field_Type.list:
+                          return FormListWidget(
                             formField: form.fields[index],
                             formValidator: formFieldsKey[form.fields[index].id],
                             selected: (value) {
@@ -119,8 +124,8 @@ class _BotFormMessageState extends State<BotFormMessage> {
                             },
                           );
                           break;
-                        case proto.Form_Field_Type.list:
-                          return FormList_Widget(
+                        case proto.Form_Field_Type.radioButtonList:
+                          return RadioButtonFieldWisget(
                             formField: form.fields[index],
                             formValidator: formKey,
                             selected: (value) {
@@ -136,7 +141,9 @@ class _BotFormMessageState extends State<BotFormMessage> {
                     })),
           ),
         ),
-        SizedBox(height: 5,),
+        SizedBox(
+          height: 5,
+        ),
         FlatButton(
           color: Colors.blueAccent,
           shape: RoundedRectangleBorder(

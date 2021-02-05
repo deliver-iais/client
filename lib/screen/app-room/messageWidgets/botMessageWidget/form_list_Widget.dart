@@ -4,19 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
-class FormList_Widget extends StatefulWidget {
+class FormListWidget extends StatefulWidget {
   proto.Form_Field formField;
 
   Function selected;
   final GlobalKey<FormState> formValidator;
 
-  FormList_Widget({this.formField, this.selected, this.formValidator});
+  FormListWidget({this.formField, this.selected, this.formValidator});
 
   @override
-  _FormList_WidgetState createState() => _FormList_WidgetState();
+  _FormListWidgetState createState() => _FormListWidgetState();
 }
 
-class _FormList_WidgetState extends State<FormList_Widget> {
+class _FormListWidgetState extends State<FormListWidget> {
   proto.Form_Field_Type formFieldType;
 
   String selectedItem;
@@ -30,7 +30,9 @@ class _FormList_WidgetState extends State<FormList_Widget> {
     return Container(
       child: Column(
         children: [
-          SizedBox(height: 10,),
+          SizedBox(
+            height: 10,
+          ),
           Form(
             key: widget.formValidator,
             child: DropdownButtonFormField(
@@ -49,8 +51,8 @@ class _FormList_WidgetState extends State<FormList_Widget> {
                       borderSide: BorderSide(color: Colors.blue),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    border:
-                        OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20)),
                     disabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
                         color: Colors.red,
@@ -86,28 +88,11 @@ class _FormList_WidgetState extends State<FormList_Widget> {
                         proto.Form_Field_Type.radioButtonList
                     ? widget.formField.radioButtonList.values
                     : widget.formField.list.values
-                        .map<DropdownMenuItem<String>>((val) => DropdownMenuItem(
-                              value: val,
-                              child: formFieldType == proto.Form_Field_Type.checkbox
-                                  ? RadioListTile(
-                                      groupValue: selectedItem,
-                                      title: Text(val),
-                                      value: val,
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedItem = val;
-                                        });
-                                        widget.selected(val);
-                                      },
-                                    )
-                                  : Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: <Widget>[
-                                        Text(val),
-                                      ],
-                                    ),
-                            ))
+                        .map<DropdownMenuItem<String>>(
+                            (val) => DropdownMenuItem(
+                                  value: val,
+                                  child:  Center(child: Text(val),) ,
+                                ))
                         .toList()),
           ),
         ],
