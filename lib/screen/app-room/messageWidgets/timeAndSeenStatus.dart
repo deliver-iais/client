@@ -15,7 +15,6 @@ class TimeAndSeenStatus extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(7)),
-            color: Colors.black.withOpacity(0.5),
           ),
           child: Row(
             children: [

@@ -5,17 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:rxdart/rxdart.dart';
 
-class FormTextFieldWidget extends StatelessWidget {
+class FormInputTextFieldWidget extends StatelessWidget {
   proto.Form_Field formField;
   final GlobalKey<FormState> formValidator;
 
-
   Function setResult;
-  FormTextFieldWidget({this.formField, this.setResult,this.formValidator});
+
+  FormInputTextFieldWidget(
+      {this.formField, this.setResult, this.formValidator});
 
   AppLocalization _appLocalization;
   proto.Form_Field_Type formFieldType;
-
 
   @override
   Widget build(BuildContext context) {
@@ -24,17 +24,16 @@ class FormTextFieldWidget extends StatelessWidget {
     return Column(
       children: [
         SizedBox(
-          height: 5,
+          height: 10,
         ),
         Container(
           child: Form(
             key: formValidator,
             child: TextFormField(
               minLines: 1,
-              textInputAction: TextInputAction.send,
               validator: validateFormTextField,
               onChanged: (str) {
-                  setResult(str);
+                setResult(str);
               },
               keyboardType: formFieldType == proto.Form_Field_Type.textField
                   ? TextInputType.text
@@ -42,8 +41,22 @@ class FormTextFieldWidget extends StatelessWidget {
                       ? TextInputType.number
                       : TextInputType.datetime,
               decoration: InputDecoration(
-                  focusColor: Colors.red,
-                  border: OutlineInputBorder(),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  disabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.red,
+                    ),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                   suffix: formField.isOptional
                       ? Text(
                           "*",
@@ -63,10 +76,9 @@ class FormTextFieldWidget extends StatelessWidget {
     if (value.isEmpty && !formField.isOptional) {
       return null;
     } else if (value != null && value.length > formField.textField.max) {
-      return  "${_appLocalization
-          .getTraslateValue("max_length")}  ${formField.textField.max}";
+      return "${_appLocalization.getTraslateValue("max_length")}  ${formField.textField.max}";
     } else if (value == null || value.length < formField.textField.min) {
-      return  " ${_appLocalization.getTraslateValue("min_length")} ${formField.textField.min}";
+      return " ${_appLocalization.getTraslateValue("min_length")} ${formField.textField.min}";
     } else {
       return null;
     }

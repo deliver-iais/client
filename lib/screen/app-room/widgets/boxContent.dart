@@ -62,7 +62,7 @@ class _BoxContentState extends State<BoxContent> {
             !widget.isSender)
           senderNameBox(),
         if (widget.message.to.getUid().category != Categories.BOT &&  widget.message.replyToId != null && widget.message.replyToId > 0)
-          replyToIdBox(),
+         replyToIdBox(),
         if (widget.message.forwardedFrom != null &&
             widget.message.forwardedFrom.length > 3)
           forwardedFromBox(),
@@ -175,7 +175,7 @@ class _BoxContentState extends State<BoxContent> {
       case MessageType.FORM_RESULT:
        return  BotSendedFormWidget(message: widget.message,);
       case MessageType.FORM:
-        return  BotFormMessage(message: widget.message,);
+        return BotFormMessage(message: widget.message,);
       case MessageType.BUTTONS:
         return BotButtonsWidget(message:widget.message);
         break;

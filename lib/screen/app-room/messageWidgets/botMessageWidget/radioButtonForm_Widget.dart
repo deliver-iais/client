@@ -4,19 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
-class FormButtonList_Widget extends StatefulWidget {
+class FormList_Widget extends StatefulWidget {
   proto.Form_Field formField;
 
   Function selected;
   final GlobalKey<FormState> formValidator;
 
-  FormButtonList_Widget({this.formField, this.selected, this.formValidator});
+  FormList_Widget({this.formField, this.selected, this.formValidator});
 
   @override
-  _FormButtonList_WidgetState createState() => _FormButtonList_WidgetState();
+  _FormList_WidgetState createState() => _FormList_WidgetState();
 }
 
-class _FormButtonList_WidgetState extends State<FormButtonList_Widget> {
+class _FormList_WidgetState extends State<FormList_Widget> {
   proto.Form_Field_Type formFieldType;
 
   String selectedItem;
@@ -28,67 +28,90 @@ class _FormButtonList_WidgetState extends State<FormButtonList_Widget> {
     _appLocalization = AppLocalization.of(context);
     formFieldType = widget.formField.whichType();
     return Container(
-        child: SizedBox(
-            width: 100,
-            height: 100,
-            child: Center(
-              child: Form(
-                key: widget.formValidator,
-                child: DropdownButtonFormField(
-                    autovalidate: false,
-                    hint: Text(
-                      widget.formField.label,
-                      style: TextStyle(
-                          fontSize: 15, color: Theme.of(context).primaryColor),
+      child: Column(
+        children: [
+          SizedBox(height: 10,),
+          Form(
+            key: widget.formValidator,
+            child: DropdownButtonFormField(
+                autovalidate: false,
+                hint: Text(
+                  widget.formField.label,
+                  style: TextStyle(
+                      fontSize: 15, color: Theme.of(context).primaryColor),
+                ),
+                decoration: InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    value: selectedItem,
-                    validator: (value) {
-                      if (!widget.formField.isOptional) {
-                        return null;
-                      } else {
-                        if(value == null)
-                        return _appLocalization
-                            .getTraslateValue("this_filed_not_empty");
-                        else
-                          return null;
-                      }
-                    },
-                    onChanged: (String valu) {
-                      setState(() {
-                        selectedItem = valu;
-                      });
-                      widget.selected(valu);
-                    },
-                    items: widget.formField.whichType() ==
-                            proto.Form_Field_Type.radioButtonList
-                        ? widget.formField.radioButtonList.values
-                        : widget.formField.list.values
-                            .map<DropdownMenuItem<String>>(
-                                (val) => DropdownMenuItem(
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    border:
+                        OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+                    disabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.red,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    suffix: widget.formField.isOptional
+                        ? Text(
+                            "*",
+                            style: TextStyle(color: Colors.red),
+                          )
+                        : SizedBox.shrink(),
+                    labelStyle: TextStyle(color: Colors.blue)),
+                value: selectedItem,
+                validator: (value) {
+                  if (!widget.formField.isOptional) {
+                    return null;
+                  } else {
+                    if (value == null)
+                      return _appLocalization
+                          .getTraslateValue("this_filed_not_empty");
+                    else
+                      return null;
+                  }
+                },
+                onChanged: (String valu) {
+                  setState(() {
+                    selectedItem = valu;
+                  });
+                  widget.selected(valu);
+                },
+                items: widget.formField.whichType() ==
+                        proto.Form_Field_Type.radioButtonList
+                    ? widget.formField.radioButtonList.values
+                    : widget.formField.list.values
+                        .map<DropdownMenuItem<String>>((val) => DropdownMenuItem(
+                              value: val,
+                              child: formFieldType == proto.Form_Field_Type.checkbox
+                                  ? RadioListTile(
+                                      groupValue: selectedItem,
+                                      title: Text(val),
                                       value: val,
-                                      child: formFieldType ==
-                                              proto.Form_Field_Type.checkbox
-                                          ? RadioListTile(
-                                              groupValue: selectedItem,
-                                              title: Text(val),
-                                              value: val,
-                                              onChanged: (val) {
-                                                setState(() {
-                                                  selectedItem = val;
-                                                });
-                                                widget.selected(val);
-                                              },
-                                            )
-                                          : Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: <Widget>[
-                                                Text(val),
-                                              ],
-                                            ),
-                                    ))
-                            .toList()),
-              ),
-            )));
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedItem = val;
+                                        });
+                                        widget.selected(val);
+                                      },
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: <Widget>[
+                                        Text(val),
+                                      ],
+                                    ),
+                            ))
+                        .toList()),
+          ),
+        ],
+      ),
+    );
   }
 }

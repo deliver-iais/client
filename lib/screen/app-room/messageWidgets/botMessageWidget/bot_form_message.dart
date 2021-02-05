@@ -32,18 +32,14 @@ class _BotFormMessageState extends State<BotFormMessage> {
   }
 
   Map<String, String> formResultMap = Map();
-  Map<String, GlobalKey<FormBuilderState>> _formKeyMap = Map();
   AppLocalization _appLocalization;
-  bool validate = false;
-  Map<String, GlobalKey<FormState>> textFielidKey = Map();
+
+  Map<String, GlobalKey<FormState>> formFieldsKey = Map();
 
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
-    for (var fileId in form.fields) {
-      GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
-      _formKeyMap[fileId.id] = _formKey;
-    }
+
     return Container(
         child: Column(
       children: [
@@ -55,104 +51,109 @@ class _BotFormMessageState extends State<BotFormMessage> {
           height: 20,
         ),
         Container(
+          color: Colors.black26,
           child: SizedBox(
             height: form.fields.length > 4
                 ? 400
                 : 80 * form.fields.length.toDouble(),
             width: 230,
-            child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: form.fields.length,
-                itemBuilder: (c, index) {
-                  switch (form.fields[index].whichType()) {
-                    case proto.Form_Field_Type.textField:
-                      textFielidKey[form.fields[index].id] =
-                          new GlobalKey<FormState>();
-                      return FormTextFieldWidget(
-                        formField: form.fields[index],
-                        formValidator: textFielidKey[form.fields[index].id],
-                        setResult: (value) {
-                          setResult(index, value);
-                        },
-                      );
-                      break;
-                    case proto.Form_Field_Type.numberField:
-                      return FormTextFieldWidget(
-                        formField: form.fields[index],
-                        setResult: (value) {
-                          setResult(index, value);
-                        },
-                      );
-                      break;
-                    case proto.Form_Field_Type.dateField:
-                      return FormTextFieldWidget(
-                        formField: form.fields[index],
-                        setResult: (value) {
-                          setResult(index, value);
-                        },
-                      );
-                      break;
-                    case proto.Form_Field_Type.timeField:
-                      return FormTextFieldWidget(
-                        formField: form.fields[index],
-                        setResult: (value) {
-                          setResult(index, value);
-                        },
-                      );
-                      break;
-                    case proto.Form_Field_Type.checkbox:
-                      return CheckBoxFormField(
-                        formField: form.fields[index],
-                        selected: (value) {
-                          setResult(index, value);
-                        },
-                      );
-                      break;
-                    case proto.Form_Field_Type.radioButtonList:
-                      return FormButtonList_Widget(
-                        formField: form.fields[index],
-                        formValidator: textFielidKey[form.fields[index].id],
-                        selected: (value) {
-                          setResult(index, value);
-                        },
-                      );
-                      break;
-                    case proto.Form_Field_Type.list:
-                      textFielidKey[form.fields[index].id] =
-                          new GlobalKey<FormState>();
-                      return FormButtonList_Widget(
-                        formField: form.fields[index],
-                        formValidator: textFielidKey[form.fields[index].id],
-                        selected: (value) {
-                          setResult(index, value);
-                        },
-                      );
-                      break;
-                    case proto.Form_Field_Type.notSet:
+            child: Scrollbar(
+              isAlwaysShown: false,
+                child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: form.fields.length,
+                    itemBuilder: (c, index) {
+                      var formKey = new GlobalKey<FormState>();
+                      formFieldsKey[form.fields[index].id] = formKey;
+                      switch (form.fields[index].whichType()) {
+                        case proto.Form_Field_Type.textField:
+                          return FormInputTextFieldWidget(
+                            formField: form.fields[index],
+                            formValidator: formKey,
+                            setResult: (value) {
+                              setResult(index, value);
+                            },
+                          );
+                          break;
+                        case proto.Form_Field_Type.numberField:
+                          return FormInputTextFieldWidget(
+                            formField: form.fields[index],
+                            formValidator: formKey,
+                            setResult: (value) {
+                              setResult(index, value);
+                            },
+                          );
+                          break;
+                        case proto.Form_Field_Type.dateField:
+                          return FormInputTextFieldWidget(
+                            formField: form.fields[index],
+                            formValidator: formKey,
+                            setResult: (value) {
+                              setResult(index, value);
+                            },
+                          );
+                          break;
+                        case proto.Form_Field_Type.timeField:
+                          return FormInputTextFieldWidget(
+                            formField: form.fields[index],
+                            formValidator: formKey,
+                            setResult: (value) {
+                              setResult(index, value);
+                            },
+                          );
+                          break;
+                        case proto.Form_Field_Type.checkbox:
+                          return CheckBoxFormField(
+                            formField: form.fields[index],
+                            selected: (value) {
+                              setResult(index, value);
+                            },
+                          );
+                          break;
+                        case proto.Form_Field_Type.radioButtonList:
+                          return FormList_Widget(
+                            formField: form.fields[index],
+                            formValidator: formFieldsKey[form.fields[index].id],
+                            selected: (value) {
+                              setResult(index, value);
+                            },
+                          );
+                          break;
+                        case proto.Form_Field_Type.list:
+                          return FormList_Widget(
+                            formField: form.fields[index],
+                            formValidator: formKey,
+                            selected: (value) {
+                              setResult(index, value);
+                            },
+                          );
+                          break;
+                        case proto.Form_Field_Type.notSet:
+                          return SizedBox.shrink();
+                          break;
+                      }
                       return SizedBox.shrink();
-                      break;
-                  }
-                  return SizedBox.shrink();
-                }),
+                    })),
           ),
         ),
+        SizedBox(height: 5,),
         FlatButton(
+          color: Colors.blueAccent,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18.0),
               side: BorderSide(color: Colors.blue)),
           onPressed: () {
-            for (var field in textFielidKey.values) {
-              if (field.currentState?.validate()) {
-                validate = true;
-              }else
+            var validate = true;
+            for (var field in formFieldsKey.values) {
+              if (!field.currentState?.validate()) {
                 validate = false;
                 break;
+              }
             }
-            if(validate== true){
+            if (validate) {
               _messageRepo.sendFormMessage(
                   widget.message.from, formResultMap, widget.message.id);
             }
-
           },
           child: Text(
             _appLocalization.getTraslateValue("submit"),

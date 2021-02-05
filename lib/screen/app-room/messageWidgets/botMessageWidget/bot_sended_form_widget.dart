@@ -27,36 +27,47 @@ class BotSendedFormWidget extends StatelessWidget {
             proto.Form form = messageByForm.data.json.toForm();
             return Container(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
                     form.title,
                     style: TextStyle(fontSize: 16, color: Colors.black),
                   ),
-                  SizedBox(height: 10,),
-                  Container(
-                    child: SizedBox(
-                      height: formResult.values.length>4?400:20*formResult.values.length.toDouble(),
-                        width: 200,
-                        child: ListView.builder(
-                            itemCount: form.fields.length,
-                            itemBuilder: (c, index) {
-                              return Row(
-                                children: [
-                                  Text(
-                                    "${form.fields[index].label} : ",
-                                    style: TextStyle(
-                                        fontSize: 13, color: Colors.black),
-                                  ),
-                                  Text(
-                                    formResult.values[form.fields[index].id],
-                                    style: TextStyle(
-                                        fontSize: 14, color: Colors.white),
-                                  )
-                                ],
-                              );
-                            })),
+                  SizedBox(
+                    height: 10,
                   ),
-                  //   TimeAndSeenStatus(message, true, true)
+                  Container(
+                    color: Colors.black26,
+                    child: SizedBox(
+                        height: 20 * form.fields.length.toDouble(),
+                        width: 250,
+                        child: Scrollbar(
+                            child: ListView.builder(
+                                itemCount: form.fields.length,
+                                itemBuilder: (c, index) {
+                                  return Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "${form.fields[index].label} : ",
+                                        style: TextStyle(
+                                            fontSize: 13, color: Colors.black),
+                                      ),
+                                      Text(
+                                        getText(form, index),
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            fontSize: 14, color: Colors.white),
+                                      )
+                                    ],
+                                  );
+                                }))),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 180),
+                    child: TimeAndSeenStatus(message, true, true),
+                  )
                 ],
               ),
             );
@@ -64,5 +75,29 @@ class BotSendedFormWidget extends StatelessWidget {
             return SizedBox.shrink();
           }
         });
+  }
+
+  String getText(proto.Form form, int index) {
+    var body = formResult.values[form.fields[index].id];
+    String text = "";
+    if (body == null) {
+      return "";
+    } else {
+      int textLenght = body.length;
+      if (textLenght > 25) {
+        int d = (textLenght / 25).floor();
+        int i = 0;
+        while (i <= d) {
+          if (i < d) {
+            text = text + body.substring(i * 25, (((i + 1) * 25) - 1)) + "\n";
+          } else {
+            text = text + body.substring(i * 25, textLenght);
+          }
+          i++;
+        }
+        return text;
+      } else
+        return body;
+    }
   }
 }

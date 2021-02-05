@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CheckBoxFormField extends StatefulWidget {
-  proto.Form_Field formField;
+ final proto.Form_Field formField;
+ final Function selected;
+ final GlobalKey<FormState> formKey;
 
-  Function selected;
-
-  CheckBoxFormField({this.formField, this.selected});
+  CheckBoxFormField({this.formField, this.selected,this.formKey});
 
   @override
   _CheckBoxFormFieldState createState() => _CheckBoxFormFieldState();
