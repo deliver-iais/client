@@ -21,12 +21,12 @@ class BotButtonsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     buttons = message.json.toButtons();
     return Container(
-        child: Column(
+        child: Stack(
       children: [
         SizedBox(
-          height: 50 * buttons.buttons.length.toDouble(),
+          height: 60 * buttons.buttons.length.toDouble(),
           width: 200,
-          child: ListView.builder(
+          child:  ListView.builder(
               itemCount: buttons.buttons.length,
               itemBuilder: (c, index) {
                 return Center(
@@ -50,10 +50,7 @@ class BotButtonsWidget extends StatelessWidget {
                 );
               }),
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 100),
-          child: TimeAndSeenStatus(message, false, true),
-        ),
+        TimeAndSeenStatus(message, false, true),
       ],
     ));
   }
