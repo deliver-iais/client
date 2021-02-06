@@ -33,6 +33,7 @@ import 'package:deliver_flutter/shared/mucAppbarTitle.dart';
 import 'package:deliver_flutter/shared/userAppBar.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -46,9 +47,10 @@ class RoomPage extends StatefulWidget {
   final String roomId;
   final List<Message> forwardedMessages;
   final List<String> inputFilePath;
+  final proto.ShareUid shareUid;
 
   const RoomPage(
-      {Key key, this.roomId, this.forwardedMessages, this.inputFilePath})
+      {Key key, this.roomId, this.forwardedMessages, this.inputFilePath,this.shareUid})
       : super(key: key);
 
   @override
@@ -153,12 +155,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void _sendForwardMessage() async {
-    await _messageRepo.sendForwardedMessage(
-        widget.roomId.uid, widget.forwardedMessages);
+    if(widget.shareUid!= null){
+      _messageRepo.sendShareUidMessage(widget.roomId,widget.shareUid);
+    }else{
+      await _messageRepo.sendForwardedMessage(
+          widget.roomId.uid, widget.forwardedMessages);
+    }
     setState(() {
       _waitingForForwardedMessage = false;
       _repliedMessage = null;
     });
+
   }
 
   void _showCustomMenu(Message message) {
@@ -176,7 +183,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _waitingForForwardedMessage = false;
         } else if (opr == OperationOnMessage.FORWARD) {
           _repliedMessage = null;
-          _routingService.openSelectForwardMessage([message]);
+          _routingService.openSelectForwardMessage(forwardedMessages:[message]);
         }
       });
     });
@@ -389,7 +396,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             mini: true,
             child: Column(
               children: [
-                count > 0 ?Text(count.toString()):SizedBox(width: 2,height: 8,),
+                count > 0
+                    ? Text(count.toString())
+                    : SizedBox(
+                        width: 2,
+                        height: 8,
+                      ),
                 Icon(
                   Icons.arrow_downward_rounded,
                   color: Colors.red,
@@ -404,17 +416,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Widget buildNewMessageInput() {
-    if(widget.roomId.getUid().category == Categories.BOT && _currentRoom.lastMessageId == null){
-      return BotStartWidget(botUid: widget.roomId.getUid()) ;
-    }else
-    return NewMessageInput(
-      currentRoomId: widget.roomId,
-      replyMessageId: _repliedMessage != null ? _repliedMessage.id ?? -1 : -1,
-      resetRoomPageDetails: _resetRoomPageDetails,
-      waitingForForward: _waitingForForwardedMessage,
-      sendForwardMessage: _sendForwardMessage,
-      scrollToLastSentMessage: scrollToLast,
-    );
+    if (widget.roomId.getUid().category == Categories.BOT &&
+        _currentRoom.lastMessageId == null) {
+      return BotStartWidget(botUid: widget.roomId.getUid());
+    } else
+      return NewMessageInput(
+        currentRoomId: widget.roomId,
+        replyMessageId: _repliedMessage != null ? _repliedMessage.id ?? -1 : -1,
+        resetRoomPageDetails: _resetRoomPageDetails,
+        waitingForForward: _waitingForForwardedMessage,
+        sendForwardMessage: _sendForwardMessage,
+        scrollToLastSentMessage: scrollToLast,
+      );
   }
 
   PreferredSize buildAppbar(AsyncSnapshot<bool> snapshot) {
@@ -657,8 +670,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 onPressed: () {
                   _selectMultiMessageSubject.add(false);
                   _selectedMessages.clear();
-                  setState(() {
-                  });
+                  setState(() {});
                 }),
           ),
         ),
@@ -678,7 +690,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 ),
                 onPressed: () {
                   _routingService.openSelectForwardMessage(
-                      _selectedMessages.values.toList());
+                      forwardedMessages: _selectedMessages.values.toList());
                   _selectedMessages.clear();
                 }),
           ),
@@ -698,7 +710,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       onLongPress: () {
         _selectMultiMessageSubject.add(true);
         _addForwardMessage(message);
-
       },
       onTapDown: storePosition,
       child: SingleChildScrollView(
@@ -727,7 +738,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             //   } else {
             //     return SizedBox.shrink();
             //   }
-           //})
+            //})
           ],
         ),
       ),

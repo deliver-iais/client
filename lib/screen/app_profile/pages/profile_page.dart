@@ -18,6 +18,7 @@ import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
@@ -48,6 +49,7 @@ class _ProfilePageState extends State<ProfilePage>
   var _uxService = GetIt.I.get<UxService>();
   TabController _tabController;
   int tabsCount;
+
   @override
   void initState() {
     _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
@@ -133,14 +135,18 @@ class _ProfilePageState extends State<ProfilePage>
                                             Padding(
                                               padding: EdgeInsets.fromLTRB(
                                                   20, 0, 0, 0),
-                                              child: Text(
-                                                appLocalization
-                                                    .getTraslateValue("info"),
-                                                style: TextStyle(
-                                                  color: ExtraTheme.of(context)
-                                                      .blueOfProfilePage,
-                                                  fontSize: 16.0,
-                                                ),
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    appLocalization
+                                                        .getTraslateValue("info"),
+                                                    style: TextStyle(
+                                                      color: ExtraTheme.of(context)
+                                                          .blueOfProfilePage,
+                                                      fontSize: 16.0,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                             SizedBox(height: 10),
@@ -152,7 +158,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                       snapshot) {
                                                 if (snapshot.data != null) {
                                                   return _showUsername(
-                                                      snapshot.data.username);
+                                                      snapshot.data.username,widget.userUid);
                                                 } else {
                                                   return FutureBuilder<String>(
                                                     future: _contactRepo
@@ -167,7 +173,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                           null) {
                                                         return _showUsername(
                                                             snapshot
-                                                                .data);
+                                                                .data,widget.userUid);
                                                       } else {
                                                         return SizedBox
                                                             .shrink();
@@ -471,12 +477,23 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
       });
 }
 
-Widget _showUsername(String username) {
+Widget _showUsername(String username,Uid currentUid) {
+  var routingServices= GetIt.I.get<RoutingService>();
   return Padding(
     padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
-    child: Text(
-      username != null ? "@$username" : '',
-      style: TextStyle(fontSize: 18.0, color: Colors.blue),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          username != null ? "@$username" : '',
+          style: TextStyle(fontSize: 18.0, color: Colors.blue),
+        ),
+        SizedBox(width: 150,),
+        IconButton(icon: Icon(Icons.share,size: 22,color: Colors.blueAccent,), onPressed: (){
+          routingServices.openSelectForwardMessage(sharedUid:proto.ShareUid()..name =username..uid = currentUid);
+
+        })
+      ],
     ),
   );
 }

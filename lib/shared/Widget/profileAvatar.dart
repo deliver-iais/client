@@ -48,7 +48,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   var _roomRepo = GetIt.I.get<RoomRepo>();
   String _uploadAvatarPath;
   bool _setAvatarPermission = false;
-  bool _deleteMucPermission = false;
   var _memberRepo = GetIt.I.get<MemberRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
@@ -77,7 +76,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         _accountRepo.currentUserUid.asString(), widget.roomUid.asString());
     setState(() {
       _setAvatarPermission = setAvatarper;
-      _deleteMucPermission = deleteMucPer;
     });
   }
 
@@ -182,7 +180,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     return ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.only(top: 40),
+          padding: const EdgeInsets.only(top: 70),
           child: Column(
             children: [
               showProgressBar
@@ -290,7 +288,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                       .getTraslateValue("blockRoom")),
                               value: room.data.isBlock
                                   ? "unBlockRoom"
-                                  : "BlockRoom"),
+                                  : "blockRoom"),
                           new PopupMenuItem<String>(
                               child: Text(
                                   _appLocalization.getTraslateValue("report")),

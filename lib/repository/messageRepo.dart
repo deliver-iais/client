@@ -582,4 +582,29 @@ class MessageRepo {
     // Send Message
     await _sendMessageToServer(dbId);
   }
+
+  void sendShareUidMessage(Uid room, MessageProto.ShareUid shareUid) async{
+    String packetId = _getPacketId();
+    String json = shareUid.writeToJson();
+    MessagesCompanion message = MessagesCompanion.insert(
+      roomId: room.asString(),
+      packetId: packetId,
+      time: now(),
+      from: _accountRepo.currentUserUid.asString(),
+      to: room.asString(),
+      replyToId:  Value.absent(),
+      type: MessageType.SHARE_UID,
+      json: json,
+    );
+
+    int dbId = await _messageDao.insertMessageCompanion(message);
+    await _savePendingMessage(
+        room.asString(), dbId, packetId, SendingStatus.PENDING);
+    _updateRoomLastMessage(
+      room.asString(),
+      dbId,
+    );
+    // Send Message
+    await _sendMessageToServer(dbId);
+  }
 }

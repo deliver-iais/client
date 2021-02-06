@@ -1,13 +1,15 @@
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/sender_and_content.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter/material.dart';
 
 class ForwardWidget extends StatelessWidget {
   final List<Message> forwardedMessages;
   final Function onClick;
+  final proto.ShareUid shareUid;
 
-  const ForwardWidget({Key key, this.forwardedMessages,this.onClick}) : super(key: key);
+  const ForwardWidget({Key key, this.forwardedMessages,this.shareUid,this.onClick}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -27,10 +29,11 @@ class ForwardWidget extends StatelessWidget {
               size: 25,
             ),
             SizedBox(width: 10),
+            shareUid != null?Text(shareUid.name,style: TextStyle(color: Colors.blueAccent,fontSize: 20),):
             SenderAndContent(
               messages: forwardedMessages,
               inBox: false,
-            ),
+                  ),
             Spacer(),
             IconButton(
               padding: EdgeInsets.all(0),

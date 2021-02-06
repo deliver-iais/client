@@ -17,6 +17,7 @@ import 'package:deliver_flutter/screen/settings/account_settings.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -64,7 +65,7 @@ class RoutingService {
     reset();
   }
 
-  void openRoom(String roomId, {List<Message> forwardedMessages = const []}) {
+  void openRoom(String roomId, {List<Message> forwardedMessages = const [],pro.ShareUid shareUid}) {
     backSubject.add(false);
     var widget = WillPopScope(
         onWillPop: () {
@@ -80,6 +81,7 @@ class RoutingService {
           key: ValueKey("/room/$roomId"),
           roomId: roomId,
           forwardedMessages: forwardedMessages,
+          shareUid:shareUid
         ));
     _popAllAndPush(Page(
         largePageNavigator: _navigationCenter,
@@ -212,7 +214,7 @@ class RoutingService {
         path: "/new-contact"));
   }
 
-  void openSelectForwardMessage(List<Message> forwardedMessages) {
+  void openSelectForwardMessage({List<Message> forwardedMessages ,pro.ShareUid sharedUid }) {
     var widget = SelectionToForwardPage(
       key: ValueKey("/selection-to-forward-page"),
       forwardedMessages: forwardedMessages,
