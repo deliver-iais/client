@@ -17,21 +17,27 @@ class CheckBoxFormField extends StatefulWidget {
 }
 
 class _CheckBoxFormFieldState extends State<CheckBoxFormField> {
-  bool _selected;
+
+  bool  _selected;
+  @override
+  void initState() {
+ _selected  = widget.formField.checkbox.selected;
+  }
 
   @override
   Widget build(BuildContext context) {
-    _selected = widget.formField.checkbox.selected;
+
     return Container(
       child: Row(
         children: [
           Checkbox(
+            checkColor: Colors.blueAccent,
             value: _selected,
             onChanged: (value) {
               setState(() {
                 _selected = value;
-                widget.selected(value.toString());
               });
+              widget.selected(value.toString());
             },
           ),
           Text(widget.formField.label),
@@ -39,4 +45,5 @@ class _CheckBoxFormFieldState extends State<CheckBoxFormField> {
       ),
     );
   }
+
 }

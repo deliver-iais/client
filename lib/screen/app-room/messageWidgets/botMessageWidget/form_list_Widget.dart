@@ -17,8 +17,6 @@ class FormListWidget extends StatefulWidget {
 }
 
 class _FormListWidgetState extends State<FormListWidget> {
-  proto.Form_Field_Type formFieldType;
-
   String selectedItem;
 
   AppLocalization _appLocalization;
@@ -26,77 +24,76 @@ class _FormListWidgetState extends State<FormListWidget> {
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
-    formFieldType = widget.formField.whichType();
-    return Container(
-      child: Column(
-        children: [
-          SizedBox(
-            height: 10,
-          ),
-          Form(
-            key: widget.formValidator,
-            child: DropdownButtonFormField(
-                autovalidate: false,
-                decoration: InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                    disabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.red,
+    return Padding(
+      padding: const EdgeInsets.only(left: 7, right: 7),
+      child: Container(
+        child: Column(
+          children: [
+            SizedBox(
+              height: 10,
+            ),
+            Form(
+              key: widget.formValidator,
+              child: DropdownButtonFormField(
+                  autovalidate: false,
+                  decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue),
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    suffix: widget.formField.isOptional
-                        ? Text(
-                            "*",
-                            style: TextStyle(color: Colors.red),
-                          )
-                        : SizedBox.shrink(),
-                    labelText: widget.formField.label,
-                    labelStyle: TextStyle(color: Colors.blue)),
-                value: selectedItem,
-                validator: (value) {
-                  if (!widget.formField.isOptional) {
-                    return null;
-                  } else {
-                    if (value == null)
-                      return _appLocalization
-                          .getTraslateValue("this_filed_not_empty");
-                    else
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      disabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.red,
+                        ),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      suffixIcon: Padding(
+                        padding: const EdgeInsets.only(top: 20, left: 25),
+                        child: Text(
+                          "*",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      labelText: widget.formField.label,
+                      labelStyle: TextStyle(color: Colors.blue)),
+                  value: selectedItem,
+                  validator: (value) {
+                    if (!widget.formField.isOptional) {
                       return null;
-                  }
-                },
-                onChanged: (String valu) {
-                  setState(() {
-                    selectedItem = valu;
-                  });
-                  widget.selected(valu);
-                },
-                items: widget.formField.whichType() ==
-                        proto.Form_Field_Type.radioButtonList
-                    ? widget.formField.radioButtonList.values
-                    : widget.formField.list.values
-                        .map<DropdownMenuItem<String>>(
-                            (val) => DropdownMenuItem(
-                                  value: val,
-                                  child: Center(
-                                    child: Text(val),
-                                  ),
-                                ))
-                        .toList()),
-          ),
-          SizedBox(
-            height: 2,
-          ),
-        ],
+                    } else {
+                      if (value == null)
+                        return _appLocalization
+                            .getTraslateValue("this_filed_not_empty");
+                      else
+                        return null;
+                    }
+                  },
+                  onChanged: (String valu) {
+                    setState(() {
+                      selectedItem = valu;
+                    });
+                    widget.selected(valu);
+                  },
+                  items: widget.formField.list.values
+                      .map<DropdownMenuItem<String>>((val) => DropdownMenuItem(
+                            value: val,
+                            child: Center(
+                              child: Text(val),
+                            ),
+                          ))
+                      .toList()),
+            ),
+            SizedBox(
+              height: 2,
+            ),
+          ],
+        ),
       ),
     );
   }

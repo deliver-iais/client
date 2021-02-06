@@ -11,6 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 
 class BotFormMessage extends StatefulWidget {
   final Message message;
@@ -30,16 +31,17 @@ class _BotFormMessageState extends State<BotFormMessage> {
   @override
   void initState() {
     form = widget.message.json.toForm();
-    height = form.fields.length > 4 ? 300 : 85 * form.fields.length.toDouble();
+    height = 85 * form.fields.length.toDouble();
     for (var i in form.fields) {
       if (i.whichType() == proto.Form_Field_Type.radioButtonList) {
-        height = height + (45 * i.list.values.length).toDouble();
+        height = height + (45 * i.radioButtonList.values.length).toDouble();
       }
     }
   }
 
   Map<String, String> formResultMap = Map();
   AppLocalization _appLocalization;
+  BehaviorSubject<bool> verify = BehaviorSubject.seeded(false);
 
   Map<String, GlobalKey<FormState>> formFieldsKey = Map();
 
@@ -71,8 +73,12 @@ class _BotFormMessageState extends State<BotFormMessage> {
                         shrinkWrap: true,
                         itemCount: form.fields.length,
                         itemBuilder: (c, index) {
-                          var formKey = new GlobalKey<FormState>();
-                          formFieldsKey[form.fields[index].id] = formKey;
+                          var formKey;
+                          if (form.fields[index].whichType() !=
+                              proto.Form_Field_Type.checkbox) {
+                            formKey = new GlobalKey<FormState>();
+                            formFieldsKey[form.fields[index].id] = formKey;
+                          }
                           switch (form.fields[index].whichType()) {
                             case proto.Form_Field_Type.textField:
                               return FormInputTextFieldWidget(
@@ -155,6 +161,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                   side: BorderSide(color: Colors.blue)),
               onPressed: () {
                 var validate = true;
+
                 for (var field in formFieldsKey.values) {
                   if (!field.currentState?.validate()) {
                     validate = false;

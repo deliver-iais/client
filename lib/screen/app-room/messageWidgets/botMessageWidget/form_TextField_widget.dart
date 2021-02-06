@@ -26,45 +26,49 @@ class FormInputTextFieldWidget extends StatelessWidget {
         SizedBox(
           height: 10,
         ),
-        Container(
-          child: Form(
-            key: formValidator,
-            child: formFieldType == proto.Form_Field_Type.textField ||
-                    formFieldType == proto.Form_Field_Type.numberField
-                ? TextFormField(
-                    minLines: 1,
-                    maxLength: formFieldType == proto.Form_Field_Type.textField
-                        ? formField.textField.max
-                        : formField.numberField.max,
-                    validator: validateFormTextField,
-                    onChanged: (str) {
-                      setResult(str);
-                    },
-                    keyboardType:
-                        formFieldType == proto.Form_Field_Type.textField
-                            ? TextInputType.text
-                            : TextInputType.number,
-                    decoration: buildInputDecoration(),
-                  )
-                : formFieldType == proto.Form_Field_Type.dateField
-                    ? TextFormField(
-                        minLines: 1,
-                        validator: validateFormTextField,
-                        onChanged: (str) {
-                          setResult(str);
-                        },
-                        keyboardType: TextInputType.datetime,
-                        decoration: buildInputDecoration(),
-                      )
-                    : TextFormField(
-                        minLines: 1,
-                        validator: validateFormTextField,
-                        onChanged: (str) {
-                          setResult(str);
-                        },
-                        keyboardType: TextInputType.number,
-                        decoration: buildInputDecoration(),
-                      ),
+        Padding(
+          padding: const EdgeInsets.only(left: 7, right: 7),
+          child: Container(
+            child: Form(
+              key: formValidator,
+              child: formFieldType == proto.Form_Field_Type.textField ||
+                      formFieldType == proto.Form_Field_Type.numberField
+                  ? TextFormField(
+                      minLines: 1,
+                      maxLength:
+                          formFieldType == proto.Form_Field_Type.textField
+                              ? formField.textField.max
+                              : formField.numberField.max,
+                      validator: validateFormTextField,
+                      onChanged: (str) {
+                        setResult(str);
+                      },
+                      keyboardType:
+                          formFieldType == proto.Form_Field_Type.textField
+                              ? TextInputType.text
+                              : TextInputType.number,
+                      decoration: buildInputDecoration(),
+                    )
+                  : formFieldType == proto.Form_Field_Type.dateField
+                      ? TextFormField(
+                          minLines: 1,
+                          validator: validateFormTextField,
+                          onChanged: (str) {
+                            setResult(str);
+                          },
+                          keyboardType: TextInputType.datetime,
+                          decoration: buildInputDecoration(),
+                        )
+                      : TextFormField(
+                          minLines: 1,
+                          validator: validateFormTextField,
+                          onChanged: (str) {
+                            setResult(str);
+                          },
+                          keyboardType: TextInputType.number,
+                          decoration: buildInputDecoration(),
+                        ),
+            ),
           ),
         )
       ],
@@ -88,12 +92,13 @@ class FormInputTextFieldWidget extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(10.0),
         ),
-        suffix: formField.isOptional
-            ? Text(
-                "*",
-                style: TextStyle(color: Colors.red),
-              )
-            : SizedBox.shrink(),
+        suffixIcon: Padding(
+          padding: const EdgeInsets.only(top: 20, left: 25),
+          child: Text(
+            "*",
+            style: TextStyle(color: Colors.red),
+          ),
+        ),
         labelText: formField.label,
         labelStyle: TextStyle(color: Colors.blue));
   }

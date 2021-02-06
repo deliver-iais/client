@@ -34,7 +34,7 @@ class BotButtonsWidget extends StatelessWidget {
                     children: [
                       FlatButton(
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
+                              borderRadius: BorderRadius.circular(20.0),
                               side: BorderSide(color: Colors.blue)),
                           color: Colors.blueAccent,
                           onPressed: () {
