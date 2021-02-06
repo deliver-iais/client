@@ -26,48 +26,48 @@ class BotSendedFormWidget extends StatelessWidget {
           if (messageByForm.hasData && messageByForm.data != null) {
             proto.Form form = messageByForm.data.json.toForm();
             return Container(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+              child: Stack(
                 children: [
-                  Text(
-                    form.title,
-                    style: TextStyle(fontSize: 16, color: Colors.black),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    color: Colors.black26,
-                    child: SizedBox(
-                        height: 20 * form.fields.length.toDouble(),
-                        width: 250,
-                        child: Scrollbar(
-                            child: ListView.builder(
-                                itemCount: form.fields.length,
-                                itemBuilder: (c, index) {
-                                  return Row(
-                                    crossAxisAlignment:
+                  Column(
+                    children: [
+                      Text(
+                        form.title,
+                        style: TextStyle(fontSize: 16, color: Colors.black),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Container(
+                        child: SizedBox(
+                            height: 20 * form.fields.length.toDouble(),
+                            width: 250,
+                            child: Scrollbar(
+                                child: ListView.builder(
+                                    itemCount: form.fields.length,
+                                    itemBuilder: (c, index) {
+                                      return Row(
+                                        crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "${form.fields[index].label} : ",
-                                        style: TextStyle(
-                                            fontSize: 13, color: Colors.black),
-                                      ),
-                                      Text(
-                                        getText(form, index),
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                            fontSize: 14, color: Colors.white),
-                                      )
-                                    ],
-                                  );
-                                }))),
+                                        children: [
+                                          Text(
+                                            "${form.fields[index].label} : ",
+                                            style: TextStyle(
+                                                fontSize: 13, color: Colors.black),
+                                          ),
+                                          Text(
+                                            getText(form, index),
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                                fontSize: 14, color: Colors.white),
+                                          )
+                                        ],
+                                      );
+                                    }))),
+                      ),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 180),
-                    child: TimeAndSeenStatus(message, true, true),
-                  )
+
+                  TimeAndSeenStatus(message, true, true),
                 ],
               ),
             );

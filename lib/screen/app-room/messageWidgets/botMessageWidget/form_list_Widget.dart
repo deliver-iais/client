@@ -37,11 +37,6 @@ class _FormListWidgetState extends State<FormListWidget> {
             key: widget.formValidator,
             child: DropdownButtonFormField(
                 autovalidate: false,
-                hint: Text(
-                  widget.formField.label,
-                  style: TextStyle(
-                      fontSize: 15, color: Theme.of(context).primaryColor),
-                ),
                 decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.blue),
@@ -65,6 +60,7 @@ class _FormListWidgetState extends State<FormListWidget> {
                             style: TextStyle(color: Colors.red),
                           )
                         : SizedBox.shrink(),
+                    labelText: widget.formField.label,
                     labelStyle: TextStyle(color: Colors.blue)),
                 value: selectedItem,
                 validator: (value) {
@@ -96,6 +92,9 @@ class _FormListWidgetState extends State<FormListWidget> {
                                   ),
                                 ))
                         .toList()),
+          ),
+          SizedBox(
+            height: 2,
           ),
         ],
       ),

@@ -29,56 +29,88 @@ class FormInputTextFieldWidget extends StatelessWidget {
         Container(
           child: Form(
             key: formValidator,
-            child: TextFormField(
-              minLines: 1,
-              validator: validateFormTextField,
-              onChanged: (str) {
-                setResult(str);
-              },
-              keyboardType: formFieldType == proto.Form_Field_Type.textField
-                  ? TextInputType.text
-                  : formFieldType == proto.Form_Field_Type.numberField
-                      ? TextInputType.number
-                      : TextInputType.datetime,
-              decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  disabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.red,
-                    ),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  suffix: formField.isOptional
-                      ? Text(
-                          "*",
-                          style: TextStyle(color: Colors.red),
-                        )
-                      : SizedBox.shrink(),
-                  labelText: formField.label,
-                  labelStyle: TextStyle(color: Colors.blue)),
-            ),
+            child: formFieldType == proto.Form_Field_Type.textField ||
+                    formFieldType == proto.Form_Field_Type.numberField
+                ? TextFormField(
+                    minLines: 1,
+                    maxLength: formFieldType == proto.Form_Field_Type.textField
+                        ? formField.textField.max
+                        : formField.numberField.max,
+                    validator: validateFormTextField,
+                    onChanged: (str) {
+                      setResult(str);
+                    },
+                    keyboardType:
+                        formFieldType == proto.Form_Field_Type.textField
+                            ? TextInputType.text
+                            : TextInputType.number,
+                    decoration: buildInputDecoration(),
+                  )
+                : formFieldType == proto.Form_Field_Type.dateField
+                    ? TextFormField(
+                        minLines: 1,
+                        validator: validateFormTextField,
+                        onChanged: (str) {
+                          setResult(str);
+                        },
+                        keyboardType: TextInputType.datetime,
+                        decoration: buildInputDecoration(),
+                      )
+                    : TextFormField(
+                        minLines: 1,
+                        validator: validateFormTextField,
+                        onChanged: (str) {
+                          setResult(str);
+                        },
+                        keyboardType: TextInputType.number,
+                        decoration: buildInputDecoration(),
+                      ),
           ),
         )
       ],
     );
   }
 
+  InputDecoration buildInputDecoration() {
+    return InputDecoration(
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.blue),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.blue),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        disabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Colors.red,
+          ),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        suffix: formField.isOptional
+            ? Text(
+                "*",
+                style: TextStyle(color: Colors.red),
+              )
+            : SizedBox.shrink(),
+        labelText: formField.label,
+        labelStyle: TextStyle(color: Colors.blue));
+  }
+
   String validateFormTextField(String value) {
+    int max = formFieldType == proto.Form_Field_Type.textField
+        ? formField.textField.max
+        : formField.textField.max;
+    int min = formFieldType == proto.Form_Field_Type.textField
+        ? formField.textField.min
+        : formField.textField.min;
     if (value.isEmpty && !formField.isOptional) {
       return null;
-    } else if (value != null && value.length > formField.textField.max) {
-      return "${_appLocalization.getTraslateValue("max_length")}  ${formField.textField.max}";
-    } else if (value == null || value.length < formField.textField.min) {
-      return " ${_appLocalization.getTraslateValue("min_length")} ${formField.textField.min}";
+    } else if (value != null && value.length > max) {
+      return "${_appLocalization.getTraslateValue("max_length")}  ${max}";
+    } else if (value == null || value.length < min) {
+      return " ${_appLocalization.getTraslateValue("min_length")} ${min}";
     } else {
       return null;
     }
