@@ -47,12 +47,6 @@ class _FormListWidgetState extends State<FormListWidget> {
                       ),
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15)),
-                      disabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.red,
-                        ),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
                       suffixIcon: Padding(
                         padding: const EdgeInsets.only(top: 20, left: 25),
                         child: Text(
@@ -84,7 +78,7 @@ class _FormListWidgetState extends State<FormListWidget> {
                       .map<DropdownMenuItem<String>>((val) => DropdownMenuItem(
                             value: val,
                             child: Center(
-                              child: Text(val),
+                              child: Text(val,),
                             ),
                           ))
                       .toList()),

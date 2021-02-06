@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
-class RadioButtonFieldWisget extends StatelessWidget {
+class RadioButtonFieldWisget extends StatefulWidget {
   proto.Form_Field formField;
 
   Function selected;
@@ -12,7 +12,13 @@ class RadioButtonFieldWisget extends StatelessWidget {
 
   RadioButtonFieldWisget({this.formField, this.selected, this.formValidator});
 
+  @override
+  _RadioButtonFieldWisgetState createState() => _RadioButtonFieldWisgetState();
+}
+
+class _RadioButtonFieldWisgetState extends State<RadioButtonFieldWisget> {
   AppLocalization _appLocalization;
+  String selected;
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +33,17 @@ class RadioButtonFieldWisget extends StatelessWidget {
               height: 10,
             ),
             Form(
-                key: formValidator,
+                key: widget.formValidator,
                 child: FormBuilderRadioGroup(
                     wrapDirection: Axis.vertical,
                     onChanged: (value) {
-                      selected(value);
+                      setState(() {
+                        selected = value;
+                      });
+                      widget.selected(value);
                     },
                     validator: (value) {
-                      if (value == null && !formField.isOptional) {
+                      if (value == null && !widget.formField.isOptional) {
                         return null;
                       } else if (value == null) {
                         return _appLocalization
@@ -43,7 +52,7 @@ class RadioButtonFieldWisget extends StatelessWidget {
                       return null;
                     },
                     decoration: InputDecoration(
-                        labelText: formField.label,
+                        labelText: widget.formField.label,
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.blue),
                           borderRadius: BorderRadius.circular(20),
@@ -61,12 +70,19 @@ class RadioButtonFieldWisget extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         labelStyle: TextStyle(color: Colors.blue)),
-                    options: formField.radioButtonList.values
+                    options: widget.formField.radioButtonList.values
                         .map((value) => FormBuilderFieldOption(
                               value: value,
                               child: Row(
                                 children: [
-                                  Text('$value'),
+                                  Text(
+                                    '$value',
+                                    style: TextStyle(
+                                        color: (selected != null &&
+                                                value == selected)
+                                            ? Colors.blueAccent
+                                            : Colors.white),
+                                  ),
                                 ],
                               ),
                             ))
