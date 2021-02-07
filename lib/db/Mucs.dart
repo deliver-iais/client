@@ -6,6 +6,8 @@ class Mucs extends Table {
 
   TextColumn get name => text()();
 
+  TextColumn get id => text().nullable()();
+
   TextColumn get info => text().nullable()();
 
   IntColumn get members => integer()();

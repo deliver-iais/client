@@ -54,7 +54,8 @@ class MucRepo {
 
     if (channelUid != null) {
       sendMembers(channelUid, memberUids);
-      _insertToDb(channelUid, channelName, memberUids.length + 1);
+      _insertToDb(channelUid, channelName, memberUids.length + 1,
+          channelId: channelId);
       fetchMucInfo(channelUid);
       return channelUid;
     }
@@ -134,12 +135,12 @@ class MucRepo {
       }
     } else {
       GetChannelRes channel = await getChannelInfo(mucUid);
-      if (channel != null){
+      if (channel != null) {
         _mucDao.insertMuc(Muc(
-          name: channel.info.name,
-          members: channel.population.toInt(),
-          uid: mucUid.asString(),
-        ));
+            name: channel.info.name,
+            members: channel.population.toInt(),
+            uid: mucUid.asString(),
+            id: channel.info.id));
         insertUserInDb(mucUid, [
           Member(
               memberUid: _accountRepo.currentUserUid.asString(),
@@ -150,7 +151,6 @@ class MucRepo {
           getChannelMembers(mucUid);
         return channel.info.name;
       }
-
     }
   }
 
@@ -310,23 +310,34 @@ class MucRepo {
           uid: channelUid.asString(),
           name: newChannel.info.name,
           members: newChannel.population.toInt(),
+          id: newChannel.info.id,
           info: newChannel.info.info));
     }
   }
 
-  modifyGroup(Muc group) async {
-    //todo is ......
-    await mucServices.modifyGroup(MucPro.GroupInfo());
+  modifyGroup(String mucId, String name) async {
+    var isSet = await mucServices.modifyGroup(
+        MucPro.GroupInfo()..name = name, mucId.getUid());
+    if (isSet) {
+      _mucDao.insertMuc(Muc(uid: mucId, name: name));
+    }
   }
 
-  modifyChannel(Muc group) async {
-    //todo is ......
-    await mucServices.modifyGroup(MucPro.GroupInfo());
+  modifyChannel(String mucUid, String name, String id) async {
+    ChannelInfo channelInfo = ChannelInfo()
+      ..name = name
+      ..id = id;
+    if (await mucServices.modifyChannel(channelInfo, mucUid.getUid()))
+      _mucDao.insertMuc(Muc(uid: mucUid, name: name, id: id));
   }
 
-  _insertToDb(Uid mucUid, String mucName, int memberCount) async {
-    await _mucDao.insertMuc(
-        Muc(uid: mucUid.asString(), name: mucName, members: memberCount));
+  _insertToDb(Uid mucUid, String mucName, int memberCount,
+      {String channelId}) async {
+    await _mucDao.insertMuc(Muc(
+        uid: mucUid.asString(),
+        name: mucName,
+        members: memberCount,
+        id: channelId ?? null));
     await _roomDao
         .insertRoomCompanion(RoomsCompanion.insert(roomId: mucUid.asString()));
   }
@@ -422,8 +433,7 @@ class MucRepo {
     }
   }
 
-   Stream<Member> checkJointToMuc({String roomUid}) {
-    return _memberDao.isJoint(roomUid,_accountRepo.currentUserUid.asString());
-
-   }
+  Stream<Member> checkJointToMuc({String roomUid}) {
+    return _memberDao.isJoint(roomUid, _accountRepo.currentUserUid.asString());
+  }
 }

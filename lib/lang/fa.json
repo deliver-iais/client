@@ -158,5 +158,9 @@
   "left_the_group": "گروه را ترک کرد.",
   "this_filed_not_empty": "این فیلد نباید خالی باشد",
   "please_select_one": "یک مورد را انتخاب کنید.",
-  "joint": "پیوستن"
+  "joint": "پیوستن",
+  "manage_group":"مدیریت گروه",
+  "manage_channel": "مدیریت کانال",
+  "channel_Id": "آیدی کانال",
+  "set": "انجام"
 }

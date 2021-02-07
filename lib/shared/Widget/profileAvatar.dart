@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/muc_type.dart';
@@ -25,6 +26,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ProfileAvatar extends StatefulWidget {
   @required
@@ -52,6 +54,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _roomDao = GetIt.I.get<RoomDao>();
+  var _mucDao = GetIt.I.get<MucDao>();
   AppLocalization _appLocalization;
   MucType _mucType;
   var _routingServices = GetIt.I.get<RoutingService>();
@@ -153,6 +156,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       case "report":
         _roomRepo.reportRoom(widget.roomUid);
         Fluttertoast.showToast(msg: "report_result");
+        break;
+      case "manage":
+        showManageDialog();
     }
   }
 
@@ -266,9 +272,20 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                           child: Text(
                               _appLocalization.getTraslateValue("setProfile")),
                           value: "select"),
+                    if (_setAvatarPermission &&
+                        (widget.roomUid.category == Categories.GROUP ||
+                            widget.roomUid.category == Categories.CHANNEL))
+                      new PopupMenuItem<String>(
+                          child: Text(
+                              widget.roomUid.category == Categories.GROUP
+                                  ? _appLocalization
+                                      .getTraslateValue("manage_group")
+                                  : _appLocalization
+                                      .getTraslateValue("manage_channel")),
+                          value: "manage"),
                     new PopupMenuItem<String>(
-                        child: Text(
-                            _appLocalization.getTraslateValue("report")),
+                        child:
+                            Text(_appLocalization.getTraslateValue("report")),
                         value: "report"),
                   ],
                   onSelected: onSelected,
@@ -344,5 +361,150 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       Fluttertoast.showToast(
           msg: _appLocalization.getTraslateValue("occurred_Error"));
     }
+  }
+
+  void showManageDialog() {
+    var channelIdFormKey = GlobalKey<FormState>();
+    String _currentName;
+    String _currentId;
+    String mucName;
+    String channelId;
+    BehaviorSubject<bool> newChange = BehaviorSubject.seeded(false);
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
+            actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
+            backgroundColor: Colors.white,
+            title: Container(
+              height: 80,
+              color: Colors.blue,
+              child: Icon(
+                Icons.settings,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+            content: Column(
+              children: [
+                FutureBuilder<String>(
+                  future: _roomRepo.getRoomDisplayName(widget.roomUid),
+                  builder: (c, name) {
+                    if (name.hasData) {
+                      _currentName = name.data;
+                      TextFormField(
+                        minLines: 1,
+                        onChanged: (str) {
+                          if (str.isNotEmpty && str != name) {
+                            mucName = str;
+                            newChange.add(true);
+                          }
+                        },
+                        keyboardType: TextInputType.text,
+                        decoration: buildInputDecoration(name.data, false),
+                      );
+                    }
+                    return SizedBox.shrink();
+                  },
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                if (widget.roomUid.category == Categories.CHANNEL)
+                  FutureBuilder<Muc>(
+                      future: _mucDao.getMucByUid(widget.roomUid.asString()),
+                      builder: (c, muc) {
+                        if (muc.hasData && muc.data != null) {
+                          _currentId = muc.data.id;
+                          return Form(
+                              key: channelIdFormKey,
+                              child: TextFormField(
+                                minLines: 1,
+                                validator: validateChannelId,
+                                onChanged: (str) {
+                                  if (str.isNotEmpty && str != muc.data.id) {
+                                    channelId = str;
+                                    if (!newChange.value) newChange.add(true);
+                                  }
+                                },
+                                keyboardType: TextInputType.text,
+                                decoration:
+                                    buildInputDecoration(muc.data.id, true),
+                              ));
+                        } else
+                          return SizedBox.shrink();
+                      })
+              ],
+            ),
+            actions: <Widget>[
+              StreamBuilder<bool>(
+                stream: newChange.stream,
+                builder: (c, change) {
+                  if (change.hasData && change.data) {
+                    return GestureDetector(
+                      child: Text(
+                        _appLocalization.getTraslateValue("set"),
+                        style: TextStyle(fontSize: 16, color: Colors.blue),
+                      ),
+                      onTap: () {
+                        if (widget.roomUid.category == Categories.GROUP) {
+                          _mucRepo.modifyGroup(
+                              widget.roomUid.asString(), mucName);
+                        } else {
+                          if (channelId == null) {
+                            _mucRepo.modifyChannel(widget.roomUid.asString(),
+                                mucName ?? _currentName, _currentId);
+                          } else if (channelIdFormKey.currentState.validate()) {
+                            _mucRepo.modifyChannel(widget.roomUid.asString(),
+                                mucName ?? _currentName, channelId);
+                          }
+                        }
+                      },
+                    );
+                  } else
+                    return SizedBox.shrink();
+                },
+              )
+            ],
+          );
+        });
+  }
+
+  String validateChannelId(String value) {
+    Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
+    RegExp regex = new RegExp(pattern);
+    if (value.isEmpty) {
+      return _appLocalization.getTraslateValue("channelId_not_empty");
+    } else if (!regex.hasMatch(value)) {
+      return _appLocalization.getTraslateValue("channel_id_length");
+    } else
+      return null;
+  }
+
+  InputDecoration buildInputDecoration(String name, bool setId) {
+    return InputDecoration(
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.blue),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.blue),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        disabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Colors.red,
+          ),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        suffix: Text(name),
+        labelText: setId
+            ? _appLocalization.getTraslateValue("channel_Id")
+            : widget.roomUid.category == Categories.GROUP
+                ? _appLocalization.getTraslateValue("group_name")
+                : _appLocalization.getTraslateValue("channel_name"),
+        labelStyle: TextStyle(color: Colors.blue));
   }
 }

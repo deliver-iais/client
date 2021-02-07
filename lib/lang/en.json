@@ -158,7 +158,12 @@
   "left_the_group":"Left the Group",
   "this_filed_not_empty": "This Filed Not Empty",
   "please_select_one": "please select one",
-  "joint": "Joint"
+  "joint": "Joint",
+  "manage_group":"Manage Group",
+  "manage_channel": "Manage Channel",
+  "channel_Id": "channel Id",
+  "set": "Set"
+
 
 
 }

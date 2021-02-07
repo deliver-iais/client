@@ -168,7 +168,7 @@ class MucServices {
       await groupServices.joinGroup(
           GroupServices.JoinGroupReq()..group = groupUid,
           options: CallOptions(
-              timeout: Duration(seconds: 1),
+              timeout: Duration(seconds: 2),
               metadata: {'accessToken': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
@@ -176,12 +176,20 @@ class MucServices {
     }
   }
 
-  Future modifyGroup(GroupServices.GroupInfo group) async {
-    await groupServices.modifyGroup(
-        GroupServices.ModifyGroupReq()..info = group,
-        options: CallOptions(
-            timeout: Duration(seconds: 1),
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+  Future<bool> modifyGroup(GroupServices.GroupInfo group,Uid mucUid) async {
+    try{
+      await groupServices.modifyGroup(
+          GroupServices.ModifyGroupReq()..info = group..uid = mucUid,
+          options: CallOptions(
+              timeout: Duration(seconds: 1),
+              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      return true;
+
+    }catch(c){
+      return false;
+    }
+
+
   }
 
   Future<Uid> createNewChannel(
@@ -352,11 +360,17 @@ class MucServices {
     }
   }
 
-  Future modifyChannel(ChannelServices.ChannelInfo channel) async {
-    await channelServices.modifyChannel(
-        ChannelServices.ModifyChannelReq()..info = channel,
-        options: CallOptions(
-            timeout: Duration(seconds: 1),
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+  Future<bool> modifyChannel(ChannelServices.ChannelInfo channelInfo,Uid mucUid) async {
+    try{
+      await channelServices.modifyChannel(
+          ChannelServices.ModifyChannelReq()..info = channelInfo..uid = mucUid,
+          options: CallOptions(
+              timeout: Duration(seconds: 1),
+              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+      return true;
+    }catch(e){
+      return false;
+    }
+   ;
   }
 }

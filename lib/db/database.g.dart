@@ -4017,11 +4017,13 @@ class $MembersTable extends Members with TableInfo<$MembersTable, Member> {
 class Muc extends DataClass implements Insertable<Muc> {
   final String uid;
   final String name;
+  final String id;
   final String info;
   final int members;
   Muc(
       {@required this.uid,
       @required this.name,
+      this.id,
       this.info,
       @required this.members});
   factory Muc.fromData(Map<String, dynamic> data, GeneratedDatabase db,
@@ -4032,6 +4034,7 @@ class Muc extends DataClass implements Insertable<Muc> {
     return Muc(
       uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
       name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       info: stringType.mapFromDatabaseResponse(data['${effectivePrefix}info']),
       members:
           intType.mapFromDatabaseResponse(data['${effectivePrefix}members']),
@@ -4046,6 +4049,9 @@ class Muc extends DataClass implements Insertable<Muc> {
     if (!nullToAbsent || name != null) {
       map['name'] = Variable<String>(name);
     }
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<String>(id);
+    }
     if (!nullToAbsent || info != null) {
       map['info'] = Variable<String>(info);
     }
@@ -4059,6 +4065,7 @@ class Muc extends DataClass implements Insertable<Muc> {
     return MucsCompanion(
       uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       info: info == null && nullToAbsent ? const Value.absent() : Value(info),
       members: members == null && nullToAbsent
           ? const Value.absent()
@@ -4072,6 +4079,7 @@ class Muc extends DataClass implements Insertable<Muc> {
     return Muc(
       uid: serializer.fromJson<String>(json['uid']),
       name: serializer.fromJson<String>(json['name']),
+      id: serializer.fromJson<String>(json['id']),
       info: serializer.fromJson<String>(json['info']),
       members: serializer.fromJson<int>(json['members']),
     );
@@ -4082,14 +4090,18 @@ class Muc extends DataClass implements Insertable<Muc> {
     return <String, dynamic>{
       'uid': serializer.toJson<String>(uid),
       'name': serializer.toJson<String>(name),
+      'id': serializer.toJson<String>(id),
       'info': serializer.toJson<String>(info),
       'members': serializer.toJson<int>(members),
     };
   }
 
-  Muc copyWith({String uid, String name, String info, int members}) => Muc(
+  Muc copyWith(
+          {String uid, String name, String id, String info, int members}) =>
+      Muc(
         uid: uid ?? this.uid,
         name: name ?? this.name,
+        id: id ?? this.id,
         info: info ?? this.info,
         members: members ?? this.members,
       );
@@ -4098,6 +4110,7 @@ class Muc extends DataClass implements Insertable<Muc> {
     return (StringBuffer('Muc(')
           ..write('uid: $uid, ')
           ..write('name: $name, ')
+          ..write('id: $id, ')
           ..write('info: $info, ')
           ..write('members: $members')
           ..write(')'))
@@ -4105,14 +4118,17 @@ class Muc extends DataClass implements Insertable<Muc> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(uid.hashCode,
-      $mrjc(name.hashCode, $mrjc(info.hashCode, members.hashCode))));
+  int get hashCode => $mrjf($mrjc(
+      uid.hashCode,
+      $mrjc(name.hashCode,
+          $mrjc(id.hashCode, $mrjc(info.hashCode, members.hashCode)))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Muc &&
           other.uid == this.uid &&
           other.name == this.name &&
+          other.id == this.id &&
           other.info == this.info &&
           other.members == this.members);
 }
@@ -4120,17 +4136,20 @@ class Muc extends DataClass implements Insertable<Muc> {
 class MucsCompanion extends UpdateCompanion<Muc> {
   final Value<String> uid;
   final Value<String> name;
+  final Value<String> id;
   final Value<String> info;
   final Value<int> members;
   const MucsCompanion({
     this.uid = const Value.absent(),
     this.name = const Value.absent(),
+    this.id = const Value.absent(),
     this.info = const Value.absent(),
     this.members = const Value.absent(),
   });
   MucsCompanion.insert({
     @required String uid,
     @required String name,
+    this.id = const Value.absent(),
     this.info = const Value.absent(),
     @required int members,
   })  : uid = Value(uid),
@@ -4139,12 +4158,14 @@ class MucsCompanion extends UpdateCompanion<Muc> {
   static Insertable<Muc> custom({
     Expression<String> uid,
     Expression<String> name,
+    Expression<String> id,
     Expression<String> info,
     Expression<int> members,
   }) {
     return RawValuesInsertable({
       if (uid != null) 'uid': uid,
       if (name != null) 'name': name,
+      if (id != null) 'id': id,
       if (info != null) 'info': info,
       if (members != null) 'members': members,
     });
@@ -4153,11 +4174,13 @@ class MucsCompanion extends UpdateCompanion<Muc> {
   MucsCompanion copyWith(
       {Value<String> uid,
       Value<String> name,
+      Value<String> id,
       Value<String> info,
       Value<int> members}) {
     return MucsCompanion(
       uid: uid ?? this.uid,
       name: name ?? this.name,
+      id: id ?? this.id,
       info: info ?? this.info,
       members: members ?? this.members,
     );
@@ -4171,6 +4194,9 @@ class MucsCompanion extends UpdateCompanion<Muc> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
     }
     if (info.present) {
       map['info'] = Variable<String>(info.value);
@@ -4186,6 +4212,7 @@ class MucsCompanion extends UpdateCompanion<Muc> {
     return (StringBuffer('MucsCompanion(')
           ..write('uid: $uid, ')
           ..write('name: $name, ')
+          ..write('id: $id, ')
           ..write('info: $info, ')
           ..write('members: $members')
           ..write(')'))
@@ -4221,6 +4248,18 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
     );
   }
 
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  GeneratedTextColumn _id;
+  @override
+  GeneratedTextColumn get id => _id ??= _constructId();
+  GeneratedTextColumn _constructId() {
+    return GeneratedTextColumn(
+      'id',
+      $tableName,
+      true,
+    );
+  }
+
   final VerificationMeta _infoMeta = const VerificationMeta('info');
   GeneratedTextColumn _info;
   @override
@@ -4246,7 +4285,7 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
   }
 
   @override
-  List<GeneratedColumn> get $columns => [uid, name, info, members];
+  List<GeneratedColumn> get $columns => [uid, name, id, info, members];
   @override
   $MucsTable get asDslTable => this;
   @override
@@ -4269,6 +4308,9 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
           _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
     }
     if (data.containsKey('info')) {
       context.handle(
