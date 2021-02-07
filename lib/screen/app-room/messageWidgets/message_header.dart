@@ -14,8 +14,9 @@ class UnknownFileUi extends StatefulWidget {
   final Message message;
   final double maxWidth;
   final bool isSender;
+  final bool isSeen;
 
-  UnknownFileUi({Key key, this.message, this.maxWidth, this.isSender})
+  UnknownFileUi({Key key, this.message, this.maxWidth, this.isSender,this.isSeen})
       : super(key: key);
 
   @override
@@ -104,7 +105,7 @@ class _UnknownFileUiState extends State<UnknownFileUi> {
                               file: file),
                           file.caption.isEmpty
                               ? TimeAndSeenStatus(
-                                  widget.message, widget.isSender, false)
+                                  widget.message, widget.isSender, false,widget.isSeen)
                               : Container(),
                         ],
                       ),

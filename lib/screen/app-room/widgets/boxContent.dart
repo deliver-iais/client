@@ -11,6 +11,7 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/message_ui.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/reply_widgets/reply_widget_in_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/stickerMessgeWidget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/text_message/text_ui.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/share_uid_message_widget.dart';
 
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -61,8 +62,10 @@ class _BoxContentState extends State<BoxContent> {
         if (widget.message.roomId.uid.category == Categories.GROUP &&
             !widget.isSender)
           senderNameBox(),
-        if (widget.message.to.getUid().category != Categories.BOT &&  widget.message.replyToId != null && widget.message.replyToId > 0)
-         replyToIdBox(),
+        if (widget.message.to.getUid().category != Categories.BOT &&
+            widget.message.replyToId != null &&
+            widget.message.replyToId > 0)
+          replyToIdBox(),
         if (widget.message.forwardedFrom != null &&
             widget.message.forwardedFrom.length > 3)
           forwardedFromBox(),
@@ -149,11 +152,13 @@ class _BoxContentState extends State<BoxContent> {
         break;
       case MessageType.FILE:
         return FileMessageUi(
-            message: widget.message,
-            maxWidth: widget.maxWidth,
-            lastCross: initialLastCross,
-            isSender: widget.isSender,
-            last: last);
+          message: widget.message,
+          maxWidth: widget.maxWidth,
+          lastCross: initialLastCross,
+          isSender: widget.isSender,
+          last: last,
+          isSeen: widget.isSeen,
+        );
         break;
       case MessageType.STICKER:
         return StickerMessageWidget(
@@ -173,22 +178,26 @@ class _BoxContentState extends State<BoxContent> {
         // TODO: Handle this case.
         break;
       case MessageType.FORM_RESULT:
-       return  BotSendedFormWidget(message: widget.message,);
+        return BotSendedFormWidget(
+            message: widget.message, isSeen: widget.isSeen);
       case MessageType.FORM:
-        return BotFormMessage(message: widget.message,);
+        return BotFormMessage(message: widget.message, isSeen: true);
       case MessageType.BUTTONS:
-        return BotButtonsWidget(message:widget.message);
+        return BotButtonsWidget(message: widget.message);
         break;
       case MessageType.PERSISTENT_EVENT:
-        // TODO: Handle this case.
+        // we show peristant event message in roompage
         break;
       case MessageType.SHARE_UID:
-
+        return ShareUidMessageWidget(
+          message: widget.message,
+          isSender: widget.isSender,
+          isSeen: widget.isSeen,
+        );
         break;
       case MessageType.NOT_SET:
         // TODO: Handle this case.
         break;
-
     }
     return Container();
   }

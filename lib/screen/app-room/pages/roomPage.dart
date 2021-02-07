@@ -19,6 +19,7 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_
 import 'package:deliver_flutter/screen/app-room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/bot_start_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/chatTime.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/joint_to_muc_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -48,9 +49,15 @@ class RoomPage extends StatefulWidget {
   final List<Message> forwardedMessages;
   final List<String> inputFilePath;
   final proto.ShareUid shareUid;
+  final bool jointToMuc;
 
   const RoomPage(
-      {Key key, this.roomId, this.forwardedMessages, this.inputFilePath,this.shareUid})
+      {Key key,
+      this.roomId,
+      this.forwardedMessages,
+      this.inputFilePath,
+      this.shareUid,
+      this.jointToMuc})
       : super(key: key);
 
   @override
@@ -155,9 +162,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void _sendForwardMessage() async {
-    if(widget.shareUid!= null){
-      _messageRepo.sendShareUidMessage(widget.roomId,widget.shareUid);
-    }else{
+    if (widget.shareUid != null) {
+      _messageRepo.sendShareUidMessage(widget.roomId.getUid(), widget.shareUid);
+    } else {
       await _messageRepo.sendForwardedMessage(
           widget.roomId.uid, widget.forwardedMessages);
     }
@@ -165,7 +172,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       _waitingForForwardedMessage = false;
       _repliedMessage = null;
     });
-
   }
 
   void _showCustomMenu(Message message) {
@@ -183,7 +189,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _waitingForForwardedMessage = false;
         } else if (opr == OperationOnMessage.FORWARD) {
           _repliedMessage = null;
-          _routingService.openSelectForwardMessage(forwardedMessages:[message]);
+          _routingService
+              .openSelectForwardMessage(forwardedMessages: [message]);
         }
       });
     });
@@ -373,18 +380,32 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       },
                     )
                   : Container(),
-              widget.roomId.uid.category != Categories.CHANNEL
-                  ? buildNewMessageInput()
-                  : MuteAndUnMuteRoomWidget(
-                      roomId: widget.roomId,
-                      inputMessage: buildNewMessageInput(),
-                    )
+              (widget.jointToMuc != null && widget.jointToMuc)
+                  ? StreamBuilder<Member>(
+                      stream: _mucRepo.checkJointToMuc(roomUid: widget.roomId),
+                      builder: (c, isJoint) {
+                        if (isJoint.hasData && isJoint.data != null) {
+                          return keybrodWidget();
+                        } else {
+                          return JointToMucWidget(widget.roomId.getUid());
+                        }
+                      })
+                  : keybrodWidget()
             ],
           ),
           backgroundColor: Theme.of(context).backgroundColor,
         );
       },
     );
+  }
+
+  Widget keybrodWidget() {
+    return widget.roomId.uid.category != Categories.CHANNEL
+        ? buildNewMessageInput()
+        : MuteAndUnMuteRoomWidget(
+            roomId: widget.roomId,
+            inputMessage: buildNewMessageInput(),
+          );
   }
 
   Widget scrollWidget(int count) {

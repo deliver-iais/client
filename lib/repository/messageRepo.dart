@@ -555,12 +555,11 @@ class MessageRepo {
       {String forwardFromAsString}) async {
     String packetId = _getPacketId();
     MessageProto.FormResult formResult = MessageProto.FormResult();
-    for(var fileId in formResultMap.keys){
+    for (var fileId in formResultMap.keys) {
       formResult.values[fileId] = formResultMap[fileId];
     }
 
-    String jsonString = (formResult)
-        .writeToJson();
+    String jsonString = (formResult).writeToJson();
     MessagesCompanion message = MessagesCompanion.insert(
       roomId: botUid,
       packetId: packetId,
@@ -583,7 +582,7 @@ class MessageRepo {
     await _sendMessageToServer(dbId);
   }
 
-  void sendShareUidMessage(Uid room, MessageProto.ShareUid shareUid) async{
+  void sendShareUidMessage(Uid room, MessageProto.ShareUid shareUid) async {
     String packetId = _getPacketId();
     String json = shareUid.writeToJson();
     MessagesCompanion message = MessagesCompanion.insert(
@@ -592,7 +591,7 @@ class MessageRepo {
       time: now(),
       from: _accountRepo.currentUserUid.asString(),
       to: room.asString(),
-      replyToId:  Value.absent(),
+      replyToId: Value.absent(),
       type: MessageType.SHARE_UID,
       json: json,
     );

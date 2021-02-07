@@ -190,7 +190,7 @@ class _StickerMessageWidgetState extends State<StickerMessageWidget> {
                 }
               },
             ),
-            TimeAndSeenStatus(widget.message, widget.isSender, true)
+            TimeAndSeenStatus(widget.message, widget.isSender, true,widget.isSeen)
           ],
         ));
   }

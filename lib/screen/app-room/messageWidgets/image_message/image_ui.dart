@@ -16,8 +16,9 @@ class ImageUi extends StatefulWidget {
   final Message message;
   final double maxWidth;
   final bool isSender;
+  final bool isSeen;
 
-  const ImageUi({Key key, this.message, this.maxWidth, this.isSender})
+  const ImageUi({Key key, this.message, this.maxWidth, this.isSender,this.isSeen})
       : super(key: key);
 
   @override
@@ -65,7 +66,7 @@ class _ImageUiState extends State<ImageUi> {
                     ),
                   ),
                   image.caption.isEmpty
-                      ? TimeAndSeenStatus(widget.message, widget.isSender, true)
+                      ? TimeAndSeenStatus(widget.message, widget.isSender, true,widget.isSeen)
                       : Container()
                 ],
               );
@@ -127,7 +128,7 @@ class _ImageUiState extends State<ImageUi> {
                       ),
                       image.caption.isEmpty
                           ? TimeAndSeenStatus(
-                              widget.message, widget.isSender, true)
+                              widget.message, widget.isSender, true,widget.isSeen)
                           : Container()
                     ],
                   ),

@@ -421,4 +421,9 @@ class MucRepo {
       _memberDao.insertMember(member);
     }
   }
+
+   Stream<Member> checkJointToMuc({String roomUid}) {
+    return _memberDao.isJoint(roomUid,_accountRepo.currentUserUid.asString());
+
+   }
 }

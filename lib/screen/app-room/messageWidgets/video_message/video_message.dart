@@ -19,8 +19,9 @@ class VideoMessage extends StatefulWidget {
   final Message message;
   final double maxWidth;
   final bool isSender;
+  final bool isSeen;
 
-  const VideoMessage({Key key, this.message, this.maxWidth, this.isSender})
+  const VideoMessage({Key key, this.message, this.maxWidth, this.isSender,this.isSeen})
       : super(key: key);
 
   @override
@@ -80,7 +81,7 @@ class _VideoMessageState extends State<VideoMessage> {
                         ? (!isDesktop()) | (isDesktop() & showTime)
                             ? SizedBox.shrink()
                             : TimeAndSeenStatus(
-                                widget.message, widget.isSender, true)
+                                widget.message, widget.isSender, true,widget.isSeen)
                         : Container(),
                   ],
                 );
@@ -106,7 +107,7 @@ class _VideoMessageState extends State<VideoMessage> {
                         ? (!isDesktop()) | (isDesktop() & showTime)
                             ? SizedBox.shrink()
                             : TimeAndSeenStatus(
-                                widget.message, widget.isSender, true)
+                                widget.message, widget.isSender, true,widget.isSeen)
                         : Container(),
                   ],
                 );

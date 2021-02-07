@@ -13,6 +13,7 @@ class FileMessageUi extends StatefulWidget {
   final bool isSender;
   final Function onUsernameClick;
   final CrossAxisAlignment last;
+  final bool isSeen;
 
   const FileMessageUi(
       {Key key,
@@ -21,7 +22,8 @@ class FileMessageUi extends StatefulWidget {
       this.lastCross,
       this.isSender,
       this.onUsernameClick,
-      this.last})
+      this.last,
+      this.isSeen})
       : super(key: key);
 
   @override
@@ -58,19 +60,25 @@ class _FileMessageUiState extends State<FileMessageUi> {
   Widget _buildMainUi(String type) {
     if (type.contains('image')) {
       return ImageUi(
-          message: widget.message,
-          maxWidth: widget.maxWidth,
-          isSender: widget.isSender);
+        message: widget.message,
+        maxWidth: widget.maxWidth,
+        isSender: widget.isSender,
+        isSeen: widget.isSeen,
+      );
     } else if (type.contains('video')) {
       return VideoMessage(
-          message: widget.message,
-          maxWidth: widget.maxWidth,
-          isSender: widget.isSender);
+        message: widget.message,
+        maxWidth: widget.maxWidth,
+        isSender: widget.isSender,
+        isSeen: widget.isSeen,
+      );
     } else {
       return UnknownFileUi(
-          message: widget.message,
-          maxWidth: widget.maxWidth,
-          isSender: widget.isSender);
+        message: widget.message,
+        maxWidth: widget.maxWidth,
+        isSender: widget.isSender,
+        isSeen: widget.isSeen,
+      );
     }
   }
 }

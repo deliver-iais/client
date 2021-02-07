@@ -65,7 +65,7 @@ class RoutingService {
     reset();
   }
 
-  void openRoom(String roomId, {List<Message> forwardedMessages = const [],pro.ShareUid shareUid}) {
+  void openRoom(String roomId, {List<Message> forwardedMessages = const [],pro.ShareUid shareUid,bool joinToMuc}) {
     backSubject.add(false);
     var widget = WillPopScope(
         onWillPop: () {
@@ -81,7 +81,8 @@ class RoutingService {
           key: ValueKey("/room/$roomId"),
           roomId: roomId,
           forwardedMessages: forwardedMessages,
-          shareUid:shareUid
+          shareUid:shareUid,
+          jointToMuc: joinToMuc,
         ));
     _popAllAndPush(Page(
         largePageNavigator: _navigationCenter,

@@ -7,7 +7,8 @@ class TimeAndSeenStatus extends StatelessWidget {
   final Message message;
   final bool isSender;
   final bool isRounded;
-  TimeAndSeenStatus(this.message, this.isSender, this.isRounded);
+  final bool isSeen;
+  TimeAndSeenStatus(this.message, this.isSender, this.isRounded,this.isSeen);
   @override
   Widget build(BuildContext context) {
     if (isRounded) {
@@ -27,7 +28,7 @@ class TimeAndSeenStatus extends StatelessWidget {
               isSender
                   ? Padding(
                       padding: const EdgeInsets.only(right: 3.0),
-                      child: SeenStatus(message),
+                      child: SeenStatus(message,isSeen: isSeen,),
                     )
                   : Container(),
             ],
@@ -51,7 +52,7 @@ class TimeAndSeenStatus extends StatelessWidget {
                   ? Padding(
                       padding:
                           const EdgeInsets.only(left: 3, right: 3.0, top: 5),
-                      child: SeenStatus(message),
+                      child: SeenStatus(message,isSeen: isSeen,),
                     )
                   : Container(),
             ],

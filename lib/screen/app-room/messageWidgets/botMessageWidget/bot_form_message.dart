@@ -15,8 +15,9 @@ import 'package:rxdart/rxdart.dart';
 
 class BotFormMessage extends StatefulWidget {
   final Message message;
+  final bool isSeen;
 
-  BotFormMessage({this.message});
+  BotFormMessage({this.message, this.isSeen});
 
   @override
   _BotFormMessageState createState() => _BotFormMessageState();
@@ -180,7 +181,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
             ),
           ],
         ),
-        TimeAndSeenStatus(widget.message, false, true),
+        TimeAndSeenStatus(widget.message, false, true, widget.isSeen),
       ],
     ));
   }

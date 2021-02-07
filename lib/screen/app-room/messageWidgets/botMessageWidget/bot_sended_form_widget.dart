@@ -10,8 +10,9 @@ import '../timeAndSeenStatus.dart';
 
 class BotSendedFormWidget extends StatelessWidget {
   final Message message;
+  final bool isSeen;
 
-  BotSendedFormWidget({this.message});
+  BotSendedFormWidget({this.message,this.isSeen});
 
   MessageDao _messageDao = GetIt.I.get<MessageDao>();
   proto.FormResult formResult;
@@ -67,7 +68,7 @@ class BotSendedFormWidget extends StatelessWidget {
                     ],
                   ),
 
-                  TimeAndSeenStatus(message, true, true),
+                  TimeAndSeenStatus(message, true, true,isSeen),
                 ],
               ),
             );
