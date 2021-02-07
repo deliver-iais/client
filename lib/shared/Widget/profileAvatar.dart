@@ -460,6 +460,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                 mucName ?? _currentName, channelId);
                           }
                         }
+                        Navigator.pop(context);
                       },
                     );
                   } else
