@@ -142,7 +142,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         break;
       case "leftMuc":
         _mucType == MucType.GROUP ? _leftGroup() : _leftChannel();
-
         break;
       case "deleteMuc":
         _mucType == MucType.GROUP ? _deleteGroup() : _deleteChannel();
@@ -159,6 +158,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         break;
       case "manage":
         showManageDialog();
+        break;
     }
   }
 
