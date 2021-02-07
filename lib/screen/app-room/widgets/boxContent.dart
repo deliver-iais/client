@@ -65,7 +65,7 @@ class _BoxContentState extends State<BoxContent> {
         if (widget.message.to.getUid().category != Categories.BOT &&
             widget.message.replyToId != null &&
             widget.message.replyToId > 0)
-          replyToIdBox(),
+         // replyToIdBox(),
         if (widget.message.forwardedFrom != null &&
             widget.message.forwardedFrom.length > 3)
           forwardedFromBox(),

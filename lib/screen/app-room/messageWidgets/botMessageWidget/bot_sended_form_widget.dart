@@ -42,8 +42,7 @@ class BotSendedFormWidget extends StatelessWidget {
                         child: SizedBox(
                             height: 20 * form.fields.length.toDouble(),
                             width: 250,
-                            child: Scrollbar(
-                                child: ListView.builder(
+                            child: ListView.builder(
                                     itemCount: form.fields.length,
                                     itemBuilder: (c, index) {
                                       return Row(
@@ -63,7 +62,7 @@ class BotSendedFormWidget extends StatelessWidget {
                                           )
                                         ],
                                       );
-                                    }))),
+                                    })),
                       ),
                     ],
                   ),

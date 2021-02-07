@@ -68,9 +68,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
               child: SizedBox(
                 height: height,
                 width: 230,
-                child: Scrollbar(
-                    isAlwaysShown: false,
-                    child: ListView.builder(
+                child:ListView.builder(
                         shrinkWrap: true,
                         itemCount: form.fields.length,
                         itemBuilder: (c, index) {
@@ -149,7 +147,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                               break;
                           }
                           return SizedBox.shrink();
-                        })),
+                        }),
               ),
             ),
             SizedBox(

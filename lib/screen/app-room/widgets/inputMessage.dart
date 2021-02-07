@@ -184,6 +184,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                             color: Colors.white,
                                           ),
                                           onPressed: () {
+
                                             if (back.data) {
                                               backSubject.add(false);
                                               setState(() {
@@ -191,9 +192,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                                     .unfocus();
                                               });
                                             } else if (!back.data) {
-                                              FocusScope.of(context)
-                                                  .requestFocus(
-                                                      new FocusNode());
+                                              FocusScope.of(context).unfocus();
                                               Timer(Duration(milliseconds: 50),
                                                   () {
                                                 backSubject.add(true);
