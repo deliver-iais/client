@@ -17,7 +17,7 @@ class StickerRepo {
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   StickerRepo() {
-    getTrendPacks();
+ //   getTrendPacks();
   }
 
   Future<StickerPacket> getStickerPackByUUID(String uuid) async {

@@ -44,8 +44,8 @@ class AccountRepo {
     ..node = "john";
   Avatar avatar;
   PhoneNumber phoneNumber;
-  String _accessToken =
-      "eyJ0bnRwIjoiYWNjZXNzVG9rZW4iLCJjYXRlZ29yeSI6MCwiYWxnIjoiSFMyNTYifQ.eyJpc3MiOiJERUxJVkVSLUFVVEgiLCJpYXQiOjE2MDk4NDgxMzksImV4cCI6MTc2NTM2ODEzOSwic3ViIjoiZjRiYmRmZmMtZDRkNi00OTcyLWI0MGQtZWU2M2FjOTQ4ZDkyIiwianRpIjoiZjA0MmE0ZmQtYzY3ZC00MGQzLWE2MmEtNzZjOTI2NDY1YmUxIn0.5KCwVzG4_I0mHeEWMCadFJpKGkvSTxRkk2fXXCxsOFw";
+  String _accessToken;
+
   String _refreshToken;
 
   var authServiceStub = AuthServiceClient(ProfileServicesClientChannel);

@@ -116,8 +116,7 @@ class CoreServices {
           await _clientPacket.close();
           _connectionStatus.add(ConnectionStatus.Disconnected);
         },
-      ),
-          options: CallOptions(
+      ), options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()},
           ));
       sendPingMessage();
@@ -156,7 +155,6 @@ class CoreServices {
   }
 
   sendMessage(MessageByClient message) {
-    print(message.toString());
     if (_clientPacket != null && !_clientPacket.isClosed) {
       _clientPacket.add(ClientPacket()
         ..message = message

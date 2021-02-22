@@ -29,7 +29,7 @@ class LastMessage extends StatelessWidget {
     String oneLine = message.type == MessageType.TEXT
         ? (message.json.toText().text.split('\n'))[0]
         : message.type == MessageType.PERSISTENT_EVENT
-            ? jsonDecode(message.json)["type"]
+            ? message.json.toPersistentEvent().mucSpecificPersistentEvent.issue.name
             : message.type == MessageType.FILE ?_appLocalization.getTraslateValue("file"): message.type == MessageType.LOCATION?_appLocalization.getTraslateValue("location"):"message"
     ;
     if (oneLine.isPersian()) {

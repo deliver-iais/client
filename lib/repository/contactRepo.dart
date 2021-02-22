@@ -166,15 +166,15 @@ class ContactRepo {
     return result.uid;
   }
 
-  Future<List<SearchInRoom>> searchUser(
-      String query) async {
+  Future<List<SearchInRoom>> searchUser(String query) async {
     var result = await _queryServiceClient.searchUidByIdOrName(
         SearchUidByIdOrNameReq()..text = query,
         options: CallOptions(
             metadata: {'accessToken': await _accountRepo.getAccessToken()}));
     List<SearchInRoom> searchResult = List();
-    for(var room in result.itemList){
-      searchResult.add(SearchInRoom(uid: room.uid,username: room.id,name: room.name));
+    for (var room in result.itemList) {
+      searchResult
+          .add(SearchInRoom(uid: room.uid, username: room.id, name: room.name));
     }
     return searchResult;
   }
@@ -191,8 +191,10 @@ class ContactRepo {
   }
 
   void getUsername(UserAsContact contact) async {
-    var usernameReq = await _queryServiceClient
-        .getIdByUid(GetIdByUidReq()..uid = contact.uid);
+    var usernameReq = await _queryServiceClient.getIdByUid(
+        GetIdByUidReq()..uid = contact.uid,
+        options: CallOptions(
+            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
     if (usernameReq.hasId()) {
       _contactDao.insertContact(Database.Contact().copyWith(
           phoneNumber: contact.phoneNumber.nationalNumber.toString(),
