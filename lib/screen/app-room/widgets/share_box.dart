@@ -1,12 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/file.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
@@ -239,16 +236,7 @@ class _ShareBoxState extends State<ShareBox> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: <Widget>[
-                              CircleButton(() async {
-                                var result = await ImagePicker()
-                                    .getImage(source: ImageSource.gallery);
-
-                                ExtendedNavigator.of(context).push(
-                                    Routes.showImagePage,
-                                    arguments: ShowImagePageArguments(
-                                        imageFile: File(result.path),
-                                        contactUid: widget.currentRoomId));
-
+                              CircleButton(()async  {
                                 setState(() {
                                   audioPlayer.stop();
                                   currentPage = Page.Gallery;
