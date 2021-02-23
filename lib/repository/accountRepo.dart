@@ -139,18 +139,16 @@ class AccountRepo {
     if (null != await sharedPrefs.get(USERNAME)) {
       return true;
     }
-    var result = await _userServices.getUserProfile(GetUserProfileReq(),
-        options:
-            CallOptions(metadata: {'accessToken': await getAccessToken()}));
     var getIdRequest = await _queryServiceClient.getIdByUid(
         GetIdByUidReq()..uid = currentUserUid,
         options:
+        CallOptions(metadata: {'accessToken': await getAccessToken()}));
+    var result =  await _userServices.getUserProfile(GetUserProfileReq(),
+        options:
             CallOptions(metadata: {'accessToken': await getAccessToken()}));
-    if (getIdRequest.hasId()) {
-      sharedPrefs.set(USERNAME, getIdRequest.id);
-    }
     if (result.profile.hasFirstName()) {
       _saveProfilePrivateDate(
+          username: getIdRequest.id,
           firstName: result.profile.firstName,
           lastName: result.profile.lastName,
           email: result.profile.email);
@@ -225,7 +223,7 @@ class AccountRepo {
         saveUserProfileReq.email = email;
       }
 
-      await _userServices.saveUserProfile(saveUserProfileReq,
+      _userServices.saveUserProfile(saveUserProfileReq,
           options:
               CallOptions(metadata: {'accessToken': await getAccessToken()}));
       _saveProfilePrivateDate(
@@ -243,6 +241,7 @@ class AccountRepo {
 
   _saveProfilePrivateDate(
       {String username, String firstName, String lastName, String email}) {
+    sharedPrefs.set(USERNAME, username);
     sharedPrefs.set(FIRST_NAME, firstName);
     sharedPrefs.set(LAST_NAME, lastName);
     sharedPrefs.set(EMAIL, email);

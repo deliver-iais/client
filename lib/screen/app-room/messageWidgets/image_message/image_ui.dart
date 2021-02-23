@@ -42,7 +42,6 @@ class _ImageUiState extends State<ImageUi> {
 
       var dimensions =
           getImageDimensions(image.width.toDouble(), image.height.toDouble());
-
       width = dimensions.width;
       height = dimensions.height;
 

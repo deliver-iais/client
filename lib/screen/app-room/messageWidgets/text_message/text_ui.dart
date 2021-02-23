@@ -16,6 +16,7 @@ class TextUi extends StatelessWidget {
   final bool isCaption;
   final bool isSeen;
   final Function onUsernameClick;
+  final double imageWidth;
 
   const TextUi(
       {Key key,
@@ -25,7 +26,8 @@ class TextUi extends StatelessWidget {
       this.isSender,
       this.isSeen,
       this.onUsernameClick,
-      this.isCaption})
+      this.isCaption,
+      this.imageWidth})
       : super(key: key);
 
   @override
@@ -39,6 +41,25 @@ class TextUi extends StatelessWidget {
     String content = "";
     if (isCaption) {
       content = this.message.json.toFile().caption;
+      if (imageWidth != null && content.length * 18 > imageWidth) {
+        List<String> d = List();
+        int u = (content.length/18).ceil();
+        int i = 0;
+        print(u.toString());
+        while (i < u) {
+          d.add(content.substring(
+                  (i * 18) < content.length ? (i * 18) : content.length - 1,
+                  (i + 1) * (18) < content.length
+                      ? (i + 1) * 18
+                      : content.length - 1) +
+              "\n");
+          i = i + 1;
+        }
+        content = "";
+        d.forEach((element) {
+          content = content + element;
+        });
+      }
     } else {
       content = this.message.json.toText().text;
     }

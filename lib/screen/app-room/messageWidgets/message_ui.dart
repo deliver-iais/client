@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/image_message/image_ui.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/message_header.dart';
@@ -36,21 +38,30 @@ class _FileMessageUiState extends State<FileMessageUi> {
     var file = widget.message.json.toFile();
     var type = file.type;
     var caption = file.caption;
+    var dimensions =
+    getImageDimensions(file.width.toDouble(), file.height.toDouble());
+
+    double width = dimensions.width;
+
 
     return Column(
       crossAxisAlignment: widget.last,
       children: <Widget>[
         _buildMainUi(type),
         if (caption.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-            child: TextUi(
-              message: widget.message,
-              maxWidth: widget.maxWidth,
-              lastCross: widget.lastCross,
-              isSender: widget.isSender,
-              onUsernameClick: widget.onUsernameClick,
-              isCaption: true,
+          Container(
+            width: width,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              child: TextUi(
+                message: widget.message,
+                maxWidth: widget.maxWidth,
+                lastCross: widget.lastCross,
+                isSender: widget.isSender,
+                onUsernameClick: widget.onUsernameClick,
+                isCaption: true,
+                imageWidth: width,
+              ),
             ),
           )
       ],
@@ -80,5 +91,24 @@ class _FileMessageUiState extends State<FileMessageUi> {
         isSeen: widget.isSeen,
       );
     }
+  }
+  Size getImageDimensions(double width, double height) {
+    double maxWidth = widget.maxWidth;
+    if (width == null || width == 0 || height == null || height == 0) {
+      width = maxWidth;
+      height = maxWidth;
+    }
+    double aspect = width / height;
+    double w = 0;
+    double h = 0;
+    if (aspect > 1) {
+      w = min(width, maxWidth);
+      h = w / aspect;
+    } else {
+      h = min(height, maxWidth);
+      w = h * aspect;
+    }
+
+    return Size(w, h);
   }
 }
