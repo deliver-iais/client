@@ -162,7 +162,8 @@
   "manage_group":"Manage Group",
   "manage_channel": "Manage Channel",
   "channel_Id": "channel Id",
-  "set": "Set"
+  "set": "Set",
+  "channel_id_isExist": "channel Id isExist"
 
 
 

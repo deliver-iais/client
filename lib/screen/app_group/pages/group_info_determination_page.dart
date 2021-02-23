@@ -38,29 +38,27 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   var _createMucService = GetIt.I.get<CreateMucService>();
   MucRepo _mucRepo = GetIt.I.get<MucRepo>();
   bool idIsAvailable = false;
-  bool _channelIdIsCorrect = false;
   AppLocalization _appLocalization;
   final mucNameKey = GlobalKey<FormState>();
   final _channelIdKey = GlobalKey<FormState>();
-
-  BehaviorSubject<String> behaviorSubject = BehaviorSubject();
+  BehaviorSubject<int> checkChannelId = BehaviorSubject.seeded(0);
+  BehaviorSubject<bool> showChannelIdError = BehaviorSubject.seeded(false);
 
   @override
   void initState() {
     super.initState();
-    if (widget.isChannel) {
-      behaviorSubject.stream
-          .debounceTime(Duration(microseconds: 100))
-          .listen((id) async {
-        _channelIdKey?.currentState?.validate();
-        if (id != null && id.isNotEmpty && _channelIdIsCorrect) {
-          idIsAvailable = await _mucRepo.channelIdIsAvailable(id);
-          setState(() {});
-        }
-      });
-    }
     controller = TextEditingController();
     idController = TextEditingController();
+  }
+
+  Future<bool> checkChannelD(String id) async {
+    var res = await _mucRepo.channelIdIsAvailable(id);
+    if (res != null && res) {
+      showChannelIdError.add(false);
+      return res;
+    } else
+      showChannelIdError.add(true);
+    return false;
   }
 
   @override
@@ -87,33 +85,30 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                       child: Form(
                         key: mucNameKey,
                         child: TextFormField(
-                          minLines: 1,
-                          maxLines: 1,
-                          autofocus: autofocus,
-                          validator: checkMucNameIsSet,
-                          textInputAction: TextInputAction.send,
-                          controller: controller,
-                          onChanged: (str) {
-                            setState(() {
-                              mucName = str;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            suffix: Text(
-                              "*",
-                              style: TextStyle(
-                                  color: Theme.of(context).primaryColor),
-                            ),
-                            hintText: widget.isChannel
-                                ? _appLocalization
-                                    .getTraslateValue("enter-channel-name")
-                                : _appLocalization
-                                    .getTraslateValue("enter-group-name"),
-                          ),
-                        ),
+                            minLines: 1,
+                            maxLines: 1,
+                            autofocus: autofocus,
+                            validator: checkMucNameIsSet,
+                            textInputAction: TextInputAction.send,
+                            controller: controller,
+                            onChanged: (str) {
+                              setState(() {
+                                mucName = str;
+                              });
+                            },
+                            decoration: buildInputDecoration(
+                                widget.isChannel
+                                    ? _appLocalization
+                                        .getTraslateValue("enter-channel-name")
+                                    : _appLocalization
+                                        .getTraslateValue("enter-group-name"),
+                                true)),
                       ),
                     ),
                   ],
+                ),
+                SizedBox(
+                  height: 10,
                 ),
                 widget.isChannel
                     ? Row(
@@ -134,19 +129,28 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   channelId = str;
                                 });
                               },
-                              decoration: InputDecoration(
-                                  suffix: Text(
-                                    "*",
-                                    style: TextStyle(
-                                        color: Theme.of(context).primaryColor),
-                                  ),
-                                  hintText: _appLocalization
-                                      .getTraslateValue("enter-channel-id")),
+                              decoration: buildInputDecoration(
+                                  _appLocalization
+                                      .getTraslateValue("enter-channel-id"),
+                                  true),
                             ),
                           )),
                         ],
                       )
                     : SizedBox.shrink(),
+                StreamBuilder(
+                    stream: showChannelIdError.stream,
+                    builder: (c, e) {
+                      if (e.hasData && e.data) {
+                        return Text(
+                          _appLocalization
+                              .getTraslateValue("channel_id_isExist"),
+                          style: TextStyle(color: Colors.red),
+                        );
+                      } else {
+                        return SizedBox.shrink();
+                      }
+                    }),
                 SizedBox(
                   height: 20,
                 ),
@@ -214,16 +218,17 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                               memberUidList
                                   .add(_createMucService.members[i].uid.uid);
                             }
-                            if (widget.isChannel && idIsAvailable) {
+                            if (widget.isChannel) {
                               bool result =
                                   _channelIdKey?.currentState?.validate() ??
                                       false;
                               if (result) {
-                                micUid = await _mucRepo.createNewChannel(
-                                    idController.text,
-                                    memberUidList,
-                                    controller.text,
-                                    ChannelType.PUBLIC);
+                                if (await checkChannelD(channelId))
+                                  micUid = await _mucRepo.createNewChannel(
+                                      idController.text,
+                                      memberUidList,
+                                      controller.text,
+                                      ChannelType.PUBLIC);
                                 controller.clear();
                               }
                             } else {
@@ -274,6 +279,36 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
     );
   }
 
+  InputDecoration buildInputDecoration(label, bool isOptional) {
+    return InputDecoration(
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.blue),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.blue),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        disabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Colors.red,
+          ),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        suffixIcon: isOptional
+            ? Padding(
+                padding: const EdgeInsets.only(top: 20, left: 25),
+                child: Text(
+                  "*",
+                  style: TextStyle(color: Colors.red),
+                ),
+              )
+            : SizedBox.shrink(),
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.blue));
+  }
+
   String checkMucNameIsSet(String value) {
     if (value.length < 1) {
       return _appLocalization.getTraslateValue("inter_Muc_Name");
@@ -286,21 +321,9 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
     Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
     RegExp regex = new RegExp(pattern);
     if (value.isEmpty) {
-      setState(() {
-        _channelIdIsCorrect = false;
-        idIsAvailable = false;
-      });
       return _appLocalization.getTraslateValue("channelId_not_empty");
     } else if (!regex.hasMatch(value)) {
-      setState(() {
-        _channelIdIsCorrect = false;
-        idIsAvailable = false;
-      });
       return _appLocalization.getTraslateValue("channel_id_length");
-    } else {
-      setState(() {
-        _channelIdIsCorrect = true;
-      });
     }
     return null;
   }
