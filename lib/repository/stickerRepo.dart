@@ -28,7 +28,7 @@ class StickerRepo {
         var result = await _stickerServices.getStickerPackByUUID(
             proto.GetStickerPackByUUIDReq()..uuid = uuid,
             options: CallOptions(metadata: {
-              'accessToken': await _accountRepo.getAccessToken()
+              'access_token': await _accountRepo.getAccessToken()
             }));
         if (result.info_ != null) {
           List<Sticker> newStickers;
@@ -72,7 +72,7 @@ class StickerRepo {
   getTrendPacks() async {
     var result = await _stickerServices.getTrendPacks(proto.GetTrendPacksReq(),
         options: CallOptions(
-            metadata: {"accessToken": await _accountRepo.getAccessToken()}));
+            metadata: {"access_token": await _accountRepo.getAccessToken()}));
     if (result != null) {
       for (String packId in result.packIdList)
         _stickerIdDao.upsertStickerPack(StickerId(
@@ -90,7 +90,7 @@ class StickerRepo {
     var result = await _stickerServices.getStickerPackByID(
        proto.GetStickerPackByIDReq()..id = packId,
         options: CallOptions(
-            metadata: {"accessToken": await _accountRepo.getAccessToken()}));
+            metadata: {"access_token": await _accountRepo.getAccessToken()}));
     result.pack;
   }
 

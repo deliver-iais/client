@@ -38,13 +38,13 @@ class _VerificationPageState extends State<VerificationPage> {
     });
     FocusScope.of(context).requestFocus(FocusNode());
     var result = _accountRepo.sendVerificationCode(_verificationCode);
-    result.then((accessTokenResponse) {
-      if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
-        _accountRepo.saveTokens(accessTokenResponse);
+    result.then((access_tokenResponse) {
+      if (access_tokenResponse.status == AccessTokenRes_Status.OK) {
+        _accountRepo.saveTokens(access_tokenResponse);
         _fireBaseServices.sendFireBaseToken();
         _accountRepo.setNotificationState("true");
         _navigationToHome();
-      } else if (accessTokenResponse.status ==
+      } else if (access_tokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {
         Fluttertoast.showToast(msg: "PASSWORD_PROTECTED");
         // TODO navigate to password validation page

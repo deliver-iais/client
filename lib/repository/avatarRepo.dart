@@ -46,7 +46,7 @@ class AvatarRepo {
     getAvatarReq.uidList.add(userUid);
     var getAvatars = await avatarServices.getAvatar(getAvatarReq,
         options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
     Avatar lastAvatar;
     for (ProtocolAvatar.Avatar avatar in getAvatars.avatar) {
       Avatar newAvatar = await saveAvatarInfo(
@@ -175,7 +175,7 @@ class AvatarRepo {
     try {
       await avatarServices.addAvatar(addAvatarReq,
           options: CallOptions(
-              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+              metadata: {'access_token': await _accountRepo.getAccessToken()}));
       saveAvatarInfo(
           _accountRepo.currentUserUid, createOn, fileInfo.uuid, fileInfo.name);
     } catch (e) {
@@ -194,7 +194,7 @@ class AvatarRepo {
     var removeAvatarReq = RemoveAvatarReq()..avatar = deleteAvatar;
     await avatarServices.removeAvatar(removeAvatarReq,
         options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
     await _avatarDao.deleteAvatar(avatar);
     var lastAvatar = await getLastAvatar(_accountRepo.currentUserUid, false);
     if (Int64.parseInt(lastAvatar.createdOn.toRadixString(10)) ==

@@ -116,14 +116,14 @@ class ContactRepo {
     });
     await contactServices.saveContacts(sendContacts,
         options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
   }
 
   Future getContacts() async {
     var result = await contactServices.getContactListUsers(
         GetContactListUsersReq(),
         options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
 
     for (var contact in result.userList) {
       _contactDao.insertContact(Database.Contact(
@@ -150,7 +150,7 @@ class ContactRepo {
           GetIdByUidReq()..uid = uid,
           options: CallOptions(
               timeout: Duration(seconds: 2),
-              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+              metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return result.id;
     } catch (e) {
       return null;
@@ -161,7 +161,7 @@ class ContactRepo {
     var result = await _queryServiceClient.getUidById(
         GetUidByIdReq()..id = username,
         options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
 
     return result.uid;
   }
@@ -170,7 +170,7 @@ class ContactRepo {
     var result = await _queryServiceClient.searchUidByIdOrName(
         SearchUidByIdOrNameReq()..text = query,
         options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
     List<SearchInRoom> searchResult = List();
     for (var room in result.itemList) {
       searchResult
@@ -194,7 +194,7 @@ class ContactRepo {
     var usernameReq = await _queryServiceClient.getIdByUid(
         GetIdByUidReq()..uid = contact.uid,
         options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
     if (usernameReq.hasId()) {
       _contactDao.insertContact(Database.Contact().copyWith(
           phoneNumber: contact.phoneNumber.nationalNumber.toString(),

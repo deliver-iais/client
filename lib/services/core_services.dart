@@ -117,7 +117,7 @@ class CoreServices {
           _connectionStatus.add(ConnectionStatus.Disconnected);
         },
       ), options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()},
+            metadata: {'access_token': await _accountRepo.getAccessToken()},
           ));
       sendPingMessage();
       _responseStream.listen((serverPacket) async {

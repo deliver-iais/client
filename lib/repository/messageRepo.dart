@@ -90,7 +90,7 @@ class MessageRepo {
       var getAllUserRoomMetaRes = await _queryServiceClient.getAllUserRoomMeta(
           GetAllUserRoomMetaReq(),
           options: CallOptions(
-              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+              metadata: {'access_token': await _accountRepo.getAccessToken()}));
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
         var room =
             await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.asString());
@@ -108,7 +108,7 @@ class MessageRepo {
                 ..type = FetchMessagesReq_Type.FORWARD_FETCH
                 ..limit = 2,
               options: CallOptions(timeout: Duration(seconds: 1), metadata: {
-                'accessToken': await _accountRepo.getAccessToken()
+                'access_token': await _accountRepo.getAccessToken()
               }));
           List<Message> messages =
               await _saveFetchMessages(fetchMessagesRes.messages);
@@ -134,7 +134,7 @@ class MessageRepo {
   getBlockedRoom() async {
     var result = await _queryServiceClient.getBlockedList(GetBlockedListReq(),
         options: CallOptions(
-            metadata: {"accessToken": await _accountRepo.getAccessToken()}));
+            metadata: {"access_token": await _accountRepo.getAccessToken()}));
     for (var blockRoomUid in result.uidList) {
       _roomDao.insertRoomCompanion(RoomsCompanion(
           roomId: Value(blockRoomUid.asString()), isBlock: Value(true)));
@@ -510,7 +510,7 @@ class MessageRepo {
                 ..type = FetchMessagesReq_Type.FORWARD_FETCH
                 ..limit = pageSize,
               options: CallOptions(metadata: {
-                'accessToken': await _accountRepo.getAccessToken()
+                'access_token': await _accountRepo.getAccessToken()
               }));
           completer
               .complete(await _saveFetchMessages(fetchMessagesRes.messages));

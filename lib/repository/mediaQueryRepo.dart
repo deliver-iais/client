@@ -44,7 +44,7 @@ class MediaQueryRepo {
       mediaResponse = await _queryServiceClient.getMediaMetadata(
           getMediaMetaDataReq,
           options: CallOptions(
-              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+              metadata: {'access_token': await _accountRepo.getAccessToken()}));
       Uid access=await  _accountRepo.currentUserUid;
       print("accessssssssssstokkkkkkkkkkkeeeeen$uid");
 
@@ -186,7 +186,7 @@ class MediaQueryRepo {
     getMediaReq..limit = 30;
     var getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq,
         options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
     List<Media> mediasList =
         await _saveFetchedMedias(getMediasRes.medias, roomId, mediaType);
     return mediasList;
@@ -207,7 +207,7 @@ class MediaQueryRepo {
     try {
       var getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq,
           options: CallOptions(
-              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+              metadata: {'access_token': await _accountRepo.getAccessToken()}));
       print("testtttttttttttttttt${getMediasRes.medias.length}");
       List<Media> medias =
           await _saveFetchedMedias(getMediasRes.medias, roomId, mediaType);

@@ -22,7 +22,7 @@ class BotRepo{
 
   Future featchBotInfo(Uid botUid)async{
    var result = await _botServiceClient.getInfo(GetInfoReq()..bot= botUid,options: CallOptions(
-    metadata: {"accessToken" : await _accountRepo.getAccessToken()}
+    metadata: {"access_token" : await _accountRepo.getAccessToken()}
    ));
   _botInfoDao.saveBotInfo( BotInfo( description: result.description, username: botUid.node,name: result.name, commands:json.decode(result.commands.toString())));
   }
@@ -33,7 +33,7 @@ class BotRepo{
 
   Future<List<SearchInRoom>> searchBotByName(String name)async {
    var result = await _botServiceClient.searchByName(SearchByNameReq()..name = name,options: CallOptions(
-    metadata: {"accessToken" : await _accountRepo.getAccessToken()}
+    metadata: {"access_token" : await _accountRepo.getAccessToken()}
    ));
    List<SearchInRoom> searchInBots = List();
    for(var bot in result.bot){

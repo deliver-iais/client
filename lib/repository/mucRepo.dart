@@ -67,7 +67,7 @@ class MucRepo {
   Future<bool> channelIdIsAvailable(String id) async {
     var result = await _queryServices.idIsAvailable(IdIsAvailableReq()..id = id,
         options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
     return result.isAvailable;
   }
 
@@ -425,7 +425,7 @@ class MucRepo {
         var username = await _queryServices.getIdByUid(
             GetIdByUidReq()..uid = member.memberUid.getUid(),
             options: CallOptions(metadata: {
-              'accessToken': await _accountRepo.getAccessToken()
+              'access_token': await _accountRepo.getAccessToken()
             }));
         member = member.copyWith(username: username.id);
       }

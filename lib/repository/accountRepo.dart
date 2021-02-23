@@ -21,7 +21,7 @@ import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:fixnum/fixnum.dart';
 
-const ACCESS_TOKEN_KEY = "accessToken";
+const ACCESS_TOKEN_KEY = "access_token";
 const REFRESH_TOKEN_KEY = "refreshToken";
 const USERNAME = "username";
 const LAST_NAME = "lastName";
@@ -44,7 +44,7 @@ class AccountRepo {
     ..node = "john";
   Avatar avatar;
   PhoneNumber phoneNumber;
-  String _accessToken;
+  String _access_token;
 
   String _refreshToken;
 
@@ -55,9 +55,9 @@ class AccountRepo {
       GetIt.I.get<QueryServiceClient>();
 
   Future<void> init() async {
-    var accessToken = await sharedPrefs.get(ACCESS_TOKEN_KEY);
+    var access_token = await sharedPrefs.get(ACCESS_TOKEN_KEY);
     var refreshToken = await sharedPrefs.get(REFRESH_TOKEN_KEY);
-    _setTokensAndCurrentUserUid(accessToken, refreshToken);
+    _setTokensAndCurrentUserUid(access_token, refreshToken);
   }
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -108,13 +108,13 @@ class AccountRepo {
   }
 
   Future<String> getAccessToken() async {
-    if (_isExpired(_accessToken)) {
+    if (_isExpired(_access_token)) {
       RenewAccessTokenRes renewAccessTokenRes =
           await _getAccessToken(_refreshToken);
       _saveTokens(renewAccessTokenRes);
       return renewAccessTokenRes.accessToken;
     } else {
-      return _accessToken;
+      return _access_token;
     }
   }
 
@@ -122,8 +122,8 @@ class AccountRepo {
     return _refreshToken != null && !_isExpired(_refreshToken);
   }
 
-  bool _isExpired(accessToken) {
-    return JwtDecoder.isExpired(accessToken);
+  bool _isExpired(access_token) {
+    return JwtDecoder.isExpired(access_token);
   }
 
   void saveTokens(AccessTokenRes res) {
@@ -135,17 +135,17 @@ class AccountRepo {
   }
 
   Future<bool> usernameIsSet() async {
-    return true;
+
     if (null != await sharedPrefs.get(USERNAME)) {
       return true;
     }
     var getIdRequest = await _queryServiceClient.getIdByUid(
         GetIdByUidReq()..uid = currentUserUid,
         options:
-        CallOptions(metadata: {'accessToken': await getAccessToken()}));
+        CallOptions(metadata: {'access_token': await getAccessToken()}));
     var result =  await _userServices.getUserProfile(GetUserProfileReq(),
         options:
-            CallOptions(metadata: {'accessToken': await getAccessToken()}));
+            CallOptions(metadata: {'access_token': await getAccessToken()}));
     if (result.profile.hasFirstName()) {
       _saveProfilePrivateDate(
           username: getIdRequest.id,
@@ -158,22 +158,22 @@ class AccountRepo {
     }
   }
 
-  void _setTokensAndCurrentUserUid(String accessToken, String refreshToken) {
-    if (accessToken == null ||
-        accessToken.isEmpty ||
+  void _setTokensAndCurrentUserUid(String access_token, String refreshToken) {
+    if (access_token == null ||
+        access_token.isEmpty ||
         refreshToken == null ||
         refreshToken.isEmpty) {
       return;
     }
-    _accessToken = accessToken;
+    _access_token = access_token;
     _refreshToken = refreshToken;
     sharedPrefs.set(REFRESH_TOKEN_KEY, refreshToken);
-    sharedPrefs.set(ACCESS_TOKEN_KEY, accessToken);
-    setCurrentUid(accessToken);
+    sharedPrefs.set(ACCESS_TOKEN_KEY, access_token);
+    setCurrentUid(access_token);
   }
 
-  setCurrentUid(String accessToken) {
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+  setCurrentUid(String access_token) {
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(access_token);
     if (decodedToken != null) {
       currentUserUid = Uid()
         ..category = Categories.USER
@@ -197,7 +197,7 @@ class AccountRepo {
     var checkUsernameRes = await _queryServiceClient.idIsAvailable(
         IdIsAvailableReq()..id = username,
         options:
-            CallOptions(metadata: {'accessToken': await getAccessToken()}));
+            CallOptions(metadata: {'access_token': await getAccessToken()}));
     return checkUsernameRes.isAvailable;
   }
 
@@ -210,7 +210,7 @@ class AccountRepo {
     try {
       _queryServiceClient.setId(SetIdReq()..id = username,
           options:
-              CallOptions(metadata: {"accessToken": await getAccessToken()}));
+              CallOptions(metadata: {"access_token": await getAccessToken()}));
 
       SaveUserProfileReq saveUserProfileReq = SaveUserProfileReq();
       if (firstName != null) {
@@ -225,7 +225,7 @@ class AccountRepo {
 
       _userServices.saveUserProfile(saveUserProfileReq,
           options:
-              CallOptions(metadata: {'accessToken': await getAccessToken()}));
+              CallOptions(metadata: {'access_token': await getAccessToken()}));
       _saveProfilePrivateDate(
           username: username,
           firstName: firstName,

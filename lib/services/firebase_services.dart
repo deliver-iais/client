@@ -38,7 +38,7 @@ class FireBaseServices {
         await fireBaseServices.registration(
             RegistrationReq()..tokenId = fireBaseToken,
             options: CallOptions(metadata: {
-              'accessToken': await _accountRepo.getAccessToken()
+              'access_token': await _accountRepo.getAccessToken()
             }));
         _prefs.set(Firabase_Setting_Is_Set, "true");
       } catch (e) {
