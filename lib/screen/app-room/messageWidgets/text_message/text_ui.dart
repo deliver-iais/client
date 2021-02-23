@@ -40,23 +40,21 @@ class TextUi extends StatelessWidget {
   List<Widget> textMessages() {
     String content = "";
     if (isCaption) {
+      int D = (imageWidth.round()/12).ceil();
       content = this.message.json.toFile().caption;
-      if (imageWidth != null && content.length * 18 > imageWidth) {
+      if (imageWidth != null && content.length > D) {
         List<String> d = List();
-        int u = (content.length/18).ceil();
+        int u = (content.length / D).ceil();
         int i = 0;
-        print(u.toString());
         while (i < u) {
           d.add(content.substring(
-                  (i * 18) < content.length ? (i * 18) : content.length - 1,
-                  (i + 1) * (18) < content.length
-                      ? (i + 1) * 18
-                      : content.length - 1) +
-              "\n");
+              (i * D) < content.length ? (i * D) : content.length,
+              (i + 1) * (D) < content.length ? (i + 1) * D : content.length));
           i = i + 1;
         }
         content = "";
         d.forEach((element) {
+          if (!element.contains("\n")) element = element + "\n";
           content = content + element;
         });
       }
