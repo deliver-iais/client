@@ -32,10 +32,9 @@ class RoomRepo {
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _usernameDao = GetIt.I.get<UserInfoDao>();
-  var  _queryServiceClient =
-  GetIt.I.get<QueryServiceClient>();
+  var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
 
-  var _accountRepo =  GetIt.I.get<AccountRepo>();
+  var _accountRepo = GetIt.I.get<AccountRepo>();
 
   Map<String, BehaviorSubject<Activity>> activityObject = Map();
 
@@ -173,7 +172,7 @@ class RoomRepo {
     return searchResult;
   }
 
-  searchByUsername(String username) async {
+  Future<String> searchByUsername(String username) async {
     if (username.contains('@')) {
       username = username.substring(username.indexOf('@') + 1, username.length);
     }
@@ -181,22 +180,38 @@ class RoomRepo {
     if (contact != null) {
       return contact.uid;
     } else {
-      // todo
+      var userInfo = await _usernameDao.getByUserName(username);
+      if (userInfo != null) {
+        return userInfo.uid;
+      } else {
+        var uid = await _contactRepo.searchUserByUsername(username);
+        if (uid != null)
+          _usernameDao.upsertUserInfo(
+              UserInfo(uid: uid.asString(), username: username));
+        return uid.asString();
+      }
     }
   }
 
-  void unBlockRoom(Uid roomUid) async{
-
-    await _queryServiceClient.unblock(UnblockReq()..uid = roomUid,options: CallOptions(metadata: {"access_token": await _accountRepo.getAccessToken()} ));
-    _roomDao.insertRoomCompanion(RoomsCompanion(roomId: Value(roomUid.asString()),isBlock: Value(false)));
+  void unBlockRoom(Uid roomUid) async {
+    await _queryServiceClient.unblock(UnblockReq()..uid = roomUid,
+        options: CallOptions(
+            metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    _roomDao.insertRoomCompanion(RoomsCompanion(
+        roomId: Value(roomUid.asString()), isBlock: Value(false)));
   }
 
-  void blockRoom(Uid roomUid)async {
-    await _queryServiceClient.block(BlockReq()..uid = roomUid,options: CallOptions(metadata: {"access_token": await _accountRepo.getAccessToken()} ));
-    _roomDao.insertRoomCompanion(RoomsCompanion(roomId: Value(roomUid.asString()),isBlock: Value(true)));
+  void blockRoom(Uid roomUid) async {
+    await _queryServiceClient.block(BlockReq()..uid = roomUid,
+        options: CallOptions(
+            metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    _roomDao.insertRoomCompanion(RoomsCompanion(
+        roomId: Value(roomUid.asString()), isBlock: Value(true)));
   }
 
-  void reportRoom(Uid roomUid)async {
-   _queryServiceClient.report(ReportReq()..uid = roomUid ,options: CallOptions(metadata: {"access_token": await _accountRepo.getAccessToken()} ));
+  void reportRoom(Uid roomUid) async {
+    _queryServiceClient.report(ReportReq()..uid = roomUid,
+        options: CallOptions(
+            metadata: {"access_token": await _accountRepo.getAccessToken()}));
   }
 }

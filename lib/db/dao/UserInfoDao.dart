@@ -1,4 +1,3 @@
-
 import 'package:deliver_flutter/db/UserInfos.dart';
 import 'package:moor/moor.dart';
 
@@ -8,20 +7,25 @@ part 'UserInfoDao.g.dart';
 
 @UseDao(tables: [UserInfos])
 class UserInfoDao extends DatabaseAccessor<Database> with _$UserInfoDaoMixin {
-
   final Database database;
+
   UserInfoDao(this.database) : super(database);
 
-  upsertUserInfo (UserInfo userInfo){
+  upsertUserInfo(UserInfo userInfo) {
     into(userInfos).insertOnConflictUpdate(userInfo);
   }
 
- Future<UserInfo> getUserInfo (String uid){
-    return(select(userInfos)..where((tbl) => tbl.uid.equals(uid))).getSingle();
+  Future<UserInfo> getUserInfo(String uid) {
+    return (select(userInfos)..where((tbl) => tbl.uid.equals(uid))).getSingle();
   }
 
-  Stream<UserInfo >getUserInfoAsStream(String uid) {
-    return(select(userInfos)..where((tbl) => tbl.uid.equals(uid))).watchSingle();
+  Stream<UserInfo> getUserInfoAsStream(String uid) {
+    return (select(userInfos)..where((tbl) => tbl.uid.equals(uid)))
+        .watchSingle();
   }
 
+  Future<UserInfo> getByUserName(String username) {
+    return (select(userInfos)..where((tbl) => tbl.username.equals(username)))
+        .getSingle();
+  }
 }

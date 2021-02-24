@@ -92,6 +92,7 @@ class MessageRepo {
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
+        print(getAllUserRoomMetaRes.roomsMeta.length);
         var room =
             await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.asString());
         if (room != null &&

@@ -41,7 +41,6 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   AppLocalization _appLocalization;
   final mucNameKey = GlobalKey<FormState>();
   final _channelIdKey = GlobalKey<FormState>();
-  BehaviorSubject<int> checkChannelId = BehaviorSubject.seeded(0);
   BehaviorSubject<bool> showChannelIdError = BehaviorSubject.seeded(false);
 
   @override
