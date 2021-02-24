@@ -46,7 +46,7 @@ class MediaQueryRepo {
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       Uid access=await  _accountRepo.currentUserUid;
-      print("accessssssssssstokkkkkkkkkkkeeeeen$uid");
+      print("accessssssssssstokkkkkkkkkkkeeeeen$access");
 
       print("tttttttttttttttttttttttt${mediaResponse}");
 
