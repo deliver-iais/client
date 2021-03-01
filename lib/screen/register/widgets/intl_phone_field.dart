@@ -85,8 +85,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
     filteredCountries = countries;
     AppLocalization appLocalization = AppLocalization.of(context);
     await showDialog(
-      context: context,
-      child: StatefulBuilder(
+      builder: (context) => StatefulBuilder(
         builder: (ctx, setState) => Dialog(
           child: Container(
             padding: EdgeInsets.all(10),
