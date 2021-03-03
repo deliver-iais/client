@@ -13,12 +13,14 @@ class Medias extends Table {
 
   TextColumn get roomId => text()();
 
-  TextColumn get json => text()();
-  // TextColumn get fileId => text().nullable()();
-  //
-  // TextColumn get fileName => text().nullable()();
-  //
-  // TextColumn get linkAddress => text().nullable()();
+  TextColumn get link => text().nullable()();
+
+  TextColumn get fileId => text().nullable()();
+
+  TextColumn get fileName => text().nullable()();
+
+  TextColumn get caption => text().nullable()();
+
 
   @override
   Set<Column> get primaryKey => {messageId};
