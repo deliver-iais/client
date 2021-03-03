@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as formModel;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
+
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
 import '../timeAndSeenStatus.dart';
@@ -15,7 +16,7 @@ class BotSendedFormWidget extends StatelessWidget {
   BotSendedFormWidget({this.message,this.isSeen});
 
   MessageDao _messageDao = GetIt.I.get<MessageDao>();
-  proto.FormResult formResult;
+  formModel.FormResult formResult;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +26,7 @@ class BotSendedFormWidget extends StatelessWidget {
         stream: _messageDao.getById(message.replyToId, message.to),
         builder: (c, messageByForm) {
           if (messageByForm.hasData && messageByForm.data != null) {
-            proto.Form form = messageByForm.data.json.toForm();
+            formModel.Form form = messageByForm.data.json.toForm();
             return Container(
               child: Stack(
                 children: [
@@ -77,7 +78,7 @@ class BotSendedFormWidget extends StatelessWidget {
         });
   }
 
-  String getText(proto.Form form, int index) {
+  String getText(formModel.Form form, int index) {
     var body = formResult.values[form.fields[index].id];
     String text = "";
     if (body == null) {

@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
-import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
-import 'package:flutter/cupertino.dart';
+
+
 import 'package:flutter/material.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as formModel;
 
 class CheckBoxFormField extends StatefulWidget {
- final proto.Form_Field formField;
+ final formModel.Form_Field formField;
  final Function selected;
  final GlobalKey<FormState> formKey;
 

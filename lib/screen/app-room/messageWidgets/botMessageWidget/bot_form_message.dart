@@ -6,6 +6,7 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/
 import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/form_list_Widget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/radio_button_filed_widget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as protoForm;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
@@ -24,7 +25,7 @@ class BotFormMessage extends StatefulWidget {
 }
 
 class _BotFormMessageState extends State<BotFormMessage> {
-  proto.Form form;
+  protoForm.Form form;
 
   var _messageRepo = GetIt.I.get<MessageRepo>();
   double height = 0;
@@ -34,7 +35,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
     form = widget.message.json.toForm();
     height = 85 * form.fields.length.toDouble();
     for (var i in form.fields) {
-      if (i.whichType() == proto.Form_Field_Type.radioButtonList) {
+      if (i.whichType() == protoForm.Form_Field_Type.radioButtonList) {
         height = height + (45 * i.radioButtonList.values.length).toDouble();
       }
     }
@@ -74,12 +75,12 @@ class _BotFormMessageState extends State<BotFormMessage> {
                         itemBuilder: (c, index) {
                           var formKey;
                           if (form.fields[index].whichType() !=
-                              proto.Form_Field_Type.checkbox) {
+                              protoForm.Form_Field_Type.checkbox) {
                             formKey = new GlobalKey<FormState>();
                             formFieldsKey[form.fields[index].id] = formKey;
                           }
                           switch (form.fields[index].whichType()) {
-                            case proto.Form_Field_Type.textField:
+                            case protoForm.Form_Field_Type.textField:
                               return FormInputTextFieldWidget(
                                 formField: form.fields[index],
                                 formValidator: formKey,
@@ -88,7 +89,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                                 },
                               );
                               break;
-                            case proto.Form_Field_Type.numberField:
+                            case protoForm.Form_Field_Type.numberField:
                               return FormInputTextFieldWidget(
                                 formField: form.fields[index],
                                 formValidator: formKey,
@@ -97,7 +98,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                                 },
                               );
                               break;
-                            case proto.Form_Field_Type.dateField:
+                            case protoForm.Form_Field_Type.dateField:
                               return FormInputTextFieldWidget(
                                 formField: form.fields[index],
                                 formValidator: formKey,
@@ -106,7 +107,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                                 },
                               );
                               break;
-                            case proto.Form_Field_Type.timeField:
+                            case protoForm.Form_Field_Type.timeField:
                               return FormInputTextFieldWidget(
                                 formField: form.fields[index],
                                 formValidator: formKey,
@@ -115,7 +116,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                                 },
                               );
                               break;
-                            case proto.Form_Field_Type.checkbox:
+                            case protoForm.Form_Field_Type.checkbox:
                               return CheckBoxFormField(
                                 formField: form.fields[index],
                                 selected: (value) {
@@ -123,7 +124,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                                 },
                               );
                               break;
-                            case proto.Form_Field_Type.list:
+                            case protoForm.Form_Field_Type.list:
                               return FormListWidget(
                                 formField: form.fields[index],
                                 formValidator:
@@ -133,7 +134,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                                 },
                               );
                               break;
-                            case proto.Form_Field_Type.radioButtonList:
+                            case protoForm.Form_Field_Type.radioButtonList:
                               return RadioButtonFieldWisget(
                                 formField: form.fields[index],
                                 formValidator: formKey,
@@ -142,7 +143,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                                 },
                               );
                               break;
-                            case proto.Form_Field_Type.notSet:
+                            case protoForm.Form_Field_Type.notSet:
                               return SizedBox.shrink();
                               break;
                           }

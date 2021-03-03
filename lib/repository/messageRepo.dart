@@ -10,13 +10,19 @@ import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
+import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as FileProto;
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
+    as protoModel;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as MessageProto;
+import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user_room_meta.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
@@ -120,6 +126,9 @@ class MessageRepo {
                 roomId: userRoomMeta.roomUid.asString(),
                 lastMessageId: Value(messages.last.id),
                 lastMessageDbId: Value(messages.last.dbId)));
+            if (userRoomMeta.roomUid.category == Categories.GROUP) {
+              await getMentions(userRoomMeta, room);
+            }
           }
         } catch (e) {
           print(e);
@@ -130,6 +139,20 @@ class MessageRepo {
     }
     updatingStatus.add(TitleStatusConditions.Normal);
     getBlockedRoom();
+  }
+
+  Future getMentions(UserRoomMeta userRoomMeta, Room room) async {
+    var mentionResult = await _queryServiceClient.fetchMentionList(
+        FetchMentionListReq()
+          ..group = userRoomMeta.roomUid
+          ..afterId = room != null ? room.lastMessageId : 0,
+        options: CallOptions(
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
+    if (mentionResult.idList != null && mentionResult.idList.length > 0) {
+      _roomDao.insertRoomCompanion(RoomsCompanion(
+          roomId: Value(userRoomMeta.roomUid.asString()),
+          mentioned: Value(true)));
+    }
   }
 
   getBlockedRoom() async {
@@ -172,7 +195,7 @@ class MessageRepo {
   sendLocationMessage(LocationData locationData, Uid room,
       {String forwardedFromAsString}) async {
     String packetId = _getPacketId();
-    String json = (MessageProto.Location()
+    String json = (protoModel.Location()
           ..longitude = locationData.longitude
           ..latitude = locationData.latitude)
         .writeToJson();
@@ -388,13 +411,13 @@ class MessageRepo {
         byClient.file = FileProto.File.fromJson(message.json);
         break;
       case MessageType.LOCATION:
-        byClient.location = MessageProto.Location.fromJson(message.json);
+        byClient.location = protoModel.Location.fromJson(message.json);
         break;
       case MessageType.STICKER:
         byClient.sticker = FileProto.File.fromJson(message.json);
         break;
       case MessageType.FORM_RESULT:
-        byClient.formResult = MessageProto.FormResult.fromJson(message.json);
+        byClient.formResult = FormResult.fromJson(message.json);
         break;
       case MessageType.SHARE_UID:
         byClient.shareUid = MessageProto.ShareUid.fromJson(message.json);
@@ -555,7 +578,7 @@ class MessageRepo {
       String botUid, Map<String, String> formResultMap, int formMessageId,
       {String forwardFromAsString}) async {
     String packetId = _getPacketId();
-    MessageProto.FormResult formResult = MessageProto.FormResult();
+    FormResult formResult = FormResult();
     for (var fileId in formResultMap.keys) {
       formResult.values[fileId] = formResultMap[fileId];
     }

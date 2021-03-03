@@ -1,11 +1,11 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as formModel;
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
 class RadioButtonFieldWisget extends StatefulWidget {
-  proto.Form_Field formField;
+  formModel.Form_Field formField;
 
   Function selected;
   final GlobalKey<FormState> formValidator;

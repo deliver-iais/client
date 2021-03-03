@@ -1,12 +1,12 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as formModel;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:rxdart/rxdart.dart';
 
 class FormInputTextFieldWidget extends StatelessWidget {
-  proto.Form_Field formField;
+  formModel.Form_Field formField;
   final GlobalKey<FormState> formValidator;
 
   Function setResult;
@@ -15,7 +15,7 @@ class FormInputTextFieldWidget extends StatelessWidget {
       {this.formField, this.setResult, this.formValidator});
 
   AppLocalization _appLocalization;
-  proto.Form_Field_Type formFieldType;
+  formModel.Form_Field_Type formFieldType;
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +31,12 @@ class FormInputTextFieldWidget extends StatelessWidget {
           child: Container(
             child: Form(
               key: formValidator,
-              child: formFieldType == proto.Form_Field_Type.textField ||
-                      formFieldType == proto.Form_Field_Type.numberField
+              child: formFieldType == formModel.Form_Field_Type.textField ||
+                      formFieldType == formModel.Form_Field_Type.numberField
                   ? TextFormField(
                       minLines: 1,
                       maxLength:
-                          formFieldType == proto.Form_Field_Type.textField
+                          formFieldType == formModel.Form_Field_Type.textField
                               ? formField.textField.max
                               : formField.numberField.max,
                       validator: validateFormTextField,
@@ -44,12 +44,12 @@ class FormInputTextFieldWidget extends StatelessWidget {
                         setResult(str);
                       },
                       keyboardType:
-                          formFieldType == proto.Form_Field_Type.textField
+                          formFieldType == formModel.Form_Field_Type.textField
                               ? TextInputType.text
                               : TextInputType.number,
                       decoration: buildInputDecoration(),
                     )
-                  : formFieldType == proto.Form_Field_Type.dateField
+                  : formFieldType == formModel.Form_Field_Type.dateField
                       ? TextFormField(
                           minLines: 1,
                           validator: validateFormTextField,
@@ -104,10 +104,10 @@ class FormInputTextFieldWidget extends StatelessWidget {
   }
 
   String validateFormTextField(String value) {
-    int max = formFieldType == proto.Form_Field_Type.textField
+    int max = formFieldType == formModel.Form_Field_Type.textField
         ? formField.textField.max
         : formField.textField.max;
-    int min = formFieldType == proto.Form_Field_Type.textField
+    int min = formFieldType == formModel.Form_Field_Type.textField
         ? formField.textField.min
         : formField.textField.min;
     if (value.isEmpty && !formField.isOptional) {

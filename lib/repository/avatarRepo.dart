@@ -44,7 +44,8 @@ class AvatarRepo {
   getAvatarRequest(Uid userUid) async {
     var getAvatarReq = GetAvatarReq();
     getAvatarReq.uidList.add(userUid);
-    var getAvatars = await avatarServices.getAvatar(getAvatarReq,
+    var getAvatars =
+    await avatarServices.getAvatar(getAvatarReq,
         options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
     Avatar lastAvatar;
