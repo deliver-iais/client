@@ -10,6 +10,8 @@ import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
+import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
@@ -20,6 +22,7 @@ import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as protoModel;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as MessageProto;
+import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user_room_meta.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
@@ -123,6 +126,9 @@ class MessageRepo {
                 roomId: userRoomMeta.roomUid.asString(),
                 lastMessageId: Value(messages.last.id),
                 lastMessageDbId: Value(messages.last.dbId)));
+            if (userRoomMeta.roomUid.category == Categories.GROUP) {
+              await getMentions(userRoomMeta, room);
+            }
           }
         } catch (e) {
           print(e);
@@ -133,6 +139,20 @@ class MessageRepo {
     }
     updatingStatus.add(TitleStatusConditions.Normal);
     getBlockedRoom();
+  }
+
+  Future getMentions(UserRoomMeta userRoomMeta, Room room) async {
+    var mentionResult = await _queryServiceClient.fetchMentionList(
+        FetchMentionListReq()
+          ..group = userRoomMeta.roomUid
+          ..afterId = room != null ? room.lastMessageId : 0,
+        options: CallOptions(
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
+    if (mentionResult.idList != null && mentionResult.idList.length > 0) {
+      _roomDao.insertRoomCompanion(RoomsCompanion(
+          roomId: Value(userRoomMeta.roomUid.asString()),
+          mentioned: Value(true)));
+    }
   }
 
   getBlockedRoom() async {
