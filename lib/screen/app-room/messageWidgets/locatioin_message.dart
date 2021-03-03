@@ -1,6 +1,7 @@
 import 'package:deliver_flutter/db/database.dart' as db;
 import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
+import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

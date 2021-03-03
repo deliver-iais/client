@@ -6,7 +6,8 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
+import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -27,7 +28,7 @@ class PersistentEventMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    proto.PersistentEvent persistentEventMessage = message.json.toPersistentEvent();
+    PersistentEvent persistentEventMessage = message.json.toPersistentEvent();
     _appLocalization = AppLocalization.of(context);
     return Padding(
       padding: const EdgeInsets.all(2.0),
@@ -63,45 +64,45 @@ class PersistentEventMessage extends StatelessWidget {
     );
   }
 
-  Future<String> getPersistentMessage(proto.PersistentEvent  persistentEventMessage) async {
+  Future<String> getPersistentMessage(PersistentEvent  persistentEventMessage) async {
     switch (persistentEventMessage.whichType()) {
-      case proto.PersistentEvent_Type.mucSpecificPersistentEvent:
+      case PersistentEvent_Type.mucSpecificPersistentEvent:
         String issuer = await getName(
             persistentEventMessage.mucSpecificPersistentEvent.issuer);
         String assignee = await getName(
             persistentEventMessage.mucSpecificPersistentEvent.assignee);
         switch (persistentEventMessage.mucSpecificPersistentEvent.issue) {
-          case proto.MucSpecificPersistentEvent_Issue.ADD_USER:
+          case MucSpecificPersistentEvent_Issue.ADD_USER:
             return " $issuer  ${_appLocalization.getTraslateValue("add_user_to_muc")} $assignee";
-          case proto.MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
+          case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
             return message.from.uid.category == Categories.CHANNEL
                 ? "$issuer } ${_appLocalization.getTraslateValue("change_channel_avatar")}"
                 : "$issuer  ${_appLocalization.getTraslateValue("change_group_avatar")}";
-          case proto.MucSpecificPersistentEvent_Issue.JOINED_USER:
+          case MucSpecificPersistentEvent_Issue.JOINED_USER:
             return "$issuer ${_appLocalization.getTraslateValue("joint_to_group")}";
 
-          case proto.MucSpecificPersistentEvent_Issue.KICK_USER:
+          case MucSpecificPersistentEvent_Issue.KICK_USER:
             return "$issuer ، $assignee ${_appLocalization.getTraslateValue("kick_from_muc")}";
-          case proto.MucSpecificPersistentEvent_Issue.LEAVE_USER:
+          case MucSpecificPersistentEvent_Issue.LEAVE_USER:
             return "$issuer ${_appLocalization.getTraslateValue("left_the_group")}";
-          case proto.MucSpecificPersistentEvent_Issue.MUC_CREATED:
+          case MucSpecificPersistentEvent_Issue.MUC_CREATED:
             return message.from.uid.category == Categories.CHANNEL
                 ? "$issuer  ${_appLocalization.getTraslateValue("create_channel")}"
                 : "$issuer  ${_appLocalization.getTraslateValue("create_group")}";
-          case proto.MucSpecificPersistentEvent_Issue.NAME_CHANGED:
+          case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
             return "$issuer  ${_appLocalization.getTraslateValue("change_muc_name")}";
-          case proto.MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
+          case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
             return "$issuer ${_appLocalization.getTraslateValue("pin_message")}";
         }
 
         break;
-      case proto.PersistentEvent_Type.messageManipulationPersistentEvent:
+      case PersistentEvent_Type.messageManipulationPersistentEvent:
         break;
-      case proto.PersistentEvent_Type.adminSpecificPersistentEvent:
+      case PersistentEvent_Type.adminSpecificPersistentEvent:
         String user = await _roomRepo.getRoomDisplayName(message.from.uid);
         return "$user ${_appLocalization.getTraslateValue("new_contact_add")}";
         break;
-      case proto.PersistentEvent_Type.notSet:
+      case PersistentEvent_Type.notSet:
         // TODO: Handle this case.
         break;
     }

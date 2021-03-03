@@ -1,6 +1,7 @@
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
@@ -15,7 +16,7 @@ class BotButtonsWidget extends StatelessWidget {
 
   MessageRepo _messageRepo = GetIt.I.get<MessageRepo>();
 
-  proto.Buttons buttons;
+  Buttons buttons;
 
   @override
   Widget build(BuildContext context) {
