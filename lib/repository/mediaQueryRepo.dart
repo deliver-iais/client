@@ -218,7 +218,7 @@ class MediaQueryRepo {
           messageId: media.messageId.toInt(),
           type: type,
           roomId: roomUid.asString(),
-          json: media.writeToJson());
+          json: json);
       mediaList.add(insertedMedia);
       await _mediaDao.insertQueryMedia(insertedMedia);
     }
@@ -256,6 +256,21 @@ class MediaQueryRepo {
   }
 
   String findFetchedMediaJson(MediaObject.Media media) {
-    return media.writeToJson();
+    var json = Object();
+    if (media.hasLink()) {
+      json = {"url": media.link};
+    } else if (media.hasFile()) {
+      json = {
+        "uuid": media.file.uuid,
+        "size": media.file.size.toInt(),
+        "type": media.file.type,
+        "name": media.file.name,
+        "caption": media.file.caption,
+        "width": media.file.width,
+        "height": media.file.height,
+        "duration": media.file.duration
+      };
+    }
+    return jsonEncode(json);
   }
 }

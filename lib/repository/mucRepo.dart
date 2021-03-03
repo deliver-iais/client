@@ -22,6 +22,7 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:grpc/grpc.dart';
+import 'package:moor/moor.dart';
 
 class MucRepo {
   MucDao _mucDao = GetIt.I.get<MucDao>();
@@ -324,11 +325,19 @@ class MucRepo {
   }
 
   modifyChannel(String mucUid, String name, String id) async {
-    ChannelInfo channelInfo = ChannelInfo()
+    ChannelInfo channelInfo;
+    channelInfo = id.isEmpty ? (ChannelInfo()..name = name) : ChannelInfo()
       ..name = name
       ..id = id;
-    if (await mucServices.modifyChannel(channelInfo, mucUid.getUid()))
-      _mucDao.insertMuc(Muc(uid: mucUid, name: name, id: id));
+    if (await mucServices.modifyChannel(channelInfo, mucUid.getUid())) {
+      if (id.isEmpty) {
+        _mucDao.upsertMucCompanion(
+            MucsCompanion(uid: Value(mucUid), name: Value(name)));
+      } else {
+        _mucDao.upsertMucCompanion(MucsCompanion(
+            uid: Value(mucUid), name: Value(name), id: Value(id)));
+      }
+    }
   }
 
   _insertToDb(Uid mucUid, String mucName, int memberCount,

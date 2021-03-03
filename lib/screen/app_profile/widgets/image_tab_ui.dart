@@ -21,7 +21,8 @@ class ImageUi extends StatefulWidget {
 }
 
 class _ImageUiState extends State<ImageUi> {
-
+  var fileId;
+  var fileName;
   @override
   Widget build(BuildContext context) {
     var _routingService = GetIt.I.get<RoutingService>();
@@ -47,8 +48,8 @@ class _ImageUiState extends State<ImageUi> {
                   //crossAxisSpacing: 2.0, mainAxisSpacing: 2.0,
                 ),
                 itemBuilder: (context, position) {
-                  var  fileId = Media.fromJson(snaps.data[position]);
-                  var  fileName = jsonDecode(snaps.data[position].json)["name"];
+                   fileId = jsonDecode(snaps.data[position].json)["uuid"];
+                   fileName = jsonDecode(snaps.data[position].json)["name"];
                   return FutureBuilder(
                       future: _fileRepo.getFile(fileId, fileName),
                       builder: (BuildContext c, AsyncSnapshot snaps) {

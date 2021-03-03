@@ -365,12 +365,12 @@ class MucServices {
       await channelServices.modifyChannel(
           ChannelServices.ModifyChannelReq()..info = channelInfo..uid = mucUid,
           options: CallOptions(
-              timeout: Duration(seconds: 1),
+              timeout: Duration(seconds: 2),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return true;
     }catch(e){
       return false;
     }
-   ;
+
   }
 }
