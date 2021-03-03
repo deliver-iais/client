@@ -37,19 +37,11 @@ class MediaQueryRepo {
       GetIt.I.get<QueryServiceClient>();
 
   getMediaMetaDataReq(Uid uid) async {
-    var mediaResponse;
-    var getMediaMetaDataReq = GetMediaMetadataReq();
-    getMediaMetaDataReq..with_1 = uid;
     try {
-      mediaResponse = await _queryServiceClient.getMediaMetadata(
-          getMediaMetaDataReq,
+      var  mediaResponse = await _queryServiceClient.getMediaMetadata(
+          GetMediaMetadataReq()..with_1 = uid,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      Uid access=await  _accountRepo.currentUserUid;
-      print("accessssssssssstokkkkkkkkkkkeeeeen$uid");
-
-      print("tttttttttttttttttttttttt${mediaResponse}");
-
       await insertMediaMetaData(uid, mediaResponse);
     } catch (e) {
       print("metaDataEroorrrr$e");
