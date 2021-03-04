@@ -143,17 +143,22 @@ class MessageRepo {
   }
 
   Future getMentions( Room room) async {
-    var mentionResult = await _queryServiceClient.fetchMentionList(
-        FetchMentionListReq()
-          ..group = room.roomId.getUid()
-          ..afterId = room.lastMessageId,
-        options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()}));
-    if (mentionResult.idList != null && mentionResult.idList.length > 0) {
-      _roomDao.insertRoomCompanion(RoomsCompanion(
-          roomId: Value(room.roomId),
-          mentioned: Value(true)));
+    try{
+      var mentionResult = await _queryServiceClient.fetchMentionList(
+          FetchMentionListReq()
+            ..group = room.roomId.getUid()
+            ..afterId = room.lastMessageId,
+          options: CallOptions(
+              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      if (mentionResult.idList != null && mentionResult.idList.length > 0) {
+        _roomDao.insertRoomCompanion(RoomsCompanion(
+            roomId: Value(room.roomId),
+            mentioned: Value(true)));
+      }
+    }catch(e){
+      e.toString();
     }
+
   }
 
   getBlockedRoom() async {

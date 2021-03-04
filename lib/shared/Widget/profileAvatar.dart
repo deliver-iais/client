@@ -388,12 +388,18 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         context: context,
         builder: (context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20))),
             titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
             actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
             backgroundColor: Colors.white,
             title: Container(
+              decoration: new BoxDecoration(
+                shape: BoxShape.rectangle,
+                color: Theme.of(context).primaryColor,
+                borderRadius: new BorderRadius.all(new Radius.circular(32.0)),
+              ),
               height: 35,
-              color: Colors.blue,
               child: Icon(
                 Icons.settings,
                 color: Colors.white,
@@ -495,51 +501,59 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               StreamBuilder<bool>(
                 stream: newChange.stream,
                 builder: (c, change) {
-                  if (change.hasData && change.data) {
+                  if (change.hasData) {
                     return GestureDetector(
                       child: Row(
                         children: [
-                          Text(
-                            _appLocalization.getTraslateValue("set"),
-                            style: TextStyle(fontSize: 25, color: Colors.blue),
+                          RaisedButton(
+                            onPressed: change.data? ()  async {
+                              if (nameFormKey?.currentState?.validate()) {
+                                if (widget.roomUid.category ==
+                                    Categories.GROUP) {
+                                  _mucRepo.modifyGroup(
+                                      widget.roomUid.asString(), mucName);
+                                  _roomRepo.updateRoomName(
+                                      widget.roomUid, mucName ?? _currentName);
+                                  setState(() {});
+                                  Navigator.pop(context);
+                                } else {
+                                  if (channelId == null) {
+                                    _mucRepo.modifyChannel(
+                                        widget.roomUid.asString(),
+                                        mucName ?? _currentName,
+                                        _currentId);
+                                    _roomRepo.updateRoomName(widget.roomUid,
+                                        mucName ?? _currentName);
+                                    setState(() {});
+                                    Navigator.pop(context);
+                                  } else if (channelIdFormKey?.currentState
+                                      ?.validate()) {
+                                    if (await checkChannelD(channelId)) {
+                                      _mucRepo.modifyChannel(
+                                          widget.roomUid.asString(),
+                                          mucName ?? _currentName,
+                                          channelId);
+                                      _roomRepo.updateRoomName(widget.roomUid,
+                                          mucName ?? _currentName);
+                                      Navigator.pop(context);
+                                    }
+                                  }
+                                }
+                              }
+                            }:(){
+
+                            },
+                            child: Text(
+                              _appLocalization.getTraslateValue("set"),
+                              style:
+                                  TextStyle(fontSize: 25, color: change.data?Colors.black:Colors.black38),
+                            ),
                           ),
                           SizedBox(
                             width: 25,
                           )
                         ],
                       ),
-                      onTap: () async {
-                        if (nameFormKey?.currentState?.validate()) {
-                          if (widget.roomUid.category == Categories.GROUP) {
-                            _mucRepo.modifyGroup(
-                                widget.roomUid.asString(), mucName);
-                            _roomRepo.updateRoomName(
-                                widget.roomUid, mucName ?? _currentName);
-                            setState(() {});
-                            Navigator.pop(context);
-                          } else {
-                            if (channelId == null) {
-                              _mucRepo.modifyChannel(widget.roomUid.asString(),
-                                  mucName ?? _currentName, _currentId);
-                              _roomRepo.updateRoomName(
-                                  widget.roomUid, mucName ?? _currentName);
-                              setState(() {});
-                              Navigator.pop(context);
-                            } else if (channelIdFormKey?.currentState
-                                ?.validate()) {
-                              if (await checkChannelD(channelId)) {
-                                _mucRepo.modifyChannel(
-                                    widget.roomUid.asString(),
-                                    mucName ?? _currentName,
-                                    channelId);
-                                _roomRepo.updateRoomName(
-                                    widget.roomUid, mucName ?? _currentName);
-                                Navigator.pop(context);
-                              }
-                            }
-                          }
-                        }
-                      },
                     );
                   } else
                     return SizedBox.shrink();

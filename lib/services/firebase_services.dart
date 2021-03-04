@@ -54,16 +54,16 @@ class FireBaseServices {
           var _coreServices = GetIt.I.get<CoreServices>();
           _coreServices.sendPingMessage();
           if (message.containsKey("notification")) {
-            // print("f");l
+             print("f");
           }
           if (message.containsKey("data")) {
-            // print("fff");
+             print("fff");
           }
         },
         onBackgroundMessage: myBackgroundMessageHandler,
         onLaunch: (Map<String, dynamic> message) async {
           if (message.containsKey("notification")) {
-            // print("fff");
+             print("fff");
 
           }
         },

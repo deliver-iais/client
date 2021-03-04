@@ -81,7 +81,7 @@ class AvatarRepo {
 
     LastAvatar ac = avatarCache.get(key);
 
-    if (ac != null && (nowTime - ac.lastUpdate) > 86400000) {
+    if (ac != null && (nowTime - ac.lastUpdate) > 1800000) {
       return true;
     } else if (ac != null) {
       return false;
@@ -93,7 +93,7 @@ class AvatarRepo {
     if (lastAvatar == null) {
       print("last avatar is null");
       return true;
-    } else if ((nowTime - lastAvatar.lastUpdate) > 86400000) {
+    } else if ((nowTime - lastAvatar.lastUpdate) > 1800000) {
       // 24 hours
       print("exceeded from 24 hours");
       return true;
