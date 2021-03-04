@@ -444,7 +444,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                   ),
                   if (widget.roomUid.category == Categories.CHANNEL)
                     StreamBuilder<Muc>(
-                        stream: _mucDao.getMucByUidAsStream(widget.roomUid.asString()),
+                        stream: _mucDao
+                            .getMucByUidAsStream(widget.roomUid.asString()),
                         builder: (c, muc) {
                           if (muc.hasData && muc.data != null) {
                             _currentId = muc.data.id;
@@ -508,33 +509,36 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         ],
                       ),
                       onTap: () async {
-                        if (nameFormKey?.currentState?.validate())
-                          {
-                            if (widget
-                                .roomUid.category ==
-                                Categories.GROUP) {
-                              _mucRepo.modifyGroup(
-                                  widget.roomUid.asString(), mucName);
-                              _roomRepo.updateRoomName(widget.roomUid, mucName??_currentName);
+                        if (nameFormKey?.currentState?.validate()) {
+                          if (widget.roomUid.category == Categories.GROUP) {
+                            _mucRepo.modifyGroup(
+                                widget.roomUid.asString(), mucName);
+                            _roomRepo.updateRoomName(
+                                widget.roomUid, mucName ?? _currentName);
+                            setState(() {});
+                            Navigator.pop(context);
+                          } else {
+                            if (channelId == null) {
+                              _mucRepo.modifyChannel(widget.roomUid.asString(),
+                                  mucName ?? _currentName, _currentId);
+                              _roomRepo.updateRoomName(
+                                  widget.roomUid, mucName ?? _currentName);
+                              setState(() {});
                               Navigator.pop(context);
-                            } else {
-                              if (channelId == null) {
-                                _mucRepo.modifyChannel(widget.roomUid.asString(),
-                                    mucName ?? _currentName, _currentId);
-                                _roomRepo.updateRoomName(widget.roomUid, mucName??_currentName);
+                            } else if (channelIdFormKey?.currentState
+                                ?.validate()) {
+                              if (await checkChannelD(channelId)) {
+                                _mucRepo.modifyChannel(
+                                    widget.roomUid.asString(),
+                                    mucName ?? _currentName,
+                                    channelId);
+                                _roomRepo.updateRoomName(
+                                    widget.roomUid, mucName ?? _currentName);
                                 Navigator.pop(context);
-                              } else if (channelIdFormKey?.currentState
-                                  ?.validate()) {
-                                if (await checkChannelD(channelId)) {
-                                  _mucRepo.modifyChannel(widget.roomUid.asString(),
-                                      mucName??_currentName, channelId);
-                                  _roomRepo.updateRoomName(widget.roomUid, mucName??_currentName);
-                                  Navigator.pop(context);
-                                }
                               }
                             }
                           }
-
+                        }
                       },
                     );
                   } else

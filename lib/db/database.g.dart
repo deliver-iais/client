@@ -4025,7 +4025,7 @@ class Muc extends DataClass implements Insertable<Muc> {
       @required this.name,
       this.id,
       this.info,
-      @required this.members});
+      this.members});
   factory Muc.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -4151,10 +4151,9 @@ class MucsCompanion extends UpdateCompanion<Muc> {
     @required String name,
     this.id = const Value.absent(),
     this.info = const Value.absent(),
-    @required int members,
+    this.members = const Value.absent(),
   })  : uid = Value(uid),
-        name = Value(name),
-        members = Value(members);
+        name = Value(name);
   static Insertable<Muc> custom({
     Expression<String> uid,
     Expression<String> name,
@@ -4280,7 +4279,7 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
     return GeneratedIntColumn(
       'members',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -4319,8 +4318,6 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
     if (data.containsKey('members')) {
       context.handle(_membersMeta,
           members.isAcceptableOrUnknown(data['members'], _membersMeta));
-    } else if (isInserting) {
-      context.missing(_membersMeta);
     }
     return context;
   }

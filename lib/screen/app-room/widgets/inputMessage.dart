@@ -392,7 +392,7 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void sendMessage() {
-    isTypingActivitySubject.add(ActivityType.NO_ACTIVITY);
+    NoActivitySubject.add(ActivityType.NO_ACTIVITY);
     if (widget.waitingForForward == true) {
       widget.sendForwardMessage();
     }

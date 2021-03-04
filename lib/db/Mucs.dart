@@ -10,7 +10,7 @@ class Mucs extends Table {
 
   TextColumn get info => text().nullable()();
 
-  IntColumn get members => integer()();
+  IntColumn get members => integer().nullable()();
 
   @override
   Set<Column> get primaryKey => {uid};

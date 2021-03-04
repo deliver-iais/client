@@ -120,14 +120,15 @@ class MessageRepo {
           List<Message> messages =
               await _saveFetchMessages(fetchMessagesRes.messages);
 
+
           // TODO if there is Pending Message this line has a bug!!
           if (messages.isNotEmpty) {
             _roomDao.insertRoomCompanion(RoomsCompanion.insert(
                 roomId: userRoomMeta.roomUid.asString(),
                 lastMessageId: Value(messages.last.id),
                 lastMessageDbId: Value(messages.last.dbId)));
-            if (userRoomMeta.roomUid.category == Categories.GROUP) {
-              await getMentions(userRoomMeta, room);
+            if (room!= null && room.roomId.getUid().category == Categories.GROUP) {
+              getMentions(room);
             }
           }
         } catch (e) {
@@ -141,16 +142,16 @@ class MessageRepo {
     getBlockedRoom();
   }
 
-  Future getMentions(UserRoomMeta userRoomMeta, Room room) async {
+  Future getMentions( Room room) async {
     var mentionResult = await _queryServiceClient.fetchMentionList(
         FetchMentionListReq()
-          ..group = userRoomMeta.roomUid
-          ..afterId = room != null ? room.lastMessageId : 0,
+          ..group = room.roomId.getUid()
+          ..afterId = room.lastMessageId,
         options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
     if (mentionResult.idList != null && mentionResult.idList.length > 0) {
       _roomDao.insertRoomCompanion(RoomsCompanion(
-          roomId: Value(userRoomMeta.roomUid.asString()),
+          roomId: Value(room.roomId),
           mentioned: Value(true)));
     }
   }

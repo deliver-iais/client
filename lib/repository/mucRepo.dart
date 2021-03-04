@@ -320,7 +320,8 @@ class MucRepo {
     var isSet = await mucServices.modifyGroup(
         MucPro.GroupInfo()..name = name, mucId.getUid());
     if (isSet) {
-      _mucDao.insertMuc(Muc(uid: mucId, name: name));
+      _mucDao.upsertMucCompanion(
+          MucsCompanion(uid: Value(mucId), name: Value(name)));
     }
   }
 
