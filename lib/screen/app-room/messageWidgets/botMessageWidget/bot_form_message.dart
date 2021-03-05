@@ -135,7 +135,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                               );
                               break;
                             case protoForm.Form_Field_Type.radioButtonList:
-                              return RadioButtonFieldWisget(
+                              return FormListWidget(
                                 formField: form.fields[index],
                                 formValidator: formKey,
                                 selected: (value) {
