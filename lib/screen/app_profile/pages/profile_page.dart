@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -20,7 +19,6 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -41,12 +39,12 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
   final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  var mediasLength;
+  int mediasLength;
   Room currentRoomId;
-  var _routingService = GetIt.I.get<RoutingService>();
-  var _roomDao = GetIt.I.get<RoomDao>();
-  var _contactRepo = GetIt.I.get<ContactRepo>();
-  var _uxService = GetIt.I.get<UxService>();
+  RoutingService _routingService = GetIt.I.get<RoutingService>();
+  RoomDao _roomDao = GetIt.I.get<RoomDao>();
+  ContactRepo _contactRepo = GetIt.I.get<ContactRepo>();
+  UxService _uxService = GetIt.I.get<UxService>();
   TabController _tabController;
   int tabsCount;
 
