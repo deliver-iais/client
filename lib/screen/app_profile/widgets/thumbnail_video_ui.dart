@@ -61,29 +61,6 @@ class VideoThumbnail extends StatelessWidget {
                     color: ExtraTheme.of(context).secondColor,
                   ),
                 )),
-            // if (isExist == false)
-              // Positioned.fill(
-              //   child:
-                  // ImageFiltered(
-                  //   imageFilter: ImageFilter.blur(
-                  //     sigmaX: 4,sigmaY: 4
-                  //   ),
-                  //    child: Container(
-                  //       color: Colors.black.withOpacity(0),
-                  //     ),
-                  // )
-                // ClipRRect(
-                //   child: BackdropFilter(
-                //     filter: ImageFilter.blur(
-                //       sigmaX: 4,
-                //       sigmaY: 4,
-                //     ),
-                //     child: Container(
-                //       color: Colors.black.withOpacity(0),
-                //     ),
-                //   ),
-                // ),
-              // ),
             Positioned(
               child: Container(
                 decoration: BoxDecoration(

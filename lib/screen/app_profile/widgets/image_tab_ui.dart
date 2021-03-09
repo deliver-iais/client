@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
+import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -23,11 +25,12 @@ class ImageUi extends StatefulWidget {
 class _ImageUiState extends State<ImageUi> {
   var fileId;
   var fileName;
+  var _routingService = GetIt.I.get<RoutingService>();
+  var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  var _fileRepo = GetIt.I.get<FileRepo>();
   @override
   Widget build(BuildContext context) {
-    var _routingService = GetIt.I.get<RoutingService>();
-    var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-    var _fileRepo = GetIt.I.get<FileRepo>();
+
 
     return FutureBuilder<List<Media>>(
         future: _mediaQueryRepo.getMedia(widget.userUid,
@@ -50,44 +53,115 @@ class _ImageUiState extends State<ImageUi> {
                 itemBuilder: (context, position) {
                    fileId = jsonDecode(snaps.data[position].json)["uuid"];
                    fileName = jsonDecode(snaps.data[position].json)["name"];
-                  return FutureBuilder(
-                      future: _fileRepo.getFile(fileId, fileName),
-                      builder: (BuildContext c, AsyncSnapshot snaps) {
-                        if (snaps.hasData &&
-                            snaps.data != null &&
-                            snaps.connectionState == ConnectionState.done) {
-                          print(
-                              "*******getfileeeeeeeeeeeeeeeeeee*************$position");
-                          return GestureDetector(
-                            onTap: () {
-                              _routingService.openShowAllMedia(
-                                uid: widget.userUid,
-                                hasPermissionToDeletePic: true,
-                                mediaPosition: position,
-                                heroTag: "btn$position",
-                                mediasLength: widget.imagesCount,
-                              );
+                  return FutureBuilder<bool>(
+                      future: _fileRepo.isExist(fileId, fileName),
+                      builder: (BuildContext c, AsyncSnapshot imageFile) {
+                        if (imageFile.hasData &&
+                            imageFile.data != null &&
+                            imageFile.connectionState == ConnectionState.done &&
+                            imageFile.data == true) {
+                          return FutureBuilder<File>(
+                              future: _fileRepo.getFile(fileId, fileName),
+                              builder: (BuildContext buildContext,
+                                  AsyncSnapshot thumbFile) {
+                                if (thumbFile.data != null &&
+                                    thumbFile.hasData &&
+                                    thumbFile.connectionState ==
+                                        ConnectionState.done) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      _routingService.openShowAllMedia(
+                                        uid: widget.userUid,
+                                        hasPermissionToDeletePic: true,
+                                        mediaPosition: position,
+                                        heroTag: "btn$position",
+                                        mediasLength: widget.imagesCount,
+                                      );
+                                    },
+                                    child: Hero(
+                                      tag: "btn$position",
+                                      child: Container(
+                                          decoration: new BoxDecoration(
+                                            image: new DecorationImage(
+                                              image: Image.file(
+                                                thumbFile.data,
+                                              ).image,
+                                              fit: BoxFit.cover,
+                                            ),
+                                            border: Border.all(
+                                              width: 1,
+                                              color: ExtraTheme.of(context).secondColor,
+                                            ),
+                                          )),
+                                      transitionOnUserGestures: true,
+                                    ),
+                                  );
+                                } else {
+                                  return Container(
+                                    width: 0,
+                                    height: 0,
+                                  );
+                                }
+                              });
+                        }
+                        else if (imageFile.data != null &&
+                            imageFile.connectionState == ConnectionState.done &&
+                            imageFile.data == false){
+                          return FutureBuilder<File>(
+                            future: _fileRepo.getFile(fileId, fileName),
+                            builder:
+                                (BuildContext c, AsyncSnapshot thumbnailFile) {
+                              if (thumbnailFile.hasData &&
+                                  thumbnailFile.data != null &&
+                                  thumbnailFile.connectionState ==
+                                      ConnectionState.done) {
+                                return  GestureDetector(
+                                  onTap: () {
+                                    _routingService.openShowAllMedia(
+                                      uid: widget.userUid,
+                                      hasPermissionToDeletePic: true,
+                                      mediaPosition: position,
+                                      heroTag: "btn$position",
+                                      mediasLength: widget.imagesCount,
+                                    );
+                                  },
+                                  child: Hero(
+                                    tag: "btn$position",
+                                    child: ImageFiltered(
+                                      imageFilter: ImageFilter.blur(
+                                          sigmaX: 4,sigmaY: 4),
+                                      child: Container(
+                                          decoration: new BoxDecoration(
+                                            image: new DecorationImage(
+                                              image: Image.file(
+                                                thumbnailFile.data,
+                                              ).image,
+                                              fit: BoxFit.cover,
+                                            ),
+                                            border: Border.all(
+                                              width: 1,
+                                              color: ExtraTheme.of(context).secondColor,
+                                            ),
+                                          )),
+                                    ),
+                                    transitionOnUserGestures: true,
+                                  ),
+                                );
+
+                              } else {
+                                return Container(
+                                  width: 0,
+                                  height: 0,
+                                );
+                              }
                             },
-                            child: Hero(
-                              tag: "btn$position",
-                              child: Container(
-                                  decoration: new BoxDecoration(
-                                image: new DecorationImage(
-                                  image: Image.file(
-                                    snaps.data,
-                                  ).image,
-                                  fit: BoxFit.cover,
-                                ),
-                                border: Border.all(
-                                  width: 1,
-                                  color: ExtraTheme.of(context).secondColor,
-                                ),
-                              )),
-                              transitionOnUserGestures: true,
-                            ),
                           );
-                        } else {
-                          return Container(width: 0.0, height: 0.0);
+                        }
+                        else {
+                          return Container(
+                            width: 0,
+                            height: 0,
+                          );
                         }
                       });});
           }
