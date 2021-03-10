@@ -390,7 +390,7 @@ class _ProfilePageState extends State<ProfilePage>
                             ]),
                           ),
                         if (snapshot.hasData && snapshot.data.imagesCount != 0)
-                          ImageUi(snapshot.data.imagesCount, widget.userUid),
+                          ImageTabUi(snapshot.data.imagesCount, widget.userUid),
                         if (snapshot.hasData && snapshot.data.videosCount != 0)
                           VideoTabUi(
                               userUid: widget.userUid,

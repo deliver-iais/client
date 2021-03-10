@@ -47,7 +47,7 @@ class _ImageUiState extends State<ImageUi> {
 
       return FutureBuilder<File>(
           future: fileRepo.getFileIfExist(image.uuid, image.name,
-              thumbnailSize: ThumbnailSize.large),
+              thumbnailSize: ThumbnailSize.medium),
           builder: (c, s) {
             if (s.hasData && s.data != null) {
               return Stack(
@@ -73,7 +73,7 @@ class _ImageUiState extends State<ImageUi> {
               return GestureDetector(
                 onTap: () async {
                   await fileRepo.getFile(image.uuid, image.name,
-                      thumbnailSize: ThumbnailSize.large);
+                      thumbnailSize: ThumbnailSize.medium);
                   setState(() {});
                 },
                 child: Container(
@@ -117,7 +117,7 @@ class _ImageUiState extends State<ImageUi> {
                           color: Theme.of(context).buttonColor,
                           onPressed: () async {
                             await fileRepo.getFile(image.uuid, image.name,
-                                thumbnailSize: ThumbnailSize.large);
+                                thumbnailSize: ThumbnailSize.medium);
                             setState(() {});
                           },
                           shape: CircleBorder(),

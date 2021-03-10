@@ -209,7 +209,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   FutureBuilder<File> buildFutureMediaBuilder(
       fileId, fileName, BuildContext context, int i) {
     return FutureBuilder<File>(
-      future: _fileRepo.getFile(fileId, fileName),
+      future: _fileRepo.getFile(fileId, fileName +"png",thumbnailSize: ThumbnailSize.large),
       builder: (BuildContext c, AsyncSnapshot snaps) {
         if (snaps.hasData &&
             snaps.data != null &&
