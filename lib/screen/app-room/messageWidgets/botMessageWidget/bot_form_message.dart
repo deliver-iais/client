@@ -34,11 +34,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
   void initState() {
     form = widget.message.json.toForm();
     height = 85 * form.fields.length.toDouble();
-    for (var i in form.fields) {
-      if (i.whichType() == protoForm.Form_Field_Type.radioButtonList) {
-        height = height + (45 * i.radioButtonList.values.length).toDouble();
-      }
-    }
   }
 
   Map<String, String> formResultMap = Map();
