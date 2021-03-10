@@ -40,6 +40,6 @@ class MucDao extends DatabaseAccessor<Database> with _$MucDaoMixin {
   }
 
   Future<List<Muc>> getMucByName(String text) {
-    return (select(mucs)..where((muc) => muc.name.equals(text))).get();
+    return (select(mucs)..where((muc) => muc.name.contains(text))).get();
   }
 }

@@ -146,7 +146,7 @@ class MessageRepo {
       var mentionResult = await _queryServiceClient.fetchMentionList(
           FetchMentionListReq()
             ..group = room.roomId.getUid()
-            ..afterId = room.lastMessageId,
+            ..afterId = 1,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       if (mentionResult.idList != null && mentionResult.idList.length > 0) {

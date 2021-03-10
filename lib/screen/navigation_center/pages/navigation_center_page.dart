@@ -347,7 +347,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       children: [
                         Text(
                             _appLocalization.getTraslateValue("global_search")),
-                        searchResultWidget(snaps, c),
+                        //    searchResultWidget(snaps, c),
                         SizedBox(
                           height: 10,
                         ),
@@ -365,7 +365,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   return Column(
                     children: [
                       Text(_appLocalization.getTraslateValue("bots")),
-                      searchResultWidget(bot, c)
+                      //   searchResultWidget(bot, c)
                     ],
                   );
                 } else {
@@ -385,8 +385,14 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           child: SingleChildScrollView(
                               child: Column(
                     children: [
-                      Text(_appLocalization.getTraslateValue("local_search")),
-                      searchResultWidget(snaps, c)
+                      Text(
+                        _appLocalization.getTraslateValue("local_search"),
+                        style: TextStyle(color: Colors.blue),
+                      ),
+                      Container(
+                        height: MediaQuery.of(context).size.height,
+                        child: searchResultWidget(snaps, c),
+                      )
                     ],
                   ))));
                 } else {
@@ -400,18 +406,20 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   ListView searchResultWidget(
       AsyncSnapshot<List<SearchInRoom>> snaps, BuildContext c) {
-    return ListView.builder(
+   return ListView.builder(
       itemCount: snaps.data.length,
-      itemBuilder: (BuildContext ctxt, int index) => GestureDetector(
-        onTap: () {
-          rootingServices.openRoom(snaps.data[index].uid.asString());
-        },
-        child: _contactResultWidget(
-            uid: snaps.data[index].uid,
-            firstName: snaps.data[index].name,
-            username: snaps.data[index].username,
-            context: c),
-      ),
+      itemBuilder: (BuildContext ctxt, int index) {
+      return  GestureDetector(
+          onTap: () {
+            rootingServices.openRoom(snaps.data[index].uid.asString());
+          },
+          child: _contactResultWidget(
+              uid: snaps.data[index].uid,
+              firstName: snaps.data[index].name,
+              username: snaps.data[index].username,
+              context: c),
+        );
+      },
     );
   }
 }
@@ -432,7 +440,7 @@ Widget _contactResultWidget(
             width: 20,
           ),
           Text(
-            "$firstName $lastName" ?? username,
+            "$firstName" ?? username,
             style: TextStyle(fontSize: 19),
           ),
         ],

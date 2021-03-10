@@ -50,6 +50,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   var _roomRepo = GetIt.I.get<RoomRepo>();
   String _uploadAvatarPath;
   bool _setAvatarPermission = false;
+  bool _modifyMUc = false;
   var _memberRepo = GetIt.I.get<MemberRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
@@ -76,10 +77,11 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   _checkPermissions() async {
     bool setAvatarper = await _memberRepo.isMucAdminOrOwner(
         _accountRepo.currentUserUid.asString(), widget.roomUid.asString());
-    bool deleteMucPer = await _memberRepo.mucOwner(
+    bool mucOwner = await _memberRepo.mucOwner(
         _accountRepo.currentUserUid.asString(), widget.roomUid.asString());
     setState(() {
       _setAvatarPermission = setAvatarper;
+      _modifyMUc = mucOwner;
     });
   }
 
@@ -275,7 +277,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                             child: Text(_appLocalization
                                 .getTraslateValue("setProfile")),
                             value: "select"),
-                      if (_setAvatarPermission &&
+                      if (_modifyMUc &&
                           (widget.roomUid.category == Categories.GROUP ||
                               widget.roomUid.category == Categories.CHANNEL))
                         new PopupMenuItem<String>(
@@ -352,7 +354,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       showProgressBar = true;
       _uploadAvatarPath = avatarPath;
     });
-    if (await avatarRepo.setMucAvatar(widget.roomUid,File(avatarPath)) !=
+    if (await avatarRepo.setMucAvatar(widget.roomUid, File(avatarPath)) !=
         null) {
       setState(() {
         showProgressBar = false;
@@ -506,47 +508,54 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                       child: Row(
                         children: [
                           RaisedButton(
-                            onPressed: change.data? ()  async {
-                              if (nameFormKey?.currentState?.validate()) {
-                                if (widget.roomUid.category ==
-                                    Categories.GROUP) {
-                                  _mucRepo.modifyGroup(
-                                      widget.roomUid.asString(), mucName);
-                                  _roomRepo.updateRoomName(
-                                      widget.roomUid, mucName ?? _currentName);
-                                  setState(() {});
-                                  Navigator.pop(context);
-                                } else {
-                                  if (channelId == null) {
-                                    _mucRepo.modifyChannel(
-                                        widget.roomUid.asString(),
-                                        mucName ?? _currentName,
-                                        _currentId);
-                                    _roomRepo.updateRoomName(widget.roomUid,
-                                        mucName ?? _currentName);
-                                    setState(() {});
-                                    Navigator.pop(context);
-                                  } else if (channelIdFormKey?.currentState
-                                      ?.validate()) {
-                                    if (await checkChannelD(channelId)) {
-                                      _mucRepo.modifyChannel(
-                                          widget.roomUid.asString(),
-                                          mucName ?? _currentName,
-                                          channelId);
-                                      _roomRepo.updateRoomName(widget.roomUid,
-                                          mucName ?? _currentName);
-                                      Navigator.pop(context);
+                            onPressed: change.data
+                                ? () async {
+                                    if (nameFormKey?.currentState?.validate()) {
+                                      if (widget.roomUid.category ==
+                                          Categories.GROUP) {
+                                        _mucRepo.modifyGroup(
+                                            widget.roomUid.asString(), mucName);
+                                        _roomRepo.updateRoomName(widget.roomUid,
+                                            mucName ?? _currentName);
+                                        setState(() {});
+                                        Navigator.pop(context);
+                                      } else {
+                                        if (channelId == null) {
+                                          _mucRepo.modifyChannel(
+                                              widget.roomUid.asString(),
+                                              mucName ?? _currentName,
+                                              _currentId);
+                                          _roomRepo.updateRoomName(
+                                              widget.roomUid,
+                                              mucName ?? _currentName);
+                                          Navigator.pop(context);
+                                        } else if (channelIdFormKey
+                                            ?.currentState
+                                            ?.validate()) {
+                                          if (await checkChannelD(channelId)) {
+                                            _mucRepo.modifyChannel(
+                                                widget.roomUid.asString(),
+                                                mucName ?? _currentName,
+                                                channelId);
+                                            _roomRepo.updateRoomName(
+                                                widget.roomUid,
+                                                mucName ?? _currentName);
+
+                                            Navigator.pop(context);
+                                          }
+                                        }
+                                        setState(() {});
+                                      }
                                     }
                                   }
-                                }
-                              }
-                            }:(){
-
-                            },
+                                : () {},
                             child: Text(
                               _appLocalization.getTraslateValue("set"),
-                              style:
-                                  TextStyle(fontSize: 25, color: change.data?Colors.black:Colors.black38),
+                              style: TextStyle(
+                                  fontSize: 25,
+                                  color: change.data
+                                      ? Colors.black
+                                      : Colors.black38),
                             ),
                           ),
                           SizedBox(

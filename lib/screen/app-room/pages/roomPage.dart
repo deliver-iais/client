@@ -489,7 +489,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       Room currentRoom, List pendingMessages, double _maxWidth) {
     return ScrollablePositionedList.builder(
       itemCount: _itemCount,
-      initialScrollIndex: _lastShowedMessageId!= -1?_lastShowedMessageId :_itemCount-1,
+      initialScrollIndex: _lastShowedMessageId!= -1?_lastShowedMessageId :_itemCount,
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
