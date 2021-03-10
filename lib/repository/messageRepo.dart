@@ -98,7 +98,6 @@ class MessageRepo {
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
-        print(getAllUserRoomMetaRes.roomsMeta.length);
         var room =
             await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.asString());
         if (room != null &&
@@ -120,16 +119,16 @@ class MessageRepo {
           List<Message> messages =
               await _saveFetchMessages(fetchMessagesRes.messages);
 
-
           // TODO if there is Pending Message this line has a bug!!
           if (messages.isNotEmpty) {
             _roomDao.insertRoomCompanion(RoomsCompanion.insert(
                 roomId: userRoomMeta.roomUid.asString(),
                 lastMessageId: Value(messages.last.id),
                 lastMessageDbId: Value(messages.last.dbId)));
-            if (room!= null && room.roomId.getUid().category == Categories.GROUP) {
-              getMentions(room);
-            }
+          }
+          if (room != null &&
+              room.roomId.getUid().category == Categories.GROUP) {
+            getMentions(room);
           }
         } catch (e) {
           print(e);
@@ -142,8 +141,8 @@ class MessageRepo {
     getBlockedRoom();
   }
 
-  Future getMentions( Room room) async {
-    try{
+  Future getMentions(Room room) async {
+    try {
       var mentionResult = await _queryServiceClient.fetchMentionList(
           FetchMentionListReq()
             ..group = room.roomId.getUid()
@@ -151,14 +150,12 @@ class MessageRepo {
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       if (mentionResult.idList != null && mentionResult.idList.length > 0) {
-        _roomDao.insertRoomCompanion(RoomsCompanion(
-            roomId: Value(room.roomId),
-            mentioned: Value(true)));
+        _roomDao.insertRoomCompanion(
+            RoomsCompanion(roomId: Value(room.roomId), mentioned: Value(true)));
       }
-    }catch(e){
+    } catch (e) {
       e.toString();
     }
-
   }
 
   getBlockedRoom() async {

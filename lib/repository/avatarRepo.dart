@@ -6,6 +6,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
     as ProtocolAvatar;
@@ -29,6 +30,7 @@ class AvatarRepo {
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   var _lastAvatarDao = GetIt.I.get<LastAvatarDao>();
+  var _mucServices = GetIt.I.get<MucServices>();
 
   Cache avatarCache =
       LruCache<String, LastAvatar>(storage: SimpleStorage(size: 40));
@@ -122,6 +124,10 @@ class AvatarRepo {
     avatarCache.set(key, ac);
     return ac;
   }
+  Future<Avatar>setMucAvatar(Uid uid, File file) async {
+    var token  = await  _mucServices.getPermisionToken(uid);
+    return uploadAvatar(file, uid,token:token);
+  }
 
   Stream<LastAvatar> getLastAvatarStream(Uid userUid, bool forceToUpdate) {
     fetchAvatar(userUid, forceToUpdate);
@@ -133,14 +139,14 @@ class AvatarRepo {
     });
   }
 
-  Future<Avatar> uploadAvatar(File file, Uid uid) async {
+  Future<Avatar> uploadAvatar(File file, Uid uid,{String token}) async {
     await _fileRepo.cloneFileInLocalDirectory(
         file, uid.node, file.path.split('/').last);
     var fileInfo =
         await _fileRepo.uploadClonedFile(uid.node, file.path.split('/').last);
     if (fileInfo != null) {
       int createdOn = DateTime.now().millisecondsSinceEpoch;
-      _setAvatarAtServer(fileInfo, createdOn, uid);
+      _setAvatarAtServer(fileInfo, createdOn, uid,token: token);
       Avatar avatar = Avatar(
           uid: uid.asString(),
           createdOn: createdOn,
@@ -165,7 +171,7 @@ class AvatarRepo {
     return avatar;
   }
 
-  _setAvatarAtServer(ProtocolFile.File fileInfo, int createOn, Uid uid) async {
+  _setAvatarAtServer(ProtocolFile.File fileInfo, int createOn, Uid uid,{String token }) async {
     var avatar = ProtocolAvatar.Avatar()
       ..createdOn = Int64.parseInt(createOn.toString())
       ..category = uid.category
@@ -173,6 +179,10 @@ class AvatarRepo {
       ..fileUuid = fileInfo.uuid
       ..fileName = fileInfo.name;
     var addAvatarReq = AddAvatarReq()..avatar = avatar;
+    if(token != null){
+      addAvatarReq..token = token;
+    }
+
     try {
       await avatarServices.addAvatar(addAvatarReq,
           options: CallOptions(
@@ -180,9 +190,11 @@ class AvatarRepo {
       saveAvatarInfo(
           _accountRepo.currentUserUid, createOn, fileInfo.uuid, fileInfo.name);
     } catch (e) {
+      print(addAvatarReq.token);
       print(e.toString());
     }
   }
+
 
   Future deleteAvatar(Avatar avatar) async {
     ProtocolAvatar.Avatar deleteAvatar = ProtocolAvatar.Avatar();

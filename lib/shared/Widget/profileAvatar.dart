@@ -352,7 +352,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       showProgressBar = true;
       _uploadAvatarPath = avatarPath;
     });
-    if (await avatarRepo.uploadAvatar(File(avatarPath), widget.roomUid) !=
+    if (await avatarRepo.setMucAvatar(widget.roomUid,File(avatarPath)) !=
         null) {
       setState(() {
         showProgressBar = false;
