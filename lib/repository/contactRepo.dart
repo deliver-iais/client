@@ -22,6 +22,7 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:moor/moor.dart';
 
 import 'accountRepo.dart';
 
@@ -126,14 +127,14 @@ class ContactRepo {
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
 
     for (var contact in result.userList) {
-      _contactDao.insertContact(Database.Contact(
-        uid: contact.uid.asString(),
-        phoneNumber: contact.phoneNumber.nationalNumber.toString(),
-        firstName: _contactsDisplayName[contact.phoneNumber] != null
+      _contactDao.insertContact(Database.ContactsCompanion(
+        uid: Value(contact.uid.asString()),
+        phoneNumber:Value( contact.phoneNumber.nationalNumber.toString()),
+        firstName:Value( _contactsDisplayName[contact.phoneNumber] != null
             ? _contactsDisplayName[contact.phoneNumber]
-            : "${contact.firstName} ${contact.lastName.isNotEmpty ? contact.lastName : " "}",
-        isMute: true,
-        isBlock: false,
+            : "${contact.firstName} ${contact.lastName.isNotEmpty ? contact.lastName : " "}"),
+        isMute: Value(true),
+        isBlock:Value( false),
       ));
 
       if (contact.uid != null) {
@@ -196,10 +197,10 @@ class ContactRepo {
         options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
     if (usernameReq.hasId()) {
-      _contactDao.insertContact(Database.Contact().copyWith(
-          phoneNumber: contact.phoneNumber.nationalNumber.toString(),
-          username: usernameReq.id,
-          uid: contact.uid.asString()));
+      _contactDao.insertContact(Database.ContactsCompanion(
+          phoneNumber: Value(contact.phoneNumber.nationalNumber.toString()),
+          username:Value( usernameReq.id),
+          uid:Value( contact.uid.asString())));
 
       _usernameDao.upsertUserInfo(Database.UserInfo(
           uid: contact.uid.asString(), username: usernameReq.id));

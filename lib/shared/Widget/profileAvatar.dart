@@ -50,6 +50,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   var _roomRepo = GetIt.I.get<RoomRepo>();
   String _uploadAvatarPath;
   bool _setAvatarPermission = false;
+  bool _modifyMUc = false;
   var _memberRepo = GetIt.I.get<MemberRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
@@ -57,6 +58,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   var _mucDao = GetIt.I.get<MucDao>();
   AppLocalization _appLocalization;
   MucType _mucType;
+  BehaviorSubject<bool> showChannelIdError = BehaviorSubject.seeded(false);
   var _routingServices = GetIt.I.get<RoutingService>();
 
   @override
@@ -75,10 +77,11 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   _checkPermissions() async {
     bool setAvatarper = await _memberRepo.isMucAdminOrOwner(
         _accountRepo.currentUserUid.asString(), widget.roomUid.asString());
-    bool deleteMucPer = await _memberRepo.mucOwner(
+    bool mucOwner = await _memberRepo.mucOwner(
         _accountRepo.currentUserUid.asString(), widget.roomUid.asString());
     setState(() {
       _setAvatarPermission = setAvatarper;
+      _modifyMUc = mucOwner;
     });
   }
 
@@ -250,15 +253,17 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     _appLocalization = AppLocalization.of(context);
     return SliverAppBar(
         actions: <Widget>[
-          widget.roomUid.category != Categories.USER
-              ? PopupMenuButton(
-                  icon: Icon(Icons.more_vert),
-                  itemBuilder: (_) => <PopupMenuItem<String>>[
-                    new PopupMenuItem<String>(
-                        child: Text(_mucType == MucType.GROUP
-                            ? _appLocalization.getTraslateValue("leftGroup")
-                            : _appLocalization.getTraslateValue("leftChannel")),
-                        value: "leftMuc"),
+          if (widget.roomUid.category != Categories.SYSTEM)
+            widget.roomUid.category != Categories.USER
+                ? PopupMenuButton(
+                    icon: Icon(Icons.more_vert),
+                    itemBuilder: (_) => <PopupMenuItem<String>>[
+                      new PopupMenuItem<String>(
+                          child: Text(_mucType == MucType.GROUP
+                              ? _appLocalization.getTraslateValue("leftGroup")
+                              : _appLocalization
+                                  .getTraslateValue("leftChannel")),
+                          value: "leftMuc"),
 //todo delete muc
 //                    if (_deleteMucPermission)
 //                      new PopupMenuItem<String>(
@@ -267,56 +272,56 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 //                              : _appLocalization
 //                                  .getTraslateValue("deleteChannel")),
 //                          value: "deleteMuc"),
-                    if (_setAvatarPermission)
+                      if (_setAvatarPermission)
+                        new PopupMenuItem<String>(
+                            child: Text(_appLocalization
+                                .getTraslateValue("setProfile")),
+                            value: "select"),
+                      if (_modifyMUc &&
+                          (widget.roomUid.category == Categories.GROUP ||
+                              widget.roomUid.category == Categories.CHANNEL))
+                        new PopupMenuItem<String>(
+                            child: Text(
+                                widget.roomUid.category == Categories.GROUP
+                                    ? _appLocalization
+                                        .getTraslateValue("manage_group")
+                                    : _appLocalization
+                                        .getTraslateValue("manage_channel")),
+                            value: "manage"),
                       new PopupMenuItem<String>(
-                          child: Text(
-                              _appLocalization.getTraslateValue("setProfile")),
-                          value: "select"),
-                    if (_setAvatarPermission &&
-                        (widget.roomUid.category == Categories.GROUP ||
-                            widget.roomUid.category == Categories.CHANNEL))
-                      new PopupMenuItem<String>(
-                          child: Text(
-                              widget.roomUid.category == Categories.GROUP
-                                  ? _appLocalization
-                                      .getTraslateValue("manage_group")
-                                  : _appLocalization
-                                      .getTraslateValue("manage_channel")),
-                          value: "manage"),
-                    new PopupMenuItem<String>(
-                        child:
-                            Text(_appLocalization.getTraslateValue("report")),
-                        value: "report"),
-                  ],
-                  onSelected: onSelected,
-                )
-              : StreamBuilder<Room>(
-                  stream: _roomDao.getByRoomId(widget.roomUid.asString()),
-                  builder: (c, room) {
-                    if (room.hasData && room.data != null) {
-                      return PopupMenuButton(
-                        icon: Icon(Icons.more_vert),
-                        itemBuilder: (_) => <PopupMenuItem<String>>[
-                          new PopupMenuItem<String>(
-                              child: Text(room.data.isBlock
-                                  ? _appLocalization
-                                      .getTraslateValue("unBlockRoom")
-                                  : _appLocalization
-                                      .getTraslateValue("blockRoom")),
-                              value: room.data.isBlock
-                                  ? "unBlockRoom"
-                                  : "blockRoom"),
-                          new PopupMenuItem<String>(
-                              child: Text(
-                                  _appLocalization.getTraslateValue("report")),
-                              value: "report"),
-                        ],
-                        onSelected: onSelected,
-                      );
-                    } else {
-                      return SizedBox.shrink();
-                    }
-                  }),
+                          child:
+                              Text(_appLocalization.getTraslateValue("report")),
+                          value: "report"),
+                    ],
+                    onSelected: onSelected,
+                  )
+                : StreamBuilder<Room>(
+                    stream: _roomDao.getByRoomId(widget.roomUid.asString()),
+                    builder: (c, room) {
+                      if (room.hasData && room.data != null) {
+                        return PopupMenuButton(
+                          icon: Icon(Icons.more_vert),
+                          itemBuilder: (_) => <PopupMenuItem<String>>[
+                            new PopupMenuItem<String>(
+                                child: Text(room.data.isBlock
+                                    ? _appLocalization
+                                        .getTraslateValue("unBlockRoom")
+                                    : _appLocalization
+                                        .getTraslateValue("blockRoom")),
+                                value: room.data.isBlock
+                                    ? "unBlockRoom"
+                                    : "blockRoom"),
+                            new PopupMenuItem<String>(
+                                child: Text(_appLocalization
+                                    .getTraslateValue("report")),
+                                value: "report"),
+                          ],
+                          onSelected: onSelected,
+                        );
+                      } else {
+                        return SizedBox.shrink();
+                      }
+                    }),
         ],
         forceElevated: widget.innerBoxIsScrolled,
         leading: routingService.backButtonLeading(),
@@ -349,7 +354,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       showProgressBar = true;
       _uploadAvatarPath = avatarPath;
     });
-    if (await avatarRepo.uploadAvatar(File(avatarPath), widget.roomUid) !=
+    if (await avatarRepo.setMucAvatar(widget.roomUid, File(avatarPath)) !=
         null) {
       setState(() {
         showProgressBar = false;
@@ -363,8 +368,19 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     }
   }
 
+  Future<bool> checkChannelD(String id) async {
+    var res = await _mucRepo.channelIdIsAvailable(id);
+    if (res != null && res) {
+      showChannelIdError.add(false);
+      return res;
+    } else
+      showChannelIdError.add(true);
+    return false;
+  }
+
   void showManageDialog() {
     var channelIdFormKey = GlobalKey<FormState>();
+    var nameFormKey = GlobalKey<FormState>();
     String _currentName;
     String _currentId;
     String mucName;
@@ -374,94 +390,179 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         context: context,
         builder: (context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20))),
             titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
             actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
             backgroundColor: Colors.white,
             title: Container(
-              height: 80,
-              color: Colors.blue,
+              decoration: new BoxDecoration(
+                shape: BoxShape.rectangle,
+                color: Theme.of(context).primaryColor,
+                borderRadius: new BorderRadius.all(new Radius.circular(32.0)),
+              ),
+              height: 35,
               child: Icon(
                 Icons.settings,
                 color: Colors.white,
-                size: 40,
+                size: 25,
               ),
             ),
-            content: Column(
-              children: [
-                FutureBuilder<String>(
-                  future: _roomRepo.getRoomDisplayName(widget.roomUid),
-                  builder: (c, name) {
-                    if (name.hasData) {
-                      _currentName = name.data;
-                      TextFormField(
-                        minLines: 1,
-                        onChanged: (str) {
-                          if (str.isNotEmpty && str != name) {
-                            mucName = str;
-                            newChange.add(true);
-                          }
-                        },
-                        keyboardType: TextInputType.text,
-                        decoration: buildInputDecoration(name.data, false),
-                      );
-                    }
-                    return SizedBox.shrink();
-                  },
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                if (widget.roomUid.category == Categories.CHANNEL)
-                  FutureBuilder<Muc>(
-                      future: _mucDao.getMucByUid(widget.roomUid.asString()),
-                      builder: (c, muc) {
-                        if (muc.hasData && muc.data != null) {
-                          _currentId = muc.data.id;
-                          return Form(
-                              key: channelIdFormKey,
+            content: Container(
+              height: widget.roomUid.category == Categories.GROUP ? 120 : 200,
+              child: Column(
+                children: [
+                  FutureBuilder<String>(
+                    future: _roomRepo.getRoomDisplayName(widget.roomUid),
+                    builder: (c, name) {
+                      if (name.hasData) {
+                        _currentName = name.data;
+                        return Container(
+                          child: Form(
+                              key: nameFormKey,
                               child: TextFormField(
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 18),
+                                initialValue: name.data,
+                                validator: (s) {
+                                  if (s.isEmpty) {
+                                    return _appLocalization
+                                        .getTraslateValue("name_not_empty");
+                                  } else {
+                                    return null;
+                                  }
+                                },
                                 minLines: 1,
-                                validator: validateChannelId,
                                 onChanged: (str) {
-                                  if (str.isNotEmpty && str != muc.data.id) {
-                                    channelId = str;
-                                    if (!newChange.value) newChange.add(true);
+                                  if (str.isNotEmpty && str != name) {
+                                    mucName = str;
+                                    newChange.add(true);
                                   }
                                 },
                                 keyboardType: TextInputType.text,
-                                decoration:
-                                    buildInputDecoration(muc.data.id, true),
-                              ));
-                        } else
-                          return SizedBox.shrink();
-                      })
-              ],
+                                decoration: buildInputDecoration(false),
+                              )),
+                        );
+                      }
+                      return SizedBox.shrink();
+                    },
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  if (widget.roomUid.category == Categories.CHANNEL)
+                    StreamBuilder<Muc>(
+                        stream: _mucDao
+                            .getMucByUidAsStream(widget.roomUid.asString()),
+                        builder: (c, muc) {
+                          if (muc.hasData && muc.data != null) {
+                            _currentId = muc.data.id;
+                            return Column(
+                              children: [
+                                Form(
+                                    key: channelIdFormKey,
+                                    child: TextFormField(
+                                      style: TextStyle(
+                                          color: Colors.black, fontSize: 18),
+                                      initialValue: muc.data.id,
+                                      minLines: 1,
+                                      validator: validateChannelId,
+                                      onChanged: (str) {
+                                        if (str.isNotEmpty &&
+                                            str != muc.data.id) {
+                                          channelId = str;
+                                          if (!newChange.value)
+                                            newChange.add(true);
+                                        }
+                                      },
+                                      keyboardType: TextInputType.text,
+                                      decoration: buildInputDecoration(true),
+                                    )),
+                                StreamBuilder(
+                                    stream: showChannelIdError.stream,
+                                    builder: (c, e) {
+                                      if (e.hasData && e.data) {
+                                        return Text(
+                                          _appLocalization.getTraslateValue(
+                                              "channel_id_isExist"),
+                                          style: TextStyle(color: Colors.red),
+                                        );
+                                      } else {
+                                        return SizedBox.shrink();
+                                      }
+                                    }),
+                              ],
+                            );
+                          } else
+                            return SizedBox.shrink();
+                        })
+                ],
+              ),
             ),
             actions: <Widget>[
               StreamBuilder<bool>(
                 stream: newChange.stream,
                 builder: (c, change) {
-                  if (change.hasData && change.data) {
+                  if (change.hasData) {
                     return GestureDetector(
-                      child: Text(
-                        _appLocalization.getTraslateValue("set"),
-                        style: TextStyle(fontSize: 16, color: Colors.blue),
+                      child: Row(
+                        children: [
+                          RaisedButton(
+                            onPressed: change.data
+                                ? () async {
+                                    if (nameFormKey?.currentState?.validate()) {
+                                      if (widget.roomUid.category ==
+                                          Categories.GROUP) {
+                                        _mucRepo.modifyGroup(
+                                            widget.roomUid.asString(), mucName);
+                                        _roomRepo.updateRoomName(widget.roomUid,
+                                            mucName ?? _currentName);
+                                        setState(() {});
+                                        Navigator.pop(context);
+                                      } else {
+                                        if (channelId == null) {
+                                          _mucRepo.modifyChannel(
+                                              widget.roomUid.asString(),
+                                              mucName ?? _currentName,
+                                              _currentId);
+                                          _roomRepo.updateRoomName(
+                                              widget.roomUid,
+                                              mucName ?? _currentName);
+                                          Navigator.pop(context);
+                                        } else if (channelIdFormKey
+                                            ?.currentState
+                                            ?.validate()) {
+                                          if (await checkChannelD(channelId)) {
+                                            _mucRepo.modifyChannel(
+                                                widget.roomUid.asString(),
+                                                mucName ?? _currentName,
+                                                channelId);
+                                            _roomRepo.updateRoomName(
+                                                widget.roomUid,
+                                                mucName ?? _currentName);
+
+                                            Navigator.pop(context);
+                                          }
+                                        }
+                                        setState(() {});
+                                      }
+                                    }
+                                  }
+                                : () {},
+                            child: Text(
+                              _appLocalization.getTraslateValue("set"),
+                              style: TextStyle(
+                                  fontSize: 25,
+                                  color: change.data
+                                      ? Colors.black
+                                      : Colors.black38),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 25,
+                          )
+                        ],
                       ),
-                      onTap: () {
-                        if (widget.roomUid.category == Categories.GROUP) {
-                          _mucRepo.modifyGroup(
-                              widget.roomUid.asString(), mucName);
-                        } else {
-                          if (channelId == null) {
-                            _mucRepo.modifyChannel(widget.roomUid.asString(),
-                                mucName ?? _currentName, _currentId);
-                          } else if (channelIdFormKey.currentState.validate()) {
-                            _mucRepo.modifyChannel(widget.roomUid.asString(),
-                                mucName ?? _currentName, channelId);
-                          }
-                        }
-                        Navigator.pop(context);
-                      },
                     );
                   } else
                     return SizedBox.shrink();
@@ -483,7 +584,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       return null;
   }
 
-  InputDecoration buildInputDecoration(String name, bool setId) {
+  InputDecoration buildInputDecoration(bool setId) {
     return InputDecoration(
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.blue),
@@ -500,7 +601,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           ),
           borderRadius: BorderRadius.circular(10.0),
         ),
-        suffix: Text(name),
         labelText: setId
             ? _appLocalization.getTraslateValue("channel_Id")
             : widget.roomUid.category == Categories.GROUP

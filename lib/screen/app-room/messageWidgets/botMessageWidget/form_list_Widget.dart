@@ -1,8 +1,8 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as formModel;
-
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
+    as formModel;
 
 class FormListWidget extends StatefulWidget {
   formModel.Form_Field formField;
@@ -74,14 +74,20 @@ class _FormListWidgetState extends State<FormListWidget> {
                     });
                     widget.selected(valu);
                   },
-                  items: widget.formField.list.values
-                      .map<DropdownMenuItem<String>>((val) => DropdownMenuItem(
-                            value: val,
-                            child: Center(
-                              child: Text(val,),
-                            ),
-                          ))
-                      .toList()),
+                  items: widget.formField.whichType() ==
+                          formModel.Form_Field_Type.radioButtonList
+                      ? widget.formField.radioButtonList.values
+                      : widget.formField.list.values
+                          .map<DropdownMenuItem<String>>(
+                              (val) => DropdownMenuItem(
+                                    value: val,
+                                    child: Center(
+                                      child: Text(
+                                        val,
+                                      ),
+                                    ),
+                                  ))
+                          .toList()),
             ),
             SizedBox(
               height: 2,

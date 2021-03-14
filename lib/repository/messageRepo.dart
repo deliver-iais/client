@@ -98,7 +98,6 @@ class MessageRepo {
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
-        print(getAllUserRoomMetaRes.roomsMeta.length);
         var room =
             await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.asString());
         if (room != null &&
@@ -126,9 +125,10 @@ class MessageRepo {
                 roomId: userRoomMeta.roomUid.asString(),
                 lastMessageId: Value(messages.last.id),
                 lastMessageDbId: Value(messages.last.dbId)));
-            if (userRoomMeta.roomUid.category == Categories.GROUP) {
-              await getMentions(userRoomMeta, room);
-            }
+          }
+          if (room != null &&
+              room.roomId.getUid().category == Categories.GROUP) {
+            getMentions(room);
           }
         } catch (e) {
           print(e);
@@ -141,17 +141,20 @@ class MessageRepo {
     getBlockedRoom();
   }
 
-  Future getMentions(UserRoomMeta userRoomMeta, Room room) async {
-    var mentionResult = await _queryServiceClient.fetchMentionList(
-        FetchMentionListReq()
-          ..group = userRoomMeta.roomUid
-          ..afterId = room != null ? room.lastMessageId : 0,
-        options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()}));
-    if (mentionResult.idList != null && mentionResult.idList.length > 0) {
-      _roomDao.insertRoomCompanion(RoomsCompanion(
-          roomId: Value(userRoomMeta.roomUid.asString()),
-          mentioned: Value(true)));
+  Future getMentions(Room room) async {
+    try {
+      var mentionResult = await _queryServiceClient.fetchMentionList(
+          FetchMentionListReq()
+            ..group = room.roomId.getUid()
+            ..afterId = 1,
+          options: CallOptions(
+              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      if (mentionResult.idList != null && mentionResult.idList.length > 0) {
+        _roomDao.insertRoomCompanion(
+            RoomsCompanion(roomId: Value(room.roomId), mentioned: Value(true)));
+      }
+    } catch (e) {
+      e.toString();
     }
   }
 

@@ -1575,11 +1575,9 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
     @required String phoneNumber,
     this.firstName = const Value.absent(),
     this.lastName = const Value.absent(),
-    @required bool isMute,
-    @required bool isBlock,
-  })  : phoneNumber = Value(phoneNumber),
-        isMute = Value(isMute),
-        isBlock = Value(isBlock);
+    this.isMute = const Value.absent(),
+    this.isBlock = const Value.absent(),
+  }) : phoneNumber = Value(phoneNumber);
   static Insertable<Contact> custom({
     Expression<String> username,
     Expression<String> uid,
@@ -1732,11 +1730,8 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
   @override
   GeneratedBoolColumn get isMute => _isMute ??= _constructIsMute();
   GeneratedBoolColumn _constructIsMute() {
-    return GeneratedBoolColumn(
-      'is_mute',
-      $tableName,
-      false,
-    );
+    return GeneratedBoolColumn('is_mute', $tableName, false,
+        defaultValue: Constant(false));
   }
 
   final VerificationMeta _isBlockMeta = const VerificationMeta('isBlock');
@@ -1744,11 +1739,8 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
   @override
   GeneratedBoolColumn get isBlock => _isBlock ??= _constructIsBlock();
   GeneratedBoolColumn _constructIsBlock() {
-    return GeneratedBoolColumn(
-      'is_block',
-      $tableName,
-      false,
-    );
+    return GeneratedBoolColumn('is_block', $tableName, false,
+        defaultValue: Constant(false));
   }
 
   @override
@@ -1792,14 +1784,10 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
     if (data.containsKey('is_mute')) {
       context.handle(_isMuteMeta,
           isMute.isAcceptableOrUnknown(data['is_mute'], _isMuteMeta));
-    } else if (isInserting) {
-      context.missing(_isMuteMeta);
     }
     if (data.containsKey('is_block')) {
       context.handle(_isBlockMeta,
           isBlock.isAcceptableOrUnknown(data['is_block'], _isBlockMeta));
-    } else if (isInserting) {
-      context.missing(_isBlockMeta);
     }
     return context;
   }
@@ -4025,7 +4013,7 @@ class Muc extends DataClass implements Insertable<Muc> {
       @required this.name,
       this.id,
       this.info,
-      @required this.members});
+      this.members});
   factory Muc.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -4151,10 +4139,9 @@ class MucsCompanion extends UpdateCompanion<Muc> {
     @required String name,
     this.id = const Value.absent(),
     this.info = const Value.absent(),
-    @required int members,
+    this.members = const Value.absent(),
   })  : uid = Value(uid),
-        name = Value(name),
-        members = Value(members);
+        name = Value(name);
   static Insertable<Muc> custom({
     Expression<String> uid,
     Expression<String> name,
@@ -4280,7 +4267,7 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
     return GeneratedIntColumn(
       'members',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -4319,8 +4306,6 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
     if (data.containsKey('members')) {
       context.handle(_membersMeta,
           members.isAcceptableOrUnknown(data['members'], _membersMeta));
-    } else if (isInserting) {
-      context.missing(_membersMeta);
     }
     return context;
   }

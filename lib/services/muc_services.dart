@@ -6,6 +6,7 @@ import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
 
 import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart'
     as GroupServices;
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -163,6 +164,26 @@ class MucServices {
     }
   }
 
+  Future<String> getPermisionToken(Uid uid) async {
+    if (uid.category == Categories.GROUP) {
+      var res = await groupServices.getPermission(
+          GroupServices.GetPermissionReq()
+            ..group = uid
+            ..accessField = AccessField.CHANGE_AVATAR,
+          options: CallOptions(
+              metadata: {"access_token": await _accountRepo.getAccessToken()}));
+      return res.token;
+    } else {
+      var res = await channelServices.getPermission(
+          GetPermissionReq()
+            ..channel = uid
+            ..accessField = AccessField.CHANGE_AVATAR,
+          options: CallOptions(
+              metadata: {"access_token": await _accountRepo.getAccessToken()}));
+      return res.token;
+    }
+  }
+
   Future<bool> joinGroup(Uid groupUid) async {
     try {
       await groupServices.joinGroup(
@@ -176,20 +197,19 @@ class MucServices {
     }
   }
 
-  Future<bool> modifyGroup(GroupServices.GroupInfo group,Uid mucUid) async {
-    try{
+  Future<bool> modifyGroup(GroupServices.GroupInfo group, Uid mucUid) async {
+    try {
       await groupServices.modifyGroup(
-          GroupServices.ModifyGroupReq()..info = group..uid = mucUid,
+          GroupServices.ModifyGroupReq()
+            ..info = group
+            ..uid = mucUid,
           options: CallOptions(
               timeout: Duration(seconds: 1),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return true;
-
-    }catch(c){
+    } catch (c) {
       return false;
     }
-
-
   }
 
   Future<Uid> createNewChannel(
@@ -360,17 +380,19 @@ class MucServices {
     }
   }
 
-  Future<bool> modifyChannel(ChannelServices.ChannelInfo channelInfo,Uid mucUid) async {
-    try{
+  Future<bool> modifyChannel(
+      ChannelServices.ChannelInfo channelInfo, Uid mucUid) async {
+    try {
       await channelServices.modifyChannel(
-          ChannelServices.ModifyChannelReq()..info = channelInfo..uid = mucUid,
+          ChannelServices.ModifyChannelReq()
+            ..info = channelInfo
+            ..uid = mucUid,
           options: CallOptions(
-              timeout: Duration(seconds: 1),
+              timeout: Duration(seconds: 2),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return true;
-    }catch(e){
+    } catch (e) {
       return false;
     }
-   ;
   }
 }

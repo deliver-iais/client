@@ -44,8 +44,8 @@ class FileRepo {
 
     print(uploadedFile.toString());
 
-    await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
 
+    await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
     return uploadedFile;
   }
 

@@ -163,7 +163,10 @@
   "manage_channel": "Manage Channel",
   "channel_Id": "channel Id",
   "set": "Set",
-  "channel_id_isExist": "channel Id isExist"
+  "channel_id_isExist": "channel Id isExist",
+  "group_name": "group name",
+  "channel_name": "Channel Name",
+  "name_not_empty": "Name Not Empty"
 
 
 

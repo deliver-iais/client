@@ -10,10 +10,7 @@ import 'package:deliver_flutter/models/fetchingDirectionType.dart';
 import 'package:deliver_flutter/models/mediaCount.dart';
 import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -44,7 +41,7 @@ class MediaQueryRepo {
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       await insertMediaMetaData(uid, mediaResponse);
     } catch (e) {
-      print("metaDataEroorrrr$e");
+      print(e);
     }
     // return MediaCount()
     // ..imageCount = mediaResponse.allImagesCount.toInt()

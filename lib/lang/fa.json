@@ -163,5 +163,8 @@
   "manage_channel": "مدیریت کانال",
   "channel_Id": "آیدی کانال",
   "set": "انجام",
-  "channel_id_isExist": "آیدی کانال تکراری می باشد"
+  "channel_id_isExist": "آیدی کانال تکراری می باشد",
+  "group_name": "نام گروه",
+  "channel_name": "نام کانال",
+  "name_not_empty": "نام نباید خالی باشد."
 }

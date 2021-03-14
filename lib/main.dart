@@ -99,11 +99,11 @@ void setupDI() {
   getIt.registerSingleton<StickerRepo>(StickerRepo());
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<ContactRepo>(ContactRepo());
+  getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<CreateMucService>(CreateMucService());
   getIt.registerSingleton<RoutingService>(RoutingService());
   getIt.registerSingleton<NotificationServices>(NotificationServices());
-  getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<MucRepo>(MucRepo());
   getIt.registerSingleton<RoomRepo>(RoomRepo());
   getIt.registerSingleton<CoreServiceClient>(

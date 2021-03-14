@@ -116,28 +116,64 @@ class StickerRepo {
   void addSticker() {
     List<Sticker> stickers = List();
     stickers.add(Sticker(
-        uuid: 'eda821dc-878d-4020-ab3b-51f346ff4689',
+        uuid: '001f3ea9-a29e-4033-bf29-b5322a3036bf',
         name:
-            "c579e39a-cb80-4cf9-be2c-4cde24a18b50.image_picker4382935534051180548.jpg",
+            "73f4f27d-bce8-4097-9624-3ab6ffe6d26d.image_picker2589633551360027002.png",
         packName: 'pack1',
         packId: "1"));
     stickers.add(Sticker(
-        uuid: "ecf4fbb6-e975-459f-8958-d79de57829eb",
+        uuid: "06f0675d-8266-485c-aed0-ae294eee174d",
         name:
-            "c579e39a-cb80-4cf9-be2c-4cde24a18b50.image_picker5222062023281853666.jpg",
+            "73f4f27d-bce8-4097-9624-3ab6ffe6d26d.image_picker35522749960566159.png",
         packId: "1",
         packName: "pack1"));
     stickers.add(Sticker(
-        uuid: 'bb04b15c-cfaf-4dc3-9282-33866b1b842c',
+        uuid: 'cef5ada3-681b-4821-8236-4f2c0295c455',
         name:
-            'c579e39a-cb80-4cf9-be2c-4cde24a18b50.image_picker558697332465276485.png',
+            '73f4f27d-bce8-4097-9624-3ab6ffe6d26d.image_picker6665736394376586860.png',
         packId: '1',
         packName: 'pack1'));
 
     stickers.add(Sticker(
-        uuid: "f367aee3-4bac-4931-86df-ec24c1c7eb3d",
+        uuid: "abed711a-7b8c-4fb8-a5a5-1fd40863ca0c",
         name:
-            'c579e39a-cb80-4cf9-be2c-4cde24a18b50.image_picker6831231016158222288.png',
+            '73f4f27d-bce8-4097-9624-3ab6ffe6d26d.image_picker8024835939120188429.png',
+        packId: "1",
+        packName: 'pack1'));
+    stickers.add(Sticker(
+        uuid: "677259d6-826f-4543-81ac-d24d8cea8ddb",
+        name:
+        '73f4f27d-bce8-4097-9624-3ab6ffe6d26d.image_picker6620380510903792309.png',
+        packId: "1",
+        packName: 'pack1'));
+    stickers.add(Sticker(
+        uuid: "c2827762-efaf-4075-91e9-0aff5dbdcf08",
+        name:
+        '73f4f27d-bce8-4097-9624-3ab6ffe6d26d.image_picker4159847652945247813.png',
+        packId: "1",
+        packName: 'pack1'));
+    stickers.add(Sticker(
+        uuid: "caa2b463-e805-42da-8959-aef1c10dd1b9",
+        name:
+        '73f4f27d-bce8-4097-9624-3ab6ffe6d26d.image_picker9206894031298095590.png',
+        packId: "1",
+        packName: 'pack1'));
+    stickers.add(Sticker(
+        uuid: "2576d333-b67d-4f01-8d5c-16b6bebc3727",
+        name:
+        '73f4f27d-bce8-4097-9624-3ab6ffe6d26d.image_picker1074529056518351737.png',
+        packId: "1",
+        packName: 'pack1'));
+    stickers.add(Sticker(
+        uuid: "400a35c1-2291-462f-b4f2-259c9e4d2ffa",
+        name:
+        '73f4f27d-bce8-4097-9624-3ab6ffe6d26d.image_picker2567937024400266784.png',
+        packId: "1",
+        packName: 'pack1'));
+    stickers.add(Sticker(
+        uuid: "8f143a25-10db-4acd-9476-413b29d4fe78",
+        name:
+        '73f4f27d-bce8-4097-9624-3ab6ffe6d26d.image_picker4373390444561857121.png',
         packId: "1",
         packName: 'pack1'));
     _stickerDao.saveStikers(stickers);
