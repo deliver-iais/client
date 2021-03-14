@@ -65,8 +65,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                                   snaps.data != null &&
                                   snaps.connectionState ==
                                       ConnectionState.done) {
-                                print(
-                                    "*******getfileeeeeeeeeeeeeeeeeee*************$position");
+
                                 return GestureDetector(
                                   onTap: () {
                                     _routingService.openShowAllMedia(

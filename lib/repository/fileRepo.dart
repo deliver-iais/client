@@ -24,6 +24,7 @@ class FileRepo {
 
     await _saveFileInfo(uploadKey, localFile, name, "real");
     await _saveFileInfo(uploadKey, localFile, name, "large");
+    await _saveFileInfo(uploadKey, localFile, name, "medium");
   }
   Future<FileProto.File> uploadClonedFile(String uploadKey, String name,{Function sendActivity}) async {
     final clonedFilePath = await _fileService.localFilePath(uploadKey, name);
@@ -110,10 +111,13 @@ class FileRepo {
       String uploadKey, String uuid) async {
     var real = await _getFileInfoInDB("real", uploadKey);
     var large = await _getFileInfoInDB("large", uploadKey);
+    var medium = await _getFileInfoInDB("medium", uploadKey);
     await _fileDao.deleteFileInfo(real);
+    await _fileDao.deleteFileInfo(medium);
     await _fileDao.deleteFileInfo(large);
     await _fileDao.upsert(real.copyWith(uuid: uuid));
     await _fileDao.upsert(large.copyWith(uuid: uuid));
+    await _fileDao.upsert(medium.copyWith(uuid: uuid));
   }
 
   Future<FileInfo> _getFileInfoInDB(String size, String uuid) async {
