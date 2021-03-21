@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
@@ -10,7 +11,7 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as FileProto;
 
 import 'package:fixnum/fixnum.dart';
-
+import 'package:image/image.dart';
 import 'package:get_it/get_it.dart';
 
 class FileRepo {
@@ -19,13 +20,45 @@ class FileRepo {
 
   Future<void> cloneFileInLocalDirectory(
       File file, String uploadKey, String name) async {
-    final localFile = await _fileService.localFile(uploadKey, name);
-    localFile.writeAsBytesSync(file.readAsBytesSync());
+    var receivePort = ReceivePort();
+    final realLocalFile = await _fileService.localFile(uploadKey, name);
+    final largeLocalFile = await _fileService.localFile(uploadKey+"-large", name);
+    final mediumLocalFile = await _fileService.localFile(uploadKey+"-medium", name);
+    final smallLocalFile = await _fileService.localFile(uploadKey+"-small", name);
+    await Isolate.spawn(
+        decodeIsolate,DecodeParam(file, receivePort.sendPort,uploadKey,name));
+    ThumnailsKinds allImages = await receivePort.first as ThumnailsKinds;
+    realLocalFile.writeAsBytesSync(file.readAsBytesSync());
+    largeLocalFile.writeAsBytesSync(encodeJpg(allImages.largeThumnail));
+    mediumLocalFile.writeAsBytesSync(encodeJpg(allImages.mediumThumnail));
+    smallLocalFile.writeAsBytesSync(encodeJpg(allImages.smallThumnail));
 
-    await _saveFileInfo(uploadKey, localFile, name, "real");
-    await _saveFileInfo(uploadKey, localFile, name, "large");
-    await _saveFileInfo(uploadKey, localFile, name, "medium");
+    await _saveFileInfo(uploadKey, realLocalFile, name, "real");
+    await _saveFileInfo(uploadKey, largeLocalFile, name, "large");
+    await _saveFileInfo(uploadKey, mediumLocalFile, name, "medium");
+    await _saveFileInfo(uploadKey, smallLocalFile, name, "small");
+
   }
+  void decodeIsolate(DecodeParam param) async{
+    Image largeThumbnail;
+    Image mediumThumbnail;
+    Image smallThumbnail;
+
+    Image image = decodeImage(param.file.readAsBytesSync());
+    if(image.width>image.height){
+      largeThumbnail = copyResize(image, width: 500);
+      mediumThumbnail = copyResize(image, width: 300);
+      smallThumbnail = copyResize(image, width: 64);
+    } else {
+      largeThumbnail = copyResize(image, height: 500);
+      mediumThumbnail = copyResize(image, height: 300);
+      smallThumbnail = copyResize(image, height: 64);
+    }
+    ThumnailsKinds thumnailsKinds = ThumnailsKinds(largeThumbnail, mediumThumbnail, smallThumbnail);
+     param.sendPort.send(thumnailsKinds);
+
+  }
+
   Future<FileProto.File> uploadClonedFile(String uploadKey, String name,{Function sendActivity}) async {
     final clonedFilePath = await _fileService.localFilePath(uploadKey, name);
 
@@ -112,12 +145,15 @@ class FileRepo {
     var real = await _getFileInfoInDB("real", uploadKey);
     var large = await _getFileInfoInDB("large", uploadKey);
     var medium = await _getFileInfoInDB("medium", uploadKey);
+    var small = await _getFileInfoInDB("small", uploadKey);
     await _fileDao.deleteFileInfo(real);
     await _fileDao.deleteFileInfo(medium);
     await _fileDao.deleteFileInfo(large);
+    await _fileDao.deleteFileInfo(small);
     await _fileDao.upsert(real.copyWith(uuid: uuid));
     await _fileDao.upsert(large.copyWith(uuid: uuid));
     await _fileDao.upsert(medium.copyWith(uuid: uuid));
+    await _fileDao.upsert(small.copyWith(uuid: uuid));
   }
 
   Future<FileInfo> _getFileInfoInDB(String size, String uuid) async {
@@ -127,4 +163,22 @@ class FileRepo {
   void initUploadProgress(String uploadId) {
     _fileService.initUpoadProgrss(uploadId);
   }
+}
+
+class DecodeParam {
+  final File file;
+  final SendPort sendPort;
+  String uploadKey;
+  String name;
+
+  DecodeParam(this.file, this.sendPort,this.uploadKey,this.name);
+}
+
+class ThumnailsKinds {
+  Image largeThumnail;
+  Image mediumThumnail;
+  Image smallThumnail;
+
+  ThumnailsKinds(this.largeThumnail, this.mediumThumnail, this.smallThumnail);
+
 }
