@@ -138,8 +138,6 @@ class CoreServices {
           case ServerPacket_Type.activity:
             _saveActivityMessage(serverPacket.activity);
             break;
-          case ServerPacket_Type.pollStatusChanged:
-            break;
           case ServerPacket_Type.liveLocationStatusChanged:
             break;
           case ServerPacket_Type.pong:

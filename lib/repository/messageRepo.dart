@@ -14,7 +14,7 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
-import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
+
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as FileProto;
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
@@ -146,7 +146,7 @@ class MessageRepo {
       var mentionResult = await _queryServiceClient.fetchMentionList(
           FetchMentionListReq()
             ..group = room.roomId.getUid()
-            ..afterId = 1,
+            ..afterId = Int64.parseInt(room.lastMessageId.toString()),
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       if (mentionResult.idList != null && mentionResult.idList.length > 0) {

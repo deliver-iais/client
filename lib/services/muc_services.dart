@@ -164,7 +164,7 @@ class MucServices {
     }
   }
 
-  Future<String> getPermisionToken(Uid uid) async {
+  Future<String> getPermissionToken(Uid uid) async {
     if (uid.category == Categories.GROUP) {
       var res = await groupServices.getPermission(
           GroupServices.GetPermissionReq()

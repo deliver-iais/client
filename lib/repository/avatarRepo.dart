@@ -125,7 +125,7 @@ class AvatarRepo {
     return ac;
   }
   Future<Avatar>setMucAvatar(Uid uid, File file) async {
-    var token  = await  _mucServices.getPermisionToken(uid);
+    var token  = await  _mucServices.getPermissionToken(uid);
     return uploadAvatar(file, uid,token:token);
   }
 
@@ -190,7 +190,7 @@ class AvatarRepo {
       saveAvatarInfo(
           _accountRepo.currentUserUid, createOn, fileInfo.uuid, fileInfo.name);
     } catch (e) {
-      print(addAvatarReq.token);
+      print("rrrrrrrrrrrrrrrrrrrr"+addAvatarReq.token.toString());
       print(e.toString());
     }
   }
