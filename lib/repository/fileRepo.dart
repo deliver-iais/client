@@ -39,7 +39,7 @@ class FileRepo {
     await _saveFileInfo(uploadKey, smallLocalFile, name, "small");
 
   }
-  void decodeIsolate(DecodeParam param) async{
+  static decodeIsolate(DecodeParam param){
     Image largeThumbnail;
     Image mediumThumbnail;
     Image smallThumbnail;
