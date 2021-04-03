@@ -50,7 +50,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                   var fileId = jsonDecode(snaps.data[position].json)["uuid"];
                   var fileName = jsonDecode(snaps.data[position].json)["name"];
                   return FutureBuilder(
-                    future: _fileRepo.isExist(fileId, fileName+ "png",
+                    future: _fileRepo.isExist(fileId, fileName,
                         thumbnailSize: ThumbnailSize.medium),
                     builder: (BuildContext c, AsyncSnapshot isExist) {
                       if (isExist.hasData &&
@@ -58,7 +58,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                           isExist.connectionState == ConnectionState.done &&
                           isExist.data == true) {
                         return FutureBuilder(
-                            future: _fileRepo.getFile(fileId, fileName + "png",
+                            future: _fileRepo.getFile(fileId, fileName,
                                 thumbnailSize: ThumbnailSize.medium),
                             builder: (BuildContext c, AsyncSnapshot snaps) {
                               if (snaps.hasData &&
@@ -104,7 +104,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                           isExist.connectionState == ConnectionState.done &&
                           isExist.data == false) {
                         return FutureBuilder(
-                            future: _fileRepo.getFile(fileId, fileName + "png",
+                            future: _fileRepo.getFile(fileId, fileName,
                                 thumbnailSize: ThumbnailSize.small),
                             builder: (BuildContext c, AsyncSnapshot snaps) {
                               if (snaps.hasData &&

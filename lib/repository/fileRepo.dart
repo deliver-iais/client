@@ -20,7 +20,7 @@ class FileRepo {
 
   Future<void> cloneFileInLocalDirectory(
       File file, String uploadKey, String name) async {
-    var receivePort = ReceivePort();
+    ReceivePort receivePort = ReceivePort();
     final realLocalFile = await _fileService.localFile(uploadKey, name);
     final largeLocalFile = await _fileService.localFile(uploadKey+"-large", name);
     final mediumLocalFile = await _fileService.localFile(uploadKey+"-medium", name);

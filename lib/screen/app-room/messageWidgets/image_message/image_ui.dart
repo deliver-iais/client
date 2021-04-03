@@ -69,7 +69,7 @@ class _ImageUiState extends State<ImageUi> {
                       : Container()
                 ],
               );
-            } else {
+            } else
               return GestureDetector(
                 onTap: () async {
                   await fileRepo.getFile(image.uuid, image.name,
@@ -134,7 +134,7 @@ class _ImageUiState extends State<ImageUi> {
                 ),
               );
             }
-          });
+          );
     } catch (e) {
       return Container();
     }
