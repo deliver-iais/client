@@ -25,8 +25,14 @@ class FileRepo {
     final largeLocalFile = await _fileService.localFile(uploadKey+"-large", name);
     final mediumLocalFile = await _fileService.localFile(uploadKey+"-medium", name);
     final smallLocalFile = await _fileService.localFile(uploadKey+"-small", name);
+    try{
     await Isolate.spawn(
         decodeIsolate,DecodeParam(file, receivePort.sendPort,uploadKey,name));
+    print("isolate spawn finished successfulllyyyyyyyyyyyy");
+    }
+        catch(e){
+      print("isolate errrrrrrrrrrrrrrrorrrrrrrrr");
+        }
     ThumnailsKinds allImages = await receivePort.first as ThumnailsKinds;
     realLocalFile.writeAsBytesSync(file.readAsBytesSync());
     largeLocalFile.writeAsBytesSync(encodeJpg(allImages.largeThumnail));
