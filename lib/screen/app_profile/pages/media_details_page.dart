@@ -209,7 +209,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   FutureBuilder<File> buildFutureMediaBuilder(
       fileId, fileName, BuildContext context, int i) {
     return FutureBuilder<File>(
-      future: _fileRepo.getFile(fileId, fileName +"png",thumbnailSize: ThumbnailSize.large),
+      future: _fileRepo.getFile(fileId, fileName,thumbnailSize: ThumbnailSize.large),
       builder: (BuildContext c, AsyncSnapshot snaps) {
         if (snaps.hasData &&
             snaps.data != null &&
@@ -347,8 +347,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           } else if (snaps.data == null &&
               snaps.connectionState == ConnectionState.done) {
             return FutureBuilder(
-                future: _fileRepo.getFile(fileId, fileName + "png",
-                    thumbnailSize: ThumbnailSize.small),
+                future: _fileRepo.getFile(fileId, fileName,
+                    thumbnailSize: ThumbnailSize.large),
                 builder: (BuildContext c, AsyncSnapshot snaps) {
                   if (snaps.hasData &&
                       snaps.data != null &&
