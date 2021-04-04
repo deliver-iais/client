@@ -20,30 +20,43 @@ class FileRepo {
 
   Future<void> cloneFileInLocalDirectory(
       File file, String uploadKey, String name) async {
-    ReceivePort receivePort = ReceivePort();
-    final realLocalFile = await _fileService.localFile(uploadKey, name);
-    final largeLocalFile = await _fileService.localFile(uploadKey+"-large", name);
-    final mediumLocalFile = await _fileService.localFile(uploadKey+"-medium", name);
-    final smallLocalFile = await _fileService.localFile(uploadKey+"-small", name);
-    try{
-    await Isolate.spawn(
-        decodeIsolate,DecodeParam(file, receivePort.sendPort,uploadKey,name));
-    print("isolate spawn finished successfulllyyyyyyyyyyyy");
-    }
-        catch(e){
-      print("isolate errrrrrrrrrrrrrrrorrrrrrrrr");
-        }
-    ThumnailsKinds allImages = await receivePort.first as ThumnailsKinds;
-    realLocalFile.writeAsBytesSync(file.readAsBytesSync());
-    largeLocalFile.writeAsBytesSync(encodeJpg(allImages.largeThumnail));
-    mediumLocalFile.writeAsBytesSync(encodeJpg(allImages.mediumThumnail));
-    smallLocalFile.writeAsBytesSync(encodeJpg(allImages.smallThumnail));
+    // if(name=="jpg") {
+      ReceivePort receivePort = ReceivePort();
+      final realLocalFile = await _fileService.localFile(uploadKey, name);
+      final largeLocalFile = await _fileService.localFile(
+          uploadKey + "-large", name);
+      final mediumLocalFile = await _fileService.localFile(
+          uploadKey + "-medium", name);
+      final smallLocalFile = await _fileService.localFile(
+          uploadKey + "-small", name);
+      try {
+        await Isolate.spawn(
+            decodeIsolate,
+            DecodeParam(file, receivePort.sendPort, uploadKey, name));
+        print("isolate spawn finished successfulllyyyyyyyyyyyy");
+      }
+      catch (e) {
+        print("isolate errrrrrrrrrrrrrrrorrrrrrrrr");
+      }
+      ThumnailsKinds allImages = await receivePort.first as ThumnailsKinds;
+      realLocalFile.writeAsBytesSync(file.readAsBytesSync());
+      largeLocalFile.writeAsBytesSync(encodeJpg(allImages.largeThumnail));
+      mediumLocalFile.writeAsBytesSync(encodeJpg(allImages.mediumThumnail));
+      smallLocalFile.writeAsBytesSync(encodeJpg(allImages.smallThumnail));
 
-    await _saveFileInfo(uploadKey, realLocalFile, name, "real");
-    await _saveFileInfo(uploadKey, largeLocalFile, name, "large");
-    await _saveFileInfo(uploadKey, mediumLocalFile, name, "medium");
-    await _saveFileInfo(uploadKey, smallLocalFile, name, "small");
-
+      await _saveFileInfo(uploadKey, realLocalFile, name, "real");
+      await _saveFileInfo(uploadKey, largeLocalFile, name, "large");
+      await _saveFileInfo(uploadKey, mediumLocalFile, name, "medium");
+      await _saveFileInfo(uploadKey, smallLocalFile, name, "small");
+    // }
+      // else{
+    //   final localFile = await _fileService.localFile(uploadKey, name);
+    //   localFile.writeAsBytesSync(file.readAsBytesSync());
+    //
+    //   await _saveFileInfo(uploadKey, localFile, name, "real");
+    //   await _saveFileInfo(uploadKey, localFile, name, "large");
+    //
+    // }
   }
   static decodeIsolate(DecodeParam param){
     Image largeThumbnail;
