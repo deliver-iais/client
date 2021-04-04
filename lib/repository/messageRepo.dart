@@ -104,7 +104,7 @@ class MessageRepo {
             room.lastMessageId != null &&
             room.lastMessageId >= userRoomMeta.lastMessageId.toInt() &&
             room.lastMessageId != 0) {
-          continue;
+           continue;
         }
         try {
           var fetchMessagesRes = await _queryServiceClient.fetchMessages(
