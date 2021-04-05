@@ -166,7 +166,8 @@
   "channel_id_isExist": "channel Id isExist",
   "group_name": "group name",
   "channel_name": "Channel Name",
-  "name_not_empty": "Name Not Empty"
+  "name_not_empty": "Name Not Empty",
+  "not_found": "Not Found"
 
 
 

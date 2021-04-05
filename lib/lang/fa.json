@@ -166,5 +166,6 @@
   "channel_id_isExist": "آیدی کانال تکراری می باشد",
   "group_name": "نام گروه",
   "channel_name": "نام کانال",
-  "name_not_empty": "نام نباید خالی باشد."
+  "name_not_empty": "نام نباید خالی باشد.",
+  "not_found": "چیزی پیدا نشد."
 }

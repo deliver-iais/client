@@ -508,6 +508,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   PreferredSize buildAppbar(AsyncSnapshot<bool> snapshot) {
     TextEditingController controller = TextEditingController();
+    BehaviorSubject<bool> checkSearchResult = BehaviorSubject.seeded(false);
     return PreferredSize(
       preferredSize: Size.fromHeight(
           snapshot.data == true || _audioPlayerService.lastDur != null
@@ -522,7 +523,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   return IconButton(
                       icon: Icon(Icons.search),
                       onPressed: () {
-                        searchMessage(controller.text);
+                        searchMessage(controller.text, checkSearchResult);
                       });
                 } else
                   return _routingService.backButtonLeading(
@@ -544,13 +545,30 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         minLines: 1,
                         controller: controller,
                         autofocus: true,
+                        onTap: () {
+                          checkSearchResult.add(false);
+                        },
+                        onChanged: (s) {
+                          checkSearchResult.add(false);
+                        },
                         textInputAction: TextInputAction.search,
                         onSubmitted: (str) async {
-                          searchMessage(str);
+                          searchMessage(str, checkSearchResult);
                         },
                         decoration: InputDecoration(
                             hintText:
                                 _appLocalization.getTraslateValue("search"),
+                            suffix: StreamBuilder(
+                              stream: checkSearchResult.stream,
+                              builder: (c, s) {
+                                if (s.hasData && s.data) {
+                                  return Text(_appLocalization
+                                      .getTraslateValue("not_found"));
+                                } else {
+                                  return SizedBox.shrink();
+                                }
+                              },
+                            ),
                             fillColor: Colors.white),
                       ),
                     ),
@@ -608,14 +626,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     );
   }
 
-  Future searchMessage(String str) async {
-    if (str != null && str.length >0) {
-      setState(() {});
+  Future searchMessage(String str, BehaviorSubject subject) async {
+    if (str != null && str.length > 0) {
+      subject.add(false);
       pattern = str;
       var res = await _messageRepo.searchMessage(str, widget.roomId);
-      searchResult = res;
-      currentSearchResultMessage = searchResult.last;
-      _scrollToMessage(id: 0, position: currentSearchResultMessage.id);
+      if (res != null && res.length > 0) {
+        searchResult = res;
+        currentSearchResultMessage = searchResult.last;
+        _scrollToMessage(id: 0, position: currentSearchResultMessage.id);
+      } else {
+        subject.add(true);
+      }
     }
   }
 
