@@ -233,8 +233,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     });
     _messageRepo.setCoreSetting();
 
-    _roomDao.updateRoom(
-        RoomsCompanion(roomId: Moor.Value(widget.roomId), mentioned: Moor.Value(false)));
+    _roomDao.updateRoom(RoomsCompanion(
+        roomId: Moor.Value(widget.roomId), mentioned: Moor.Value(false)));
     _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.uid.category == Categories.GROUP ||
             widget.roomId.uid.category == Categories.CHANNEL
@@ -242,7 +242,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         : false;
     _waitingForForwardedMessage = widget.forwardedMessages != null
         ? widget.forwardedMessages.length > 0
-        : false;
+        : widget.shareUid!= null;
     sendInputSharedFile();
     //TODO check
     _lastSeenSubject
@@ -371,9 +371,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       message: _repliedMessage,
                       resetRoomPageDetails: _resetRoomPageDetails)
                   : Container(),
-              _waitingForForwardedMessage
+              (_waitingForForwardedMessage)
                   ? ForwardWidget(
                       forwardedMessages: widget.forwardedMessages,
+                      shareUid: widget.shareUid,
                       onClick: () {
                         setState(() {
                           _waitingForForwardedMessage = false;
@@ -446,7 +447,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         currentRoomId: widget.roomId,
         replyMessageId: _repliedMessage != null ? _repliedMessage.id ?? -1 : -1,
         resetRoomPageDetails: _resetRoomPageDetails,
-        waitingForForward: _waitingForForwardedMessage,
+        waitingForForward: (_waitingForForwardedMessage),
         sendForwardMessage: _sendForwardMessage,
         scrollToLastSentMessage: scrollToLast,
       );
@@ -489,16 +490,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       Room currentRoom, List pendingMessages, double _maxWidth) {
     return ScrollablePositionedList.builder(
       itemCount: _itemCount,
-      initialScrollIndex:( _lastShowedMessageId!= null && _lastShowedMessageId != -1)?_lastShowedMessageId :_itemCount
-      ,
+      initialScrollIndex:
+          (_lastShowedMessageId != null && _lastShowedMessageId != -1)
+              ? _lastShowedMessageId
+              : _itemCount,
       initialAlignment: 0,
       physics: _scrollPhysics,
       reverse: false,
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) {
-        if(index == -1)
-          index = 0;
+        if (index == -1) index = 0;
 
         _lastSeenDao.insertLastSeen(LastSeen(
             roomId: widget.roomId, messageId: _currentRoom.lastMessageId));
@@ -510,7 +512,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         return FutureBuilder<List<Message>>(
           future: isPendingMessage
               ? _getPendingMessage(
-                  pendingMessages[_itemCount - index-1 ].messageDbId)
+                  pendingMessages[_itemCount - index - 1].messageDbId)
               : _getMessageAndPreviousMessage(index + 1),
           builder: (context, messagesFuture) {
             if (messagesFuture.hasData && messagesFuture.data[0] != null) {

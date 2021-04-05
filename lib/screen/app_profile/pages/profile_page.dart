@@ -529,14 +529,14 @@ Widget _showUsername(String username, Uid currentUid) {
           username != null ? "@$username" : '',
           style: TextStyle(fontSize: 18.0, color: Colors.blue),
         ),
-        SizedBox(
-          width: 150,
-        ),
+        // SizedBox(
+        //   width: 150,
+        // ),
         IconButton(
             icon: Icon(
               Icons.share,
               size: 22,
-              color: Colors.blueAccent,
+              color: Colors.white,
             ),
             onPressed: () {
               routingServices.openSelectForwardMessage(

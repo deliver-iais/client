@@ -51,6 +51,7 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
                               return ChatItemToForward(
                                 uid: snapshot.data[index],
                                 forwardedMessages: widget.forwardedMessages,
+                                shareUid: widget.shareUid,
                               );
                             },
                           ),

@@ -65,23 +65,25 @@ class RoutingService {
     reset();
   }
 
-  void openRoom(String roomId, {List<Message> forwardedMessages = const [],pro.ShareUid shareUid,bool joinToMuc}) {
+  void openRoom(String roomId,
+      {List<Message> forwardedMessages = const [],
+      pro.ShareUid shareUid,
+      bool joinToMuc}) {
     backSubject.add(false);
     var widget = WillPopScope(
         onWillPop: () {
-          if(!backSubject.value){
+          if (!backSubject.value) {
             return Future.value(true);
-          }else{
+          } else {
             backSubject.add(false);
             return Future.value(false);
           }
-
         },
         child: RoomPage(
           key: ValueKey("/room/$roomId"),
           roomId: roomId,
           forwardedMessages: forwardedMessages,
-          shareUid:shareUid,
+          shareUid: shareUid,
           jointToMuc: joinToMuc,
         ));
     _popAllAndPush(Page(
@@ -119,11 +121,10 @@ class RoutingService {
   void openShowAllAvatars(
       {Uid uid, bool hasPermissionToDeleteAvatar, String heroTag}) {
     var widget = MediaDetailsPage.showAvatar(
-      key: ValueKey("/media-details"),
-      userUid: uid,
-      hasPermissionToDeletePic: hasPermissionToDeleteAvatar,
-      heroTag: heroTag
-    );
+        key: ValueKey("/media-details"),
+        userUid: uid,
+        hasPermissionToDeletePic: hasPermissionToDeleteAvatar,
+        heroTag: heroTag);
     _push(Page(
       //largePageNavigator: _navigationCenter,
       //largePageMain: widget,
@@ -133,13 +134,12 @@ class RoutingService {
     ));
   }
 
-  void openShowAllVideos({Uid uid,int mediaPosition, int mediasLength}){
+  void openShowAllVideos({Uid uid, int mediaPosition, int mediasLength}) {
     var widget = MediaDetailsPage.showVideo(
-        key: ValueKey("/media-details"),
-        userUid: uid,
-        mediaPosition: mediaPosition,
-        mediasLength: mediasLength,
-
+      key: ValueKey("/media-details"),
+      userUid: uid,
+      mediaPosition: mediaPosition,
+      mediasLength: mediasLength,
     );
     _push(Page(
       largePageNavigator: _navigationCenter,
@@ -149,7 +149,12 @@ class RoutingService {
     ));
   }
 
-  void openShowAllMedia({Uid uid,bool hasPermissionToDeletePic,int mediaPosition, int mediasLength, String heroTag}) {
+  void openShowAllMedia(
+      {Uid uid,
+      bool hasPermissionToDeletePic,
+      int mediaPosition,
+      int mediasLength,
+      String heroTag}) {
     var widget = MediaDetailsPage.showMedia(
       key: ValueKey("/media-details"),
       userUid: uid,
@@ -215,10 +220,12 @@ class RoutingService {
         path: "/new-contact"));
   }
 
-  void openSelectForwardMessage({List<Message> forwardedMessages ,pro.ShareUid sharedUid }) {
+  void openSelectForwardMessage(
+      {List<Message> forwardedMessages, pro.ShareUid sharedUid}) {
     var widget = SelectionToForwardPage(
       key: ValueKey("/selection-to-forward-page"),
       forwardedMessages: forwardedMessages,
+      shareUid: sharedUid,
     );
     _push(Page(
         largePageNavigator: _navigationCenter,
