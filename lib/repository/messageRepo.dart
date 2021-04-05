@@ -633,4 +633,8 @@ class MessageRepo {
     // Send Message
     await _sendMessageToServer(dbId);
   }
+
+ Future<List<Message>> searchMessage(String str,String roomId) async {
+    return _messageDao.searchMessage(str,roomId);
+ }
 }

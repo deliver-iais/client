@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
-import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
@@ -15,21 +15,22 @@ import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/forward_widget.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/operation_on_message_entry.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/reply_widgets/reply-widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/bot_start_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/chatTime.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/joint_to_muc_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/mute_and_unmute_room_widget.dart';
-import 'package:deliver_flutter/services/notification_services.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/custom_context_menu.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/newMessageInput.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/recievedMessageBox.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/reply_widgets/reply-widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/sendedMessageBox.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/newMessageInput.dart';
+import 'package:deliver_flutter/services/notification_services.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/custom_context_menu.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/shared/mucAppbarTitle.dart';
 import 'package:deliver_flutter/shared/userAppBar.dart';
 import 'package:deliver_flutter/theme/constants.dart';
@@ -37,7 +38,6 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:moor/moor.dart' as Moor;
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -76,10 +76,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _seenDao = GetIt.I.get<SeenDao>();
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
+  String pattern;
 
   int lastSeenMessageId = -1;
   bool _waitingForForwardedMessage;
   bool _isMuc;
+  BehaviorSubject<bool> _searchMode = BehaviorSubject.seeded(false);
   Message _repliedMessage;
   Map<int, Message> _selectedMessages = Map();
   AppLocalization _appLocalization;
@@ -104,6 +106,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       LruCache<int, Message>(storage: SimpleStorage(size: PAGE_SIZE));
 
   Map<String, int> _messagesPacketId = Map();
+  List<Message> searchResult = List();
+  Message currentSearchResultMessage;
 
   BehaviorSubject<int> unReadMessageScrollSubjet = BehaviorSubject.seeded(0);
 
@@ -242,7 +246,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         : false;
     _waitingForForwardedMessage = widget.forwardedMessages != null
         ? widget.forwardedMessages.length > 0
-        : widget.shareUid!= null;
+        : widget.shareUid != null;
     sendInputSharedFile();
     //TODO check
     _lastSeenSubject
@@ -320,7 +324,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                             if ((position.hasData &&
                                                 position.data != null)) {
                                               if (_itemCount - position.data >
-                                                  3) {
+                                                  4) {
                                                 _scrollToNewMessage = false;
                                                 return StreamBuilder<int>(
                                                     stream:
@@ -382,17 +386,66 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       },
                     )
                   : Container(),
-              (widget.jointToMuc != null && widget.jointToMuc)
-                  ? StreamBuilder<Member>(
-                      stream: _mucRepo.checkJointToMuc(roomUid: widget.roomId),
-                      builder: (c, isJoint) {
-                        if (isJoint.hasData && isJoint.data != null) {
-                          return keybrodWidget();
-                        } else {
-                          return JointToMucWidget(widget.roomId.getUid());
-                        }
-                      })
-                  : keybrodWidget()
+              StreamBuilder(
+                stream: _searchMode.stream,
+                builder: (c, s) {
+                  if (s.hasData && s.data) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.arrow_upward_rounded),
+                          onPressed: () {
+                            if (searchResult
+                                    .indexOf(currentSearchResultMessage) !=
+                                0)
+                              _itemScrollController.scrollTo(
+                                  index: searchResult[searchResult.indexOf(
+                                              currentSearchResultMessage) -
+                                          1]
+                                      .id,
+                                  duration: Duration(milliseconds: 2));
+                            currentSearchResultMessage = searchResult[
+                                searchResult
+                                        .indexOf(currentSearchResultMessage) -
+                                    1];
+                          },
+                        ),
+                        IconButton(
+                            icon: Icon(Icons.arrow_downward_rounded),
+                            onPressed: () {
+                              if (searchResult
+                                      .indexOf(currentSearchResultMessage) !=
+                                  searchResult.length)
+                                _itemScrollController.scrollTo(
+                                    index: searchResult[searchResult.indexOf(
+                                                currentSearchResultMessage) +
+                                            1]
+                                        .id,
+                                    duration: Duration(milliseconds: 2));
+                              currentSearchResultMessage = searchResult[
+                                  searchResult
+                                          .indexOf(currentSearchResultMessage) +
+                                      1];
+                            })
+                      ],
+                    );
+                  } else {
+                    return (widget.jointToMuc != null && widget.jointToMuc)
+                        ? StreamBuilder<Member>(
+                            stream: _mucRepo.checkJointToMuc(
+                                roomUid: widget.roomId),
+                            builder: (c, isJoint) {
+                              if (isJoint.hasData && isJoint.data != null) {
+                                return keybrodWidget();
+                              } else {
+                                return JointToMucWidget(widget.roomId.getUid());
+                              }
+                            })
+                        : keybrodWidget();
+                  }
+                },
+              )
             ],
           ),
           backgroundColor: Theme.of(context).backgroundColor,
@@ -427,7 +480,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       ),
                 Icon(
                   Icons.arrow_downward_rounded,
-                  color: Colors.red,
+                  color: Colors.black,
                 )
               ],
             ),
@@ -447,13 +500,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         currentRoomId: widget.roomId,
         replyMessageId: _repliedMessage != null ? _repliedMessage.id ?? -1 : -1,
         resetRoomPageDetails: _resetRoomPageDetails,
-        waitingForForward: (_waitingForForwardedMessage),
+        waitingForForward: _waitingForForwardedMessage,
         sendForwardMessage: _sendForwardMessage,
         scrollToLastSentMessage: scrollToLast,
       );
   }
 
   PreferredSize buildAppbar(AsyncSnapshot<bool> snapshot) {
+    TextEditingController controller = TextEditingController();
     return PreferredSize(
       preferredSize: Size.fromHeight(
           snapshot.data == true || _audioPlayerService.lastDur != null
@@ -461,29 +515,108 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               : 60),
       child: AppBar(
         leading: GestureDetector(
-          child: _routingService.backButtonLeading(back: () {
-            _notificationServices.reset("\t");
-          }),
+          child: StreamBuilder(
+              stream: _searchMode.stream,
+              builder: (c, s) {
+                if (s.hasData && s.data) {
+                  return IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: () {
+                        searchMessage(controller.text);
+                      });
+                } else
+                  return _routingService.backButtonLeading(
+                    back: () {
+                      _notificationServices.reset("\t");
+                    },
+                  );
+              }),
         ),
-        title: Align(
-            alignment: Alignment.centerLeft,
-            child: StreamBuilder<bool>(
-              stream: _selectMultiMessageSubject.stream,
-              builder: (c, sm) {
-                if (sm.hasData && sm.data) {
-                  return _selectMultiMessageAppBar();
+        title: StreamBuilder(
+          stream: _searchMode.stream,
+          builder: (c, s) {
+            if (s.hasData && s.data) {
+              return Row(
+                children: [
+                  Container(
+                    child: Flexible(
+                      child: TextField(
+                        minLines: 1,
+                        controller: controller,
+                        autofocus: true,
+                        textInputAction: TextInputAction.search,
+                        onSubmitted: (str) async {
+                          searchMessage(str);
+                        },
+                        decoration: InputDecoration(
+                            hintText:
+                                _appLocalization.getTraslateValue("search"),
+                            fillColor: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            } else {
+              return Align(
+                  alignment: Alignment.centerLeft,
+                  child: StreamBuilder<bool>(
+                    stream: _selectMultiMessageSubject.stream,
+                    builder: (c, sm) {
+                      if (sm.hasData && sm.data) {
+                        return _selectMultiMessageAppBar();
+                      } else {
+                        if (_isMuc)
+                          return MucAppbarTitle(mucUid: widget.roomId);
+                        else
+                          return UserAppbar(
+                            userUid: widget.roomId.uid,
+                          );
+                      }
+                    },
+                  ));
+            }
+          },
+        ),
+        actions: [
+          StreamBuilder(
+              stream: _searchMode.stream,
+              builder: (c, s) {
+                if (s.hasData && s.data) {
+                  return IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: () {
+                        _searchMode.add(false);
+                      });
                 } else {
-                  if (_isMuc)
-                    return MucAppbarTitle(mucUid: widget.roomId);
-                  else
-                    return UserAppbar(
-                      userUid: widget.roomId.uid,
-                    );
+                  return PopupMenuButton(
+                    icon: Icon(Icons.more_vert),
+                    itemBuilder: (_) => <PopupMenuItem<String>>[
+                      new PopupMenuItem<String>(
+                          child:
+                              Text(_appLocalization.getTraslateValue("search")),
+                          value: "search"),
+                    ],
+                    onSelected: (search) {
+                      _searchMode.add(true);
+                    },
+                  );
                 }
-              },
-            )),
+              }),
+        ],
       ),
     );
+  }
+
+  Future searchMessage(String str) async {
+    if (str != null && str.length >0) {
+      setState(() {});
+      pattern = str;
+      var res = await _messageRepo.searchMessage(str, widget.roomId);
+      searchResult = res;
+      currentSearchResultMessage = searchResult.last;
+      _scrollToMessage(id: 0, position: currentSearchResultMessage.id);
+    }
   }
 
   ScrollablePositionedList buildMessagesListView(
@@ -570,7 +703,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                               color: _selectedMessages
                                           .containsKey(messages[0].id) ||
                                       (messages[0].id != null &&
-                                          messages[0].id == _replayMessageId)
+                                          messages[0].id == _replayMessageId) ||
+                                      searchResult.contains(messages[0])
                                   ? Theme.of(context).disabledColor
                                   : Theme.of(context).backgroundColor,
                               child: normalMessage(messages[0], _maxWidth,
@@ -636,21 +770,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           message, maxWidth, currentRoom.lastMessageId, pendingMessages.length);
   }
 
-  Widget selectMultiMessage({Message message}) {
-    // return GestureDetector(
-    //   child: Padding(
-    //     padding: EdgeInsets.only(bottom: 8),
-    //     child: _selectedMessages.containsKey(message.id)
-    //         ? Icon(Icons.check_circle_outline)
-    //         : Icon(Icons.panorama_fish_eye),
-    //   ),
-    //   onTap: () {
-    //     _addForwardMessage(message);
-    //     setState(() {
-    //     });
-    //   },
-    // );
-  }
+  Widget selectMultiMessage({Message message}) {}
 
   _addForwardMessage(Message message) {
     setState(() {
@@ -673,7 +793,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   _scrollToMessage({int id, int position}) {
     _itemScrollController.scrollTo(
-        index: position, duration: Duration(seconds: 1));
+        index: position - 1, duration: Duration(milliseconds: 1));
     if (id != null)
       setState(() {
         _replayMessageId = id;
@@ -751,6 +871,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   message: message,
                   maxWidth: _maxWidth,
                   isSeen: message.id != null && message.id <= lastSeenMessageId,
+                  pattern: pattern,
                   scrollToMessage: (int id) {
                     _scrollToMessage(
                         id: id, position: pendingMessagesLength + id);
@@ -759,13 +880,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 )
               ],
             ),
-            // StreamBuilder(stream : _selectMultiMessageSubject.stream,builder: (c, s) {
-            //   if (s.hasData && s.data) {
-            //     return selectMultiMessage(message: message);
-            //   } else {
-            //     return SizedBox.shrink();
-            //   }
-            //})
           ],
         ),
       ),
@@ -798,17 +912,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         bottom: 8.0, left: 5.0, right: 3.0),
                     child: CircleAvatarWidget(message.from.uid, 18),
                   ),
-                // StreamBuilder<bool>(stream:_selectMultiMessageSubject.stream,builder: (c,sm){
-                //   if(sm.hasData &&  sm.data){
-                //    return selectMultiMessage(message: message);
-                //   }else{
-                //     return SizedBox.shrink();
-                //   }
-                // }),
-
                 RecievedMessageBox(
                   message: message,
                   maxWidth: _maxWidth,
+                  pattern: pattern,
                   isGroup: widget.roomId.uid.category == Categories.GROUP,
                   scrollToMessage: (int id) {
                     _scrollToMessage(

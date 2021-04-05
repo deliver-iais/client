@@ -27,6 +27,7 @@ class BoxContent extends StatefulWidget {
   final Function scrollToMessage;
   final bool isSeen;
   final Function onUsernameClick;
+  final String pattern;
 
   const BoxContent(
       {Key key,
@@ -34,6 +35,7 @@ class BoxContent extends StatefulWidget {
       this.maxWidth,
       this.isSender,
       this.isSeen,
+      this.pattern,
       this.onUsernameClick,
       this.scrollToMessage})
       : super(key: key);
@@ -65,7 +67,7 @@ class _BoxContentState extends State<BoxContent> {
         if (widget.message.to.getUid().category != Categories.BOT &&
             widget.message.replyToId != null &&
             widget.message.replyToId > 0)
-         // replyToIdBox(),
+          replyToIdBox(),
         if (widget.message.forwardedFrom != null &&
             widget.message.forwardedFrom.length > 3)
           forwardedFromBox(),
@@ -141,6 +143,7 @@ class _BoxContentState extends State<BoxContent> {
         return Padding(
           padding: const EdgeInsets.only(right: 8.0, top: 8, bottom: 8),
           child: TextUi(
+            pattern: widget.pattern,
             message: widget.message,
             maxWidth: widget.maxWidth,
             isSender: widget.isSender,
