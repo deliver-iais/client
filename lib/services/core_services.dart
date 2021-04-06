@@ -78,6 +78,10 @@ class CoreServices {
       connectionStatus.add(event);
     });
   }
+  void closeConnection() {
+    _clientPacket.close();
+    _connectionTimer.cancel();
+  }
 
   @visibleForTesting
   startCheckerTimer() async {
@@ -108,6 +112,7 @@ class CoreServices {
 
   @visibleForTesting
   startStream() async {
+
     try {
       _clientPacket = StreamController<ClientPacket>();
       _responseStream = _grpcCoreService.establishStream(
@@ -292,6 +297,8 @@ class CoreServices {
 
     return roomUid;
   }
+
+
 }
 
 void updateLastActivityTime(

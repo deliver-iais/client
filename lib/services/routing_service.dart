@@ -15,6 +15,7 @@ import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
 import 'package:deliver_flutter/screen/settings/account_settings.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
+import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
@@ -301,15 +302,20 @@ class RoutingService {
   }
 
   logout(BuildContext context) {
+    CoreServices coreServices = GetIt.I.get<CoreServices>();
+    coreServices.closeConnection();
     deleteDb();
     reset();
+
     Navigator.of(context).pushAndRemoveUntil(
         new MaterialPageRoute(builder: (context) => IntroPage()),
         (Route<dynamic> route) => false);
   }
 
   Future<void> deleteDb() async {
-    Database db = Database();
+    Database db = GetIt.I.get<Database>();
+    await db.delete(db.rooms).go();
+    await db.delete(db.pendingMessages).go();
     await db.deleteAllData();
   }
 

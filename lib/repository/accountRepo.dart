@@ -51,8 +51,7 @@ class AccountRepo {
   var authServiceStub = AuthServiceClient(ProfileServicesClientChannel);
   var _userServices = UserServiceClient(ProfileServicesClientChannel);
 
-  final QueryServiceClient _queryServiceClient =
-      GetIt.I.get<QueryServiceClient>();
+
 
   Future<void> init() async {
     var access_token = await sharedPrefs.get(ACCESS_TOKEN_KEY);
@@ -136,6 +135,9 @@ class AccountRepo {
   }
 
   Future<bool> usernameIsSet() async {
+    final QueryServiceClient _queryServiceClient =
+    GetIt.I.get<QueryServiceClient>();
+
 
     if (null != await sharedPrefs.get(USERNAME)) {
       return true;
@@ -195,6 +197,8 @@ class AccountRepo {
   }
 
   Future<bool> checkUserName(String username) async {
+    final QueryServiceClient _queryServiceClient =
+    GetIt.I.get<QueryServiceClient>();
     var checkUsernameRes = await _queryServiceClient.idIsAvailable(
         IdIsAvailableReq()..id = username,
         options:
@@ -208,6 +212,8 @@ class AccountRepo {
     String lastName,
     String email,
   ) async {
+    final QueryServiceClient _queryServiceClient =
+    GetIt.I.get<QueryServiceClient>();
     try {
       _queryServiceClient.setId(SetIdReq()..id = username,
           options:

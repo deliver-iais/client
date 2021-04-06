@@ -54,22 +54,22 @@ class FireBaseServices {
           var _coreServices = GetIt.I.get<CoreServices>();
           _coreServices.sendPingMessage();
           if (message.containsKey("notification")) {
-             print("f");
+            // Message msg = _decodeMessage(message["notification"]["body"]);
           }
           if (message.containsKey("data")) {
-             print("fff");
+            // Message msg = _decodeMessage(message["notification"]["body"]);
           }
         },
         onBackgroundMessage: myBackgroundMessageHandler,
         onLaunch: (Map<String, dynamic> message) async {
           if (message.containsKey("notification")) {
-             print("fff");
+           //  print("fff");
 
           }
         },
         onResume: (Map<String, dynamic> message) async {
           if (message.containsKey("notification")) {
-            // print("fff");
+           //  print("fff");
           }
         },
       );
@@ -94,6 +94,7 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
   var sharedPreferencesDao = database.sharedPreferencesDao;
   var accountRepo = AccountRepo(sharedPrefs: sharedPreferencesDao);
   var _userInfoDao = database.userInfoDao;
+
 
   if (message.containsKey('data')) {
     Message msg = _decodeMessage(message["data"]["body"]);
@@ -125,7 +126,5 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
       _notificationServices.showNotification(
           msg, getRoomId(accountRepo, msg).asString(), roomName);
   }
-  if (message.containsKey('notification')) {
-    //todo
-  }
+
 }

@@ -306,6 +306,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       ))
                     ])
             : PopupMenuButton(
+                color: Theme.of(context).backgroundColor,
                 icon: Icon(
                   Icons.add,
                   color: Colors.white,
@@ -313,10 +314,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 ),
                 itemBuilder: (context) => [
                       PopupMenuItem(
-                          child: GestureDetector(
+                          child: RaisedButton(
+                        color: Theme.of(context).backgroundColor,
                         child: Text(
                             appLocalization.getTraslateValue("newContact")),
-                        onTap: () {
+                        onPressed: () {
                           ExtendedNavigator.of(context)
                               .popAndPush(Routes.newContact);
                         },
@@ -406,10 +408,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   ListView searchResultWidget(
       AsyncSnapshot<List<SearchInRoom>> snaps, BuildContext c) {
-   return ListView.builder(
+    return ListView.builder(
       itemCount: snaps.data.length,
       itemBuilder: (BuildContext ctxt, int index) {
-      return  GestureDetector(
+        return GestureDetector(
           onTap: () {
             rootingServices.openRoom(snaps.data[index].uid.asString());
           },
