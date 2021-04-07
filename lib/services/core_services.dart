@@ -66,6 +66,7 @@ class CoreServices {
 
 //TODO test
   initStreamConnection() async {
+
     if (_connectionTimer != null && _connectionTimer.isActive) {
       return;
     }

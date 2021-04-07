@@ -17,8 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:location/location.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
@@ -51,9 +49,9 @@ class _ShareBoxState extends State<ShareBox> {
 
   final finalSelected = Map<int, String>();
 
-  Location location = new Location();
+  Geolocator _geolocator = new  Geolocator();
 
-  LocationData _locationData;
+  Position _locationData;
 
   CheckPermissionsService _checkPermissionsService =
       GetIt.I.get<CheckPermissionsService>();
@@ -258,7 +256,8 @@ class _ShareBoxState extends State<ShareBox> {
                                 audioPlayer.stop();
                                 if (await _checkPermissionsService
                                     .checkLocationPermission()) {
-                                  _locationData = await location.getLocation();
+                                  _locationData =  await _geolocator.getCurrentPosition();
+
                                   if (_locationData != null) {
                                     Navigator.pop(context);
                                     _routingServices.openLocation(

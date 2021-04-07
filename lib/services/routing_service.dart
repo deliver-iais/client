@@ -24,8 +24,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:location/location.dart';
 import 'package:rxdart/subjects.dart';
 
 class Page {
@@ -95,7 +95,7 @@ class RoutingService {
   }
 
   void openLocation(
-      {Uid roomUid, LocationData locationData, Function scrollToLast}) {
+      {Uid roomUid, Position locationData, Function scrollToLast}) {
     var widget = MapWidget(
       key: ValueKey("/map-widget"),
       roomUid: roomUid,

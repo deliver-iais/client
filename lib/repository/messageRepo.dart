@@ -28,6 +28,7 @@ import 'package:deliver_public_protocol/pub/v1/models/user_room_meta.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
@@ -37,7 +38,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
-import 'package:location/location.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
@@ -195,7 +195,7 @@ class MessageRepo {
     await _sendMessageToServer(dbId);
   }
 
-  sendLocationMessage(LocationData locationData, Uid room,
+  sendLocationMessage(Position locationData, Uid room,
       {String forwardedFromAsString}) async {
     String packetId = _getPacketId();
     String json = (protoModel.Location()

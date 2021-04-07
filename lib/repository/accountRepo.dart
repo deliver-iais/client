@@ -137,8 +137,6 @@ class AccountRepo {
   Future<bool> usernameIsSet() async {
     final QueryServiceClient _queryServiceClient =
     GetIt.I.get<QueryServiceClient>();
-
-
     if (null != await sharedPrefs.get(USERNAME)) {
       return true;
     }

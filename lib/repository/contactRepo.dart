@@ -150,7 +150,6 @@ class ContactRepo {
       var result = await _queryServiceClient.getIdByUid(
           GetIdByUidReq()..uid = uid,
           options: CallOptions(
-              timeout: Duration(seconds: 2),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return result.id;
     } catch (e) {
