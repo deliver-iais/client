@@ -167,7 +167,8 @@
   "group_name": "group name",
   "channel_name": "Channel Name",
   "name_not_empty": "Name Not Empty",
-  "not_found": "Not Found"
+  "not_found": "Not Found",
+  "of": "of"
 
 
 

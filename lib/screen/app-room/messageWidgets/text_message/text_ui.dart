@@ -7,6 +7,7 @@ import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TextUi extends StatelessWidget {
   final Message message;
@@ -213,14 +214,49 @@ Widget _textWidget(
         text: text,
         parse: <MatchText>[
           MatchText(
+            type: ParsedType.URL,
+            style: TextStyle(
+              color: Colors.yellowAccent,
+              fontSize: 16,
+            ),
+            onTap: (uri) async {
+              await launch(uri);
+            },
+          ),
+          MatchText(
+            type: ParsedType.CUSTOM,
             pattern:
                 pattern != null ? pattern : "[@#][a-zA-Z]([a-zA-Z0-9_]){4,19}",
             style: TextStyle(
-              color: pattern !=null ? Colors.red:Colors.yellowAccent,
+              color: pattern != null ? Colors.red : Colors.yellowAccent,
+              fontSize: 18,
+            ),
+            onTap: (username) async {
+              onClick(username);
+            },
+          ),
+          MatchText(
+            type: ParsedType.PHONE,
+            pattern:
+                pattern != null ? pattern : "[@#][a-zA-Z]([a-zA-Z0-9_]){4,19}",
+            style: TextStyle(
+              color: pattern != null ? Colors.red : Colors.yellowAccent,
               fontSize: 16,
             ),
-            onTap: (username) {
-              onClick(username);
+            onTap: (phone) async {
+              await launch("tel:$phone");
+            },
+          ),
+          MatchText(
+            type: ParsedType.PHONE,
+            pattern:
+            pattern != null ? pattern : "[@#][a-zA-Z]([a-zA-Z0-9_]){4,19}",
+            style: TextStyle(
+              color: pattern != null ? Colors.red : Colors.yellowAccent,
+              fontSize: 16,
+            ),
+            onTap: (phone) async {
+              await launch("tel:$phone");
             },
           ),
         ],

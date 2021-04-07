@@ -111,8 +111,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   BehaviorSubject<int> unReadMessageScrollSubjet = BehaviorSubject.seeded(0);
 
-  Cache<int, Widget> widgetCache =
-      LruCache<int, Widget>(storage: SimpleStorage(size: 100));
+  // Cache<int, Widget> widgetCache =
+  //     LruCache<int, Widget>(storage: SimpleStorage(size: 100));
 
   // TODO, get previous message
   Future<List<Message>> _getPendingMessage(dbId) async {
@@ -389,10 +389,27 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               StreamBuilder(
                 stream: _searchMode.stream,
                 builder: (c, s) {
-                  if (s.hasData && s.data) {
+                  if (s.hasData &&
+                      s.data &&
+                      currentSearchResultMessage != null) {
                     return Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
+                        Text((searchResult.length -
+                                searchResult
+                                    .indexOf(currentSearchResultMessage))
+                            .toString()),
+                        SizedBox(
+                          width: 5,
+                        ),
+                        Text(_appLocalization.getTraslateValue("of")),
+                        SizedBox(
+                          width: 5,
+                        ),
+                        Text(searchResult.length.toString()),
+                        SizedBox(
+                          width: 20,
+                        ),
                         IconButton(
                           icon: Icon(Icons.arrow_upward_rounded),
                           onPressed: () {
@@ -405,10 +422,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                           1]
                                       .id,
                                   duration: Duration(milliseconds: 2));
-                            currentSearchResultMessage = searchResult[
-                                searchResult
-                                        .indexOf(currentSearchResultMessage) -
-                                    1];
+                            setState(() {
+                              currentSearchResultMessage = searchResult[
+                                  searchResult
+                                          .indexOf(currentSearchResultMessage) -
+                                      1];
+                            });
                           },
                         ),
                         IconButton(
@@ -423,10 +442,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                             1]
                                         .id,
                                     duration: Duration(milliseconds: 2));
-                              currentSearchResultMessage = searchResult[
-                                  searchResult
-                                          .indexOf(currentSearchResultMessage) +
-                                      1];
+                              setState(() {
+                                currentSearchResultMessage = searchResult[
+                                    searchResult.indexOf(
+                                            currentSearchResultMessage) +
+                                        1];
+                              });
                             })
                       ],
                     );
@@ -638,7 +659,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       } else {
         subject.add(true);
       }
+
     }
+
   }
 
   ScrollablePositionedList buildMessagesListView(
@@ -726,7 +749,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                           .containsKey(messages[0].id) ||
                                       (messages[0].id != null &&
                                           messages[0].id == _replayMessageId) ||
-                                      searchResult.contains(messages[0])
+                                      currentSearchResultMessage != null &&
+                                          currentSearchResultMessage.id ==
+                                              messages[0].id
                                   ? Theme.of(context).disabledColor
                                   : Theme.of(context).backgroundColor,
                               child: normalMessage(messages[0], _maxWidth,
@@ -775,10 +800,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     if (message.id == null) {
       return _createWidget(message, maxWidth, currentRoom, pendingMessages);
     }
-    if (widgetCache.containsKey(message.id)) return widgetCache.get(message.id);
+    //  if (widgetCache.containsKey(message.id)) return widgetCache.get(message.id);
     Widget widget =
         _createWidget(message, maxWidth, currentRoom, pendingMessages);
-    widgetCache.set(message.id, widget);
+    //widgetCache.set(message.id, widget);
     return widget;
   }
 

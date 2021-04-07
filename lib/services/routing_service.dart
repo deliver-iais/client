@@ -16,7 +16,6 @@ import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center
 import 'package:deliver_flutter/screen/settings/account_settings.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 import 'package:deliver_flutter/services/core_services.dart';
-import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
