@@ -300,7 +300,6 @@ class MucServices {
           options: CallOptions(
               timeout: Duration(seconds: 2),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      print(request.members.toString());
       return request.members;
     } catch (e) {
       return null;
