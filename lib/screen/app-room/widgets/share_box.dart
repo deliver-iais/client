@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:android_intent/android_intent.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
@@ -49,7 +50,7 @@ class _ShareBoxState extends State<ShareBox> {
 
   final finalSelected = Map<int, String>();
 
-  Geolocator _geolocator = new  Geolocator();
+  Geolocator _geolocator = new Geolocator();
 
   Position _locationData;
 
@@ -234,7 +235,7 @@ class _ShareBoxState extends State<ShareBox> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: <Widget>[
-                              CircleButton(()async  {
+                              CircleButton(() async {
                                 setState(() {
                                   audioPlayer.stop();
                                   currentPage = Page.Gallery;
@@ -256,15 +257,26 @@ class _ShareBoxState extends State<ShareBox> {
                                 audioPlayer.stop();
                                 if (await _checkPermissionsService
                                     .checkLocationPermission()) {
-                                  _locationData =  await _geolocator.getCurrentPosition();
+                                  if (!await _geolocator
+                                      .isLocationServiceEnabled()) {
+                                    final AndroidIntent intent =
+                                        new AndroidIntent(
+                                      action:
+                                          'android.settings.LOCATION_SOURCE_SETTINGS',
+                                    );
+                                    await intent.launch();
+                                  } else {
+                                    _locationData =
+                                        await _geolocator.getCurrentPosition();
 
-                                  if (_locationData != null) {
-                                    Navigator.pop(context);
-                                    _routingServices.openLocation(
-                                        roomUid: widget.currentRoomId,
-                                        locationData: _locationData,
-                                        scrollToLast:
-                                            widget.scrollToLastSentMessage);
+                                    if (_locationData != null) {
+                                      Navigator.pop(context);
+                                      _routingServices.openLocation(
+                                          roomUid: widget.currentRoomId,
+                                          locationData: _locationData,
+                                          scrollToLast:
+                                              widget.scrollToLastSentMessage);
+                                    }
                                   }
                                 }
                               },
