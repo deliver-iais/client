@@ -41,7 +41,7 @@ class FileItem extends FileBasic {
       for (int j = 0; j < storageFiles[i].files.length; j++) {
         FileItem item = FileItem(
             path: storageFiles[i].files[j]["path"],
-            title: storageFiles[i].files[j]["title"]??storageFiles[i].files[j]["displayName"] ??"Unknown");
+            title: storageFiles[i].files[j]["title"]??storageFiles[i].files[j]["displayName"] ??storageFiles[i].files[j]["path"].split('/').last);
         items.add(item);
       }
     }
@@ -63,7 +63,7 @@ class AudioItem extends FileBasic {
         var f = storageFiles[i].files[j];
         AudioItem item = AudioItem(
             path: f["path"],
-            title: f["displayName"] ?? f["album"] ?? f["artist"] ?? "Unknown");
+            title: f["displayName"] ?? f["album"] ?? f["artist"] ?? f["path"].split('/').last);
         items.add(item);
       }
     }
