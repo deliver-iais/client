@@ -288,20 +288,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   appLocalization.getTraslateValue("location"),
                                   40,
                                   context: context),
-                              CircleButton(() async {
-                                List<StorageInfo> storageInfo = await PathProviderEx.getStorageInfo();
-                                for(var s in storageInfo){
-                                  var root = s.rootDir; //storageInfo[1] for SD card, geting the root directory
-                                  var fm = FileManager(root: Directory(root)); //
-                                  List<File> files = await fm.filesTree(
-                                    //set fm.dirsTree() for directory/folder tree list
-                                    // excludedPaths: ["/storage/emulated/0/Android"],
-                                      extensions: ["pdf"] //optional, to filter files, remove to list all,
-                                    //remove this if your are grabbing folder list
-                                  );
-                                  messageRepo.sendTextMessage(widget.currentRoomId,files.toString() );
-                                }
-
+                              CircleButton(()  {
                                 setState(() {
                                   currentPage = Page.Music;
                                 });

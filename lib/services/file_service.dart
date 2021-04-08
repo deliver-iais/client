@@ -74,10 +74,12 @@ class FileService {
 
   // TODO, refactoring needed
   Future<File> _getFile(String uuid, String filename) async {
-    BehaviorSubject<double> behaviorSubject = BehaviorSubject();
+    if (filesDownloadStatus[uuid] == null) {
+      BehaviorSubject<double> d = BehaviorSubject();
+      filesDownloadStatus[uuid] = d;
+    }
     var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
-      behaviorSubject.add((i / j));
-      filesDownloadStatus[uuid] = behaviorSubject;
+      filesDownloadStatus[uuid].add((i / j));
     }, options: Options(responseType: ResponseType.bytes));
     final file = await localFile(uuid, filename.split('.').last);
     file.writeAsBytesSync(res.data);

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_flutter/services/video_player_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 
@@ -64,7 +65,7 @@ class _VideoUiState extends State<VideoUi> {
                 ),
                 if (isPlaying == true)
                   Positioned(
-                    top: 80,
+                    top: 100,
                     left: 0.0,
                     bottom: 0.0,
                     right: 0.0,
@@ -95,6 +96,7 @@ class _VideoUiState extends State<VideoUi> {
                       ),
                     ),
                   ),
+
               ],
             ),
           ),
