@@ -391,7 +391,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 builder: (c, s) {
                   if (s.hasData &&
                       s.data &&
-                      currentSearchResultMessage != null) {
+                      searchResult.length>0) {
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [

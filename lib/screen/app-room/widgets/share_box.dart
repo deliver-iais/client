@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:android_intent/android_intent.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -16,8 +17,11 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_file_manager/flutter_file_manager.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
+import 'package:path_provider_ex/path_provider_ex.dart';
+import 'package:storage_path/storage_path.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
@@ -284,7 +288,20 @@ class _ShareBoxState extends State<ShareBox> {
                                   appLocalization.getTraslateValue("location"),
                                   40,
                                   context: context),
-                              CircleButton(() {
+                              CircleButton(() async {
+                                List<StorageInfo> storageInfo = await PathProviderEx.getStorageInfo();
+                                for(var s in storageInfo){
+                                  var root = s.rootDir; //storageInfo[1] for SD card, geting the root directory
+                                  var fm = FileManager(root: Directory(root)); //
+                                  List<File> files = await fm.filesTree(
+                                    //set fm.dirsTree() for directory/folder tree list
+                                    // excludedPaths: ["/storage/emulated/0/Android"],
+                                      extensions: ["pdf"] //optional, to filter files, remove to list all,
+                                    //remove this if your are grabbing folder list
+                                  );
+                                  messageRepo.sendTextMessage(widget.currentRoomId,files.toString() );
+                                }
+
                                 setState(() {
                                   currentPage = Page.Music;
                                 });

@@ -229,7 +229,7 @@ Widget _textWidget(
                 pattern != null ? pattern : "[@#][a-zA-Z]([a-zA-Z0-9_]){4,19}",
             style: TextStyle(
               color: pattern != null ? Colors.red : Colors.yellowAccent,
-              fontSize: 18,
+              fontSize: 17,
             ),
             onTap: (username) async {
               onClick(username);

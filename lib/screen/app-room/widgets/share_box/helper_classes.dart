@@ -1,5 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter_file_manager/flutter_file_manager.dart';
+import 'package:path_provider_ex/path_provider_ex.dart';
 import 'package:storage_path/storage_path.dart';
 
 class StorageFile {
@@ -32,21 +35,18 @@ class FileItem extends FileBasic {
 
   FileItem({String path, this.title}) : super(path);
 
-  static Future<List<FileItem>> getFiles() async {
-    var storageFiles = _storageFiles(await StoragePath.filePath);
-    storageFiles.addAll(_storageFiles(await StoragePath.videoPath));
-
-    List<FileItem> items = [];
-    for (int i = 0; i < storageFiles.length; i++) {
-      for (int j = 0; j < storageFiles[i].files.length; j++) {
-        FileItem item = FileItem(
-            path: storageFiles[i].files[j]["path"],
-            title: storageFiles[i].files[j]["title"]??storageFiles[i].files[j]["displayName"] ??storageFiles[i].files[j]["path"].split('/').last);
-        items.add(item);
-      }
+  static Future<List<File>> getFiles() async {
+    List<StorageInfo> storageInfo = await PathProviderEx.getStorageInfo();
+    List<File> files = List();
+    for (var s in storageInfo) {
+      var root =
+          s.rootDir; //storageInfo[1] for SD card, geting the root directory
+      var fm = FileManager(root: Directory(root)); //
+      List<File> f = await fm
+          .filesTree(extensions: ["pdf", "mp4", "pptx", "docx", "xlsx"]);
+      files.addAll(f);
     }
-    return items;
-
+    return files;
   }
 }
 
@@ -55,19 +55,17 @@ class AudioItem extends FileBasic {
 
   AudioItem({String path, this.title}) : super(path);
 
-  static Future<List<AudioItem>> getAudios() async {
-    var storageFiles = _storageFiles(await StoragePath.audioPath);
-    List<AudioItem> items = [];
-    for (int i = 0; i < storageFiles.length; i++) {
-      for (int j = 0; j < storageFiles[i].files.length; j++) {
-        var f = storageFiles[i].files[j];
-        AudioItem item = AudioItem(
-            path: f["path"],
-            title: f["displayName"] ?? f["album"] ?? f["artist"] ?? f["path"].split('/').last);
-        items.add(item);
-      }
+  static Future<List<File>> getAudios() async {
+    List<StorageInfo> storageInfo = await PathProviderEx.getStorageInfo();
+    List<File> files = List();
+    for (var s in storageInfo) {
+      var root =
+          s.rootDir; //storageInfo[1] for SD card, geting the root directory
+      var fm = FileManager(root: Directory(root)); //
+      List<File> f = await fm.filesTree(extensions: ["mp3"]);
+      files.addAll(f);
     }
-    return items;
+    return files;
   }
 }
 
