@@ -1,4 +1,5 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/models/role.dart';
@@ -25,9 +26,10 @@ class MucMemberWidget extends StatefulWidget {
 class _MucMemberWidgetState extends State<MucMemberWidget> {
   var _memberRepo = GetIt.I.get<MemberRepo>();
   Uid _mucUid;
-  var _roomRepo = GetIt.I.get<RoomRepo>();
+  var _memberDao = GetIt.I.get<MemberDao>();
   AppLocalization _appLocalization;
   var _mucRepo = GetIt.I.get<MucRepo>();
+
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
   static const String CHANGE_ROLE = "changeRole";
@@ -69,16 +71,16 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                           SizedBox(
                             width: 10,
                           ),
-                          FutureBuilder<String>(
-                            future: _roomRepo
-                                .getRoomDisplayName(member.memberUid.uid),
+                          FutureBuilder<Member>(
+                            future: _memberDao
+                                .getMember(member.memberUid.uid,widget.mucUid.asString()),
                             builder: (BuildContext context,
-                                AsyncSnapshot<String> name) {
-                              if (name.data != null &&
+                                AsyncSnapshot<Member> m) {
+                              if (m.data != null &&
                                   member.memberUid !=
                                       _accountRepo.currentUserUid.asString()) {
                                 return Text(
-                                  name.data,
+                                  m.data.name??m.data.username,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     fontSize: 16,
