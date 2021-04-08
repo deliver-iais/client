@@ -12,10 +12,11 @@ class Contacts extends Table {
 
   TextColumn get lastName => text().nullable()();
 
-  BoolColumn get isMute => boolean()();
+  BoolColumn get isMute => boolean().withDefault(Constant(false))();
 
-  BoolColumn get isBlock => boolean()();
+  BoolColumn get isBlock => boolean().withDefault(Constant(false))();
 
   @override
   Set<Column> get primaryKey => {phoneNumber};
 }
+

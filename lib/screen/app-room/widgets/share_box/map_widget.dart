@@ -6,13 +6,13 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:location/location.dart';
 import 'package:latlong/latlong.dart';
 
 class MapWidget extends StatelessWidget {
   final Uid roomUid;
-  final LocationData locationData;
+  final Position locationData;
   final Function scrollToLast;
 
   MapWidget({Key key, this.roomUid, this.locationData, this.scrollToLast})

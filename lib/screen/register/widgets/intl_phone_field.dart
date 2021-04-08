@@ -86,63 +86,65 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
     AppLocalization appLocalization = AppLocalization.of(context);
     await showDialog(
       context: context,
-      child: StatefulBuilder(
-        builder: (ctx, setState) => Dialog(
-          child: Container(
-            padding: EdgeInsets.all(10),
-            child: Column(
-              children: <Widget>[
-                TextField(
-                  decoration: InputDecoration(
-                    suffixIcon: Icon(Icons.search),
-                    labelText: appLocalization
-                        .getTraslateValue("search_by_country_name"),
+      builder: (c) {
+        return StatefulBuilder(
+          builder: (ctx, setState) => Dialog(
+            child: Container(
+              padding: EdgeInsets.all(10),
+              child: Column(
+                children: <Widget>[
+                  TextField(
+                    decoration: InputDecoration(
+                      suffixIcon: Icon(Icons.search),
+                      labelText: appLocalization
+                          .getTraslateValue("search_by_country_name"),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        filteredCountries = countries
+                            .where((country) => country['name']
+                                .toLowerCase()
+                                .contains(value.toLowerCase()))
+                            .toList();
+                      });
+                    },
                   ),
-                  onChanged: (value) {
-                    setState(() {
-                      filteredCountries = countries
-                          .where((country) => country['name']
-                              .toLowerCase()
-                              .contains(value.toLowerCase()))
-                          .toList();
-                    });
-                  },
-                ),
-                SizedBox(height: 20),
-                Expanded(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: filteredCountries.length,
-                    itemBuilder: (ctx, index) => Column(
-                      children: <Widget>[
-                        ListTile(
-                          leading: Text(
-                            filteredCountries[index]['flag'],
-                            style: TextStyle(fontSize: 30),
+                  SizedBox(height: 20),
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: filteredCountries.length,
+                      itemBuilder: (ctx, index) => Column(
+                        children: <Widget>[
+                          ListTile(
+                            leading: Text(
+                              filteredCountries[index]['flag'],
+                              style: TextStyle(fontSize: 30),
+                            ),
+                            title: Text(
+                              filteredCountries[index]['name'],
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            trailing: Text(
+                              filteredCountries[index]['dial_code'],
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            onTap: () {
+                              _selectedCountry = filteredCountries[index];
+                              Navigator.of(context).pop();
+                            },
                           ),
-                          title: Text(
-                            filteredCountries[index]['name'],
-                            style: TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          trailing: Text(
-                            filteredCountries[index]['dial_code'],
-                            style: TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          onTap: () {
-                            _selectedCountry = filteredCountries[index];
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        Divider(thickness: 1),
-                      ],
+                          Divider(thickness: 1),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
     setState(() {});
   }

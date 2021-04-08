@@ -1,8 +1,23 @@
+import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:grpc/grpc.dart';
+
+String IP = "89.37.13.110";
 
 // ignore: non_constant_identifier_names
 final QueryClientChannel = ClientChannel("89.37.13.110",
     port: 30101,
+    options: ChannelOptions(
+        credentials: ChannelCredentials.insecure(),
+        connectionTimeout: Duration(seconds: 2)));
+
+final BotClientChannel = ClientChannel("89.37.13.110",
+    port: 8082,
+    options: ChannelOptions(
+        credentials: ChannelCredentials.insecure(),
+        connectionTimeout: Duration(seconds: 2)));
+
+final StickerClientChannel = ClientChannel("89.37.13.110",
+    port: 8081,
     options: ChannelOptions(
         credentials: ChannelCredentials.insecure(),
         connectionTimeout: Duration(seconds: 2)));

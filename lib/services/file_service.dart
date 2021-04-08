@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -17,6 +18,7 @@ enum ThumbnailSize { small, medium, large }
 class FileService {
   var _checkPermission = GetIt.I.get<CheckPermissionsService>();
   var accountRepo = GetIt.I.get<AccountRepo>();
+
   var _dio = Dio();
   Map<String, BehaviorSubject<double>> filesUploadStatus = Map();
 
@@ -72,10 +74,12 @@ class FileService {
 
   // TODO, refactoring needed
   Future<File> _getFile(String uuid, String filename) async {
-    BehaviorSubject<double> behaviorSubject = BehaviorSubject();
+    if (filesDownloadStatus[uuid] == null) {
+      BehaviorSubject<double> d = BehaviorSubject();
+      filesDownloadStatus[uuid] = d;
+    }
     var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
-      behaviorSubject.add((i / j));
-      filesDownloadStatus[uuid] = behaviorSubject;
+      filesDownloadStatus[uuid].add((i / j));
     }, options: Options(responseType: ResponseType.bytes));
     final file = await localFile(uuid, filename.split('.').last);
     file.writeAsBytesSync(res.data);
@@ -92,15 +96,22 @@ class FileService {
     return file;
   }
 
-  // TODO, refactoring needed
-  uploadFile(String filePath, {String uploadKey}) async {
+  void initUpoadProgrss(String uploadId) {
     BehaviorSubject<double> behaviorSubject = BehaviorSubject();
+    filesUploadStatus[uploadId] = behaviorSubject;
+  }
+
+  // TODO, refactoring needed
+  uploadFile(String filePath, {String uploadKey, Function sendActivity}) async {
     _dio.interceptors
         .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
       options.onSendProgress = (int i, int j) {
-        behaviorSubject.add((i / j));
-        print("upload progress ${(i / j)}");
-        filesUploadStatus[uploadKey] = behaviorSubject;
+        if (sendActivity != null) sendActivity();
+        if (filesUploadStatus[uploadKey] == null) {
+          BehaviorSubject<double> d = BehaviorSubject();
+          filesUploadStatus[uploadKey] = d;
+        }
+        filesUploadStatus[uploadKey].add((i / j));
       };
       return options; //continue
     }));

@@ -718,12 +718,14 @@ class Room extends DataClass implements Insertable<Room> {
   final bool mentioned;
   final int lastMessageId;
   final bool mute;
+  final bool isBlock;
   final int lastMessageDbId;
   Room(
       {@required this.roomId,
       this.mentioned,
       this.lastMessageId,
       @required this.mute,
+      @required this.isBlock,
       this.lastMessageDbId});
   factory Room.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
@@ -739,6 +741,8 @@ class Room extends DataClass implements Insertable<Room> {
       lastMessageId: intType
           .mapFromDatabaseResponse(data['${effectivePrefix}last_message_id']),
       mute: boolType.mapFromDatabaseResponse(data['${effectivePrefix}mute']),
+      isBlock:
+          boolType.mapFromDatabaseResponse(data['${effectivePrefix}is_block']),
       lastMessageDbId: intType.mapFromDatabaseResponse(
           data['${effectivePrefix}last_message_db_id']),
     );
@@ -758,6 +762,9 @@ class Room extends DataClass implements Insertable<Room> {
     if (!nullToAbsent || mute != null) {
       map['mute'] = Variable<bool>(mute);
     }
+    if (!nullToAbsent || isBlock != null) {
+      map['is_block'] = Variable<bool>(isBlock);
+    }
     if (!nullToAbsent || lastMessageDbId != null) {
       map['last_message_db_id'] = Variable<int>(lastMessageDbId);
     }
@@ -775,6 +782,9 @@ class Room extends DataClass implements Insertable<Room> {
           ? const Value.absent()
           : Value(lastMessageId),
       mute: mute == null && nullToAbsent ? const Value.absent() : Value(mute),
+      isBlock: isBlock == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isBlock),
       lastMessageDbId: lastMessageDbId == null && nullToAbsent
           ? const Value.absent()
           : Value(lastMessageDbId),
@@ -789,6 +799,7 @@ class Room extends DataClass implements Insertable<Room> {
       mentioned: serializer.fromJson<bool>(json['mentioned']),
       lastMessageId: serializer.fromJson<int>(json['lastMessageId']),
       mute: serializer.fromJson<bool>(json['mute']),
+      isBlock: serializer.fromJson<bool>(json['isBlock']),
       lastMessageDbId: serializer.fromJson<int>(json['lastMessageDbId']),
     );
   }
@@ -800,6 +811,7 @@ class Room extends DataClass implements Insertable<Room> {
       'mentioned': serializer.toJson<bool>(mentioned),
       'lastMessageId': serializer.toJson<int>(lastMessageId),
       'mute': serializer.toJson<bool>(mute),
+      'isBlock': serializer.toJson<bool>(isBlock),
       'lastMessageDbId': serializer.toJson<int>(lastMessageDbId),
     };
   }
@@ -809,12 +821,14 @@ class Room extends DataClass implements Insertable<Room> {
           bool mentioned,
           int lastMessageId,
           bool mute,
+          bool isBlock,
           int lastMessageDbId}) =>
       Room(
         roomId: roomId ?? this.roomId,
         mentioned: mentioned ?? this.mentioned,
         lastMessageId: lastMessageId ?? this.lastMessageId,
         mute: mute ?? this.mute,
+        isBlock: isBlock ?? this.isBlock,
         lastMessageDbId: lastMessageDbId ?? this.lastMessageDbId,
       );
   @override
@@ -824,6 +838,7 @@ class Room extends DataClass implements Insertable<Room> {
           ..write('mentioned: $mentioned, ')
           ..write('lastMessageId: $lastMessageId, ')
           ..write('mute: $mute, ')
+          ..write('isBlock: $isBlock, ')
           ..write('lastMessageDbId: $lastMessageDbId')
           ..write(')'))
         .toString();
@@ -834,8 +849,10 @@ class Room extends DataClass implements Insertable<Room> {
       roomId.hashCode,
       $mrjc(
           mentioned.hashCode,
-          $mrjc(lastMessageId.hashCode,
-              $mrjc(mute.hashCode, lastMessageDbId.hashCode)))));
+          $mrjc(
+              lastMessageId.hashCode,
+              $mrjc(mute.hashCode,
+                  $mrjc(isBlock.hashCode, lastMessageDbId.hashCode))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -844,6 +861,7 @@ class Room extends DataClass implements Insertable<Room> {
           other.mentioned == this.mentioned &&
           other.lastMessageId == this.lastMessageId &&
           other.mute == this.mute &&
+          other.isBlock == this.isBlock &&
           other.lastMessageDbId == this.lastMessageDbId);
 }
 
@@ -852,12 +870,14 @@ class RoomsCompanion extends UpdateCompanion<Room> {
   final Value<bool> mentioned;
   final Value<int> lastMessageId;
   final Value<bool> mute;
+  final Value<bool> isBlock;
   final Value<int> lastMessageDbId;
   const RoomsCompanion({
     this.roomId = const Value.absent(),
     this.mentioned = const Value.absent(),
     this.lastMessageId = const Value.absent(),
     this.mute = const Value.absent(),
+    this.isBlock = const Value.absent(),
     this.lastMessageDbId = const Value.absent(),
   });
   RoomsCompanion.insert({
@@ -865,6 +885,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     this.mentioned = const Value.absent(),
     this.lastMessageId = const Value.absent(),
     this.mute = const Value.absent(),
+    this.isBlock = const Value.absent(),
     this.lastMessageDbId = const Value.absent(),
   }) : roomId = Value(roomId);
   static Insertable<Room> custom({
@@ -872,6 +893,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     Expression<bool> mentioned,
     Expression<int> lastMessageId,
     Expression<bool> mute,
+    Expression<bool> isBlock,
     Expression<int> lastMessageDbId,
   }) {
     return RawValuesInsertable({
@@ -879,6 +901,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
       if (mentioned != null) 'mentioned': mentioned,
       if (lastMessageId != null) 'last_message_id': lastMessageId,
       if (mute != null) 'mute': mute,
+      if (isBlock != null) 'is_block': isBlock,
       if (lastMessageDbId != null) 'last_message_db_id': lastMessageDbId,
     });
   }
@@ -888,12 +911,14 @@ class RoomsCompanion extends UpdateCompanion<Room> {
       Value<bool> mentioned,
       Value<int> lastMessageId,
       Value<bool> mute,
+      Value<bool> isBlock,
       Value<int> lastMessageDbId}) {
     return RoomsCompanion(
       roomId: roomId ?? this.roomId,
       mentioned: mentioned ?? this.mentioned,
       lastMessageId: lastMessageId ?? this.lastMessageId,
       mute: mute ?? this.mute,
+      isBlock: isBlock ?? this.isBlock,
       lastMessageDbId: lastMessageDbId ?? this.lastMessageDbId,
     );
   }
@@ -913,6 +938,9 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     if (mute.present) {
       map['mute'] = Variable<bool>(mute.value);
     }
+    if (isBlock.present) {
+      map['is_block'] = Variable<bool>(isBlock.value);
+    }
     if (lastMessageDbId.present) {
       map['last_message_db_id'] = Variable<int>(lastMessageDbId.value);
     }
@@ -926,6 +954,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
           ..write('mentioned: $mentioned, ')
           ..write('lastMessageId: $lastMessageId, ')
           ..write('mute: $mute, ')
+          ..write('isBlock: $isBlock, ')
           ..write('lastMessageDbId: $lastMessageDbId')
           ..write(')'))
         .toString();
@@ -980,6 +1009,15 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
         defaultValue: Constant(false));
   }
 
+  final VerificationMeta _isBlockMeta = const VerificationMeta('isBlock');
+  GeneratedBoolColumn _isBlock;
+  @override
+  GeneratedBoolColumn get isBlock => _isBlock ??= _constructIsBlock();
+  GeneratedBoolColumn _constructIsBlock() {
+    return GeneratedBoolColumn('is_block', $tableName, false,
+        defaultValue: Constant(false));
+  }
+
   final VerificationMeta _lastMessageDbIdMeta =
       const VerificationMeta('lastMessageDbId');
   GeneratedIntColumn _lastMessageDbId;
@@ -993,7 +1031,7 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
 
   @override
   List<GeneratedColumn> get $columns =>
-      [roomId, mentioned, lastMessageId, mute, lastMessageDbId];
+      [roomId, mentioned, lastMessageId, mute, isBlock, lastMessageDbId];
   @override
   $RoomsTable get asDslTable => this;
   @override
@@ -1024,6 +1062,10 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
     if (data.containsKey('mute')) {
       context.handle(
           _muteMeta, mute.isAcceptableOrUnknown(data['mute'], _muteMeta));
+    }
+    if (data.containsKey('is_block')) {
+      context.handle(_isBlockMeta,
+          isBlock.isAcceptableOrUnknown(data['is_block'], _isBlockMeta));
     }
     if (data.containsKey('last_message_db_id')) {
       context.handle(
@@ -1533,11 +1575,9 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
     @required String phoneNumber,
     this.firstName = const Value.absent(),
     this.lastName = const Value.absent(),
-    @required bool isMute,
-    @required bool isBlock,
-  })  : phoneNumber = Value(phoneNumber),
-        isMute = Value(isMute),
-        isBlock = Value(isBlock);
+    this.isMute = const Value.absent(),
+    this.isBlock = const Value.absent(),
+  }) : phoneNumber = Value(phoneNumber);
   static Insertable<Contact> custom({
     Expression<String> username,
     Expression<String> uid,
@@ -1690,11 +1730,8 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
   @override
   GeneratedBoolColumn get isMute => _isMute ??= _constructIsMute();
   GeneratedBoolColumn _constructIsMute() {
-    return GeneratedBoolColumn(
-      'is_mute',
-      $tableName,
-      false,
-    );
+    return GeneratedBoolColumn('is_mute', $tableName, false,
+        defaultValue: Constant(false));
   }
 
   final VerificationMeta _isBlockMeta = const VerificationMeta('isBlock');
@@ -1702,11 +1739,8 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
   @override
   GeneratedBoolColumn get isBlock => _isBlock ??= _constructIsBlock();
   GeneratedBoolColumn _constructIsBlock() {
-    return GeneratedBoolColumn(
-      'is_block',
-      $tableName,
-      false,
-    );
+    return GeneratedBoolColumn('is_block', $tableName, false,
+        defaultValue: Constant(false));
   }
 
   @override
@@ -1750,14 +1784,10 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
     if (data.containsKey('is_mute')) {
       context.handle(_isMuteMeta,
           isMute.isAcceptableOrUnknown(data['is_mute'], _isMuteMeta));
-    } else if (isInserting) {
-      context.missing(_isMuteMeta);
     }
     if (data.containsKey('is_block')) {
       context.handle(_isBlockMeta,
           isBlock.isAcceptableOrUnknown(data['is_block'], _isBlockMeta));
-    } else if (isInserting) {
-      context.missing(_isBlockMeta);
     }
     return context;
   }
@@ -3975,13 +4005,15 @@ class $MembersTable extends Members with TableInfo<$MembersTable, Member> {
 class Muc extends DataClass implements Insertable<Muc> {
   final String uid;
   final String name;
+  final String id;
   final String info;
   final int members;
   Muc(
       {@required this.uid,
       @required this.name,
+      this.id,
       this.info,
-      @required this.members});
+      this.members});
   factory Muc.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -3990,6 +4022,7 @@ class Muc extends DataClass implements Insertable<Muc> {
     return Muc(
       uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
       name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       info: stringType.mapFromDatabaseResponse(data['${effectivePrefix}info']),
       members:
           intType.mapFromDatabaseResponse(data['${effectivePrefix}members']),
@@ -4004,6 +4037,9 @@ class Muc extends DataClass implements Insertable<Muc> {
     if (!nullToAbsent || name != null) {
       map['name'] = Variable<String>(name);
     }
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<String>(id);
+    }
     if (!nullToAbsent || info != null) {
       map['info'] = Variable<String>(info);
     }
@@ -4017,6 +4053,7 @@ class Muc extends DataClass implements Insertable<Muc> {
     return MucsCompanion(
       uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       info: info == null && nullToAbsent ? const Value.absent() : Value(info),
       members: members == null && nullToAbsent
           ? const Value.absent()
@@ -4030,6 +4067,7 @@ class Muc extends DataClass implements Insertable<Muc> {
     return Muc(
       uid: serializer.fromJson<String>(json['uid']),
       name: serializer.fromJson<String>(json['name']),
+      id: serializer.fromJson<String>(json['id']),
       info: serializer.fromJson<String>(json['info']),
       members: serializer.fromJson<int>(json['members']),
     );
@@ -4040,14 +4078,18 @@ class Muc extends DataClass implements Insertable<Muc> {
     return <String, dynamic>{
       'uid': serializer.toJson<String>(uid),
       'name': serializer.toJson<String>(name),
+      'id': serializer.toJson<String>(id),
       'info': serializer.toJson<String>(info),
       'members': serializer.toJson<int>(members),
     };
   }
 
-  Muc copyWith({String uid, String name, String info, int members}) => Muc(
+  Muc copyWith(
+          {String uid, String name, String id, String info, int members}) =>
+      Muc(
         uid: uid ?? this.uid,
         name: name ?? this.name,
+        id: id ?? this.id,
         info: info ?? this.info,
         members: members ?? this.members,
       );
@@ -4056,6 +4098,7 @@ class Muc extends DataClass implements Insertable<Muc> {
     return (StringBuffer('Muc(')
           ..write('uid: $uid, ')
           ..write('name: $name, ')
+          ..write('id: $id, ')
           ..write('info: $info, ')
           ..write('members: $members')
           ..write(')'))
@@ -4063,14 +4106,17 @@ class Muc extends DataClass implements Insertable<Muc> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(uid.hashCode,
-      $mrjc(name.hashCode, $mrjc(info.hashCode, members.hashCode))));
+  int get hashCode => $mrjf($mrjc(
+      uid.hashCode,
+      $mrjc(name.hashCode,
+          $mrjc(id.hashCode, $mrjc(info.hashCode, members.hashCode)))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Muc &&
           other.uid == this.uid &&
           other.name == this.name &&
+          other.id == this.id &&
           other.info == this.info &&
           other.members == this.members);
 }
@@ -4078,31 +4124,35 @@ class Muc extends DataClass implements Insertable<Muc> {
 class MucsCompanion extends UpdateCompanion<Muc> {
   final Value<String> uid;
   final Value<String> name;
+  final Value<String> id;
   final Value<String> info;
   final Value<int> members;
   const MucsCompanion({
     this.uid = const Value.absent(),
     this.name = const Value.absent(),
+    this.id = const Value.absent(),
     this.info = const Value.absent(),
     this.members = const Value.absent(),
   });
   MucsCompanion.insert({
     @required String uid,
     @required String name,
+    this.id = const Value.absent(),
     this.info = const Value.absent(),
-    @required int members,
+    this.members = const Value.absent(),
   })  : uid = Value(uid),
-        name = Value(name),
-        members = Value(members);
+        name = Value(name);
   static Insertable<Muc> custom({
     Expression<String> uid,
     Expression<String> name,
+    Expression<String> id,
     Expression<String> info,
     Expression<int> members,
   }) {
     return RawValuesInsertable({
       if (uid != null) 'uid': uid,
       if (name != null) 'name': name,
+      if (id != null) 'id': id,
       if (info != null) 'info': info,
       if (members != null) 'members': members,
     });
@@ -4111,11 +4161,13 @@ class MucsCompanion extends UpdateCompanion<Muc> {
   MucsCompanion copyWith(
       {Value<String> uid,
       Value<String> name,
+      Value<String> id,
       Value<String> info,
       Value<int> members}) {
     return MucsCompanion(
       uid: uid ?? this.uid,
       name: name ?? this.name,
+      id: id ?? this.id,
       info: info ?? this.info,
       members: members ?? this.members,
     );
@@ -4129,6 +4181,9 @@ class MucsCompanion extends UpdateCompanion<Muc> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
     }
     if (info.present) {
       map['info'] = Variable<String>(info.value);
@@ -4144,6 +4199,7 @@ class MucsCompanion extends UpdateCompanion<Muc> {
     return (StringBuffer('MucsCompanion(')
           ..write('uid: $uid, ')
           ..write('name: $name, ')
+          ..write('id: $id, ')
           ..write('info: $info, ')
           ..write('members: $members')
           ..write(')'))
@@ -4179,6 +4235,18 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
     );
   }
 
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  GeneratedTextColumn _id;
+  @override
+  GeneratedTextColumn get id => _id ??= _constructId();
+  GeneratedTextColumn _constructId() {
+    return GeneratedTextColumn(
+      'id',
+      $tableName,
+      true,
+    );
+  }
+
   final VerificationMeta _infoMeta = const VerificationMeta('info');
   GeneratedTextColumn _info;
   @override
@@ -4199,12 +4267,12 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
     return GeneratedIntColumn(
       'members',
       $tableName,
-      false,
+      true,
     );
   }
 
   @override
-  List<GeneratedColumn> get $columns => [uid, name, info, members];
+  List<GeneratedColumn> get $columns => [uid, name, id, info, members];
   @override
   $MucsTable get asDslTable => this;
   @override
@@ -4228,6 +4296,9 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
+    }
     if (data.containsKey('info')) {
       context.handle(
           _infoMeta, info.isAcceptableOrUnknown(data['info'], _infoMeta));
@@ -4235,8 +4306,6 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
     if (data.containsKey('members')) {
       context.handle(_membersMeta,
           members.isAcceptableOrUnknown(data['members'], _membersMeta));
-    } else if (isInserting) {
-      context.missing(_membersMeta);
     }
     return context;
   }
@@ -4981,6 +5050,1155 @@ class $MediasMetaDataTable extends MediasMetaData
   }
 }
 
+class UserInfo extends DataClass implements Insertable<UserInfo> {
+  final String uid;
+  final String username;
+  final DateTime lastActivity;
+  final DateTime lastTimeActivityUpdated;
+  UserInfo(
+      {@required this.uid,
+      this.username,
+      this.lastActivity,
+      this.lastTimeActivityUpdated});
+  factory UserInfo.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    final dateTimeType = db.typeSystem.forDartType<DateTime>();
+    return UserInfo(
+      uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
+      username: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}username']),
+      lastActivity: dateTimeType
+          .mapFromDatabaseResponse(data['${effectivePrefix}last_activity']),
+      lastTimeActivityUpdated: dateTimeType.mapFromDatabaseResponse(
+          data['${effectivePrefix}last_time_activity_updated']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
+    if (!nullToAbsent || username != null) {
+      map['username'] = Variable<String>(username);
+    }
+    if (!nullToAbsent || lastActivity != null) {
+      map['last_activity'] = Variable<DateTime>(lastActivity);
+    }
+    if (!nullToAbsent || lastTimeActivityUpdated != null) {
+      map['last_time_activity_updated'] =
+          Variable<DateTime>(lastTimeActivityUpdated);
+    }
+    return map;
+  }
+
+  UserInfosCompanion toCompanion(bool nullToAbsent) {
+    return UserInfosCompanion(
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
+      username: username == null && nullToAbsent
+          ? const Value.absent()
+          : Value(username),
+      lastActivity: lastActivity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastActivity),
+      lastTimeActivityUpdated: lastTimeActivityUpdated == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastTimeActivityUpdated),
+    );
+  }
+
+  factory UserInfo.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return UserInfo(
+      uid: serializer.fromJson<String>(json['uid']),
+      username: serializer.fromJson<String>(json['username']),
+      lastActivity: serializer.fromJson<DateTime>(json['lastActivity']),
+      lastTimeActivityUpdated:
+          serializer.fromJson<DateTime>(json['lastTimeActivityUpdated']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'uid': serializer.toJson<String>(uid),
+      'username': serializer.toJson<String>(username),
+      'lastActivity': serializer.toJson<DateTime>(lastActivity),
+      'lastTimeActivityUpdated':
+          serializer.toJson<DateTime>(lastTimeActivityUpdated),
+    };
+  }
+
+  UserInfo copyWith(
+          {String uid,
+          String username,
+          DateTime lastActivity,
+          DateTime lastTimeActivityUpdated}) =>
+      UserInfo(
+        uid: uid ?? this.uid,
+        username: username ?? this.username,
+        lastActivity: lastActivity ?? this.lastActivity,
+        lastTimeActivityUpdated:
+            lastTimeActivityUpdated ?? this.lastTimeActivityUpdated,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('UserInfo(')
+          ..write('uid: $uid, ')
+          ..write('username: $username, ')
+          ..write('lastActivity: $lastActivity, ')
+          ..write('lastTimeActivityUpdated: $lastTimeActivityUpdated')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(
+      uid.hashCode,
+      $mrjc(username.hashCode,
+          $mrjc(lastActivity.hashCode, lastTimeActivityUpdated.hashCode))));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is UserInfo &&
+          other.uid == this.uid &&
+          other.username == this.username &&
+          other.lastActivity == this.lastActivity &&
+          other.lastTimeActivityUpdated == this.lastTimeActivityUpdated);
+}
+
+class UserInfosCompanion extends UpdateCompanion<UserInfo> {
+  final Value<String> uid;
+  final Value<String> username;
+  final Value<DateTime> lastActivity;
+  final Value<DateTime> lastTimeActivityUpdated;
+  const UserInfosCompanion({
+    this.uid = const Value.absent(),
+    this.username = const Value.absent(),
+    this.lastActivity = const Value.absent(),
+    this.lastTimeActivityUpdated = const Value.absent(),
+  });
+  UserInfosCompanion.insert({
+    @required String uid,
+    this.username = const Value.absent(),
+    this.lastActivity = const Value.absent(),
+    this.lastTimeActivityUpdated = const Value.absent(),
+  }) : uid = Value(uid);
+  static Insertable<UserInfo> custom({
+    Expression<String> uid,
+    Expression<String> username,
+    Expression<DateTime> lastActivity,
+    Expression<DateTime> lastTimeActivityUpdated,
+  }) {
+    return RawValuesInsertable({
+      if (uid != null) 'uid': uid,
+      if (username != null) 'username': username,
+      if (lastActivity != null) 'last_activity': lastActivity,
+      if (lastTimeActivityUpdated != null)
+        'last_time_activity_updated': lastTimeActivityUpdated,
+    });
+  }
+
+  UserInfosCompanion copyWith(
+      {Value<String> uid,
+      Value<String> username,
+      Value<DateTime> lastActivity,
+      Value<DateTime> lastTimeActivityUpdated}) {
+    return UserInfosCompanion(
+      uid: uid ?? this.uid,
+      username: username ?? this.username,
+      lastActivity: lastActivity ?? this.lastActivity,
+      lastTimeActivityUpdated:
+          lastTimeActivityUpdated ?? this.lastTimeActivityUpdated,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
+    }
+    if (username.present) {
+      map['username'] = Variable<String>(username.value);
+    }
+    if (lastActivity.present) {
+      map['last_activity'] = Variable<DateTime>(lastActivity.value);
+    }
+    if (lastTimeActivityUpdated.present) {
+      map['last_time_activity_updated'] =
+          Variable<DateTime>(lastTimeActivityUpdated.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserInfosCompanion(')
+          ..write('uid: $uid, ')
+          ..write('username: $username, ')
+          ..write('lastActivity: $lastActivity, ')
+          ..write('lastTimeActivityUpdated: $lastTimeActivityUpdated')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $UserInfosTable extends UserInfos
+    with TableInfo<$UserInfosTable, UserInfo> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $UserInfosTable(this._db, [this._alias]);
+  final VerificationMeta _uidMeta = const VerificationMeta('uid');
+  GeneratedTextColumn _uid;
+  @override
+  GeneratedTextColumn get uid => _uid ??= _constructUid();
+  GeneratedTextColumn _constructUid() {
+    return GeneratedTextColumn(
+      'uid',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _usernameMeta = const VerificationMeta('username');
+  GeneratedTextColumn _username;
+  @override
+  GeneratedTextColumn get username => _username ??= _constructUsername();
+  GeneratedTextColumn _constructUsername() {
+    return GeneratedTextColumn(
+      'username',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _lastActivityMeta =
+      const VerificationMeta('lastActivity');
+  GeneratedDateTimeColumn _lastActivity;
+  @override
+  GeneratedDateTimeColumn get lastActivity =>
+      _lastActivity ??= _constructLastActivity();
+  GeneratedDateTimeColumn _constructLastActivity() {
+    return GeneratedDateTimeColumn(
+      'last_activity',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _lastTimeActivityUpdatedMeta =
+      const VerificationMeta('lastTimeActivityUpdated');
+  GeneratedDateTimeColumn _lastTimeActivityUpdated;
+  @override
+  GeneratedDateTimeColumn get lastTimeActivityUpdated =>
+      _lastTimeActivityUpdated ??= _constructLastTimeActivityUpdated();
+  GeneratedDateTimeColumn _constructLastTimeActivityUpdated() {
+    return GeneratedDateTimeColumn(
+      'last_time_activity_updated',
+      $tableName,
+      true,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns =>
+      [uid, username, lastActivity, lastTimeActivityUpdated];
+  @override
+  $UserInfosTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'user_infos';
+  @override
+  final String actualTableName = 'user_infos';
+  @override
+  VerificationContext validateIntegrity(Insertable<UserInfo> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid'], _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
+    }
+    if (data.containsKey('username')) {
+      context.handle(_usernameMeta,
+          username.isAcceptableOrUnknown(data['username'], _usernameMeta));
+    }
+    if (data.containsKey('last_activity')) {
+      context.handle(
+          _lastActivityMeta,
+          lastActivity.isAcceptableOrUnknown(
+              data['last_activity'], _lastActivityMeta));
+    }
+    if (data.containsKey('last_time_activity_updated')) {
+      context.handle(
+          _lastTimeActivityUpdatedMeta,
+          lastTimeActivityUpdated.isAcceptableOrUnknown(
+              data['last_time_activity_updated'],
+              _lastTimeActivityUpdatedMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {uid};
+  @override
+  UserInfo map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return UserInfo.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $UserInfosTable createAlias(String alias) {
+    return $UserInfosTable(_db, alias);
+  }
+}
+
+class Sticker extends DataClass implements Insertable<Sticker> {
+  final String uuid;
+  final String packId;
+  final String name;
+  final String packName;
+  Sticker(
+      {@required this.uuid,
+      @required this.packId,
+      @required this.name,
+      @required this.packName});
+  factory Sticker.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    return Sticker(
+      uuid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uuid']),
+      packId:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}pack_id']),
+      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      packName: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}pack_name']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || uuid != null) {
+      map['uuid'] = Variable<String>(uuid);
+    }
+    if (!nullToAbsent || packId != null) {
+      map['pack_id'] = Variable<String>(packId);
+    }
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    if (!nullToAbsent || packName != null) {
+      map['pack_name'] = Variable<String>(packName);
+    }
+    return map;
+  }
+
+  StickersCompanion toCompanion(bool nullToAbsent) {
+    return StickersCompanion(
+      uuid: uuid == null && nullToAbsent ? const Value.absent() : Value(uuid),
+      packId:
+          packId == null && nullToAbsent ? const Value.absent() : Value(packId),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      packName: packName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(packName),
+    );
+  }
+
+  factory Sticker.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return Sticker(
+      uuid: serializer.fromJson<String>(json['uuid']),
+      packId: serializer.fromJson<String>(json['packId']),
+      name: serializer.fromJson<String>(json['name']),
+      packName: serializer.fromJson<String>(json['packName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'uuid': serializer.toJson<String>(uuid),
+      'packId': serializer.toJson<String>(packId),
+      'name': serializer.toJson<String>(name),
+      'packName': serializer.toJson<String>(packName),
+    };
+  }
+
+  Sticker copyWith(
+          {String uuid, String packId, String name, String packName}) =>
+      Sticker(
+        uuid: uuid ?? this.uuid,
+        packId: packId ?? this.packId,
+        name: name ?? this.name,
+        packName: packName ?? this.packName,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Sticker(')
+          ..write('uuid: $uuid, ')
+          ..write('packId: $packId, ')
+          ..write('name: $name, ')
+          ..write('packName: $packName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(uuid.hashCode,
+      $mrjc(packId.hashCode, $mrjc(name.hashCode, packName.hashCode))));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is Sticker &&
+          other.uuid == this.uuid &&
+          other.packId == this.packId &&
+          other.name == this.name &&
+          other.packName == this.packName);
+}
+
+class StickersCompanion extends UpdateCompanion<Sticker> {
+  final Value<String> uuid;
+  final Value<String> packId;
+  final Value<String> name;
+  final Value<String> packName;
+  const StickersCompanion({
+    this.uuid = const Value.absent(),
+    this.packId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.packName = const Value.absent(),
+  });
+  StickersCompanion.insert({
+    @required String uuid,
+    @required String packId,
+    @required String name,
+    @required String packName,
+  })  : uuid = Value(uuid),
+        packId = Value(packId),
+        name = Value(name),
+        packName = Value(packName);
+  static Insertable<Sticker> custom({
+    Expression<String> uuid,
+    Expression<String> packId,
+    Expression<String> name,
+    Expression<String> packName,
+  }) {
+    return RawValuesInsertable({
+      if (uuid != null) 'uuid': uuid,
+      if (packId != null) 'pack_id': packId,
+      if (name != null) 'name': name,
+      if (packName != null) 'pack_name': packName,
+    });
+  }
+
+  StickersCompanion copyWith(
+      {Value<String> uuid,
+      Value<String> packId,
+      Value<String> name,
+      Value<String> packName}) {
+    return StickersCompanion(
+      uuid: uuid ?? this.uuid,
+      packId: packId ?? this.packId,
+      name: name ?? this.name,
+      packName: packName ?? this.packName,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (uuid.present) {
+      map['uuid'] = Variable<String>(uuid.value);
+    }
+    if (packId.present) {
+      map['pack_id'] = Variable<String>(packId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (packName.present) {
+      map['pack_name'] = Variable<String>(packName.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StickersCompanion(')
+          ..write('uuid: $uuid, ')
+          ..write('packId: $packId, ')
+          ..write('name: $name, ')
+          ..write('packName: $packName')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $StickersTable extends Stickers with TableInfo<$StickersTable, Sticker> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $StickersTable(this._db, [this._alias]);
+  final VerificationMeta _uuidMeta = const VerificationMeta('uuid');
+  GeneratedTextColumn _uuid;
+  @override
+  GeneratedTextColumn get uuid => _uuid ??= _constructUuid();
+  GeneratedTextColumn _constructUuid() {
+    return GeneratedTextColumn(
+      'uuid',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _packIdMeta = const VerificationMeta('packId');
+  GeneratedTextColumn _packId;
+  @override
+  GeneratedTextColumn get packId => _packId ??= _constructPackId();
+  GeneratedTextColumn _constructPackId() {
+    return GeneratedTextColumn(
+      'pack_id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  GeneratedTextColumn _name;
+  @override
+  GeneratedTextColumn get name => _name ??= _constructName();
+  GeneratedTextColumn _constructName() {
+    return GeneratedTextColumn(
+      'name',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _packNameMeta = const VerificationMeta('packName');
+  GeneratedTextColumn _packName;
+  @override
+  GeneratedTextColumn get packName => _packName ??= _constructPackName();
+  GeneratedTextColumn _constructPackName() {
+    return GeneratedTextColumn(
+      'pack_name',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [uuid, packId, name, packName];
+  @override
+  $StickersTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'stickers';
+  @override
+  final String actualTableName = 'stickers';
+  @override
+  VerificationContext validateIntegrity(Insertable<Sticker> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('uuid')) {
+      context.handle(
+          _uuidMeta, uuid.isAcceptableOrUnknown(data['uuid'], _uuidMeta));
+    } else if (isInserting) {
+      context.missing(_uuidMeta);
+    }
+    if (data.containsKey('pack_id')) {
+      context.handle(_packIdMeta,
+          packId.isAcceptableOrUnknown(data['pack_id'], _packIdMeta));
+    } else if (isInserting) {
+      context.missing(_packIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('pack_name')) {
+      context.handle(_packNameMeta,
+          packName.isAcceptableOrUnknown(data['pack_name'], _packNameMeta));
+    } else if (isInserting) {
+      context.missing(_packNameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {uuid};
+  @override
+  Sticker map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return Sticker.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $StickersTable createAlias(String alias) {
+    return $StickersTable(_db, alias);
+  }
+}
+
+class StickerId extends DataClass implements Insertable<StickerId> {
+  final DateTime getPackTime;
+  final String packId;
+  final bool packISDownloaded;
+  StickerId(
+      {@required this.getPackTime,
+      @required this.packId,
+      @required this.packISDownloaded});
+  factory StickerId.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final dateTimeType = db.typeSystem.forDartType<DateTime>();
+    final stringType = db.typeSystem.forDartType<String>();
+    final boolType = db.typeSystem.forDartType<bool>();
+    return StickerId(
+      getPackTime: dateTimeType
+          .mapFromDatabaseResponse(data['${effectivePrefix}get_pack_time']),
+      packId:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}pack_id']),
+      packISDownloaded: boolType.mapFromDatabaseResponse(
+          data['${effectivePrefix}pack_i_s_downloaded']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || getPackTime != null) {
+      map['get_pack_time'] = Variable<DateTime>(getPackTime);
+    }
+    if (!nullToAbsent || packId != null) {
+      map['pack_id'] = Variable<String>(packId);
+    }
+    if (!nullToAbsent || packISDownloaded != null) {
+      map['pack_i_s_downloaded'] = Variable<bool>(packISDownloaded);
+    }
+    return map;
+  }
+
+  StickerIdsCompanion toCompanion(bool nullToAbsent) {
+    return StickerIdsCompanion(
+      getPackTime: getPackTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(getPackTime),
+      packId:
+          packId == null && nullToAbsent ? const Value.absent() : Value(packId),
+      packISDownloaded: packISDownloaded == null && nullToAbsent
+          ? const Value.absent()
+          : Value(packISDownloaded),
+    );
+  }
+
+  factory StickerId.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return StickerId(
+      getPackTime: serializer.fromJson<DateTime>(json['getPackTime']),
+      packId: serializer.fromJson<String>(json['packId']),
+      packISDownloaded: serializer.fromJson<bool>(json['packISDownloaded']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'getPackTime': serializer.toJson<DateTime>(getPackTime),
+      'packId': serializer.toJson<String>(packId),
+      'packISDownloaded': serializer.toJson<bool>(packISDownloaded),
+    };
+  }
+
+  StickerId copyWith(
+          {DateTime getPackTime, String packId, bool packISDownloaded}) =>
+      StickerId(
+        getPackTime: getPackTime ?? this.getPackTime,
+        packId: packId ?? this.packId,
+        packISDownloaded: packISDownloaded ?? this.packISDownloaded,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('StickerId(')
+          ..write('getPackTime: $getPackTime, ')
+          ..write('packId: $packId, ')
+          ..write('packISDownloaded: $packISDownloaded')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(
+      getPackTime.hashCode, $mrjc(packId.hashCode, packISDownloaded.hashCode)));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is StickerId &&
+          other.getPackTime == this.getPackTime &&
+          other.packId == this.packId &&
+          other.packISDownloaded == this.packISDownloaded);
+}
+
+class StickerIdsCompanion extends UpdateCompanion<StickerId> {
+  final Value<DateTime> getPackTime;
+  final Value<String> packId;
+  final Value<bool> packISDownloaded;
+  const StickerIdsCompanion({
+    this.getPackTime = const Value.absent(),
+    this.packId = const Value.absent(),
+    this.packISDownloaded = const Value.absent(),
+  });
+  StickerIdsCompanion.insert({
+    @required DateTime getPackTime,
+    @required String packId,
+    this.packISDownloaded = const Value.absent(),
+  })  : getPackTime = Value(getPackTime),
+        packId = Value(packId);
+  static Insertable<StickerId> custom({
+    Expression<DateTime> getPackTime,
+    Expression<String> packId,
+    Expression<bool> packISDownloaded,
+  }) {
+    return RawValuesInsertable({
+      if (getPackTime != null) 'get_pack_time': getPackTime,
+      if (packId != null) 'pack_id': packId,
+      if (packISDownloaded != null) 'pack_i_s_downloaded': packISDownloaded,
+    });
+  }
+
+  StickerIdsCompanion copyWith(
+      {Value<DateTime> getPackTime,
+      Value<String> packId,
+      Value<bool> packISDownloaded}) {
+    return StickerIdsCompanion(
+      getPackTime: getPackTime ?? this.getPackTime,
+      packId: packId ?? this.packId,
+      packISDownloaded: packISDownloaded ?? this.packISDownloaded,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (getPackTime.present) {
+      map['get_pack_time'] = Variable<DateTime>(getPackTime.value);
+    }
+    if (packId.present) {
+      map['pack_id'] = Variable<String>(packId.value);
+    }
+    if (packISDownloaded.present) {
+      map['pack_i_s_downloaded'] = Variable<bool>(packISDownloaded.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StickerIdsCompanion(')
+          ..write('getPackTime: $getPackTime, ')
+          ..write('packId: $packId, ')
+          ..write('packISDownloaded: $packISDownloaded')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $StickerIdsTable extends StickerIds
+    with TableInfo<$StickerIdsTable, StickerId> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $StickerIdsTable(this._db, [this._alias]);
+  final VerificationMeta _getPackTimeMeta =
+      const VerificationMeta('getPackTime');
+  GeneratedDateTimeColumn _getPackTime;
+  @override
+  GeneratedDateTimeColumn get getPackTime =>
+      _getPackTime ??= _constructGetPackTime();
+  GeneratedDateTimeColumn _constructGetPackTime() {
+    return GeneratedDateTimeColumn(
+      'get_pack_time',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _packIdMeta = const VerificationMeta('packId');
+  GeneratedTextColumn _packId;
+  @override
+  GeneratedTextColumn get packId => _packId ??= _constructPackId();
+  GeneratedTextColumn _constructPackId() {
+    return GeneratedTextColumn(
+      'pack_id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _packISDownloadedMeta =
+      const VerificationMeta('packISDownloaded');
+  GeneratedBoolColumn _packISDownloaded;
+  @override
+  GeneratedBoolColumn get packISDownloaded =>
+      _packISDownloaded ??= _constructPackISDownloaded();
+  GeneratedBoolColumn _constructPackISDownloaded() {
+    return GeneratedBoolColumn('pack_i_s_downloaded', $tableName, false,
+        defaultValue: Constant(false));
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [getPackTime, packId, packISDownloaded];
+  @override
+  $StickerIdsTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'sticker_ids';
+  @override
+  final String actualTableName = 'sticker_ids';
+  @override
+  VerificationContext validateIntegrity(Insertable<StickerId> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('get_pack_time')) {
+      context.handle(
+          _getPackTimeMeta,
+          getPackTime.isAcceptableOrUnknown(
+              data['get_pack_time'], _getPackTimeMeta));
+    } else if (isInserting) {
+      context.missing(_getPackTimeMeta);
+    }
+    if (data.containsKey('pack_id')) {
+      context.handle(_packIdMeta,
+          packId.isAcceptableOrUnknown(data['pack_id'], _packIdMeta));
+    } else if (isInserting) {
+      context.missing(_packIdMeta);
+    }
+    if (data.containsKey('pack_i_s_downloaded')) {
+      context.handle(
+          _packISDownloadedMeta,
+          packISDownloaded.isAcceptableOrUnknown(
+              data['pack_i_s_downloaded'], _packISDownloadedMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {packId};
+  @override
+  StickerId map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return StickerId.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $StickerIdsTable createAlias(String alias) {
+    return $StickerIdsTable(_db, alias);
+  }
+}
+
+class BotInfo extends DataClass implements Insertable<BotInfo> {
+  final String description;
+  final String name;
+  final String username;
+  final String commands;
+  BotInfo(
+      {@required this.description,
+      this.name,
+      @required this.username,
+      @required this.commands});
+  factory BotInfo.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    return BotInfo(
+      description: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}description']),
+      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      username: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}username']),
+      commands: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}commands']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    if (!nullToAbsent || username != null) {
+      map['username'] = Variable<String>(username);
+    }
+    if (!nullToAbsent || commands != null) {
+      map['commands'] = Variable<String>(commands);
+    }
+    return map;
+  }
+
+  BotInfosCompanion toCompanion(bool nullToAbsent) {
+    return BotInfosCompanion(
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      username: username == null && nullToAbsent
+          ? const Value.absent()
+          : Value(username),
+      commands: commands == null && nullToAbsent
+          ? const Value.absent()
+          : Value(commands),
+    );
+  }
+
+  factory BotInfo.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return BotInfo(
+      description: serializer.fromJson<String>(json['description']),
+      name: serializer.fromJson<String>(json['name']),
+      username: serializer.fromJson<String>(json['username']),
+      commands: serializer.fromJson<String>(json['commands']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'description': serializer.toJson<String>(description),
+      'name': serializer.toJson<String>(name),
+      'username': serializer.toJson<String>(username),
+      'commands': serializer.toJson<String>(commands),
+    };
+  }
+
+  BotInfo copyWith(
+          {String description,
+          String name,
+          String username,
+          String commands}) =>
+      BotInfo(
+        description: description ?? this.description,
+        name: name ?? this.name,
+        username: username ?? this.username,
+        commands: commands ?? this.commands,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('BotInfo(')
+          ..write('description: $description, ')
+          ..write('name: $name, ')
+          ..write('username: $username, ')
+          ..write('commands: $commands')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(description.hashCode,
+      $mrjc(name.hashCode, $mrjc(username.hashCode, commands.hashCode))));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is BotInfo &&
+          other.description == this.description &&
+          other.name == this.name &&
+          other.username == this.username &&
+          other.commands == this.commands);
+}
+
+class BotInfosCompanion extends UpdateCompanion<BotInfo> {
+  final Value<String> description;
+  final Value<String> name;
+  final Value<String> username;
+  final Value<String> commands;
+  const BotInfosCompanion({
+    this.description = const Value.absent(),
+    this.name = const Value.absent(),
+    this.username = const Value.absent(),
+    this.commands = const Value.absent(),
+  });
+  BotInfosCompanion.insert({
+    @required String description,
+    this.name = const Value.absent(),
+    @required String username,
+    @required String commands,
+  })  : description = Value(description),
+        username = Value(username),
+        commands = Value(commands);
+  static Insertable<BotInfo> custom({
+    Expression<String> description,
+    Expression<String> name,
+    Expression<String> username,
+    Expression<String> commands,
+  }) {
+    return RawValuesInsertable({
+      if (description != null) 'description': description,
+      if (name != null) 'name': name,
+      if (username != null) 'username': username,
+      if (commands != null) 'commands': commands,
+    });
+  }
+
+  BotInfosCompanion copyWith(
+      {Value<String> description,
+      Value<String> name,
+      Value<String> username,
+      Value<String> commands}) {
+    return BotInfosCompanion(
+      description: description ?? this.description,
+      name: name ?? this.name,
+      username: username ?? this.username,
+      commands: commands ?? this.commands,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (username.present) {
+      map['username'] = Variable<String>(username.value);
+    }
+    if (commands.present) {
+      map['commands'] = Variable<String>(commands.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BotInfosCompanion(')
+          ..write('description: $description, ')
+          ..write('name: $name, ')
+          ..write('username: $username, ')
+          ..write('commands: $commands')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BotInfosTable extends BotInfos with TableInfo<$BotInfosTable, BotInfo> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $BotInfosTable(this._db, [this._alias]);
+  final VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  GeneratedTextColumn _description;
+  @override
+  GeneratedTextColumn get description =>
+      _description ??= _constructDescription();
+  GeneratedTextColumn _constructDescription() {
+    return GeneratedTextColumn(
+      'description',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  GeneratedTextColumn _name;
+  @override
+  GeneratedTextColumn get name => _name ??= _constructName();
+  GeneratedTextColumn _constructName() {
+    return GeneratedTextColumn(
+      'name',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _usernameMeta = const VerificationMeta('username');
+  GeneratedTextColumn _username;
+  @override
+  GeneratedTextColumn get username => _username ??= _constructUsername();
+  GeneratedTextColumn _constructUsername() {
+    return GeneratedTextColumn(
+      'username',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _commandsMeta = const VerificationMeta('commands');
+  GeneratedTextColumn _commands;
+  @override
+  GeneratedTextColumn get commands => _commands ??= _constructCommands();
+  GeneratedTextColumn _constructCommands() {
+    return GeneratedTextColumn(
+      'commands',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [description, name, username, commands];
+  @override
+  $BotInfosTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'bot_infos';
+  @override
+  final String actualTableName = 'bot_infos';
+  @override
+  VerificationContext validateIntegrity(Insertable<BotInfo> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description'], _descriptionMeta));
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
+    }
+    if (data.containsKey('username')) {
+      context.handle(_usernameMeta,
+          username.isAcceptableOrUnknown(data['username'], _usernameMeta));
+    } else if (isInserting) {
+      context.missing(_usernameMeta);
+    }
+    if (data.containsKey('commands')) {
+      context.handle(_commandsMeta,
+          commands.isAcceptableOrUnknown(data['commands'], _commandsMeta));
+    } else if (isInserting) {
+      context.missing(_commandsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {username};
+  @override
+  BotInfo map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return BotInfo.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $BotInfosTable createAlias(String alias) {
+    return $BotInfosTable(_db, alias);
+  }
+}
+
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $MessagesTable _messages;
@@ -5014,6 +6232,14 @@ abstract class _$Database extends GeneratedDatabase {
   $MediasMetaDataTable _mediasMetaData;
   $MediasMetaDataTable get mediasMetaData =>
       _mediasMetaData ??= $MediasMetaDataTable(this);
+  $UserInfosTable _userInfos;
+  $UserInfosTable get userInfos => _userInfos ??= $UserInfosTable(this);
+  $StickersTable _stickers;
+  $StickersTable get stickers => _stickers ??= $StickersTable(this);
+  $StickerIdsTable _stickerIds;
+  $StickerIdsTable get stickerIds => _stickerIds ??= $StickerIdsTable(this);
+  $BotInfosTable _botInfos;
+  $BotInfosTable get botInfos => _botInfos ??= $BotInfosTable(this);
   MessageDao _messageDao;
   MessageDao get messageDao => _messageDao ??= MessageDao(this as Database);
   RoomDao _roomDao;
@@ -5046,6 +6272,15 @@ abstract class _$Database extends GeneratedDatabase {
   MediaMetaDataDao _mediaMetaDataDao;
   MediaMetaDataDao get mediaMetaDataDao =>
       _mediaMetaDataDao ??= MediaMetaDataDao(this as Database);
+  UserInfoDao _userInfoDao;
+  UserInfoDao get userInfoDao => _userInfoDao ??= UserInfoDao(this as Database);
+  StickerDao _stickerDao;
+  StickerDao get stickerDao => _stickerDao ??= StickerDao(this as Database);
+  StickerIdDao _stickerIdDao;
+  StickerIdDao get stickerIdDao =>
+      _stickerIdDao ??= StickerIdDao(this as Database);
+  BotInfoDao _botInfoDao;
+  BotInfoDao get botInfoDao => _botInfoDao ??= BotInfoDao(this as Database);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
@@ -5063,6 +6298,10 @@ abstract class _$Database extends GeneratedDatabase {
         members,
         mucs,
         lastSeens,
-        mediasMetaData
+        mediasMetaData,
+        userInfos,
+        stickers,
+        stickerIds,
+        botInfos
       ];
 }

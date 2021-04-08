@@ -7,6 +7,7 @@ import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TextUi extends StatelessWidget {
   final Message message;
@@ -16,6 +17,8 @@ class TextUi extends StatelessWidget {
   final bool isCaption;
   final bool isSeen;
   final Function onUsernameClick;
+  final double imageWidth;
+  final String pattern;
 
   const TextUi(
       {Key key,
@@ -25,7 +28,9 @@ class TextUi extends StatelessWidget {
       this.isSender,
       this.isSeen,
       this.onUsernameClick,
-      this.isCaption})
+      this.isCaption,
+      this.pattern,
+      this.imageWidth})
       : super(key: key);
 
   @override
@@ -38,7 +43,24 @@ class TextUi extends StatelessWidget {
   List<Widget> textMessages() {
     String content = "";
     if (isCaption) {
+      int D = (imageWidth.round() / 12).ceil();
       content = this.message.json.toFile().caption;
+      if (imageWidth != null && content.length > D) {
+        List<String> d = List();
+        int u = (content.length / D).ceil();
+        int i = 0;
+        while (i < u) {
+          d.add(content.substring(
+              (i * D) < content.length ? (i * D) : content.length,
+              (i + 1) * (D) < content.length ? (i + 1) * D : content.length));
+          i = i + 1;
+        }
+        content = "";
+        d.forEach((element) {
+          if (!element.contains("\n")) element = element + "\n";
+          content = content + element;
+        });
+      }
     } else {
       content = this.message.json.toText().text;
     }
@@ -70,7 +92,8 @@ class TextUi extends StatelessWidget {
         idx == (blocks.length - 1),
         this.isSender,
         this.isSeen,
-        this.onUsernameClick);
+        this.onUsernameClick,
+        this.pattern);
 
     for (var i = 1; i <= idx; i++) {
       joint = Column(
@@ -88,7 +111,8 @@ class TextUi extends StatelessWidget {
               idx - i == (blocks.length - 1),
               this.isSender,
               this.isSeen,
-              this.onUsernameClick),
+              this.onUsernameClick,
+              this.pattern),
           joint,
         ],
       );
@@ -110,7 +134,8 @@ class TextUi extends StatelessWidget {
               idx + i == (blocks.length - 1),
               this.isSender,
               this.isSeen,
-              this.onUsernameClick),
+              this.onUsernameClick,
+              this.pattern),
         ],
       );
     }
@@ -151,7 +176,7 @@ class TextBlock {
   }
 
   build(double maxWidth, Message message, bool isLastBlock, bool isSender,
-      bool isSeen, Function onUsernameClick) {
+      bool isSeen, Function onUsernameClick, String pattern) {
     return Column(
         crossAxisAlignment:
             isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -163,15 +188,23 @@ class TextBlock {
                 Container(
                     constraints: BoxConstraints.loose(Size.fromWidth(maxWidth)),
                     child: _textWidget(texts[i], message, isLastBlock, isSender,
-                        i, texts.length - 1, isSeen, onUsernameClick)),
+                        i, texts.length - 1, isSeen, onUsernameClick, pattern)),
               ],
             )
         ]);
   }
 }
 
-Widget _textWidget(String text, Message message, bool isLastBlock,
-    bool isSender, i, int lenght, bool isSeen, Function onClick) {
+Widget _textWidget(
+    String text,
+    Message message,
+    bool isLastBlock,
+    bool isSender,
+    i,
+    int lenght,
+    bool isSeen,
+    Function onClick,
+    String pattern) {
   return Wrap(
     alignment: WrapAlignment.end,
     crossAxisAlignment: WrapCrossAlignment.end,
@@ -181,13 +214,49 @@ Widget _textWidget(String text, Message message, bool isLastBlock,
         text: text,
         parse: <MatchText>[
           MatchText(
-            pattern: "[@#][a-zA-Z]([a-zA-Z0-9_]){4,19}",
+            type: ParsedType.URL,
             style: TextStyle(
               color: Colors.yellowAccent,
               fontSize: 16,
             ),
-            onTap: (username) {
+            onTap: (uri) async {
+              await launch(uri);
+            },
+          ),
+          MatchText(
+            type: ParsedType.CUSTOM,
+            pattern:
+                pattern != null ? pattern : "[@#][a-zA-Z]([a-zA-Z0-9_]){4,19}",
+            style: TextStyle(
+              color: pattern != null ? Colors.red : Colors.yellowAccent,
+              fontSize: 17,
+            ),
+            onTap: (username) async {
               onClick(username);
+            },
+          ),
+          MatchText(
+            type: ParsedType.PHONE,
+            pattern:
+                pattern != null ? pattern : "[@#][a-zA-Z]([a-zA-Z0-9_]){4,19}",
+            style: TextStyle(
+              color: pattern != null ? Colors.red : Colors.yellowAccent,
+              fontSize: 16,
+            ),
+            onTap: (phone) async {
+              await launch("tel:$phone");
+            },
+          ),
+          MatchText(
+            type: ParsedType.PHONE,
+            pattern:
+            pattern != null ? pattern : "[@#][a-zA-Z]([a-zA-Z0-9_]){4,19}",
+            style: TextStyle(
+              color: pattern != null ? Colors.red : Colors.yellowAccent,
+              fontSize: 16,
+            ),
+            onTap: (phone) async {
+              await launch("tel:$phone");
             },
           ),
         ],

@@ -48,9 +48,10 @@ class UserAppbar extends StatelessWidget {
                             children: [
                               Text(
                                 snapshot.data,
-                                style: TextStyle(fontSize: 14),
+                                style: TextStyle(fontSize: 20),
                               ),
                               TitleStatus(
+                                currentRoomUid:userUid ,
                                   // normalConditionWidget: Text("last seen",style: TextStyle(fontSize: 12),) //todo last seen,
                                   )
                             ],

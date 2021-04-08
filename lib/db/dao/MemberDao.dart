@@ -50,4 +50,11 @@ class MemberDao extends DatabaseAccessor<Database> with _$MemberDaoMixin {
               (tbl) => tbl.memberUid.equals(uid) & tbl.mucUid.equals(mucId)))
         .getSingle();
   }
+
+  Stream<Member> isJoint(String mucId, String uid) {
+     return (select(members)
+      ..where(
+              (tbl) => tbl.memberUid.equals(uid) & tbl.mucUid.equals(mucId)))
+        .watchSingle();
+  }
 }

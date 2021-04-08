@@ -12,6 +12,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:device_info/device_info.dart';
 
 import 'package:get_it/get_it.dart';
@@ -20,7 +21,7 @@ import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:fixnum/fixnum.dart';
 
-const ACCESS_TOKEN_KEY = "accessToken";
+const ACCESS_TOKEN_KEY = "access_token";
 const REFRESH_TOKEN_KEY = "refreshToken";
 const USERNAME = "username";
 const LAST_NAME = "lastName";
@@ -43,16 +44,19 @@ class AccountRepo {
     ..node = "john";
   Avatar avatar;
   PhoneNumber phoneNumber;
-  String _accessToken;
+  String _access_token;
+
   String _refreshToken;
 
   var authServiceStub = AuthServiceClient(ProfileServicesClientChannel);
   var _userServices = UserServiceClient(ProfileServicesClientChannel);
 
+
+
   Future<void> init() async {
-    var accessToken = await sharedPrefs.get(ACCESS_TOKEN_KEY);
+    var access_token = await sharedPrefs.get(ACCESS_TOKEN_KEY);
     var refreshToken = await sharedPrefs.get(REFRESH_TOKEN_KEY);
-    _setTokensAndCurrentUserUid(accessToken, refreshToken);
+    _setTokensAndCurrentUserUid(access_token, refreshToken);
   }
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -103,13 +107,14 @@ class AccountRepo {
   }
 
   Future<String> getAccessToken() async {
-    if (_isExpired(_accessToken)) {
+    if (_isExpired(_access_token)) {
       RenewAccessTokenRes renewAccessTokenRes =
           await _getAccessToken(_refreshToken);
       _saveTokens(renewAccessTokenRes);
       return renewAccessTokenRes.accessToken;
     } else {
-      return _accessToken;
+
+      return _access_token;
     }
   }
 
@@ -117,8 +122,8 @@ class AccountRepo {
     return _refreshToken != null && !_isExpired(_refreshToken);
   }
 
-  bool _isExpired(accessToken) {
-    return JwtDecoder.isExpired(accessToken);
+  bool _isExpired(access_token) {
+    return JwtDecoder.isExpired(access_token);
   }
 
   void saveTokens(AccessTokenRes res) {
@@ -130,15 +135,21 @@ class AccountRepo {
   }
 
   Future<bool> usernameIsSet() async {
+    final QueryServiceClient _queryServiceClient =
+    GetIt.I.get<QueryServiceClient>();
     if (null != await sharedPrefs.get(USERNAME)) {
       return true;
     }
-    var result = await _userServices.getUserProfile(GetUserProfileReq(),
+    var getIdRequest = await _queryServiceClient.getIdByUid(
+        GetIdByUidReq()..uid = currentUserUid,
         options:
-            CallOptions(metadata: {'accessToken': await getAccessToken()}));
-    if (result.profile.hasUsername()) {
+        CallOptions(metadata: {'access_token': await getAccessToken()}));
+    var result =  await _userServices.getUserProfile(GetUserProfileReq(),
+        options:
+            CallOptions(metadata: {'access_token': await getAccessToken()}));
+    if (result.profile.hasFirstName()) {
       _saveProfilePrivateDate(
-          username: result.profile.username,
+          username: getIdRequest.id,
           firstName: result.profile.firstName,
           lastName: result.profile.lastName,
           email: result.profile.email);
@@ -148,22 +159,22 @@ class AccountRepo {
     }
   }
 
-  void _setTokensAndCurrentUserUid(String accessToken, String refreshToken) {
-    if (accessToken == null ||
-        accessToken.isEmpty ||
+  void _setTokensAndCurrentUserUid(String access_token, String refreshToken) {
+    if (access_token == null ||
+        access_token.isEmpty ||
         refreshToken == null ||
         refreshToken.isEmpty) {
       return;
     }
-    _accessToken = accessToken;
+    _access_token = access_token;
     _refreshToken = refreshToken;
     sharedPrefs.set(REFRESH_TOKEN_KEY, refreshToken);
-    sharedPrefs.set(ACCESS_TOKEN_KEY, accessToken);
-    setCurrentUid(accessToken);
+    sharedPrefs.set(ACCESS_TOKEN_KEY, access_token);
+    setCurrentUid(access_token);
   }
 
-  setCurrentUid(String accessToken) {
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+  setCurrentUid(String access_token) {
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(access_token);
     if (decodedToken != null) {
       currentUserUid = Uid()
         ..category = Categories.USER
@@ -184,24 +195,13 @@ class AccountRepo {
   }
 
   Future<bool> checkUserName(String username) async {
-    CheckUsernameRes checkUsernameRes = await _userServices.checkUsername(
-        CheckUsernameReq()..username = username,
+    final QueryServiceClient _queryServiceClient =
+    GetIt.I.get<QueryServiceClient>();
+    var checkUsernameRes = await _queryServiceClient.idIsAvailable(
+        IdIsAvailableReq()..id = username,
         options:
-            CallOptions(metadata: {'accessToken': await getAccessToken()}));
-    switch (checkUsernameRes.status) {
-      case CheckUsernameRes_Status.REGEX_IS_WRONG:
-        return false;
-        break;
-      case CheckUsernameRes_Status.ALREADY_EXIST:
-        //todo delete
-        return true;
-        break;
-      case CheckUsernameRes_Status.OK:
-        return true;
-        break;
-    }
-
-    return false;
+            CallOptions(metadata: {'access_token': await getAccessToken()}));
+    return checkUsernameRes.isAvailable;
   }
 
   Future<bool> setAccountDetails(
@@ -210,11 +210,14 @@ class AccountRepo {
     String lastName,
     String email,
   ) async {
+    final QueryServiceClient _queryServiceClient =
+    GetIt.I.get<QueryServiceClient>();
     try {
+      _queryServiceClient.setId(SetIdReq()..id = username,
+          options:
+              CallOptions(metadata: {"access_token": await getAccessToken()}));
+
       SaveUserProfileReq saveUserProfileReq = SaveUserProfileReq();
-      if (username != null) {
-        saveUserProfileReq.username = username;
-      }
       if (firstName != null) {
         saveUserProfileReq.firstName = firstName;
       }
@@ -225,9 +228,9 @@ class AccountRepo {
         saveUserProfileReq.email = email;
       }
 
-      await _userServices.saveUserProfile(saveUserProfileReq,
+      _userServices.saveUserProfile(saveUserProfileReq,
           options:
-              CallOptions(metadata: {'accessToken': await getAccessToken()}));
+              CallOptions(metadata: {'access_token': await getAccessToken()}));
       _saveProfilePrivateDate(
           username: username,
           firstName: firstName,
@@ -243,9 +246,7 @@ class AccountRepo {
 
   _saveProfilePrivateDate(
       {String username, String firstName, String lastName, String email}) {
-    if (username != null) {
-      sharedPrefs.set(USERNAME, username);
-    }
+    sharedPrefs.set(USERNAME, username);
     sharedPrefs.set(FIRST_NAME, firstName);
     sharedPrefs.set(LAST_NAME, lastName);
     sharedPrefs.set(EMAIL, email);

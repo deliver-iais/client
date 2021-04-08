@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
@@ -17,8 +18,11 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart' as MucPro;
 import 'package:deliver_public_protocol/pub/v1/models/muc.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:grpc/grpc.dart';
+import 'package:moor/moor.dart';
 
 class MucRepo {
   MucDao _mucDao = GetIt.I.get<MucDao>();
@@ -28,6 +32,11 @@ class MucRepo {
   var accountRepo = GetIt.I.get<AccountRepo>();
   var messageDao = GetIt.I.get<MessageDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
+  var contactDao = GetIt.I.get<ContactDao>();
+
+  var _queryServices = GetIt.I.get<QueryServiceClient>();
+
+  var _accountRepo = GetIt.I.get<AccountRepo>();
 
   Future<Uid> makeNewGroup(List<Uid> memberUids, String groupName) async {
     Uid groupUid = await mucServices.createNewGroup(groupName);
@@ -39,23 +48,33 @@ class MucRepo {
     return null;
   }
 
-  Future<Uid> makeNewChannel(String channelId, List<Uid> memberUids,
+  Future<Uid> createNewChannel(String channelId, List<Uid> memberUids,
       String channelName, ChannelType channelType) async {
     Uid channelUid =
         await mucServices.createNewChannel(channelName, channelType, channelId);
 
     if (channelUid != null) {
       sendMembers(channelUid, memberUids);
-      _insertToDb(channelUid, channelName, memberUids.length + 1);
+      _insertToDb(channelUid, channelName, memberUids.length + 1,
+          channelId: channelId);
+      fetchMucInfo(channelUid);
       return channelUid;
     }
+
     getChannelMembers(channelUid);
     return null;
   }
 
+  Future<bool> channelIdIsAvailable(String id) async {
+    var result = await _queryServices.idIsAvailable(IdIsAvailableReq()..id = id,
+        options: CallOptions(
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
+    return result.isAvailable;
+  }
+
   getGroupMembers(Uid groupUid) async {
     try {
-      var result = await mucServices.getGroupMembers(groupUid, 1, 1);
+      var result = await mucServices.getGroupMembers(groupUid, 10, 0);
       List<Member> members = new List();
       for (MucPro.Member member in result) {
         members.add(await fetchMemberNameAndUsername(Member(
@@ -64,14 +83,16 @@ class MucRepo {
             role: getLocalRole(member.role))));
       }
       insertUserInDb(groupUid, members);
+      fetchMembersUserName(members);
     } catch (e) {
       print(e.toString());
     }
   }
 
   getChannelMembers(Uid channelUid) async {
+    //todo none role
     try {
-      var result = await mucServices.getChannelMembers(channelUid, 1, 1);
+      var result = await mucServices.getChannelMembers(channelUid, 10, 0);
       List<Member> members = new List();
       for (MucPro.Member member in result) {
         members.add(await fetchMemberNameAndUsername(Member(
@@ -91,36 +112,46 @@ class MucRepo {
       return member.copyWith(
           name: contact.firstName, username: contact.username);
     } else {
-      var userAsContact =
+      var username =
           await _contactRepo.searchUserByUid(member.memberUid.getUid());
-      if (userAsContact != null)
-        return member.copyWith(username: userAsContact.username);
+      if (username != null)
+        return member.copyWith(username: username);
       else
         return member;
     }
   }
 
-  // TODO remove later on if Add User to group message feature is implemented
   Future<String> fetchMucInfo(Uid mucUid) async {
     if (mucUid.category == Categories.GROUP) {
-      MucPro.Group group = await getGroupInfo(mucUid);
-      if (group != null)
+      MucPro.GetGroupRes group = await getGroupInfo(mucUid);
+      if (group != null) {
         _mucDao.insertMuc(Muc(
-            name: group.name,
-            uid: mucUid.asString(),
-            members: group.population.toInt()));
-      getGroupMembers(mucUid);
-      print(group.name);
-      return group.name;
+          name: group.info.name,
+          members: group.population.toInt(),
+          uid: mucUid.asString(),
+        ));
+
+        getGroupMembers(mucUid);
+        return group.info.name;
+      }
     } else {
-      Channel channel = await getChannelInfo(mucUid);
-      if (channel != null)
+      GetChannelRes channel = await getChannelInfo(mucUid);
+      if (channel != null) {
         _mucDao.insertMuc(Muc(
-            name: channel.name,
+            name: channel.info.name,
+            members: channel.population.toInt(),
             uid: mucUid.asString(),
-            members: channel.population.toInt()));
-      getChannelMembers(mucUid);
-      return channel.name??"";
+            id: channel.info.id));
+        insertUserInDb(mucUid, [
+          Member(
+              memberUid: _accountRepo.currentUserUid.asString(),
+              mucUid: mucUid.asString(),
+              role: getLocalRole(channel.requesterRole))
+        ]);
+        if (channel.requesterRole != MucPro.Role.NONE)
+          getChannelMembers(mucUid);
+        return channel.info.name;
+      }
     }
   }
 
@@ -146,11 +177,11 @@ class MucRepo {
     return false;
   }
 
-  Future<MucPro.Group> getGroupInfo(Uid groupUid) async {
+  Future<MucPro.GetGroupRes> getGroupInfo(Uid groupUid) async {
     return await mucServices.getGroup(groupUid);
   }
 
-  Future<Channel> getChannelInfo(Uid channelUid) async {
+  Future<GetChannelRes> getChannelInfo(Uid channelUid) async {
     return await mucServices.getChannel(channelUid);
   }
 
@@ -261,38 +292,62 @@ class MucRepo {
   joinGroup(Uid groupUid) async {
     var result = await mucServices.joinGroup(groupUid);
     if (result) {
-      MucPro.Group newGroup = await getGroupInfo(groupUid);
+      MucPro.GetGroupRes newGroup = await getGroupInfo(groupUid);
       getGroupMembers(groupUid);
       _mucDao.insertMuc(Muc(
-          uid: groupUid.asString(), name: newGroup.name, info: newGroup.info));
+          uid: groupUid.asString(),
+          name: newGroup.info.name,
+          members: newGroup.population.toInt(),
+          info: newGroup.info.info));
     }
   }
 
   joinChannel(Uid channelUid) async {
     var result = await mucServices.joinChannel(channelUid);
     if (result) {
-      Channel newChannel = await getChannelInfo(channelUid);
+      GetChannelRes newChannel = await getChannelInfo(channelUid);
       getChannelMembers(channelUid);
       _mucDao.insertMuc(Muc(
           uid: channelUid.asString(),
-          name: newChannel.name,
-          info: newChannel.info));
+          name: newChannel.info.name,
+          members: newChannel.population.toInt(),
+          id: newChannel.info.id,
+          info: newChannel.info.info));
     }
   }
 
-  modifyGroup(Muc group) async {
-    //todo is ......
-    await mucServices.modifyGroup(MucPro.Group());
+  modifyGroup(String mucId, String name) async {
+    var isSet = await mucServices.modifyGroup(
+        MucPro.GroupInfo()..name = name, mucId.getUid());
+    if (isSet) {
+      _mucDao.upsertMucCompanion(
+          MucsCompanion(uid: Value(mucId), name: Value(name)));
+    }
   }
 
-  modifyChannel(Muc group) async {
-    //todo is ......
-    await mucServices.modifyGroup(MucPro.Group());
+  modifyChannel(String mucUid, String name, String id) async {
+    ChannelInfo channelInfo;
+    channelInfo = id.isEmpty ? (ChannelInfo()..name = name) : ChannelInfo()
+      ..name = name
+      ..id = id;
+    if (await mucServices.modifyChannel(channelInfo, mucUid.getUid())) {
+      if (id.isEmpty) {
+        _mucDao.upsertMucCompanion(
+            MucsCompanion(uid: Value(mucUid), name: Value(name)));
+      } else {
+        _mucDao.upsertMucCompanion(MucsCompanion(
+            uid: Value(mucUid), name: Value(name), id: Value(id)));
+      }
+    }
   }
 
-  _insertToDb(Uid mucUid, String mucName, int memberCount) async {
-    await _mucDao.insertMuc(
-        Muc(uid: mucUid.asString(), name: mucName, members: memberCount));
+  _insertToDb(Uid mucUid, String mucName, int memberCount,
+      {String channelId}) async {
+    await _mucDao.insertMuc(Muc(
+        uid: mucUid.asString(),
+        name: mucName,
+        members: memberCount,
+        id: channelId ?? null));
     await _roomDao
         .insertRoomCompanion(RoomsCompanion.insert(roomId: mucUid.asString()));
   }
@@ -331,7 +386,8 @@ class MucRepo {
     for (Member member in members) {
       _memberDao.insertMember(member);
     }
-    _mucDao.updateMuc(mucUid.asString(), members.length);
+    if (members.length > 0)
+      _mucDao.updateMuc(mucUid.asString(), members.length);
   }
 
   MucPro.Role getRole(MucRole role) {
@@ -344,6 +400,9 @@ class MucRepo {
         break;
       case MucRole.OWNER:
         return MucPro.Role.OWNER;
+      case MucRole.NONE:
+        return MucPro.Role.NONE;
+        break;
     }
     return MucPro.Role.NONE;
   }
@@ -358,7 +417,33 @@ class MucRepo {
         break;
       case Role.OWNER:
         return MucRole.OWNER;
+      case Role.NONE:
+        return MucRole.NONE;
     }
     throw Exception("Not Valid Role! $role");
+  }
+
+  void fetchMembersUserName(List<Member> members) async {
+    for (var member in members) {
+      var contact = await contactDao.getContactByUid(member.memberUid);
+      if (contact != null)
+        member = member.copyWith(
+            name: contact.firstName, username: contact.username);
+    }
+    for (var member in members) {
+      if (member.username == null) {
+        var username = await _queryServices.getIdByUid(
+            GetIdByUidReq()..uid = member.memberUid.getUid(),
+            options: CallOptions(metadata: {
+              'access_token': await _accountRepo.getAccessToken()
+            }));
+        member = member.copyWith(username: username.id);
+      }
+      _memberDao.insertMember(member);
+    }
+  }
+
+  Stream<Member> checkJointToMuc({String roomUid}) {
+    return _memberDao.isJoint(roomUid, _accountRepo.currentUserUid.asString());
   }
 }

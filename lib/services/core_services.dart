@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
+import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart' as Database;
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/models/messageType.dart';
@@ -16,12 +16,13 @@ import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
-import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:moor/moor.dart';
@@ -34,7 +35,8 @@ const MAX_BACKOFF_TIME = 32;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
-  StreamController<ClientPacket> _clientPacket ;
+  StreamController<ClientPacket> _clientPacket;
+
   ResponseStream<ServerPacket> _responseStream;
   @visibleForTesting
   int backoffTime = MIN_BACKOFF_TIME;
@@ -58,11 +60,13 @@ class CoreServices {
 
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
+  var _userInfoDAo = GetIt.I.get<UserInfoDao>();
 
   Timer _connectionTimer;
 
 //TODO test
   initStreamConnection() async {
+
     if (_connectionTimer != null && _connectionTimer.isActive) {
       return;
     }
@@ -75,10 +79,13 @@ class CoreServices {
       connectionStatus.add(event);
     });
   }
+  void closeConnection() {
+    _clientPacket.close();
+    _connectionTimer.cancel();
+  }
 
   @visibleForTesting
   startCheckerTimer() async {
-
     if (_clientPacket.isClosed || _clientPacket.isPaused) {
       await startStream();
     }
@@ -106,6 +113,7 @@ class CoreServices {
 
   @visibleForTesting
   startStream() async {
+
     try {
       _clientPacket = StreamController<ClientPacket>();
       _responseStream = _grpcCoreService.establishStream(
@@ -114,9 +122,8 @@ class CoreServices {
           await _clientPacket.close();
           _connectionStatus.add(ConnectionStatus.Disconnected);
         },
-      ),
-          options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()},
+      ), options: CallOptions(
+            metadata: {'access_token': await _accountRepo.getAccessToken()},
           ));
       sendPingMessage();
       _responseStream.listen((serverPacket) async {
@@ -137,11 +144,7 @@ class CoreServices {
           case ServerPacket_Type.activity:
             _saveActivityMessage(serverPacket.activity);
             break;
-          case ServerPacket_Type.pollStatusChanged:
-            break;
           case ServerPacket_Type.liveLocationStatusChanged:
-            break;
-          case ServerPacket_Type.message:
             break;
           case ServerPacket_Type.pong:
             break;
@@ -156,7 +159,7 @@ class CoreServices {
   }
 
   sendMessage(MessageByClient message) {
-    if (_clientPacket != null&& !_clientPacket.isClosed) {
+    if (_clientPacket != null && !_clientPacket.isClosed) {
       _clientPacket.add(ClientPacket()
         ..message = message
         ..id = message.packetId);
@@ -185,10 +188,14 @@ class CoreServices {
     }
   }
 
-  sendActivityMessage(ActivityByClient activity) {
-    _clientPacket.add(ClientPacket()
-      ..activity = activity
-      ..id = "1");
+  sendActivityMessage(ActivityByClient activity, String id) {
+    if (!_clientPacket.isClosed)
+      _clientPacket.add(ClientPacket()
+        ..activity = activity
+        ..id = id);
+    else {
+      startStream();
+    }
   }
 
   _saveSeenMessage(Seen seen) {
@@ -211,9 +218,13 @@ class CoreServices {
         messageId: seen.id.toInt(),
         user: seen.from.asString(),
         roomId: roomId.asString()));
+    updateLastActivityTime(_userInfoDAo, seen.from, DateTime.now());
   }
 
-  _saveActivityMessage(Activity activity) {}
+  _saveActivityMessage(Activity activity) {
+    _roomRepo.updateActivity(activity);
+    updateLastActivityTime(_userInfoDAo, activity.from, DateTime.now());
+  }
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
     if (messageDeliveryAck.id.toInt() == 0) {
@@ -234,12 +245,20 @@ class CoreServices {
   }
 
   _saveIncomingMessage(Message message) async {
-    Uid roomUid =
-        await saveMessage(_accountRepo, _messageDao, _roomDao, message);
+    Uid roomUid = getRoomId(_accountRepo, message);
+    Database.Room room = await _roomDao.getByRoomIdFuture(roomUid.asString());
+    if (room != null && room.isBlock) {
+      return;
+    }
+    saveMessage(_accountRepo, _messageDao, _roomDao, message, roomUid);
 
-    if ((await _accountRepo.notification).contains("true")) {
+    if ((await _accountRepo.notification).contains("true") &&
+        (room != null && !room.mute)) {
       showNotification(roomUid, message);
     }
+    if (message.from.category == Categories.USER)
+      updateLastActivityTime(_userInfoDAo, message.from,
+          DateTime.fromMillisecondsSinceEpoch(message.time.toInt()));
   }
 
   Future showNotification(Uid roomUid, Message message) async {
@@ -253,10 +272,9 @@ class CoreServices {
   }
 
   static Future<Uid> saveMessage(AccountRepo accountRepo, MessageDao messageDao,
-      RoomDao roomDao, Message message) async {
+      RoomDao roomDao, Message message, Uid roomUid) async {
     var msg = await saveMessageInMessagesDB(accountRepo, messageDao, message);
 
-    Uid roomUid = getRoomId(accountRepo, message);
     bool isMention = false;
     if (roomUid.category == Categories.GROUP) {
       if (message.text.text.contains("@")) {
@@ -280,6 +298,16 @@ class CoreServices {
 
     return roomUid;
   }
+
+
+}
+
+void updateLastActivityTime(
+    UserInfoDao userInfoDao, Uid userUid, DateTime lastActivityTime) {
+  userInfoDao.upsertUserInfo(Database.UserInfo(
+      uid: userUid.asString(),
+      lastActivity: lastActivityTime,
+      lastTimeActivityUpdated: DateTime.now()));
 }
 
 Future<bool> checkMention(String text, AccountRepo accountRepo) async {
@@ -325,51 +353,47 @@ Uid getRoomId(AccountRepo accountRepo, Message message) {
 }
 
 String messageToJson(Message message) {
-  var type = findFetchMessageType(message);
-  var json = Object();
-  if (type == MessageType.TEXT)
-    return message.text.writeToJson();
-  else if (type == MessageType.FILE)
-    return message.file.writeToJson();
-  else if (type == MessageType.FORM)
-    return message.form.writeToJson();
-  else if (type == MessageType.STICKER)
-    return message.sticker.writeToJson();
-  else if (type == MessageType.PERSISTENT_EVENT)
-    switch (message.persistEvent.whichType()) {
-      case PersistentEvent_Type.mucSpecificPersistentEvent:
-        json = {
-          "type": "MUC_EVENT",
-          "issueType": getIssueType(
-              message.persistEvent.mucSpecificPersistentEvent.issue),
-          "issuer":
-              message.persistEvent.mucSpecificPersistentEvent.issuer.asString(),
-          "assignee": message.persistEvent.mucSpecificPersistentEvent.assignee
-              .asString()
-        };
-        break;
-      case PersistentEvent_Type.messageManipulationPersistentEvent:
-        //todo
-        break;
-      case PersistentEvent_Type.adminSpecificPersistentEvent:
-        switch (message.persistEvent.adminSpecificPersistentEvent.event) {
-          case AdminSpecificPersistentEvent_Event.NEW_CONTACT_ADDED:
-            json = {"type": "ADMIN_EVENT"};
-            break;
-        }
-
-        break;
-      case PersistentEvent_Type.notSet:
-        // TODO: Handle this case.
-        break;
-    }
-  else if (type == MessageType.POLL)
-    return message.poll.writeToJson();
-  else if (type == MessageType.LOCATION)
-    return message.location.writeToJson();
-  else if (type == MessageType.LIVE_LOCATION)
-    return message.liveLocation.writeToJson();
-  return jsonEncode(json);
+  var type = getMessageType(message.whichType());
+  var jsonString = Object();
+  switch (type) {
+    case MessageType.TEXT:
+      return message.text.writeToJson();
+      break;
+    case MessageType.FILE:
+      return message.file.writeToJson();
+      break;
+    case MessageType.STICKER:
+      return message.sticker.writeToJson();
+      break;
+    case MessageType.LOCATION:
+      return message.location.writeToJson();
+      break;
+    case MessageType.LIVE_LOCATION:
+      return message.liveLocation.writeToJson();
+      break;
+    case MessageType.POLL:
+      return message.poll.writeToJson();
+      break;
+    case MessageType.FORM:
+      return message.form.writeToJson();
+      break;
+    case MessageType.PERSISTENT_EVENT:
+      return message.persistEvent.writeToJson();
+      break;
+    case MessageType.BUTTONS:
+      return message.buttons.writeToJson();
+      break;
+    case MessageType.SHARE_UID:
+      return message.shareUid.writeToJson();
+      break;
+    case MessageType.FORM_RESULT:
+      return message.formResult.writeToJson();
+      break;
+    case MessageType.NOT_SET:
+      // TODO: Handle this case.
+      break;
+  }
+  return jsonEncode(jsonString);
 }
 
 MessageType getMessageType(Message_Type messageType) {
@@ -390,49 +414,14 @@ MessageType getMessageType(Message_Type messageType) {
       return MessageType.FORM;
     case Message_Type.persistEvent:
       return MessageType.PERSISTENT_EVENT;
+    case Message_Type.formResult:
+      return MessageType.FORM_RESULT;
+    case Message_Type.buttons:
+      return MessageType.BUTTONS;
+    case Message_Type.shareUid:
+      return MessageType.SHARE_UID;
     default:
       return MessageType.NOT_SET;
   }
 }
 
-MessageType findFetchMessageType(Message message) {
-  if (message.hasText())
-    return MessageType.TEXT;
-  else if (message.hasFile())
-    return MessageType.FILE;
-  else if (message.hasForm())
-    return MessageType.FORM;
-  else if (message.hasSticker())
-    return MessageType.STICKER;
-  else if (message.hasPersistEvent())
-    return MessageType.PERSISTENT_EVENT;
-  else if (message.hasPoll())
-    return MessageType.POLL;
-  else if (message.hasLiveLocation())
-    return MessageType.LIVE_LOCATION;
-  else if (message.hasLocation())
-    return MessageType.LOCATION;
-  else
-    return MessageType.NOT_SET;
-}
-
-String getIssueType(MucSpecificPersistentEvent_Issue issue) {
-  switch (issue) {
-    case MucSpecificPersistentEvent_Issue.ADD_USER:
-      return "ADD_USER";
-    case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-      return "AVATAR_CHANGED";
-    case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-      return "MUC_CREATED";
-    case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-      return "LEAVE_USER";
-    case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-      return "NAME_CHANGED";
-    case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-      return "PIN_MESSAGE";
-    case MucSpecificPersistentEvent_Issue.KICK_USER:
-      return "KICK_USER";
-    default:
-      return "UNKNOWN";
-  }
-}

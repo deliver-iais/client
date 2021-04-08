@@ -1,10 +1,14 @@
 import 'package:deliver_flutter/db/Avatars.dart';
+import 'package:deliver_flutter/db/BotInfos.dart';
 import 'package:deliver_flutter/db/Media.dart';
 import 'package:deliver_flutter/db/LastAvatar.dart';
 import 'package:deliver_flutter/db/MediaMetaData.dart';
 import 'package:deliver_flutter/db/Messages.dart';
 import 'package:deliver_flutter/db/SharedPreferences.dart';
+import 'package:deliver_flutter/db/StickerId.dart';
+import 'package:deliver_flutter/db/Stickers.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
+import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
@@ -13,6 +17,9 @@ import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
+import 'package:deliver_flutter/db/dao/StickerDao.dart';
+import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
+import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
@@ -32,6 +39,7 @@ import 'Member.dart';
 import 'Rooms.dart';
 import 'Seens.dart';
 import 'PendingMessages.dart';
+import 'UserInfos.dart';
 import 'dao/LastSeenDao.dart';
 import 'dao/MediaMetaDataDao.dart';
 import 'dao/MemberDao.dart';
@@ -55,6 +63,10 @@ part 'database.g.dart';
   Mucs,
   LastSeens,
   MediasMetaData,
+  UserInfos,
+  Stickers,
+  StickerIds,
+  BotInfos
 ], daos: [
   MessageDao,
   RoomDao,
@@ -70,6 +82,10 @@ part 'database.g.dart';
   MucDao,
   LastSeenDao,
   MediaMetaDataDao,
+  UserInfoDao,
+  StickerDao,
+  StickerIdDao,
+  BotInfoDao
 ])
 class Database extends _$Database {
   Database()

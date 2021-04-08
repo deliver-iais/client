@@ -4,6 +4,8 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/app-contacts/widgets/new_Contact.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/addStickerPack.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
 import 'package:deliver_flutter/screen/app_group/pages/group_info_determination_page.dart';
 import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dart';
@@ -13,15 +15,16 @@ import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
 import 'package:deliver_flutter/screen/settings/account_settings.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
-import 'package:deliver_flutter/services/create_muc_service.dart';
+import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:location/location.dart';
 import 'package:rxdart/subjects.dart';
 
 class Page {
@@ -40,6 +43,8 @@ class Page {
       this.lockBackButton,
       this.path});
 }
+
+BehaviorSubject<bool> backSubject = BehaviorSubject.seeded(false);
 
 class RoutingService {
   BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
@@ -60,12 +65,27 @@ class RoutingService {
     reset();
   }
 
-  void openRoom(String roomId, {List<Message> forwardedMessages = const []}) {
-    var widget = RoomPage(
-      key: ValueKey("/room/$roomId"),
-      roomId: roomId,
-      forwardedMessages: forwardedMessages,
-    );
+  void openRoom(String roomId,
+      {List<Message> forwardedMessages = const [],
+      pro.ShareUid shareUid,
+      bool joinToMuc}) {
+    backSubject.add(false);
+    var widget = WillPopScope(
+        onWillPop: () {
+          if (!backSubject.value) {
+            return Future.value(true);
+          } else {
+            backSubject.add(false);
+            return Future.value(false);
+          }
+        },
+        child: RoomPage(
+          key: ValueKey("/room/$roomId"),
+          roomId: roomId,
+          forwardedMessages: forwardedMessages,
+          shareUid: shareUid,
+          jointToMuc: joinToMuc,
+        ));
     _popAllAndPush(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,
@@ -73,8 +93,14 @@ class RoutingService {
         path: "/room/$roomId"));
   }
 
-  void openLocation({Uid roomUid, LocationData locationData, Function scrollToLast}){
-    var widget = MapWidget(key: ValueKey("/map-widget"),roomUid: roomUid,locationData: locationData,scrollToLast: scrollToLast,);
+  void openLocation(
+      {Uid roomUid, Position locationData, Function scrollToLast}) {
+    var widget = MapWidget(
+      key: ValueKey("/map-widget"),
+      roomUid: roomUid,
+      locationData: locationData,
+      scrollToLast: scrollToLast,
+    );
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,
@@ -96,7 +122,7 @@ class RoutingService {
       {Uid uid, bool hasPermissionToDeleteAvatar, String heroTag}) {
     var widget = MediaDetailsPage.showAvatar(
         key: ValueKey("/media-details"),
-        uid: uid,
+        userUid: uid,
         hasPermissionToDeletePic: hasPermissionToDeleteAvatar,
         heroTag: heroTag);
     _push(Page(
@@ -104,6 +130,21 @@ class RoutingService {
       //largePageMain: widget,
       //smallPageMain: widget,
       singlePageMain: widget,
+      path: "/media-details",
+    ));
+  }
+
+  void openShowAllVideos({Uid uid, int mediaPosition, int mediasLength}) {
+    var widget = MediaDetailsPage.showVideo(
+      key: ValueKey("/media-details"),
+      userUid: uid,
+      mediaPosition: mediaPosition,
+      mediasLength: mediasLength,
+    );
+    _push(Page(
+      largePageNavigator: _navigationCenter,
+      largePageMain: widget,
+      smallPageMain: widget,
       path: "/media-details",
     ));
   }
@@ -116,7 +157,7 @@ class RoutingService {
       String heroTag}) {
     var widget = MediaDetailsPage.showMedia(
       key: ValueKey("/media-details"),
-      uid: uid,
+      userUid: uid,
       hasPermissionToDeletePic: hasPermissionToDeletePic,
       mediaPosition: mediaPosition,
       mediasLength: mediasLength,
@@ -155,7 +196,7 @@ class RoutingService {
   }
 
   void openMemberSelection({bool isChannel, Uid mucUid}) {
-   // _createMucService.reset();
+    // _createMucService.reset();
     var widget = MemberSelectionPage(
       key: ValueKey("/member-selection-page"),
       isChannel: isChannel,
@@ -179,10 +220,12 @@ class RoutingService {
         path: "/new-contact"));
   }
 
-  void openSelectForwardMessage(List<Message> forwardedMessages) {
+  void openSelectForwardMessage(
+      {List<Message> forwardedMessages, pro.ShareUid sharedUid}) {
     var widget = SelectionToForwardPage(
       key: ValueKey("/selection-to-forward-page"),
       forwardedMessages: forwardedMessages,
+      shareUid: sharedUid,
     );
     _push(Page(
         largePageNavigator: _navigationCenter,
@@ -201,6 +244,17 @@ class RoutingService {
         largePageMain: widget,
         smallPageMain: widget,
         path: "/group-info-determination-page"));
+  }
+
+  void openAddStickerPcakPage() {
+    var widget = AddStickerPack(
+      key: ValueKey("/add-sticker-pack-page"),
+    );
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/add-sticker-pack-page"));
   }
 
   _push(Page p) {
@@ -247,15 +301,20 @@ class RoutingService {
   }
 
   logout(BuildContext context) {
+    CoreServices coreServices = GetIt.I.get<CoreServices>();
+    coreServices.closeConnection();
     deleteDb();
     reset();
+
     Navigator.of(context).pushAndRemoveUntil(
         new MaterialPageRoute(builder: (context) => IntroPage()),
         (Route<dynamic> route) => false);
   }
 
   Future<void> deleteDb() async {
-    Database db = Database();
+    Database db = GetIt.I.get<Database>();
+    await db.delete(db.rooms).go();
+    await db.delete(db.pendingMessages).go();
     await db.deleteAllData();
   }
 

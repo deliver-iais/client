@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:deliver_flutter/db/dao/FileDao.dart';
+import 'package:deliver_flutter/db/dao/StickerDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
@@ -24,12 +25,11 @@ class FileRepo {
     await _saveFileInfo(uploadKey, localFile, name, "real");
     await _saveFileInfo(uploadKey, localFile, name, "large");
   }
-
-  Future<FileProto.File> uploadClonedFile(String uploadKey, String name) async {
+  Future<FileProto.File> uploadClonedFile(String uploadKey, String name,{Function sendActivity}) async {
     final clonedFilePath = await _fileService.localFilePath(uploadKey, name);
 
     var value =
-        await _fileService.uploadFile(clonedFilePath, uploadKey: uploadKey);
+        await _fileService.uploadFile(clonedFilePath, uploadKey: uploadKey,sendActivity: sendActivity);
 
     var json = jsonDecode(value.toString());
     var uploadedFile = FileProto.File()
@@ -41,8 +41,10 @@ class FileRepo {
       ..height = json["height"] ?? 0
       ..duration = json["duration"] ?? 0;
 
-    await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
+    print(uploadedFile.toString());
 
+
+    await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
     return uploadedFile;
   }
 
@@ -69,7 +71,6 @@ class FileRepo {
     }
     return null;
   }
-
   Future<File> getFile(String uuid, String filename,
       {ThumbnailSize thumbnailSize}) async {
     File file =
@@ -81,6 +82,14 @@ class FileRepo {
     var downloadedFile =
         await _fileService.getFile(uuid, filename, size: thumbnailSize);
     await _saveFileInfo(uuid, downloadedFile, filename,
+        thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
+    return downloadedFile;
+  }
+
+  Future<File> downloadFile(String uuid , String fileName,{ThumbnailSize thumbnailSize}) async{
+    var downloadedFile =
+    await _fileService.getFile(uuid, fileName, size: thumbnailSize);
+    await _saveFileInfo(uuid, downloadedFile, fileName,
         thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
     return downloadedFile;
   }
@@ -109,5 +118,9 @@ class FileRepo {
 
   Future<FileInfo> _getFileInfoInDB(String size, String uuid) async {
     return await _fileDao.getFileInfo(uuid, enumToString(size));
+  }
+
+  void initUploadProgress(String uploadId) {
+    _fileService.initUpoadProgrss(uploadId);
   }
 }

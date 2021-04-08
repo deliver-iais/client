@@ -9,7 +9,6 @@ class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   NotificationDetails _notificationDetails;
 
-  AudioPlayer audioPlayer = AudioPlayer();
 
   Map<String, String> _notificationMessage = Map();
   Map<String, int> _notificationMap = Map();

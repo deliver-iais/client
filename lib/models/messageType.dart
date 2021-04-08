@@ -7,5 +7,8 @@ enum MessageType {
   POLL,
   FORM,
   PERSISTENT_EVENT,
-  NOT_SET
+  NOT_SET,
+  BUTTONS,
+  SHARE_UID,
+  FORM_RESULT,
 }

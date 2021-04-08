@@ -8,11 +8,11 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 
 class AudioPlayProgress extends StatelessWidget {
-  final File audio;
+ // final File audio;
   final String audioUuid;
   final _audioPlayerService = GetIt.I.get<AudioPlayerService>();
 
-  AudioPlayProgress({Key key, this.audioUuid, this.audio}) : super(key: key);
+  AudioPlayProgress({Key key, this.audioUuid}) : super(key: key);
 
 
   @override

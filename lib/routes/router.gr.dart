@@ -8,6 +8,7 @@
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
@@ -148,6 +149,8 @@ class Router extends RouterBase {
           roomId: args.roomId,
           forwardedMessages: args.forwardedMessages,
           inputFilePath: args.inputFilePath,
+          shareUid: args.shareUid,
+          jointToMuc: args.jointToMuc,
         ),
         settings: data,
       );
@@ -209,8 +212,15 @@ class RoomPageArguments {
   final String roomId;
   final List<dynamic> forwardedMessages;
   final List<String> inputFilePath;
+  final ShareUid shareUid;
+  final bool jointToMuc;
   RoomPageArguments(
-      {this.key, this.roomId, this.forwardedMessages, this.inputFilePath});
+      {this.key,
+      this.roomId,
+      this.forwardedMessages,
+      this.inputFilePath,
+      this.shareUid,
+      this.jointToMuc});
 }
 
 /// ShareInputFile arguments holder class

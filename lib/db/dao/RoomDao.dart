@@ -38,6 +38,7 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
             newMessageId != null ? Value(newMessageId) : Value.absent()));
   }
 
+
 //TODO need to edit
   Stream<List<RoomWithMessage>> getAllRoomsWithMessage() {
     return (select(rooms).join([

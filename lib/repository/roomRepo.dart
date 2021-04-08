@@ -1,18 +1,27 @@
+import 'dart:async';
+
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
+import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/localSearchResult.dart';
+import 'package:deliver_flutter/models/searchInRoom.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
+import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:flutter/services.dart';
+
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:grpc/grpc_web.dart';
 import 'package:moor/moor.dart';
+import 'package:rxdart/rxdart.dart';
 
 class RoomRepo {
   Cache _roomNameCache =
@@ -22,6 +31,12 @@ class RoomRepo {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
+  var _usernameDao = GetIt.I.get<UserInfoDao>();
+  var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
+
+  var _accountRepo = GetIt.I.get<AccountRepo>();
+
+  Map<String, BehaviorSubject<Activity>> activityObject = Map();
 
   Future<String> getRoomDisplayName(Uid roomUid) async {
     switch (roomUid.category) {
@@ -38,8 +53,15 @@ class RoomRepo {
             String contactName = "${contact.firstName}";
             _roomNameCache.set(roomUid.asString(), contactName);
             return contactName;
-          } else
-            return _searchByUid(roomUid);
+          } else {
+            var username = await _usernameDao.getUserInfo(roomUid.asString());
+            if (username.username != null && username.username.length>0) {
+              _roomNameCache.set(roomUid.asString(), username.username);
+              return username.username;
+            }
+            String s = await _searchByUid(roomUid);
+            return s;
+          }
         }
         break;
 
@@ -70,11 +92,37 @@ class RoomRepo {
   }
 
   Future<String> _searchByUid(Uid uid) async {
-    UserAsContact userAsContact = await _contactRepo.searchUserByUid(uid);
-    if (userAsContact != null) {
-      return userAsContact.username;
+    String username = await _contactRepo.searchUserByUid(uid);
+    _usernameDao
+        .upsertUserInfo(UserInfo(uid: uid.asString(), username: username));
+    return username;
+  }
+
+  void updateActivity(Activity activity) {
+    Uid roomUid =
+        activity.to.category == Categories.GROUP ? activity.to : activity.from;
+    if (activityObject[roomUid.node] == null) {
+      BehaviorSubject<Activity> subject = BehaviorSubject();
+      subject.add(activity);
+      activityObject[roomUid.node] = subject;
+    } else {
+      activityObject[roomUid.node].add(activity);
+      if (activity.typeOfActivity != ActivityType.NO_ACTIVITY)
+        Timer(Duration(seconds: 10), () {
+          Activity noActivity = Activity()
+            ..from = activity.from
+            ..typeOfActivity = ActivityType.NO_ACTIVITY
+            ..to = activity.to;
+          activityObject[roomUid.node].add(noActivity);
+        });
     }
-    return "Unknown";
+  }
+
+  void initActivity(String roomId) {
+    if (activityObject[roomId] == null) {
+      BehaviorSubject<Activity> subject = BehaviorSubject();
+      activityObject[roomId] = subject;
+    }
   }
 
   updateRoomName(Uid uid, String name) {
@@ -100,23 +148,23 @@ class RoomRepo {
     return finalList.values.toList();
   }
 
-  Future<List<LocalSearchResult>> searchInRoomAndContacts(
+  Future<List<SearchInRoom>> searchInRoomAndContacts(
       String text, bool searchInRooms) async {
-    List<LocalSearchResult> searchResult = List();
+    List<SearchInRoom> searchResult = List();
     List<Contact> searchInContact = await _contactDao.getContactByName(text);
-    print(searchInContact.length.toString());
+
     for (Contact contact in searchInContact) {
-      searchResult.add(LocalSearchResult()
+      searchResult.add(SearchInRoom()
         ..username = contact.username
-        ..firstName = contact.firstName
+        ..name = contact.firstName
         ..lastName = contact.lastName
         ..uid = contact.uid != null ? contact.uid.uid : null);
     }
     if (searchInRooms) {
       List<Muc> searchInMucs = await _mucDao.getMucByName(text);
       for (Muc group in searchInMucs) {
-        searchResult.add(LocalSearchResult()
-          ..firstName = group.name
+        searchResult.add(SearchInRoom()
+          ..name = group.name
           ..lastName
           ..uid = group.uid.uid);
       }
@@ -124,7 +172,7 @@ class RoomRepo {
     return searchResult;
   }
 
-  searchByUsername(String username) async {
+  Future<String> searchByUsername(String username) async {
     if (username.contains('@')) {
       username = username.substring(username.indexOf('@') + 1, username.length);
     }
@@ -132,7 +180,38 @@ class RoomRepo {
     if (contact != null) {
       return contact.uid;
     } else {
-      // todo
+      var userInfo = await _usernameDao.getByUserName(username);
+      if (userInfo != null) {
+        return userInfo.uid;
+      } else {
+        var uid = await _contactRepo.searchUserByUsername(username);
+        if (uid != null)
+          _usernameDao.upsertUserInfo(
+              UserInfo(uid: uid.asString(), username: username));
+        return uid.asString();
+      }
     }
+  }
+
+  void unBlockRoom(Uid roomUid) async {
+    await _queryServiceClient.unblock(UnblockReq()..uid = roomUid,
+        options: CallOptions(
+            metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    _roomDao.insertRoomCompanion(RoomsCompanion(
+        roomId: Value(roomUid.asString()), isBlock: Value(false)));
+  }
+
+  void blockRoom(Uid roomUid) async {
+    await _queryServiceClient.block(BlockReq()..uid = roomUid,
+        options: CallOptions(
+            metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    _roomDao.insertRoomCompanion(RoomsCompanion(
+        roomId: Value(roomUid.asString()), isBlock: Value(true)));
+  }
+
+  void reportRoom(Uid roomUid) async {
+    _queryServiceClient.report(ReportReq()..uid = roomUid,
+        options: CallOptions(
+            metadata: {"access_token": await _accountRepo.getAccessToken()}));
   }
 }

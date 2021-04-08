@@ -2,8 +2,9 @@ import 'dart:ui';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/models/localSearchResult.dart';
+import 'package:deliver_flutter/models/searchInRoom.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -20,6 +21,7 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -55,7 +57,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   List<UserAsContact> globalSearchResult = List();
 
-  List<LocalSearchResult> localSearchResult = List();
+  List<SearchInRoom> localSearchResult = List();
 
   NavigationTabs tab = NavigationTabs.Chats;
 
@@ -65,6 +67,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _routingService = GetIt.I.get<RoutingService>();
+  var _botRepo = GetIt.I.get<BotRepo>();
   bool _searchMode = false;
 
   String query;
@@ -126,11 +129,14 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           return Text(
                               _appLocalization.getTraslateValue("updating"),
                               style: TextStyle(fontSize: 20));
-                        } else if(snapshot.data == TitleStatusConditions.Connecting){
+                        } else if (snapshot.data ==
+                            TitleStatusConditions.Connecting) {
                           return Text(
                               _appLocalization.getTraslateValue("connecting"),
                               style: TextStyle(fontSize: 20));
-                        } else if(snapshot.hasData && snapshot.data == TitleStatusConditions.Disconnected) {
+                        } else if (snapshot.hasData &&
+                            snapshot.data ==
+                                TitleStatusConditions.Disconnected) {
                           return Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
@@ -141,10 +147,12 @@ class _NavigationCenterState extends State<NavigationCenter> {
                               Text(
                                   _appLocalization
                                       .getTraslateValue("disconnect"),
-                                  style: TextStyle(fontSize: 16,color: Theme.of(context).primaryColor ))
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: Theme.of(context).primaryColor))
                             ],
                           );
-                        }else{
+                        } else {
                           return buildText(context);
                         }
                       }),
@@ -298,6 +306,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       ))
                     ])
             : PopupMenuButton(
+                color: Theme.of(context).backgroundColor,
                 icon: Icon(
                   Icons.add,
                   color: Colors.white,
@@ -305,10 +314,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 ),
                 itemBuilder: (context) => [
                       PopupMenuItem(
-                          child: GestureDetector(
+                          child: RaisedButton(
+                        color: Theme.of(context).backgroundColor,
                         child: Text(
                             appLocalization.getTraslateValue("newContact")),
-                        onTap: () {
+                        onPressed: () {
                           ExtendedNavigator.of(context)
                               .popAndPush(Routes.newContact);
                         },
@@ -327,10 +337,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
     return Expanded(
       child: Column(
         children: [
-          FutureBuilder<List<UserAsContact>>(
+          FutureBuilder<List<SearchInRoom>>(
               future: contactRepo.searchUser(query),
               builder:
-                  (BuildContext c, AsyncSnapshot<List<UserAsContact>> snaps) {
+                  (BuildContext c, AsyncSnapshot<List<SearchInRoom>> snaps) {
                 if (snaps.data != null && snaps.data.length > 0) {
                   return Container(
                       child: Expanded(
@@ -339,22 +349,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       children: [
                         Text(
                             _appLocalization.getTraslateValue("global_search")),
-                        ListView.builder(
-                          itemCount: snaps.data.length,
-                          itemBuilder: (BuildContext ctxt, int index) =>
-                              GestureDetector(
-                            onTap: () {
-                              rootingServices
-                                  .openRoom(snaps.data[index].uid.asString());
-                            },
-                            child: _contactResultWidget(
-                                uid: snaps.data[index].uid,
-                                lastName: snaps.data[index].lastName,
-                                firstName: snaps.data[index].firstName,
-                                username: snaps.data[index].username,
-                                context: c),
-                          ),
-                        ),
+                        //    searchResultWidget(snaps, c),
                         SizedBox(
                           height: 10,
                         ),
@@ -365,11 +360,25 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   return SizedBox.shrink();
                 }
               }),
-          FutureBuilder<List<LocalSearchResult>>(
+          FutureBuilder<List<SearchInRoom>>(
+              future: _botRepo.searchBotByName(query),
+              builder: (c, bot) {
+                if (bot.hasData && bot.data != null && bot.data.length > 0) {
+                  return Column(
+                    children: [
+                      Text(_appLocalization.getTraslateValue("bots")),
+                      //   searchResultWidget(bot, c)
+                    ],
+                  );
+                } else {
+                  return SizedBox.shrink();
+                }
+              }),
+          FutureBuilder<List<SearchInRoom>>(
               future: _roomRepo.searchInRoomAndContacts(
                   query, tab == NavigationTabs.Chats ? true : false),
-              builder: (BuildContext c,
-                  AsyncSnapshot<List<LocalSearchResult>> snaps) {
+              builder:
+                  (BuildContext c, AsyncSnapshot<List<SearchInRoom>> snaps) {
                 if (snaps.hasData &&
                     snaps.data != null &&
                     snaps.data.length > 0) {
@@ -378,24 +387,13 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           child: SingleChildScrollView(
                               child: Column(
                     children: [
-                      Text(_appLocalization.getTraslateValue("local_search")),
-                      ListView.builder(
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        itemCount: snaps.data.length,
-                        itemBuilder: (BuildContext ctxt, int index) =>
-                            GestureDetector(
-                          onTap: () {
-                            rootingServices
-                                .openRoom(snaps.data[index].uid.asString());
-                          },
-                          child: _contactResultWidget(
-                              uid: snaps.data[index].uid,
-                              lastName: snaps.data[index].lastName,
-                              firstName: snaps.data[index].firstName,
-                              username: snaps.data[index].username,
-                              context: c),
-                        ),
+                      Text(
+                        _appLocalization.getTraslateValue("local_search"),
+                        style: TextStyle(color: Colors.blue),
+                      ),
+                      Container(
+                        height: MediaQuery.of(context).size.height,
+                        child: searchResultWidget(snaps, c),
                       )
                     ],
                   ))));
@@ -405,6 +403,25 @@ class _NavigationCenterState extends State<NavigationCenter> {
               })
         ],
       ),
+    );
+  }
+
+  ListView searchResultWidget(
+      AsyncSnapshot<List<SearchInRoom>> snaps, BuildContext c) {
+    return ListView.builder(
+      itemCount: snaps.data.length,
+      itemBuilder: (BuildContext ctxt, int index) {
+        return GestureDetector(
+          onTap: () {
+            rootingServices.openRoom(snaps.data[index].uid.asString());
+          },
+          child: _contactResultWidget(
+              uid: snaps.data[index].uid,
+              firstName: snaps.data[index].name,
+              username: snaps.data[index].username,
+              context: c),
+        );
+      },
     );
   }
 }
@@ -425,7 +442,7 @@ Widget _contactResultWidget(
             width: 20,
           ),
           Text(
-            "$firstName $lastName" ?? username,
+            "$firstName" ?? username,
             style: TextStyle(fontSize: 19),
           ),
         ],

@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -33,7 +34,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   Account _account;
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
-  bool _userNameAlreadyExist = false;
+  bool usernameIsAvailable = true;
   bool _userNameCorrect = false;
   final _routingService = GetIt.I.get<RoutingService>();
 
@@ -47,21 +48,16 @@ class _AccountSettingsState extends State<AccountSettings> {
       if (_userNameCorrect) {
         if (_lastUserName != username) {
           bool validUsername = await _accountRepo.checkUserName(username);
-          if (!validUsername) {
-            setState(() {
-              _userNameAlreadyExist = true;
-            });
-          }
-        } else {
           setState(() {
-            _userNameAlreadyExist = false;
+            usernameIsAvailable = validUsername;
+          });
+        } else if (_lastUserName != null) {
+          setState(() {
+            usernameIsAvailable = true;
           });
         }
       }
     });
-    // if (widget.forceToSetUsernameAndName) {
-    //   _requestPermissions();
-    // }
   }
 
   @override
@@ -110,23 +106,21 @@ class _AccountSettingsState extends State<AccountSettings> {
                               Form(
                                 key: _usernameFormKey,
                                 child: TextFormField(
-                                  minLines: 1,
-                                  initialValue: snapshot.data.userName,
-                                  textInputAction: TextInputAction.send,
-                                  onChanged: (str) {
-                                    setState(() {
-                                      _newUsername = str;
-                                      _username = str;
-                                      subject.add(str);
-                                    });
-                                  },
-                                  validator: validateUsername,
-                                  decoration: InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      suffix: Text("*"),
-                                      labelText: _appLocalization
-                                          .getTraslateValue("username")),
-                                ),
+                                    minLines: 1,
+                                    initialValue: snapshot.data.userName,
+                                    textInputAction: TextInputAction.send,
+                                    onChanged: (str) {
+                                      setState(() {
+                                        _newUsername = str;
+                                        _username = str;
+                                        subject.add(str);
+                                      });
+                                    },
+                                    validator: validateUsername,
+                                    decoration: buildInputDecoration(
+                                        _appLocalization
+                                            .getTraslateValue("username"),
+                                        true)),
                               ),
                               SizedBox(
                                 height: 5,
@@ -149,7 +143,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                       ],
                                     )
                                   : SizedBox.shrink(),
-                              _userNameAlreadyExist
+                              !usernameIsAvailable
                                   ? Row(
                                       children: [
                                         Text(
@@ -174,11 +168,10 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   });
                                 },
                                 validator: validateFirstName,
-                                decoration: InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    suffix: Text("*"),
-                                    labelText: _appLocalization
-                                        .getTraslateValue("firstName")),
+                                decoration: buildInputDecoration(
+                                    _appLocalization
+                                        .getTraslateValue("firstName"),
+                                    true),
                               ),
                               SizedBox(
                                 height: 20,
@@ -192,11 +185,10 @@ class _AccountSettingsState extends State<AccountSettings> {
                                       _lastName = str;
                                     });
                                   },
-                                  decoration: InputDecoration(
-                                    labelText: _appLocalization
-                                        .getTraslateValue("lastName"),
-                                    border: OutlineInputBorder(),
-                                  )),
+                                  decoration: buildInputDecoration(
+                                      _appLocalization
+                                          .getTraslateValue("lastName"),
+                                      false)),
                               SizedBox(
                                 height: 20,
                               ),
@@ -210,10 +202,10 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     });
                                   },
                                   validator: validateEmail,
-                                  decoration: InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      labelText: _appLocalization
-                                          .getTraslateValue("email"))),
+                                  decoration: buildInputDecoration(
+                                      _appLocalization
+                                          .getTraslateValue("email"),
+                                      false)),
                               SizedBox(
                                 height: 40,
                               ),
@@ -250,6 +242,36 @@ class _AccountSettingsState extends State<AccountSettings> {
     );
   }
 
+  InputDecoration buildInputDecoration(label, bool isOptional) {
+    return InputDecoration(
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.blue),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.blue),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        disabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Colors.red,
+          ),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        suffixIcon: isOptional
+            ? Padding(
+                padding: const EdgeInsets.only(top: 20, left: 25),
+                child: Text(
+                  "*",
+                  style: TextStyle(color: Colors.red),
+                ),
+              )
+            : SizedBox.shrink(),
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.blue));
+  }
+
   String validateFirstName(String value) {
     if (value.isEmpty) {
       return _appLocalization.getTraslateValue("firstname_not_empty");
@@ -264,13 +286,13 @@ class _AccountSettingsState extends State<AccountSettings> {
     if (value.isEmpty) {
       setState(() {
         _userNameCorrect = false;
-        _userNameAlreadyExist = false;
+        usernameIsAvailable = true;
       });
       return _appLocalization.getTraslateValue("username_not_empty");
     } else if (!regex.hasMatch(value)) {
       setState(() {
         _userNameCorrect = false;
-        _userNameAlreadyExist = false;
+        usernameIsAvailable = true;
       });
       return _appLocalization.getTraslateValue("username_length");
     } else {
@@ -298,7 +320,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     if (checkUserName) {
       bool isValidated = _formKey?.currentState?.validate() ?? false;
       if (isValidated) {
-        if (!_userNameAlreadyExist) {
+        if (usernameIsAvailable) {
           bool setPrivateInfo = await _accountRepo.setAccountDetails(
               _username.isNotEmpty ? _username : _account.userName,
               _firstName.isNotEmpty ? _firstName : _account.firstName,

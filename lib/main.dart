@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/AvatarDao.dart';
+import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
@@ -10,16 +11,22 @@ import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/LastAvatarDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
+import 'package:deliver_flutter/db/dao/StickerDao.dart';
+import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
+import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/lastActivityRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/repository/stickerRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart' as R;
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
@@ -35,8 +42,10 @@ import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -55,6 +64,7 @@ import 'repository/mucRepo.dart';
 void setupDI() {
   GetIt getIt = GetIt.instance;
   Database db = Database();
+  getIt.registerSingleton<Database>(db);
   getIt.registerSingleton<MessageDao>(db.messageDao);
   getIt.registerSingleton<RoomDao>(db.roomDao);
   getIt.registerSingleton<AvatarDao>(db.avatarDao);
@@ -69,26 +79,38 @@ void setupDI() {
   getIt.registerSingleton<MemberDao>(db.memberDao);
   getIt.registerSingleton<LastSeenDao>(db.lastSeenDao);
   getIt.registerSingleton<MediaMetaDataDao>(db.mediaMetaDataDao);
+  getIt.registerSingleton<UserInfoDao>(db.userInfoDao);
+  getIt.registerSingleton<StickerDao>(db.stickerDao);
+  getIt.registerSingleton<StickerIdDao>(db.stickerIdDao);
+  getIt.registerSingleton<BotInfoDao>(db.botInfoDao);
 
   // Order is important, don't change it!
   getIt.registerSingleton<UxService>(UxService());
+  getIt.registerSingleton<QueryServiceClient>(
+      QueryServiceClient(QueryClientChannel));
+  getIt.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel));
+  getIt.registerSingleton<StickerServiceClient>(
+      StickerServiceClient(StickerClientChannel));
+
   getIt.registerSingleton<AccountRepo>(AccountRepo(sharedPrefs: db.sharedPreferencesDao));
+  getIt.registerSingleton<BotRepo>(BotRepo());
+
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   getIt.registerSingleton<FileService>(FileService());
+  getIt.registerSingleton<StickerRepo>(StickerRepo());
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<ContactRepo>(ContactRepo());
+  getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
   getIt.registerSingleton<CreateMucService>(CreateMucService());
   getIt.registerSingleton<RoutingService>(RoutingService());
   getIt.registerSingleton<NotificationServices>(NotificationServices());
-  getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<MucRepo>(MucRepo());
   getIt.registerSingleton<RoomRepo>(RoomRepo());
   getIt.registerSingleton<CoreServiceClient>(
       CoreServiceClient(CoreServicesClientChannel));
   getIt.registerSingleton<CoreServices>(CoreServices());
-  getIt.registerSingleton<QueryServiceClient>(
-      QueryServiceClient(QueryClientChannel));
+
   getIt.registerSingleton<MessageRepo>(MessageRepo());
 
   getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
@@ -98,6 +120,7 @@ void setupDI() {
 
   getIt.registerSingleton<MemberRepo>(MemberRepo());
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
+  getIt.registerSingleton<LastActivityRepo>(LastActivityRepo());
 }
 
 setupFlutterNotification() async {
@@ -126,12 +149,9 @@ void main() {
   }
 
   if (isAndroid()) {
-    SmsAutoFill()
-        .getAppSignature
-        .then((signCode) {
-          Fluttertoast.showToast(msg:"hash $signCode");
+    SmsAutoFill().getAppSignature.then((signCode) {
+      //Fluttertoast.showToast(msg:"hash $signCode");
     });
-
   }
 
   setupDIAndRunApp();

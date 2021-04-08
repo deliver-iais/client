@@ -9,11 +9,11 @@ class MediaMetaDataDao extends DatabaseAccessor<Database> with _$MediaMetaDataDa
 
   MediaMetaDataDao(this.database) : super(database);
 
-  Future<int> upsertMetaData(MediasMetaDataData media) =>
-      into(mediasMetaData).insertOnConflictUpdate(media);
+  Future<int> upsertMetaData(MediasMetaDataData media) => into(mediasMetaData).insertOnConflictUpdate(media);
 
   Stream<MediasMetaDataData> getStreamMediasCountByRoomId(String roomId) {
     return (select(mediasMetaData)..where((meta) => meta.roomId.equals(roomId))).watchSingle();
+
   }
 
   Future<MediasMetaDataData> allMediasCountByRoomId(String roomId) {

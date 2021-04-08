@@ -42,10 +42,12 @@ class MucAppbarTitle extends StatelessWidget {
                           DefaultTextStyle(
                             style: TextStyle(fontSize: 11),
                             child: TitleStatus(
-                                normalConditionWidget: Text(
-                              '${snapshot.data.members} ' +
-                                  appLocalization.getTraslateValue("members"),
-                            )),
+                              normalConditionWidget: Text(
+                                '${snapshot.data.members} ' +
+                                    appLocalization.getTraslateValue("members"),
+                              ),
+                              currentRoomUid: mucUid.uid,
+                            ),
                           )
                         ],
                       );

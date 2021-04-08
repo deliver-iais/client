@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:android_intent/android_intent.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
@@ -15,9 +17,11 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_file_manager/flutter_file_manager.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:location/location.dart';
+import 'package:path_provider_ex/path_provider_ex.dart';
+import 'package:storage_path/storage_path.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
@@ -50,9 +54,9 @@ class _ShareBoxState extends State<ShareBox> {
 
   final finalSelected = Map<int, String>();
 
-  Location location = new Location();
+  Geolocator _geolocator = new Geolocator();
 
-  LocationData _locationData;
+  Position _locationData;
 
   CheckPermissionsService _checkPermissionsService =
       GetIt.I.get<CheckPermissionsService>();
@@ -61,7 +65,6 @@ class _ShareBoxState extends State<ShareBox> {
 
   bool selected = false;
 
-  var fileRepo = GetIt.I.get<FileRepo>();
   var messageRepo = GetIt.I.get<MessageRepo>();
 
   var _routingServices = GetIt.I.get<RoutingService>();
@@ -69,28 +72,6 @@ class _ShareBoxState extends State<ShareBox> {
   var currentPage = Page.Gallery;
 
   AudioPlayer audioPlayer = AudioPlayer();
-
-  Widget circleButton(Function onTap, IconData icon, String text, double size) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        ClipOval(
-          child: Material(
-            color: Colors.blue, // button color
-            child: InkWell(
-                splashColor: Colors.red, // inkwell color
-                child: SizedBox(width: size, height: size, child: Icon(icon)),
-                onTap: onTap),
-          ),
-        ),
-        Text(
-          text,
-          style:
-              TextStyle(fontSize: 10, color: Theme.of(context).backgroundColor),
-        ),
-      ],
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +106,7 @@ class _ShareBoxState extends State<ShareBox> {
                             setState(() {
                               if (playAudioIndex == index) {
                                 audioPlayer.pause();
-                                icons[index] = Icons.play_circle_filled;
+                                icons[index] = Icons.play_arrow;
                                 playAudioIndex = -1;
                               } else {
                                 audioPlayer.play(path);
@@ -181,35 +162,30 @@ class _ShareBoxState extends State<ShareBox> {
                           Stack(
                             children: <Widget>[
                               Container(
-                                child: circleButton(
-                                  () {
-                                    if (widget.replyMessageId != null) {
-                                      messageRepo.sendFileMessageDeprecated(
-                                          widget.currentRoomId,
-                                          finalSelected.values.toList(),
-                                          replyToId: widget.replyMessageId);
-                                    } else {
-                                      messageRepo.sendFileMessageDeprecated(
+                                child: CircleButton(() {
+                                  if (widget.replyMessageId != null) {
+                                    messageRepo.sendFileMessageDeprecated(
                                         widget.currentRoomId,
                                         finalSelected.values.toList(),
-                                      );
-                                    }
+                                        replyToId: widget.replyMessageId);
+                                  } else {
+                                    messageRepo.sendFileMessageDeprecated(
+                                      widget.currentRoomId,
+                                      finalSelected.values.toList(),
+                                    );
+                                  }
 
-                                    Navigator.pop(context);
-                                    Timer(Duration(seconds: 2), () {
-                                      widget.scrollToLastSentMessage();
-                                    });
-                                    setState(() {
-                                      finalSelected.clear();
-                                      selectedAudio.clear();
-                                      selectedImages.clear();
-                                      selectedFiles.clear();
-                                    });
-                                  },
-                                  Icons.send,
-                                  "",
-                                  50,
-                                ),
+                                  Navigator.pop(context);
+                                  Timer(Duration(seconds: 2), () {
+                                    widget.scrollToLastSentMessage();
+                                  });
+                                  setState(() {
+                                    finalSelected.clear();
+                                    selectedAudio.clear();
+                                    selectedImages.clear();
+                                    selectedFiles.clear();
+                                  });
+                                }, Icons.send, "", 50, context: context),
                                 decoration: BoxDecoration(
                                   boxShadow: [
                                     new BoxShadow(
@@ -263,49 +239,62 @@ class _ShareBoxState extends State<ShareBox> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: <Widget>[
-                              circleButton(() {
+                              CircleButton(() async {
                                 setState(() {
                                   audioPlayer.stop();
-
                                   currentPage = Page.Gallery;
                                 });
                               },
                                   Icons.insert_drive_file,
                                   appLocalization.getTraslateValue("gallery"),
-                                  40),
-                              circleButton(() {
+                                  40,
+                                  context: context),
+                              CircleButton(() {
                                 setState(() {
                                   audioPlayer.stop();
                                   currentPage = Page.Files;
                                 });
                               }, Icons.file_upload,
-                                  appLocalization.getTraslateValue("file"), 40),
-                              circleButton(() async {
+                                  appLocalization.getTraslateValue("file"), 40,
+                                  context: context),
+                              CircleButton(() async {
                                 audioPlayer.stop();
                                 if (await _checkPermissionsService
                                     .checkLocationPermission()) {
-                                  _locationData = await location.getLocation();
-                                  if (_locationData != null) {
-                                    Navigator.pop(context);
-                                    _routingServices.openLocation(
-                                        roomUid: widget.currentRoomId,
-                                        locationData: _locationData,
-                                        scrollToLast:
-                                            widget.scrollToLastSentMessage);
+                                  if (!await _geolocator
+                                      .isLocationServiceEnabled()) {
+                                    final AndroidIntent intent =
+                                        new AndroidIntent(
+                                      action:
+                                          'android.settings.LOCATION_SOURCE_SETTINGS',
+                                    );
+                                    await intent.launch();
+                                  } else {
+                                    _locationData =
+                                        await _geolocator.getCurrentPosition();
+
+                                    if (_locationData != null) {
+                                      Navigator.pop(context);
+                                      _routingServices.openLocation(
+                                          roomUid: widget.currentRoomId,
+                                          locationData: _locationData,
+                                          scrollToLast:
+                                              widget.scrollToLastSentMessage);
+                                    }
                                   }
                                 }
                               },
                                   Icons.location_on,
                                   appLocalization.getTraslateValue("location"),
-                                  40),
-                              circleButton(() {
+                                  40,
+                                  context: context),
+                              CircleButton(()  {
                                 setState(() {
                                   currentPage = Page.Music;
                                 });
-                              },
-                                  Icons.music_note,
-                                  appLocalization.getTraslateValue("music"),
-                                  40),
+                              }, Icons.music_note,
+                                  appLocalization.getTraslateValue("music"), 40,
+                                  context: context),
                             ],
                           ),
                         ],
@@ -321,4 +310,27 @@ class _ShareBoxState extends State<ShareBox> {
   }
 
   isSelected() => finalSelected.values.length > 0;
+}
+
+Widget CircleButton(Function onTap, IconData icon, String text, double size,
+    {BuildContext context}) {
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: <Widget>[
+      ClipOval(
+        child: Material(
+          color: Colors.blue, // button color
+          child: InkWell(
+              splashColor: Colors.red, // inkwell color
+              child: SizedBox(width: size, height: size, child: Icon(icon)),
+              onTap: onTap),
+        ),
+      ),
+      Text(
+        text,
+        style:
+            TextStyle(fontSize: 10, color: Theme.of(context).backgroundColor),
+      ),
+    ],
+  );
 }

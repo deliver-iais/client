@@ -1,6 +1,8 @@
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
+import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart' as Database;
+import 'package:deliver_flutter/models/searchInRoom.dart';
 
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:contacts_service/contacts_service.dart' as OsContact;
@@ -14,11 +16,13 @@ import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:moor/moor.dart';
 
 import 'accountRepo.dart';
 
@@ -33,6 +37,11 @@ class ContactRepo {
 
   var contactServices = ContactServiceClient(ProfileServicesClientChannel);
 
+  var _usernameDao = GetIt.I.get<UserInfoDao>();
+
+  final QueryServiceClient _queryServiceClient =
+      GetIt.I.get<QueryServiceClient>();
+
   Map<PhoneNumber, String> _contactsDisplayName = Map();
 
   syncContacts() async {
@@ -40,7 +49,11 @@ class ContactRepo {
       List<Contact> contacts = new List();
       if (!isDesktop()) {
         Iterable<OsContact.Contact> phoneContacts =
-            await OsContact.ContactsService.getContacts(withThumbnails: false,photoHighResolution: false,orderByGivenName: false,iOSLocalizedLabels: false);
+            await OsContact.ContactsService.getContacts(
+                withThumbnails: false,
+                photoHighResolution: false,
+                orderByGivenName: false,
+                iOSLocalizedLabels: false);
 
         for (OsContact.Contact phoneContact in phoneContacts) {
           try {
@@ -104,60 +117,66 @@ class ContactRepo {
     });
     await contactServices.saveContacts(sendContacts,
         options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
   }
 
   Future getContacts() async {
     var result = await contactServices.getContactListUsers(
         GetContactListUsersReq(),
         options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
 
     for (var contact in result.userList) {
-      _contactDao.insertContact(Database.Contact(
-        uid: contact.uid.asString(),
-        phoneNumber: contact.phoneNumber.nationalNumber.toString(),
-        username: contact.username,
-        firstName: _contactsDisplayName[contact.phoneNumber]!= null?_contactsDisplayName[contact.phoneNumber]:"${contact.firstName} ${contact.lastName.isNotEmpty?contact.lastName:" "}" ,
-        isMute: true,
-        isBlock: false,
+      _contactDao.insertContact(Database.ContactsCompanion(
+        uid: Value(contact.uid.asString()),
+        phoneNumber:Value( contact.phoneNumber.nationalNumber.toString()),
+        firstName:Value( _contactsDisplayName[contact.phoneNumber] != null
+            ? _contactsDisplayName[contact.phoneNumber]
+            : "${contact.firstName} ${contact.lastName.isNotEmpty ? contact.lastName : " "}"),
+        isMute: Value(true),
+        isBlock:Value( false),
       ));
+
       if (contact.uid != null) {
         _roomDao.insertRoomCompanion(
             Database.RoomsCompanion.insert(roomId: contact.uid.asString()));
       }
+      getUsername(contact);
     }
   }
 
-
-
-  Future<UserAsContact> searchUserByUid(Uid uid) async {
+  Future<String> searchUserByUid(Uid uid) async {
     try {
-      var result = await contactServices.getUserByUid(
-          GetUserByUidReq()..uid = uid,
+      var result = await _queryServiceClient.getIdByUid(
+          GetIdByUidReq()..uid = uid,
           options: CallOptions(
-              timeout: Duration(seconds: 2),
-              metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-      return result.user;
+              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      return result.id;
     } catch (e) {
       return null;
     }
   }
 
-  Future<UserAsContact> searchUserByUsername(String username) async {
-    var result = await contactServices.getUserByUsername(
-        GetUserByUsernameReq()..username = username,
+  Future<Uid> searchUserByUsername(String username) async {
+    var result = await _queryServiceClient.getUidById(
+        GetUidByIdReq()..id = username,
         options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
 
-    return result.user;
+    return result.uid;
   }
 
-  Future<List<UserAsContact>> searchUser(String query) async {
-    var result = await contactServices.userSearch(UserSearchReq()..text = query,
+  Future<List<SearchInRoom>> searchUser(String query) async {
+    var result = await _queryServiceClient.searchUidByIdOrName(
+        SearchUidByIdOrNameReq()..text = query,
         options: CallOptions(
-            metadata: {'accessToken': await _accountRepo.getAccessToken()}));
-    return result.userList;
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
+    List<SearchInRoom> searchResult = List();
+    for (var room in result.itemList) {
+      searchResult
+          .add(SearchInRoom(uid: room.uid, username: room.id, name: room.name));
+    }
+    return searchResult;
   }
 
   Future<Database.Contact> getContact(Uid userUid) async {
@@ -166,8 +185,24 @@ class ContactRepo {
     return contact;
   }
 
-  Future <bool>ContactIsExist(String number) async  {
+  Future<bool> ContactIsExist(String number) async {
     var result = await _contactDao.getContact(number);
-    return result!=null;
+    return result != null;
+  }
+
+  void getUsername(UserAsContact contact) async {
+    var usernameReq = await _queryServiceClient.getIdByUid(
+        GetIdByUidReq()..uid = contact.uid,
+        options: CallOptions(
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
+    if (usernameReq.hasId()) {
+      _contactDao.insertContact(Database.ContactsCompanion(
+          phoneNumber: Value(contact.phoneNumber.nationalNumber.toString()),
+          username:Value( usernameReq.id),
+          uid:Value( contact.uid.asString())));
+
+      _usernameDao.upsertUserInfo(Database.UserInfo(
+          uid: contact.uid.asString(), username: usernameReq.id));
+    }
   }
 }

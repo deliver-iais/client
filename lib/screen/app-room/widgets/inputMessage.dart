@@ -3,12 +3,17 @@ import 'dart:math';
 
 import 'package:audio_recorder/audio_recorder.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/bot_commandsWidget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/emojiKeybord.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/recordAudioAnimation.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/recordAudioslideWidget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/showMentionList.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,12 +22,12 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:flutter_timer/flutter_timer.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:image_size_getter/image_size_getter.dart';
 import 'package:random_string/random_string.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
-
-const ANIMATION_DURATION = const Duration(milliseconds: 100);
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -61,11 +66,16 @@ class _InputMessageWidget extends State<InputMessage> {
   DateTime time = DateTime.now();
   double DX = 150.0;
   bool recordAudioPermission = false;
+  BehaviorSubject<bool> _showBotCommands = BehaviorSubject.seeded(false);
   String query;
+  Timer recordAudioTimer;
 
   bool _showMentionList = false;
 
   bool startAudioRecorder = false;
+
+  Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
+  Subject<ActivityType> NoActivitySubject = BehaviorSubject();
 
   void showButtonSheet() {
     if (isDesktop()) {
@@ -89,6 +99,16 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   void initState() {
     super.initState();
+    isTypingActivitySubject
+        .throttle((_) => TimerStream(true, Duration(seconds: 10)))
+        .listen((activityType) {
+      messageRepo.sendActivityMessage(
+          widget.currentRoom.roomId.getUid(), activityType);
+    });
+    NoActivitySubject.listen((event) {
+      messageRepo.sendActivityMessage(
+          widget.currentRoom.roomId.getUid(), event);
+    });
     controller = TextEditingController();
     currentRoom = widget.currentRoom;
   }
@@ -113,6 +133,22 @@ class _InputMessageWidget extends State<InputMessage> {
             },
             roomUid: widget.currentRoom.roomId,
           ),
+        StreamBuilder(
+            stream: _showBotCommands.stream,
+            builder: (c, show) {
+              if (show.hasData && show.data) {
+                return BotCommandsWidget(
+                  botUid: widget.currentRoom.roomId.getUid(),
+                  onCommandClick: (String command) {
+                    controller.text = command;
+                    _showBotCommands.add(false);
+                    setState(() {});
+                  },
+                );
+              } else {
+                return SizedBox.shrink();
+              }
+            }),
         IconTheme(
           data: IconThemeData(color: Theme.of(context).accentColor),
           child: Container(
@@ -123,27 +159,9 @@ class _InputMessageWidget extends State<InputMessage> {
                 controller.text.isEmpty &&
                         (widget.waitingForForward == null ||
                             widget.waitingForForward == false)
-                    ? AnimatedPositioned(
-                        duration: ANIMATION_DURATION,
-                        bottom: (1 - size) * 25,
-                        right: x + ((1 - size) * 25),
-                        child: ClipOval(
-                          child: AnimatedContainer(
-                            duration: ANIMATION_DURATION,
-                            width: 50 * size,
-                            height: 50 * size,
-                            color: (1 - size) == 0
-                                ? Colors.transparent
-                                : Colors.blue,
-                            child: Center(
-                              child: Icon(
-                                Icons.keyboard_voice,
-                                size: 30,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
+                    ? RecordAudioAnimation(
+                        righPadding: x,
+                        size: size,
                       )
                     : SizedBox.shrink(),
                 Row(
@@ -151,55 +169,76 @@ class _InputMessageWidget extends State<InputMessage> {
                     !startAudioRecorder
                         ? Expanded(
                             child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: <Widget>[
-                                IconButton(
-                                  icon: Icon(
-                                    showEmoji ? Icons.keyboard : Icons.mood,
-                                    size: 30,
-                                    color: Colors.white,
+                                if (currentRoom.roomId.getUid().category !=
+                                    Categories.BOT)
+                                  StreamBuilder<bool>(
+                                      stream: backSubject.stream,
+                                      builder: (c, back) {
+                                        return IconButton(
+                                          icon: Icon(
+                                            back.hasData && back.data
+                                                ? Icons.keyboard
+                                                : Icons.mood,
+                                            color: Colors.white,
+                                          ),
+                                          onPressed: () {
+
+                                            if (back.data) {
+                                              backSubject.add(false);
+                                              setState(() {
+                                                FocusScope.of(context)
+                                                    .unfocus();
+                                              });
+                                            } else if (!back.data) {
+                                              FocusScope.of(context).unfocus();
+                                              Timer(Duration(milliseconds: 50),
+                                                  () {
+                                                backSubject.add(true);
+                                              });
+                                            }
+                                          },
+                                        );
+                                      }),
+                                if (currentRoom.roomId.getUid().category ==
+                                    Categories.BOT)
+                                  GestureDetector(
+                                    child: Text(
+                                      " \ ",
+                                      style: TextStyle(
+                                          color:
+                                              Theme.of(context).primaryColor),
+                                    ),
+                                    onTap: () {
+                                    _showBotCommands.add(true);
+                                    },
                                   ),
-                                  onPressed: () {
-                                    setState(() {
-                                      if (showEmoji) {
-                                        showEmoji = false;
-                                        autofocus = true;
-                                      } else {
-                                        FocusScope.of(context)
-                                            .requestFocus(new FocusNode());
-                                        Timer(Duration(microseconds: 10), () {
-                                          showEmoji = true;
-                                        });
-                                      }
-                                    });
-                                  },
-                                ),
                                 Container(
                                   child: Flexible(
                                     child: SizedBox(
-                                      child: TextField(
-                                        onTap: () {
-                                          showEmoji = false;
-                                        },
-                                        minLines: 2,
-                                        maxLines: 15,
-                                        autofocus: autofocus,
-                                        textInputAction:
-                                            TextInputAction.newline,
-                                        controller: controller,
-                                        onSubmitted: null,
-                                        onChanged: (str) {
-                                          onChange(str);
-                                        },
-                                        decoration: controller.text.isEmpty
-                                            ? InputDecoration.collapsed(
-                                                hintText: appLocalization
-                                                    .getTraslateValue(
-                                                        "message"))
-                                            : InputDecoration.collapsed(
-                                                hintText: ""),
-                                      ),
-                                    ),
+                                        child: TextField(
+                                      onTap: () {
+                                        backSubject.add(false);
+                                      },
+                                      minLines: 1,
+                                      maxLines: 15,
+                                      autofocus: false,
+                                      textInputAction: TextInputAction.newline,
+                                      controller: controller,
+                                      onSubmitted: null,
+                                      onChanged: (str) {
+                                        if (str?.length > 0)
+                                          isTypingActivitySubject
+                                              .add(ActivityType.TYPING);
+                                        else
+                                          NoActivitySubject.add(
+                                              ActivityType.NO_ACTIVITY);
+                                        onChange(str);
+                                      },
+                                      decoration: InputDecoration.collapsed(
+                                          hintText: appLocalization
+                                              .getTraslateValue("message")),
+                                    )),
                                   ),
                                 ),
                                 controller.text?.isEmpty &&
@@ -208,11 +247,10 @@ class _InputMessageWidget extends State<InputMessage> {
                                     ? IconButton(
                                         icon: Icon(
                                           Icons.attach_file,
-                                          size: 30,
                                           color: IconTheme.of(context).color,
                                         ),
                                         onPressed: () {
-                                          showEmoji = false;
+                                          backSubject.add(false);
                                           showButtonSheet();
                                         })
                                     : SizedBox(),
@@ -223,7 +261,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                     : IconButton(
                                         icon: Icon(
                                           Icons.send,
-                                          size: 30,
                                           color: Theme.of(context).primaryColor,
                                         ),
                                         color: Colors.white,
@@ -234,95 +271,16 @@ class _InputMessageWidget extends State<InputMessage> {
                                                         false)
                                             ? () async {}
                                             : () {
-                                                if (widget.waitingForForward ==
-                                                    true) {
-                                                  widget.sendForwardMessage();
-                                                }
-                                                if (controller
-                                                    .text.isNotEmpty) {
-                                                  if (controller.text
-                                                      .isNotEmpty) if (widget
-                                                          .replyMessageId !=
-                                                      null) {
-                                                    messageRepo.sendTextMessage(
-                                                      currentRoom.roomId.uid,
-                                                      controller.text,
-                                                      replyId:
-                                                          widget.replyMessageId,
-                                                    );
-                                                    if (widget.replyMessageId !=
-                                                        -1)
-                                                      widget
-                                                          .resetRoomPageDetails();
-                                                  } else {
-                                                    messageRepo.sendTextMessage(
-                                                        currentRoom.roomId.uid,
-                                                        controller.text);
-                                                  }
-
-                                                  controller.clear();
-                                                  messageText = "";
-
-                                                  _showMentionList = false;
-                                                }
-                                                widget
-                                                    .scrollToLastSentMessage();
+                                                sendMessage();
                                               },
                                       ),
                               ],
                             ),
                           )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
-                                child: Stack(
-                                  children: <Widget>[
-                                    Opacity(
-                                      opacity: 1.0 - opacity(),
-                                      child: Icon(
-                                        Icons.delete_outline,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                    Opacity(
-                                      opacity: opacity(),
-                                      child: Icon(
-                                        Icons.fiber_manual_record,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              TikTikTimer(
-                                height: 20,
-                                width: 70,
-                                timerTextStyle: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).primaryColor),
-                                initialDate: time,
-                                running: startAudioRecorder,
-                                backgroundColor:
-                                    ExtraTheme.of(context).secondColor,
-                                borderRadius: 0,
-                              ),
-                              Opacity(
-                                opacity: opacity(),
-                                child: Row(
-                                  children: <Widget>[
-                                    Icon(Icons.chevron_left),
-                                    Text(
-                                        appLocalization
-                                            .getTraslateValue("slideToCancel"),
-                                        style: TextStyle(
-                                            fontSize: 12, color: Colors.white)),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                        : RecordAudioSlideWidget(
+                            opacity: opacity(),
+                            time: time,
+                            rinning: startAudioRecorder),
                     controller.text.isEmpty &&
                             (widget.waitingForForward == null ||
                                 widget.waitingForForward == false)
@@ -351,6 +309,7 @@ class _InputMessageWidget extends State<InputMessage> {
                             },
                             onLongPressStart: (dw) async {
                               if (recordAudioPermission) {
+                                sendRecordActivity();
                                 Vibration.vibrate(duration: 200);
                                 setState(() {
                                   startAudioRecorder = true;
@@ -358,6 +317,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   started = true;
                                   time = DateTime.now();
                                 });
+
                                 await AudioRecorder.start(
                                     path: await ExtStorage
                                         .getExternalStoragePublicDirectory(
@@ -366,6 +326,8 @@ class _InputMessageWidget extends State<InputMessage> {
                               }
                             },
                             onLongPressEnd: (s) async {
+                              recordAudioTimer.cancel();
+                              NoActivitySubject.add(ActivityType.NO_ACTIVITY);
                               setState(() {
                                 startAudioRecorder = false;
                                 x = 0;
@@ -400,31 +362,68 @@ class _InputMessageWidget extends State<InputMessage> {
             ),
           ),
         ),
-        showEmoji
-            ? WillPopScope(
-                onWillPop: () {
-                  setState(() {
-                    showEmoji = false;
-                  });
-                  return Future.value(false);
-                },
-                child: Container(
-                    height: 250.0,
+        StreamBuilder(
+            stream: backSubject.stream,
+            builder: (context, back) {
+              if (back.hasData && back.data) {
+                return Container(
+                    height: 270.0,
                     child: EmojiKeybord(
                       onTap: (emoji) {
                         setState(() {
                           controller.text = controller.text + emoji.toString();
                         });
                       },
-                    )),
-              )
-            : SizedBox(),
+                      onStickerTap: (Sticker sticker) {
+                        messageRepo.sendStickerMessage(
+                            roomUid: widget.currentRoom.roomId.getUid(),
+                            sticker: sticker);
+                        widget.scrollToLastSentMessage();
+                      },
+                    ));
+              } else {
+                return SizedBox.shrink();
+              }
+            }),
       ],
     );
   }
 
+  void sendMessage() {
+    NoActivitySubject.add(ActivityType.NO_ACTIVITY);
+    if (widget.waitingForForward == true) {
+      widget.sendForwardMessage();
+    }
+    if (controller.text.isNotEmpty) {
+      if (controller.text.isNotEmpty) if (widget.replyMessageId != null) {
+        messageRepo.sendTextMessage(
+          currentRoom.roomId.uid,
+          controller.text,
+          replyId: widget.replyMessageId,
+        );
+        if (widget.replyMessageId != -1) widget.resetRoomPageDetails();
+      } else {
+        messageRepo.sendTextMessage(currentRoom.roomId.uid, controller.text);
+      }
+
+      controller.clear();
+      messageText = "";
+
+      _showMentionList = false;
+    }
+    widget.scrollToLastSentMessage();
+  }
+
+  void sendRecordActivity() {
+    recordAudioTimer = Timer(Duration(seconds: 2), () {
+      isTypingActivitySubject.add(ActivityType.RECORDING_VOICE);
+      sendRecordActivity();
+    });
+  }
+
   void onChange(String str) {
-    if (widget.currentRoom.roomId.getUid().category == Categories.GROUP) {
+    messageText = str;
+    if (currentRoom.roomId.getUid().category == Categories.GROUP) {
       if (str.isEmpty) {
         _showMentionList = false;
         setState(() {});
@@ -443,10 +442,16 @@ class _InputMessageWidget extends State<InputMessage> {
           _showMentionList = false;
         }
       } catch (e) {}
-      setState(() {});
-    } else if (controller.text.length <= 1) {
-      setState(() {});
     }
+    if (currentRoom.roomId.getUid().category == Categories.BOT) {
+      if (str.isNotEmpty && str.length == 1 && str.contains(" \ ")) {
+        _showBotCommands.add(true);
+      } else {
+       _showBotCommands.add(false);
+      }
+    }
+
+    setState(() {});
   }
 
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;

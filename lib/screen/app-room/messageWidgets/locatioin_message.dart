@@ -1,26 +1,26 @@
 import 'package:deliver_flutter/db/database.dart' as db;
-import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
-import 'package:deliver_flutter/shared/seenStatus.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
+
+import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
-class LocationMessage extends StatelessWidget {
+class LocationMessageWidget extends StatelessWidget {
   final db.Message message;
   final bool isSender;
   final bool isSeen;
 
-  LocationMessage({this.message, this.isSeen, this.isSender});
+  LocationMessageWidget({this.message, this.isSeen, this.isSender});
 
   @override
   Widget build(BuildContext context) {
     Location location = message.json.toLocation();
     return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+      child: Stack(
         children: [
           SizedBox(
             width: 270,
@@ -55,20 +55,7 @@ class LocationMessage extends StatelessWidget {
               ],
             ),
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              MsgTime(
-                time: message.time,
-              ),
-              if (isSender)
-                SeenStatus(
-                  message,
-                  isSeen: isSeen,
-                )
-            ],
-          ),
+          TimeAndSeenStatus(message, isSender, true, isSeen),
         ],
       ),
     );

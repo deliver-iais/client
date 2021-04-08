@@ -4,14 +4,16 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/c
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/forward_appbar.dart';
 import 'package:deliver_flutter/screen/navigation_center/widgets/searchBox.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class SelectionToForwardPage extends StatefulWidget {
   final List<Message> forwardedMessages;
+  final proto.ShareUid shareUid;
 
-  const SelectionToForwardPage({Key key, this.forwardedMessages})
+  const SelectionToForwardPage({Key key, this.forwardedMessages, this.shareUid})
       : super(key: key);
 
   @override
@@ -49,6 +51,7 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
                               return ChatItemToForward(
                                 uid: snapshot.data[index],
                                 forwardedMessages: widget.forwardedMessages,
+                                shareUid: widget.shareUid,
                               );
                             },
                           ),
