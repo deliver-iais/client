@@ -307,7 +307,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                             if (_itemCount != 0 && i != _itemCount)
                               _itemCountSubject.add(_itemCount);
                             _itemCount = i;
-
                             return Flexible(
                               fit: FlexFit.tight,
                               child: Container(
@@ -389,9 +388,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               StreamBuilder(
                 stream: _searchMode.stream,
                 builder: (c, s) {
-                  if (s.hasData &&
-                      s.data &&
-                      searchResult.length>0) {
+                  if (s.hasData && s.data && searchResult.length > 0) {
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -659,9 +656,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       } else {
         subject.add(true);
       }
-
     }
-
   }
 
   ScrollablePositionedList buildMessagesListView(
@@ -946,7 +941,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _addForwardMessage(message);
         },
         onTapDown: storePosition,
-        child: Stack(
+        child: SingleChildScrollView(
+            child: Stack(
           alignment: AlignmentDirectional.bottomEnd,
           children: [
             Row(
@@ -973,7 +969,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               ],
             ),
           ],
-        ));
+        )));
   }
 
   scrollToLast() {

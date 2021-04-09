@@ -144,6 +144,28 @@ class _BoxContentState extends State<BoxContent> {
               },
             );
           } else {
+            if(widget.message.to.getUid().category != Categories.USER){
+              return FutureBuilder<Member>(
+                future:
+                _memberDao.getMember(widget.message.from, widget.message.to),
+                builder: (c, s) {
+                  if (s.hasData && s.data != null) {
+                    return GestureDetector(
+                      child: Text(
+                          "${_appLocalization.getTraslateValue("Forwarded_From")} ${s.data.name??s.data.username}",
+                          style: TextStyle(color: ExtraTheme.of(context).text)),
+                      onTap: () {
+                        _routingServices.openRoom(widget.message.forwardedFrom);
+                      },
+                    );
+                  } else {
+                    return Text(
+                        "${_appLocalization.getTraslateValue("Forwarded_From")} Unknown",
+                        style: TextStyle(color: ExtraTheme.of(context).secondColor));
+                  }
+                },
+              );
+            }
             return Text(
                 "${_appLocalization.getTraslateValue("Forwarded_From")} Unknown",
                 style: TextStyle(color: ExtraTheme.of(context).secondColor));

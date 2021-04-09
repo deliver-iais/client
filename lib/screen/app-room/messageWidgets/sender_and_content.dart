@@ -1,10 +1,12 @@
 import 'dart:convert';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -13,6 +15,7 @@ class SenderAndContent extends StatelessWidget {
   final List<Message> messages;
   final bool inBox;
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _memberDao = GetIt.I.get<MemberDao>();
 
   SenderAndContent({Key key, this.messages, this.inBox}) : super(key: key);
 
@@ -52,31 +55,23 @@ class SenderAndContent extends StatelessWidget {
               future: _roomRepo.getRoomDisplayName(messages[0].from.uid),
               builder: (ctx, AsyncSnapshot<String> s) {
                 if (s.hasData && s.data != null) {
-                  return Text(
-                    s.data,
-                    style: TextStyle(
-                      color: inBox == true
-                          ? ExtraTheme.of(context).secondColor
-                          : Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis,
-                  );
+                  return showName(s.data, context);
                 } else {
-                  return Text(
-                    "UnKnown",
-                    style: TextStyle(
-                      color: inBox == true
-                          ? ExtraTheme.of(context).secondColor
-                          : Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis,
-                  );
+                  if (messages[0].to.getUid().category != Categories.USER) {
+                    return FutureBuilder<Member>(
+                      future: _memberDao.getMember(
+                          messages[0].from, messages[0].to),
+                      builder: (c, s) {
+                        if (s.hasData && s.data != null) {
+                          return showName(
+                              s.data.name ?? s.data.username, context);
+                        } else {
+                          return showName("UnKnown", context);
+                        }
+                      },
+                    );
+                  }
+                  return showName("UnKnown", context);
                 }
               }),
           SizedBox(height: 3),
@@ -109,6 +104,21 @@ class SenderAndContent extends StatelessWidget {
                 ),
         ],
       ),
+    );
+  }
+
+  Text showName(String s, BuildContext context) {
+    return Text(
+      s,
+      style: TextStyle(
+        color: inBox == true
+            ? ExtraTheme.of(context).secondColor
+            : Theme.of(context).primaryColor,
+        fontWeight: FontWeight.bold,
+      ),
+      maxLines: 1,
+      softWrap: false,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }
