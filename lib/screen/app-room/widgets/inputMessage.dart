@@ -183,7 +183,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                             color: Colors.white,
                                           ),
                                           onPressed: () {
-
                                             if (back.data) {
                                               backSubject.add(false);
                                               setState(() {
@@ -210,7 +209,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                               Theme.of(context).primaryColor),
                                     ),
                                     onTap: () {
-                                    _showBotCommands.add(true);
+                                      _showBotCommands.add(true);
                                     },
                                   ),
                                 Container(
@@ -432,7 +431,10 @@ class _InputMessageWidget extends State<InputMessage> {
       try {
         query = "";
         int i = str.lastIndexOf("@");
-        if (i != 0 && str[i - 1] != " ") {
+        if (i == -1) {
+          _showMentionList = false;
+        }
+        if ((i != 0 && str[i - 1] != " ") && str[i - 1] != "\n") {
           return;
         }
         if (i != -1 && !str.contains(" ", i)) {
@@ -447,7 +449,7 @@ class _InputMessageWidget extends State<InputMessage> {
       if (str.isNotEmpty && str.length == 1 && str.contains(" \ ")) {
         _showBotCommands.add(true);
       } else {
-       _showBotCommands.add(false);
+        _showBotCommands.add(false);
       }
     }
 

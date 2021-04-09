@@ -73,7 +73,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                           ),
                           FutureBuilder<Member>(
                             future: _memberDao
-                                .getMember(member.memberUid.uid,widget.mucUid.asString()),
+                                .getMember(member.memberUid,widget.mucUid.asString()),
                             builder: (BuildContext context,
                                 AsyncSnapshot<Member> m) {
                               if (m.data != null &&

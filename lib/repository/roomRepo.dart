@@ -34,6 +34,7 @@ class RoomRepo {
   var _usernameDao = GetIt.I.get<UserInfoDao>();
   var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
 
+
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   Map<String, BehaviorSubject<Activity>> activityObject = Map();
