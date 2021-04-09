@@ -115,8 +115,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   Widget build(BuildContext context) {
-    controller.selection = TextSelection.fromPosition(
-        TextPosition(offset: controller.text.length));
+
     AppLocalization appLocalization = AppLocalization.of(context);
     DX = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
@@ -127,6 +126,8 @@ class _InputMessageWidget extends State<InputMessage> {
             query: query,
             onSelected: (s) {
               controller.text = "${controller.text}${s} ";
+              controller.selection = TextSelection.fromPosition(
+                  TextPosition(offset: controller.text.length));
               setState(() {
                 _showMentionList = false;
               });
