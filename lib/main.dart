@@ -133,8 +133,7 @@ void setupDIAndRunApp() {
   if (isAndroid()) {
     setupFlutterNotification();
   }
-
-  runApp(MyApp());
+ runApp(MyApp());
 }
 
 void main() {

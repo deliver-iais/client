@@ -14,7 +14,6 @@ class CheckPermissionsService {
       return false;
     }
   }
-
   Future<bool> request(List<Permission> permission) async {
     return await requestLock.synchronized(() async {
       try {

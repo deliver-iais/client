@@ -47,7 +47,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: 1.0.0
 
-  get_it: 5.0.1 # Dependency Injector Library
+  get_it: 6.0.0 # Dependency Injector Library
   rxdart: 0.24.1 # State Management Library & Advanced Streaming Library
   auto_route: 0.6.9 # Routing Library
 
