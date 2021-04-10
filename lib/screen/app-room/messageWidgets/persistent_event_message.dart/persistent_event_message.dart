@@ -19,7 +19,6 @@ class PersistentEventMessage extends StatelessWidget {
   final Message message;
   final bool showLastMessage;
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _memberDao = GetIt.I.get<MemberDao>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
 
   PersistentEventMessage({Key key, this.message, this.showLastMessage})
@@ -121,15 +120,9 @@ class PersistentEventMessage extends StatelessWidget {
       case PersistentEvent_Type.messageManipulationPersistentEvent:
         break;
       case PersistentEvent_Type.adminSpecificPersistentEvent:
-        var user = await _memberDao.getMember(message.from, message.to);
-        if (user != null)
-          return "${user.name ?? user.username} ${_appLocalization
-              .getTraslateValue("new_contact_add")}";
-        else {
-          var user = await _roomRepo.getRoomDisplayName(message.from.uid);
+          var user = await _roomRepo.getRoomDisplayName(message.from.uid,roomUid: message.to);
           return "${user} ${_appLocalization.getTraslateValue(
               "new_contact_add")}";
-        }
         break;
       case PersistentEvent_Type.notSet:
       // TODO: Handle this case.
@@ -143,13 +136,8 @@ class PersistentEventMessage extends StatelessWidget {
     if (uid.isSameEntity(_accountRepo.currentUserUid.asString()))
       return _appLocalization.getTraslateValue("you");
     else {
-      var user = await _memberDao.getMember(uid.asString(), to.asString());
-      if (user != null) {
-        return user.name ?? user.username;
-      } else {
-        var name = _roomRepo.getRoomDisplayName(uid);
+        var name = _roomRepo.getRoomDisplayName(uid,roomUid: to.asString());
         return name;
-      }
     }
   }
 }

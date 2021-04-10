@@ -36,6 +36,7 @@ import 'package:deliver_flutter/shared/userAppBar.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moor/moor.dart' as Moor;
@@ -263,7 +264,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         });
 
     if (widget.roomId.getUid().category != Categories.USER)
-      _mucRepo.fetchMucInfo(widget.roomId.getUid());
+      fetchMucInfo(widget.roomId.getUid());
+
+
+  }
+  fetchMucInfo(Uid uid) async{
+    var name = await  _mucRepo.fetchMucInfo(widget.roomId.getUid());
+    if(name !=null){
+      _roomRepo.updateRoomName(uid, name);
+    }
   }
 
   @override

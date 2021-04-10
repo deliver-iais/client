@@ -15,7 +15,6 @@ class SenderAndContent extends StatelessWidget {
   final List<Message> messages;
   final bool inBox;
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _memberDao = GetIt.I.get<MemberDao>();
 
   SenderAndContent({Key key, this.messages, this.inBox}) : super(key: key);
 
@@ -52,25 +51,11 @@ class SenderAndContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FutureBuilder<String>(
-              future: _roomRepo.getRoomDisplayName(messages[0].from.uid),
+              future: _roomRepo.getRoomDisplayName(messages[0].from.uid,roomUid: messages[0].to),
               builder: (ctx, AsyncSnapshot<String> s) {
                 if (s.hasData && s.data != null) {
                   return showName(s.data, context);
                 } else {
-                  if (messages[0].to.getUid().category != Categories.USER) {
-                    return FutureBuilder<Member>(
-                      future: _memberDao.getMember(
-                          messages[0].from, messages[0].to),
-                      builder: (c, s) {
-                        if (s.hasData && s.data != null) {
-                          return showName(
-                              s.data.name ?? s.data.username, context);
-                        } else {
-                          return showName("UnKnown", context);
-                        }
-                      },
-                    );
-                  }
                   return showName("UnKnown", context);
                 }
               }),

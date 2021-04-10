@@ -88,7 +88,7 @@ class _ChatItemState extends State<ChatItem> {
                                 context)
                             : FutureBuilder<String>(
                                 future: _roomRepo.getRoomDisplayName(
-                                    widget.roomWithMessage.room.roomId.uid),
+                                    widget.roomWithMessage.room.roomId.uid,roomUid: widget.roomWithMessage.room.roomId),
                                 builder: (BuildContext c,
                                     AsyncSnapshot<String> snaps) {
                                   if (snaps.hasData && snaps.data.isNotEmpty) {
