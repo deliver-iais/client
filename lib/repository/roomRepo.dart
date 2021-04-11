@@ -58,7 +58,7 @@ class RoomRepo {
             return contactName;
           } else {
             var username = await _usernameDao.getUserInfo(uid.asString());
-            if (username != null && username.username.length>0) {
+            if (username != null && username.username != null) {
               return username.username;
             }else{
               var member = await _memberDao.getMember(uid.asString(),roomUid);

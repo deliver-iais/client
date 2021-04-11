@@ -337,9 +337,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                 try {
                                   Recording recording =
                                       await AudioRecorder.stop();
-                                  messageRepo.sendFileMessageDeprecated(
+                                  messageRepo.sendFileMessage(
                                       widget.currentRoom.roomId.uid,
-                                      [recording.path]);
+                                      recording.path);
                                 } catch (e) {}
                               }
                             },
