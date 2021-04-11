@@ -959,11 +959,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 if (widget.roomId.getUid().category == Categories.GROUP)
+                  GestureDetector(child:
                   Padding(
                     padding: const EdgeInsets.only(
                         bottom: 8.0, left: 5.0, right: 3.0),
                     child: CircleAvatarWidget(message.from.uid, 18),
-                  ),
+                  ),onTap: (){
+                    _routingService.openRoom(message.from);
+                  },),
                 RecievedMessageBox(
                   message: message,
                   maxWidth: _maxWidth,
