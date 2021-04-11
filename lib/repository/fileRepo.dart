@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
-
+import 'package:isolate_handler/isolate_handler.dart';
+import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
 import 'package:deliver_flutter/db/database.dart';
@@ -26,12 +27,14 @@ class FileRepo {
       File file, String uploadKey, String name) async {
     // if(name=="jpg") {
       ReceivePort receivePort = ReceivePort();
+      final isolates = IsolateHandler();
       try {
+
         // await Isolate.spawn(
         //     decodeIsolate,
         //     DecodeParam(file, receivePort.sendPort, uploadKey, name));
-        await compute(decodeIsolate,
-                DecodeParam(file, receivePort.sendPort, uploadKey, name));
+         await FlutterIsolate.spawn(decodeIsolate(DecodeParam(file, receivePort.sendPort, uploadKey, name)),receivePort.sendPort);
+
         print("isolate spawn finished successfulllyyyyyyyyyyyy");
       }
       catch (e) {
@@ -62,35 +65,37 @@ class FileRepo {
     //
     // }
   }
-  static decodeIsolate(DecodeParam param) async{
+  static  decodeIsolate(DecodeParam param) async{
     Image largeThumbnail;
     Image mediumThumbnail;
     Image smallThumbnail;
-     Directory directory;
+     // Directory directory;
     // CheckPermissionsService _checkPermission = new CheckPermissionsService();
 
    // if (await _checkPermission.checkStoragePermission() || isDesktop()) {
-       directory = await getApplicationDocumentsDirectory();
+
+
+    final  directory = await getApplicationDocumentsDirectory();
       if (!await Directory('${directory.path}/Deliver').exists())
-       directory = await Directory('${directory.path}/Deliver').create(recursive: true);
+        await Directory('${directory.path}//Deliver').create(recursive: true);
    // }
     // final realLocalFile = await _fileService.localFile(param.uploadKey, param.name);
-    final realLocalFile =  File('$directory.path + "/Deliver"/${param.uploadKey}.${param.name}');
+    final realLocalFile =  File('${directory.path+"/Deliver" }/${param.uploadKey}.${param.name}');
 // final realLocalFile = File('$realLocalPath/${param.uploadKey}.${param.name}');
 
 // final largeLocalFile = await param.Function;
-final largeLocalFile =  File('$directory.path + "/Deliver"/${param.uploadKey + "-large"}.${param.name}');;
+final largeLocalFile =  File('${directory.path+"/Deliver"}/${param.uploadKey + "-large"}.${param.name}');;
 // final largeLocalFile = File('$largeLocalPath/${param.uploadKey+ "-large"}.${param.name}');
 
     // final largeLocalFile = await  _fileService.localFile(
     //     param.uploadKey + "-large", param.name);
 
-final mediumLocalFile =  File('$directory.path + "/Deliver"/${param.uploadKey+ "-medium"}.${param.name}');
+final mediumLocalFile =  File('${directory.path+"/Deliver"}/${param.uploadKey+ "-medium"}.${param.name}');
 // final mediumLocalFile = File('$mediumLocalPath/${param.uploadKey+ "-medium"}.${param.name}');
 //     final mediumLocalFile = await _fileService.localFile(
 //         param.uploadKey + "-medium", param.name);
 
-final smallLocalFile = File('$directory.path + "/Deliver"/${param.uploadKey+ "-small"}.${param.name}');
+final smallLocalFile = File('${directory.path+"/Deliver"}/${param.uploadKey+ "-small"}.${param.name}');
 // final smallLocalFile = File('$smallLocalPath/${param.uploadKey+ "-small"}.${param.name}');
 //     final smallLocalFile = await  _fileService.localFile(
 //         param.uploadKey + "-small", param.name);
@@ -112,7 +117,7 @@ final smallLocalFile = File('$directory.path + "/Deliver"/${param.uploadKey+ "-s
 
 
     ThumnailsKinds thumnailsKinds = ThumnailsKinds(largeLocalFile, mediumLocalFile, smallLocalFile);
-    param.sendPort.send(thumnailsKinds);
+   param.sendPort.send(thumnailsKinds);
 
   }
 

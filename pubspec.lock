@@ -465,6 +465,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.0"
+  flutter_isolate:
+    dependency: "direct main"
+    description:
+      name: flutter_isolate
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0+15"
   flutter_link_preview:
     dependency: "direct main"
     description:
@@ -697,6 +704,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.4"
+  isolate_handler:
+    dependency: "direct main"
+    description:
+      name: isolate_handler
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.1"
   js:
     dependency: transitive
     description:
