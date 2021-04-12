@@ -33,15 +33,16 @@ class FileRepo {
         // await Isolate.spawn(
         //     decodeIsolate,
         //     DecodeParam(file, receivePort.sendPort, uploadKey, name));
-         await FlutterIsolate.spawn(decodeIsolate(DecodeParam(file, receivePort.sendPort, uploadKey, name)),receivePort.sendPort);
+          await FlutterIsolate.spawn(decodeIsolate(DecodeParam(file, receivePort.sendPort, uploadKey, name)),
+             DecodeParam(file, receivePort.sendPort, uploadKey, name));
 
         print("isolate spawn finished successfulllyyyyyyyyyyyy");
       }
       catch (e) {
-        print("isolate errrrrrrrrrrrrrrrorrrrrrrrr");
+        print("isolate errrrrrrrrrrrrrrrorrrrrrrrr"+e.toString());
       }
       ThumnailsKinds allImages = await receivePort.first as ThumnailsKinds;
-      // await _saveFileInfo(uploadKey, realLocalFile, name, "real");
+      await _saveFileInfo(uploadKey, allImages.reallThumnail, name, "real");
       await _saveFileInfo(uploadKey, allImages.largeThumnail,  name, "large");
       await _saveFileInfo(uploadKey, allImages.mediumThumnail,  name, "medium");
       await _saveFileInfo(uploadKey, allImages.smallThumnail,  name, "small");
@@ -69,13 +70,12 @@ class FileRepo {
     Image largeThumbnail;
     Image mediumThumbnail;
     Image smallThumbnail;
-     // Directory directory;
+     Directory directory;
     // CheckPermissionsService _checkPermission = new CheckPermissionsService();
 
    // if (await _checkPermission.checkStoragePermission() || isDesktop()) {
 
-
-    final  directory = await getApplicationDocumentsDirectory();
+      directory = await getApplicationDocumentsDirectory();
       if (!await Directory('${directory.path}/Deliver').exists())
         await Directory('${directory.path}//Deliver').create(recursive: true);
    // }
@@ -116,7 +116,7 @@ final smallLocalFile = File('${directory.path+"/Deliver"}/${param.uploadKey+ "-s
     smallLocalFile.writeAsBytesSync(encodeJpg(smallThumbnail));
 
 
-    ThumnailsKinds thumnailsKinds = ThumnailsKinds(largeLocalFile, mediumLocalFile, smallLocalFile);
+    ThumnailsKinds thumnailsKinds = ThumnailsKinds(realLocalFile,largeLocalFile, mediumLocalFile, smallLocalFile);
    param.sendPort.send(thumnailsKinds);
 
   }
@@ -209,8 +209,8 @@ final smallLocalFile = File('${directory.path+"/Deliver"}/${param.uploadKey+ "-s
     var medium = await _getFileInfoInDB("medium", uploadKey);
     var small = await _getFileInfoInDB("small", uploadKey);
     await _fileDao.deleteFileInfo(real);
-    await _fileDao.deleteFileInfo(medium);
     await _fileDao.deleteFileInfo(large);
+    await _fileDao.deleteFileInfo(medium);
     await _fileDao.deleteFileInfo(small);
     await _fileDao.upsert(real.copyWith(uuid: uuid));
     await _fileDao.upsert(large.copyWith(uuid: uuid));
@@ -239,10 +239,11 @@ class ThumnailsKinds {
   // Image largeThumnail;
   // Image mediumThumnail;
   // Image smallThumnail;
+  File reallThumnail;
   File largeThumnail;
   File mediumThumnail;
   File smallThumnail;
 
-  ThumnailsKinds(this.largeThumnail, this.mediumThumnail, this.smallThumnail);
+  ThumnailsKinds(this.reallThumnail,this.largeThumnail, this.mediumThumnail, this.smallThumnail);
 
 }
