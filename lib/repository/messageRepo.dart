@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io' as DartFile;
 
+import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
+import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
@@ -13,7 +15,6 @@ import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-
 
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as FileProto;
@@ -59,6 +60,8 @@ class MessageRepo {
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
+  var _seenDao = GetIt.I.get<SeenDao>();
+  var _lastSeenDao = GetIt.I.get<LastSeenDao>();
 
   var _coreServices = GetIt.I.get<CoreServices>();
 
@@ -104,7 +107,7 @@ class MessageRepo {
             room.lastMessageId != null &&
             room.lastMessageId >= userRoomMeta.lastMessageId.toInt() &&
             room.lastMessageId != 0) {
-           continue;
+          continue;
         }
         try {
           var fetchMessagesRes = await _queryServiceClient.fetchMessages(
@@ -126,6 +129,9 @@ class MessageRepo {
                 lastMessageId: Value(messages.last.id),
                 lastMessageDbId: Value(messages.last.dbId)));
           }
+
+          fetchLastSeen(userRoomMeta);
+
           if (room != null &&
               room.roomId.getUid().category == Categories.GROUP) {
             getMentions(room);
@@ -139,6 +145,35 @@ class MessageRepo {
     }
     updatingStatus.add(TitleStatusConditions.Normal);
     getBlockedRoom();
+  }
+
+  Future fetchLastSeen(UserRoomMeta room) async {
+    try{
+      var fetchCurrentUserSeenData =
+      await _queryServiceClient.fetchCurrentUserSeenData(
+          FetchCurrentUserSeenDataReq()..roomUid = room.roomUid,
+          options: CallOptions(metadata: {
+            "access_token": await _accountRepo.getAccessToken()
+          }));
+      _lastSeenDao.insertLastSeen(LastSeen(
+          roomId: room.roomUid.asString(),
+          messageId: fetchCurrentUserSeenData.seen.id.toInt()));
+    }catch(e){
+      print(e.toString());
+    }
+
+
+    if (room.roomUid.category == Categories.USER) {
+      var fetchLastOtherUserSeenData =
+          await _queryServiceClient.fetchLastOtherUserSeenData(
+              FetchLastOtherUserSeenDataReq()..roomUid = room.roomUid,
+              options: CallOptions(metadata: {
+                "access_token": await _accountRepo.getAccessToken()
+              }));
+      _seenDao.insertSeen(SeensCompanion(
+          roomId: Value(room.roomUid.asString()),
+          messageId: Value(fetchLastOtherUserSeenData.seen.id.toInt())));
+    }
   }
 
   Future getMentions(Room room) async {
@@ -634,7 +669,7 @@ class MessageRepo {
     await _sendMessageToServer(dbId);
   }
 
- Future<List<Message>> searchMessage(String str,String roomId) async {
-    return _messageDao.searchMessage(str,roomId);
- }
+  Future<List<Message>> searchMessage(String str, String roomId) async {
+    return _messageDao.searchMessage(str, roomId);
+  }
 }
