@@ -17,6 +17,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart';
 import 'package:get_it/get_it.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 
 class FileRepo {
@@ -26,65 +27,31 @@ class FileRepo {
   Future<void> cloneFileInLocalDirectory(
       File file, String uploadKey, String name) async {
       ReceivePort receivePort = ReceivePort();
+      Map myMap = Map<String,dynamic>();
+      myMap['file'] = file.path;
+      myMap['sendPort'] = receivePort.sendPort;
+      myMap['uploadKey'] = uploadKey;
+      myMap['name'] = name;
       // final isolates = IsolateHandler();
       try {
         // await Isolate.spawn(
         //     decodeIsolate,
         //     DecodeParam(file, receivePort.sendPort, uploadKey, name));
-          await FlutterIsolate.spawn(decodeIsolate(DecodeParam(file, receivePort.sendPort, uploadKey, name)),
-             DecodeParam(file, receivePort.sendPort, uploadKey, name));
+          await FlutterIsolate.spawn(decodeIsolate,myMap);
 
         print("isolate spawn finished successfulllyyyyyyyyyyyy");
       }
       catch (e) {
         print("isolate errrrrrrrrrrrrrrrorrrrrrrrr"+e.toString());
       }
-      ThumnailsKinds allImages = await receivePort.first as ThumnailsKinds;
-      await _saveFileInfo(uploadKey, allImages.reallThumnail, name, "real");
-      await _saveFileInfo(uploadKey, allImages.largeThumnail,  name, "large");
-      await _saveFileInfo(uploadKey, allImages.mediumThumnail,  name, "medium");
-      await _saveFileInfo(uploadKey, allImages.smallThumnail,  name, "small");
+
+      Map allLocalFiles = await receivePort.first as Map;
+      await _saveFileInfo(uploadKey, File(allLocalFiles['real']), name, "real");
+      await _saveFileInfo(uploadKey, File(allLocalFiles['large']),  name, "large");
+      await _saveFileInfo(uploadKey,  File(allLocalFiles['medium']),  name, "medium");
+      await _saveFileInfo(uploadKey, File(allLocalFiles['small']),  name, "small");
   }
-  static  decodeIsolate(DecodeParam param) async{
-    Image largeThumbnail;
-    Image mediumThumbnail;
-    Image smallThumbnail;
-     Directory directory;
-    // CheckPermissionsService _checkPermission = new CheckPermissionsService();
-   // if (await _checkPermission.checkStoragePermission() || isDesktop()) {
-      directory = await getApplicationDocumentsDirectory();
-      if (!await Directory('${directory.path}/Deliver').exists())
-        await Directory('${directory.path}//Deliver').create(recursive: true);
-   // }
-    final realLocalFile =  File('${directory.path+"/Deliver" }/${param.uploadKey}.${param.name}');
 
-    final largeLocalFile =  File('${directory.path+"/Deliver"}/${param.uploadKey + "-large"}.${param.name}');;
-
-
-   final mediumLocalFile =  File('${directory.path+"/Deliver"}/${param.uploadKey+ "-medium"}.${param.name}');
-
-   final smallLocalFile = File('${directory.path+"/Deliver"}/${param.uploadKey+ "-small"}.${param.name}');
-
-    Image image = decodeImage(param.file.readAsBytesSync());
-    if(image.width>image.height){
-      largeThumbnail = copyResize(image, width: 500);
-      mediumThumbnail = copyResize(image, width: 300);
-      smallThumbnail = copyResize(image, width: 64);
-    } else {
-      largeThumbnail = copyResize(image, height: 500);
-      mediumThumbnail = copyResize(image, height: 300);
-      smallThumbnail = copyResize(image, height: 64);
-    }
-
-    realLocalFile.writeAsBytesSync(param.file.readAsBytesSync());
-    largeLocalFile.writeAsBytesSync(encodeJpg(largeThumbnail));
-    mediumLocalFile.writeAsBytesSync(encodeJpg(mediumThumbnail));
-    smallLocalFile.writeAsBytesSync(encodeJpg(smallThumbnail));
-
-    ThumnailsKinds thumnailsKinds = ThumnailsKinds(realLocalFile,largeLocalFile, mediumLocalFile, smallLocalFile);
-   param.sendPort.send(thumnailsKinds);
-
-  }
 
   Future<FileProto.File> uploadClonedFile(String uploadKey, String name,{Function sendActivity}) async {
     final clonedFilePath = await _fileService.localFilePath(uploadKey, name);
@@ -192,23 +159,47 @@ class FileRepo {
   }
 }
 
-class DecodeParam {
-  final File file;
-  final SendPort sendPort;
-  String uploadKey;
-  String name;
-  DecodeParam(this.file, this.sendPort,this.uploadKey,this.name);
-}
+ void decodeIsolate(Map<dynamic,dynamic> param) async{
+  Image largeThumbnail;
+  Image mediumThumbnail;
+  Image smallThumbnail;
+  Directory directory;
+  Map fileMap = Map<dynamic,dynamic>();
 
-class ThumnailsKinds {
-  // Image largeThumnail;
-  // Image mediumThumnail;
-  // Image smallThumnail;
-  File reallThumnail;
-  File largeThumnail;
-  File mediumThumnail;
-  File smallThumnail;
+  directory = await getApplicationDocumentsDirectory();
+  if (!await Directory('${directory.path}/Deliver').exists())
+    await Directory('${directory.path}//Deliver').create(recursive: true);
 
-  ThumnailsKinds(this.reallThumnail,this.largeThumnail, this.mediumThumnail, this.smallThumnail);
+  final realLocalFile =  File('${directory.path+"/Deliver" }/${param['uploadKey']}.${param['name']}');
+
+  final largeLocalFile =  File('${directory.path+"/Deliver"}/${param['uploadKey'] + "-large"}.${param['name']}');;
+
+
+  final mediumLocalFile =  File('${directory.path+"/Deliver"}/${param['uploadKey']+ "-medium"}.${param['name']}');
+
+  final smallLocalFile = File('${directory.path+"/Deliver"}/${param['uploadKey']+ "-small"}.${param['name']}');
+  Image image = decodeImage(File(param['file']).readAsBytesSync());
+  if(image.width>image.height){
+    largeThumbnail = copyResize(image, width: 500);
+    mediumThumbnail = copyResize(image, width: 300);
+    smallThumbnail = copyResize(image, width: 64);
+  } else {
+    largeThumbnail = copyResize(image, height: 500);
+    mediumThumbnail = copyResize(image, height: 300);
+    smallThumbnail = copyResize(image, height: 64);
+  }
+
+  realLocalFile.writeAsBytesSync(File(param['file']).readAsBytesSync());
+  largeLocalFile.writeAsBytesSync(encodeJpg(largeThumbnail));
+  mediumLocalFile.writeAsBytesSync(encodeJpg(mediumThumbnail));
+  smallLocalFile.writeAsBytesSync(encodeJpg(smallThumbnail));
+  fileMap['real']=realLocalFile.path;
+  fileMap['large']=largeLocalFile.path;
+  fileMap['medium']=mediumLocalFile.path;
+  fileMap['small']=smallLocalFile.path;
+
+  SendPort sendport = param['sendPort'];
+
+  sendport.send(fileMap);
 
 }
