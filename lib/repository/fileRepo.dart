@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
+import 'package:mime_type/mime_type.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:isolate_handler/isolate_handler.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
@@ -26,18 +28,16 @@ class FileRepo {
 
   Future<void> cloneFileInLocalDirectory(
       File file, String uploadKey, String name) async {
+      if(MediaType.parse(mime(file.path)).type=="image"){
       ReceivePort receivePort = ReceivePort();
       Map myMap = Map<String,dynamic>();
       myMap['file'] = file.path;
       myMap['sendPort'] = receivePort.sendPort;
       myMap['uploadKey'] = uploadKey;
       myMap['name'] = name;
-      // final isolates = IsolateHandler();
       try {
-        // await Isolate.spawn(
-        //     decodeIsolate,
-        //     DecodeParam(file, receivePort.sendPort, uploadKey, name));
-          await FlutterIsolate.spawn(decodeIsolate,myMap);
+
+        await FlutterIsolate.spawn(decodeIsolate,myMap);
 
         print("isolate spawn finished successfulllyyyyyyyyyyyy");
       }
@@ -50,6 +50,13 @@ class FileRepo {
       await _saveFileInfo(uploadKey, File(allLocalFiles['large']),  name, "large");
       await _saveFileInfo(uploadKey,  File(allLocalFiles['medium']),  name, "medium");
       await _saveFileInfo(uploadKey, File(allLocalFiles['small']),  name, "small");
+  }
+      final localFile = await _fileService.localFile(uploadKey, name);
+      localFile.writeAsBytesSync(file.readAsBytesSync());
+
+      await _saveFileInfo(uploadKey, localFile, name, "real");
+      await _saveFileInfo(uploadKey, localFile, name, "large");
+
   }
 
 
@@ -142,12 +149,16 @@ class FileRepo {
     var small = await _getFileInfoInDB("small", uploadKey);
     await _fileDao.deleteFileInfo(real);
     await _fileDao.deleteFileInfo(large);
-    await _fileDao.deleteFileInfo(medium);
-    await _fileDao.deleteFileInfo(small);
+    if (medium != null && small != null) {
+      await _fileDao.deleteFileInfo(medium);
+      await _fileDao.deleteFileInfo(small);
+    }
     await _fileDao.upsert(real.copyWith(uuid: uuid));
     await _fileDao.upsert(large.copyWith(uuid: uuid));
-    await _fileDao.upsert(medium.copyWith(uuid: uuid));
-    await _fileDao.upsert(small.copyWith(uuid: uuid));
+    if (medium != null && small != null) {
+      await _fileDao.upsert(medium.copyWith(uuid: uuid));
+      await _fileDao.upsert(small.copyWith(uuid: uuid));
+    }
   }
 
   Future<FileInfo> _getFileInfoInDB(String size, String uuid) async {
