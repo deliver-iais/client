@@ -22,6 +22,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -72,9 +73,9 @@ class CoreServices {
       return;
     }
     startStream();
-    if (_connectionTimer != null && _connectionTimer.isActive) {
-      return;
-    }
+    // if (_connectionTimer != null && _connectionTimer.isActive) {
+    //   return;
+    // }
     startCheckerTimer();
     _connectionStatus.distinct().listen((event) {
       connectionStatus.add(event);
@@ -92,8 +93,11 @@ class CoreServices {
       await startStream();
     }
     sendPingMessage();
-    responseChecked = false;
-    _connectionTimer = Timer(new Duration(seconds: backoffTime), () async {
+    if (_lastPongTime != 0 &&
+        DateTime.now().millisecond - _lastPongTime > 5000) {
+      responseChecked = false;
+    }
+    _connectionTimer = Timer(new Duration(seconds: backoffTime), () {
       if (!responseChecked) {
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
           backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
@@ -120,6 +124,7 @@ class CoreServices {
       _responseStream = _grpcCoreService.establishStream(
           _clientPacket.stream.asBroadcastStream(
         onCancel: (c) async {
+          responseChecked = false;
           await _clientPacket.close();
           _connectionStatus.add(ConnectionStatus.Disconnected);
         },
