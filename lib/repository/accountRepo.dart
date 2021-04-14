@@ -148,7 +148,7 @@ class AccountRepo {
     var result =  await _userServices.getUserProfile(GetUserProfileReq(),
         options:
             CallOptions(metadata: {'access_token': await getAccessToken()}));
-    if (getIdRequest!= null && getIdRequest.id != null && result.profile.hasFirstName()) {
+    if (getIdRequest!= null && getIdRequest.id != null &&  getIdRequest.id.length>0 && result.profile.hasFirstName()) {
       _saveProfilePrivateDate(
           username: getIdRequest.id,
           firstName: result.profile.firstName,

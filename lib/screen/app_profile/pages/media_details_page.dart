@@ -101,8 +101,10 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     if (widget.isAvatar == true) {
       return buildAvatar(context);
     } else if (widget.isVideo == true) {
+      _swipePositionSubject.add(widget.mediaPosition);
       return buildMediaOrVideoWidget(context, true);
     } else {
+      _swipePositionSubject.add(widget.mediaPosition);
       return buildMediaOrVideoWidget(context, false);
     }
   }
@@ -160,6 +162,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           scrollDirection: Axis.horizontal,
           index: widget.mediaPosition,
           itemBuilder: (context, i) {
+            _swipePositionSubject.add(i);
             if (isVideo) return vedioSwiper(i, context);
             return mediaSuper(i, context);
           },
@@ -390,7 +393,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     return Stack(
       alignment: Alignment.centerLeft,
       children: [
-       // buildAppBar(i, widget.mediasLength),
+        // buildAppBar(i, widget.mediasLength),
         Positioned(
           top: 80,
           left: 0.0,
@@ -507,30 +510,32 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           )),
       actions: [
         //widget.isAvatar ?
-        PopupMenuButton(
-            icon: Icon(
-              Icons.more_vert,
-              color: Colors.white,
-              size: 20,
-            ),
-            itemBuilder: (cc) => [
-                  if (widget.hasPermissionToDeletePic && widget.isAvatar)
-                    PopupMenuItem(
-                        child: GestureDetector(
-                      child: Text("delete"),
-                      onTap: () async {
-                        await _avatarRepo.deleteAvatar(
-                            _allAvatars[_swipePositionSubject.value ?? 0]);
-                        setState(() {});
-                      },
-                    )),
-                  if (widget.hasPermissionToDeletePic && !widget.isAvatar)
-                    PopupMenuItem(
-                        child: GestureDetector(
-                      child: Text("delete"),
-                      onTap: () {},
-                    )),
-                ])
+        widget.hasPermissionToDeletePic && widget.isAvatar
+            ? PopupMenuButton(
+                icon: Icon(
+                  Icons.more_vert,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                itemBuilder: (cc) => [
+                      if (widget.hasPermissionToDeletePic && widget.isAvatar)
+                        PopupMenuItem(
+                            child: GestureDetector(
+                          child: Text("delete"),
+                          onTap: () async {
+                            await _avatarRepo.deleteAvatar(
+                                _allAvatars[_swipePositionSubject.value ?? 0]);
+                            setState(() {});
+                          },
+                        )),
+                      if (widget.hasPermissionToDeletePic && !widget.isAvatar)
+                        PopupMenuItem(
+                            child: GestureDetector(
+                          child: Text("delete"),
+                          onTap: () {},
+                        )),
+                    ])
+            : SizedBox.shrink()
       ],
     );
   }

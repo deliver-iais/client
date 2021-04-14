@@ -33,8 +33,8 @@ class _ImageUiState extends State<ImageUi> {
         future: _mediaQueryRepo.getMedia(widget.userUid,
             FetchMediasReq_MediaType.IMAGES, widget.imagesCount),
         builder: (BuildContext c, AsyncSnapshot snaps) {
-          if (!snaps.hasData ||
-              snaps.data == null ||
+          if (!snaps.hasData &&
+              snaps.data == null &&
               snaps.connectionState == ConnectionState.waiting) {
             return Container(width: 0.0, height: 0.0);
           } else {
@@ -56,13 +56,11 @@ class _ImageUiState extends State<ImageUi> {
                         if (snaps.hasData &&
                             snaps.data != null &&
                             snaps.connectionState == ConnectionState.done) {
-                          print(
-                              "*******getfileeeeeeeeeeeeeeeeeee*************$position");
                           return GestureDetector(
                             onTap: () {
                               _routingService.openShowAllMedia(
                                 uid: widget.userUid,
-                                hasPermissionToDeletePic: true,
+                                hasPermissionToDeletePic: false,
                                 mediaPosition: position,
                                 heroTag: "btn$position",
                                 mediasLength: widget.imagesCount,

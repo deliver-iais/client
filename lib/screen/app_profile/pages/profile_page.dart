@@ -61,6 +61,8 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void dispose() {
     _tabController.dispose();
+    _uxService.setTabIndex(
+        widget.userUid.asString(), 0);
     super.dispose();
   }
 
@@ -99,18 +101,22 @@ class _ProfilePageState extends State<ProfilePage>
             if (snapshot.data.audiosCount != 0) {
               tabsCount = tabsCount + 1;
             }
+
+            _tabController = TabController(
+                length: (widget.userUid.category == Categories.GROUP ||
+                    widget.userUid.category == Categories.CHANNEL)
+                    ? tabsCount + 1
+                    : tabsCount,
+                vsync: this,
+                initialIndex:
+                _uxService.getTabIndex(widget.userUid.asString()));  _tabController.addListener(() {
+              _uxService.setTabIndex(
+                  widget.userUid.asString(), _tabController.index);
+            });
           }
-          _tabController = TabController(
-              length: (widget.userUid.category == Categories.GROUP ||
-                      widget.userUid.category == Categories.CHANNEL)
-                  ? tabsCount + 1
-                  : tabsCount,
-              vsync: this,
-              initialIndex: _uxService.getTabIndex(widget.userUid.asString()));
-          _tabController.addListener(() {
-            _uxService.setTabIndex(
-                widget.userUid.asString(), _tabController.index);
-          });
+
+
+
           return Scaffold(
               body: DefaultTabController(
                   length: (widget.userUid.category == Categories.USER ||
