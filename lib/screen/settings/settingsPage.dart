@@ -40,7 +40,7 @@ class _SettingsPageState extends State<SettingsPage> {
   final _routingService = GetIt.I.get<RoutingService>();
 
   bool _uploadNewAvatar = false;
-  String _newAvatarPath = "";
+  String _newAvatarPath;
 
   bool _getTheme() {
     if (_uxService.theme == DarkTheme) {
