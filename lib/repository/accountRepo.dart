@@ -135,7 +135,6 @@ class AccountRepo {
   }
 
   Future<bool> usernameIsSet() async {
-    return true;
 
     final QueryServiceClient _queryServiceClient =
     GetIt.I.get<QueryServiceClient>();
@@ -149,7 +148,7 @@ class AccountRepo {
     var result =  await _userServices.getUserProfile(GetUserProfileReq(),
         options:
             CallOptions(metadata: {'access_token': await getAccessToken()}));
-    if (result.profile.hasFirstName()) {
+    if (getIdRequest!= null && getIdRequest.id != null && result.profile.hasFirstName()) {
       _saveProfilePrivateDate(
           username: getIdRequest.id,
           firstName: result.profile.firstName,

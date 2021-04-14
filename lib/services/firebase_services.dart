@@ -30,6 +30,9 @@ class FireBaseServices {
     await _setFirebaseSetting();
     _sendFireBaseToken(fireBaseToken);
   }
+  deleteFirabseInstaceIs(){
+    FireBaseServices().deleteFirabseInstaceIs();
+  }
 
   _sendFireBaseToken(String fireBaseToken) async {
     String firabase_setting = await _prefs.get(Firabase_Setting_Is_Set);
