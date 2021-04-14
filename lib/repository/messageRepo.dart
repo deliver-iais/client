@@ -24,6 +24,7 @@ import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as MessageProto;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user_room_meta.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
@@ -460,6 +461,9 @@ class MessageRepo {
       case MessageType.SHARE_UID:
         byClient.shareUid = MessageProto.ShareUid.fromJson(message.json);
         break;
+      case MessageType.sharePrivateDataAcceptance:
+        byClient.sharePrivateDataAcceptance = SharePrivateDataAcceptance.fromJson(message.json);
+        break;
       default:
         break;
     }
@@ -671,5 +675,33 @@ class MessageRepo {
 
   Future<List<Message>> searchMessage(String str, String roomId) async {
     return _messageDao.searchMessage(str, roomId);
+  }
+
+  void sendPrivateMessageAccept(Uid to,PrivateDataType privateDataType)async {
+    SharePrivateDataAcceptance sharePrivateDataAcceptance = SharePrivateDataAcceptance()..data = privateDataType;
+    String json = sharePrivateDataAcceptance.writeToJson();
+    String packetId = _getPacketId();
+    MessagesCompanion message = MessagesCompanion.insert(
+      roomId: to.asString(),
+      packetId: packetId,
+      time: now(),
+      from: _accountRepo.currentUserUid.asString(),
+      to: to.asString(),
+      replyToId:  Value.absent(),
+      type: MessageType.sharePrivateDataAcceptance,
+      json: json,
+    );
+
+    int dbId = await _messageDao.insertMessageCompanion(message);
+    await _savePendingMessage(
+        to.asString(), dbId, packetId, SendingStatus.PENDING);
+    _updateRoomLastMessage(
+      to.asString(),
+      dbId,
+    );
+    // Send Message
+    await _sendMessageToServer(dbId);
+
+
   }
 }

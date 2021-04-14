@@ -12,6 +12,8 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/message_ui.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/reply_widgets/reply_widget_in_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/stickerMessgeWidget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/text_message/text_ui.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/sharePrivateDataAcceptMessageWidget.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/sharePrivateDataRequestMessageWidget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_uid_message_widget.dart';
 
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -204,9 +206,17 @@ class _BoxContentState extends State<BoxContent> {
           isSeen: widget.isSeen,
         );
         break;
+      case MessageType.sharePrivateDataRequest:
+        return SharePrivateDataRequestMessageWidget(message: widget.message,isSeen: widget.isSeen,isSender: widget.isSender,);
+        break;
+      case MessageType.sharePrivateDataAcceptance:
+        return SharePrivateDataAcceptMessageWidget(message: widget.message,isSeen: widget.isSeen,isSender: widget.isSender,);
+
+        break;
       case MessageType.NOT_SET:
         // TODO: Handle this case.
         break;
+
     }
     return Container();
   }

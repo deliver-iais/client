@@ -391,6 +391,12 @@ String messageToJson(Message message) {
     case MessageType.FORM_RESULT:
       return message.formResult.writeToJson();
       break;
+    case MessageType.sharePrivateDataRequest:
+      return message.sharePrivateDataRequest.writeToJson();
+      break;
+    case MessageType.sharePrivateDataAcceptance:
+      return message.sharePrivateDataAcceptance.writeToJson();
+
     case MessageType.NOT_SET:
       // TODO: Handle this case.
       break;
@@ -422,6 +428,10 @@ MessageType getMessageType(Message_Type messageType) {
       return MessageType.BUTTONS;
     case Message_Type.shareUid:
       return MessageType.SHARE_UID;
+    case Message_Type.sharePrivateDataRequest:
+      return MessageType.sharePrivateDataRequest;
+    case Message_Type.sharePrivateDataAcceptance:
+      return MessageType.sharePrivateDataAcceptance;
     default:
       return MessageType.NOT_SET;
   }
