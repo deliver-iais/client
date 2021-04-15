@@ -93,9 +93,6 @@ class FileService {
         options: Options(responseType: ResponseType.bytes));
     final file = await localThumbnailFile(uuid, filename.split(".").last, size);
     file.writeAsBytesSync(res.data);
-    Image image = decodeImage(file.readAsBytesSync());
-    print("${image.width}");
-    print("${image.height}");
     return file;
   }
 

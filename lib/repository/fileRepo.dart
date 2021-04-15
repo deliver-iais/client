@@ -35,17 +35,17 @@ class FileRepo {
       myMap['sendPort'] = receivePort.sendPort;
       myMap['uploadKey'] = uploadKey;
       myMap['name'] = name;
+      var isolate;
       try {
 
-        await FlutterIsolate.spawn(decodeIsolate,myMap);
-
-        print("isolate spawn finished successfulllyyyyyyyyyyyy");
+        isolate = await FlutterIsolate.spawn(decodeIsolate,myMap);
+       print("isolate spawn finished successfulllyyyyyyyyyyyy");
       }
       catch (e) {
         print("isolate errrrrrrrrrrrrrrrorrrrrrrrr"+e.toString());
       }
-
       Map allLocalFiles = await receivePort.first as Map;
+      isolate.kill();
       await _saveFileInfo(uploadKey, File(allLocalFiles['real']), name, "real");
       await _saveFileInfo(uploadKey, File(allLocalFiles['large']),  name, "large");
       await _saveFileInfo(uploadKey,  File(allLocalFiles['medium']),  name, "medium");
@@ -55,7 +55,6 @@ class FileRepo {
       localFile.writeAsBytesSync(file.readAsBytesSync());
 
       await _saveFileInfo(uploadKey, localFile, name, "real");
-      await _saveFileInfo(uploadKey, localFile, name, "large");
 
   }
 
@@ -113,9 +112,22 @@ class FileRepo {
     if (file != null) {
       return file;
     }
+    if(thumbnailSize==ThumbnailSize.large){
+      var downloadedFile =
+      await _fileService.getFile(uuid, filename, size: ThumbnailSize.large);
 
+      var mediumDownloadedFile =
+      await _fileService.getFile(uuid, filename, size: ThumbnailSize.medium);
+
+      await _saveFileInfo(uuid, downloadedFile, filename,
+          thumbnailSize != null ? enumToString(ThumbnailSize.large) : 'real');
+
+      await _saveFileInfo(uuid, mediumDownloadedFile, filename,
+          thumbnailSize != null ? enumToString(ThumbnailSize.medium) : 'real');
+      return downloadedFile;
+    }
     var downloadedFile =
-        await _fileService.getFile(uuid, filename, size: thumbnailSize);
+    await _fileService.getFile(uuid, filename, size: thumbnailSize);
     await _saveFileInfo(uuid, downloadedFile, filename,
         thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
     return downloadedFile;
@@ -147,17 +159,28 @@ class FileRepo {
     var large = await _getFileInfoInDB("large", uploadKey);
     var medium = await _getFileInfoInDB("medium", uploadKey);
     var small = await _getFileInfoInDB("small", uploadKey);
+
     await _fileDao.deleteFileInfo(real);
-    await _fileDao.deleteFileInfo(large);
-    if (medium != null && small != null) {
+    if(large != null) {
+      await _fileDao.deleteFileInfo(large);
+    }
+    if (medium != null) {
       await _fileDao.deleteFileInfo(medium);
+    }
+    if(small!=null){
       await _fileDao.deleteFileInfo(small);
     }
+
     await _fileDao.upsert(real.copyWith(uuid: uuid));
-    await _fileDao.upsert(large.copyWith(uuid: uuid));
-    if (medium != null && small != null) {
+
+    if(large != null) {
+      await _fileDao.upsert(large.copyWith(uuid: uuid));
+    }
+    if (medium != null) {
       await _fileDao.upsert(medium.copyWith(uuid: uuid));
-      await _fileDao.upsert(small.copyWith(uuid: uuid));
+    }
+    if(small != null){
+    await _fileDao.upsert(small.copyWith(uuid: uuid));
     }
   }
 
