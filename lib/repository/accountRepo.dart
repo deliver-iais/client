@@ -139,25 +139,31 @@ class AccountRepo {
     final QueryServiceClient _queryServiceClient =
     GetIt.I.get<QueryServiceClient>();
     if (null != await sharedPrefs.get(USERNAME)) {
+      var res = sharedPrefs.get(USERNAME);
       return true;
     }
-    var getIdRequest = await _queryServiceClient.getIdByUid(
-        GetIdByUidReq()..uid = currentUserUid,
-        options:
-        CallOptions(metadata: {'access_token': await getAccessToken()}));
-    var result =  await _userServices.getUserProfile(GetUserProfileReq(),
-        options:
-            CallOptions(metadata: {'access_token': await getAccessToken()}));
-    if (getIdRequest!= null && getIdRequest.id != null &&  getIdRequest.id.length>0 && result.profile.hasFirstName()) {
-      _saveProfilePrivateDate(
-          username: getIdRequest.id,
-          firstName: result.profile.firstName,
-          lastName: result.profile.lastName,
-          email: result.profile.email);
-      return true;
-    } else {
+    try{
+      var getIdRequest = await _queryServiceClient.getIdByUid(
+          GetIdByUidReq()..uid = currentUserUid,
+          options:
+          CallOptions(metadata: {'access_token': await getAccessToken()},timeout: Duration(seconds: 2)));
+      var result =  await _userServices.getUserProfile(GetUserProfileReq(),
+          options:
+          CallOptions(metadata: {'access_token': await getAccessToken()}));
+      if (getIdRequest!= null && getIdRequest.id != null &&  getIdRequest.id.length>0 && result.profile.hasFirstName()) {
+        _saveProfilePrivateDate(
+            username: getIdRequest.id,
+            firstName: result.profile.firstName,
+            lastName: result.profile.lastName,
+            email: result.profile.email);
+        return true;
+      } else {
+        return false;
+      }
+    }catch(e){
       return false;
     }
+
   }
 
   void _setTokensAndCurrentUserUid(String access_token, String refreshToken) {

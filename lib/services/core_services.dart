@@ -93,10 +93,7 @@ class CoreServices {
       await startStream();
     }
     sendPingMessage();
-    if (_lastPongTime != 0 &&
-        DateTime.now().millisecond - _lastPongTime > 5000) {
       responseChecked = false;
-    }
     _connectionTimer = Timer(new Duration(seconds: backoffTime), () {
       if (!responseChecked) {
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {

@@ -454,7 +454,7 @@ class _InputMessageWidget extends State<InputMessage> {
       }
     }
 
-    setState(() {});
+   setState(() {});
   }
 
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io' as DartFile;
+import 'dart:math';
 
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
@@ -23,10 +24,10 @@ import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as protoModel;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as MessageProto;
+import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user_room_meta.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:flutter/cupertino.dart';
@@ -101,20 +102,22 @@ class MessageRepo {
           GetAllUserRoomMetaReq(),
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
+      for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
+        print("&&&" + roomMetadata.roomUid.toString());
+        //   baae6e7c-d880-4dd0-948e-f6b5d38a74d0
         var room =
-            await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.asString());
+            await _roomDao.getByRoomIdFuture(roomMetadata.roomUid.asString());
         if (room != null &&
             room.lastMessageId != null &&
-            room.lastMessageId >= userRoomMeta.lastMessageId.toInt() &&
+            room.lastMessageId >= roomMetadata.lastMessageId.toInt() &&
             room.lastMessageId != 0) {
           continue;
         }
         try {
           var fetchMessagesRes = await _queryServiceClient.fetchMessages(
               FetchMessagesReq()
-                ..roomUid = userRoomMeta.roomUid
-                ..pointer = userRoomMeta.lastMessageId
+                ..roomUid = roomMetadata.roomUid
+                ..pointer = roomMetadata.lastMessageId
                 ..type = FetchMessagesReq_Type.FORWARD_FETCH
                 ..limit = 2,
               options: CallOptions(timeout: Duration(seconds: 1), metadata: {
@@ -126,12 +129,12 @@ class MessageRepo {
           // TODO if there is Pending Message this line has a bug!!
           if (messages.isNotEmpty) {
             _roomDao.insertRoomCompanion(RoomsCompanion.insert(
-                roomId: userRoomMeta.roomUid.asString(),
+                roomId: roomMetadata.roomUid.asString(),
                 lastMessageId: Value(messages.last.id),
                 lastMessageDbId: Value(messages.last.dbId)));
           }
 
-          fetchLastSeen(userRoomMeta);
+          fetchLastSeen(roomMetadata);
 
           if (room != null &&
               room.roomId.getUid().category == Categories.GROUP) {
@@ -148,23 +151,26 @@ class MessageRepo {
     getBlockedRoom();
   }
 
-  Future fetchLastSeen(UserRoomMeta room) async {
-    try{
+  Future fetchLastSeen(RoomMetadata room) async {
+    try {
       var fetchCurrentUserSeenData =
-      await _queryServiceClient.fetchCurrentUserSeenData(
-          FetchCurrentUserSeenDataReq()..roomUid = room.roomUid,
-          options: CallOptions(metadata: {
-            "access_token": await _accountRepo.getAccessToken()
-          }));
+          await _queryServiceClient.fetchCurrentUserSeenData(
+              FetchCurrentUserSeenDataReq()..roomUid = room.roomUid,
+              options: CallOptions(metadata: {
+                "access_token": await _accountRepo.getAccessToken()
+              }));
+      print(room.roomUid.toString() +
+          "^^^^" +
+          fetchCurrentUserSeenData.seen.id.toString());
       _lastSeenDao.insertLastSeen(LastSeen(
           roomId: room.roomUid.asString(),
-          messageId: fetchCurrentUserSeenData.seen.id.toInt()));
-    }catch(e){
+          messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
+              room.lastCurrentUserSentMessageId.toInt())));
+    } catch (e) {
       print(e.toString());
     }
-
-
-    if (room.roomUid.category == Categories.USER) {
+    if (room.roomUid.category == Categories.USER ||
+        room.roomUid.category == Categories.GROUP) {
       var fetchLastOtherUserSeenData =
           await _queryServiceClient.fetchLastOtherUserSeenData(
               FetchLastOtherUserSeenDataReq()..roomUid = room.roomUid,
@@ -173,7 +179,8 @@ class MessageRepo {
               }));
       _seenDao.insertSeen(SeensCompanion(
           roomId: Value(room.roomUid.asString()),
-          messageId: Value(fetchLastOtherUserSeenData.seen.id.toInt())));
+          messageId: Value(fetchLastOtherUserSeenData.seen.id.toInt()),
+          user: Value(fetchLastOtherUserSeenData.seen.from.asString())));
     }
   }
 
@@ -462,7 +469,8 @@ class MessageRepo {
         byClient.shareUid = MessageProto.ShareUid.fromJson(message.json);
         break;
       case MessageType.sharePrivateDataAcceptance:
-        byClient.sharePrivateDataAcceptance = SharePrivateDataAcceptance.fromJson(message.json);
+        byClient.sharePrivateDataAcceptance =
+            SharePrivateDataAcceptance.fromJson(message.json);
         break;
       default:
         break;
@@ -677,8 +685,9 @@ class MessageRepo {
     return _messageDao.searchMessage(str, roomId);
   }
 
-  void sendPrivateMessageAccept(Uid to,PrivateDataType privateDataType)async {
-    SharePrivateDataAcceptance sharePrivateDataAcceptance = SharePrivateDataAcceptance()..data = privateDataType;
+  void sendPrivateMessageAccept(Uid to, PrivateDataType privateDataType) async {
+    SharePrivateDataAcceptance sharePrivateDataAcceptance =
+        SharePrivateDataAcceptance()..data = privateDataType;
     String json = sharePrivateDataAcceptance.writeToJson();
     String packetId = _getPacketId();
     MessagesCompanion message = MessagesCompanion.insert(
@@ -687,7 +696,7 @@ class MessageRepo {
       time: now(),
       from: _accountRepo.currentUserUid.asString(),
       to: to.asString(),
-      replyToId:  Value.absent(),
+      replyToId: Value.absent(),
       type: MessageType.sharePrivateDataAcceptance,
       json: json,
     );
@@ -701,7 +710,5 @@ class MessageRepo {
     );
     // Send Message
     await _sendMessageToServer(dbId);
-
-
   }
 }
