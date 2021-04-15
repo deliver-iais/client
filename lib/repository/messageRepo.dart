@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io' as DartFile;
+import 'dart:math';
 
+import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
+import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
@@ -14,7 +17,6 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
-import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as FileProto;
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
@@ -22,12 +24,14 @@ import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as protoModel;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as MessageProto;
+import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user_room_meta.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
@@ -37,7 +41,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
-import 'package:location/location.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
@@ -59,6 +62,8 @@ class MessageRepo {
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
+  var _seenDao = GetIt.I.get<SeenDao>();
+  var _lastSeenDao = GetIt.I.get<LastSeenDao>();
 
   var _coreServices = GetIt.I.get<CoreServices>();
 
@@ -97,20 +102,22 @@ class MessageRepo {
           GetAllUserRoomMetaReq(),
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      for (UserRoomMeta userRoomMeta in getAllUserRoomMetaRes.roomsMeta) {
+      for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
+        print("&&&" + roomMetadata.roomUid.toString());
+        //   baae6e7c-d880-4dd0-948e-f6b5d38a74d0
         var room =
-            await _roomDao.getByRoomIdFuture(userRoomMeta.roomUid.asString());
+            await _roomDao.getByRoomIdFuture(roomMetadata.roomUid.asString());
         if (room != null &&
             room.lastMessageId != null &&
-            room.lastMessageId >= userRoomMeta.lastMessageId.toInt() &&
+            room.lastMessageId >= roomMetadata.lastMessageId.toInt() &&
             room.lastMessageId != 0) {
           continue;
         }
         try {
           var fetchMessagesRes = await _queryServiceClient.fetchMessages(
               FetchMessagesReq()
-                ..roomUid = userRoomMeta.roomUid
-                ..pointer = userRoomMeta.lastMessageId
+                ..roomUid = roomMetadata.roomUid
+                ..pointer = roomMetadata.lastMessageId
                 ..type = FetchMessagesReq_Type.FORWARD_FETCH
                 ..limit = 2,
               options: CallOptions(timeout: Duration(seconds: 1), metadata: {
@@ -122,10 +129,13 @@ class MessageRepo {
           // TODO if there is Pending Message this line has a bug!!
           if (messages.isNotEmpty) {
             _roomDao.insertRoomCompanion(RoomsCompanion.insert(
-                roomId: userRoomMeta.roomUid.asString(),
+                roomId: roomMetadata.roomUid.asString(),
                 lastMessageId: Value(messages.last.id),
                 lastMessageDbId: Value(messages.last.dbId)));
           }
+
+          fetchLastSeen(roomMetadata);
+
           if (room != null &&
               room.roomId.getUid().category == Categories.GROUP) {
             getMentions(room);
@@ -141,12 +151,45 @@ class MessageRepo {
     getBlockedRoom();
   }
 
+  Future fetchLastSeen(RoomMetadata room) async {
+    try {
+      var fetchCurrentUserSeenData =
+          await _queryServiceClient.fetchCurrentUserSeenData(
+              FetchCurrentUserSeenDataReq()..roomUid = room.roomUid,
+              options: CallOptions(metadata: {
+                "access_token": await _accountRepo.getAccessToken()
+              }));
+      print(room.roomUid.toString() +
+          "^^^^" +
+          fetchCurrentUserSeenData.seen.id.toString());
+      _lastSeenDao.insertLastSeen(LastSeen(
+          roomId: room.roomUid.asString(),
+          messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
+              room.lastCurrentUserSentMessageId.toInt())));
+    } catch (e) {
+      print(e.toString());
+    }
+    if (room.roomUid.category == Categories.USER ||
+        room.roomUid.category == Categories.GROUP) {
+      var fetchLastOtherUserSeenData =
+          await _queryServiceClient.fetchLastOtherUserSeenData(
+              FetchLastOtherUserSeenDataReq()..roomUid = room.roomUid,
+              options: CallOptions(metadata: {
+                "access_token": await _accountRepo.getAccessToken()
+              }));
+      _seenDao.insertSeen(SeensCompanion(
+          roomId: Value(room.roomUid.asString()),
+          messageId: Value(fetchLastOtherUserSeenData.seen.id.toInt()),
+          user: Value(fetchLastOtherUserSeenData.seen.from.asString())));
+    }
+  }
+
   Future getMentions(Room room) async {
     try {
       var mentionResult = await _queryServiceClient.fetchMentionList(
           FetchMentionListReq()
             ..group = room.roomId.getUid()
-            ..afterId = 1,
+            ..afterId = Int64.parseInt(room.lastMessageId.toString()),
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       if (mentionResult.idList != null && mentionResult.idList.length > 0) {
@@ -195,7 +238,7 @@ class MessageRepo {
     await _sendMessageToServer(dbId);
   }
 
-  sendLocationMessage(LocationData locationData, Uid room,
+  sendLocationMessage(Position locationData, Uid room,
       {String forwardedFromAsString}) async {
     String packetId = _getPacketId();
     String json = (protoModel.Location()
@@ -426,6 +469,10 @@ class MessageRepo {
       case MessageType.SHARE_UID:
         byClient.shareUid = MessageProto.ShareUid.fromJson(message.json);
         break;
+      case MessageType.sharePrivateDataAcceptance:
+        byClient.sharePrivateDataAcceptance =
+            SharePrivateDataAcceptance.fromJson(message.json);
+        break;
       default:
         break;
     }
@@ -629,6 +676,37 @@ class MessageRepo {
         room.asString(), dbId, packetId, SendingStatus.PENDING);
     _updateRoomLastMessage(
       room.asString(),
+      dbId,
+    );
+    // Send Message
+    await _sendMessageToServer(dbId);
+  }
+
+  Future<List<Message>> searchMessage(String str, String roomId) async {
+    return _messageDao.searchMessage(str, roomId);
+  }
+
+  void sendPrivateMessageAccept(Uid to, PrivateDataType privateDataType) async {
+    SharePrivateDataAcceptance sharePrivateDataAcceptance =
+        SharePrivateDataAcceptance()..data = privateDataType;
+    String json = sharePrivateDataAcceptance.writeToJson();
+    String packetId = _getPacketId();
+    MessagesCompanion message = MessagesCompanion.insert(
+      roomId: to.asString(),
+      packetId: packetId,
+      time: now(),
+      from: _accountRepo.currentUserUid.asString(),
+      to: to.asString(),
+      replyToId: Value.absent(),
+      type: MessageType.sharePrivateDataAcceptance,
+      json: json,
+    );
+
+    int dbId = await _messageDao.insertMessageCompanion(message);
+    await _savePendingMessage(
+        to.asString(), dbId, packetId, SendingStatus.PENDING);
+    _updateRoomLastMessage(
+      to.asString(),
       dbId,
     );
     // Send Message

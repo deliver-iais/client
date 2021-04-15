@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'helper_classes.dart';
@@ -33,7 +35,7 @@ class _ShareBoxMusicState extends State<ShareBoxMusic> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<AudioItem>>(
+    return FutureBuilder<List<File>>(
         future: _future,
         builder: (context, audios) {
           if (audios.hasData) {
@@ -65,7 +67,7 @@ class _ShareBoxMusicState extends State<ShareBoxMusic> {
                           ),
                           Flexible(
                             child: Text(
-                              fileItem.title,
+                              fileItem.path.split("/").last,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: Colors.black,

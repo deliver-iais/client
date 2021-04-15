@@ -9,6 +9,7 @@ class SentMessageBox extends StatelessWidget {
   final Function scrollToMessage;
   final bool isSeen;
   final Function omUsernameClick;
+  final String pattern;
 
   const SentMessageBox(
       {Key key,
@@ -16,6 +17,7 @@ class SentMessageBox extends StatelessWidget {
       this.maxWidth,
       this.isSeen,
       this.scrollToMessage,
+      this.pattern,
       this.omUsernameClick})
       : super(key: key);
 
@@ -32,6 +34,7 @@ class SentMessageBox extends StatelessWidget {
                 scrollToMessage: scrollToMessage,
                 isSeen: this.isSeen,
                 onUsernameClick: this.omUsernameClick,
+                pattern: this.pattern,
               )
             : Padding(
                 padding: const EdgeInsets.only(bottom: 8.0, right: 5.0),
@@ -46,6 +49,7 @@ class SentMessageBox extends StatelessWidget {
                       isSender: true,
                       scrollToMessage: scrollToMessage,
                       isSeen: this.isSeen,
+                      pattern: pattern,
                       onUsernameClick: this.omUsernameClick,
                     ),
                   ),

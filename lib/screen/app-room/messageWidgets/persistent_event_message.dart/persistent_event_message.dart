@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -25,7 +26,6 @@ class PersistentEventMessage extends StatelessWidget {
 
   AppLocalization _appLocalization;
 
-
   @override
   Widget build(BuildContext context) {
     PersistentEvent persistentEventMessage = message.json.toPersistentEvent();
@@ -35,8 +35,12 @@ class PersistentEventMessage extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: showLastMessage
-              ? Theme.of(context).backgroundColor
-              : ExtraTheme.of(context).details,
+              ? Theme
+              .of(context)
+              .backgroundColor
+              : ExtraTheme
+              .of(context)
+              .details,
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         child: Padding(
@@ -48,13 +52,17 @@ class PersistentEventMessage extends StatelessWidget {
                   return Text(
                     s.data,
                     style: TextStyle(
-                        color: ExtraTheme.of(context).infoChat, fontSize: 12),
+                        color: ExtraTheme
+                            .of(context)
+                            .infoChat, fontSize: 12),
                   );
                 } else {
                   return Text(
                     "...",
                     style: TextStyle(
-                        color: ExtraTheme.of(context).secondColor,
+                        color: ExtraTheme
+                            .of(context)
+                            .secondColor,
                         fontSize: 12),
                   );
                 }
@@ -64,56 +72,72 @@ class PersistentEventMessage extends StatelessWidget {
     );
   }
 
-  Future<String> getPersistentMessage(PersistentEvent  persistentEventMessage) async {
+  Future<String> getPersistentMessage(
+      PersistentEvent persistentEventMessage) async {
     switch (persistentEventMessage.whichType()) {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
         String issuer = await getName(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer);
+            persistentEventMessage.mucSpecificPersistentEvent.issuer,
+            message.to.getUid());
         String assignee = await getName(
-            persistentEventMessage.mucSpecificPersistentEvent.assignee);
+            persistentEventMessage.mucSpecificPersistentEvent.assignee,
+            message.to.getUid());
         switch (persistentEventMessage.mucSpecificPersistentEvent.issue) {
           case MucSpecificPersistentEvent_Issue.ADD_USER:
-            return " $issuer  ${_appLocalization.getTraslateValue("add_user_to_muc")} $assignee";
+            return " $issuer  ${_appLocalization.getTraslateValue(
+                "add_user_to_muc")} $assignee";
           case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
             return message.from.uid.category == Categories.CHANNEL
-                ? "$issuer } ${_appLocalization.getTraslateValue("change_channel_avatar")}"
-                : "$issuer  ${_appLocalization.getTraslateValue("change_group_avatar")}";
+                ? "$issuer } ${_appLocalization.getTraslateValue(
+                "change_channel_avatar")}"
+                : "$issuer  ${_appLocalization.getTraslateValue(
+                "change_group_avatar")}";
           case MucSpecificPersistentEvent_Issue.JOINED_USER:
-            return "$issuer ${_appLocalization.getTraslateValue("joint_to_group")}";
+            return "$issuer ${_appLocalization.getTraslateValue(
+                "joint_to_group")}";
 
           case MucSpecificPersistentEvent_Issue.KICK_USER:
-            return "$issuer ، $assignee ${_appLocalization.getTraslateValue("kick_from_muc")}";
+            return "$issuer ،  ${_appLocalization.getTraslateValue(
+                "kick_from_muc")} $assignee";
           case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-            return "$issuer ${_appLocalization.getTraslateValue("left_the_group")}";
+            return "$issuer ${_appLocalization.getTraslateValue(
+                "left_the_group")}";
           case MucSpecificPersistentEvent_Issue.MUC_CREATED:
             return message.from.uid.category == Categories.CHANNEL
-                ? "$issuer  ${_appLocalization.getTraslateValue("create_channel")}"
-                : "$issuer  ${_appLocalization.getTraslateValue("create_group")}";
+                ? "$issuer  ${_appLocalization.getTraslateValue(
+                "create_channel")}"
+                : "$issuer  ${_appLocalization.getTraslateValue(
+                "create_group")}";
           case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-            return "$issuer  ${_appLocalization.getTraslateValue("change_muc_name")}";
+            return "$issuer  ${_appLocalization.getTraslateValue(
+                "change_muc_name")}";
           case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-            return "$issuer ${_appLocalization.getTraslateValue("pin_message")}";
+            return "$issuer ${_appLocalization.getTraslateValue(
+                "pin_message")}";
         }
 
         break;
       case PersistentEvent_Type.messageManipulationPersistentEvent:
         break;
       case PersistentEvent_Type.adminSpecificPersistentEvent:
-        String user = await _roomRepo.getRoomDisplayName(message.from.uid);
-        return "$user ${_appLocalization.getTraslateValue("new_contact_add")}";
+          var user = await _roomRepo.getRoomDisplayName(message.from.uid,roomUid: message.to);
+          return "${user} ${_appLocalization.getTraslateValue(
+              "new_contact_add")}";
         break;
       case PersistentEvent_Type.notSet:
-        // TODO: Handle this case.
+      // TODO: Handle this case.
         break;
     }
     ;
   }
 
-  Future<String> getName(Uid uid) async {
+  Future<String> getName(Uid uid, Uid to) async {
     if (uid == null) return "";
-    String name = uid.isSameEntity(_accountRepo.currentUserUid.asString())
-        ? _appLocalization.getTraslateValue("you")
-        : await _roomRepo.getRoomDisplayName(uid);
-    return name;
+    if (uid.isSameEntity(_accountRepo.currentUserUid.asString()))
+      return _appLocalization.getTraslateValue("you");
+    else {
+        var name = _roomRepo.getRoomDisplayName(uid,roomUid: to.asString());
+        return name;
+    }
   }
 }

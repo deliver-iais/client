@@ -5,6 +5,7 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/payment_transaction.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/poll.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 
 extension JsonMapper on String {
   File toFile() {
@@ -52,5 +53,11 @@ extension JsonMapper on String {
   }
   ShareUid toShareUid(){
     return ShareUid.fromJson(this);
+  }
+  SharePrivateDataAcceptance toSharePrivateDataAcceptance(){
+    return SharePrivateDataAcceptance.fromJson(this);
+  }
+  SharePrivateDataRequest toSharePrivateDataReauest(){
+    return SharePrivateDataRequest.fromJson(this);
   }
 }

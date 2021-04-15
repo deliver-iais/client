@@ -1,4 +1,5 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -11,6 +12,8 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/message_ui.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/reply_widgets/reply_widget_in_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/stickerMessgeWidget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/text_message/text_ui.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/sharePrivateDataAcceptMessageWidget.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/sharePrivateDataRequestMessageWidget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_uid_message_widget.dart';
 
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -27,6 +30,7 @@ class BoxContent extends StatefulWidget {
   final Function scrollToMessage;
   final bool isSeen;
   final Function onUsernameClick;
+  final String pattern;
 
   const BoxContent(
       {Key key,
@@ -34,6 +38,7 @@ class BoxContent extends StatefulWidget {
       this.maxWidth,
       this.isSender,
       this.isSeen,
+      this.pattern,
       this.onUsernameClick,
       this.scrollToMessage})
       : super(key: key);
@@ -46,6 +51,7 @@ class _BoxContentState extends State<BoxContent> {
   CrossAxisAlignment last = CrossAxisAlignment.start;
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _routingServices = GetIt.I.get<RoutingService>();
+  var _memberDao = GetIt.I.get<MemberDao>();
 
   void initialLastCross(CrossAxisAlignment c) {
     last = c;
@@ -65,7 +71,7 @@ class _BoxContentState extends State<BoxContent> {
         if (widget.message.to.getUid().category != Categories.BOT &&
             widget.message.replyToId != null &&
             widget.message.replyToId > 0)
-         // replyToIdBox(),
+          replyToIdBox(),
         if (widget.message.forwardedFrom != null &&
             widget.message.forwardedFrom.length > 3)
           forwardedFromBox(),
@@ -91,21 +97,25 @@ class _BoxContentState extends State<BoxContent> {
       future: _roomRepo.getRoomDisplayName(widget.message.from.uid),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
-          return GestureDetector(
-            child: Text(
-              snapshot.data,
-              style: TextStyle(color: Colors.blue),
-            ),
-            onTap: () {
-              _routingServices.openRoom(widget.message.from);
-            },
-          );
+          return showName(snapshot.data);
         } else {
           return Text(
-            "Unknown",
+            "UnKnown",
             style: TextStyle(color: Colors.blue),
           );
         }
+      },
+    );
+  }
+
+  GestureDetector showName(String name) {
+    return GestureDetector(
+      child: Text(
+        name,
+        style: TextStyle(color: Colors.blue),
+      ),
+      onTap: () {
+        _routingServices.openRoom(widget.message.from);
       },
     );
   }
@@ -141,6 +151,7 @@ class _BoxContentState extends State<BoxContent> {
         return Padding(
           padding: const EdgeInsets.only(right: 8.0, top: 8, bottom: 8),
           child: TextUi(
+            pattern: widget.pattern,
             message: widget.message,
             maxWidth: widget.maxWidth,
             isSender: widget.isSender,
@@ -195,9 +206,17 @@ class _BoxContentState extends State<BoxContent> {
           isSeen: widget.isSeen,
         );
         break;
+      case MessageType.sharePrivateDataRequest:
+        return SharePrivateDataRequestMessageWidget(message: widget.message,isSeen: widget.isSeen,isSender: widget.isSender,);
+        break;
+      case MessageType.sharePrivateDataAcceptance:
+        return SharePrivateDataAcceptMessageWidget(message: widget.message,isSeen: widget.isSeen,isSender: widget.isSender,);
+
+        break;
       case MessageType.NOT_SET:
         // TODO: Handle this case.
         break;
+
     }
     return Container();
   }

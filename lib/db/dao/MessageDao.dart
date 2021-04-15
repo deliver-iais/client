@@ -19,20 +19,20 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
   Future<int> insertMessage(Message newMessage) =>
       into(messages).insertOnConflictUpdate(newMessage);
 
-  Future<int> updateMessageId(String roomId, String packetID, int id, int time) {
+  Future<int> updateMessageId(
+      String roomId, String packetID, int id, int time) {
     return (update(messages)
           ..where((t) => t.roomId.equals(roomId) & t.packetId.equals(packetID)))
         .write(
       MessagesCompanion(
-        id: Value(id),
-        time: Value(DateTime.fromMillisecondsSinceEpoch(time))
-      ),
+          id: Value(id),
+          time: Value(DateTime.fromMillisecondsSinceEpoch(time))),
     );
   }
 
   updateMessageTimeAndJson(String roomId, int dbId, String json) {
     (update(messages)
-      ..where((t) => t.roomId.equals(roomId) & t.dbId.equals(dbId)))
+          ..where((t) => t.roomId.equals(roomId) & t.dbId.equals(dbId)))
         .write(
       MessagesCompanion(
         time: Value(DateTime.now()),
@@ -60,9 +60,10 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
           ..where((m) => m.roomId.equals(roomId) & m.id.equals(id)))
         .watchSingle();
   }
+
   Future<List<Message>> getMessageById(int id, String roomId) {
     return (select(messages)
-      ..where((m) => m.roomId.equals(roomId) & m.id.equals(id)))
+          ..where((m) => m.roomId.equals(roomId) & m.id.equals(id)))
         .get();
   }
 
@@ -93,5 +94,11 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
   Stream getMessageAfterTime(DateTime time) {
     return (select(messages)..where((m) => m.time.isBiggerOrEqualValue(time)))
         .watch();
+  }
+
+  Future<List<Message>> searchMessage(String str, String roomId) {
+    return (select(messages)
+          ..where((tbl) => tbl.roomId.equals(roomId) & tbl.json.contains(str)))
+        .get();
   }
 }

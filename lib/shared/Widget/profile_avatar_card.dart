@@ -34,7 +34,7 @@ class ProfileAvatarCard extends StatelessWidget {
               GestureDetector(
                 child: Hero(
                   tag: "avatar",
-                  child: uploadNewAvatar
+                  child: newAvatarPath != null
                       ? CircleAvatar(
                           radius: 80,
                           backgroundImage:
@@ -43,11 +43,13 @@ class ProfileAvatarCard extends StatelessWidget {
                             child: SizedBox(
                                 height: 50.0,
                                 width: 50.0,
-                                child: CircularProgressIndicator(
-                                  valueColor:
-                                      AlwaysStoppedAnimation(Colors.blue),
-                                  strokeWidth: 6.0,
-                                )),
+                                child: uploadNewAvatar
+                                    ? CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation(Colors.blue),
+                                        strokeWidth: 6.0,
+                                      )
+                                    : SizedBox.shrink()),
                           ),
                         )
                       : CircleAvatarWidget(

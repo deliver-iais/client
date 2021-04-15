@@ -204,7 +204,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   validator: validateEmail,
                                   decoration: buildInputDecoration(
                                       _appLocalization
-                                          .getTraslateValue("lastName"),
+                                          .getTraslateValue("email"),
                                       false)),
                               SizedBox(
                                 height: 40,

@@ -51,8 +51,7 @@ class AccountRepo {
   var authServiceStub = AuthServiceClient(ProfileServicesClientChannel);
   var _userServices = UserServiceClient(ProfileServicesClientChannel);
 
-  final QueryServiceClient _queryServiceClient =
-      GetIt.I.get<QueryServiceClient>();
+
 
   Future<void> init() async {
     var access_token = await sharedPrefs.get(ACCESS_TOKEN_KEY);
@@ -137,26 +136,34 @@ class AccountRepo {
 
   Future<bool> usernameIsSet() async {
 
+    final QueryServiceClient _queryServiceClient =
+    GetIt.I.get<QueryServiceClient>();
     if (null != await sharedPrefs.get(USERNAME)) {
+      var res = sharedPrefs.get(USERNAME);
       return true;
     }
-    var getIdRequest = await _queryServiceClient.getIdByUid(
-        GetIdByUidReq()..uid = currentUserUid,
-        options:
-        CallOptions(metadata: {'access_token': await getAccessToken()}));
-    var result =  await _userServices.getUserProfile(GetUserProfileReq(),
-        options:
-            CallOptions(metadata: {'access_token': await getAccessToken()}));
-    if (result.profile.hasFirstName()) {
-      _saveProfilePrivateDate(
-          username: getIdRequest.id,
-          firstName: result.profile.firstName,
-          lastName: result.profile.lastName,
-          email: result.profile.email);
-      return true;
-    } else {
+    try{
+      var getIdRequest = await _queryServiceClient.getIdByUid(
+          GetIdByUidReq()..uid = currentUserUid,
+          options:
+          CallOptions(metadata: {'access_token': await getAccessToken()},timeout: Duration(seconds: 2)));
+      var result =  await _userServices.getUserProfile(GetUserProfileReq(),
+          options:
+          CallOptions(metadata: {'access_token': await getAccessToken()}));
+      if (getIdRequest!= null && getIdRequest.id != null &&  getIdRequest.id.length>0 && result.profile.hasFirstName()) {
+        _saveProfilePrivateDate(
+            username: getIdRequest.id,
+            firstName: result.profile.firstName,
+            lastName: result.profile.lastName,
+            email: result.profile.email);
+        return true;
+      } else {
+        return false;
+      }
+    }catch(e){
       return false;
     }
+
   }
 
   void _setTokensAndCurrentUserUid(String access_token, String refreshToken) {
@@ -195,6 +202,8 @@ class AccountRepo {
   }
 
   Future<bool> checkUserName(String username) async {
+    final QueryServiceClient _queryServiceClient =
+    GetIt.I.get<QueryServiceClient>();
     var checkUsernameRes = await _queryServiceClient.idIsAvailable(
         IdIsAvailableReq()..id = username,
         options:
@@ -208,6 +217,8 @@ class AccountRepo {
     String lastName,
     String email,
   ) async {
+    final QueryServiceClient _queryServiceClient =
+    GetIt.I.get<QueryServiceClient>();
     try {
       _queryServiceClient.setId(SetIdReq()..id = username,
           options:

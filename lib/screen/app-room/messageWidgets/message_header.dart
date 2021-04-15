@@ -44,7 +44,6 @@ class _UnknownFileUiState extends State<UnknownFileUi> {
         return FutureBuilder<bool>(
             future: fileRepo.isExist(file.uuid, file.name),
             builder: (context, isExist) {
-              if (isExist.hasData) {
                 return Padding(
                   padding: const EdgeInsets.only(left: 8.0, top: 6),
                   child: Row(
@@ -62,7 +61,7 @@ class _UnknownFileUiState extends State<UnknownFileUi> {
                         messageDbId: widget.message.dbId,
                         onPressed: download,
                       ),
-                      //TODO width
+
                       Stack(
                         children: <Widget>[
                           Padding(
@@ -90,15 +89,14 @@ class _UnknownFileUiState extends State<UnknownFileUi> {
                                       ),
                                     ),
                                   ),
-                                  Icon(
-                                    Icons.more_vert,
-                                    size: 18,
-                                  ),
+                                  // Icon(
+                                  //   Icons.more_vert,
+                                  //   size: 18,
+                                  // ),
                                 ],
                               ),
                             ),
                           ),
-                          //TODO handle download progress
                           HeaderDetails(
                               loadStatus: 'loaded',
                               loadProgress: loadProgress,
@@ -112,10 +110,7 @@ class _UnknownFileUiState extends State<UnknownFileUi> {
                     ],
                   ),
                 );
-              } else {
-                return CircularProgressIndicator(
-                    backgroundColor: Colors.purple);
-              }
+
             });
       },
     );

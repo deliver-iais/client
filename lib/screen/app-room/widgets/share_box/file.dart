@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'helper_classes.dart';
@@ -24,12 +26,13 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
   @override
   void initState() {
     super.initState();
-    _future = FileItem.getFiles();
+
+    //_future = FileItem.getFiles();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<FileItem>>(
+    return FutureBuilder<List<File>>(
         future: _future,
         builder: (context, files) {
           if (files.hasData) {
@@ -60,7 +63,7 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                           ),
                           Flexible(
                             child: Text(
-                              fileItem.title,
+                              fileItem.path.split("/").last,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: Colors.black,

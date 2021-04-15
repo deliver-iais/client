@@ -317,6 +317,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   }
 
   String validateUsername(String value) {
+
     Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
     RegExp regex = new RegExp(pattern);
     if (value.isEmpty) {

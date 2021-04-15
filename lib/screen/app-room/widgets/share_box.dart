@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:android_intent/android_intent.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
@@ -11,14 +13,17 @@ import 'package:deliver_flutter/screen/app-room/widgets/share_box/music.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:file_chooser/file_chooser.dart';
+import 'package:file_picker/file_picker.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_file_manager/flutter_file_manager.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:location/location.dart';
+import 'package:path_provider_ex/path_provider_ex.dart';
+import 'package:storage_path/storage_path.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
@@ -51,9 +56,9 @@ class _ShareBoxState extends State<ShareBox> {
 
   final finalSelected = Map<int, String>();
 
-  Location location = new Location();
+  Geolocator _geolocator = new Geolocator();
 
-  LocationData _locationData;
+  Position _locationData;
 
   CheckPermissionsService _checkPermissionsService =
       GetIt.I.get<CheckPermissionsService>();
@@ -236,7 +241,7 @@ class _ShareBoxState extends State<ShareBox> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: <Widget>[
-                              CircleButton(()async  {
+                              CircleButton(() async {
                                 setState(() {
                                   audioPlayer.stop();
                                   currentPage = Page.Gallery;
@@ -246,26 +251,56 @@ class _ShareBoxState extends State<ShareBox> {
                                   appLocalization.getTraslateValue("gallery"),
                                   40,
                                   context: context),
-                              CircleButton(() {
-                                setState(() {
-                                  audioPlayer.stop();
-                                  currentPage = Page.Files;
-                                });
+                              CircleButton(() async {
+                                FilePickerResult result =
+                                    await FilePicker.platform.pickFiles(
+                                        allowMultiple: true,
+                                        type: FileType.custom,
+                                        allowedExtensions: [
+                                      "pdf",
+                                      "mp4",
+                                      "pptx",
+                                      "docx",
+                                      "xlsx",
+                                      'png',
+                                      'jpg',
+                                      'jpeg',
+                                      'gif'
+                                    ]);
+                                if (result != null) {
+                                  Navigator.pop(context);
+                                  for (var path in result.paths) {
+                                    messageRepo.sendFileMessage(
+                                        widget.currentRoomId, path);
+                                  }
+
+                                }
                               }, Icons.file_upload,
                                   appLocalization.getTraslateValue("file"), 40,
                                   context: context),
                               CircleButton(() async {
-                                audioPlayer.stop();
                                 if (await _checkPermissionsService
                                     .checkLocationPermission()) {
-                                  _locationData = await location.getLocation();
-                                  if (_locationData != null) {
-                                    Navigator.pop(context);
-                                    _routingServices.openLocation(
-                                        roomUid: widget.currentRoomId,
-                                        locationData: _locationData,
-                                        scrollToLast:
-                                            widget.scrollToLastSentMessage);
+                                  if (!await _geolocator
+                                      .isLocationServiceEnabled()) {
+                                    final AndroidIntent intent =
+                                        new AndroidIntent(
+                                      action:
+                                          'android.settings.LOCATION_SOURCE_SETTINGS',
+                                    );
+                                    await intent.launch();
+                                  } else {
+                                    _locationData =
+                                        await _geolocator.getCurrentPosition();
+
+                                    if (_locationData != null) {
+                                      Navigator.pop(context);
+                                      _routingServices.openLocation(
+                                          roomUid: widget.currentRoomId,
+                                          locationData: _locationData,
+                                          scrollToLast:
+                                              widget.scrollToLastSentMessage);
+                                    }
                                   }
                                 }
                               },
@@ -273,10 +308,18 @@ class _ShareBoxState extends State<ShareBox> {
                                   appLocalization.getTraslateValue("location"),
                                   40,
                                   context: context),
-                              CircleButton(() {
-                                setState(() {
-                                  currentPage = Page.Music;
-                                });
+                              CircleButton(() async {
+                                FilePickerResult result =
+                                    await FilePicker.platform.pickFiles(
+                                        allowMultiple: true,
+                                        type: FileType.custom,allowedExtensions: ["mp3"]);
+                                if (result != null) {
+                                  Navigator.pop(context);
+                                  for (var path in result.paths) {
+                                    messageRepo.sendFileMessage(
+                                        widget.currentRoomId, path);
+                                  }
+                                }
                               }, Icons.music_note,
                                   appLocalization.getTraslateValue("music"), 40,
                                   context: context),

@@ -1,6 +1,7 @@
 import 'dart:io' as da;
 
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver_flutter/services/file_service.dart';
@@ -21,7 +22,8 @@ class VideoMessage extends StatefulWidget {
   final bool isSender;
   final bool isSeen;
 
-  const VideoMessage({Key key, this.message, this.maxWidth, this.isSender,this.isSeen})
+  const VideoMessage(
+      {Key key, this.message, this.maxWidth, this.isSender, this.isSeen})
       : super(key: key);
 
   @override
@@ -33,6 +35,7 @@ class _VideoMessageState extends State<VideoMessage> {
   var _fileRepo = GetIt.I.get<FileRepo>();
   bool startDownload = false;
   var fileServices = GetIt.I.get<FileService>();
+  PendingMessageDao pendingMessageDao = GetIt.I.get<PendingMessageDao>();
 
   @override
   Widget build(BuildContext context) {
@@ -66,54 +69,93 @@ class _VideoMessageState extends State<VideoMessage> {
           }
         },
         child: Stack(alignment: Alignment.center, children: <Widget>[
-          FutureBuilder<da.File>(
-            future: _fileRepo.getFileIfExist(video.uuid, video.name),
-            builder: (c, s) {
-              if (s.hasData && s.data != null) {
-                return Stack(
-                  children: [
-                    VideoUi(
-                      video: s.data,
-                      duration: video.duration,
-                      showSlider: false,
-                    ),
-                    video.caption.isEmpty
-                        ? (!isDesktop()) | (isDesktop() & showTime)
-                            ? SizedBox.shrink()
-                            : TimeAndSeenStatus(
-                                widget.message, widget.isSender, true,widget.isSeen)
-                        : Container(),
-                  ],
-                );
-              } else {
-                return Stack(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(videoLength),
-                        Text(sizeFormater(video.size.toInt())),
-                      ],
-                    ),
-                //    Positioned(child: Icon(Icons.more_vert), top: 5, right: 0),
-                    DownloadVideoWidget(
-                      uuid: video.uuid,
-                      download: () async {
-                        await _fileRepo.getFile(video.uuid, video.name);
-                        setState(() {});
-                      },
-                    ),
-                    video.caption.isEmpty
-                        ? (!isDesktop()) | (isDesktop() & showTime)
-                            ? SizedBox.shrink()
-                            : TimeAndSeenStatus(
-                                widget.message, widget.isSender, true,widget.isSeen)
-                        : Container(),
-                  ],
-                );
-              }
-            },
-          )
+          StreamBuilder(
+              stream: pendingMessageDao.watchByMessageDbId(widget.message.dbId),
+              builder: (c, p) {
+                if (p.hasData && p.data != null) {
+                  return Stack(
+                    children: [
+                      Center(
+                        child:  StreamBuilder<double>(
+                            stream: fileServices
+                                .filesUploadStatus[widget.message.packetId],
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData && snapshot.data != null) {
+                                return CircularPercentIndicator(
+                                  radius: 45.0,
+                                  lineWidth: 4.0,
+                                  percent: snapshot.data,
+                                  center: Icon(Icons.arrow_upward_rounded),
+                                  progressColor: Colors.blue,
+                                );
+                              } else {
+                                return CircularPercentIndicator(
+                                  radius: 45.0,
+                                  lineWidth: 4.0,
+                                  percent: 0.1,
+                                  center: Icon(Icons.arrow_upward_rounded),
+                                  progressColor: Colors.blue,
+                                );
+                              }
+                            }),
+                      )
+                    ],
+                  );
+                } else {
+                  return FutureBuilder<da.File>(
+                    future: _fileRepo.getFileIfExist(video.uuid, video.name),
+                    builder: (c, s) {
+                      if (s.hasData && s.data != null) {
+                        return Stack(
+                          children: [
+                            VideoUi(
+                              video: s.data,
+                              duration: video.duration,
+                              showSlider: true,
+                            ),
+                            video.caption.isEmpty
+                                ? (!isDesktop()) | (isDesktop() & showTime)
+                                    ? SizedBox.shrink()
+                                    : TimeAndSeenStatus(widget.message,
+                                        widget.isSender, true, widget.isSeen)
+                                : Container(),
+                            TimeAndSeenStatus(widget.message, widget.isSender,
+                                true, widget.isSeen)
+                          ],
+                        );
+                      } else {
+                        return Stack(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(videoLength),
+                                Text(sizeFormater(video.size.toInt())),
+                              ],
+                            ),
+                            //    Positioned(child: Icon(Icons.more_vert), top: 5, right: 0),
+                            DownloadVideoWidget(
+                              uuid: video.uuid,
+                              download: () async {
+                                await _fileRepo.getFile(video.uuid, video.name);
+                                setState(() {});
+                              },
+                            ),
+                            video.caption.isEmpty
+                                ? (!isDesktop()) | (isDesktop() & false)
+                                    ? SizedBox.shrink()
+                                    : TimeAndSeenStatus(widget.message,
+                                        widget.isSender, true, widget.isSeen)
+                                : Container(),
+                            TimeAndSeenStatus(widget.message, widget.isSender,
+                                true, widget.isSeen)
+                          ],
+                        );
+                      }
+                    },
+                  );
+                }
+              })
         ]),
       ),
     );

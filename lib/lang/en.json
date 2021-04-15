@@ -166,8 +166,10 @@
   "channel_id_isExist": "channel Id isExist",
   "group_name": "group name",
   "channel_name": "Channel Name",
-  "name_not_empty": "Name Not Empty"
-
+  "name_not_empty": "Name Not Empty",
+  "not_found": "Not Found",
+  "of": "of",
+  "sure_exit_app": "Are you sure you want to \n log out?"
 
 
 }

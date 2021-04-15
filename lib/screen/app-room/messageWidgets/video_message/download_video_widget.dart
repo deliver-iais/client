@@ -44,7 +44,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                 lineWidth: 4.0,
                 percent: snapshot.data,
                 center: Icon(Icons.arrow_downward),
-                progressColor: Colors.white,
+                progressColor: Colors.blue,
               );
             } else {
               return CircularPercentIndicator(
@@ -52,7 +52,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                 lineWidth: 4.0,
                 percent: 0.1,
                 center: Icon(Icons.arrow_downward),
-                progressColor: Colors.white,
+                progressColor: Colors.blue,
               );
             }
           },
@@ -63,7 +63,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
             setState(() {
               startDownload = true;
             });
-            widget.download;
+            widget.download();
 
           },
         ),

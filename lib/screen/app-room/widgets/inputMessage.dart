@@ -15,8 +15,6 @@ import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/event.pbenum.dart';
 import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -117,8 +115,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   Widget build(BuildContext context) {
-    controller.selection = TextSelection.fromPosition(
-        TextPosition(offset: controller.text.length));
+
     AppLocalization appLocalization = AppLocalization.of(context);
     DX = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
@@ -129,6 +126,8 @@ class _InputMessageWidget extends State<InputMessage> {
             query: query,
             onSelected: (s) {
               controller.text = "${controller.text}${s} ";
+              controller.selection = TextSelection.fromPosition(
+                  TextPosition(offset: controller.text.length));
               setState(() {
                 _showMentionList = false;
               });
@@ -185,7 +184,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                             color: Colors.white,
                                           ),
                                           onPressed: () {
-
                                             if (back.data) {
                                               backSubject.add(false);
                                               setState(() {
@@ -212,7 +210,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                               Theme.of(context).primaryColor),
                                     ),
                                     onTap: () {
-                                    _showBotCommands.add(true);
+                                      _showBotCommands.add(true);
                                     },
                                   ),
                                 Container(
@@ -339,9 +337,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                 try {
                                   Recording recording =
                                       await AudioRecorder.stop();
-                                  messageRepo.sendFileMessageDeprecated(
+                                  messageRepo.sendFileMessage(
                                       widget.currentRoom.roomId.uid,
-                                      [recording.path]);
+                                      recording.path);
                                 } catch (e) {}
                               }
                             },
@@ -434,7 +432,10 @@ class _InputMessageWidget extends State<InputMessage> {
       try {
         query = "";
         int i = str.lastIndexOf("@");
-        if (i != 0 && str[i - 1] != " ") {
+        if (i == -1) {
+          _showMentionList = false;
+        }
+        if ((i != 0 && str[i - 1] != " ") && str[i - 1] != "\n") {
           return;
         }
         if (i != -1 && !str.contains(" ", i)) {
@@ -449,11 +450,11 @@ class _InputMessageWidget extends State<InputMessage> {
       if (str.isNotEmpty && str.length == 1 && str.contains(" \ ")) {
         _showBotCommands.add(true);
       } else {
-       _showBotCommands.add(false);
+        _showBotCommands.add(false);
       }
     }
 
-    setState(() {});
+   setState(() {});
   }
 
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;

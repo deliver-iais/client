@@ -12,7 +12,6 @@ import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/event.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -89,7 +88,7 @@ class _ChatItemState extends State<ChatItem> {
                                 context)
                             : FutureBuilder<String>(
                                 future: _roomRepo.getRoomDisplayName(
-                                    widget.roomWithMessage.room.roomId.uid),
+                                    widget.roomWithMessage.room.roomId.uid,roomUid: widget.roomWithMessage.room.roomId),
                                 builder: (BuildContext c,
                                     AsyncSnapshot<String> snaps) {
                                   if (snaps.hasData && snaps.data.isNotEmpty) {

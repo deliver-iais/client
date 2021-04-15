@@ -32,8 +32,8 @@ class _ImageTabUiState extends State<ImageTabUi> {
         future: _mediaQueryRepo.getMedia(widget.userUid,
             FetchMediasReq_MediaType.IMAGES, widget.imagesCount),
         builder: (BuildContext c, AsyncSnapshot snaps) {
-          if (!snaps.hasData ||
-              snaps.data == null ||
+          if (!snaps.hasData &&
+              snaps.data == null &&
               snaps.connectionState == ConnectionState.waiting) {
             return Container(width: 0.0, height: 0.0);
           } else {

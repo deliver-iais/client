@@ -22,11 +22,13 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:fixnum/fixnum.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
@@ -63,6 +65,7 @@ class CoreServices {
   var _userInfoDAo = GetIt.I.get<UserInfoDao>();
 
   Timer _connectionTimer;
+  var _lastPongTime = 0;
 
 //TODO test
   initStreamConnection() async {
@@ -70,13 +73,18 @@ class CoreServices {
       return;
     }
     startStream();
-    if (_connectionTimer != null && _connectionTimer.isActive) {
-      return;
-    }
+    // if (_connectionTimer != null && _connectionTimer.isActive) {
+    //   return;
+    // }
     startCheckerTimer();
     _connectionStatus.distinct().listen((event) {
       connectionStatus.add(event);
     });
+  }
+
+  void closeConnection() {
+    _clientPacket.close();
+    _connectionTimer.cancel();
   }
 
   @visibleForTesting
@@ -85,8 +93,8 @@ class CoreServices {
       await startStream();
     }
     sendPingMessage();
-    responseChecked = false;
-    _connectionTimer = Timer(new Duration(seconds: backoffTime), () async {
+      responseChecked = false;
+    _connectionTimer = Timer(new Duration(seconds: backoffTime), () {
       if (!responseChecked) {
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
           backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
@@ -113,10 +121,12 @@ class CoreServices {
       _responseStream = _grpcCoreService.establishStream(
           _clientPacket.stream.asBroadcastStream(
         onCancel: (c) async {
+          responseChecked = false;
           await _clientPacket.close();
           _connectionStatus.add(ConnectionStatus.Disconnected);
         },
-      ), options: CallOptions(
+      ),
+          options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()},
           ));
       sendPingMessage();
@@ -138,11 +148,10 @@ class CoreServices {
           case ServerPacket_Type.activity:
             _saveActivityMessage(serverPacket.activity);
             break;
-          case ServerPacket_Type.pollStatusChanged:
-            break;
           case ServerPacket_Type.liveLocationStatusChanged:
             break;
           case ServerPacket_Type.pong:
+            _lastPongTime = serverPacket.pong.serverTime.toInt();
             break;
           case ServerPacket_Type.notSet:
             // TODO: Handle this case.
@@ -166,8 +175,9 @@ class CoreServices {
 
   sendPingMessage() {
     if (_clientPacket != null && !_clientPacket.isClosed) {
+      var ping = Ping()..lastPongTime = Int64(_lastPongTime);
       _clientPacket.add(ClientPacket()
-        ..ping = Ping()
+        ..ping = ping
         ..id = DateTime.now().microsecondsSinceEpoch.toString());
     } else {
       startStream();
@@ -383,6 +393,12 @@ String messageToJson(Message message) {
     case MessageType.FORM_RESULT:
       return message.formResult.writeToJson();
       break;
+    case MessageType.sharePrivateDataRequest:
+      return message.sharePrivateDataRequest.writeToJson();
+      break;
+    case MessageType.sharePrivateDataAcceptance:
+      return message.sharePrivateDataAcceptance.writeToJson();
+
     case MessageType.NOT_SET:
       // TODO: Handle this case.
       break;
@@ -414,8 +430,11 @@ MessageType getMessageType(Message_Type messageType) {
       return MessageType.BUTTONS;
     case Message_Type.shareUid:
       return MessageType.SHARE_UID;
+    case Message_Type.sharePrivateDataRequest:
+      return MessageType.sharePrivateDataRequest;
+    case Message_Type.sharePrivateDataAcceptance:
+      return MessageType.sharePrivateDataAcceptance;
     default:
       return MessageType.NOT_SET;
   }
 }
-

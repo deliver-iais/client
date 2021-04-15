@@ -26,8 +26,12 @@ class HeaderDetails extends StatelessWidget {
               style: TextStyle(fontSize: 10),
             ),
           )
-        : file.type == 'file'
-            ? Padding(
+        : file.type.contains("audio") || file.type.contains("mp3")
+            ? AudioPlayProgress(
+                audio: file,
+                audioUuid: file.uuid,
+              )
+            : Padding(
                 padding: const EdgeInsets.only(top: 26.0, left: 20),
                 child: Text(
                   sizeFormater(file.size.toInt()) +
@@ -35,10 +39,6 @@ class HeaderDetails extends StatelessWidget {
                       findFileType(file.name),
                   style: TextStyle(fontSize: 10),
                 ),
-              )
-            : AudioPlayProgress(
-                //audio: file,
-                audioUuid: file.uuid,
               );
   }
 }

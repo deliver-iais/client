@@ -12,6 +12,7 @@ class RecievedMessageBox extends StatelessWidget {
   final bool isGroup;
   final Function scrollToMessage;
   final Function omUsernameClick;
+  final String pattern;
 
   const RecievedMessageBox(
       {Key key,
@@ -19,7 +20,8 @@ class RecievedMessageBox extends StatelessWidget {
       this.maxWidth,
       this.isGroup,
       this.scrollToMessage,
-      this.omUsernameClick})
+      this.omUsernameClick,
+      this.pattern})
       : super(key: key);
 
   @override
@@ -51,6 +53,7 @@ class RecievedMessageBox extends StatelessWidget {
                         maxWidth: maxWidth,
                         isSender: false,
                         scrollToMessage: scrollToMessage,
+                        pattern: this.pattern,
                         onUsernameClick: this.omUsernameClick,
                       ),
                     ),

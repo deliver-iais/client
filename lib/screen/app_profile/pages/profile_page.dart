@@ -60,6 +60,8 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void dispose() {
     _tabController.dispose();
+    _uxService.setTabIndex(
+        widget.userUid.asString(), 0);
     super.dispose();
   }
 

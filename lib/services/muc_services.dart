@@ -164,7 +164,7 @@ class MucServices {
     }
   }
 
-  Future<String> getPermisionToken(Uid uid) async {
+  Future<String> getPermissionToken(Uid uid) async {
     if (uid.category == Categories.GROUP) {
       var res = await groupServices.getPermission(
           GroupServices.GetPermissionReq()
@@ -300,7 +300,6 @@ class MucServices {
           options: CallOptions(
               timeout: Duration(seconds: 2),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      print(request.members.toString());
       return request.members;
     } catch (e) {
       return null;
