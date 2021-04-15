@@ -45,7 +45,7 @@ class FileRepo {
         print("isolate errrrrrrrrrrrrrrrorrrrrrrrr"+e.toString());
       }
       Map allLocalFiles = await receivePort.first as Map;
-      isolate.kill();
+      // isolate.kill();
       await _saveFileInfo(uploadKey, File(allLocalFiles['real']), name, "real");
       await _saveFileInfo(uploadKey, File(allLocalFiles['large']),  name, "large");
       await _saveFileInfo(uploadKey,  File(allLocalFiles['medium']),  name, "medium");
