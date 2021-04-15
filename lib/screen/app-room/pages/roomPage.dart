@@ -36,6 +36,7 @@ import 'package:deliver_flutter/shared/userAppBar.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moor/moor.dart' as Moor;
@@ -263,7 +264,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         });
 
     if (widget.roomId.getUid().category != Categories.USER)
-      _mucRepo.fetchMucInfo(widget.roomId.getUid());
+      fetchMucInfo(widget.roomId.getUid());
+
+
+  }
+  fetchMucInfo(Uid uid) async{
+    var name = await  _mucRepo.fetchMucInfo(widget.roomId.getUid());
+    if(name !=null){
+      _roomRepo.updateRoomName(uid, name);
+    }
   }
 
   @override
@@ -307,7 +316,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                             if (_itemCount != 0 && i != _itemCount)
                               _itemCountSubject.add(_itemCount);
                             _itemCount = i;
-
                             return Flexible(
                               fit: FlexFit.tight,
                               child: Container(
@@ -389,9 +397,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               StreamBuilder(
                 stream: _searchMode.stream,
                 builder: (c, s) {
-                  if (s.hasData &&
-                      s.data &&
-                      searchResult.length>0) {
+                  if (s.hasData && s.data && searchResult.length > 0) {
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -659,9 +665,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       } else {
         subject.add(true);
       }
-
     }
-
   }
 
   ScrollablePositionedList buildMessagesListView(
@@ -946,7 +950,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _addForwardMessage(message);
         },
         onTapDown: storePosition,
-        child: Stack(
+        child: SingleChildScrollView(
+            child: Stack(
           alignment: AlignmentDirectional.bottomEnd,
           children: [
             Row(
@@ -954,11 +959,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 if (widget.roomId.getUid().category == Categories.GROUP)
+                  GestureDetector(child:
                   Padding(
                     padding: const EdgeInsets.only(
                         bottom: 8.0, left: 5.0, right: 3.0),
                     child: CircleAvatarWidget(message.from.uid, 18),
-                  ),
+                  ),onTap: (){
+                    _routingService.openRoom(message.from);
+                  },),
                 RecievedMessageBox(
                   message: message,
                   maxWidth: _maxWidth,
@@ -973,7 +981,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               ],
             ),
           ],
-        ));
+        )));
   }
 
   scrollToLast() {

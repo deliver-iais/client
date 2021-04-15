@@ -11,4 +11,6 @@ enum MessageType {
   BUTTONS,
   SHARE_UID,
   FORM_RESULT,
+  sharePrivateDataRequest,
+  sharePrivateDataAcceptance
 }

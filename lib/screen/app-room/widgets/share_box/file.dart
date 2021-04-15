@@ -27,7 +27,7 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
   void initState() {
     super.initState();
 
-    _future = FileItem.getFiles();
+    //_future = FileItem.getFiles();
   }
 
   @override

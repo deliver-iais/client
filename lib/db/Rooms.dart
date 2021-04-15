@@ -10,7 +10,6 @@ class Rooms extends Table {
 
   BoolColumn get mute => boolean().withDefault(Constant(false))();
 
-
   BoolColumn get isBlock => boolean().withDefault(Constant(false))();
 
   IntColumn get lastMessageDbId =>

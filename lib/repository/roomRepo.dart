@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
+import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
@@ -33,33 +34,43 @@ class RoomRepo {
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _usernameDao = GetIt.I.get<UserInfoDao>();
   var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
+  var _memberDao = GetIt.I.get<MemberDao>();
+
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   Map<String, BehaviorSubject<Activity>> activityObject = Map();
 
-  Future<String> getRoomDisplayName(Uid roomUid) async {
-    switch (roomUid.category) {
+  Future<String> getRoomDisplayName(Uid uid,{String roomUid}) async {
+    switch (uid.category) {
       case Categories.SYSTEM:
         return "Deliver";
         break;
       case Categories.USER:
-        String name = await _roomNameCache.get(roomUid.asString());
+        String name = await _roomNameCache.get(uid.asString());
         if (name != null && !name.contains("null")) {
           return name;
         } else {
-          var contact = await _contactDao.getContactByUid(roomUid.asString());
+          var contact = await _contactDao.getContactByUid(uid.asString());
           if (contact != null) {
             String contactName = "${contact.firstName}";
-            _roomNameCache.set(roomUid.asString(), contactName);
+            _roomNameCache.set(uid.asString(), contactName);
             return contactName;
           } else {
-            var username = await _usernameDao.getUserInfo(roomUid.asString());
-            if (username.username != null && username.username.length>0) {
-              _roomNameCache.set(roomUid.asString(), username.username);
+            var username = await _usernameDao.getUserInfo(uid.asString());
+            if (username != null && username.username != null) {
               return username.username;
+            }else{
+              var member = await _memberDao.getMember(uid.asString(),roomUid);
+              if(member != null && member.name != null) {
+                _roomNameCache.set(
+                    uid.asString(), member.name ?? member.username);
+                return member.name;
+              }else if(member != null){
+                return member.username;
+              }
             }
-            String s = await _searchByUid(roomUid);
+            String s = await _searchByUid(uid);
             return s;
           }
         }
@@ -67,18 +78,18 @@ class RoomRepo {
 
       case Categories.GROUP:
       case Categories.CHANNEL:
-        String name = _roomNameCache.get(roomUid.asString());
+        String name = _roomNameCache.get(uid.asString());
         if (name != null) {
           return name;
         } else {
-          var muc = await _mucDao.getMucByUid(roomUid.asString());
+          var muc = await _mucDao.getMucByUid(uid.asString());
           if (muc != null) {
-            _roomNameCache.set(roomUid.asString(), muc.name);
+            _roomNameCache.set(uid.asString(), muc.name);
             return muc.name;
           } else {
-            String mucName = await _mucRepo.fetchMucInfo(roomUid);
+            String mucName = await _mucRepo.fetchMucInfo(uid);
             if (mucName != null) {
-              _roomNameCache.set(roomUid.asString(), mucName);
+              _roomNameCache.set(uid.asString(), mucName);
               return mucName;
             } else {
               return "UnKnown";
@@ -88,7 +99,6 @@ class RoomRepo {
         break;
     }
     return "Unknown";
-    //todo  return await _searchByUid(uid);
   }
 
   Future<String> _searchByUid(Uid uid) async {

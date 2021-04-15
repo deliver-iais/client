@@ -25,7 +25,7 @@ class ContactPic extends StatelessWidget {
           StreamBuilder<UserInfo>(
               stream: _userInfoDao.getUserInfoAsStream(userUid.asString()),
               builder: (c, userInfo) {
-                if (userInfo.hasData && userInfo.data != null)
+                if (userInfo.hasData && userInfo.data != null && userInfo.data.lastActivity != null)
                   return Positioned(
                     child: Container(
                       width: 12.0,

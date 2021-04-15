@@ -13,6 +13,8 @@ import 'package:deliver_flutter/screen/app-room/widgets/share_box/music.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:file_chooser/file_chooser.dart';
+import 'package:file_picker/file_picker.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -249,16 +251,34 @@ class _ShareBoxState extends State<ShareBox> {
                                   appLocalization.getTraslateValue("gallery"),
                                   40,
                                   context: context),
-                              CircleButton(() {
-                                setState(() {
-                                  audioPlayer.stop();
-                                  currentPage = Page.Files;
-                                });
+                              CircleButton(() async {
+                                FilePickerResult result =
+                                    await FilePicker.platform.pickFiles(
+                                        allowMultiple: true,
+                                        type: FileType.custom,
+                                        allowedExtensions: [
+                                      "pdf",
+                                      "mp4",
+                                      "pptx",
+                                      "docx",
+                                      "xlsx",
+                                      'png',
+                                      'jpg',
+                                      'jpeg',
+                                      'gif'
+                                    ]);
+                                if (result != null) {
+                                  Navigator.pop(context);
+                                  for (var path in result.paths) {
+                                    messageRepo.sendFileMessage(
+                                        widget.currentRoomId, path);
+                                  }
+
+                                }
                               }, Icons.file_upload,
                                   appLocalization.getTraslateValue("file"), 40,
                                   context: context),
                               CircleButton(() async {
-                                audioPlayer.stop();
                                 if (await _checkPermissionsService
                                     .checkLocationPermission()) {
                                   if (!await _geolocator
@@ -288,10 +308,18 @@ class _ShareBoxState extends State<ShareBox> {
                                   appLocalization.getTraslateValue("location"),
                                   40,
                                   context: context),
-                              CircleButton(()  {
-                                setState(() {
-                                  currentPage = Page.Music;
-                                });
+                              CircleButton(() async {
+                                FilePickerResult result =
+                                    await FilePicker.platform.pickFiles(
+                                        allowMultiple: true,
+                                        type: FileType.custom,allowedExtensions: ["mp3"]);
+                                if (result != null) {
+                                  Navigator.pop(context);
+                                  for (var path in result.paths) {
+                                    messageRepo.sendFileMessage(
+                                        widget.currentRoomId, path);
+                                  }
+                                }
                               }, Icons.music_note,
                                   appLocalization.getTraslateValue("music"), 40,
                                   context: context),

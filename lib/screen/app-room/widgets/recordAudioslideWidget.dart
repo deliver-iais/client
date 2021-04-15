@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_timer/flutter_timer.dart';
 
 class RecordAudioSlideWidget extends  StatelessWidget{
-  final Function opacity;
+  final double opacity;
   final DateTime time;
   final bool rinning;
   RecordAudioSlideWidget({this.opacity,this.time,this.rinning});
@@ -22,14 +22,14 @@ class RecordAudioSlideWidget extends  StatelessWidget{
           child: Stack(
             children: <Widget>[
               Opacity(
-                opacity: 1.0 - opacity(),
+                opacity: 1.0 - opacity,
                 child: Icon(
                   Icons.delete_outline,
                   color: Colors.red,
                 ),
               ),
               Opacity(
-                opacity: opacity(),
+                opacity: opacity,
                 child: Icon(
                   Icons.fiber_manual_record,
                   color: Colors.red,
@@ -51,7 +51,7 @@ class RecordAudioSlideWidget extends  StatelessWidget{
           borderRadius: 0,
         ),
         Opacity(
-          opacity: opacity(),
+          opacity: opacity,
           child: Row(
             children: <Widget>[
               Icon(Icons.chevron_left),

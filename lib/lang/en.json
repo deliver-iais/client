@@ -168,8 +168,8 @@
   "channel_name": "Channel Name",
   "name_not_empty": "Name Not Empty",
   "not_found": "Not Found",
-  "of": "of"
-
+  "of": "of",
+  "sure_exit_app": "Are you sure you want to \n log out?"
 
 
 }

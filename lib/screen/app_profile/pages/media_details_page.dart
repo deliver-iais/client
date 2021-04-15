@@ -19,6 +19,7 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:rxdart/rxdart.dart';
 
 class MediaDetailsPage extends StatefulWidget {
   String heroTag;
@@ -39,10 +40,7 @@ class MediaDetailsPage extends StatefulWidget {
       : super(key: key);
 
   MediaDetailsPage.showAvatar(
-      {Key key,
-      this.userUid,
-      this.hasPermissionToDeletePic = false,
-      this.heroTag})
+      {Key key, this.userUid, this.hasPermissionToDeletePic, this.heroTag})
       : super(key: key) {
     this.isAvatar = true;
   }
@@ -80,7 +78,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   var _thumnailChache = LruCache<String, File>(storage: SimpleStorage(size: 5));
   var isDeleting = false;
   List<Avatar> _allAvatars;
-  var swipePosition;
+  var swipePosition = 0;
+  BehaviorSubject<int> _swipePositionSubject = BehaviorSubject.seeded(0);
   String senderName;
 
   download(String uuid, String name) async {
@@ -102,38 +101,40 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     if (widget.isAvatar == true) {
       return buildAvatar(context);
     } else if (widget.isVideo == true) {
+      _swipePositionSubject.add(widget.mediaPosition);
       return buildMediaOrVideoWidget(context, true);
     } else {
+      _swipePositionSubject.add(widget.mediaPosition);
       return buildMediaOrVideoWidget(context, false);
     }
   }
 
   Widget buildAvatar(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        child: StreamBuilder<List<Avatar>>(
-            stream: _avatarRepo.getAvatar(widget.userUid, false),
-            builder: (cont, snapshot) {
-              if (!snapshot.hasData || snapshot.data == null) {
-                return Center(
-                  child: CircularProgressIndicator(
-                    backgroundColor: Colors.blue,
-                  ),
-                );
-              } else {
-                _allAvatars = snapshot.data;
-                if (_allAvatars.length <= 0) {
-                  _routingService.pop();
-                  return Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.blue,
-                    ),
-                  );
-                }
-                return Swiper(
+    return StreamBuilder<List<Avatar>>(
+        stream: _avatarRepo.getAvatar(widget.userUid, false),
+        builder: (cont, snapshot) {
+          if (!snapshot.hasData || snapshot.data == null) {
+            return Center(
+              child: CircularProgressIndicator(
+                backgroundColor: Colors.blue,
+              ),
+            );
+          } else {
+            _allAvatars = snapshot.data;
+            if (_allAvatars.length <= 0) {
+              _routingService.pop();
+              return Center(
+                child: CircularProgressIndicator(
+                  backgroundColor: Colors.blue,
+                ),
+              );
+            }
+            return Scaffold(
+                appBar: buildAppBar(swipePosition, snapshot.data.length),
+                body: Swiper(
                     scrollDirection: Axis.horizontal,
-                    itemBuilder: (ccc, i) {
-                      swipePosition = i;
+                    itemBuilder: (c, i) {
+                      _swipePositionSubject.add(i);
                       var fileId = _allAvatars[i].fileId;
                       var fileName = _allAvatars[i].fileName;
                       var file = _fileCache.get(fileId);
@@ -148,20 +149,20 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
                     itemCount: snapshot.data.length,
                     viewportFraction: 1.0,
                     scale: 0.9,
-                    loop: false);
-              }
-            }),
-      ),
-    );
+                    loop: false));
+          }
+        });
   }
 
   Widget buildMediaOrVideoWidget(BuildContext context, isVideo) {
     return Scaffold(
+      appBar: buildAppBar(widget.mediaPosition, widget.mediasLength),
       body: Container(
         child: Swiper(
           scrollDirection: Axis.horizontal,
           index: widget.mediaPosition,
           itemBuilder: (context, i) {
+            _swipePositionSubject.add(i);
             if (isVideo) return vedioSwiper(i, context);
             return mediaSuper(i, context);
           },
@@ -233,7 +234,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         child: Stack(
           alignment: Alignment.centerLeft,
           children: <Widget>[
-            buildAppBar(i, widget.mediasLength),
+            //     buildAppBar(i, widget.mediasLength),
             Positioned(
               top: 80,
               left: 0.0,
@@ -392,7 +393,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     return Stack(
       alignment: Alignment.centerLeft,
       children: [
-        buildAppBar(i, widget.mediasLength),
+        // buildAppBar(i, widget.mediasLength),
         Positioned(
           top: 80,
           left: 0.0,
@@ -433,10 +434,11 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     return Stack(
       alignment: Alignment.centerLeft,
       children: [
-        buildAppBar(i, widget.mediasLength),
+        //buildAppBar(i, widget.mediasLength),
         VideoUi(
           duration: duration,
-          video: snaps,showSlider: true,
+          video: snaps,
+          showSlider: true,
         ),
         buildBottomAppBar(mediaSender, createdOn, senderName, fileId),
       ],
@@ -495,35 +497,45 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     return AppBar(
       leading: _routingService.backButtonLeading(),
       title: Align(
-        alignment: Alignment.topLeft,
-        child: new Text("${currentPosition + 1} of ${totalLength}"),
-      ),
+          alignment: Alignment.topLeft,
+          child: StreamBuilder(
+            stream: _swipePositionSubject.stream,
+            builder: (c, position) {
+              if (position.hasData && position.data != null)
+                return Text("${position.data + 1} of ${totalLength}");
+              else {
+                return SizedBox.shrink();
+              }
+            },
+          )),
       actions: [
         //widget.isAvatar ?
-        PopupMenuButton(
-            icon: Icon(
-              Icons.more_vert,
-              color: Colors.white,
-              size: 20,
-            ),
-            itemBuilder: (cc) => [
-                  if (widget.hasPermissionToDeletePic && widget.isAvatar)
-                    PopupMenuItem(
-                        child: GestureDetector(
-                      child: Text("delete"),
-                      onTap: () async {
-                        await _avatarRepo
-                            .deleteAvatar(_allAvatars[swipePosition]);
-                        setState(() {});
-                      },
-                    )),
-                  if (widget.hasPermissionToDeletePic && !widget.isAvatar)
-                    PopupMenuItem(
-                        child: GestureDetector(
-                      child: Text("delete"),
-                      onTap: () {},
-                    )),
-                ])
+        widget.hasPermissionToDeletePic && widget.isAvatar
+            ? PopupMenuButton(
+                icon: Icon(
+                  Icons.more_vert,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                itemBuilder: (cc) => [
+                      if (widget.hasPermissionToDeletePic && widget.isAvatar)
+                        PopupMenuItem(
+                            child: GestureDetector(
+                          child: Text("delete"),
+                          onTap: () async {
+                            await _avatarRepo.deleteAvatar(
+                                _allAvatars[_swipePositionSubject.value ?? 0]);
+                            setState(() {});
+                          },
+                        )),
+                      if (widget.hasPermissionToDeletePic && !widget.isAvatar)
+                        PopupMenuItem(
+                            child: GestureDetector(
+                          child: Text("delete"),
+                          onTap: () {},
+                        )),
+                    ])
+            : SizedBox.shrink()
       ],
     );
   }
