@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:isolate';
 import 'package:mime_type/mime_type.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:isolate_handler/isolate_handler.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
@@ -45,7 +44,7 @@ class FileRepo {
         print("isolate errrrrrrrrrrrrrrrorrrrrrrrr"+e.toString());
       }
       Map allLocalFiles = await receivePort.first as Map;
-      // isolate.kill();
+      isolate.kill();
       await _saveFileInfo(uploadKey, File(allLocalFiles['real']), name, "real");
       await _saveFileInfo(uploadKey, File(allLocalFiles['large']),  name, "large");
       await _saveFileInfo(uploadKey,  File(allLocalFiles['medium']),  name, "medium");

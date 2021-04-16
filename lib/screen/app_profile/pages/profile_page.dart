@@ -19,6 +19,7 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -39,12 +40,12 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
   final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  int mediasLength;
+  var mediasLength;
   Room currentRoomId;
-  RoutingService _routingService = GetIt.I.get<RoutingService>();
-  RoomDao _roomDao = GetIt.I.get<RoomDao>();
-  ContactRepo _contactRepo = GetIt.I.get<ContactRepo>();
-  UxService _uxService = GetIt.I.get<UxService>();
+  var _routingService = GetIt.I.get<RoutingService>();
+  var _roomDao = GetIt.I.get<RoomDao>();
+  var _contactRepo = GetIt.I.get<ContactRepo>();
+  var _uxService = GetIt.I.get<UxService>();
   TabController _tabController;
   int tabsCount;
 
@@ -60,9 +61,8 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void dispose() {
     _tabController.dispose();
-    _uxService.setTabIndex(
-        widget.userUid.asString(), 0);
-
+    // _uxService.setTabIndex(
+    //     widget.userUid.asString(), 0);
     super.dispose();
   }
 
@@ -76,56 +76,70 @@ class _ProfilePageState extends State<ProfilePage>
     AppLocalization appLocalization = AppLocalization.of(context);
 
     return StreamBuilder<MediasMetaDataData>(
-      stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
-      builder: (context, AsyncSnapshot<MediasMetaDataData> snapshot) {
-        tabsCount = 0;
-        if (snapshot.hasData && snapshot.data != null) {
-          if (snapshot.data.imagesCount != 0) {
-            tabsCount = tabsCount + 1;
+        stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
+        builder: (context, AsyncSnapshot<MediasMetaDataData> snapshot) {
+          tabsCount = 0;
+          if (snapshot.hasData && snapshot.data != null) {
+            if (snapshot.data.imagesCount != 0) {
+              tabsCount = tabsCount + 1;
+            }
+            if (snapshot.data.videosCount != 0) {
+              tabsCount = tabsCount + 1;
+            }
+            if (snapshot.data.linkCount != 0) {
+              tabsCount = tabsCount + 1;
+            }
+            if (snapshot.data.filesCount != 0) {
+              tabsCount = tabsCount + 1;
+            }
+            if (snapshot.data.documentsCount != 0) {
+              tabsCount = tabsCount + 1;
+            }
+            if (snapshot.data.musicsCount != 0) {
+              tabsCount = tabsCount + 1;
+            }
+            if (snapshot.data.audiosCount != 0) {
+              tabsCount = tabsCount + 1;
+            }
+
+            _tabController = TabController(
+                length: (widget.userUid.category == Categories.GROUP ||
+                    widget.userUid.category == Categories.CHANNEL)
+                    ? tabsCount + 1
+                    : tabsCount,
+                vsync: this,
+                initialIndex:
+                _uxService.getTabIndex(widget.userUid.asString()));
+            _tabController.addListener(() {
+              setState(() {
+                _uxService.setTabIndex(
+                    widget.userUid.asString(), _tabController.index);
+              });
+
+            });
           }
-          if (snapshot.data.videosCount != 0) {
-            tabsCount = tabsCount + 1;
-          }
-          if (snapshot.data.linkCount != 0) {
-            tabsCount = tabsCount + 1;
-          }
-          if (snapshot.data.filesCount != 0) {
-            tabsCount = tabsCount + 1;
-          }
-          if (snapshot.data.documentsCount != 0) {
-            tabsCount = tabsCount + 1;
-          }
-          if (snapshot.data.musicsCount != 0) {
-            tabsCount = tabsCount + 1;
-          }
-          if (snapshot.data.audiosCount != 0) {
-            tabsCount = tabsCount + 1;
-          }
-        }
-        _tabController = TabController(
-            length: (widget.userUid.category == Categories.GROUP || widget.userUid.category == Categories.CHANNEL)?tabsCount +1 : tabsCount,
-            vsync: this,
-            initialIndex: _uxService.getTabIndex(widget.userUid.asString()));
-        _tabController.addListener(() {
-          _uxService.setTabIndex(
-              widget.userUid.asString(), _tabController.index);
-        });
-        return Scaffold(
-            body: DefaultTabController(
-                length: widget.userUid.category == Categories.USER
-                    ? tabsCount
-                    : tabsCount + 1,
-                child: NestedScrollView(
-                    headerSliverBuilder:
-                        (BuildContext context, bool innerBoxIsScrolled) {
-                      return <Widget>[
-                        ProfileAvatar(
-                          innerBoxIsScrolled: innerBoxIsScrolled,
-                          roomUid: widget.userUid,
-                        ),
-                        widget.userUid.category == Categories.USER
-                            ? SliverList(
-                                delegate: SliverChildListDelegate([
+
+
+
+          return Scaffold(
+              body: DefaultTabController(
+                  length: (widget.userUid.category == Categories.USER ||
+                      widget.userUid.category == Categories.SYSTEM ||
+                      widget.userUid.category == Categories.BOT)
+                      ? tabsCount
+                      : tabsCount + 1,
+                  child: NestedScrollView(
+                      headerSliverBuilder:
+                          (BuildContext context, bool innerBoxIsScrolled) {
+                        return <Widget>[
+                          ProfileAvatar(
+                            innerBoxIsScrolled: innerBoxIsScrolled,
+                            roomUid: widget.userUid,
+                          ),
+                          widget.userUid.category == Categories.USER ||
+                              widget.userUid.category == Categories.SYSTEM
+                              ? SliverList(
+                              delegate: SliverChildListDelegate([
                                 Container(
                                   height: 80,
                                   child: Align(
@@ -141,11 +155,12 @@ class _ProfilePageState extends State<ProfilePage>
                                               children: [
                                                 Text(
                                                   appLocalization
-                                                      .getTraslateValue("info"),
+                                                      .getTraslateValue(
+                                                      "info"),
                                                   style: TextStyle(
-                                                    color:
-                                                        ExtraTheme.of(context)
-                                                            .blueOfProfilePage,
+                                                    color: ExtraTheme.of(
+                                                        context)
+                                                        .blueOfProfilePage,
                                                     fontSize: 16.0,
                                                   ),
                                                 ),
@@ -153,31 +168,51 @@ class _ProfilePageState extends State<ProfilePage>
                                             ),
                                           ),
                                           SizedBox(height: 10),
-                                          FutureBuilder<Contact>(
-                                            future: _contactRepo
-                                                .getContact(widget.userUid),
-                                            builder: (BuildContext context,
+                                          widget.userUid.category ==
+                                              Categories.SYSTEM
+                                              ? Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: 25),
+                                              child: Text(
+                                                "@ Deliver",
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ))
+                                              : FutureBuilder<Contact>(
+                                            future:
+                                            _contactRepo.getContact(
+                                                widget.userUid),
+                                            builder: (BuildContext
+                                            context,
                                                 AsyncSnapshot<Contact>
-                                                    snapshot) {
-                                              if (snapshot.data != null) {
+                                                snapshot) {
+                                              if (snapshot.data !=
+                                                  null) {
                                                 return _showUsername(
-                                                    snapshot.data.username,
+                                                    snapshot
+                                                        .data.username,
                                                     widget.userUid);
                                               } else {
-                                                return FutureBuilder<String>(
+                                                return FutureBuilder<
+                                                    String>(
                                                   future: _contactRepo
                                                       .searchUserByUid(
-                                                          widget.userUid),
-                                                  builder:
-                                                      (BuildContext context,
-                                                          AsyncSnapshot<String>
-                                                              snapshot) {
-                                                    if (snapshot.data != null) {
+                                                      widget
+                                                          .userUid),
+                                                  builder: (BuildContext
+                                                  context,
+                                                      AsyncSnapshot<
+                                                          String>
+                                                      snapshot) {
+                                                    if (snapshot.data !=
+                                                        null) {
                                                       return _showUsername(
                                                           snapshot.data,
-                                                          widget.userUid);
+                                                          widget
+                                                              .userUid);
                                                     } else {
-                                                      return SizedBox.shrink();
+                                                      return SizedBox
+                                                          .shrink();
                                                     }
                                                   },
                                                 );
@@ -188,34 +223,38 @@ class _ProfilePageState extends State<ProfilePage>
                                   ),
                                 ),
                                 SizedBox(height: 20),
-                                Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: ExtraTheme.of(context)
-                                              .borderOfProfilePage),
-                                      color: ExtraTheme.of(context)
-                                          .backgroundOfProfilePage,
-                                    ),
-                                    height: 60,
-                                    padding: const EdgeInsetsDirectional.only(
-                                        start: 5, end: 15),
-                                    child: GestureDetector(
-                                      child: Row(children: <Widget>[
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Icon(Icons.message),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Text(appLocalization
-                                            .getTraslateValue("sendMessage")),
-                                      ]),
-                                      onTap: () {
-                                        _routingService.openRoom(
-                                            widget.userUid.asString());
-                                      },
-                                    )),
+                                if (widget.userUid.category !=
+                                    Categories.SYSTEM)
+                                  Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: ExtraTheme.of(context)
+                                                .borderOfProfilePage),
+                                        color: ExtraTheme.of(context)
+                                            .backgroundOfProfilePage,
+                                      ),
+                                      height: 60,
+                                      padding:
+                                      const EdgeInsetsDirectional.only(
+                                          start: 5, end: 15),
+                                      child: GestureDetector(
+                                        child: Row(children: <Widget>[
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Icon(Icons.message),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Text(appLocalization
+                                              .getTraslateValue(
+                                              "sendMessage")),
+                                        ]),
+                                        onTap: () {
+                                          _routingService.openRoom(
+                                              widget.userUid.asString());
+                                        },
+                                      )),
                                 Container(
                                     decoration: BoxDecoration(
                                       border: Border.all(
@@ -229,7 +268,7 @@ class _ProfilePageState extends State<ProfilePage>
                                         start: 13, end: 15),
                                     child: Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                        MainAxisAlignment.spaceBetween,
                                         children: <Widget>[
                                           Container(
                                             child: Row(
@@ -241,7 +280,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                 SizedBox(width: 10),
                                                 Text(appLocalization
                                                     .getTraslateValue(
-                                                        "notification")),
+                                                    "notification")),
                                               ],
                                             ),
                                           ),
@@ -249,20 +288,22 @@ class _ProfilePageState extends State<ProfilePage>
                                             stream: _roomDao.getByRoomId(
                                                 widget.userUid.asString()),
                                             builder: (BuildContext context,
-                                                AsyncSnapshot<Room> snapshot) {
+                                                AsyncSnapshot<Room>
+                                                snapshot) {
                                               if (snapshot.data != null) {
                                                 return Switch(
                                                   activeColor:
-                                                      ExtraTheme.of(context)
-                                                          .blueOfProfilePage,
+                                                  ExtraTheme.of(context)
+                                                      .blueOfProfilePage,
                                                   value: !snapshot.data.mute,
                                                   onChanged: (newNotifState) {
                                                     setState(() {
                                                       _roomDao.insertRoom(Room(
-                                                          roomId: widget.userUid
+                                                          roomId: widget
+                                                              .userUid
                                                               .asString(),
                                                           mute:
-                                                              !newNotifState));
+                                                          !newNotifState));
                                                     });
                                                   },
                                                 );
@@ -272,170 +313,184 @@ class _ProfilePageState extends State<ProfilePage>
                                             },
                                           )
                                         ])),
-                                Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: ExtraTheme.of(context)
-                                              .borderOfProfilePage),
-                                      color: ExtraTheme.of(context)
-                                          .backgroundOfProfilePage,
-                                    ),
-                                    height: 60,
-                                    padding: const EdgeInsetsDirectional.only(
-                                        start: 7, end: 15),
-                                    child: FutureBuilder<Contact>(
-                                      future: _contactRepo
-                                          .getContact(widget.userUid),
-                                      builder: (BuildContext context,
-                                          AsyncSnapshot<Contact> snapshot) {
-                                        if (snapshot.data != null) {
-                                          return Stack(children: <Widget>[
-                                            Row(
-                                              children: [
-                                                IconButton(
-                                                  icon: Icon(Icons.phone),
-                                                  onPressed: () {},
-                                                ),
-                                                Text(appLocalization
-                                                    .getTraslateValue("phone")),
-                                              ],
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.only(top: 20),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.end,
+                                if (widget.userUid.category !=
+                                    Categories.SYSTEM)
+                                  Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: ExtraTheme.of(context)
+                                                .borderOfProfilePage),
+                                        color: ExtraTheme.of(context)
+                                            .backgroundOfProfilePage,
+                                      ),
+                                      height: 60,
+                                      padding:
+                                      const EdgeInsetsDirectional.only(
+                                          start: 7, end: 15),
+                                      child: FutureBuilder<Contact>(
+                                        future: _contactRepo
+                                            .getContact(widget.userUid),
+                                        builder: (BuildContext context,
+                                            AsyncSnapshot<Contact> snapshot) {
+                                          if (snapshot.data != null) {
+                                            return Stack(children: <Widget>[
+                                              Row(
                                                 children: [
-                                                  Text(snapshot
-                                                      .data.phoneNumber),
+                                                  IconButton(
+                                                    icon: Icon(Icons.phone),
+                                                    onPressed: () {},
+                                                  ),
+                                                  Text(appLocalization
+                                                      .getTraslateValue(
+                                                      "phone")),
                                                 ],
                                               ),
-                                            ),
-                                          ]);
-                                        } else {
-                                          return SizedBox.shrink();
-                                        }
-                                      },
-                                    )),
+                                              Padding(
+                                                padding:
+                                                EdgeInsets.only(top: 20),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                                  children: [
+                                                    Text(snapshot
+                                                        .data.phoneNumber),
+                                                  ],
+                                                ),
+                                              ),
+                                            ]);
+                                          } else {
+                                            return SizedBox.shrink();
+                                          }
+                                        },
+                                      )),
                                 SizedBox(
                                   height: 40,
                                 )
                               ]))
-                            : GroupUiWidget(
-                                mucUid: widget.userUid,
-                              ),
-                        SliverPersistentHeader(
-                          pinned: true,
-                          delegate: _SliverAppBarDelegate(
-                              maxHeight: 60,
-                              minHeight: 60,
-                              child: Container(
-                                color: Theme.of(context).backgroundColor,
-                                child: TabBar(
-                                  onTap: (index) {
-                                    _uxService.setTabIndex(
-                                        widget.userUid.asString(), index);
-                                  },
-                                  tabs: [
-                                    if (widget.userUid.category !=
-                                        Categories.USER)
-                                      Tab(
-                                        text: appLocalization
-                                            .getTraslateValue("members"),
-                                      ),
-                                    if ( snapshot.hasData && snapshot.data.imagesCount != 0)
-                                      Tab(
-                                        text: appLocalization
-                                            .getTraslateValue("images"),
-                                      ),
-                                    if (snapshot.hasData && snapshot.data.videosCount != 0)
-                                      Tab(
-                                        text: appLocalization
-                                            .getTraslateValue("videos"),
-                                      ),
-                                    if (snapshot.hasData && snapshot.data.filesCount != 0)
-                                      Tab(
-                                        text: appLocalization
-                                            .getTraslateValue("file"),
-                                      ),
-                                    if (snapshot.hasData && snapshot.data.linkCount != 0)
-                                      Tab(
+                              : GroupUiWidget(
+                            mucUid: widget.userUid,
+                          ),
+                          SliverPersistentHeader(
+                            pinned: true,
+                            delegate: _SliverAppBarDelegate(
+                                maxHeight: 60,
+                                minHeight: 60,
+                                child: Container(
+                                  color: Theme.of(context).backgroundColor,
+                                  child: TabBar(
+                                    onTap: (index) {
+                                      setState(() {
+                                        _uxService.setTabIndex(
+                                            widget.userUid.asString(), index);
+                                      });
+
+                                    },
+                                    tabs: [
+                                      if (widget.userUid.category !=
+                                          Categories.USER &&
+                                          widget.userUid.category !=
+                                              Categories.SYSTEM)
+                                        Tab(
                                           text: appLocalization
-                                              .getTraslateValue("links")),
-                                    if (snapshot.hasData && snapshot.data.documentsCount != 0)
-                                      Tab(
+                                              .getTraslateValue("members"),
+                                        ),
+                                      if (snapshot.hasData &&
+                                          snapshot.data.imagesCount != 0)
+                                        Tab(
                                           text: appLocalization
-                                              .getTraslateValue("documents")),
-                                    if (snapshot.hasData && snapshot.data.musicsCount != 0)
-                                      Tab(
+                                              .getTraslateValue("images"),
+                                        ),
+                                      if (snapshot.hasData &&
+                                          snapshot.data.videosCount != 0)
+                                        Tab(
                                           text: appLocalization
-                                              .getTraslateValue("musics")),
-                                    if (snapshot.hasData && snapshot.data.audiosCount != 0)
-                                      Tab(
+                                              .getTraslateValue("videos"),
+                                        ),
+                                      if (snapshot.hasData &&
+                                          snapshot.data.filesCount != 0)
+                                        Tab(
                                           text: appLocalization
-                                              .getTraslateValue("audios")),
-                                  ],
-                                  controller: _tabController,
+                                              .getTraslateValue("file"),
+                                        ),
+                                      if (snapshot.hasData &&
+                                          snapshot.data.linkCount != 0)
+                                        Tab(
+                                            text: appLocalization
+                                                .getTraslateValue("links")),
+                                      if (snapshot.hasData &&
+                                          snapshot.data.documentsCount != 0)
+                                        Tab(
+                                            text: appLocalization
+                                                .getTraslateValue("documents")),
+                                      if (snapshot.hasData &&
+                                          snapshot.data.musicsCount != 0)
+                                        Tab(
+                                            text: appLocalization
+                                                .getTraslateValue("musics")),
+                                      if (snapshot.hasData &&
+                                          snapshot.data.audiosCount != 0)
+                                        Tab(
+                                            text: appLocalization
+                                                .getTraslateValue("audios")),
+                                    ],
+                                    controller: _tabController,
+                                  ),
+                                )),
+                          ),
+                        ];
+                      },
+                      body: Container(
+                          child: TabBarView(
+                            children: [
+                              if (widget.userUid.category != Categories.USER &&
+                                  widget.userUid.category != Categories.SYSTEM)
+                                SingleChildScrollView(
+                                  child: Column(children: [
+                                    MucMemberWidget(
+                                      mucUid: widget.userUid,
+                                    ),
+                                  ]),
                                 ),
-                              )),
-                        ),
-                      ];
-                    },
-                    body: Container(
-                        child: TabBarView(
-                      children: [
-                        if (widget.userUid.category != Categories.USER)
-                          SingleChildScrollView(
-                            child: Column(children: [
-                              MucMemberWidget(
-                                mucUid: widget.userUid,
-                              ),
-                            ]),
-                          ),
-                        if (snapshot.hasData && snapshot.data.imagesCount != 0)
-                          ImageTabUi(snapshot.data.imagesCount, widget.userUid),
-                        if (snapshot.hasData && snapshot.data.videosCount != 0)
-                          VideoTabUi(
-                              userUid: widget.userUid,
-                              videoCount: snapshot.data.videosCount),
-                        if (snapshot.hasData && snapshot.data.filesCount != 0)
-                          DocumentAndFileUi(
-                            userUid: widget.userUid,
-                            documentCount: snapshot.data.filesCount,
-                            type: FetchMediasReq_MediaType.FILES,
-                          ),
-                        if (snapshot.hasData && snapshot.data.linkCount != 0)
-                          linkWidget(widget.userUid, _mediaQueryRepo,
-                              snapshot.data.linkCount),
-                        if (snapshot.hasData &&
-                            snapshot.data.documentsCount != 0)
-                          DocumentAndFileUi(
-                            userUid: widget.userUid,
-                            documentCount: snapshot.data.documentsCount,
-                            type: FetchMediasReq_MediaType.DOCUMENTS,
-                          ),
-                        if (snapshot.hasData && snapshot.data.musicsCount != 0)
-                          MusicAndAudioUi(
-                              userUid: widget.userUid,
-                              type: FetchMediasReq_MediaType.MUSICS,
-                              mediaCount: snapshot.data.musicsCount),
-                        if (snapshot.hasData && snapshot.data.audiosCount != 0)
-                          MusicAndAudioUi(
-                              userUid: widget.userUid,
-                              type: FetchMediasReq_MediaType.AUDIOS,
-                              mediaCount: snapshot.data.audiosCount),
-                      ],
-                      controller: _tabController,
-                    )))));
-      }
-      // else {
-      //   return Container(
-      //     width: 100,
-      //     height: 100,
-      //   );
-      // }
-      ,
-    );
+                              if (snapshot.hasData &&
+                                  snapshot.data.imagesCount != 0)
+                                ImageTabUi(snapshot.data.imagesCount, widget.userUid),
+                              if (snapshot.hasData &&
+                                  snapshot.data.videosCount != 0)
+                                VideoTabUi(
+                                    userUid: widget.userUid,
+                                    videoCount: snapshot.data.videosCount),
+                              if (snapshot.hasData && snapshot.data.filesCount != 0)
+                                DocumentAndFileUi(
+                                  userUid: widget.userUid,
+                                  documentCount: snapshot.data.filesCount,
+                                  type: FetchMediasReq_MediaType.FILES,
+                                ),
+                              if (snapshot.hasData && snapshot.data.linkCount != 0)
+                                linkWidget(widget.userUid, _mediaQueryRepo,
+                                    snapshot.data.linkCount),
+                              if (snapshot.hasData &&
+                                  snapshot.data.documentsCount != 0)
+                                DocumentAndFileUi(
+                                  userUid: widget.userUid,
+                                  documentCount: snapshot.data.documentsCount,
+                                  type: FetchMediasReq_MediaType.DOCUMENTS,
+                                ),
+                              if (snapshot.hasData &&
+                                  snapshot.data.musicsCount != 0)
+                                MusicAndAudioUi(
+                                    userUid: widget.userUid,
+                                    type: FetchMediasReq_MediaType.MUSICS,
+                                    mediaCount: snapshot.data.musicsCount),
+                              if (snapshot.hasData &&
+                                  snapshot.data.audiosCount != 0)
+                                MusicAndAudioUi(
+                                    userUid: widget.userUid,
+                                    type: FetchMediasReq_MediaType.AUDIOS,
+                                    mediaCount: snapshot.data.audiosCount),
+                            ],
+                            controller: _tabController,
+                          )))));
+        });
   }
 }
 
@@ -487,14 +542,14 @@ Widget _showUsername(String username, Uid currentUid) {
           username != null ? "@$username" : '',
           style: TextStyle(fontSize: 18.0, color: Colors.blue),
         ),
-        SizedBox(
-          width: 150,
-        ),
+        // SizedBox(
+        //   width: 150,
+        // ),
         IconButton(
             icon: Icon(
               Icons.share,
               size: 22,
-              color: Colors.blueAccent,
+              color: Colors.white,
             ),
             onPressed: () {
               routingServices.openSelectForwardMessage(
