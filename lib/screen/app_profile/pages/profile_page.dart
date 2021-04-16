@@ -111,10 +111,9 @@ class _ProfilePageState extends State<ProfilePage>
                 initialIndex:
                 _uxService.getTabIndex(widget.userUid.asString()));
             _tabController.addListener(() {
-              setState(() {
+
                 _uxService.setTabIndex(
                     widget.userUid.asString(), _tabController.index);
-              });
 
             });
           }
@@ -379,10 +378,10 @@ class _ProfilePageState extends State<ProfilePage>
                                   color: Theme.of(context).backgroundColor,
                                   child: TabBar(
                                     onTap: (index) {
-                                      setState(() {
+
                                         _uxService.setTabIndex(
                                             widget.userUid.asString(), index);
-                                      });
+
 
                                     },
                                     tabs: [
