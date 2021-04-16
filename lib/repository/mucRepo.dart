@@ -432,12 +432,8 @@ class MucRepo {
     }
     for (var member in members) {
       if (member.username == null) {
-        var username = await _queryServices.getIdByUid(
-            GetIdByUidReq()..uid = member.memberUid.getUid(),
-            options: CallOptions(metadata: {
-              'access_token': await _accountRepo.getAccessToken()
-            }));
-        member = member.copyWith(username: username.id);
+        var username = await _contactRepo.searchUserByUid(member.memberUid.getUid());
+        member = member.copyWith(username: username);
       }
       _memberDao.insertMember(member);
     }

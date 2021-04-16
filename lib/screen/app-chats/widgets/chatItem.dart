@@ -158,42 +158,20 @@ class _ChatItemState extends State<ChatItem> {
               widget.roomWithMessage.room.mentioned == true
                   ? Padding(
                       padding: const EdgeInsets.only(
-                        right: 3.0,
+                        right: 5.0,
                       ),
                       child: Stack(
                         children: <Widget>[
                           Container(
                             width: 15,
                             height: 15,
-                            decoration: new BoxDecoration(
-                              color: Theme.of(context).primaryColor,
-                              shape: BoxShape.circle,
-                            ),
+                            child: Image.asset("assets/icons/mention.png",width: 20,height: 20,),
+                            // decoration: new BoxDecoration(
+                            // //  color: Theme.of(context).primaryColor,
+                            //   shape: BoxShape.circle,
+                            // ),
                           ),
-                          Positioned(
-                            top: 2.25,
-                            right: 2.25,
-                            child: Container(
-                              width: 11,
-                              height: 11,
-                              decoration: new BoxDecoration(
-                                color: Theme.of(context).backgroundColor,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            top: 4,
-                            left: 4,
-                            child: Container(
-                              width: 6.5,
-                              height: 6.5,
-                              decoration: new BoxDecoration(
-                                color: Theme.of(context).primaryColor,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
+
                         ],
                       ),
                     )

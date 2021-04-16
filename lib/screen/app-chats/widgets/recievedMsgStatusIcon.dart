@@ -14,17 +14,19 @@ class ReceivedMsgIcon extends StatelessWidget {
     return FutureBuilder<LastSeen>(
       future: lastSeenDao.getByRoomId(lastMessage.roomId),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          int lastSeen = snapshot.data.messageId ?? -1;
+        if (snapshot.hasData && snapshot.data != null) {
+          int lastSeen = snapshot.data.messageId;
+          int unreadCount = lastMessage.id - lastSeen;
           return (lastSeen < lastMessage.id)
               ? Padding(
                   padding: const EdgeInsets.only(
-                    right: 10.0,
+                    right: 5.0,
                     top: 2,
                   ),
                   child: Container(
-                    width: 10,
-                    height: 10,
+                    width: unreadCount<10? 15: unreadCount<100?23:40,
+                    height: 15,
+                    child: Text("${unreadCount}",style: TextStyle(fontSize:11),),
                     alignment: Alignment.center,
                     decoration: new BoxDecoration(
                       color: Theme.of(context).primaryColor,
