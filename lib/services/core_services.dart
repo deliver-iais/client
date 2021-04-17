@@ -19,6 +19,7 @@ import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -93,7 +94,7 @@ class CoreServices {
       await startStream();
     }
     sendPingMessage();
-      responseChecked = false;
+    responseChecked = false;
     _connectionTimer = Timer(new Duration(seconds: backoffTime), () {
       if (!responseChecked) {
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
@@ -257,6 +258,14 @@ class CoreServices {
       return;
     }
     saveMessage(_accountRepo, _messageDao, _roomDao, message, roomUid);
+    if (message.whichType() == MessageType.PERSISTENT_EVENT &&
+        message.persistEvent.whichType() ==
+            PersistentEvent_Type.mucSpecificPersistentEvent &&
+        message.persistEvent.mucSpecificPersistentEvent.issue ==
+            MucSpecificPersistentEvent_Issue.DELETED) {
+      _roomDao.updateRoom(Database.RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+      return;
+    }
 
     if ((await _accountRepo.notification).contains("true") &&
         (room != null && !room.mute)) {

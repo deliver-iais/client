@@ -162,6 +162,7 @@ class MucRepo {
       _mucDao.deleteMuc(groupUid.asString());
       _roomDao.deleteRoom(groupUid.asString());
       _memberDao.deleteAllMembers(groupUid.asString());
+      _memberDao.deleteCurrentMucMember(groupUid.asString());
       return true;
     }
     return false;
@@ -172,6 +173,7 @@ class MucRepo {
     if (result) {
       _mucDao.deleteMuc(channelUid.asString());
       _roomDao.deleteRoom(channelUid.asString());
+      _memberDao.deleteCurrentMucMember(channelUid.asString());
       return true;
     }
     return false;

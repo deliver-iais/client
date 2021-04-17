@@ -169,7 +169,10 @@
   "name_not_empty": "Name Not Empty",
   "not_found": "Not Found",
   "of": "of",
-  "sure_exit_app": "Are you sure you want to \n log out?"
+  "sure_exit_app": "Are you sure you want to \n log out?",
+  "sure_delete_group": "Are you sure to delete Group ?",
+  "sure_delete_channel": "Are you sure to delete Channel ?",
+  "ok": "Ok"
 
 
 }

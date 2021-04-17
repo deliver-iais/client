@@ -147,7 +147,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         _mucType == MucType.GROUP ? _leftGroup() : _leftChannel();
         break;
       case "deleteMuc":
-        _mucType == MucType.GROUP ? _deleteGroup() : _deleteChannel();
+        _showDeleteMucDialog();
         break;
       case "unBlockRoom":
         _roomRepo.unBlockRoom(widget.roomUid);
@@ -264,14 +264,14 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                               : _appLocalization
                                   .getTraslateValue("leftChannel")),
                           value: "leftMuc"),
-//todo delete muc
-//                    if (_deleteMucPermission)
-//                      new PopupMenuItem<String>(
-//                          child: Text(_mucType == MucType.GROUP
-//                              ? _appLocalization.getTraslateValue("deleteGroup")
-//                              : _appLocalization
-//                                  .getTraslateValue("deleteChannel")),
-//                          value: "deleteMuc"),
+                      if (_modifyMUc)
+                        new PopupMenuItem<String>(
+                            child: Text(_mucType == MucType.GROUP
+                                ? _appLocalization
+                                    .getTraslateValue("deleteGroup")
+                                : _appLocalization
+                                    .getTraslateValue("deleteChannel")),
+                            value: "deleteMuc"),
                       if (_setAvatarPermission)
                         new PopupMenuItem<String>(
                             child: Text(_appLocalization
@@ -607,5 +607,75 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                 ? _appLocalization.getTraslateValue("group_name")
                 : _appLocalization.getTraslateValue("channel_name"),
         labelStyle: TextStyle(color: Colors.blue));
+  }
+
+  void _showDeleteMucDialog() async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
+            actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
+            backgroundColor: Colors.white,
+            title: Container(
+              height: 50,
+              color: Colors.blue,
+              child: Icon(
+                Icons.delete_forever,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+            content: Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                      _mucType == MucType.GROUP
+                          ? _appLocalization
+                              .getTraslateValue("sure_delete_group")
+                          : _appLocalization
+                              .getTraslateValue("sure_delete_channel"),
+                      style: TextStyle(color: Colors.black, fontSize: 18)),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      child: Text(
+                        _appLocalization.getTraslateValue("cancel"),
+                        style: TextStyle(fontSize: 16, color: Colors.blue),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    GestureDetector(
+                      child: Text(
+                        _appLocalization.getTraslateValue("ok"),
+                        style: TextStyle(fontSize: 16, color: Colors.red),
+                      ),
+                      onTap: () {
+                        _mucType == MucType.GROUP
+                            ? _deleteGroup()
+                            : _deleteChannel();
+                      },
+                    ),
+                    SizedBox(
+                      width: 10,
+                    )
+                  ],
+                ),
+
+            ],
+          );
+        });
   }
 }

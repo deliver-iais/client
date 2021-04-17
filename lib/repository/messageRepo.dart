@@ -24,6 +24,7 @@ import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as protoModel;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as MessageProto;
+import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
@@ -599,8 +600,18 @@ class MessageRepo {
 
   Future<List<Message>> _saveFetchMessages(
       List<MessageProto.Message> messages) async {
+
     List<Message> msgList = [];
     for (MessageProto.Message message in messages) {
+      // ignore: unrelated_type_equality_checks
+      if (message.whichType() == MessageType.PERSISTENT_EVENT &&
+          message.persistEvent.whichType() ==
+              PersistentEvent_Type.mucSpecificPersistentEvent &&
+          message.persistEvent.mucSpecificPersistentEvent.issue ==
+              MucSpecificPersistentEvent_Issue.DELETED) {
+        _roomDao.updateRoom(RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+        continue;
+      }
       msgList.add(
           await saveMessageInMessagesDB(_accountRepo, _messageDao, message));
     }

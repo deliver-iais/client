@@ -63,4 +63,8 @@ class MemberDao extends DatabaseAccessor<Database> with _$MemberDaoMixin {
               (tbl) => tbl.memberUid.equals(uid) & tbl.mucUid.equals(mucId)))
         .watchSingle();
   }
+
+  void deleteCurrentMucMember(String mucUid) {
+    delete(members)..where((tbl) => tbl.mucUid.equals(mucUid));
+  }
 }
