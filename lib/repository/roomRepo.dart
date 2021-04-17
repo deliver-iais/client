@@ -32,16 +32,15 @@ class RoomRepo {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
-  var _usernameDao = GetIt.I.get<UserInfoDao>();
+  var _userInfoDao = GetIt.I.get<UserInfoDao>();
   var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   var _memberDao = GetIt.I.get<MemberDao>();
-
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   Map<String, BehaviorSubject<Activity>> activityObject = Map();
 
-  Future<String> getRoomDisplayName(Uid uid,{String roomUid}) async {
+  Future<String> getRoomDisplayName(Uid uid, {String roomUid}) async {
     switch (uid.category) {
       case Categories.SYSTEM:
         return "Deliver";
@@ -57,20 +56,11 @@ class RoomRepo {
             _roomNameCache.set(uid.asString(), contactName);
             return contactName;
           } else {
-            var username = await _usernameDao.getUserInfo(uid.asString());
+            var username = await _userInfoDao.getUserInfo(uid.asString());
             if (username != null && username.username != null) {
               return username.username;
-            }else{
-              var member = await _memberDao.getMember(uid.asString(),roomUid);
-              if(member != null && member.name != null) {
-                _roomNameCache.set(
-                    uid.asString(), member.name ?? member.username);
-                return member.name;
-              }else if(member != null){
-                return member.username;
-              }
             }
-            String s = await _searchByUid(uid);
+            String s = await _contactRepo.searchUserByUid(uid);
             return s;
           }
         }
@@ -101,11 +91,19 @@ class RoomRepo {
     return "Unknown";
   }
 
-  Future<String> _searchByUid(Uid uid) async {
-    String username = await _contactRepo.searchUserByUid(uid);
-    _usernameDao
-        .upsertUserInfo(UserInfo(uid: uid.asString(), username: username));
-    return username;
+  Future<String> getUsername(Uid uid) async {
+    var contact = await _contactDao.getContact(uid.asString());
+    if (contact != null)
+      return contact.username;
+    else {
+      var userInfo = await _userInfoDao.getUserInfo(uid.asString());
+      if (userInfo != null && userInfo.username != null) {
+        return userInfo.username;
+      } else {
+        var res = await _contactRepo.searchUserByUid(uid);
+        return res;
+      }
+    }
   }
 
   void updateActivity(Activity activity) {
@@ -190,13 +188,13 @@ class RoomRepo {
     if (contact != null) {
       return contact.uid;
     } else {
-      var userInfo = await _usernameDao.getByUserName(username);
+      var userInfo = await _userInfoDao.getByUserName(username);
       if (userInfo != null) {
         return userInfo.uid;
       } else {
         var uid = await _contactRepo.searchUserByUsername(username);
         if (uid != null)
-          _usernameDao.upsertUserInfo(
+          _userInfoDao.upsertUserInfo(
               UserInfo(uid: uid.asString(), username: username));
         return uid.asString();
       }

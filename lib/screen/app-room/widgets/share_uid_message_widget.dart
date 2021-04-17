@@ -32,6 +32,7 @@ class ShareUidMessageWidget extends StatelessWidget {
           child: Text(
             _shareUid.name,
             style: TextStyle(
+              fontSize: 16,
               color: Colors.amber,
             ),
           ),
