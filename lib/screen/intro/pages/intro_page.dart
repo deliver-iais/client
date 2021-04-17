@@ -22,7 +22,7 @@ class IntroPage extends StatefulWidget {
 
 class _IntroPageState extends State<IntroPage> {
   IntroAnimationController introAnimationController =
-      IntroAnimationController();
+  IntroAnimationController();
 
   final subject = ReplaySubject<double>();
 
@@ -207,11 +207,11 @@ class _IntroPageState extends State<IntroPage> {
               nameNextBtn: appLocalization.getTraslateValue("next"),
               onDonePress: navigateToLoginPage,
               styleNameSkipBtn:
-                  TextStyle(color: Theme.of(context).primaryColor),
+              TextStyle(color: Theme.of(context).primaryColor),
               styleNameDoneBtn:
-                  TextStyle(color: Theme.of(context).primaryColor),
+              TextStyle(color: Theme.of(context).primaryColor),
               styleNamePrevBtn:
-                  TextStyle(color: Theme.of(context).primaryColor),
+              TextStyle(color: Theme.of(context).primaryColor),
               colorDot: Color(0xFFBCE0FD),
               colorActiveDot: Theme.of(context).primaryColor,
               onSkipPress: navigateToLoginPage,

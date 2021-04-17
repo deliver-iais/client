@@ -21,8 +21,8 @@ class VideoTabUi extends StatefulWidget {
 }
 
 class _VideoTabUiState extends State<VideoTabUi> {
-  var mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  var fileRepo = GetIt.I.get<FileRepo>();
+  MediaQueryRepo mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  FileRepo fileRepo = GetIt.I.get<FileRepo>();
   Duration duration;
   String videoLength;
   bool isExist;
