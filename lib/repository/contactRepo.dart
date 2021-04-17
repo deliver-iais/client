@@ -37,7 +37,7 @@ class ContactRepo {
 
   var contactServices = ContactServiceClient(ProfileServicesClientChannel);
 
-  var _usernameDao = GetIt.I.get<UserInfoDao>();
+  var _userInfoDao = GetIt.I.get<UserInfoDao>();
 
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
@@ -151,6 +151,7 @@ class ContactRepo {
           GetIdByUidReq()..uid = uid,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      _userInfoDao.upsertUserInfo(Database.UserInfo(uid: uid.asString(),username: result.id));
       return result.id;
     } catch (e) {
       return null;
@@ -191,18 +192,12 @@ class ContactRepo {
   }
 
   void getUsername(UserAsContact contact) async {
-    var usernameReq = await _queryServiceClient.getIdByUid(
-        GetIdByUidReq()..uid = contact.uid,
-        options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()}));
-    if (usernameReq.hasId()) {
+    var username = await searchUserByUid(contact.uid);
+    if (username!= null) {
       _contactDao.insertContact(Database.ContactsCompanion(
           phoneNumber: Value(contact.phoneNumber.nationalNumber.toString()),
-          username:Value( usernameReq.id),
+          username:Value(username),
           uid:Value( contact.uid.asString())));
-
-      _usernameDao.upsertUserInfo(Database.UserInfo(
-          uid: contact.uid.asString(), username: usernameReq.id));
     }
   }
 }
