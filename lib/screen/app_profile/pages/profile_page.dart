@@ -105,19 +105,20 @@ class _ProfilePageState extends State<ProfilePage>
               tabsCount = tabsCount + 1;
             }
 
-            _tabController = TabController(
-                length: (widget.userUid.category == Categories.GROUP ||
-                        widget.userUid.category == Categories.CHANNEL)
-                    ? tabsCount + 1
-                    : tabsCount,
-                vsync: this,
-                initialIndex:
-                    _uxService.getTabIndex(widget.userUid.asString()));
-            _tabController.addListener(() {
-              _uxService.setTabIndex(
-                  widget.userUid.asString(), _tabController.index);
-            });
           }
+
+          _tabController = TabController(
+              length: (widget.userUid.category == Categories.GROUP ||
+                  widget.userUid.category == Categories.CHANNEL)
+                  ? tabsCount + 1
+                  : tabsCount,
+              vsync: this,
+              initialIndex:
+              _uxService.getTabIndex(widget.userUid.asString()));
+          _tabController.addListener(() {
+            _uxService.setTabIndex(
+                widget.userUid.asString(), _tabController.index);
+          });
 
           return Scaffold(
               body: DefaultTabController(
@@ -165,7 +166,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                 ],
                                               ),
                                             ),
-                                            SizedBox(height: 10),
+                                            SizedBox(height: 5),
                                             widget.userUid.category ==
                                                     Categories.SYSTEM
                                                 ? Padding(
@@ -379,14 +380,15 @@ class _ProfilePageState extends State<ProfilePage>
                                           widget.userUid.asString(), index);
                                     },
                                     tabs: [
-                                      if (widget.userUid.category !=
-                                              Categories.USER &&
-                                          widget.userUid.category !=
-                                              Categories.SYSTEM)
+                                      if (widget.userUid.category ==
+                                              Categories.GROUP ||
+                                          widget.userUid.category ==
+                                              Categories.CHANNEL)
                                         Tab(
                                           text: appLocalization
                                               .getTraslateValue("members"),
                                         ),
+
                                       if (snapshot.hasData &&
                                           snapshot.data.imagesCount != 0)
                                         Tab(
