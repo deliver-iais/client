@@ -50,11 +50,12 @@ class FileRepo {
       await _saveFileInfo(uploadKey,  File(allLocalFiles['medium']),  name, "medium");
       await _saveFileInfo(uploadKey, File(allLocalFiles['small']),  name, "small");
   }
-      final localFile = await _fileService.localFile(uploadKey, name);
-      localFile.writeAsBytesSync(file.readAsBytesSync());
+      else {
+        final localFile = await _fileService.localFile(uploadKey, name);
+        localFile.writeAsBytesSync(file.readAsBytesSync());
 
-      await _saveFileInfo(uploadKey, localFile, name, "real");
-
+        await _saveFileInfo(uploadKey, localFile, name, "real");
+      }
   }
 
 

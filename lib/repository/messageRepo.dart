@@ -299,7 +299,6 @@ class MessageRepo {
 
     await _fileRepo.cloneFileInLocalDirectory(
         file, packetId, path.split('.').last);
-     print("spaaaaaaaaaaaan starteeeeeeeeeeeeeeeeeddddddddddddddd");
 
     MessagesCompanion message = MessagesCompanion.insert(
         roomId: room.asString(),
