@@ -160,7 +160,8 @@ class MucRepo {
     var result = await mucServices.removeGroup(groupUid);
     if (result) {
       _mucDao.deleteMuc(groupUid.asString());
-      _roomDao.deleteRoom(groupUid.asString());
+      _roomDao.updateRoom(RoomsCompanion(
+          roomId: Value(groupUid.asString()), deleted: Value(true)));
       _memberDao.deleteAllMembers(groupUid.asString());
       _memberDao.deleteCurrentMucMember(groupUid.asString());
       return true;
@@ -172,7 +173,8 @@ class MucRepo {
     var result = await mucServices.removeChannel(channelUid);
     if (result) {
       _mucDao.deleteMuc(channelUid.asString());
-      _roomDao.deleteRoom(channelUid.asString());
+      _roomDao.updateRoom(RoomsCompanion(
+          roomId: Value(channelUid.asString()), deleted: Value(true)));
       _memberDao.deleteCurrentMucMember(channelUid.asString());
       return true;
     }
@@ -213,7 +215,8 @@ class MucRepo {
     var result = await mucServices.leaveGroup(groupUid);
     if (result) {
       _mucDao.deleteMuc(groupUid.asString());
-      _roomDao.deleteRoom(groupUid.asString());
+      _roomDao.updateRoom(RoomsCompanion(
+          roomId: Value(groupUid.asString()), deleted: Value(true)));
       return true;
     }
     return false;
@@ -223,7 +226,8 @@ class MucRepo {
     var result = await mucServices.leaveChannel(channelUid);
     if (result) {
       _mucDao.deleteMuc(channelUid.asString());
-      _roomDao.deleteRoom(channelUid.asString());
+      _roomDao.updateRoom(RoomsCompanion(
+          roomId: Value(channelUid.asString()), deleted: Value(true)));
       return true;
     }
     return false;
@@ -434,7 +438,8 @@ class MucRepo {
     }
     for (var member in members) {
       if (member.username == null) {
-        var username = await _contactRepo.searchUserByUid(member.memberUid.getUid());
+        var username =
+            await _contactRepo.searchUserByUid(member.memberUid.getUid());
         member = member.copyWith(username: username);
       }
       _memberDao.insertMember(member);

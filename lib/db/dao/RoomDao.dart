@@ -41,7 +41,7 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
 
 //TODO need to edit
   Stream<List<RoomWithMessage>> getAllRoomsWithMessage() {
-    return ((select(rooms)..where((tbl) => tbl.deleted.equals(false))) .join([
+    return ((select(rooms)..where((tbl) => tbl.deleted.equals(false))).join([
       leftOuterJoin(
         messages,
         messages.roomId.equalsExp(rooms.roomId) &

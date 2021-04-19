@@ -11,6 +11,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/operation_on_message.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -77,6 +78,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _seenDao = GetIt.I.get<SeenDao>();
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
+  var _botRepo = GetIt.I.get<BotRepo>();
   String pattern;
 
   int lastSeenMessageId = -1;
@@ -211,7 +213,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   _getLastShowMessageId() async {
     LastSeen lastSeen = await _lastSeenDao.getByRoomId(widget.roomId);
     if (lastSeen != null) {
-      _lastShowedMessageId = lastSeen.messageId;
+      _lastShowedMessageId = lastSeen.messageId??0;
     }
   }
 
@@ -263,8 +265,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _messageRepo.sendSeenMessage(event, widget.roomId.uid);
         });
 
-    if (widget.roomId.getUid().category != Categories.USER)
+    if (widget.roomId.getUid().category == Categories.CHANNEL || widget.roomId.getUid().category == Categories.GROUP)
       fetchMucInfo(widget.roomId.getUid());
+    else if(widget.roomId.getUid().category == Categories.BOT){
+      _botRepo.featchBotInfo(widget.roomId.getUid());
+    }
 
 
   }

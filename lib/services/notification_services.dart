@@ -84,7 +84,6 @@ class NotificationServices {
       pro.Message message, String roomUid, String roomName) async {
     try {
       _notificationMap[roomUid] == message.id;
-      cancelNotification(message.id - 1);
       switch (message.whichType()) {
         case pro.Message_Type.persistEvent:
         case pro.Message_Type.text:

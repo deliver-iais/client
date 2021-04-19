@@ -71,11 +71,13 @@ class _ChatItemState extends State<ChatItem> {
             width: 8,
           ),
           Expanded(
-              flex: 90,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
+            flex: 90,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                     Container(
                         width: 200,
                         child: widget.roomWithMessage.room.roomId.uid
@@ -88,7 +90,9 @@ class _ChatItemState extends State<ChatItem> {
                                 context)
                             : FutureBuilder<String>(
                                 future: _roomRepo.getRoomDisplayName(
-                                    widget.roomWithMessage.room.roomId.uid,roomUid: widget.roomWithMessage.room.roomId),
+                                    widget.roomWithMessage.room.roomId.uid,
+                                    roomUid:
+                                        widget.roomWithMessage.room.roomId),
                                 builder: (BuildContext c,
                                     AsyncSnapshot<String> snaps) {
                                   if (snaps.hasData && snaps.data.isNotEmpty) {
@@ -98,29 +102,44 @@ class _ChatItemState extends State<ChatItem> {
                                     return _showDisplayName("Unknown", context);
                                   }
                                 })),
-                    StreamBuilder<Activity>(
-                        stream: _roomRepo.activityObject[
-                            widget.roomWithMessage.room.roomId.uid.node],
-                        builder: (c, s) {
-                          if (s.hasData &&
-                              s.data != null &&
-                              s.data.typeOfActivity !=
-                                  ActivityType.NO_ACTIVITY) {
-                            return ActivityStatuse(
-                              activity: s.data,
-                              roomUid: widget.roomWithMessage.room.roomId.uid,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: ExtraTheme.of(context).details,
-                              ),
-                            );
-                          } else {
-                            return lastMessageWidget(messageType, context);
-                          }
-                        }),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: 4.0,right: 0
+                      ),
+                      child: Text(
+                        widget.roomWithMessage.lastMessage.time
+                            .dateTimeFormat(),
+                        maxLines: 1,
+                        style: TextStyle(
+                          color: ExtraTheme.of(context).details,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-              )),
+                StreamBuilder<Activity>(
+                    stream: _roomRepo.activityObject[
+                        widget.roomWithMessage.room.roomId.uid.node],
+                    builder: (c, s) {
+                      if (s.hasData &&
+                          s.data != null &&
+                          s.data.typeOfActivity != ActivityType.NO_ACTIVITY) {
+                        return ActivityStatuse(
+                          activity: s.data,
+                          roomUid: widget.roomWithMessage.room.roomId.uid,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: ExtraTheme.of(context).details,
+                          ),
+                        );
+                      } else {
+                        return lastMessageWidget(messageType, context);
+                      }
+                    }),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -142,36 +161,26 @@ class _ChatItemState extends State<ChatItem> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(
-                  bottom: 4.0,
-                ),
-                child: Text(
-                  widget.roomWithMessage.lastMessage.time.dateTimeFormat(),
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: ExtraTheme.of(context).details,
-                    fontSize: 11,
-                  ),
-                ),
-              ),
               widget.roomWithMessage.room.mentioned == true
                   ? Padding(
                       padding: const EdgeInsets.only(
-                        right: 5.0,
+                        right: 8.0,
                       ),
                       child: Stack(
                         children: <Widget>[
                           Container(
                             width: 15,
                             height: 15,
-                            child: Image.asset("assets/icons/mention.png",width: 20,height: 20,),
+                            child: Image.asset(
+                              "assets/icons/mention.png",
+                              width: 20,
+                              height: 20,
+                            ),
                             // decoration: new BoxDecoration(
                             // //  color: Theme.of(context).primaryColor,
                             //   shape: BoxShape.circle,
                             // ),
                           ),
-
                         ],
                       ),
                     )

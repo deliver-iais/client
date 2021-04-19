@@ -104,7 +104,7 @@ class MessageRepo {
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
-        print("&&&" + roomMetadata.roomUid.toString());
+      
         //   baae6e7c-d880-4dd0-948e-f6b5d38a74d0
         var room =
             await _roomDao.getByRoomIdFuture(roomMetadata.roomUid.asString());
@@ -160,9 +160,7 @@ class MessageRepo {
               options: CallOptions(metadata: {
                 "access_token": await _accountRepo.getAccessToken()
               }));
-      print(room.roomUid.toString() +
-          "^^^^" +
-          fetchCurrentUserSeenData.seen.id.toString());
+
       _lastSeenDao.insertLastSeen(LastSeen(
           roomId: room.roomUid.asString(),
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
@@ -604,7 +602,7 @@ class MessageRepo {
     List<Message> msgList = [];
     for (MessageProto.Message message in messages) {
       // ignore: unrelated_type_equality_checks
-      if (message.whichType() == MessageType.PERSISTENT_EVENT &&
+      if (message.whichType() == MessageProto.Message_Type.persistEvent &&
           message.persistEvent.whichType() ==
               PersistentEvent_Type.mucSpecificPersistentEvent &&
           message.persistEvent.mucSpecificPersistentEvent.issue ==

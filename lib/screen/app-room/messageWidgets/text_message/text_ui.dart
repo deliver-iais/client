@@ -229,7 +229,7 @@ Widget _textWidget(
                 pattern != null ? pattern : "[@#][a-zA-Z]([a-zA-Z0-9_]){4,19}",
             style: TextStyle(
               color: pattern != null ? Colors.red : Colors.yellowAccent,
-              fontSize: 17,
+              fontSize: 16,
             ),
             onTap: (username) async {
               onClick(username);
@@ -237,20 +237,6 @@ Widget _textWidget(
           ),
           MatchText(
             type: ParsedType.PHONE,
-            pattern:
-                pattern != null ? pattern : "[@#][a-zA-Z]([a-zA-Z0-9_]){4,19}",
-            style: TextStyle(
-              color: pattern != null ? Colors.red : Colors.yellowAccent,
-              fontSize: 16,
-            ),
-            onTap: (phone) async {
-              await launch("tel:$phone");
-            },
-          ),
-          MatchText(
-            type: ParsedType.PHONE,
-            pattern:
-            pattern != null ? pattern : "[@#][a-zA-Z]([a-zA-Z0-9_]){4,19}",
             style: TextStyle(
               color: pattern != null ? Colors.red : Colors.yellowAccent,
               fontSize: 16,

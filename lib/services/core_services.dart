@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
@@ -60,6 +61,7 @@ class CoreServices {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _routingServices = GetIt.I.get<RoutingService>();
+  var _lastSeenDao = GetIt.I.get<LastSeenDao>();
 
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
@@ -253,12 +255,13 @@ class CoreServices {
 
   _saveIncomingMessage(Message message) async {
     Uid roomUid = getRoomId(_accountRepo, message);
+    _lastSeenDao.insertLastSeen(Database.LastSeen(roomId: roomUid.asString()));
     Database.Room room = await _roomDao.getByRoomIdFuture(roomUid.asString());
     if (room != null && room.isBlock) {
       return;
     }
     saveMessage(_accountRepo, _messageDao, _roomDao, message, roomUid);
-    if (message.whichType() == MessageType.PERSISTENT_EVENT &&
+    if (message.whichType() == Message_Type.persistEvent &&
         message.persistEvent.whichType() ==
             PersistentEvent_Type.mucSpecificPersistentEvent &&
         message.persistEvent.mucSpecificPersistentEvent.issue ==

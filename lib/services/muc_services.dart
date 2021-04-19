@@ -110,7 +110,7 @@ class MucServices {
       await groupServices.leaveGroup(
           GroupServices.LeaveGroupReq()..group = groupUid,
           options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+              metadata: {'access_token': await _accountRepo.getAccessToken()},timeout: Duration(seconds: 2)));
       return true;
     } catch (e) {
       return false;
@@ -204,7 +204,7 @@ class MucServices {
             ..info = group
             ..uid = mucUid,
           options: CallOptions(
-              timeout: Duration(seconds: 1),
+              timeout: Duration(seconds: 2),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return true;
     } catch (c) {
@@ -266,7 +266,7 @@ class MucServices {
       await channelServices.removeChannel(
           ChannelServices.RemoveChannelReq()..uid = channelUid,
           options: CallOptions(
-              timeout: Duration(seconds: 1),
+              timeout: Duration(seconds: 2),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {

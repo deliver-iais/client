@@ -117,6 +117,10 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
         if (contact.lastName != null) {
           roomName = "$roomName ${contact.lastName}";
         }
+      }else{
+        var res = await _userInfoDao.getUserInfo(msg.from.asString());
+        if(res != null)
+          roomName = res.username;
       }
     } else if (msg.from.category == Categories.SYSTEM) {
       roomName = "Deliver";

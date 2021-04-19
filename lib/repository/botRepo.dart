@@ -29,6 +29,7 @@ class BotRepo{
 
   Future<BotInfo> getBotInfo(Uid botUid)async{
    return await _botInfoDao.getBotInfo(botUid.node);
+
   }
 
   Future<List<SearchInRoom>> searchBotByName(String name)async {
