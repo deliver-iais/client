@@ -123,8 +123,8 @@ class _ProfilePageState extends State<ProfilePage>
           return Scaffold(
               body: DefaultTabController(
                   length: (widget.userUid.category == Categories.USER ||
-                          widget.userUid.category == Categories.SYSTEM ||
-                          widget.userUid.category == Categories.BOT)
+                      widget.userUid.category == Categories.SYSTEM ||
+                      widget.userUid.category == Categories.BOT)
                       ? tabsCount
                       : tabsCount + 1,
                   child: NestedScrollView(
@@ -136,7 +136,7 @@ class _ProfilePageState extends State<ProfilePage>
                             roomUid: widget.userUid,
                           ),
                           widget.userUid.category == Categories.USER ||
-                                  widget.userUid.category == Categories.SYSTEM
+                              widget.userUid.category == Categories.SYSTEM
                               ? SliverList(
                                   delegate: SliverChildListDelegate([
                                   Container(
@@ -365,8 +365,8 @@ class _ProfilePageState extends State<ProfilePage>
                                   )
                                 ]))
                               : GroupUiWidget(
-                                  mucUid: widget.userUid,
-                                ),
+                            mucUid: widget.userUid,
+                          ),
                           SliverPersistentHeader(
                             pinned: true,
                             delegate: _SliverAppBarDelegate(
@@ -376,8 +376,11 @@ class _ProfilePageState extends State<ProfilePage>
                                   color: Theme.of(context).backgroundColor,
                                   child: TabBar(
                                     onTap: (index) {
-                                      _uxService.setTabIndex(
-                                          widget.userUid.asString(), index);
+
+                                        _uxService.setTabIndex(
+                                            widget.userUid.asString(), index);
+
+
                                     },
                                     tabs: [
                                       if (widget.userUid.category ==
@@ -436,55 +439,55 @@ class _ProfilePageState extends State<ProfilePage>
                       },
                       body: Container(
                           child: TabBarView(
-                        children: [
-                          if (widget.userUid.category != Categories.USER &&
-                              widget.userUid.category != Categories.SYSTEM)
-                            SingleChildScrollView(
-                              child: Column(children: [
-                                MucMemberWidget(
-                                  mucUid: widget.userUid,
+                            children: [
+                              if (widget.userUid.category != Categories.USER &&
+                                  widget.userUid.category != Categories.SYSTEM)
+                                SingleChildScrollView(
+                                  child: Column(children: [
+                                    MucMemberWidget(
+                                      mucUid: widget.userUid,
+                                    ),
+                                  ]),
                                 ),
-                              ]),
-                            ),
-                          if (snapshot.hasData &&
-                              snapshot.data.imagesCount != 0)
-                            ImageUi(snapshot.data.imagesCount, widget.userUid),
-                          if (snapshot.hasData &&
-                              snapshot.data.videosCount != 0)
-                            VideoTabUi(
-                                userUid: widget.userUid,
-                                videoCount: snapshot.data.videosCount),
-                          if (snapshot.hasData && snapshot.data.filesCount != 0)
-                            DocumentAndFileUi(
-                              userUid: widget.userUid,
-                              documentCount: snapshot.data.filesCount,
-                              type: FetchMediasReq_MediaType.FILES,
-                            ),
-                          if (snapshot.hasData && snapshot.data.linkCount != 0)
-                            linkWidget(widget.userUid, _mediaQueryRepo,
-                                snapshot.data.linkCount),
-                          if (snapshot.hasData &&
-                              snapshot.data.documentsCount != 0)
-                            DocumentAndFileUi(
-                              userUid: widget.userUid,
-                              documentCount: snapshot.data.documentsCount,
-                              type: FetchMediasReq_MediaType.DOCUMENTS,
-                            ),
-                          if (snapshot.hasData &&
-                              snapshot.data.musicsCount != 0)
-                            MusicAndAudioUi(
-                                userUid: widget.userUid,
-                                type: FetchMediasReq_MediaType.MUSICS,
-                                mediaCount: snapshot.data.musicsCount),
-                          if (snapshot.hasData &&
-                              snapshot.data.audiosCount != 0)
-                            MusicAndAudioUi(
-                                userUid: widget.userUid,
-                                type: FetchMediasReq_MediaType.AUDIOS,
-                                mediaCount: snapshot.data.audiosCount),
-                        ],
-                        controller: _tabController,
-                      )))));
+                              if (snapshot.hasData &&
+                                  snapshot.data.imagesCount != 0)
+                                ImageTabUi(snapshot.data.imagesCount, widget.userUid),
+                              if (snapshot.hasData &&
+                                  snapshot.data.videosCount != 0)
+                                VideoTabUi(
+                                    userUid: widget.userUid,
+                                    videoCount: snapshot.data.videosCount),
+                              if (snapshot.hasData && snapshot.data.filesCount != 0)
+                                DocumentAndFileUi(
+                                  userUid: widget.userUid,
+                                  documentCount: snapshot.data.filesCount,
+                                  type: FetchMediasReq_MediaType.FILES,
+                                ),
+                              if (snapshot.hasData && snapshot.data.linkCount != 0)
+                                linkWidget(widget.userUid, _mediaQueryRepo,
+                                    snapshot.data.linkCount),
+                              if (snapshot.hasData &&
+                                  snapshot.data.documentsCount != 0)
+                                DocumentAndFileUi(
+                                  userUid: widget.userUid,
+                                  documentCount: snapshot.data.documentsCount,
+                                  type: FetchMediasReq_MediaType.DOCUMENTS,
+                                ),
+                              if (snapshot.hasData &&
+                                  snapshot.data.musicsCount != 0)
+                                MusicAndAudioUi(
+                                    userUid: widget.userUid,
+                                    type: FetchMediasReq_MediaType.MUSICS,
+                                    mediaCount: snapshot.data.musicsCount),
+                              if (snapshot.hasData &&
+                                  snapshot.data.audiosCount != 0)
+                                MusicAndAudioUi(
+                                    userUid: widget.userUid,
+                                    type: FetchMediasReq_MediaType.AUDIOS,
+                                    mediaCount: snapshot.data.audiosCount),
+                            ],
+                            controller: _tabController,
+                          )))));
         });
   }
 }

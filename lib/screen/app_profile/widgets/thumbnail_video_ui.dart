@@ -34,31 +34,33 @@ class VideoThumbnail extends StatelessWidget {
         },
         child: Stack(
           children: [
+            isExist == false?
+            ImageFiltered(
+                 imageFilter: ImageFilter.blur(
+                    sigmaX: 4,sigmaY: 4),
+              child: Container(
+                  decoration: new BoxDecoration(
+                image: new DecorationImage(
+                  image: Image.file(thumbnail).image,
+                  fit: BoxFit.cover,
+                ),
+                border: Border.all(
+                  width: 1,
+                  color: ExtraTheme.of(context).secondColor,
+                ),
+              )),
+            ):
             Container(
                 decoration: new BoxDecoration(
-              image: new DecorationImage(
-                image: Image.file(thumbnail).image,
-                fit: BoxFit.cover,
-              ),
-              border: Border.all(
-                width: 1,
-                color: ExtraTheme.of(context).secondColor,
-              ),
-            )),
-            if (isExist == false)
-              Positioned.fill(
-                child: ClipRRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(
-                      sigmaX: 4,
-                      sigmaY: 4,
-                    ),
-                    child: Container(
-                      color: Colors.black.withOpacity(0),
-                    ),
+                  image: new DecorationImage(
+                    image: Image.file(thumbnail).image,
+                    fit: BoxFit.cover,
                   ),
-                ),
-              ),
+                  border: Border.all(
+                    width: 1,
+                    color: ExtraTheme.of(context).secondColor,
+                  ),
+                )),
             Positioned(
               child: Container(
                 decoration: BoxDecoration(
