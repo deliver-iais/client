@@ -261,14 +261,36 @@ class CoreServices {
       return;
     }
     saveMessage(_accountRepo, _messageDao, _roomDao, message, roomUid);
-    if (message.whichType() == Message_Type.persistEvent &&
-        message.persistEvent.whichType() ==
-            PersistentEvent_Type.mucSpecificPersistentEvent &&
-        message.persistEvent.mucSpecificPersistentEvent.issue ==
-            MucSpecificPersistentEvent_Issue.DELETED) {
-      _roomDao.updateRoom(Database.RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
-      return;
+    if (message.whichType() == Message_Type.persistEvent){
+      switch(message.persistEvent.whichType()){
+        case PersistentEvent_Type.mucSpecificPersistentEvent:
+          switch(message.persistEvent.mucSpecificPersistentEvent.issue){
+            case  MucSpecificPersistentEvent_Issue.DELETED:
+              _roomDao.updateRoom(Database.RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+              return;
+              break;
+            case MucSpecificPersistentEvent_Issue.KICK_USER:
+              if(message.persistEvent.mucSpecificPersistentEvent.assignee.isSameEntity(_accountRepo.currentUserUid.asString())){
+                _roomDao.updateRoom(Database.RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+                return;
+              }
+              break;
+          }
+          break;
+        case PersistentEvent_Type.messageManipulationPersistentEvent:
+          // TODO: Handle this case.
+          break;
+        case PersistentEvent_Type.adminSpecificPersistentEvent:
+          // TODO: Handle this case.
+          break;
+        case PersistentEvent_Type.notSet:
+          // TODO: Handle this case.
+          break;
+      }
+
     }
+
+
 
     if ((await _accountRepo.notification).contains("true") &&
         (room != null && !room.mute)) {

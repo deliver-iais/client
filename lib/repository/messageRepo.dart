@@ -602,13 +602,24 @@ class MessageRepo {
     List<Message> msgList = [];
     for (MessageProto.Message message in messages) {
       // ignore: unrelated_type_equality_checks
-      if (message.whichType() == MessageProto.Message_Type.persistEvent &&
-          message.persistEvent.whichType() ==
-              PersistentEvent_Type.mucSpecificPersistentEvent &&
-          message.persistEvent.mucSpecificPersistentEvent.issue ==
-              MucSpecificPersistentEvent_Issue.DELETED) {
-        _roomDao.updateRoom(RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
-        continue;
+      if (message.whichType() == MessageProto.Message_Type.persistEvent){
+        switch(message.persistEvent.whichType()){
+          case PersistentEvent_Type.mucSpecificPersistentEvent:
+            switch(message.persistEvent.mucSpecificPersistentEvent.issue){
+              case  MucSpecificPersistentEvent_Issue.DELETED:
+                _roomDao.updateRoom(RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+                continue;
+                break;
+              case MucSpecificPersistentEvent_Issue.KICK_USER:
+                if(message.persistEvent.mucSpecificPersistentEvent.assignee.isSameEntity(_accountRepo.currentUserUid.asString())){
+                  _roomDao.updateRoom(RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+                  continue;
+                }
+                break;
+            }
+            break;
+        }
+
       }
       msgList.add(
           await saveMessageInMessagesDB(_accountRepo, _messageDao, message));
