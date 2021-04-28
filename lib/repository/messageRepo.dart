@@ -24,6 +24,7 @@ import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as protoModel;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as MessageProto;
+import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
@@ -103,7 +104,7 @@ class MessageRepo {
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
-        print("&&&" + roomMetadata.roomUid.toString());
+      
         //   baae6e7c-d880-4dd0-948e-f6b5d38a74d0
         var room =
             await _roomDao.getByRoomIdFuture(roomMetadata.roomUid.asString());
@@ -159,9 +160,7 @@ class MessageRepo {
               options: CallOptions(metadata: {
                 "access_token": await _accountRepo.getAccessToken()
               }));
-      print(room.roomUid.toString() +
-          "^^^^" +
-          fetchCurrentUserSeenData.seen.id.toString());
+
       _lastSeenDao.insertLastSeen(LastSeen(
           roomId: room.roomUid.asString(),
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
@@ -599,8 +598,29 @@ class MessageRepo {
 
   Future<List<Message>> _saveFetchMessages(
       List<MessageProto.Message> messages) async {
+
     List<Message> msgList = [];
     for (MessageProto.Message message in messages) {
+      // ignore: unrelated_type_equality_checks
+      if (message.whichType() == MessageProto.Message_Type.persistEvent){
+        switch(message.persistEvent.whichType()){
+          case PersistentEvent_Type.mucSpecificPersistentEvent:
+            switch(message.persistEvent.mucSpecificPersistentEvent.issue){
+              case  MucSpecificPersistentEvent_Issue.DELETED:
+                _roomDao.updateRoom(RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+                continue;
+                break;
+              case MucSpecificPersistentEvent_Issue.KICK_USER:
+                if(message.persistEvent.mucSpecificPersistentEvent.assignee.isSameEntity(_accountRepo.currentUserUid.asString())){
+                  _roomDao.updateRoom(RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+                  continue;
+                }
+                break;
+            }
+            break;
+        }
+
+      }
       msgList.add(
           await saveMessageInMessagesDB(_accountRepo, _messageDao, message));
     }

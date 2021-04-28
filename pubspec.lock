@@ -306,11 +306,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.7.0-rc.51"
-      resolved-ref: "0655e87ada222b253606390f1fe07302193e2763"
+      ref: "tags/v1.7.0-rc.56"
+      resolved-ref: "88e6a5a9111d6a2da1f5f6e627a183273e80f5bd"
       url: "https://gitlab.iais.co/deliver-public/pub-dart-artifactory"
     source: git
-    version: "1.7.0-rc.51"
+    version: "1.7.0-rc.56"
   device_info:
     dependency: "direct main"
     description:
@@ -951,6 +951,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.4"
+  petitparser:
+    dependency: transitive
+    description:
+      name: petitparser
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.1.0"
   pin_input_text_field:
     dependency: transitive
     description:
@@ -1427,6 +1434,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.7"
+  xml:
+    dependency: transitive
+    description:
+      name: xml
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.5.1"
   yaml:
     dependency: transitive
     description:

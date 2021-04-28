@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
@@ -19,6 +20,7 @@ import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -59,6 +61,7 @@ class CoreServices {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _routingServices = GetIt.I.get<RoutingService>();
+  var _lastSeenDao = GetIt.I.get<LastSeenDao>();
 
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
@@ -93,7 +96,7 @@ class CoreServices {
       await startStream();
     }
     sendPingMessage();
-      responseChecked = false;
+    responseChecked = false;
     _connectionTimer = Timer(new Duration(seconds: backoffTime), () {
       if (!responseChecked) {
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
@@ -252,11 +255,42 @@ class CoreServices {
 
   _saveIncomingMessage(Message message) async {
     Uid roomUid = getRoomId(_accountRepo, message);
+    _lastSeenDao.insertLastSeen(Database.LastSeen(roomId: roomUid.asString()));
     Database.Room room = await _roomDao.getByRoomIdFuture(roomUid.asString());
     if (room != null && room.isBlock) {
       return;
     }
     saveMessage(_accountRepo, _messageDao, _roomDao, message, roomUid);
+    if (message.whichType() == Message_Type.persistEvent){
+      switch(message.persistEvent.whichType()){
+        case PersistentEvent_Type.mucSpecificPersistentEvent:
+          switch(message.persistEvent.mucSpecificPersistentEvent.issue){
+            case  MucSpecificPersistentEvent_Issue.DELETED:
+              _roomDao.updateRoom(Database.RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+              return;
+              break;
+            case MucSpecificPersistentEvent_Issue.KICK_USER:
+              if(message.persistEvent.mucSpecificPersistentEvent.assignee.isSameEntity(_accountRepo.currentUserUid.asString())){
+                _roomDao.updateRoom(Database.RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+                return;
+              }
+              break;
+          }
+          break;
+        case PersistentEvent_Type.messageManipulationPersistentEvent:
+          // TODO: Handle this case.
+          break;
+        case PersistentEvent_Type.adminSpecificPersistentEvent:
+          // TODO: Handle this case.
+          break;
+        case PersistentEvent_Type.notSet:
+          // TODO: Handle this case.
+          break;
+      }
+
+    }
+
+
 
     if ((await _accountRepo.notification).contains("true") &&
         (room != null && !room.mute)) {

@@ -15,26 +15,46 @@ class ReceivedMsgIcon extends StatelessWidget {
       future: lastSeenDao.getByRoomId(lastMessage.roomId),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
-          int lastSeen = snapshot.data.messageId;
-          int unreadCount = lastMessage.id - lastSeen;
-          return (lastSeen < lastMessage.id)
-              ? Padding(
-                  padding: const EdgeInsets.only(
-                    right: 5.0,
-                    top: 2,
-                  ),
-                  child: Container(
-                    width: unreadCount<10? 15: unreadCount<100?23:40,
-                    height: 15,
-                    child: Text("${unreadCount}",style: TextStyle(fontSize:11),),
-                    alignment: Alignment.center,
-                    decoration: new BoxDecoration(
-                      color: Theme.of(context).primaryColor,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                )
-              : SizedBox.shrink();
+          if(snapshot.data.messageId != null){
+            int lastSeen = snapshot.data.messageId;
+            int unreadCount = lastMessage.id - lastSeen;
+            return (lastSeen < lastMessage.id)
+                ? Padding(
+              padding: const EdgeInsets.only(
+                right: 5.0,
+                top: 2,
+              ),
+              child: Container(
+                width: unreadCount<10? 15: unreadCount<100?23:40,
+                height: 15,
+                child: Text("${unreadCount}",style: TextStyle(fontSize:11),),
+                alignment: Alignment.center,
+                decoration: new BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            )
+                : SizedBox.shrink();
+          }else{
+            return Padding(
+              padding: const EdgeInsets.only(
+                right: 5.0,
+                top: 2,
+              ),
+              child: Container(
+                width: lastMessage.id<10? 15: lastMessage.id<100?23:40,
+                height: 15,
+                child: Text("${lastMessage.id}",style: TextStyle(fontSize:11),),
+                alignment: Alignment.center,
+                decoration: new BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            );
+          }
+
         } else {
           return SizedBox.shrink();
         }

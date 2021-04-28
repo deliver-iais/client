@@ -718,6 +718,7 @@ class Room extends DataClass implements Insertable<Room> {
   final bool mentioned;
   final int lastMessageId;
   final bool mute;
+  final bool deleted;
   final bool isBlock;
   final int lastMessageDbId;
   Room(
@@ -725,6 +726,7 @@ class Room extends DataClass implements Insertable<Room> {
       this.mentioned,
       this.lastMessageId,
       @required this.mute,
+      @required this.deleted,
       @required this.isBlock,
       this.lastMessageDbId});
   factory Room.fromData(Map<String, dynamic> data, GeneratedDatabase db,
@@ -741,6 +743,8 @@ class Room extends DataClass implements Insertable<Room> {
       lastMessageId: intType
           .mapFromDatabaseResponse(data['${effectivePrefix}last_message_id']),
       mute: boolType.mapFromDatabaseResponse(data['${effectivePrefix}mute']),
+      deleted:
+          boolType.mapFromDatabaseResponse(data['${effectivePrefix}deleted']),
       isBlock:
           boolType.mapFromDatabaseResponse(data['${effectivePrefix}is_block']),
       lastMessageDbId: intType.mapFromDatabaseResponse(
@@ -762,6 +766,9 @@ class Room extends DataClass implements Insertable<Room> {
     if (!nullToAbsent || mute != null) {
       map['mute'] = Variable<bool>(mute);
     }
+    if (!nullToAbsent || deleted != null) {
+      map['deleted'] = Variable<bool>(deleted);
+    }
     if (!nullToAbsent || isBlock != null) {
       map['is_block'] = Variable<bool>(isBlock);
     }
@@ -782,6 +789,9 @@ class Room extends DataClass implements Insertable<Room> {
           ? const Value.absent()
           : Value(lastMessageId),
       mute: mute == null && nullToAbsent ? const Value.absent() : Value(mute),
+      deleted: deleted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deleted),
       isBlock: isBlock == null && nullToAbsent
           ? const Value.absent()
           : Value(isBlock),
@@ -799,6 +809,7 @@ class Room extends DataClass implements Insertable<Room> {
       mentioned: serializer.fromJson<bool>(json['mentioned']),
       lastMessageId: serializer.fromJson<int>(json['lastMessageId']),
       mute: serializer.fromJson<bool>(json['mute']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
       isBlock: serializer.fromJson<bool>(json['isBlock']),
       lastMessageDbId: serializer.fromJson<int>(json['lastMessageDbId']),
     );
@@ -811,6 +822,7 @@ class Room extends DataClass implements Insertable<Room> {
       'mentioned': serializer.toJson<bool>(mentioned),
       'lastMessageId': serializer.toJson<int>(lastMessageId),
       'mute': serializer.toJson<bool>(mute),
+      'deleted': serializer.toJson<bool>(deleted),
       'isBlock': serializer.toJson<bool>(isBlock),
       'lastMessageDbId': serializer.toJson<int>(lastMessageDbId),
     };
@@ -821,6 +833,7 @@ class Room extends DataClass implements Insertable<Room> {
           bool mentioned,
           int lastMessageId,
           bool mute,
+          bool deleted,
           bool isBlock,
           int lastMessageDbId}) =>
       Room(
@@ -828,6 +841,7 @@ class Room extends DataClass implements Insertable<Room> {
         mentioned: mentioned ?? this.mentioned,
         lastMessageId: lastMessageId ?? this.lastMessageId,
         mute: mute ?? this.mute,
+        deleted: deleted ?? this.deleted,
         isBlock: isBlock ?? this.isBlock,
         lastMessageDbId: lastMessageDbId ?? this.lastMessageDbId,
       );
@@ -838,6 +852,7 @@ class Room extends DataClass implements Insertable<Room> {
           ..write('mentioned: $mentioned, ')
           ..write('lastMessageId: $lastMessageId, ')
           ..write('mute: $mute, ')
+          ..write('deleted: $deleted, ')
           ..write('isBlock: $isBlock, ')
           ..write('lastMessageDbId: $lastMessageDbId')
           ..write(')'))
@@ -851,8 +866,10 @@ class Room extends DataClass implements Insertable<Room> {
           mentioned.hashCode,
           $mrjc(
               lastMessageId.hashCode,
-              $mrjc(mute.hashCode,
-                  $mrjc(isBlock.hashCode, lastMessageDbId.hashCode))))));
+              $mrjc(
+                  mute.hashCode,
+                  $mrjc(deleted.hashCode,
+                      $mrjc(isBlock.hashCode, lastMessageDbId.hashCode)))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -861,6 +878,7 @@ class Room extends DataClass implements Insertable<Room> {
           other.mentioned == this.mentioned &&
           other.lastMessageId == this.lastMessageId &&
           other.mute == this.mute &&
+          other.deleted == this.deleted &&
           other.isBlock == this.isBlock &&
           other.lastMessageDbId == this.lastMessageDbId);
 }
@@ -870,6 +888,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
   final Value<bool> mentioned;
   final Value<int> lastMessageId;
   final Value<bool> mute;
+  final Value<bool> deleted;
   final Value<bool> isBlock;
   final Value<int> lastMessageDbId;
   const RoomsCompanion({
@@ -877,6 +896,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     this.mentioned = const Value.absent(),
     this.lastMessageId = const Value.absent(),
     this.mute = const Value.absent(),
+    this.deleted = const Value.absent(),
     this.isBlock = const Value.absent(),
     this.lastMessageDbId = const Value.absent(),
   });
@@ -885,6 +905,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     this.mentioned = const Value.absent(),
     this.lastMessageId = const Value.absent(),
     this.mute = const Value.absent(),
+    this.deleted = const Value.absent(),
     this.isBlock = const Value.absent(),
     this.lastMessageDbId = const Value.absent(),
   }) : roomId = Value(roomId);
@@ -893,6 +914,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     Expression<bool> mentioned,
     Expression<int> lastMessageId,
     Expression<bool> mute,
+    Expression<bool> deleted,
     Expression<bool> isBlock,
     Expression<int> lastMessageDbId,
   }) {
@@ -901,6 +923,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
       if (mentioned != null) 'mentioned': mentioned,
       if (lastMessageId != null) 'last_message_id': lastMessageId,
       if (mute != null) 'mute': mute,
+      if (deleted != null) 'deleted': deleted,
       if (isBlock != null) 'is_block': isBlock,
       if (lastMessageDbId != null) 'last_message_db_id': lastMessageDbId,
     });
@@ -911,6 +934,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
       Value<bool> mentioned,
       Value<int> lastMessageId,
       Value<bool> mute,
+      Value<bool> deleted,
       Value<bool> isBlock,
       Value<int> lastMessageDbId}) {
     return RoomsCompanion(
@@ -918,6 +942,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
       mentioned: mentioned ?? this.mentioned,
       lastMessageId: lastMessageId ?? this.lastMessageId,
       mute: mute ?? this.mute,
+      deleted: deleted ?? this.deleted,
       isBlock: isBlock ?? this.isBlock,
       lastMessageDbId: lastMessageDbId ?? this.lastMessageDbId,
     );
@@ -938,6 +963,9 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     if (mute.present) {
       map['mute'] = Variable<bool>(mute.value);
     }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
     if (isBlock.present) {
       map['is_block'] = Variable<bool>(isBlock.value);
     }
@@ -954,6 +982,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
           ..write('mentioned: $mentioned, ')
           ..write('lastMessageId: $lastMessageId, ')
           ..write('mute: $mute, ')
+          ..write('deleted: $deleted, ')
           ..write('isBlock: $isBlock, ')
           ..write('lastMessageDbId: $lastMessageDbId')
           ..write(')'))
@@ -1009,6 +1038,15 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
         defaultValue: Constant(false));
   }
 
+  final VerificationMeta _deletedMeta = const VerificationMeta('deleted');
+  GeneratedBoolColumn _deleted;
+  @override
+  GeneratedBoolColumn get deleted => _deleted ??= _constructDeleted();
+  GeneratedBoolColumn _constructDeleted() {
+    return GeneratedBoolColumn('deleted', $tableName, false,
+        defaultValue: Constant(false));
+  }
+
   final VerificationMeta _isBlockMeta = const VerificationMeta('isBlock');
   GeneratedBoolColumn _isBlock;
   @override
@@ -1030,8 +1068,15 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
   }
 
   @override
-  List<GeneratedColumn> get $columns =>
-      [roomId, mentioned, lastMessageId, mute, isBlock, lastMessageDbId];
+  List<GeneratedColumn> get $columns => [
+        roomId,
+        mentioned,
+        lastMessageId,
+        mute,
+        deleted,
+        isBlock,
+        lastMessageDbId
+      ];
   @override
   $RoomsTable get asDslTable => this;
   @override
@@ -1062,6 +1107,10 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
     if (data.containsKey('mute')) {
       context.handle(
           _muteMeta, mute.isAcceptableOrUnknown(data['mute'], _muteMeta));
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(_deletedMeta,
+          deleted.isAcceptableOrUnknown(data['deleted'], _deletedMeta));
     }
     if (data.containsKey('is_block')) {
       context.handle(_isBlockMeta,

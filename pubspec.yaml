@@ -15,7 +15,9 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+
+# build appbundle --target-platform android-arm,android-arm64,android-x64
+version: 1.0.0+2
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -47,7 +49,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: 1.0.0
 
-  get_it: 6.0.0 # Dependency Injector Library
+  get_it: # Dependency Injector Library
   rxdart: 0.24.1 # State Management Library & Advanced Streaming Library
   auto_route: 0.6.9 # Routing Library
   flutter_isolate: ^1.0.0+15
@@ -85,7 +87,7 @@ dependencies:
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://gitlab.iais.co/deliver-public/pub-dart-artifactory
-      ref: tags/v1.7.0-rc.51
+      ref: tags/v1.7.0-rc.56
   grpc: 2.2.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   protobuf: 1.0.1 # (WEB NOT SUPPORTED BI-Directional Streaming)
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)

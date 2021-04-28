@@ -141,7 +141,7 @@ class _InputMessageWidget extends State<InputMessage> {
                 return BotCommandsWidget(
                   botUid: widget.currentRoom.roomId.getUid(),
                   onCommandClick: (String command) {
-                    controller.text = command;
+                    controller.text = "/"+command;
                     _showBotCommands.add(false);
                     setState(() {});
                   },
@@ -215,7 +215,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                   ),
                                 Container(
                                   child: Flexible(
-                                    child: SizedBox(
                                         child: TextField(
                                       onTap: () {
                                         backSubject.add(false);
@@ -238,7 +237,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       decoration: InputDecoration.collapsed(
                                           hintText: appLocalization
                                               .getTraslateValue("message")),
-                                    )),
+                                    ),
                                   ),
                                 ),
                                 controller.text?.isEmpty &&
