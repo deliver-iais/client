@@ -86,7 +86,7 @@ class LastMessage extends StatelessWidget {
               softWrap: false,
               style: TextStyle(
                 color: ExtraTheme.of(context).infoChat,
-                fontSize: 13,
+                fontSize: 11,
               ),
             ),
           );
