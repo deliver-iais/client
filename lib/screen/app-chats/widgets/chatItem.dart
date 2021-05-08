@@ -118,25 +118,28 @@ class _ChatItemState extends State<ChatItem> {
                     ),
                   ],
                 ),
-                StreamBuilder<Activity>(
-                    stream: _roomRepo.activityObject[
-                        widget.roomWithMessage.room.roomId.uid.node],
-                    builder: (c, s) {
-                      if (s.hasData &&
-                          s.data != null &&
-                          s.data.typeOfActivity != ActivityType.NO_ACTIVITY) {
-                        return ActivityStatuse(
-                          activity: s.data,
-                          roomUid: widget.roomWithMessage.room.roomId.uid,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: ExtraTheme.of(context).details,
-                          ),
-                        );
-                      } else {
-                        return lastMessageWidget(messageType, context);
-                      }
-                    }),
+                Flexible(
+                  flex: 90,
+                  child: StreamBuilder<Activity>(
+                      stream: _roomRepo.activityObject[
+                          widget.roomWithMessage.room.roomId.uid.node],
+                      builder: (c, s) {
+                        if (s.hasData &&
+                            s.data != null &&
+                            s.data.typeOfActivity != ActivityType.NO_ACTIVITY) {
+                          return ActivityStatuse(
+                            activity: s.data,
+                            roomUid: widget.roomWithMessage.room.roomId.uid,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: ExtraTheme.of(context).details,
+                            ),
+                          );
+                        } else {
+                          return lastMessageWidget(messageType, context);
+                        }
+                      }),
+                ),
               ],
             ),
           ),
