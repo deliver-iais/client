@@ -157,7 +157,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         break;
       case "report":
         _roomRepo.reportRoom(widget.roomUid);
-        Fluttertoast.showToast(msg: "report_result");
+        Fluttertoast.showToast(msg: _appLocalization.getTraslateValue("report_result"));
         break;
       case "manage":
         showManageDialog();

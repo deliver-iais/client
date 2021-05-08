@@ -19,4 +19,8 @@ class SharedPreferencesDao extends DatabaseAccessor<Database>
               .getSingle())
           ?.value ??
       null;
+
+  Stream<SharedPreference> watch(String key) =>
+      ((select(sharedPreferences)..where((sh) => sh.key.equals(key)))
+          .watchSingle());
 }
