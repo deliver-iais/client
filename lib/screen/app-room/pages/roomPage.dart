@@ -524,8 +524,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Widget buildNewMessageInput() {
-    if (widget.roomId.getUid().category == Categories.BOT &&
-        _currentRoom.lastMessageId == null) {
+    if (widget.roomId.getUid().category == Categories.BOT && (_currentRoom == null ||
+        _currentRoom.lastMessageId == null)) {
       return BotStartWidget(botUid: widget.roomId.getUid());
     } else
       return NewMessageInput(
