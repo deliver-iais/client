@@ -29,6 +29,7 @@ import 'package:deliver_flutter/screen/app-room/widgets/sendedMessageBox.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/shared/botAppBar.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/custom_context_menu.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -618,6 +619,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       } else {
                         if (_isMuc)
                           return MucAppbarTitle(mucUid: widget.roomId);
+                        else if(widget.roomId.uid.category == Categories.BOT)
+                          return BotAppbar(botUid: widget.roomId.uid);
                         else
                           return UserAppbar(
                             userUid: widget.roomId.uid,
