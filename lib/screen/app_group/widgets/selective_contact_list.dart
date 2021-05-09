@@ -2,6 +2,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 
 import 'package:deliver_flutter/repository/mucRepo.dart';
 
@@ -12,6 +13,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:get_it/get_it.dart';
@@ -45,6 +47,8 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
   var _memberDao = GetIt.I.get<MemberDao>();
 
   var _createMucService = GetIt.I.get<CreateMucService>();
+
+  var _accountRepo = GetIt.I.get<AccountRepo>();
 
   List<Contact> contacts = [];
 
@@ -118,6 +122,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
                           snapshot.data.length > 0) {
+                         snapshot.data.removeWhere((element) => element.uid.contains(_accountRepo.currentUserUid.asString()));
                         contacts = snapshot.data;
                         if (items == null) {
                           items = contacts.map((e) => e.copyWith()).toList();
