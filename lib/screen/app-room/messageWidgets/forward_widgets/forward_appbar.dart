@@ -5,11 +5,12 @@ import 'package:get_it/get_it.dart';
 
 class ForwardAppbar extends StatelessWidget {
   var _routingServices = GetIt.I.get<RoutingService>();
+
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
     return AppBar(
-      leading:_routingServices.backButtonLeading() ,
+      leading: _routingServices.backButtonLeading(),
       title: Text(
         appLocalization.getTraslateValue("ForwardTo"),
         style: Theme.of(context).textTheme.headline2,
