@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
+import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 
 import 'package:deliver_flutter/repository/mucRepo.dart';
@@ -33,7 +34,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   List<Contact> selectedList = [];
 
-  var items;
+  List<Contact> items;
 
   var _contactDao = GetIt.I.get<ContactDao>();
 
@@ -41,14 +42,26 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   var _mucRepo = GetIt.I.get<MucRepo>();
 
+  var _memberDao = GetIt.I.get<MemberDao>();
+
   var _createMucService = GetIt.I.get<CreateMucService>();
 
   List<Contact> contacts = [];
+
+  List<String> members = [];
 
   @override
   void initState() {
     super.initState();
     editingController = TextEditingController();
+    getMembers();
+  }
+
+  getMembers() async {
+    var res = await _memberDao.getMembersFuture(widget.mucUid.asString());
+    res.forEach((element) {
+      members.add(element.memberUid);
+    });
   }
 
   void filterSearchResults(String query) {
@@ -163,13 +176,13 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               bool usersAdd = await _mucRepo.sendMembers(
                                   widget.mucUid, users);
                               if (usersAdd) {
-                                _routingService.pop();
-                                _routingService.reset();
+                                _routingService.openRoom(widget.mucUid.asString());
+                               //_routingService.reset();
                               } else {
                                 Fluttertoast.showToast(
                                     msg: appLocalization
                                         .getTraslateValue("occurred_Error"));
-                                _routingService.pop();
+                               // _routingService.pop();
                               }
                             })
                         : IconButton(
@@ -193,17 +206,20 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
   Widget _getListItemTile(BuildContext context, int index) {
     return GestureDetector(
       onTap: () {
-        if (!_createMucService.isSelected(items[index])) {
-          _createMucService.addMember(items[index]);
-          editingController.clear();
-        } else {
-          _createMucService.deleteMember(items[index]);
-          editingController.clear();
+        if (!members.contains(items[index].uid)) {
+          if (!_createMucService.isSelected(items[index])) {
+            _createMucService.addMember(items[index]);
+            editingController.clear();
+          } else {
+            _createMucService.deleteMember(items[index]);
+            editingController.clear();
+          }
         }
       },
       child: SelectiveContact(
           contact: items[index],
-          isSelected: _createMucService.isSelected(items[index])),
+          isSelected: _createMucService.isSelected(items[index])
+           ,cureentMember: members.contains(items[index].uid),)
     );
   }
 }

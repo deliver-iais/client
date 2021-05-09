@@ -231,7 +231,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                 controller.clear();
                               }
                             } else {
-                              micUid = await _mucRepo.makeNewGroup(
+                              micUid = await _mucRepo.createNewGroup(
                                   memberUidList, controller.text);
                               controller.clear();
                             }

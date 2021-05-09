@@ -38,6 +38,13 @@ class MemberDao extends DatabaseAccessor<Database> with _$MemberDaoMixin {
         .get();
   }
 
+  Future<List<Member>> getMembersFuture(String mucUid) {
+    return (select(members)
+      ..where((member) =>
+      member.mucUid.equals(mucUid)))
+        .get();
+  }
+
   Stream<List<Member>> getByMemberId(String memberUid) {
     return (select(members)
           ..where((member) => member.memberUid.equals(memberUid)))

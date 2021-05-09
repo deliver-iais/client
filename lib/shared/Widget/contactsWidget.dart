@@ -16,15 +16,16 @@ class ContactWidget extends StatelessWidget {
   final Contact contact;
   final IconData circleIcon;
   final bool isSelected;
+  final bool currentMember;
   final accountRepo = GetIt.I.get<AccountRepo>();
 
-  ContactWidget({this.contact, this.circleIcon, this.isSelected = false});
+  ContactWidget({this.contact, this.circleIcon, this.isSelected = false,this.currentMember = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).focusColor : null,
+          color: currentMember?Theme.of(context).accentColor:isSelected ? Theme.of(context).focusColor : null,
           borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
       padding: const EdgeInsets.all(MAIN_PADDING / 2),
       child: Row(
