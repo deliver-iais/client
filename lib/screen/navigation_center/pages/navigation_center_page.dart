@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/models/searchInRoom.dart';
+
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -18,10 +18,8 @@ import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 
-import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -54,10 +52,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
   AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
 
   final Function tapOnCurrentUserAvatar;
-
-  List<UserAsContact> globalSearchResult = List();
-
-  List<SearchInRoom> localSearchResult = List();
 
   NavigationTabs tab = NavigationTabs.Chats;
 
@@ -337,10 +331,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
     return Expanded(
       child: Column(
         children: [
-          FutureBuilder<List<SearchInRoom>>(
+          FutureBuilder<List<Uid>>(
               future: contactRepo.searchUser(query),
               builder:
-                  (BuildContext c, AsyncSnapshot<List<SearchInRoom>> snaps) {
+                  (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
                 if (snaps.data != null && snaps.data.length > 0) {
                   return Container(
                       child: Expanded(
@@ -360,7 +354,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   return SizedBox.shrink();
                 }
               }),
-          FutureBuilder<List<SearchInRoom>>(
+          FutureBuilder<List<Uid>>(
               future: _botRepo.searchBotByName(query),
               builder: (c, bot) {
                 if (bot.hasData && bot.data != null && bot.data.length > 0) {
@@ -374,11 +368,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   return SizedBox.shrink();
                 }
               }),
-          FutureBuilder<List<SearchInRoom>>(
+          FutureBuilder<List<Uid>>(
               future: _roomRepo.searchInRoomAndContacts(
                   query, tab == NavigationTabs.Chats ? true : false),
               builder:
-                  (BuildContext c, AsyncSnapshot<List<SearchInRoom>> snaps) {
+                  (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
                 if (snaps.hasData &&
                     snaps.data != null &&
                     snaps.data.length > 0) {
@@ -407,49 +401,57 @@ class _NavigationCenterState extends State<NavigationCenter> {
   }
 
   ListView searchResultWidget(
-      AsyncSnapshot<List<SearchInRoom>> snaps, BuildContext c) {
+      AsyncSnapshot<List<Uid>> snaps, BuildContext c) {
     return ListView.builder(
       itemCount: snaps.data.length,
       itemBuilder: (BuildContext ctxt, int index) {
         return GestureDetector(
           onTap: () {
-            rootingServices.openRoom(snaps.data[index].uid.asString());
+            rootingServices.openRoom(snaps.data[index].asString());
           },
-          child: _contactResultWidget(
-              uid: snaps.data[index].uid,
-              firstName: snaps.data[index].name,
-              username: snaps.data[index].username,
-              context: c),
+          child: _contactResultWidget(uid: snaps.data[index], context: c),
         );
       },
     );
   }
-}
 
-Widget _contactResultWidget(
-    {Uid uid,
-    String firstName,
-    String lastName,
-    String username,
-    BuildContext context}) {
-  return Column(
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          CircleAvatarWidget(uid != null ? uid : Uid.getDefault(), 23),
-          SizedBox(
-            width: 20,
-          ),
-          Text(
-            "$firstName" ?? username,
-            style: TextStyle(fontSize: 19),
-          ),
-        ],
-      ),
-      SizedBox(
-        height: 10,
-      )
-    ],
-  );
+  Widget _contactResultWidget({Uid uid, BuildContext context}) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            CircleAvatarWidget(uid != null ? uid : Uid.getDefault(), 23),
+            SizedBox(
+              width: 20,
+            ),
+            FutureBuilder(
+                future: _roomRepo.getRoomDisplayName(uid),
+                builder: (BuildContext c, AsyncSnapshot<String> snaps) {
+                  if (snaps.hasData && snaps.data != null) {
+                    return Text(
+                      snaps.data,
+                      style: TextStyle(
+                        color: ExtraTheme.of(context).infoChat,
+                        fontSize: 18,
+                      ),
+                    );
+                  } else {
+                    return Text(
+                      "unKnown",
+                      style: TextStyle(
+                        color: ExtraTheme.of(context).infoChat,
+                        fontSize: 18,
+                      ),
+                    );
+                  }
+                }),
+          ],
+        ),
+        SizedBox(
+          height: 10,
+        )
+      ],
+    );
+  }
 }
