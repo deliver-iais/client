@@ -58,7 +58,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
   void initState() {
     super.initState();
     editingController = TextEditingController();
-    getMembers();
+    if (widget.mucUid != null) getMembers();
   }
 
   getMembers() async {
@@ -122,7 +122,8 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
                           snapshot.data.length > 0) {
-                         snapshot.data.removeWhere((element) => element.uid.contains(_accountRepo.currentUserUid.asString()));
+                        snapshot.data.removeWhere((element) => element.uid
+                            .contains(_accountRepo.currentUserUid.asString()));
                         contacts = snapshot.data;
                         if (items == null) {
                           items = contacts.map((e) => e.copyWith()).toList();
@@ -181,13 +182,14 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               bool usersAdd = await _mucRepo.sendMembers(
                                   widget.mucUid, users);
                               if (usersAdd) {
-                                _routingService.openRoom(widget.mucUid.asString());
-                               //_routingService.reset();
+                                _routingService
+                                    .openRoom(widget.mucUid.asString());
+                                //_routingService.reset();
                               } else {
                                 Fluttertoast.showToast(
                                     msg: appLocalization
                                         .getTraslateValue("occurred_Error"));
-                               // _routingService.pop();
+                                // _routingService.pop();
                               }
                             })
                         : IconButton(
@@ -210,21 +212,21 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   Widget _getListItemTile(BuildContext context, int index) {
     return GestureDetector(
-      onTap: () {
-        if (!members.contains(items[index].uid)) {
-          if (!_createMucService.isSelected(items[index])) {
-            _createMucService.addMember(items[index]);
-            editingController.clear();
-          } else {
-            _createMucService.deleteMember(items[index]);
-            editingController.clear();
+        onTap: () {
+          if (!members.contains(items[index].uid)) {
+            if (!_createMucService.isSelected(items[index])) {
+              _createMucService.addMember(items[index]);
+              editingController.clear();
+            } else {
+              _createMucService.deleteMember(items[index]);
+              editingController.clear();
+            }
           }
-        }
-      },
-      child: SelectiveContact(
+        },
+        child: SelectiveContact(
           contact: items[index],
-          isSelected: _createMucService.isSelected(items[index])
-           ,cureentMember: members.contains(items[index].uid),)
-    );
+          isSelected: _createMucService.isSelected(items[index]),
+          cureentMember: members.contains(items[index].uid),
+        ));
   }
 }

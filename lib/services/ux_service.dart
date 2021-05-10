@@ -35,6 +35,10 @@ class UxService {
     });
 
 
+  get Persian =>
+  _language.value.countryCode.contains(Farsi.countryCode);
+
+
 
 
   get theme => _theme.value;
