@@ -7,6 +7,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -28,6 +29,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   Uid _mucUid;
   var _memberDao = GetIt.I.get<MemberDao>();
   AppLocalization _appLocalization;
+  var _routingServices = GetIt.I.get<RoutingService>();
   var _mucRepo = GetIt.I.get<MucRepo>();
 
 
@@ -61,7 +63,11 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
             snapshot.data.forEach((member) {
               widgets.add(Padding(
                 padding: EdgeInsets.fromLTRB(15, 10, 0, 5),
-                child: Row(
+                child: GestureDetector(
+                  onTap: (){
+                    _routingServices.openRoom(member.memberUid);
+                  },
+                    child:Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
@@ -164,7 +170,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                     )
                         ],
                       )
-                    ]),
+                    ])),
               ));
             });
             return Container(
