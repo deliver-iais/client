@@ -87,6 +87,8 @@ class RoomRepo {
           }
         }
         break;
+      case Categories.BOT:
+        return uid.node[0].toUpperCase() + uid.node.substring(1);
     }
     return "Unknown";
   }
@@ -184,17 +186,21 @@ class RoomRepo {
     if (username.contains('@')) {
       username = username.substring(username.indexOf('@') + 1, username.length);
     }
+    print('1');
     var contact = await _contactDao.searchByUserName(username);
     if (contact != null) {
+      print('2');
       return contact.uid;
     } else {
       var userInfo = await _userInfoDao.getByUserName(username);
       if (userInfo != null) {
+        print('3');
         return userInfo.uid;
       } else {
         var uid = await _contactRepo.searchUserByUsername(username);
         if (uid != null)
-          _userInfoDao.upsertUserInfo(
+          print('4');
+        _userInfoDao.upsertUserInfo(
               UserInfo(uid: uid.asString(), username: username));
         return uid.asString();
       }
