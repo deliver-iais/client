@@ -35,10 +35,12 @@ class BotAppbar extends StatelessWidget {
                           botUid.node,
                           style: TextStyle(fontSize: 20),
                         ),
-                        TitleStatus(
-                          currentRoomUid:botUid,
-                          // normalConditionWidget: Text("last seen",style: TextStyle(fontSize: 12),) //todo last seen,
-                        )
+                        // TitleStatus(
+                        //   currentRoomUid:botUid,
+                        //   // normalConditionWidget: Text("last seen",style: TextStyle(fontSize: 12),) //todo last seen,
+                        // )
+          Text('bot',
+              style: TextStyle(fontSize: 12,color: Theme.of(context).primaryColor))
                       ],
                     )
             ],
