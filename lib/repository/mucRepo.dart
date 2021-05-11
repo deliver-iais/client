@@ -38,7 +38,7 @@ class MucRepo {
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
-  Future<Uid> makeNewGroup(List<Uid> memberUids, String groupName) async {
+  Future<Uid> createNewGroup(List<Uid> memberUids, String groupName) async {
     Uid groupUid = await mucServices.createNewGroup(groupName);
     if (groupUid != null) {
       sendMembers(groupUid, memberUids);
@@ -55,6 +55,10 @@ class MucRepo {
 
     if (channelUid != null) {
       sendMembers(channelUid, memberUids);
+      _memberDao.insertMember(Member(
+          memberUid: _accountRepo.currentUserUid.asString(),
+          mucUid: channelUid.asString(),
+          role: MucRole.OWNER));
       _insertToDb(channelUid, channelName, memberUids.length + 1,
           channelId: channelId);
       fetchMucInfo(channelUid);

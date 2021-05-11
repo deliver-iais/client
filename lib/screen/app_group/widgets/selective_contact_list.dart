@@ -1,6 +1,8 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
+import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 
 import 'package:deliver_flutter/repository/mucRepo.dart';
 
@@ -11,6 +13,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:get_it/get_it.dart';
@@ -33,7 +36,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   List<Contact> selectedList = [];
 
-  var items;
+  List<Contact> items;
 
   var _contactDao = GetIt.I.get<ContactDao>();
 
@@ -41,14 +44,28 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   var _mucRepo = GetIt.I.get<MucRepo>();
 
+  var _memberDao = GetIt.I.get<MemberDao>();
+
   var _createMucService = GetIt.I.get<CreateMucService>();
 
+  var _accountRepo = GetIt.I.get<AccountRepo>();
+
   List<Contact> contacts = [];
+
+  List<String> members = [];
 
   @override
   void initState() {
     super.initState();
     editingController = TextEditingController();
+    if (widget.mucUid != null) getMembers();
+  }
+
+  getMembers() async {
+    var res = await _memberDao.getMembersFuture(widget.mucUid.asString());
+    res.forEach((element) {
+      members.add(element.memberUid);
+    });
   }
 
   void filterSearchResults(String query) {
@@ -105,6 +122,8 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
                           snapshot.data.length > 0) {
+                        snapshot.data.removeWhere((element) => element.uid
+                            .contains(_accountRepo.currentUserUid.asString()));
                         contacts = snapshot.data;
                         if (items == null) {
                           items = contacts.map((e) => e.copyWith()).toList();
@@ -163,13 +182,14 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               bool usersAdd = await _mucRepo.sendMembers(
                                   widget.mucUid, users);
                               if (usersAdd) {
-                                _routingService.pop();
-                                _routingService.reset();
+                                _routingService
+                                    .openRoom(widget.mucUid.asString());
+                                //_routingService.reset();
                               } else {
                                 Fluttertoast.showToast(
                                     msg: appLocalization
                                         .getTraslateValue("occurred_Error"));
-                                _routingService.pop();
+                                // _routingService.pop();
                               }
                             })
                         : IconButton(
@@ -192,18 +212,21 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   Widget _getListItemTile(BuildContext context, int index) {
     return GestureDetector(
-      onTap: () {
-        if (!_createMucService.isSelected(items[index])) {
-          _createMucService.addMember(items[index]);
-          editingController.clear();
-        } else {
-          _createMucService.deleteMember(items[index]);
-          editingController.clear();
-        }
-      },
-      child: SelectiveContact(
+        onTap: () {
+          if (!members.contains(items[index].uid)) {
+            if (!_createMucService.isSelected(items[index])) {
+              _createMucService.addMember(items[index]);
+              editingController.clear();
+            } else {
+              _createMucService.deleteMember(items[index]);
+              editingController.clear();
+            }
+          }
+        },
+        child: SelectiveContact(
           contact: items[index],
-          isSelected: _createMucService.isSelected(items[index])),
-    );
+          isSelected: _createMucService.isSelected(items[index]),
+          cureentMember: members.contains(items[index].uid),
+        ));
   }
 }

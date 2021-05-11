@@ -217,7 +217,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 )),
             settingsRow(
               context,
-              iconData: Icons.person,
+              iconData: Icons.phone,
               title: appLocalization.getTraslateValue("phone"),
               child: Row(
                 children: <Widget>[
@@ -322,12 +322,13 @@ class _SettingsPageState extends State<SettingsPage> {
         height: 60,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Row(
               children: [
                 SizedBox(width: 8),
                 Icon(
-                  iconData,
+                  iconData,color: Colors.blue,
                   size: 18,
                 ),
                 SizedBox(width: 8),
@@ -338,6 +339,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
             child
+
           ],
         ),
       ),

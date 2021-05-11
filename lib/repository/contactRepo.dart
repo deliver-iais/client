@@ -2,7 +2,7 @@ import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart' as Database;
-import 'package:deliver_flutter/models/searchInRoom.dart';
+
 
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:contacts_service/contacts_service.dart' as OsContact;
@@ -167,15 +167,15 @@ class ContactRepo {
     return result.uid;
   }
 
-  Future<List<SearchInRoom>> searchUser(String query) async {
+  Future<List<Uid>> searchUser(String query) async {
     var result = await _queryServiceClient.searchUidByIdOrName(
         SearchUidByIdOrNameReq()..text = query,
         options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
-    List<SearchInRoom> searchResult = List();
+    List<Uid> searchResult = List();
     for (var room in result.itemList) {
       searchResult
-          .add(SearchInRoom(uid: room.uid, username: room.id, name: room.name));
+          .add(room.uid);
     }
     return searchResult;
   }
