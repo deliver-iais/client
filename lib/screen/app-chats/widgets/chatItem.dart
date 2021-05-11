@@ -146,6 +146,7 @@ class _ChatItemState extends State<ChatItem> {
   }
 
   Widget lastMessageWidget(String messageType, BuildContext context) {
+    if(widget.roomWithMessage.lastMessage.roomId == '4:father_bot')
     return Row(
       children: <Widget>[
         messageType == "send"

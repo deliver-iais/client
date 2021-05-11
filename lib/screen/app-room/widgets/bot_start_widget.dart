@@ -24,7 +24,7 @@ class BotStartWidget extends StatelessWidget{
           child: Text(appLocalization.getTraslateValue("start"),style: TextStyle(fontSize: 18,),),
           onTap: (){
             _roomDao.insertRoomCompanion(
-                RoomsCompanion(roomId: Value(botUid.toString()), mentioned: Value(true)));
+                RoomsCompanion(roomId: Value(botUid.toString())));
             _messageRepo.sendTextMessage(botUid, "/start");
           },
         ),
