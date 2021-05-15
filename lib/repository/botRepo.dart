@@ -5,6 +5,7 @@ import 'package:deliver_flutter/db/database.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
@@ -33,13 +34,22 @@ class BotRepo{
   }
 
   Future<List<Uid>> searchBotByName(String name)async {
-   var result = await _botServiceClient.searchByName(SearchByNameReq()..name = name,options: CallOptions(
-    metadata: {"access_token" : await _accountRepo.getAccessToken()}
-   ));
+   //Todo complete search in bot
+   // var result = await _botServiceClient.searchByName(SearchByNameReq()..name = name,options: CallOptions(
+   //  metadata: {"access_token" : await _accountRepo.getAccessToken()},timeout: Duration(seconds: 2)
+   // ));
    List<Uid> searchInBots = List();
-   for(var bot in result.bot){
-    searchInBots.add(bot.bot);
+   if(name.contains("father")){
+    Uid uid = Uid();
+    uid.category = Categories.BOT;
+    uid.node = "father_bot";
+    searchInBots.add(uid);
    }
+
+   print(searchInBots.toString());
+   // for(var bot in result.bot){
+   //  searchInBots.add(bot.bot);
+   // }
    return searchInBots;
 
   }

@@ -69,7 +69,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           ? MucType.GROUP
           : MucType.PUBLIC_CHANNEL;
     }
-    if (widget.roomUid.category != Categories.USER) {
+    if (widget.roomUid.category != Categories.USER && widget.roomUid.category != Categories.BOT) {
       _checkPermissions();
     }
   }

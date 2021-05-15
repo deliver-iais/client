@@ -115,7 +115,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   Widget build(BuildContext context) {
-
     AppLocalization appLocalization = AppLocalization.of(context);
     DX = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
@@ -141,7 +140,7 @@ class _InputMessageWidget extends State<InputMessage> {
                 return BotCommandsWidget(
                   botUid: widget.currentRoom.roomId.getUid(),
                   onCommandClick: (String command) {
-                    controller.text = "/"+command;
+                    controller.text = "/" + command;
                     _showBotCommands.add(false);
                     setState(() {});
                   },
@@ -203,19 +202,24 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (currentRoom.roomId.getUid().category ==
                                     Categories.BOT)
                                   GestureDetector(
-                                    child: Text(
-                                      " \ ",
-                                      style: TextStyle(
-                                          color:
-                                              Theme.of(context).primaryColor),
-                                    ),
+                                    child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black45,
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                        ),
+                                        child: Image.asset(
+                                          "assets/icons/bot_command.png",
+                                          width: 25,
+                                          height: 25,
+                                        )),
                                     onTap: () {
                                       _showBotCommands.add(true);
                                     },
                                   ),
                                 Container(
                                   child: Flexible(
-                                        child: TextField(
+                                    child: TextField(
                                       onTap: () {
                                         backSubject.add(false);
                                       },
@@ -453,7 +457,7 @@ class _InputMessageWidget extends State<InputMessage> {
       }
     }
 
-   setState(() {});
+    setState(() {});
   }
 
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;

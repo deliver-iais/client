@@ -134,7 +134,9 @@ class _ProfilePageState extends State<ProfilePage>
                             roomUid: widget.userUid,
                           ),
                           widget.userUid.category == Categories.USER ||
-                                  widget.userUid.category == Categories.SYSTEM
+                                  widget.userUid.category ==
+                                      Categories.SYSTEM ||
+                                  widget.userUid.category == Categories.BOT
                               ? SliverList(
                                   delegate: SliverChildListDelegate([
                                   Container(
@@ -175,25 +177,31 @@ class _ProfilePageState extends State<ProfilePage>
                                                       style: TextStyle(
                                                           color: Colors.white),
                                                     ))
-                                                : FutureBuilder<String>(
-                                                    future:
-                                                        _roomRepo.getUsername(
-                                                            widget.userUid),
-                                                    builder: (BuildContext
-                                                            context,
-                                                        AsyncSnapshot<String>
-                                                            snapshot) {
-                                                      if (snapshot.data !=
-                                                          null) {
-                                                        return _showUsername(
-                                                            snapshot.data,
-                                                            widget.userUid);
-                                                      } else {
-                                                        return SizedBox
-                                                            .shrink();
-                                                      }
-                                                    },
-                                                  ),
+                                                : widget.userUid.category ==
+                                                        Categories.BOT
+                                                    ? _showUsername(
+                                                        widget.userUid.node,
+                                                        widget.userUid)
+                                                    : FutureBuilder<String>(
+                                                        future: _roomRepo
+                                                            .getUsername(
+                                                                widget.userUid),
+                                                        builder: (BuildContext
+                                                                context,
+                                                            AsyncSnapshot<
+                                                                    String>
+                                                                snapshot) {
+                                                          if (snapshot.data !=
+                                                              null) {
+                                                            return _showUsername(
+                                                                snapshot.data,
+                                                                widget.userUid);
+                                                          } else {
+                                                            return SizedBox
+                                                                .shrink();
+                                                          }
+                                                        },
+                                                      ),
                                           ]),
                                     ),
                                   ),
@@ -206,13 +214,16 @@ class _ProfilePageState extends State<ProfilePage>
                                             color: ExtraTheme.of(context)
                                                 .borderOfProfilePage),
                                         borderRadius: BorderRadius.circular(15),
-                                        color: Theme.of(context).accentColor.withAlpha(50),
+                                        color: Theme.of(context)
+                                            .accentColor
+                                            .withAlpha(50),
                                       ),
                                       child: Column(
                                         children: [
                                           Container(
                                               decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(15),
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
                                               ),
                                               height: 60,
                                               padding:
@@ -305,12 +316,13 @@ class _ProfilePageState extends State<ProfilePage>
                                                     )
                                                   ])),
                                           if (widget.userUid.category !=
-                                              Categories.SYSTEM)
+                                                  Categories.SYSTEM &&
+                                              widget.userUid.category !=
+                                                  Categories.BOT)
                                             Container(
                                                 decoration: BoxDecoration(
-
-                                                  borderRadius: BorderRadius.circular(15),
-
+                                                  borderRadius:
+                                                      BorderRadius.circular(15),
                                                 ),
                                                 height: 60,
                                                 padding:
@@ -464,7 +476,8 @@ class _ProfilePageState extends State<ProfilePage>
                           child: TabBarView(
                         children: [
                           if (widget.userUid.category != Categories.USER &&
-                              widget.userUid.category != Categories.SYSTEM)
+                              widget.userUid.category != Categories.SYSTEM &&
+                              widget.userUid.category != Categories.BOT)
                             SingleChildScrollView(
                               child: Column(children: [
                                 MucMemberWidget(

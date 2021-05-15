@@ -333,8 +333,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
         children: [
           FutureBuilder<List<Uid>>(
               future: contactRepo.searchUser(query),
-              builder:
-                  (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
+              builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
                 if (snaps.data != null && snaps.data.length > 0) {
                   return Container(
                       child: Expanded(
@@ -361,7 +360,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   return Column(
                     children: [
                       Text(_appLocalization.getTraslateValue("bots")),
-                      //   searchResultWidget(bot, c)
+                      Container(height: 200, child: searchResultWidget(bot, c))
                     ],
                   );
                 } else {
@@ -371,8 +370,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
           FutureBuilder<List<Uid>>(
               future: _roomRepo.searchInRoomAndContacts(
                   query, tab == NavigationTabs.Chats ? true : false),
-              builder:
-                  (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
+              builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
                 if (snaps.hasData &&
                     snaps.data != null &&
                     snaps.data.length > 0) {
@@ -400,13 +398,13 @@ class _NavigationCenterState extends State<NavigationCenter> {
     );
   }
 
-  ListView searchResultWidget(
-      AsyncSnapshot<List<Uid>> snaps, BuildContext c) {
+  ListView searchResultWidget(AsyncSnapshot<List<Uid>> snaps, BuildContext c) {
     return ListView.builder(
       itemCount: snaps.data.length,
       itemBuilder: (BuildContext ctxt, int index) {
         return GestureDetector(
           onTap: () {
+            _roomRepo.insertRoom(snaps.data[index].asString());
             rootingServices.openRoom(snaps.data[index].asString());
           },
           child: _contactResultWidget(uid: snaps.data[index], context: c),

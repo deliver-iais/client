@@ -33,11 +33,15 @@ class RoomRepo {
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _userInfoDao = GetIt.I.get<UserInfoDao>();
   var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
-  var _memberDao = GetIt.I.get<MemberDao>();
+
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   Map<String, BehaviorSubject<Activity>> activityObject = Map();
+
+  insertRoom(String uid){
+    _roomDao.insertRoomCompanion(RoomsCompanion(roomId: Value(uid)));
+  }
 
   Future<String> getRoomDisplayName(Uid uid, {String roomUid}) async {
     switch (uid.category) {
@@ -178,20 +182,16 @@ class RoomRepo {
     if (username.contains('@')) {
       username = username.substring(username.indexOf('@') + 1, username.length);
     }
-    print('1');
     var contact = await _contactDao.searchByUserName(username);
     if (contact != null) {
-      print('2');
       return contact.uid;
     } else {
       var userInfo = await _userInfoDao.getByUserName(username);
       if (userInfo != null) {
-        print('3');
         return userInfo.uid;
       } else {
         var uid = await _contactRepo.searchUserByUsername(username);
         if (uid != null)
-          print('4');
         _userInfoDao.upsertUserInfo(
               UserInfo(uid: uid.asString(), username: username));
         return uid.asString();

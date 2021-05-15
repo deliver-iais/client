@@ -23,8 +23,8 @@ class BotStartWidget extends StatelessWidget{
         child: GestureDetector(
           child: Text(appLocalization.getTraslateValue("start"),style: TextStyle(fontSize: 18,),),
           onTap: (){
-            _roomDao.insertRoomCompanion(
-                RoomsCompanion(roomId: Value(botUid.toString())));
+            // _roomDao.insertRoomCompanion(
+            //     RoomsCompanion(roomId: Value(botUid.toString())));
             _messageRepo.sendTextMessage(botUid, "/start");
           },
         ),

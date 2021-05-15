@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/theme/constants.dart';
@@ -20,9 +21,12 @@ class ContactWidget extends StatelessWidget {
   final accountRepo = GetIt.I.get<AccountRepo>();
 
   ContactWidget({this.contact, this.circleIcon, this.isSelected = false,this.currentMember = false});
+  
+  AppLocalization _appLocalization;
 
   @override
   Widget build(BuildContext context) {
+    _appLocalization = AppLocalization.of(context);
     return Container(
       decoration: BoxDecoration(
           color: currentMember?Theme.of(context).accentColor:isSelected ? Theme.of(context).focusColor : null,
@@ -73,7 +77,7 @@ class ContactWidget extends StatelessWidget {
                 width: 20,
               ),
               Text(
-                "${contact.firstName} ${contact.lastName}".length>24? "${contact.firstName} ${contact.lastName}".substring(0,24): "${contact.firstName}",
+                contact.uid.contains(accountRepo.currentUserUid.asString())?_appLocalization.getTraslateValue("saved_message"):"${contact.firstName} ${contact.lastName}".length>24? "${contact.firstName} ${contact.lastName}".substring(0,24): "${contact.firstName}",
                 overflow: TextOverflow.clip,
                 style: TextStyle(
                   color: ExtraTheme.of(context).infoChat,
