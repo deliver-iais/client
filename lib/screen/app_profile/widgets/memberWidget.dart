@@ -32,7 +32,6 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   var _routingServices = GetIt.I.get<RoutingService>();
   var _mucRepo = GetIt.I.get<MucRepo>();
 
-
   var _accountRepo = GetIt.I.get<AccountRepo>();
   static const String CHANGE_ROLE = "changeRole";
   static const String DELETE = "delete";
@@ -60,117 +59,133 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
               snapshot.data.length > 0) {
             obtainMyRole(snapshot.data);
             List<Widget> widgets = [];
+
             snapshot.data.forEach((member) {
-              widgets.add(Padding(
-                padding: EdgeInsets.fromLTRB(15, 10, 0, 5),
-                child: GestureDetector(
-                  onTap: (){
-                    _routingServices.openRoom(member.memberUid);
-                  },
-                    child:Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          CircleAvatarWidget(member.memberUid.uid, 18),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          FutureBuilder<Member>(
-                            future: _memberDao
-                                .getMember(member.memberUid,widget.mucUid.asString()),
-                            builder: (BuildContext context,
-                                AsyncSnapshot<Member> m) {
-                              if (m.data != null &&
-                                  member.memberUid !=
-                                      _accountRepo.currentUserUid.asString()) {
-                                return Text(
-                                  m.data.name??m.data.username,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                  ),
-                                );
-                              } else if (member.memberUid ==
-                                  _accountRepo.currentUserUid.asString()) {
-                                return FutureBuilder<Account>(
-                                  future: _accountRepo.getAccount(),
+              widgets.add(Container(
+                decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 0.1,
+                    ),
+                    borderRadius: BorderRadius.circular(10)),
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(10, 10, 0, 5),
+                  child: GestureDetector(
+                      onTap: () {
+                        _routingServices.openRoom(member.memberUid);
+                      },
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                CircleAvatarWidget(member.memberUid.uid, 18),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                FutureBuilder<Member>(
+                                  future: _memberDao.getMember(member.memberUid,
+                                      widget.mucUid.asString()),
                                   builder: (BuildContext context,
-                                      AsyncSnapshot<Account> snapshot) {
-                                    if (snapshot.data != null) {
+                                      AsyncSnapshot<Member> m) {
+                                    if (m.data != null &&
+                                        member.memberUid !=
+                                            _accountRepo.currentUserUid
+                                                .asString()) {
                                       return Text(
-                                        "${snapshot.data.firstName} ${snapshot.data.lastName ?? ""}",
+                                        m.data.name ?? m.data.username,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 16,
                                         ),
                                       );
+                                    } else if (member.memberUid ==
+                                        _accountRepo.currentUserUid
+                                            .asString()) {
+                                      return FutureBuilder<Account>(
+                                        future: _accountRepo.getAccount(),
+                                        builder: (BuildContext context,
+                                            AsyncSnapshot<Account> snapshot) {
+                                          if (snapshot.data != null) {
+                                            return Text(
+                                              "${snapshot.data.firstName} ${snapshot.data.lastName ?? ""}",
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                              ),
+                                            );
+                                          } else {
+                                            return SizedBox.shrink();
+                                          }
+                                        },
+                                      );
                                     } else {
-                                      return SizedBox.shrink();
+                                      return Text(
+                                        "Unknown",
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                        ),
+                                      );
                                     }
                                   },
-                                );
-                              } else {
-                                return Text(
-                                  "Unknown",
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          showMemberRole(member),
-                          member.memberUid.contains(
-                                  _accountRepo.currentUserUid.asString())
-                              ? SizedBox(
-                                  width: 50,
-                                )
-                              : _myRoleInThisRoom == MucRole.ADMIN ||
-                                      _myRoleInThisRoom == MucRole.OWNER
-                                  ? PopupMenuButton(
-                                      icon: Icon(
-                                        Icons.more_vert,
-                                        size: 18,
-                                      ),
-                                      itemBuilder: (_) =>
-                                          <PopupMenuItem<String>>[
-                                        if (_myRoleInThisRoom == MucRole.OWNER)
-                                          new PopupMenuItem<String>(
-                                              child: member.role ==
-                                                      MucRole.MEMBER
-                                                  ? Text(_appLocalization
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                showMemberRole(member),
+                                member.memberUid.contains(
+                                        _accountRepo.currentUserUid.asString())
+                                    ? SizedBox(
+                                        width: 50,
+                                      )
+                                    : _myRoleInThisRoom == MucRole.ADMIN ||
+                                            _myRoleInThisRoom == MucRole.OWNER
+                                        ? PopupMenuButton(
+                                            color: Theme.of(context)
+                                                .backgroundColor
+                                                .withBlue(15),
+                                            icon: Icon(
+                                              Icons.more_vert,
+                                              size: 18,
+                                            ),
+                                            itemBuilder: (_) =>
+                                                <PopupMenuItem<String>>[
+                                              if (_myRoleInThisRoom ==
+                                                  MucRole.OWNER)
+                                                new PopupMenuItem<String>(
+                                                    child: member.role ==
+                                                            MucRole.MEMBER
+                                                        ? Text(_appLocalization
+                                                            .getTraslateValue(
+                                                                "change_role_to_admin"))
+                                                        : Text(_appLocalization
+                                                            .getTraslateValue(
+                                                                "change_role_to_member")),
+                                                    value: CHANGE_ROLE),
+                                              new PopupMenuItem<String>(
+                                                  child: Text(_appLocalization
                                                       .getTraslateValue(
-                                                          "change_role_to_admin"))
-                                                  : Text(_appLocalization
-                                                      .getTraslateValue(
-                                                          "change_role_to_member")),
-                                              value: CHANGE_ROLE),
-                                        new PopupMenuItem<String>(
-                                            child: Text(_appLocalization
-                                                .getTraslateValue("kick")),
-                                            value: DELETE),
-                                        new PopupMenuItem<String>(
-                                            child: Text(_appLocalization
-                                                .getTraslateValue("ban")),
-                                            value: BAN),
-                                      ],
-                                      onSelected: (key) {
-                                        onSelected(key, member);
-                                      },
-                                    )
-                                  : SizedBox(
-                                      width: 50,
-                                    )
-                        ],
-                      )
-                    ])),
+                                                          "kick")),
+                                                  value: DELETE),
+                                              new PopupMenuItem<String>(
+                                                  child: Text(_appLocalization
+                                                      .getTraslateValue("ban")),
+                                                  value: BAN),
+                                            ],
+                                            onSelected: (key) {
+                                              onSelected(key, member);
+                                            },
+                                          )
+                                        : SizedBox(
+                                            width: 50,
+                                          )
+                              ],
+                            )
+                          ])),
+                ),
               ));
             });
             return Container(
@@ -189,13 +204,24 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   Widget showMemberRole(Member member) {
     switch (member.role) {
       case MucRole.OWNER:
-        return Text(
-          _appLocalization.getTraslateValue("Owner"),
-          style: TextStyle(color: Colors.blue),
+        return  Row(
+          children: [
+            Icon(Icons.star,color: Colors.white,size: 20,)
+            ,SizedBox(width: 8,),
+            Text(
+              _appLocalization.getTraslateValue("Owner"),
+              style: TextStyle(color: Colors.blue),
+            ),
+          ],
         );
       case MucRole.ADMIN:
-        return Text(_appLocalization.getTraslateValue("Admin"),
-            style: TextStyle(color: Colors.blue));
+        return Row(
+          children: [
+            Icon(Icons.),
+            Text(_appLocalization.getTraslateValue("Admin"),
+                style: TextStyle(color: Colors.blue)),
+          ],
+        );
       case MucRole.MEMBER:
         return Text(_appLocalization.getTraslateValue("Member"),
             style: TextStyle(color: Colors.blue));

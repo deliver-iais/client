@@ -263,45 +263,48 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Icon(Icons.arrow_back_outlined),
+                              Icon(Icons.arrow_back_outlined,color: Colors.blue,size: 23,),
                               SizedBox(
-                                width: 10,
+                                width: 6,
                               ),
                               Text(_mucType == MucType.GROUP
                                   ? _appLocalization
                                       .getTraslateValue("leftGroup")
                                   : _appLocalization
-                                      .getTraslateValue("leftChannel")),
+                                      .getTraslateValue("leftChannel"),style: TextStyle(fontSize: 14)),
                             ],
                           ),
                           value: "leftMuc"),
                       if (_modifyMUc)
                         new PopupMenuItem<String>(
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Icon(Icons.delete),
+                                Icon(Icons.delete,color: Colors.blue,size: 23,),
                                 SizedBox(
-                                  width: 10,
+                                  width: 6,
                                 ),
                                 Text(_mucType == MucType.GROUP
                                     ? _appLocalization
                                         .getTraslateValue("deleteGroup")
                                     : _appLocalization
-                                        .getTraslateValue("deleteChannel"))
+                                        .getTraslateValue("deleteChannel"),style: TextStyle(fontSize: 14),)
                               ],
                             ),
                             value: "deleteMuc"),
                       if (_setAvatarPermission)
                         new PopupMenuItem<String>(
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Icon(Icons.add_a_photo_rounded),
+                                Icon(Icons.add_a_photo_rounded,color: Colors.blue,size: 23,),
                                 SizedBox(
-                                  width: 10,
+                                  width: 6,
                                 ),
                                 Text(_appLocalization
-                                    .getTraslateValue("setProfile")),
+                                    .getTraslateValue("setProfile"),style: TextStyle(fontSize: 14)),
                               ],
                             ),
                             value: "select"),
@@ -311,26 +314,26 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         new PopupMenuItem<String>(
                             child: Row(
                               children: [
-                                Icon(Icons.settings),
+                                Icon(Icons.settings,color: Colors.blue,size: 23,),
                                 SizedBox(
-                                  width: 10,
+                                  width: 6,
                                 ),
                                 Text(widget.roomUid.category == Categories.GROUP
                                     ? _appLocalization
                                         .getTraslateValue("manage_group")
                                     : _appLocalization
-                                        .getTraslateValue("manage_channel")),
+                                        .getTraslateValue("manage_channel"),style: TextStyle(fontSize: 14)),
                               ],
                             ),
                             value: "manage"),
                       new PopupMenuItem<String>(
                           child: Row(
                             children: [
-                              Icon(Icons.report),
+                              Icon(Icons.report,color: Colors.blue,size: 23,),
                               SizedBox(
-                                width: 10,
+                                width: 6,
                               ),
-                              Text(_appLocalization.getTraslateValue("report")),
+                              Text(_appLocalization.getTraslateValue("report"),style: TextStyle(fontSize: 14)),
                             ],
                           ),
                           value: "report"),
@@ -348,7 +351,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                             new PopupMenuItem<String>(
                                 child: Row(
                                   children: [
-                                    Icon(Icons.block),
+                                    Icon(Icons.block,color: Colors.blue),
                                     SizedBox(
                                       width: 15,
                                     ),
@@ -366,7 +369,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 
                                 child: Row(
                                   children: [
-                                    Icon(Icons.report),
+                                    Icon(Icons.report,color: Colors.blue),
                                     SizedBox(
                                       width: 15,
                                     ),
