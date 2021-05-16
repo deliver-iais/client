@@ -54,7 +54,11 @@ class _TitleStatusState extends State<TitleStatus> {
           if (snapshot.hasData) {
             switch (snapshot.data) {
               case TitleStatusConditions.Normal:
-                return activityWidget();
+                if(widget.currentRoomUid.category == Categories.BOT)
+                  return Text(title(appLocalization, snapshot.data),
+                      style: TextStyle(fontSize: 12,color: Theme.of(context).primaryColor));
+                else
+                  return activityWidget();
                 break;
               case TitleStatusConditions.Updating:
               case TitleStatusConditions.Disconnected:
@@ -85,6 +89,8 @@ class _TitleStatusState extends State<TitleStatus> {
       case TitleStatusConditions.Updating:
         return appLocalization.getTraslateValue("updating");
       case TitleStatusConditions.Normal:
+        if(widget.currentRoomUid.category == Categories.BOT)
+          return appLocalization.getTraslateValue("bot");
         if (_roomRepo.activityObject[widget.currentRoomUid] != null) {
           _roomRepo.activityObject[widget.currentRoomUid].listen((activity) {
             switch (activity.typeOfActivity) {

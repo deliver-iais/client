@@ -115,7 +115,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   Widget build(BuildContext context) {
-
     AppLocalization appLocalization = AppLocalization.of(context);
     DX = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
@@ -141,7 +140,7 @@ class _InputMessageWidget extends State<InputMessage> {
                 return BotCommandsWidget(
                   botUid: widget.currentRoom.roomId.getUid(),
                   onCommandClick: (String command) {
-                    controller.text = "/"+command;
+                    controller.text = command;
                     _showBotCommands.add(false);
                     setState(() {});
                   },
@@ -151,9 +150,12 @@ class _InputMessageWidget extends State<InputMessage> {
               }
             }),
         IconTheme(
-          data: IconThemeData(color: Theme.of(context).accentColor),
+          data: IconThemeData(color: ExtraTheme.of(context)
+              .borderOfProfilePage),
           child: Container(
-            color: ExtraTheme.of(context).secondColor,
+            color:  Theme.of(context)
+                .accentColor
+                .withAlpha(80),
             child: Stack(
               // overflow: Overflow.visible,
               children: <Widget>[
@@ -203,11 +205,26 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (currentRoom.roomId.getUid().category ==
                                     Categories.BOT)
                                   GestureDetector(
-                                    child: Text(
-                                      " \ ",
-                                      style: TextStyle(
-                                          color:
-                                              Theme.of(context).primaryColor),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.black12,
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                            child: Image.asset(
+                                              "assets/icons/bot_command.png",
+                                              width: 20,
+                                              height: 20,
+                                            )),
+                                        SizedBox(
+                                          width: 10,
+                                        )
+                                      ],
                                     ),
                                     onTap: () {
                                       _showBotCommands.add(true);
@@ -215,7 +232,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   ),
                                 Container(
                                   child: Flexible(
-                                        child: TextField(
+                                    child: TextField(
                                       onTap: () {
                                         backSubject.add(false);
                                       },
@@ -453,7 +470,7 @@ class _InputMessageWidget extends State<InputMessage> {
       }
     }
 
-   setState(() {});
+    setState(() {});
   }
 
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;

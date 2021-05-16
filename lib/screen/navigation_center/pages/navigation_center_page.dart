@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/models/searchInRoom.dart';
+
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -18,10 +18,8 @@ import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 
-import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -54,10 +52,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
   AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
 
   final Function tapOnCurrentUserAvatar;
-
-  List<UserAsContact> globalSearchResult = List();
-
-  List<SearchInRoom> localSearchResult = List();
 
   NavigationTabs tab = NavigationTabs.Chats;
 
@@ -253,80 +247,108 @@ class _NavigationCenterState extends State<NavigationCenter> {
         height: 120,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: ExtraTheme.of(context).secondColor,
+          color: Theme.of(context).accentColor.withAlpha(50),
         ),
         child: tab == NavigationTabs.Chats
             ? PopupMenuButton(
-                color: Theme.of(context).backgroundColor,
+                color: Theme.of(context).backgroundColor.withAlpha(80),
                 icon: Icon(
                   Icons.create,
                   color: Colors.white,
                   size: 20,
                 ),
+                onSelected: selectChatMenu,
                 itemBuilder: (context) => [
-                      if (kDebugMode)
-                        PopupMenuItem(
-                            child: RaisedButton(
-                          color: Theme.of(context).backgroundColor,
-                          child: Row(
-                            children: [
-                              Text(appLocalization.getTraslateValue("newChat")),
-                            ],
-                          ),
-                          onPressed: () {
-                            initialDataBase();
-                            Navigator.pop(context);
-                          },
-                        )),
-                      PopupMenuItem(
-                          child: RaisedButton(
-                        color: Theme.of(context).backgroundColor,
+                      // if (kDebugMode)
+                      //   PopupMenuItem<String>(
+                      //     child: Row(
+                      //       children: [
+                      //         Text(appLocalization.getTraslateValue("newChat")),
+                      //       ],
+                      //     ),
+                      //     value: "newChat",
+                      //   ),
+                      PopupMenuItem<String>(
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text(appLocalization.getTraslateValue("newGroup")),
+                            Icon(
+                              Icons.group,
+                              color: Colors.white,
+                            ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            Text(
+                              appLocalization.getTraslateValue("newGroup"),
+                              style: TextStyle(fontSize: 15),
+                            ),
                           ],
                         ),
-                        onPressed: () {
-                          _routingService.openMemberSelection(isChannel: false);
-                          Navigator.pop(context);
-                        },
-                      )),
-                      PopupMenuItem(
-                          child: RaisedButton(
-                        color: Theme.of(context).backgroundColor,
-                        onPressed: () {
-                          _routingService.openMemberSelection(isChannel: true);
-                          Navigator.pop(context);
-                        },
+                        value: "newGroup",
+                      ),
+                      PopupMenuItem<String>(
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text(appLocalization.getTraslateValue("newChannel"))
+                            Image.asset(
+                              "assets/icons/channel_icon.png",
+                              width: 25,
+                              height: 25,
+                              color: Colors.white,
+                            ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            Text(
+                              appLocalization.getTraslateValue("newChannel"),
+                              style: TextStyle(fontSize: 15),
+                            )
                           ],
                         ),
-                      ))
+                        value: "newChannel",
+                      )
                     ])
-            : PopupMenuButton(
-                color: Theme.of(context).backgroundColor,
+            : PopupMenuButton<String>(
+                color: Theme.of(context).accentColor.withAlpha(0),
                 icon: Icon(
                   Icons.add,
                   color: Colors.white,
                   size: 20,
                 ),
                 itemBuilder: (context) => [
-                      PopupMenuItem(
-                          child: RaisedButton(
-                        color: Theme.of(context).backgroundColor,
-                        child: Text(
-                            appLocalization.getTraslateValue("newContact")),
-                        onPressed: () {
-                          ExtendedNavigator.of(context)
-                              .popAndPush(Routes.newContact);
-                        },
+                      PopupMenuItem<String>(
+                          child: Padding(
+                        padding: EdgeInsets.only(
+                            top: 40, left: 30, right: 0),
+                        child: Row(
+                          children: [
+                            Icon(Icons.),
+                            Text(appLocalization.getTraslateValue("newContact"))
+                          ],
+                        ),
                       )),
                     ]),
       ),
       onPressed: null,
     );
+  }
+
+  selectChatMenu(String key) {
+    switch (key) {
+      case "newChat":
+        initialDataBase();
+        break;
+      case "newGroup":
+        _routingService.openMemberSelection(isChannel: false);
+        break;
+      case "newChannel":
+        _routingService.openMemberSelection(isChannel: true);
+        break;
+      case "newContact":
+        ExtendedNavigator.of(context).popAndPush(Routes.newContact);
+        break;
+    }
   }
 
   initialDataBase() {
@@ -337,10 +359,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
     return Expanded(
       child: Column(
         children: [
-          FutureBuilder<List<SearchInRoom>>(
+          FutureBuilder<List<Uid>>(
               future: contactRepo.searchUser(query),
-              builder:
-                  (BuildContext c, AsyncSnapshot<List<SearchInRoom>> snaps) {
+              builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
                 if (snaps.data != null && snaps.data.length > 0) {
                   return Container(
                       child: Expanded(
@@ -360,25 +381,24 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   return SizedBox.shrink();
                 }
               }),
-          FutureBuilder<List<SearchInRoom>>(
+          FutureBuilder<List<Uid>>(
               future: _botRepo.searchBotByName(query),
               builder: (c, bot) {
                 if (bot.hasData && bot.data != null && bot.data.length > 0) {
                   return Column(
                     children: [
                       Text(_appLocalization.getTraslateValue("bots")),
-                      //   searchResultWidget(bot, c)
+                      Container(height: 200, child: searchResultWidget(bot, c))
                     ],
                   );
                 } else {
                   return SizedBox.shrink();
                 }
               }),
-          FutureBuilder<List<SearchInRoom>>(
+          FutureBuilder<List<Uid>>(
               future: _roomRepo.searchInRoomAndContacts(
                   query, tab == NavigationTabs.Chats ? true : false),
-              builder:
-                  (BuildContext c, AsyncSnapshot<List<SearchInRoom>> snaps) {
+              builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
                 if (snaps.hasData &&
                     snaps.data != null &&
                     snaps.data.length > 0) {
@@ -406,50 +426,58 @@ class _NavigationCenterState extends State<NavigationCenter> {
     );
   }
 
-  ListView searchResultWidget(
-      AsyncSnapshot<List<SearchInRoom>> snaps, BuildContext c) {
+  ListView searchResultWidget(AsyncSnapshot<List<Uid>> snaps, BuildContext c) {
     return ListView.builder(
       itemCount: snaps.data.length,
       itemBuilder: (BuildContext ctxt, int index) {
         return GestureDetector(
           onTap: () {
-            rootingServices.openRoom(snaps.data[index].uid.asString());
+            _roomRepo.insertRoom(snaps.data[index].asString());
+            rootingServices.openRoom(snaps.data[index].asString());
           },
-          child: _contactResultWidget(
-              uid: snaps.data[index].uid,
-              firstName: snaps.data[index].name,
-              username: snaps.data[index].username,
-              context: c),
+          child: _contactResultWidget(uid: snaps.data[index], context: c),
         );
       },
     );
   }
-}
 
-Widget _contactResultWidget(
-    {Uid uid,
-    String firstName,
-    String lastName,
-    String username,
-    BuildContext context}) {
-  return Column(
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          CircleAvatarWidget(uid != null ? uid : Uid.getDefault(), 23),
-          SizedBox(
-            width: 20,
-          ),
-          Text(
-            "$firstName" ?? username,
-            style: TextStyle(fontSize: 19),
-          ),
-        ],
-      ),
-      SizedBox(
-        height: 10,
-      )
-    ],
-  );
+  Widget _contactResultWidget({Uid uid, BuildContext context}) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            CircleAvatarWidget(uid != null ? uid : Uid.getDefault(), 23),
+            SizedBox(
+              width: 20,
+            ),
+            FutureBuilder(
+                future: _roomRepo.getRoomDisplayName(uid),
+                builder: (BuildContext c, AsyncSnapshot<String> snaps) {
+                  if (snaps.hasData && snaps.data != null) {
+                    return Text(
+                      snaps.data,
+                      style: TextStyle(
+                        color: ExtraTheme.of(context).infoChat,
+                        fontSize: 18,
+                      ),
+                    );
+                  } else {
+                    return Text(
+                      "unKnown",
+                      style: TextStyle(
+                        color: ExtraTheme.of(context).infoChat,
+                        fontSize: 18,
+                      ),
+                    );
+                  }
+                }),
+          ],
+        ),
+        SizedBox(
+          height: 10,
+        )
+      ],
+    );
+  }
 }

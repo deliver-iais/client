@@ -1,9 +1,13 @@
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
+import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/roomWithMessage.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/chatItem.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class ChatsPage extends StatelessWidget {
   final RoutingService routingService = GetIt.I.get<RoutingService>();
@@ -19,7 +23,8 @@ class ChatsPage extends StatelessWidget {
           return StreamBuilder(
             stream: routingService.currentRouteStream,
             builder: (BuildContext c, AsyncSnapshot<Object> s) {
-              final roomsWithMessages = snapshot.data ?? [];
+              var roomsWithMessages = snapshot.data ?? [];
+
               return Container(
                 child: Scrollbar(
                   child: ListView.builder(

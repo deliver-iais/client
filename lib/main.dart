@@ -179,7 +179,6 @@ class MyApp extends StatelessWidget {
         uxService.localeStream as Stream,
       ]),
       builder: (context, snapshot) {
-        print("theme changed ${uxService.theme.toString()}");
         return ExtraTheme(
           extraThemeData: uxService.extraTheme,
           child: MaterialApp(

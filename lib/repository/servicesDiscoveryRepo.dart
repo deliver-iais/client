@@ -11,7 +11,7 @@ final QueryClientChannel = ClientChannel("89.37.13.110",
         connectionTimeout: Duration(seconds: 2)));
 
 final BotClientChannel = ClientChannel("89.37.13.110",
-    port: 8082,
+    port: 30040,
     options: ChannelOptions(
         credentials: ChannelCredentials.insecure(),
         connectionTimeout: Duration(seconds: 2)));

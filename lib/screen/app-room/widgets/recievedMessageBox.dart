@@ -46,7 +46,7 @@ class RecievedMessageBox extends StatelessWidget {
                 : ClipRRect(
                     borderRadius: BorderRadius.all(Radius.circular(5)),
                     child: Container(
-                      color: ExtraTheme.of(context).secondColor,
+                      color: Theme.of(context).accentColor.withAlpha(60),
                       padding: const EdgeInsets.all(2),
                       child: BoxContent(
                         message: message,

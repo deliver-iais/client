@@ -21,6 +21,9 @@ class SelectionToForwardPage extends StatefulWidget {
 }
 
 class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
+  bool _searchMode = false;
+  String _query = "";
+
   @override
   Widget build(BuildContext context) {
     AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
@@ -36,25 +39,31 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
             ),
             body: Column(
               children: <Widget>[
-                SearchBox(),
+                SearchBox(
+                  onChange: (str) {
+                    if (str.isNotEmpty) {
+                      setState(() {
+                        _searchMode = true;
+                        _query = str;
+                      });
+                    }else{
+                      setState(() {
+                        _searchMode = false;
+                      });
+                    }
+                  },
+                ),
                 Expanded(
                   child: FutureBuilder<List<Uid>>(
-                    future: _roomRepo.getAllRooms(),
+                    future: _searchMode
+                        ? _roomRepo.searchInRoomAndContacts(_query, true)
+                        : _roomRepo.searchInRoomAndContacts("", true),
                     builder: (context, snapshot) {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
                           snapshot.data.length > 0) {
                         return Container(
-                          child: ListView.builder(
-                            itemCount: snapshot.data.length,
-                            itemBuilder: (BuildContext ctx, int index) {
-                              return ChatItemToForward(
-                                uid: snapshot.data[index],
-                                forwardedMessages: widget.forwardedMessages,
-                                shareUid: widget.shareUid,
-                              );
-                            },
-                          ),
+                          child: buildListView(snapshot.data),
                         );
                       } else {
                         return Center(
@@ -70,5 +79,18 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
             ),
           );
         });
+  }
+
+  ListView buildListView(List<Uid> uids) {
+    return ListView.builder(
+      itemCount: uids.length,
+      itemBuilder: (BuildContext ctx, int index) {
+        return ChatItemToForward(
+          uid: uids[index],
+          forwardedMessages: widget.forwardedMessages,
+          shareUid: widget.shareUid,
+        );
+      },
+    );
   }
 }

@@ -7,7 +7,6 @@ import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/searchInRoom.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
@@ -34,11 +33,15 @@ class RoomRepo {
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _userInfoDao = GetIt.I.get<UserInfoDao>();
   var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
-  var _memberDao = GetIt.I.get<MemberDao>();
+
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   Map<String, BehaviorSubject<Activity>> activityObject = Map();
+
+  insertRoom(String uid){
+    _roomDao.insertRoomCompanion(RoomsCompanion(roomId: Value(uid)));
+  }
 
   Future<String> getRoomDisplayName(Uid uid, {String roomUid}) async {
     switch (uid.category) {
@@ -87,6 +90,8 @@ class RoomRepo {
           }
         }
         break;
+      case Categories.BOT:
+        return uid.node[0].toUpperCase() + uid.node.substring(1);
     }
     return "Unknown";
   }
@@ -156,25 +161,18 @@ class RoomRepo {
     return finalList.values.toList();
   }
 
-  Future<List<SearchInRoom>> searchInRoomAndContacts(
+  Future<List<Uid>> searchInRoomAndContacts(
       String text, bool searchInRooms) async {
-    List<SearchInRoom> searchResult = List();
+    List<Uid> searchResult = List();
     List<Contact> searchInContact = await _contactDao.getContactByName(text);
 
     for (Contact contact in searchInContact) {
-      searchResult.add(SearchInRoom()
-        ..username = contact.username
-        ..name = contact.firstName
-        ..lastName = contact.lastName
-        ..uid = contact.uid != null ? contact.uid.uid : null);
+      searchResult.add(contact.uid.getUid());
     }
     if (searchInRooms) {
       List<Muc> searchInMucs = await _mucDao.getMucByName(text);
       for (Muc group in searchInMucs) {
-        searchResult.add(SearchInRoom()
-          ..name = group.name
-          ..lastName
-          ..uid = group.uid.uid);
+        searchResult.add(group.uid.getUid());
       }
     }
     return searchResult;
@@ -194,7 +192,7 @@ class RoomRepo {
       } else {
         var uid = await _contactRepo.searchUserByUsername(username);
         if (uid != null)
-          _userInfoDao.upsertUserInfo(
+        _userInfoDao.upsertUserInfo(
               UserInfo(uid: uid.asString(), username: username));
         return uid.asString();
       }

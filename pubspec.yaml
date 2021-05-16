@@ -176,6 +176,8 @@ flutter:
     - lib/lang/en.json
     - assets/audios/ack.mp3
     - assets/icons/mention.png
+    - assets/icons/bot_command.png
+    - assets/icons/channel_icon.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

@@ -29,6 +29,7 @@ import 'package:deliver_flutter/screen/app-room/widgets/sendedMessageBox.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/shared/botAppBar.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/custom_context_menu.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -95,7 +96,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   BehaviorSubject<int> _itemCountSubject = BehaviorSubject.seeded(0);
 
   bool _scrollToNewMessage = true;
-  Room _currentRoom;
+  BehaviorSubject<Room> _currentRoom = BehaviorSubject.seeded(null);
   int _replayMessageId = -1;
   int lastRecevdMessageId = 0;
   ScrollPhysics _scrollPhysics = AlwaysScrollableScrollPhysics();
@@ -213,7 +214,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   _getLastShowMessageId() async {
     LastSeen lastSeen = await _lastSeenDao.getByRoomId(widget.roomId);
     if (lastSeen != null) {
-      _lastShowedMessageId = lastSeen.messageId??0;
+      _lastShowedMessageId = lastSeen.messageId ?? 0;
     }
   }
 
@@ -265,17 +266,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _messageRepo.sendSeenMessage(event, widget.roomId.uid);
         });
 
-    if (widget.roomId.getUid().category == Categories.CHANNEL || widget.roomId.getUid().category == Categories.GROUP)
+    if (widget.roomId.getUid().category == Categories.CHANNEL ||
+        widget.roomId.getUid().category == Categories.GROUP)
       fetchMucInfo(widget.roomId.getUid());
-    else if(widget.roomId.getUid().category == Categories.BOT){
+    else if (widget.roomId.getUid().category == Categories.BOT) {
       _botRepo.featchBotInfo(widget.roomId.getUid());
     }
-
-
   }
-  fetchMucInfo(Uid uid) async{
-    var name = await  _mucRepo.fetchMucInfo(widget.roomId.getUid());
-    if(name !=null){
+
+  fetchMucInfo(Uid uid) async {
+    var name = await _mucRepo.fetchMucInfo(widget.roomId.getUid());
+    if (name != null) {
       _roomRepo.updateRoomName(uid, name);
     }
   }
@@ -310,12 +311,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         stream: _roomDao.getByRoomId(widget.roomId),
                         builder: (context, currentRoomStream) {
                           if (currentRoomStream.hasData) {
-                            _currentRoom = currentRoomStream.data;
+                            _currentRoom.add(currentRoomStream.data);
                             int i = 0;
-                            if (_currentRoom.lastMessageId == null) {
+                            if (_currentRoom.value.lastMessageId == null) {
                               i = pendingMessages.length;
                             } else {
-                              i = _currentRoom.lastMessageId +
+                              i = _currentRoom.value.lastMessageId +
                                   pendingMessages.length; //TODO chang
                             }
                             if (_itemCount != 0 && i != _itemCount)
@@ -329,7 +330,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   child: Stack(
                                     alignment: AlignmentDirectional.topStart,
                                     children: [
-                                      buildMessagesListView(_currentRoom,
+                                      buildMessagesListView(_currentRoom.value,
                                           pendingMessages, _maxWidth),
                                       StreamBuilder(
                                           stream: _positionSubject.stream,
@@ -524,9 +525,27 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Widget buildNewMessageInput() {
-    if (widget.roomId.getUid().category == Categories.BOT &&
-        _currentRoom.lastMessageId == null) {
-      return BotStartWidget(botUid: widget.roomId.getUid());
+    if (widget.roomId.getUid().category == Categories.BOT) {
+      return StreamBuilder<Room>(
+          stream: _currentRoom.stream,
+          builder: (c, s) {
+            if (s.hasData &&
+                s.data != null &&
+                s.data.roomId.getUid().category == Categories.BOT &&
+                s.data.lastMessageId == null) {
+              return BotStartWidget(botUid: widget.roomId.getUid());
+            } else {
+              return NewMessageInput(
+                currentRoomId: widget.roomId,
+                replyMessageId:
+                    _repliedMessage != null ? _repliedMessage.id ?? -1 : -1,
+                resetRoomPageDetails: _resetRoomPageDetails,
+                waitingForForward: _waitingForForwardedMessage,
+                sendForwardMessage: _sendForwardMessage,
+                scrollToLastSentMessage: scrollToLast,
+              );
+            }
+          });
     } else
       return NewMessageInput(
         currentRoomId: widget.roomId,
@@ -618,6 +637,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       } else {
                         if (_isMuc)
                           return MucAppbarTitle(mucUid: widget.roomId);
+                        else if (widget.roomId.uid.category == Categories.BOT)
+                          return BotAppbar(botUid: widget.roomId.uid);
                         else
                           return UserAppbar(
                             userUid: widget.roomId.uid,
@@ -640,6 +661,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       });
                 } else {
                   return PopupMenuButton(
+                    color: Theme.of(context).accentColor.withAlpha(90),
                     icon: Icon(Icons.more_vert),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
@@ -688,9 +710,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) {
         if (index == -1) index = 0;
-
         _lastSeenDao.insertLastSeen(LastSeen(
-            roomId: widget.roomId, messageId: _currentRoom.lastMessageId));
+            roomId: widget.roomId,
+            messageId: _currentRoom.value.lastMessageId));
         bool isPendingMessage = (currentRoom.lastMessageId == null)
             ? true
             : _itemCount > currentRoom.lastMessageId &&
@@ -964,14 +986,16 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 if (widget.roomId.getUid().category == Categories.GROUP)
-                  GestureDetector(child:
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        bottom: 8.0, left: 5.0, right: 3.0),
-                    child: CircleAvatarWidget(message.from.uid, 18),
-                  ),onTap: (){
-                    _routingService.openRoom(message.from);
-                  },),
+                  GestureDetector(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          bottom: 8.0, left: 5.0, right: 3.0),
+                      child: CircleAvatarWidget(message.from.uid, 18),
+                    ),
+                    onTap: () {
+                      _routingService.openRoom(message.from);
+                    },
+                  ),
                 RecievedMessageBox(
                   message: message,
                   maxWidth: _maxWidth,
