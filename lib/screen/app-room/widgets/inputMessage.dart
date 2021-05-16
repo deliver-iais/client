@@ -155,7 +155,7 @@ class _InputMessageWidget extends State<InputMessage> {
           child: Container(
             color:  Theme.of(context)
                 .accentColor
-                .withAlpha(50),
+                .withAlpha(80),
             child: Stack(
               // overflow: Overflow.visible,
               children: <Widget>[
@@ -212,14 +212,14 @@ class _InputMessageWidget extends State<InputMessage> {
                                         ),
                                         Container(
                                             decoration: BoxDecoration(
-                                              color: Colors.black45,
+                                              color: Colors.black12,
                                               borderRadius:
                                                   BorderRadius.circular(5),
                                             ),
                                             child: Image.asset(
                                               "assets/icons/bot_command.png",
-                                              width: 25,
-                                              height: 25,
+                                              width: 20,
+                                              height: 20,
                                             )),
                                         SizedBox(
                                           width: 10,

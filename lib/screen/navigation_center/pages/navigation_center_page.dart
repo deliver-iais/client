@@ -317,24 +317,17 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   size: 20,
                 ),
                 itemBuilder: (context) => [
-                      PopupMenuItem(
+                      PopupMenuItem<String>(
                           child: Padding(
-                              padding: EdgeInsets.only(
-                                  top: 0, left: 30, bottom: 4, right: 0),
-                              child: RaisedButton(
-                                color:
-                                    Theme.of(context).accentColor.withAlpha(50),
-                                child: Row(
-                                  children: [
-                                    Text(appLocalization
-                                        .getTraslateValue("newContact"))
-                                  ],
-                                ),
-                                onPressed: () {
-                                  ExtendedNavigator.of(context)
-                                      .popAndPush(Routes.newContact);
-                                },
-                              ))),
+                        padding: EdgeInsets.only(
+                            top: 40, left: 30, right: 0),
+                        child: Row(
+                          children: [
+                            Icon(Icons.),
+                            Text(appLocalization.getTraslateValue("newContact"))
+                          ],
+                        ),
+                      )),
                     ]),
       ),
       onPressed: null,
