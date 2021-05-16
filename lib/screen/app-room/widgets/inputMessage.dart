@@ -155,7 +155,7 @@ class _InputMessageWidget extends State<InputMessage> {
           child: Container(
             color:  Theme.of(context)
                 .accentColor
-                .withAlpha(80),
+                .withAlpha(50),
             child: Stack(
               // overflow: Overflow.visible,
               children: <Widget>[
