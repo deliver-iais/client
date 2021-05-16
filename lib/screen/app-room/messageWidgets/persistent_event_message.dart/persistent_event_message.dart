@@ -40,11 +40,11 @@ class PersistentEventMessage extends StatelessWidget {
         decoration: BoxDecoration(
           color: showLastMessage
               ? Theme.of(context).backgroundColor
-              : ExtraTheme.of(context).details,
+              : Theme.of(context).accentColor.withAlpha(80),
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
             child: FutureBuilder(
               future: getPersistentMessage(persistentEventMessage),
               builder: (c, s) {

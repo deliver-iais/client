@@ -9,7 +9,6 @@ class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   NotificationDetails _notificationDetails;
 
-
   Map<String, String> _notificationMessage = Map();
   Map<String, int> _notificationMap = Map();
 
@@ -94,19 +93,22 @@ class NotificationServices {
           showTextNotification(message.id.toInt(), roomUid, roomName, "File");
           break;
         case pro.Message_Type.sticker:
-          // TODO: Handle this case.
-          break;
-        case pro.Message_Type.location:
-          // TODO: Handle this case.
+          showTextNotification(
+              message.id.toInt(), roomUid, roomName, "sticker");
           break;
         case pro.Message_Type.liveLocation:
-          // TODO: Handle this case.
+        case pro.Message_Type.location:
+          showTextNotification(
+              message.id.toInt(), roomUid, roomName, "Location");
           break;
+
         case pro.Message_Type.poll:
-          // TODO: Handle this case.
+          showTextNotification(
+              message.id.toInt(), roomUid, roomName, "poll");
           break;
         case pro.Message_Type.form:
-          // TODO: Handle this case.
+          showTextNotification(
+              message.id.toInt(), roomUid, roomName, "from");
           break;
       }
     } catch (e) {}

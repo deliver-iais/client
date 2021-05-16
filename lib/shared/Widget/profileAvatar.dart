@@ -258,49 +258,81 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           if (widget.roomUid.category != Categories.SYSTEM)
             widget.roomUid.category != Categories.USER
                 ? PopupMenuButton(
-                    color: Theme.of(context).accentColor.withAlpha(0),
+                    color: Theme.of(context).backgroundColor.withBlue(10),
                     icon: Icon(Icons.more_vert),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
-                          child: Text(_mucType == MucType.GROUP
-                              ? _appLocalization.getTraslateValue("leftGroup")
-                              : _appLocalization
-                                  .getTraslateValue("leftChannel")),
+                          child: Row(
+                            children: [
+                              Icon(Icons.arrow_back_outlined),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(_mucType == MucType.GROUP
+                                  ? _appLocalization
+                                      .getTraslateValue("leftGroup")
+                                  : _appLocalization
+                                      .getTraslateValue("leftChannel")),
+                            ],
+                          ),
                           value: "leftMuc"),
                       if (_modifyMUc)
                         new PopupMenuItem<String>(
-                            child: Container(
-                                color:
-                                    Theme.of(context).accentColor.withAlpha(60),
-                                child: Row(
-                                  children: [
-                                    Text(_mucType == MucType.GROUP
-                                        ? _appLocalization
-                                            .getTraslateValue("deleteGroup")
-                                        : _appLocalization
-                                            .getTraslateValue("deleteChannel"))
-                                  ],
-                                )),
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text(_mucType == MucType.GROUP
+                                    ? _appLocalization
+                                        .getTraslateValue("deleteGroup")
+                                    : _appLocalization
+                                        .getTraslateValue("deleteChannel"))
+                              ],
+                            ),
                             value: "deleteMuc"),
                       if (_setAvatarPermission)
                         new PopupMenuItem<String>(
-                            child: Text(_appLocalization
-                                .getTraslateValue("setProfile")),
+                            child: Row(
+                              children: [
+                                Icon(Icons.add_a_photo_rounded),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text(_appLocalization
+                                    .getTraslateValue("setProfile")),
+                              ],
+                            ),
                             value: "select"),
                       if (_modifyMUc &&
                           (widget.roomUid.category == Categories.GROUP ||
                               widget.roomUid.category == Categories.CHANNEL))
                         new PopupMenuItem<String>(
-                            child: Text(
-                                widget.roomUid.category == Categories.GROUP
+                            child: Row(
+                              children: [
+                                Icon(Icons.settings),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text(widget.roomUid.category == Categories.GROUP
                                     ? _appLocalization
                                         .getTraslateValue("manage_group")
                                     : _appLocalization
                                         .getTraslateValue("manage_channel")),
+                              ],
+                            ),
                             value: "manage"),
                       new PopupMenuItem<String>(
-                          child:
+                          child: Row(
+                            children: [
+                              Icon(Icons.report),
+                              SizedBox(
+                                width: 10,
+                              ),
                               Text(_appLocalization.getTraslateValue("report")),
+                            ],
+                          ),
                           value: "report"),
                     ],
                     onSelected: onSelected,
@@ -310,20 +342,38 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     builder: (c, room) {
                       if (room.hasData && room.data != null) {
                         return PopupMenuButton(
+                          color: Theme.of(context).backgroundColor.withBlue(10) ,
                           icon: Icon(Icons.more_vert),
                           itemBuilder: (_) => <PopupMenuItem<String>>[
                             new PopupMenuItem<String>(
-                                child: Text(room.data.isBlock
-                                    ? _appLocalization
-                                        .getTraslateValue("unBlockRoom")
-                                    : _appLocalization
-                                        .getTraslateValue("blockRoom")),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.block),
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    Text(room.data.isBlock
+                                        ? _appLocalization
+                                            .getTraslateValue("unBlockRoom")
+                                        : _appLocalization
+                                            .getTraslateValue("blockRoom")),
+                                  ],
+                                ),
                                 value: room.data.isBlock
                                     ? "unBlockRoom"
                                     : "blockRoom"),
                             new PopupMenuItem<String>(
-                                child: Text(_appLocalization
-                                    .getTraslateValue("report")),
+
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.report),
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    Text(_appLocalization
+                                        .getTraslateValue("report")),
+                                  ],
+                                ),
                                 value: "report"),
                           ],
                           onSelected: onSelected,

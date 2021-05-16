@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:fixnum/fixnum.dart';
@@ -27,6 +28,7 @@ class _NewContactState extends State<NewContact> {
   p.PhoneNumber _phoneNumber;
 
   AppLocalization _appLocalization;
+  var _routingServices = GetIt.I.get<RoutingService>();
 
   var _contactRepo = GetIt.I.get<ContactRepo>();
 
@@ -35,37 +37,37 @@ class _NewContactState extends State<NewContact> {
 
   @override
   Widget build(BuildContext context) {
+
     _appLocalization = AppLocalization.of(context);
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.chevron_left),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        leading: _routingServices.backButtonLeading(),
+        title: Text(_appLocalization.getTraslateValue("newContact"),style: TextStyle(fontSize: 20),) ,
         actions: [
-          IconButton(
-              icon: Icon(Icons.check),
-              iconSize: 30,
-              onPressed: () async {
-                if (_phoneNumber == null) {
-                  return;
-                }
-                PhoneNumber phoneNumber = PhoneNumber()
-                  ..nationalNumber = Int64.parseInt(_phoneNumber.number)
-                  ..countryCode = int.parse(_phoneNumber.countryCode);
-              await _contactRepo.sendContacts([
-                  Contact()
-                    ..phoneNumber = phoneNumber
-                    ..firstName = _firstName
-                    ..lastName = _lastName
-                ]);
+          Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: IconButton(
+                icon: Icon(Icons.check),
+                iconSize: 40,
+                onPressed: () async {
+                  if (_phoneNumber == null) {
+                    return;
+                  }
+                  PhoneNumber phoneNumber = PhoneNumber()
+                    ..nationalNumber = Int64.parseInt(_phoneNumber.number)
+                    ..countryCode = int.parse(_phoneNumber.countryCode);
+                  await _contactRepo.sendContacts([
+                    Contact()
+                      ..phoneNumber = phoneNumber
+                      ..firstName = _firstName
+                      ..lastName = _lastName
+                  ]);
 
-                await _contactRepo.getContacts();
-                await showResult();
-                Navigator.pop(context);
-              })
+                  await _contactRepo.getContacts();
+                  await showResult();
+                  Navigator.pop(context);
+                }),
+          )
         ],
       ),
       body: FluidContainerWidget(
@@ -145,7 +147,7 @@ class _NewContactState extends State<NewContact> {
     );
   }
 
-  void showResult() async  {
+  void showResult() async {
     var result = await _contactRepo.ContactIsExist(_phoneNumber.number);
     if (result) {
       Fluttertoast.showToast(
