@@ -60,15 +60,15 @@ class _ChatItemState extends State<ChatItem> {
               ? null
               : Border.all(color: Theme.of(context).dividerColor),
           borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
-      height: 66,
+      height: 73,
       child: Row(
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.only(bottom: 5),
             child: ContactPic(widget.roomWithMessage.room.roomId.uid),
           ),
           SizedBox(
-            width: 8,
+            width: 10,
           ),
           Expanded(
             flex: 90,
@@ -88,20 +88,23 @@ class _ChatItemState extends State<ChatItem> {
                                 _appLocalization
                                     .getTraslateValue("saved_message"),
                                 context)
-                            : FutureBuilder<String>(
-                                future: _roomRepo.getRoomDisplayName(
-                                    widget.roomWithMessage.room.roomId.uid,
-                                    roomUid:
-                                        widget.roomWithMessage.room.roomId),
-                                builder: (BuildContext c,
-                                    AsyncSnapshot<String> snaps) {
-                                  if (snaps.hasData && snaps.data.isNotEmpty) {
-                                    return _showDisplayName(
-                                        snaps.data, context);
-                                  } else {
-                                    return _showDisplayName("Unknown", context);
-                                  }
-                                })),
+                            : Padding(
+                              padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                              child: FutureBuilder<String>(
+                                  future: _roomRepo.getRoomDisplayName(
+                                      widget.roomWithMessage.room.roomId.uid,
+                                      roomUid:
+                                          widget.roomWithMessage.room.roomId),
+                                  builder: (BuildContext c,
+                                      AsyncSnapshot<String> snaps) {
+                                    if (snaps.hasData && snaps.data.isNotEmpty) {
+                                      return _showDisplayName(
+                                          snaps.data, context);
+                                    } else {
+                                      return _showDisplayName("Unknown", context);
+                                    }
+                                  }),
+                            )),
                     Padding(
                       padding: const EdgeInsets.only(
                         bottom: 4.0,right: 0
@@ -118,25 +121,28 @@ class _ChatItemState extends State<ChatItem> {
                     ),
                   ],
                 ),
-                StreamBuilder<Activity>(
-                    stream: _roomRepo.activityObject[
-                        widget.roomWithMessage.room.roomId.uid.node],
-                    builder: (c, s) {
-                      if (s.hasData &&
-                          s.data != null &&
-                          s.data.typeOfActivity != ActivityType.NO_ACTIVITY) {
-                        return ActivityStatuse(
-                          activity: s.data,
-                          roomUid: widget.roomWithMessage.room.roomId.uid,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: ExtraTheme.of(context).details,
-                          ),
-                        );
-                      } else {
-                        return lastMessageWidget(messageType, context);
-                      }
-                    }),
+                Flexible(
+                  flex: 90,
+                  child: StreamBuilder<Activity>(
+                      stream: _roomRepo.activityObject[
+                          widget.roomWithMessage.room.roomId.uid.node],
+                      builder: (c, s) {
+                        if (s.hasData &&
+                            s.data != null &&
+                            s.data.typeOfActivity != ActivityType.NO_ACTIVITY) {
+                          return ActivityStatuse(
+                            activity: s.data,
+                            roomUid: widget.roomWithMessage.room.roomId.uid,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: ExtraTheme.of(context).details,
+                            ),
+                          );
+                        } else {
+                          return lastMessageWidget(messageType, context);
+                        }
+                      }),
+                ),
               ],
             ),
           ),

@@ -59,6 +59,8 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
     super.initState();
     editingController = TextEditingController();
     if (widget.mucUid != null) getMembers();
+    _createMucService.reset();
+
   }
 
   getMembers() async {
@@ -184,7 +186,9 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               if (usersAdd) {
                                 _routingService
                                     .openRoom(widget.mucUid.asString());
-                                //_routingService.reset();
+                                // _routingService.reset();
+                                // _createMucService.reset();
+
                               } else {
                                 Fluttertoast.showToast(
                                     msg: appLocalization
