@@ -60,7 +60,7 @@ class _ChatItemState extends State<ChatItem> {
               ? null
               : Border.all(color: Theme.of(context).dividerColor),
           borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
-      height: 73,
+      height: 66,
       child: Row(
         children: <Widget>[
           Padding(

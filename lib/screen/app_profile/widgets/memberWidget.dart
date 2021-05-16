@@ -217,7 +217,6 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
       case MucRole.ADMIN:
         return Row(
           children: [
-            Icon(Icons.),
             Text(_appLocalization.getTraslateValue("Admin"),
                 style: TextStyle(color: Colors.blue)),
           ],
