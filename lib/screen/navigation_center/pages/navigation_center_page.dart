@@ -319,11 +319,14 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 itemBuilder: (context) => [
                       PopupMenuItem<String>(
                           child: Padding(
-                        padding: EdgeInsets.only(
-                            top: 40, left: 30, right: 0),
+                        padding: EdgeInsets.only(top: 40, left: 30, right: 0),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Icon(Icons.),
+                            Icon(
+                              Icons.account_box_sharp,
+                              color: Colors.white,
+                            ),
                             Text(appLocalization.getTraslateValue("newContact"))
                           ],
                         ),
