@@ -103,12 +103,26 @@ class NotificationServices {
           break;
 
         case pro.Message_Type.poll:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, "poll");
+          showTextNotification(message.id.toInt(), roomUid, roomName, "poll");
           break;
+        case pro.Message_Type.buttons:
         case pro.Message_Type.form:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, "from");
+          showTextNotification(message.id.toInt(), roomUid, roomName, "from");
+          break;
+        case pro.Message_Type.shareUid:
+          showTextNotification(message.id.toInt(), roomUid, roomName, message.shareUid.name);
+          break;
+        case pro.Message_Type.formResult:
+          showTextNotification(message.id.toInt(), roomUid, roomName, "from");
+          break;
+        case pro.Message_Type.sharePrivateDataRequest:
+          showTextNotification(message.id.toInt(), roomUid, roomName, "Private");
+          break;
+        case pro.Message_Type.sharePrivateDataAcceptance:
+          showTextNotification(message.id.toInt(), roomUid, roomName, "Private");
+          break;
+        case pro.Message_Type.notSet:
+          // TODO: Handle this case.
           break;
       }
     } catch (e) {}

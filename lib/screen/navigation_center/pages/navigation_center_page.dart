@@ -269,21 +269,24 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           //     value: "newChat",
                           //   ),
                           PopupMenuItem<String>(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Icon(
-                                  Icons.group,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(
-                                  width: 15,
-                                ),
-                                Text(
-                                  appLocalization.getTraslateValue("newGroup"),
-                                  style: TextStyle(fontSize: 15),
-                                ),
-                              ],
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 40),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.group,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(
+                                    width: 15,
+                                  ),
+                                  Text(
+                                    appLocalization.getTraslateValue("newGroup"),
+                                    style: TextStyle(fontSize: 15),
+                                  ),
+                                ],
+                              ),
                             ),
                             value: "newGroup",
                           ),
