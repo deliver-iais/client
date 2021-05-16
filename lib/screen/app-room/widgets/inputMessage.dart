@@ -140,7 +140,7 @@ class _InputMessageWidget extends State<InputMessage> {
                 return BotCommandsWidget(
                   botUid: widget.currentRoom.roomId.getUid(),
                   onCommandClick: (String command) {
-                    controller.text = "/" + command;
+                    controller.text = command;
                     _showBotCommands.add(false);
                     setState(() {});
                   },
@@ -150,9 +150,12 @@ class _InputMessageWidget extends State<InputMessage> {
               }
             }),
         IconTheme(
-          data: IconThemeData(color: Theme.of(context).accentColor),
+          data: IconThemeData(color: ExtraTheme.of(context)
+              .borderOfProfilePage),
           child: Container(
-            color: ExtraTheme.of(context).secondColor,
+            color:  Theme.of(context)
+                .accentColor
+                .withAlpha(50),
             child: Stack(
               // overflow: Overflow.visible,
               children: <Widget>[
@@ -202,17 +205,27 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (currentRoom.roomId.getUid().category ==
                                     Categories.BOT)
                                   GestureDetector(
-                                    child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.black45,
-                                          borderRadius:
-                                              BorderRadius.circular(15),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 10,
                                         ),
-                                        child: Image.asset(
-                                          "assets/icons/bot_command.png",
-                                          width: 25,
-                                          height: 25,
-                                        )),
+                                        Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.black45,
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                            child: Image.asset(
+                                              "assets/icons/bot_command.png",
+                                              width: 25,
+                                              height: 25,
+                                            )),
+                                        SizedBox(
+                                          width: 10,
+                                        )
+                                      ],
+                                    ),
                                     onTap: () {
                                       _showBotCommands.add(true);
                                     },

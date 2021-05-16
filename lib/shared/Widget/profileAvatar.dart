@@ -69,7 +69,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           ? MucType.GROUP
           : MucType.PUBLIC_CHANNEL;
     }
-    if (widget.roomUid.category != Categories.USER && widget.roomUid.category != Categories.BOT) {
+    if (widget.roomUid.category != Categories.USER &&
+        widget.roomUid.category != Categories.BOT) {
       _checkPermissions();
     }
   }
@@ -157,7 +158,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         break;
       case "report":
         _roomRepo.reportRoom(widget.roomUid);
-        Fluttertoast.showToast(msg: _appLocalization.getTraslateValue("report_result"));
+        Fluttertoast.showToast(
+            msg: _appLocalization.getTraslateValue("report_result"));
         break;
       case "manage":
         showManageDialog();
@@ -256,6 +258,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           if (widget.roomUid.category != Categories.SYSTEM)
             widget.roomUid.category != Categories.USER
                 ? PopupMenuButton(
+                    color: Theme.of(context).accentColor.withAlpha(0),
                     icon: Icon(Icons.more_vert),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
@@ -266,11 +269,18 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                           value: "leftMuc"),
                       if (_modifyMUc)
                         new PopupMenuItem<String>(
-                            child: Text(_mucType == MucType.GROUP
-                                ? _appLocalization
-                                    .getTraslateValue("deleteGroup")
-                                : _appLocalization
-                                    .getTraslateValue("deleteChannel")),
+                            child: Container(
+                                color:
+                                    Theme.of(context).accentColor.withAlpha(60),
+                                child: Row(
+                                  children: [
+                                    Text(_mucType == MucType.GROUP
+                                        ? _appLocalization
+                                            .getTraslateValue("deleteGroup")
+                                        : _appLocalization
+                                            .getTraslateValue("deleteChannel"))
+                                  ],
+                                )),
                             value: "deleteMuc"),
                       if (_setAvatarPermission)
                         new PopupMenuItem<String>(
@@ -641,39 +651,37 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               ),
             ),
             actions: <Widget>[
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      child: Text(
-                        _appLocalization.getTraslateValue("cancel"),
-                        style: TextStyle(fontSize: 16, color: Colors.blue),
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    child: Text(
+                      _appLocalization.getTraslateValue("cancel"),
+                      style: TextStyle(fontSize: 16, color: Colors.blue),
                     ),
-                    SizedBox(
-                      width: 20,
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  GestureDetector(
+                    child: Text(
+                      _appLocalization.getTraslateValue("ok"),
+                      style: TextStyle(fontSize: 16, color: Colors.red),
                     ),
-                    GestureDetector(
-                      child: Text(
-                        _appLocalization.getTraslateValue("ok"),
-                        style: TextStyle(fontSize: 16, color: Colors.red),
-                      ),
-                      onTap: () {
-                        _mucType == MucType.GROUP
-                            ? _deleteGroup()
-                            : _deleteChannel();
-                      },
-                    ),
-                    SizedBox(
-                      width: 10,
-                    )
-                  ],
-                ),
-
+                    onTap: () {
+                      _mucType == MucType.GROUP
+                          ? _deleteGroup()
+                          : _deleteChannel();
+                    },
+                  ),
+                  SizedBox(
+                    width: 10,
+                  )
+                ],
+              ),
             ],
           );
         });

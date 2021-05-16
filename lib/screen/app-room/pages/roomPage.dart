@@ -661,6 +661,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       });
                 } else {
                   return PopupMenuButton(
+                    color: Theme.of(context).accentColor.withAlpha(90),
                     icon: Icon(Icons.more_vert),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(

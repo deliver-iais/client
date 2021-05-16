@@ -17,7 +17,7 @@ class FluidContainerWidget extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS)),
           child: Container(
-            color: Theme.of(context).cardColor,
+            color: Theme.of(context).accentColor.withAlpha(50),
             padding: const EdgeInsets.all(MAIN_PADDING * 1.4),
             constraints: BoxConstraints(maxWidth: BREAKDOWN_SIZE),
             child: child,
