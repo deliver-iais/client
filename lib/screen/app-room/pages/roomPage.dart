@@ -86,10 +86,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   String pattern;
 
   int lastSeenMessageId = -1;
-  bool _waitingForForwardedMessage;
+  BehaviorSubject<bool> _waitingForForwardedMessage =
+      BehaviorSubject.seeded(false);
   bool _isMuc;
   BehaviorSubject<bool> _searchMode = BehaviorSubject.seeded(false);
-  Message _repliedMessage;
+  BehaviorSubject<Message> _repliedMessage = BehaviorSubject.seeded(null);
   Map<int, Message> _selectedMessages = Map();
   AppLocalization _appLocalization;
   BehaviorSubject<bool> _selectMultiMessageSubject =
@@ -167,9 +168,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void _resetRoomPageDetails() {
-    _repliedMessage = null;
-    _waitingForForwardedMessage = false;
-    setState(() {});
+    _repliedMessage.add(null);
+    _waitingForForwardedMessage.add(false);
   }
 
   void _sendForwardMessage() async {
@@ -179,58 +179,55 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       await _messageRepo.sendForwardedMessage(
           widget.roomId.uid, widget.forwardedMessages);
     }
-    setState(() {
-      _waitingForForwardedMessage = false;
-      _repliedMessage = null;
-    });
+
+    _waitingForForwardedMessage.add(false);
+    _repliedMessage.add(null);
   }
 
   void _showCustomMenu(Message message) {
-    this.showMenu(
-      context: context,
-      items: <PopupMenuEntry<OperationOnMessage>>[
-        OperationOnMessageEntry(message)
-      ],
-      color: Theme.of(context).backgroundColor.withBlue(20)
-    ).then<void>((OperationOnMessage opr) {
+    this
+        .showMenu(
+            context: context,
+            items: <PopupMenuEntry<OperationOnMessage>>[
+              OperationOnMessageEntry(message)
+            ],
+            color: Theme.of(context).backgroundColor.withBlue(20))
+        .then<void>((OperationOnMessage opr) {
       if (opr == null) return;
-
-      setState(() {
-        switch(opr){
-
-          case OperationOnMessage.REPLY:
-            _repliedMessage = message;
-            _waitingForForwardedMessage = false;
-            break;
-          case OperationOnMessage.COPY:
-            Clipboard.setData(ClipboardData(text: message.json.toText().text));
-            Fluttertoast.showToast(msg: _appLocalization.getTraslateValue("Copied"));
-            break;
-          case OperationOnMessage.FORWARD:
-            _repliedMessage = null;
-            _routingService
-                .openSelectForwardMessage(forwardedMessages: [message]);
-            break;
-          case OperationOnMessage.DELETE:
-            // TODO: Handle this case.
-            break;
-          case OperationOnMessage.EDIT:
-            // TODO: Handle this case.
-            break;
-          case OperationOnMessage.SHARE:
-            // TODO: Handle this case.
-            break;
-          case OperationOnMessage.SAVE_TO_GALLERY:
-            // TODO: Handle this case.
-            break;
-          case OperationOnMessage.SAVE_TO_DOWNLOADS:
-            // TODO: Handle this case.
-            break;
-          case OperationOnMessage.RESEND:
-            _messageRepo.ResendMessage(message);
-            break;
-        }
-      });
+      switch (opr) {
+        case OperationOnMessage.REPLY:
+          _repliedMessage.add(message);
+          _waitingForForwardedMessage.add(false);
+          break;
+        case OperationOnMessage.COPY:
+          Clipboard.setData(ClipboardData(text: message.json.toText().text));
+          Fluttertoast.showToast(
+              msg: _appLocalization.getTraslateValue("Copied"));
+          break;
+        case OperationOnMessage.FORWARD:
+          _repliedMessage.add(null);
+          _routingService
+              .openSelectForwardMessage(forwardedMessages: [message]);
+          break;
+        case OperationOnMessage.DELETE:
+          // TODO: Handle this case.
+          break;
+        case OperationOnMessage.EDIT:
+          // TODO: Handle this case.
+          break;
+        case OperationOnMessage.SHARE:
+          // TODO: Handle this case.
+          break;
+        case OperationOnMessage.SAVE_TO_GALLERY:
+          // TODO: Handle this case.
+          break;
+        case OperationOnMessage.SAVE_TO_DOWNLOADS:
+          // TODO: Handle this case.
+          break;
+        case OperationOnMessage.RESEND:
+          _messageRepo.ResendMessage(message);
+          break;
+      }
     });
   }
 
@@ -278,9 +275,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             widget.roomId.uid.category == Categories.CHANNEL
         ? true
         : false;
-    _waitingForForwardedMessage = widget.forwardedMessages != null
+    _waitingForForwardedMessage.add(widget.forwardedMessages != null
         ? widget.forwardedMessages.length > 0
-        : widget.shareUid != null;
+        : widget.shareUid != null);
     sendInputSharedFile();
     //TODO check
     _lastSeenSubject
@@ -414,22 +411,32 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           }
                         });
                   }),
-              _repliedMessage != null
-                  ? ReplyWidget(
-                      message: _repliedMessage,
-                      resetRoomPageDetails: _resetRoomPageDetails)
-                  : Container(),
-              (_waitingForForwardedMessage)
-                  ? ForwardWidget(
-                      forwardedMessages: widget.forwardedMessages,
-                      shareUid: widget.shareUid,
-                      onClick: () {
-                        setState(() {
-                          _waitingForForwardedMessage = false;
-                        });
-                      },
-                    )
-                  : Container(),
+              StreamBuilder(
+                  stream: _repliedMessage.stream,
+                  builder: (c, rm) {
+                    if (rm.hasData && rm.data != null) {
+                      return ReplyWidget(
+                          message: _repliedMessage.value,
+                          resetRoomPageDetails: _resetRoomPageDetails);
+                    } else {
+                      return Container();
+                    }
+                  }),
+              StreamBuilder(
+                  stream: _waitingForForwardedMessage.stream,
+                  builder: (c, wm) {
+                    if (wm.hasData && wm.data) {
+                      return ForwardWidget(
+                        forwardedMessages: widget.forwardedMessages,
+                        shareUid: widget.shareUid,
+                        onClick: () {
+                          _waitingForForwardedMessage.add(false);
+                        },
+                      );
+                    } else {
+                      return Container();
+                    }
+                  }),
               StreamBuilder(
                 stream: _searchMode.stream,
                 builder: (c, s) {
@@ -567,10 +574,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             } else {
               return NewMessageInput(
                 currentRoomId: widget.roomId,
-                replyMessageId:
-                    _repliedMessage != null ? _repliedMessage.id ?? -1 : -1,
+                replyMessageId: _repliedMessage.value != null
+                    ? _repliedMessage.value.id ?? -1
+                    : -1,
                 resetRoomPageDetails: _resetRoomPageDetails,
-                waitingForForward: _waitingForForwardedMessage,
+                waitingForForward: _waitingForForwardedMessage.value,
                 sendForwardMessage: _sendForwardMessage,
                 scrollToLastSentMessage: scrollToLast,
               );
@@ -579,9 +587,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     } else
       return NewMessageInput(
         currentRoomId: widget.roomId,
-        replyMessageId: _repliedMessage != null ? _repliedMessage.id ?? -1 : -1,
+        replyMessageId:
+            _repliedMessage.value != null ? _repliedMessage.value.id ?? -1 : -1,
         resetRoomPageDetails: _resetRoomPageDetails,
-        waitingForForward: _waitingForForwardedMessage,
+        waitingForForward: _waitingForForwardedMessage.value,
         sendForwardMessage: _sendForwardMessage,
         scrollToLastSentMessage: scrollToLast,
       );

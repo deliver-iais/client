@@ -149,10 +149,7 @@ class _InputMessageWidget extends State<InputMessage> {
                 return SizedBox.shrink();
               }
             }),
-        IconTheme(
-          data: IconThemeData(color: ExtraTheme.of(context)
-              .borderOfProfilePage),
-          child: Container(
+         Container(
             color:  Theme.of(context)
                 .accentColor
                 .withAlpha(50),
@@ -377,7 +374,7 @@ class _InputMessageWidget extends State<InputMessage> {
               ],
             ),
           ),
-        ),
+
         StreamBuilder(
             stream: backSubject.stream,
             builder: (context, back) {

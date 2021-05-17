@@ -4,6 +4,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -15,6 +16,7 @@ class SenderAndContent extends StatelessWidget {
   final List<Message> messages;
   final bool inBox;
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
 
   SenderAndContent({Key key, this.messages, this.inBox}) : super(key: key);
 
@@ -50,15 +52,20 @@ class SenderAndContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FutureBuilder<String>(
-              future: _roomRepo.getRoomDisplayName(messages[0].from.uid,roomUid: messages[0].to),
-              builder: (ctx, AsyncSnapshot<String> s) {
-                if (s.hasData && s.data != null) {
-                  return showName(s.data, context);
-                } else {
-                  return showName("UnKnown", context);
-                }
-              }),
+          if (!messages[0]
+              .from
+              .getUid()
+              .isSameEntity(_accountRepo.currentUserUid.asString()))
+            FutureBuilder<String>(
+                future: _roomRepo.getRoomDisplayName(messages[0].from.uid,
+                    roomUid: messages[0].to),
+                builder: (ctx, AsyncSnapshot<String> s) {
+                  if (s.hasData && s.data != null) {
+                    return showName(s.data, context);
+                  } else {
+                    return showName("UnKnown", context);
+                  }
+                }),
           SizedBox(height: 3),
           inBox == true || messages.length == 0
               ? messages[0].type == MessageType.TEXT
@@ -97,7 +104,7 @@ class SenderAndContent extends StatelessWidget {
       s,
       style: TextStyle(
         color: inBox == true
-            ? ExtraTheme.of(context).secondColor
+            ? Theme.of(context).primaryColor.withGreen(70)
             : Theme.of(context).primaryColor,
         fontWeight: FontWeight.bold,
       ),
