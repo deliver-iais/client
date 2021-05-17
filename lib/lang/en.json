@@ -175,7 +175,10 @@
   "sure_exit_app": "Are you sure you want to \n log out?",
   "sure_delete_group": "Are you sure to delete Group ?",
   "sure_delete_channel": "Are you sure to delete Channel ?",
-  "ok": "Ok"
+  "ok": "Ok",
+  "just_now": "Just now",
+  "Copied": "Copied",
+  "Resend": "Resend"
 
 
 }

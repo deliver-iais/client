@@ -396,10 +396,10 @@ class MessageRepo {
     );
   }
 
-  _sendMessageToServer(int dbId) async {
+  _sendMessageToServer(int dbId,{bool resend = false}) async {
     var message = await _messageDao.getPendingMessage(dbId);
     var pendingMessage = await _pendingMessageDao.getByMessageDbId(dbId);
-    if (!_canPendingMessageResendAndDecreaseRemainingRetries(
+    if (!resend && !_canPendingMessageResendAndDecreaseRemainingRetries(
             pendingMessage, message) ||
         pendingMessage.status != SendingStatus.PENDING) {
       return;
@@ -419,6 +419,7 @@ class MessageRepo {
 
   bool _canPendingMessageResendAndDecreaseRemainingRetries(
       PendingMessage pendingMessage, Message message) {
+
     if (pendingMessage == null) {
       if (message != null) {
         _messageDao.deleteMessage(message);
@@ -429,8 +430,15 @@ class MessageRepo {
       _pendingMessageDao.deletePendingMessage(pendingMessage.messagePacketId);
       return false;
     }
+    if(pendingMessage.remainingRetries<2){
+      _messageDao.updateMessage(message.copyWith(sendingFailed: true));
+      return false;
+    }
     if (pendingMessage.remainingRetries > 0) {
       if (message.id == null) {
+        if(pendingMessage.remainingRetries<3){
+          _messageDao.updateMessage(message.copyWith(sendingFailed: true));
+        }
         _pendingMessageDao.insertPendingMessage(pendingMessage.copyWith(
             remainingRetries: pendingMessage.remainingRetries - 1));
         return true;
@@ -730,5 +738,10 @@ class MessageRepo {
     );
     // Send Message
     await _sendMessageToServer(dbId);
+  }
+
+  void ResendMessage(Message message) async{
+    await _sendMessageToServer(message.dbId,resend: true);
+    _updateRoomLastMessage(message.roomId, message.dbId);
   }
 }

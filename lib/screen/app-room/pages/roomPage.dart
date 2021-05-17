@@ -40,10 +40,13 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moor/moor.dart' as Moor;
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
 const int PAGE_SIZE = 40;
 
@@ -188,17 +191,44 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       items: <PopupMenuEntry<OperationOnMessage>>[
         OperationOnMessageEntry(message)
       ],
+      color: Theme.of(context).backgroundColor.withBlue(20)
     ).then<void>((OperationOnMessage opr) {
       if (opr == null) return;
 
       setState(() {
-        if (opr == OperationOnMessage.REPLY) {
-          _repliedMessage = message;
-          _waitingForForwardedMessage = false;
-        } else if (opr == OperationOnMessage.FORWARD) {
-          _repliedMessage = null;
-          _routingService
-              .openSelectForwardMessage(forwardedMessages: [message]);
+        switch(opr){
+
+          case OperationOnMessage.REPLY:
+            _repliedMessage = message;
+            _waitingForForwardedMessage = false;
+            break;
+          case OperationOnMessage.COPY:
+            Clipboard.setData(ClipboardData(text: message.json.toText().text));
+            Fluttertoast.showToast(msg: _appLocalization.getTraslateValue("Copied"));
+            break;
+          case OperationOnMessage.FORWARD:
+            _repliedMessage = null;
+            _routingService
+                .openSelectForwardMessage(forwardedMessages: [message]);
+            break;
+          case OperationOnMessage.DELETE:
+            // TODO: Handle this case.
+            break;
+          case OperationOnMessage.EDIT:
+            // TODO: Handle this case.
+            break;
+          case OperationOnMessage.SHARE:
+            // TODO: Handle this case.
+            break;
+          case OperationOnMessage.SAVE_TO_GALLERY:
+            // TODO: Handle this case.
+            break;
+          case OperationOnMessage.SAVE_TO_DOWNLOADS:
+            // TODO: Handle this case.
+            break;
+          case OperationOnMessage.RESEND:
+            _messageRepo.ResendMessage(message);
+            break;
         }
       });
     });

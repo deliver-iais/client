@@ -154,7 +154,7 @@ class _TitleStatusState extends State<TitleStatus> {
                 String lastActivityTime =
                     userInfo.data.lastActivity.dateTimeFormat();
                 return Text(
-                  "${appLocalization.getTraslateValue('lastSeen')} ${lastActivityTime} ",
+                  "${appLocalization.getTraslateValue('lastSeen')} ${lastActivityTime.contains("just now")?appLocalization.getTraslateValue("just_now"):lastActivityTime} ",
                   style: TextStyle(fontSize: 12,color: Theme.of(context).primaryColor),
                 );
               }

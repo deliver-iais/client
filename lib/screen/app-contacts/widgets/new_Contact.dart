@@ -65,7 +65,8 @@ class _NewContactState extends State<NewContact> {
 
                   await _contactRepo.getContacts();
                   await showResult();
-                  Navigator.pop(context);
+                  _routingServices.pop();
+                 // Navigator.pop(context);
                 }),
           )
         ],

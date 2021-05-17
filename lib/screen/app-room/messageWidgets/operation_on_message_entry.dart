@@ -40,6 +40,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.DELETE);
   }
 
+  onResend(){
+    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.RESEND);
+  }
+
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
@@ -88,6 +92,21 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   ),
                   SizedBox(width: 8),
                   Text(appLocalization.getTraslateValue("Forward")),
+                ])),
+          ),
+          if(widget.message.sendingFailed != null && widget.message.sendingFailed)
+            Expanded(
+            child: FlatButton(
+                onPressed: () {
+                  onResend();
+                },
+                child: Row(children: [
+                  Icon(
+                    Icons.refresh,
+                    size: 20,
+                  ),
+                  SizedBox(width: 8),
+                  Text(appLocalization.getTraslateValue("Resend")),
                 ])),
           ),
           // widget.message.type == MessageType.TEXT

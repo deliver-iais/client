@@ -26,6 +26,7 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
         .write(
       MessagesCompanion(
           id: Value(id),
+          sendingFailed: Value(false),
           time: Value(DateTime.fromMillisecondsSinceEpoch(time))),
     );
   }

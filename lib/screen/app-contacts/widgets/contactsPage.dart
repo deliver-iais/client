@@ -104,9 +104,12 @@ class ContactsPage extends StatelessWidget {
               ),
             ));
           } else {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
+            if (snapshot.hasData && snapshot.data == null) {
+              return SizedBox.shrink();
+            } else
+              return Center(
+                child: CircularProgressIndicator(),
+              );
           }
         });
   }
