@@ -97,7 +97,7 @@ final CoreServicesClientChannel = ClientChannel("core.deliver-co.ir",
         connectionTimeout: Duration(seconds: 2)));
 
 // ignore: non_constant_identifier_names
-final FileServiceBaseUrl = "ms-file.deliver-co.ir:443/";
+final FileServiceBaseUrl = "https://ms-file.deliver-co.ir";
 
 // ignore: non_constant_identifier_names
 final ProfileServicesClientChannel = ClientChannel("ms-profile.deliver-co.ir",
@@ -114,7 +114,7 @@ final AvatarServicesClientChannel = ClientChannel("ms-avatar.deliver-co.ir",
         connectionTimeout: Duration(seconds: 2)));
 
 // ignore: non_constant_identifier_names
-final FirebaseServicesClientChannel = ClientChannel("ms-firabase.deliver-co.ir",
+final FirebaseServicesClientChannel = ClientChannel("ms-firebase.deliver-co.ir",
     port: 443,
     options: ChannelOptions(
         credentials: ChannelCredentials.secure(),

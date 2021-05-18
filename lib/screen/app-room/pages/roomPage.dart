@@ -348,10 +348,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                               i = _currentRoom.value.lastMessageId +
                                   pendingMessages.length; //TODO chang
                             }
-                            if (lastSeenMessageId > 0)
-                              unReadMessageScrollSubjet.add(
-                                  _currentRoom.value.lastMessageId -
-                                      lastSeenMessageId);
+                            // if (lastSeenMessageId > 0)
+                            //   unReadMessageScrollSubjet.add(
+                            //       _currentRoom.value.lastMessageId -
+                            //           lastSeenMessageId);
                             if (_itemCount != 0 && i != _itemCount)
                               _itemCountSubject.add(_itemCount);
                             _itemCount = i;

@@ -61,6 +61,9 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
           ).toList(),
         );
   }
+  Future<List<Room>> getAllRooms() {
+   return(select(rooms).get());
+  }
 
   Future<List<TypedResult>> getFutureAllRoomsWithMessage() {
     return ((select(rooms)..where((tbl) => tbl.deleted.equals(false))).join([

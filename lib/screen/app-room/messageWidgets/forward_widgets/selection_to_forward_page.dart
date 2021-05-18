@@ -57,7 +57,7 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
                   child: FutureBuilder<List<Uid>>(
                     future: _searchMode
                         ? _roomRepo.searchInRoomAndContacts(_query, true)
-                        : _roomRepo.searchInRoomAndContacts("", true),
+                        : _roomRepo.getAllRooms(),
                     builder: (context, snapshot) {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
