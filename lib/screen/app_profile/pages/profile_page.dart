@@ -159,7 +159,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                     style: TextStyle(
                                                       color: ExtraTheme.of(
                                                               context)
-                                                          .blueOfProfilePage,
+                                                          .boxDetails,
                                                       fontSize: 16.0,
                                                     ),
                                                   ),
@@ -214,9 +214,8 @@ class _ProfilePageState extends State<ProfilePage>
                                             color: ExtraTheme.of(context)
                                                 .borderOfProfilePage),
                                         borderRadius: BorderRadius.circular(15),
-                                        color: Theme.of(context)
-                                            .accentColor
-                                            .withAlpha(50),
+                                        color: ExtraTheme.of(context)
+                                            .boxBackground
                                       ),
                                       child: Column(
                                         children: [
@@ -224,6 +223,7 @@ class _ProfilePageState extends State<ProfilePage>
                                               decoration: BoxDecoration(
                                                 borderRadius:
                                                     BorderRadius.circular(15),
+                                                // color: Theme.of(context).backgroundColor,
                                               ),
                                               height: 60,
                                               padding:
@@ -234,13 +234,13 @@ class _ProfilePageState extends State<ProfilePage>
                                                   SizedBox(
                                                     width: 10,
                                                   ),
-                                                  Icon(Icons.message),
+                                                  Icon(Icons.message, color: ExtraTheme.of(context).boxDetails,),
                                                   SizedBox(
                                                     width: 10,
                                                   ),
                                                   Text(appLocalization
                                                       .getTraslateValue(
-                                                          "sendMessage")),
+                                                          "sendMessage"), style: TextStyle(color:ExtraTheme.of(context).boxDetails, ),),
                                                 ]),
                                                 onTap: () {
                                                   _routingService.openRoom(
@@ -271,11 +271,12 @@ class _ProfilePageState extends State<ProfilePage>
                                                             Icons
                                                                 .notifications_active,
                                                             size: 30,
+                                                              color: ExtraTheme.of(context).boxDetails
                                                           ),
                                                           SizedBox(width: 10),
                                                           Text(appLocalization
                                                               .getTraslateValue(
-                                                                  "notification")),
+                                                                  "notification"), style: TextStyle(color:ExtraTheme.of(context).boxDetails, ),),
                                                         ],
                                                       ),
                                                     ),
@@ -293,7 +294,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                           return Switch(
                                                             activeColor: ExtraTheme
                                                                     .of(context)
-                                                                .blueOfProfilePage,
+                                                                .activeKey,
                                                             value: !snapshot
                                                                 .data.mute,
                                                             onChanged:
@@ -344,12 +345,12 @@ class _ProfilePageState extends State<ProfilePage>
                                                           children: [
                                                             IconButton(
                                                               icon: Icon(
-                                                                  Icons.phone),
+                                                                  Icons.phone, color: ExtraTheme.of(context).boxDetails),
                                                               onPressed: () {},
                                                             ),
                                                             Text(appLocalization
                                                                 .getTraslateValue(
-                                                                    "phone")),
+                                                                    "phone"), style: TextStyle(color:ExtraTheme.of(context).boxDetails, ),),
                                                           ],
                                                         ),
                                                         Padding(
@@ -374,8 +375,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                         .PHONE,
                                                                     style:
                                                                         TextStyle(
-                                                                      color: Colors
-                                                                          .blue,
+                                                                      color: ExtraTheme.of(context).boxDetails,
                                                                       fontSize:
                                                                           16,
                                                                     ),

@@ -263,7 +263,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     ? IconButton(
                                         icon: Icon(
                                           Icons.attach_file,
-                                          color: IconTheme.of(context).color,
+                                          color: Colors.white,
                                         ),
                                         onPressed: () {
                                           backSubject.add(false);

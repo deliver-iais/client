@@ -11,7 +11,9 @@ class ExtraThemeData {
   Color blueOfProfilePage = Color(0xFF2699FB);
   Color backgroundOfProfilePage = Color(0xFF424242);
   Color borderOfProfilePage = Color(0xFF9D9D9D);
-
+  Color boxDetails = Colors.white;
+  Color boxBackground = Color(0xfde2f8f0);
+  Color activeKey = Color(0xff15786c);
   ExtraThemeData(
       {this.circleAvatarBackground,
       this.details,
@@ -19,7 +21,10 @@ class ExtraThemeData {
       this.secondColor,
       this.active,
       this.infoChat,
-      this.text});
+      this.text,
+        this.boxDetails,
+        this.boxBackground,
+        this.activeKey});
 }
 
 class ExtraTheme extends InheritedWidget {

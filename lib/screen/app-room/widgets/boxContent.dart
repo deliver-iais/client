@@ -138,7 +138,7 @@ class _BoxContentState extends State<BoxContent> {
           } else {
             return Text(
                 "${_appLocalization.getTraslateValue("Forwarded_From")} Unknown",
-                style: TextStyle(color: ExtraTheme.of(context).secondColor));
+                style: TextStyle(color: ExtraTheme.of(context).text));
           }
         },
       ),

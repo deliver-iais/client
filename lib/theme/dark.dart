@@ -41,4 +41,6 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
   active: Colors.white,
   infoChat: Colors.white,
   text: Color(0xFFBCE0FD),
-);
+  boxDetails: Colors.white,
+  boxBackground: Color(0x8bc1e0FF).withAlpha(50),
+  activeKey: Color(0xFF2699FB));
