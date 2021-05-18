@@ -19,6 +19,7 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/f
 import 'package:deliver_flutter/screen/app-room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/reply_widgets/reply-widget.dart';
+import 'package:deliver_flutter/screen/app-room/pages/searchInMessageButtom.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/bot_start_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/chatTime.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/joint_to_muc_widget.dart';
@@ -116,6 +117,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Map<String, int> _messagesPacketId = Map();
   List<Message> searchResult = List();
   Message currentSearchResultMessage;
+  Message _currentMessageForCheckTime = null;
 
   BehaviorSubject<int> unReadMessageScrollSubjet = BehaviorSubject.seeded(0);
 
@@ -131,7 +133,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Future<List<Message>> _getMessageAndPreviousMessage(int id) async {
     String roomId = widget.roomId;
     var m1 = await _getMessage(id, roomId);
-    if (id <= 1) {
+    if (true) {
       return [m1];
     } else {
       var m2 = await _getMessage(id - 1, roomId);
@@ -437,84 +439,48 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       return Container();
                     }
                   }),
-              StreamBuilder(
-                stream: _searchMode.stream,
-                builder: (c, s) {
-                  if (s.hasData && s.data && searchResult.length > 0) {
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text((searchResult.length -
-                                searchResult
-                                    .indexOf(currentSearchResultMessage))
-                            .toString()),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Text(_appLocalization.getTraslateValue("of")),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Text(searchResult.length.toString()),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.arrow_upward_rounded),
-                          onPressed: () {
-                            if (searchResult
-                                    .indexOf(currentSearchResultMessage) !=
-                                0)
-                              _itemScrollController.scrollTo(
-                                  index: searchResult[searchResult.indexOf(
-                                              currentSearchResultMessage) -
-                                          1]
-                                      .id,
-                                  duration: Duration(milliseconds: 2));
-                            setState(() {
-                              currentSearchResultMessage = searchResult[
-                                  searchResult
-                                          .indexOf(currentSearchResultMessage) -
-                                      1];
-                            });
-                          },
-                        ),
-                        IconButton(
-                            icon: Icon(Icons.arrow_downward_rounded),
-                            onPressed: () {
-                              if (searchResult
-                                      .indexOf(currentSearchResultMessage) !=
-                                  searchResult.length)
-                                _itemScrollController.scrollTo(
-                                    index: searchResult[searchResult.indexOf(
-                                                currentSearchResultMessage) +
-                                            1]
-                                        .id,
-                                    duration: Duration(milliseconds: 2));
-                              setState(() {
-                                currentSearchResultMessage = searchResult[
-                                    searchResult.indexOf(
-                                            currentSearchResultMessage) +
-                                        1];
-                              });
-                            })
-                      ],
-                    );
-                  } else {
-                    return (widget.jointToMuc != null && widget.jointToMuc)
-                        ? StreamBuilder<Member>(
-                            stream: _mucRepo.checkJointToMuc(
-                                roomUid: widget.roomId),
-                            builder: (c, isJoint) {
-                              if (isJoint.hasData && isJoint.data != null) {
-                                return keybrodWidget();
-                              } else {
-                                return JointToMucWidget(widget.roomId.getUid());
-                              }
-                            })
-                        : keybrodWidget();
-                  }
+              searchInMessageButtom(
+                  keybrodWidget:keybrodWidget,
+                searchMode: _searchMode,
+                searchResult: searchResult,
+                currentSearchResultMessage: currentSearchResultMessage,
+                roomId: widget.roomId,
+                joinToMuc: widget.jointToMuc,
+                scrollDown: () {
+                  if (searchResult
+                      .indexOf(currentSearchResultMessage) !=
+                      searchResult.length)
+                    _itemScrollController.scrollTo(
+                        index: searchResult[
+                        searchResult.indexOf(currentSearchResultMessage) +
+                            1]
+                            .id,
+                        duration: Duration(milliseconds: 2));
+                  setState(() {
+                    currentSearchResultMessage = searchResult[
+                    searchResult.indexOf(
+                        currentSearchResultMessage) +
+                        1];
+                  });
                 },
+                scrollUp:(){
+                  if (searchResult
+                      .indexOf(currentSearchResultMessage) !=
+                      0)
+                    _itemScrollController.scrollTo(
+                        index: searchResult[searchResult.indexOf(
+                            currentSearchResultMessage) -
+                            1]
+                            .id,
+                        duration: Duration(milliseconds: 2));
+                  setState(() {
+                    currentSearchResultMessage = searchResult[
+                    searchResult
+                        .indexOf(currentSearchResultMessage) -
+                        1];
+                  });
+
+                }
               )
             ],
           ),
@@ -777,25 +743,43 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   _lastSeenSubject.add(messages[0].id);
                 }
               }
+              if (_currentMessageForCheckTime == null)
+                _currentMessageForCheckTime = messages[0];
 
               bool newTime = false;
               if (messages.length == 1 &&
                   messages[0].packetId != null &&
                   messages[0].id != null &&
-                  messages[0].id.toInt() == 1)
+                  messages[0].id.toInt() == 1) {
                 newTime = true;
-              else if (messages.length > 1 &&
-                  messages[1] != null &&
-                  messages[1].packetId != null &&
-                  (messages[1].time.day != messages[0].time.day ||
-                      messages[1].time.month != messages[0].time.month)) {
+              } else if (_currentMessageForCheckTime != null &&
+                  _currentMessageForCheckTime.id != null &&
+                  messages[0] != null &&
+                  messages[0].packetId != null &&
+                  messages[0].id != null &&
+                  messages[0].id > 1 &&
+                  (_currentMessageForCheckTime.id - messages[0].id).abs() <=
+                      1 &&
+                  (_currentMessageForCheckTime.time.day !=
+                          messages[0].time.day ||
+                      _currentMessageForCheckTime.time.month !=
+                          messages[0].time.month)) {
                 newTime = true;
               }
+              var time;
+              bool showTimeDown =
+                  _currentMessageForCheckTime.time.millisecondsSinceEpoch >=
+                      messages[0].time.millisecondsSinceEpoch;
+              if (messages[0].id != null && messages[0].id == 1) {
+                showTimeDown = false;
+              }
+
+              time = _currentMessageForCheckTime.time;
+              _currentMessageForCheckTime = messages[0];
               return Column(
                 children: <Widget>[
-                  newTime
-                      ? ChatTime(currentMessageTime: messages[0].time)
-                      : Container(),
+                  if (newTime && !showTimeDown)
+                    ChatTime(currentMessageTime: messages[0].time),
                   if (currentRoom.lastMessageId != null &&
                       _lastShowedMessageId != -1 &&
                       _lastShowedMessageId == index &&
@@ -837,6 +821,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                 ),
                               ],
                             ),
+                  if (newTime && showTimeDown)
+                    ChatTime(currentMessageTime: time),
                 ],
               );
             } else {

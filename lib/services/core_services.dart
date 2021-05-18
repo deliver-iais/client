@@ -76,9 +76,7 @@ class CoreServices {
       return;
     }
     startStream();
-    // if (_connectionTimer != null && _connectionTimer.isActive) {
-    //   return;
-    // }
+
     startCheckerTimer();
     _connectionStatus.distinct().listen((event) {
       connectionStatus.add(event);
@@ -126,13 +124,12 @@ class CoreServices {
         onCancel: (c) async {
           responseChecked = false;
           await _clientPacket.close();
-          _connectionStatus.add(ConnectionStatus.Disconnected);
+       //   _connectionStatus.add(ConnectionStatus.Disconnected);
         },
       ),
           options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()},
           ));
-      sendPingMessage();
       _responseStream.listen((serverPacket) async {
         print(serverPacket.toString());
         gotResponse();

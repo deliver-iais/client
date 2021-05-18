@@ -245,6 +245,15 @@ Widget _textWidget(
               await launch("tel:$phone");
             },
           ),
+          // MatchText(
+          //   style: TextStyle(
+          //     color: Colors.red ,
+          //     fontSize: 16,
+          //   ),
+          //   onTap: (phone) async {
+          //     await launch("tel:$phone");
+          //   },
+          // ),
         ],
       ),
       if (i == lenght && isLastBlock)
