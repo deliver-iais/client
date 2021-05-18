@@ -124,7 +124,7 @@ class CoreServices {
         onCancel: (c) async {
           responseChecked = false;
           await _clientPacket.close();
-       //   _connectionStatus.add(ConnectionStatus.Disconnected);
+          //   _connectionStatus.add(ConnectionStatus.Disconnected);
         },
       ),
           options: CallOptions(
@@ -258,17 +258,22 @@ class CoreServices {
       return;
     }
     saveMessage(_accountRepo, _messageDao, _roomDao, message, roomUid);
-    if (message.whichType() == Message_Type.persistEvent){
-      switch(message.persistEvent.whichType()){
+    if (message.whichType() == Message_Type.persistEvent) {
+      switch (message.persistEvent.whichType()) {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
-          switch(message.persistEvent.mucSpecificPersistentEvent.issue){
-            case  MucSpecificPersistentEvent_Issue.DELETED:
-              _roomDao.updateRoom(Database.RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+          switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
+            case MucSpecificPersistentEvent_Issue.DELETED:
+              _roomDao.updateRoom(Database.RoomsCompanion(
+                  roomId: Value(message.from.asString()),
+                  deleted: Value(true)));
               return;
               break;
             case MucSpecificPersistentEvent_Issue.KICK_USER:
-              if(message.persistEvent.mucSpecificPersistentEvent.assignee.isSameEntity(_accountRepo.currentUserUid.asString())){
-                _roomDao.updateRoom(Database.RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+              if (message.persistEvent.mucSpecificPersistentEvent.assignee
+                  .isSameEntity(_accountRepo.currentUserUid.asString())) {
+                _roomDao.updateRoom(Database.RoomsCompanion(
+                    roomId: Value(message.from.asString()),
+                    deleted: Value(true)));
                 return;
               }
               break;
@@ -284,10 +289,7 @@ class CoreServices {
           // TODO: Handle this case.
           break;
       }
-
     }
-
-
 
     if ((await _accountRepo.notification).contains("true") &&
         (room != null && !room.mute)) {

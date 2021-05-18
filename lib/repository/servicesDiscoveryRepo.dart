@@ -52,7 +52,6 @@ final AvatarServicesClientChannel = ClientChannel("89.37.13.110",
     options: ChannelOptions(
         credentials: ChannelCredentials.insecure(),
         connectionTimeout: Duration(seconds: 2)));
-
 // ignore: non_constant_identifier_names
 final FirebaseServicesClientChannel = ClientChannel("89.37.13.110",
     port: 30030,

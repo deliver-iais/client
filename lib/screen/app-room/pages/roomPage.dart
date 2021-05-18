@@ -348,6 +348,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                               i = _currentRoom.value.lastMessageId +
                                   pendingMessages.length; //TODO chang
                             }
+                            if (lastSeenMessageId > 0)
+                              unReadMessageScrollSubjet.add(
+                                  _currentRoom.value.lastMessageId -
+                                      lastSeenMessageId);
                             if (_itemCount != 0 && i != _itemCount)
                               _itemCountSubject.add(_itemCount);
                             _itemCount = i;
@@ -440,48 +444,39 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     }
                   }),
               searchInMessageButtom(
-                  keybrodWidget:keybrodWidget,
-                searchMode: _searchMode,
-                searchResult: searchResult,
-                currentSearchResultMessage: currentSearchResultMessage,
-                roomId: widget.roomId,
-                joinToMuc: widget.jointToMuc,
-                scrollDown: () {
-                  if (searchResult
-                      .indexOf(currentSearchResultMessage) !=
-                      searchResult.length)
-                    _itemScrollController.scrollTo(
-                        index: searchResult[
-                        searchResult.indexOf(currentSearchResultMessage) +
-                            1]
-                            .id,
-                        duration: Duration(milliseconds: 2));
-                  setState(() {
-                    currentSearchResultMessage = searchResult[
-                    searchResult.indexOf(
-                        currentSearchResultMessage) +
-                        1];
-                  });
-                },
-                scrollUp:(){
-                  if (searchResult
-                      .indexOf(currentSearchResultMessage) !=
-                      0)
-                    _itemScrollController.scrollTo(
-                        index: searchResult[searchResult.indexOf(
-                            currentSearchResultMessage) -
-                            1]
-                            .id,
-                        duration: Duration(milliseconds: 2));
-                  setState(() {
-                    currentSearchResultMessage = searchResult[
-                    searchResult
-                        .indexOf(currentSearchResultMessage) -
-                        1];
-                  });
-
-                }
-              )
+                  keybrodWidget: keybrodWidget,
+                  searchMode: _searchMode,
+                  searchResult: searchResult,
+                  currentSearchResultMessage: currentSearchResultMessage,
+                  roomId: widget.roomId,
+                  joinToMuc: widget.jointToMuc,
+                  scrollDown: () {
+                    if (searchResult.indexOf(currentSearchResultMessage) !=
+                        searchResult.length)
+                      _itemScrollController.scrollTo(
+                          index: searchResult[searchResult
+                                      .indexOf(currentSearchResultMessage) +
+                                  1]
+                              .id,
+                          duration: Duration(milliseconds: 2));
+                    setState(() {
+                      currentSearchResultMessage = searchResult[
+                          searchResult.indexOf(currentSearchResultMessage) + 1];
+                    });
+                  },
+                  scrollUp: () {
+                    if (searchResult.indexOf(currentSearchResultMessage) != 0)
+                      _itemScrollController.scrollTo(
+                          index: searchResult[searchResult
+                                      .indexOf(currentSearchResultMessage) -
+                                  1]
+                              .id,
+                          duration: Duration(milliseconds: 2));
+                    setState(() {
+                      currentSearchResultMessage = searchResult[
+                          searchResult.indexOf(currentSearchResultMessage) - 1];
+                    });
+                  })
             ],
           ),
           backgroundColor: Theme.of(context).backgroundColor,
