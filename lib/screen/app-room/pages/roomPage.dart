@@ -269,9 +269,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       }
     });
     _messageRepo.setCoreSetting();
-
-    _roomDao.updateRoom(RoomsCompanion(
-        roomId: Moor.Value(widget.roomId), mentioned: Moor.Value(false)));
+    //
+    // _roomDao.updateRoom(RoomsCompanion(
+    //     roomId: Moor.Value(widget.roomId), mentioned: Moor.Value(false)));
     _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.uid.category == Categories.GROUP ||
             widget.roomId.uid.category == Categories.CHANNEL
@@ -333,6 +333,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               StreamBuilder<List<PendingMessage>>(
                   stream: _pendingMessageDao.getByRoomId(widget.roomId),
                   builder: (context, pendingMessagesStream) {
+                    if(pendingMessagesStream.hasData){
                     var pendingMessages = pendingMessagesStream.hasData
                         ? pendingMessagesStream.data
                         : [];
@@ -416,6 +417,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                             return SizedBox.shrink();
                           }
                         });
+                  }else{
+                      return SizedBox.shrink();
+                    }
                   }),
               StreamBuilder(
                   stream: _repliedMessage.stream,

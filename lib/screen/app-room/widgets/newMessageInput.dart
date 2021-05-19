@@ -34,15 +34,17 @@ class NewMessageInput extends StatelessWidget {
           if (snapshot.hasData) {
             Room currentRoom = snapshot.data;
             return InputMessage(
-              currentRoom: currentRoom,
-              replyMessageId: replyMessageId,
-              resetRoomPageDetails: resetRoomPageDetails,
-              waitingForForward: waitingForForward,
-              sendForwardMessage: sendForwardMessage,
-                scrollToLastSentMessage:scrollToLastSentMessage
-            );
+                currentRoom: currentRoom,
+                replyMessageId: replyMessageId,
+                resetRoomPageDetails: resetRoomPageDetails,
+                waitingForForward: waitingForForward,
+                sendForwardMessage: sendForwardMessage,
+                scrollToLastSentMessage: scrollToLastSentMessage);
           } else {
-            _roomDao.insertRoom(Room(roomId: currentRoomId,));
+            if (snapshot.hasData && snapshot.data == null)
+              _roomDao.insertRoom(Room(
+                roomId: currentRoomId,
+              ));
             return SizedBox.shrink();
           }
         });
