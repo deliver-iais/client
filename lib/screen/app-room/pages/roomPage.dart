@@ -269,9 +269,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       }
     });
     _messageRepo.setCoreSetting();
-    //
-    // _roomDao.updateRoom(RoomsCompanion(
-    //     roomId: Moor.Value(widget.roomId), mentioned: Moor.Value(false)));
+
+    _roomDao.updateRoom(RoomsCompanion(
+        roomId: Moor.Value(widget.roomId), mentioned: Moor.Value(false)));
     _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.uid.category == Categories.GROUP ||
             widget.roomId.uid.category == Categories.CHANNEL
