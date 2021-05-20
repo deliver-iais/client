@@ -106,30 +106,6 @@ class _NewContactState extends State<NewContact> {
               height: 10,
             ),
             IntlPhoneField(
-              decoration: InputDecoration(
-                prefixIcon: Icon(
-                  Icons.phone,
-                  color: Theme.of(context).primaryTextTheme.button.color,
-                ),
-                fillColor: ExtraTheme.of(context).secondColor,
-                labelText: _appLocalization.getTraslateValue("phoneNumber"),
-                labelStyle: TextStyle(
-                    color: Theme.of(context).primaryTextTheme.button.color),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5.0),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).primaryColor,
-                    width: 2.0,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5.0),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).primaryColor.withOpacity(0.5),
-                    width: 2.0,
-                  ),
-                ),
-              ),
               validator: (value) => value.length != 10 ||
                       (value.length > 0 && value[0] == '0')
                   ? _appLocalization.getTraslateValue("invalid_mobile_number")

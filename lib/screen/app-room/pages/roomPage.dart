@@ -333,91 +333,96 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               StreamBuilder<List<PendingMessage>>(
                   stream: _pendingMessageDao.getByRoomId(widget.roomId),
                   builder: (context, pendingMessagesStream) {
-                    if(pendingMessagesStream.hasData){
-                    var pendingMessages = pendingMessagesStream.hasData
-                        ? pendingMessagesStream.data
-                        : [];
-                    return StreamBuilder<Room>(
-                        stream: _roomDao.getByRoomId(widget.roomId),
-                        builder: (context, currentRoomStream) {
-                          if (currentRoomStream.hasData) {
-                            _currentRoom.add(currentRoomStream.data);
-                            int i = 0;
-                            if (_currentRoom.value.lastMessageId == null) {
-                              i = pendingMessages.length;
-                            } else {
-                              i = _currentRoom.value.lastMessageId +
-                                  pendingMessages.length; //TODO chang
-                            }
-                            // if (lastSeenMessageId > 0)
-                            //   unReadMessageScrollSubjet.add(
-                            //       _currentRoom.value.lastMessageId -
-                            //           lastSeenMessageId);
-                            if (_itemCount != 0 && i != _itemCount)
-                              _itemCountSubject.add(_itemCount);
-                            _itemCount = i;
-                            return Flexible(
-                              fit: FlexFit.tight,
-                              child: Container(
-                                  height: deviceHeight,
-                                  // color: Colors.amber,
-                                  child: Stack(
-                                    alignment: AlignmentDirectional.topStart,
-                                    children: [
-                                      buildMessagesListView(_currentRoom.value,
-                                          pendingMessages, _maxWidth),
-                                      StreamBuilder(
-                                          stream: _positionSubject.stream,
-                                          builder: (c, position) {
-                                            if ((position.hasData &&
-                                                position.data != null)) {
-                                              if (_itemCount - position.data >
-                                                  4) {
-                                                _scrollToNewMessage = false;
-                                                return StreamBuilder<int>(
-                                                    stream:
-                                                        unReadMessageScrollSubjet
-                                                            .stream,
-                                                    builder: (c, count) {
-                                                      if (count.hasData &&
-                                                          count.data != null &&
-                                                          count.data > 0) {
-                                                        return scrollWidget(
-                                                            count.data);
-                                                      } else {
-                                                        if (position.hasData &&
-                                                            _itemCount -
-                                                                    position
-                                                                        .data >
-                                                                15) {
+                    if (pendingMessagesStream.hasData) {
+                      var pendingMessages = pendingMessagesStream.hasData
+                          ? pendingMessagesStream.data
+                          : [];
+                      return StreamBuilder<Room>(
+                          stream: _roomDao.getByRoomId(widget.roomId),
+                          builder: (context, currentRoomStream) {
+                            if (currentRoomStream.hasData) {
+                              _currentRoom.add(currentRoomStream.data);
+                              int i = 0;
+                              if (_currentRoom.value.lastMessageId == null) {
+                                i = pendingMessages.length;
+                              } else {
+                                i = _currentRoom.value.lastMessageId +
+                                    pendingMessages.length; //TODO chang
+                              }
+                              // if (lastSeenMessageId > 0)
+                              //   unReadMessageScrollSubjet.add(
+                              //       _currentRoom.value.lastMessageId -
+                              //           lastSeenMessageId);
+                              if (_itemCount != 0 && i != _itemCount)
+                                _itemCountSubject.add(_itemCount);
+                              _itemCount = i;
+                              return Flexible(
+                                fit: FlexFit.tight,
+                                child: Container(
+                                    height: deviceHeight,
+                                    // color: Colors.amber,
+                                    child: Stack(
+                                      alignment: AlignmentDirectional.topStart,
+                                      children: [
+                                        buildMessagesListView(
+                                            _currentRoom.value,
+                                            pendingMessages,
+                                            _maxWidth),
+                                        StreamBuilder(
+                                            stream: _positionSubject.stream,
+                                            builder: (c, position) {
+                                              if ((position.hasData &&
+                                                  position.data != null)) {
+                                                if (_itemCount - position.data >
+                                                    4) {
+                                                  _scrollToNewMessage = false;
+                                                  return StreamBuilder<int>(
+                                                      stream:
+                                                          unReadMessageScrollSubjet
+                                                              .stream,
+                                                      builder: (c, count) {
+                                                        if (count.hasData &&
+                                                            count.data !=
+                                                                null &&
+                                                            count.data > 0) {
                                                           return scrollWidget(
-                                                              0);
+                                                              count.data);
                                                         } else {
-                                                          return SizedBox
-                                                              .shrink();
+                                                          if (position
+                                                                  .hasData &&
+                                                              _itemCount -
+                                                                      position
+                                                                          .data >
+                                                                  15) {
+                                                            return scrollWidget(
+                                                                0);
+                                                          } else {
+                                                            return SizedBox
+                                                                .shrink();
+                                                          }
                                                         }
-                                                      }
-                                                    });
+                                                      });
+                                                } else {
+                                                  unReadMessageScrollSubjet
+                                                      .add(0);
+                                                  _scrollToNewMessage = true;
+                                                  return SizedBox.shrink();
+                                                }
                                               } else {
                                                 unReadMessageScrollSubjet
                                                     .add(0);
                                                 _scrollToNewMessage = true;
                                                 return SizedBox.shrink();
                                               }
-                                            } else {
-                                              unReadMessageScrollSubjet.add(0);
-                                              _scrollToNewMessage = true;
-                                              return SizedBox.shrink();
-                                            }
-                                          }),
-                                    ],
-                                  )),
-                            );
-                          } else {
-                            return SizedBox.shrink();
-                          }
-                        });
-                  }else{
+                                            }),
+                                      ],
+                                    )),
+                              );
+                            } else {
+                              return SizedBox.shrink();
+                            }
+                          });
+                    } else {
                       return SizedBox.shrink();
                     }
                   }),

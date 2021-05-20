@@ -83,28 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                     children: <Widget>[
                       // PhoneFieldHint(),
                       IntlPhoneField(
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.phone, color: Theme.of(context).primaryTextTheme.button.color,),
-                          fillColor: ExtraTheme.of(context).secondColor,
-                          labelText:
-                              appLocalization.getTraslateValue("phoneNumber"),
-//                        filled: true,
-                          labelStyle: TextStyle(color: Theme.of(context).primaryTextTheme.button.color),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                            borderSide: BorderSide(
-                              color: Theme.of(context).primaryColor,
-                              width: 2.0,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                            borderSide: BorderSide(
-                              color: Theme.of(context).primaryColor.withOpacity(0.5),
-                              width: 2.0,
-                            ),
-                          ),
-                        ),
+                        controller: TextEditingController(),
                         validator: (value) => value.length != 10 ||
                                 (value.length > 0 && value[0] == '0')
                             ? appLocalization
