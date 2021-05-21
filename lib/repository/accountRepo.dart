@@ -136,7 +136,7 @@ class AccountRepo {
     final DateTime iaTirationDate =
     new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["iat"]));
-    return(DateTime.now().millisecondsSinceEpoch- iaTirationDate.millisecondsSinceEpoch>15*60*1000);
+    return(DateTime.now().millisecondsSinceEpoch- iaTirationDate.millisecondsSinceEpoch>1*60*1000);
   }
 
   void saveTokens(AccessTokenRes res) {

@@ -94,8 +94,10 @@
   "email_not_valid": "email not valid",
   "usernameHelper": "Minimum 5 and maximum 20 letters. And does not include '.'.And do not start with a number",
   "enter-group-name": "Group Name",
+  "enter-group-desc": "Group description",
   "settings": "Settings",
   "enter-channel-name": "Channel Name",
+  "enter-channel-desc": "Channel description",
   "enter-channel-id": " Channel Id",
   "local_search": "search in Rooms and Contacts",
   "global_search": "Global search",
@@ -180,5 +182,6 @@
   "Copied": "Copied",
   "Resend": "Resend",
   "sure_left_group": " Left Group ? ",
-  "sure_left_channel": "Left Channel ?"
+  "sure_left_channel": "Left Channel ?",
+  "Desc":"Description"
 }

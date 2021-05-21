@@ -35,8 +35,7 @@ class NotificationServices {
     flutterLocalNotificationsPlugin.cancelAll();
   }
 
-  cancelAllNotification(String roomId) {
-    _notificationMessage[roomId] = "";
+  cancelAllNotification() {
     flutterLocalNotificationsPlugin.cancelAll();
   }
 

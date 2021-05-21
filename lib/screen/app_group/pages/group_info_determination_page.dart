@@ -149,10 +149,10 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         child: Form(
                       child: TextFormField(
                           minLines: 1,
-                          maxLines: 2,
+                          maxLines: 4,
                           autofocus: autofocus,
-                          textInputAction: TextInputAction.send,
-                          controller: idController,
+                          textInputAction: TextInputAction.newline,
+                          controller: infoController,
                           validator: validateUsername,
                           onChanged: (str) {
                             setState(() {
@@ -165,7 +165,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                       .getTraslateValue("enter-channel-desc")
                                   : _appLocalization
                                       .getTraslateValue("enter-group-desc"),
-                              true)),
+                              false)),
                     )),
                   ],
                 ),

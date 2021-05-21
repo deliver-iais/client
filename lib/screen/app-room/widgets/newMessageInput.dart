@@ -41,7 +41,6 @@ class NewMessageInput extends StatelessWidget {
                 sendForwardMessage: sendForwardMessage,
                 scrollToLastSentMessage: scrollToLastSentMessage);
           } else {
-            if (snapshot.hasData && snapshot.data == null)
               _roomDao.insertRoom(Room(
                 roomId: currentRoomId,
               ));

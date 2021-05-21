@@ -119,11 +119,16 @@ class CoreServices {
   startStream() async {
     try {
       _clientPacket = StreamController<ClientPacket>();
-      _responseStream = _grpcCoreService.establishStream(
-          _clientPacket.stream,
-          options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()},
-          ));
+      try{
+        _responseStream = _grpcCoreService.establishStream(
+            _clientPacket.stream,
+            options: CallOptions(
+              metadata: {'access_token': await _accountRepo.getAccessToken()},
+            ));
+      }catch(e){
+        print(e.toString());
+      }
+
       _responseStream.listen((serverPacket) async {
         print(serverPacket.toString());
         gotResponse();

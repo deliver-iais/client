@@ -38,20 +38,21 @@ class MucRepo {
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
-  Future<Uid> createNewGroup(List<Uid> memberUids, String groupName,String info) async {
-    Uid groupUid = await mucServices.createNewGroup(groupName);
+  Future<Uid> createNewGroup(
+      List<Uid> memberUids, String groupName, String info) async {
+    Uid groupUid = await mucServices.createNewGroup(groupName,info);
     if (groupUid != null) {
       sendMembers(groupUid, memberUids);
-      _insertToDb(groupUid, groupName, memberUids.length + 1,info);
+      _insertToDb(groupUid, groupName, memberUids.length + 1, info);
       return groupUid;
     }
     return null;
   }
 
   Future<Uid> createNewChannel(String channelId, List<Uid> memberUids,
-      String channelName, ChannelType channelType,String info) async {
+      String channelName, ChannelType channelType, String info) async {
     Uid channelUid =
-        await mucServices.createNewChannel(channelName, channelType, channelId);
+        await mucServices.createNewChannel(channelName, channelType, channelId,info);
 
     if (channelUid != null) {
       sendMembers(channelUid, memberUids);
@@ -59,13 +60,13 @@ class MucRepo {
           memberUid: _accountRepo.currentUserUid.asString(),
           mucUid: channelUid.asString(),
           role: MucRole.OWNER));
-      _insertToDb(channelUid, channelName, memberUids.length + 1,info,
+      _insertToDb(channelUid, channelName, memberUids.length + 1, info,
           channelId: channelId);
       fetchMucInfo(channelUid);
       return channelUid;
     }
 
-    getChannelMembers(channelUid,memberUids.length);
+    getChannelMembers(channelUid, memberUids.length);
     return null;
   }
 
@@ -76,10 +77,10 @@ class MucRepo {
     return result.isAvailable;
   }
 
-  getGroupMembers(Uid groupUid,int len) async {
+  getGroupMembers(Uid groupUid, int len) async {
     try {
-      int i=0;
-      while(i<=len){
+      int i = 0;
+      while (i <= len) {
         var result = await mucServices.getGroupMembers(groupUid, 15, i);
         List<Member> members = new List();
         for (MucPro.Member member in result) {
@@ -90,18 +91,17 @@ class MucRepo {
         }
         insertUserInDb(groupUid, members);
         fetchMembersUserName(members);
-        i = i+15;
+        i = i + 15;
       }
     } catch (e) {
       print(e.toString());
     }
   }
 
-  getChannelMembers(Uid channelUid,int len) async {
-
+  getChannelMembers(Uid channelUid, int len) async {
     try {
-      int i=0;
-      while(i<= len){
+      int i = 0;
+      while (i <= len) {
         var result = await mucServices.getChannelMembers(channelUid, 15, i);
         List<Member> members = new List();
         for (MucPro.Member member in result) {
@@ -111,9 +111,8 @@ class MucRepo {
               role: getLocalRole(member.role))));
         }
         insertUserInDb(channelUid, members);
-        i = i+15;
+        i = i + 15;
       }
-
     } catch (e) {
       print(e.toString());
     }
@@ -145,7 +144,7 @@ class MucRepo {
           uid: mucUid.asString(),
         ));
 
-        getGroupMembers(mucUid,group.population.toInt());
+        getGroupMembers(mucUid, group.population.toInt());
         return group.info.name;
       }
     } else {
@@ -164,7 +163,7 @@ class MucRepo {
               role: getLocalRole(channel.requesterRole))
         ]);
         if (channel.requesterRole != MucPro.Role.NONE)
-          getChannelMembers(mucUid,channel.population.toInt());
+          getChannelMembers(mucUid, channel.population.toInt());
         return channel.info.name;
       }
     }
@@ -314,7 +313,7 @@ class MucRepo {
     var result = await mucServices.joinGroup(groupUid);
     if (result) {
       MucPro.GetGroupRes newGroup = await getGroupInfo(groupUid);
-      getGroupMembers(groupUid,newGroup.population.toInt());
+      getGroupMembers(groupUid, newGroup.population.toInt());
       _mucDao.insertMuc(Muc(
           uid: groupUid.asString(),
           name: newGroup.info.name,
@@ -327,7 +326,7 @@ class MucRepo {
     var result = await mucServices.joinChannel(channelUid);
     if (result) {
       GetChannelRes newChannel = await getChannelInfo(channelUid);
-      getChannelMembers(channelUid,newChannel.population.toInt());
+      getChannelMembers(channelUid, newChannel.population.toInt());
       _mucDao.insertMuc(Muc(
           uid: channelUid.asString(),
           name: newChannel.info.name,
@@ -337,32 +336,37 @@ class MucRepo {
     }
   }
 
-  modifyGroup(String mucId, String name) async {
+  modifyGroup(String mucId, String name, String info) async {
     var isSet = await mucServices.modifyGroup(
-        MucPro.GroupInfo()..name = name, mucId.getUid());
+        MucPro.GroupInfo()
+          ..name = name
+          ..info = info,
+        mucId.getUid());
     if (isSet) {
-      _mucDao.upsertMucCompanion(
-          MucsCompanion(uid: Value(mucId), name: Value(name)));
+      _mucDao.upsertMucCompanion(MucsCompanion(
+          uid: Value(mucId), name: Value(name), info: Value(info)));
     }
   }
 
-  modifyChannel(String mucUid, String name, String id) async {
+  modifyChannel(String mucUid, String name, String id, String info) async {
     ChannelInfo channelInfo;
-    channelInfo = id.isEmpty ? (ChannelInfo()..name = name) : ChannelInfo()
+    channelInfo = id.isEmpty ? (ChannelInfo()..name = name..info =info) : ChannelInfo()
       ..name = name
-      ..id = id;
+      ..id = id
+      ..info = info;
+
     if (await mucServices.modifyChannel(channelInfo, mucUid.getUid())) {
       if (id.isEmpty) {
         _mucDao.upsertMucCompanion(
-            MucsCompanion(uid: Value(mucUid), name: Value(name)));
+            MucsCompanion(uid: Value(mucUid), name: Value(name),info: Value(info)));
       } else {
         _mucDao.upsertMucCompanion(MucsCompanion(
-            uid: Value(mucUid), name: Value(name), id: Value(id)));
+            uid: Value(mucUid), name: Value(name), id: Value(id),info: Value(info)));
       }
     }
   }
 
-  _insertToDb(Uid mucUid, String mucName, int memberCount,String  info,
+  _insertToDb(Uid mucUid, String mucName, int memberCount, String info,
       {String channelId}) async {
     await _mucDao.insertMuc(Muc(
         uid: mucUid.asString(),
@@ -392,9 +396,9 @@ class MucRepo {
 
       if (usersAdd) {
         if (mucUid.category == Categories.GROUP) {
-          getGroupMembers(mucUid,members.length);
+          getGroupMembers(mucUid, members.length);
         } else {
-          getChannelMembers(mucUid,members.length);
+          getChannelMembers(mucUid, members.length);
         }
         return true;
       }

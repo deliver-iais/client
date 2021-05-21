@@ -265,15 +265,21 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Icon(Icons.arrow_back_outlined,color: Colors.blue,size: 23,),
+                              Icon(
+                                Icons.arrow_back_outlined,
+                                color: Colors.blue,
+                                size: 23,
+                              ),
                               SizedBox(
                                 width: 6,
                               ),
-                              Text(_mucType == MucType.GROUP
-                                  ? _appLocalization
-                                      .getTraslateValue("leftGroup")
-                                  : _appLocalization
-                                      .getTraslateValue("leftChannel"),style: TextStyle(fontSize: 14)),
+                              Text(
+                                  _mucType == MucType.GROUP
+                                      ? _appLocalization
+                                          .getTraslateValue("leftGroup")
+                                      : _appLocalization
+                                          .getTraslateValue("leftChannel"),
+                                  style: TextStyle(fontSize: 14)),
                             ],
                           ),
                           value: "leftMuc"),
@@ -282,15 +288,22 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Icon(Icons.delete,color: Colors.blue,size: 23,),
+                                Icon(
+                                  Icons.delete,
+                                  color: Colors.blue,
+                                  size: 23,
+                                ),
                                 SizedBox(
                                   width: 6,
                                 ),
-                                Text(_mucType == MucType.GROUP
-                                    ? _appLocalization
-                                        .getTraslateValue("deleteGroup")
-                                    : _appLocalization
-                                        .getTraslateValue("deleteChannel"),style: TextStyle(fontSize: 14),)
+                                Text(
+                                  _mucType == MucType.GROUP
+                                      ? _appLocalization
+                                          .getTraslateValue("deleteGroup")
+                                      : _appLocalization
+                                          .getTraslateValue("deleteChannel"),
+                                  style: TextStyle(fontSize: 14),
+                                )
                               ],
                             ),
                             value: "deleteMuc"),
@@ -299,12 +312,18 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Icon(Icons.add_a_photo_rounded,color: Colors.blue,size: 23,),
+                                Icon(
+                                  Icons.add_a_photo_rounded,
+                                  color: Colors.blue,
+                                  size: 23,
+                                ),
                                 SizedBox(
                                   width: 6,
                                 ),
-                                Text(_appLocalization
-                                    .getTraslateValue("setProfile"),style: TextStyle(fontSize: 14)),
+                                Text(
+                                    _appLocalization
+                                        .getTraslateValue("setProfile"),
+                                    style: TextStyle(fontSize: 14)),
                               ],
                             ),
                             value: "select"),
@@ -314,26 +333,37 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         new PopupMenuItem<String>(
                             child: Row(
                               children: [
-                                Icon(Icons.settings,color: Colors.blue,size: 23,),
+                                Icon(
+                                  Icons.settings,
+                                  color: Colors.blue,
+                                  size: 23,
+                                ),
                                 SizedBox(
                                   width: 6,
                                 ),
-                                Text(widget.roomUid.category == Categories.GROUP
-                                    ? _appLocalization
-                                        .getTraslateValue("manage_group")
-                                    : _appLocalization
-                                        .getTraslateValue("manage_channel"),style: TextStyle(fontSize: 14)),
+                                Text(
+                                    widget.roomUid.category == Categories.GROUP
+                                        ? _appLocalization
+                                            .getTraslateValue("manage_group")
+                                        : _appLocalization
+                                            .getTraslateValue("manage_channel"),
+                                    style: TextStyle(fontSize: 14)),
                               ],
                             ),
                             value: "manage"),
                       new PopupMenuItem<String>(
                           child: Row(
                             children: [
-                              Icon(Icons.report,color: Colors.blue,size: 23,),
+                              Icon(
+                                Icons.report,
+                                color: Colors.blue,
+                                size: 23,
+                              ),
                               SizedBox(
                                 width: 6,
                               ),
-                              Text(_appLocalization.getTraslateValue("report"),style: TextStyle(fontSize: 14)),
+                              Text(_appLocalization.getTraslateValue("report"),
+                                  style: TextStyle(fontSize: 14)),
                             ],
                           ),
                           value: "report"),
@@ -345,13 +375,13 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     builder: (c, room) {
                       if (room.hasData && room.data != null) {
                         return PopupMenuButton(
-                          color: Theme.of(context).backgroundColor.withBlue(10) ,
+                          color: Theme.of(context).backgroundColor.withBlue(10),
                           icon: Icon(Icons.more_vert),
                           itemBuilder: (_) => <PopupMenuItem<String>>[
                             new PopupMenuItem<String>(
                                 child: Row(
                                   children: [
-                                    Icon(Icons.block,color: Colors.blue),
+                                    Icon(Icons.block, color: Colors.blue),
                                     SizedBox(
                                       width: 15,
                                     ),
@@ -366,10 +396,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                     ? "unBlockRoom"
                                     : "blockRoom"),
                             new PopupMenuItem<String>(
-
                                 child: Row(
                                   children: [
-                                    Icon(Icons.report,color: Colors.blue),
+                                    Icon(Icons.report, color: Colors.blue),
                                     SizedBox(
                                       width: 15,
                                     ),
@@ -447,6 +476,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     String _currentName;
     String _currentId;
     String mucName;
+    String mucInfo;
     String channelId;
     BehaviorSubject<bool> newChange = BehaviorSubject.seeded(false);
     showDialog(
@@ -472,8 +502,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               ),
             ),
             content: Container(
-              height: widget.roomUid.category == Categories.GROUP ? 120 : 200,
-              child: Column(
+              height: widget.roomUid.category == Categories.GROUP ? 200 : 300,
+              child:SingleChildScrollView(child:  Column(
                 children: [
                   FutureBuilder<String>(
                     future: _roomRepo.getRoomDisplayName(widget.roomUid),
@@ -503,7 +533,13 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                   }
                                 },
                                 keyboardType: TextInputType.text,
-                                decoration: buildInputDecoration(false),
+                                decoration: buildInputDecoration(
+                                  widget.roomUid.category == Categories.GROUP
+                                      ? _appLocalization
+                                          .getTraslateValue("group_name")
+                                      : _appLocalization
+                                          .getTraslateValue("channel_name"),
+                                ),
                               )),
                         );
                       }
@@ -539,7 +575,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                         }
                                       },
                                       keyboardType: TextInputType.text,
-                                      decoration: buildInputDecoration(true),
+                                      decoration: buildInputDecoration(
+                                          _appLocalization
+                                              .getTraslateValue("channel_Id")),
                                     )),
                                 StreamBuilder(
                                     stream: showChannelIdError.stream,
@@ -558,9 +596,39 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                             );
                           } else
                             return SizedBox.shrink();
-                        })
+                        }),
+                  SizedBox(height: 10,),
+                  StreamBuilder<Muc>(
+                    stream:
+                        _mucDao.getMucByUidAsStream(widget.roomUid.asString()),
+                    builder: (c, muc) {
+                      if (muc.hasData && muc.data != null) {
+                        mucInfo = muc.data.info;
+                        return TextFormField(
+                          style: TextStyle(color: Colors.black, fontSize: 18),
+                          initialValue: muc.data.info ?? "",
+                          minLines: 1,
+
+                          maxLines: 4,
+                          onChanged: (str) {
+                            mucInfo = str;
+                            newChange.add(true);
+                          },
+                          keyboardType: TextInputType.text,
+                          decoration: buildInputDecoration(
+                            widget.roomUid.category == Categories.GROUP
+                                ? _appLocalization
+                                .getTraslateValue("enter-group-desc")
+                                : _appLocalization
+                                .getTraslateValue("enter-channel-desc"),),
+                        );
+                      } else {
+                        return SizedBox.shrink();
+                      }
+                    },
+                  )
                 ],
-              ),
+              )),
             ),
             actions: <Widget>[
               StreamBuilder<bool>(
@@ -577,7 +645,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                       if (widget.roomUid.category ==
                                           Categories.GROUP) {
                                         _mucRepo.modifyGroup(
-                                            widget.roomUid.asString(), mucName);
+                                            widget.roomUid.asString(), mucName??_currentName,mucInfo);
                                         _roomRepo.updateRoomName(widget.roomUid,
                                             mucName ?? _currentName);
                                         setState(() {});
@@ -587,7 +655,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                           _mucRepo.modifyChannel(
                                               widget.roomUid.asString(),
                                               mucName ?? _currentName,
-                                              _currentId);
+                                              _currentId,mucInfo);
                                           _roomRepo.updateRoomName(
                                               widget.roomUid,
                                               mucName ?? _currentName);
@@ -599,7 +667,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                             _mucRepo.modifyChannel(
                                                 widget.roomUid.asString(),
                                                 mucName ?? _currentName,
-                                                channelId);
+                                                channelId,mucInfo);
                                             _roomRepo.updateRoomName(
                                                 widget.roomUid,
                                                 mucName ?? _currentName);
@@ -647,7 +715,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       return null;
   }
 
-  InputDecoration buildInputDecoration(bool setId) {
+  InputDecoration buildInputDecoration(String label) {
     return InputDecoration(
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.blue),
@@ -664,11 +732,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           ),
           borderRadius: BorderRadius.circular(10.0),
         ),
-        labelText: setId
-            ? _appLocalization.getTraslateValue("channel_Id")
-            : widget.roomUid.category == Categories.GROUP
-                ? _appLocalization.getTraslateValue("group_name")
-                : _appLocalization.getTraslateValue("channel_name"),
+        labelText: label,
         labelStyle: TextStyle(color: Colors.blue));
   }
 
@@ -763,10 +827,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                 children: [
                   Text(
                       _mucType == MucType.GROUP
-                          ? _appLocalization
-                          .getTraslateValue("sure_left_group")
+                          ? _appLocalization.getTraslateValue("sure_left_group")
                           : _appLocalization
-                          .getTraslateValue("sure_left_channel"),
+                              .getTraslateValue("sure_left_channel"),
                       style: TextStyle(color: Colors.black, fontSize: 18)),
                 ],
               ),
@@ -793,9 +856,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                       style: TextStyle(fontSize: 16, color: Colors.red),
                     ),
                     onTap: () {
-                      _mucType == MucType.GROUP
-                          ? _leftGroup()
-                          : _leftChannel();
+                      _mucType == MucType.GROUP ? _leftGroup() : _leftChannel();
                     },
                   ),
                   SizedBox(

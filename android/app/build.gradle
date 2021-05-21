@@ -47,7 +47,7 @@ android {
         applicationId "ir.we.deliver"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 6
+        versionCode 7
         versionName flutterVersionName
     }
     signingConfigs {
