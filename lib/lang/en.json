@@ -103,7 +103,7 @@
   "send_To": "Send to...",
   "mute": "Mute",
   "un_mute": "UnMute",
-  "occurred_Error": "Occurred Error",
+  "occurred_Error": " error occurred. Please try again",
   "continue": "Continue",
   "you": "you",
   "leftGroup": "Left Group",

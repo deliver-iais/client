@@ -107,13 +107,12 @@ class AccountRepo {
   }
 
   Future<String> getAccessToken() async {
-    if (_isExpired(_access_token)) {
+    if (_isExpired(_access_token) || exp(_access_token)) {
       RenewAccessTokenRes renewAccessTokenRes =
           await _getAccessToken(_refreshToken);
       _saveTokens(renewAccessTokenRes);
       return renewAccessTokenRes.accessToken;
     } else {
-
       return _access_token;
     }
   }
@@ -124,6 +123,14 @@ class AccountRepo {
 
   bool _isExpired(access_token) {
     return JwtDecoder.isExpired(access_token);
+  }
+
+  bool exp(String token){
+    final Map<String, dynamic> decodedToken = JwtDecoder.decode (token);
+    final DateTime iaTirationDate =
+    new DateTime.fromMillisecondsSinceEpoch(0)
+        .add(new Duration(seconds: decodedToken["iat"]));
+    return(DateTime.now().millisecondsSinceEpoch- iaTirationDate.millisecondsSinceEpoch>15*60*1000);
   }
 
   void saveTokens(AccessTokenRes res) {

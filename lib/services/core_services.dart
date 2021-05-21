@@ -120,13 +120,7 @@ class CoreServices {
     try {
       _clientPacket = StreamController<ClientPacket>();
       _responseStream = _grpcCoreService.establishStream(
-          _clientPacket.stream.asBroadcastStream(
-        onCancel: (c) async {
-          responseChecked = false;
-          await _clientPacket.close();
-          //   _connectionStatus.add(ConnectionStatus.Disconnected);
-        },
-      ),
+          _clientPacket.stream,
           options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()},
           ));
@@ -164,7 +158,6 @@ class CoreServices {
   }
 
   sendMessage(MessageByClient message) {
-    print(message.toString());
     if (_clientPacket != null && !_clientPacket.isClosed) {
       _clientPacket.add(ClientPacket()
         ..message = message
@@ -356,25 +349,33 @@ Future<bool> checkMention(String text, AccountRepo accountRepo) async {
 saveMessageInMessagesDB(
     AccountRepo accountRepo, MessageDao messageDao, Message message) async {
   // ignore: missing_required_param
-  Database.Message msg = Database.Message(
-      id: message.id.toInt(),
-      roomId: message.whichType() == Message_Type.persistEvent
-          ? message.from.asString()
-          : message.from.node.contains(accountRepo.currentUserUid.node)
-              ? message.to.asString()
-              : message.to.category == Categories.USER
-                  ? message.from.asString()
-                  : message.to.asString(),
-      packetId: message.packetId,
-      time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
-      to: message.to.asString(),
-      from: message.from.asString(),
-      replyToId: message.replyToId.toInt(),
-      forwardedFrom: message.forwardFrom.asString(),
-      json: messageToJson(message),
-      edited: message.edited,
-      encrypted: message.encrypted,
-      type: getMessageType(message.whichType()));
+  Database.Message msg;
+  try{
+     msg = Database.Message(
+        id: message.id.toInt(),
+        roomId: message.whichType() == Message_Type.persistEvent
+            ? message.from.asString()
+            : message.from.node.contains(accountRepo.currentUserUid.node)
+            ? message.to.asString()
+            : message.to.category == Categories.USER
+            ? message.from.asString()
+            : message.to.asString(),
+        packetId: message.packetId,
+        time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
+        to: message.to.asString(),
+        from: message.from.asString(),
+        replyToId: message.replyToId.toInt(),
+        forwardedFrom: message.forwardFrom.asString(),
+        json: messageToJson(message),
+        edited: message.edited,
+        encrypted: message.encrypted,
+        type: getMessageType(message.whichType()));
+  }catch(e){
+    print(e.toString());
+    return null;
+
+  }
+
 
   int dbId = await messageDao.insertMessage(msg);
 

@@ -105,9 +105,13 @@ class ContactRepo {
     while (i < contacts.length) {
       _sendContacts(contacts.sublist(
           i, contacts.length > i + 49 ? i + 49 : contacts.length));
+
+     await getContacts();
       i = i + 50;
     }
-    getContacts();
+   getContacts();
+
+
   }
 
   _sendContacts(List<Contact> contacts) async {

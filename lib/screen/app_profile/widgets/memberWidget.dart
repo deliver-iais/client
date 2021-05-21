@@ -42,9 +42,9 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   void initState() {
     super.initState();
     _mucUid = widget.mucUid;
-    _mucUid.category == Categories.GROUP
-        ? _mucRepo.getGroupMembers(_mucUid)
-        : _mucRepo.getChannelMembers(_mucUid);
+    // _mucUid.category == Categories.GROUP
+    //     ? _mucRepo.getGroupMembers(_mucUid)
+    //     : _mucRepo.getChannelMembers(_mucUid);
   }
 
   @override
