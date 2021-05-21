@@ -145,7 +145,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         selectAvatar();
         break;
       case "leftMuc":
-        _mucType == MucType.GROUP ? _leftGroup() : _leftChannel();
+        _showLeftMucDialog();
         break;
       case "deleteMuc":
         _showDeleteMucDialog();
@@ -728,6 +728,74 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                       _mucType == MucType.GROUP
                           ? _deleteGroup()
                           : _deleteChannel();
+                    },
+                  ),
+                  SizedBox(
+                    width: 10,
+                  )
+                ],
+              ),
+            ],
+          );
+        });
+  }
+
+  void _showLeftMucDialog() async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
+            actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
+            backgroundColor: Colors.white,
+            title: Container(
+              height: 50,
+              color: Colors.blue,
+              child: Icon(
+                Icons.arrow_back_outlined,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+            content: Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                      _mucType == MucType.GROUP
+                          ? _appLocalization
+                          .getTraslateValue("sure_left_group")
+                          : _appLocalization
+                          .getTraslateValue("sure_left_channel"),
+                      style: TextStyle(color: Colors.black, fontSize: 18)),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    child: Text(
+                      _appLocalization.getTraslateValue("cancel"),
+                      style: TextStyle(fontSize: 16, color: Colors.blue),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  GestureDetector(
+                    child: Text(
+                      _appLocalization.getTraslateValue("ok"),
+                      style: TextStyle(fontSize: 16, color: Colors.red),
+                    ),
+                    onTap: () {
+                      _mucType == MucType.GROUP
+                          ? _leftGroup()
+                          : _leftChannel();
                     },
                   ),
                   SizedBox(

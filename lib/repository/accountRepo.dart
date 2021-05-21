@@ -64,16 +64,22 @@ class AccountRepo {
   String platformVersion;
 
   Future getVerificationCode(String countryCode, String nationalNumber) async {
-    PhoneNumber phone = PhoneNumber()
-      ..countryCode = int.parse(countryCode)
-      ..nationalNumber = Int64.parseInt(nationalNumber);
-    this.phoneNumber = phone;
-    _savePhoneNumber();
-    var verificationCode =
-        await authServiceStub.getVerificationCode(GetVerificationCodeReq()
-          ..phoneNumber = phone
-          ..type = VerificationType.SMS);
-    return verificationCode;
+    try{
+      PhoneNumber phone = PhoneNumber()
+        ..countryCode = int.parse(countryCode)
+        ..nationalNumber = Int64.parseInt(nationalNumber);
+      this.phoneNumber = phone;
+      _savePhoneNumber();
+      var verificationCode =
+      await authServiceStub.getVerificationCode(GetVerificationCodeReq()
+        ..phoneNumber = phone
+        ..type = VerificationType.SMS,options: CallOptions(timeout: Duration(seconds: 3)));
+      return verificationCode;
+    }
+    catch(e){
+      return null;
+    }
+
   }
 
   Future sendVerificationCode(String code) async {

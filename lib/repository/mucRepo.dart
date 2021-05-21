@@ -38,18 +38,18 @@ class MucRepo {
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
-  Future<Uid> createNewGroup(List<Uid> memberUids, String groupName) async {
+  Future<Uid> createNewGroup(List<Uid> memberUids, String groupName,String info) async {
     Uid groupUid = await mucServices.createNewGroup(groupName);
     if (groupUid != null) {
       sendMembers(groupUid, memberUids);
-      _insertToDb(groupUid, groupName, memberUids.length + 1);
+      _insertToDb(groupUid, groupName, memberUids.length + 1,info);
       return groupUid;
     }
     return null;
   }
 
   Future<Uid> createNewChannel(String channelId, List<Uid> memberUids,
-      String channelName, ChannelType channelType) async {
+      String channelName, ChannelType channelType,String info) async {
     Uid channelUid =
         await mucServices.createNewChannel(channelName, channelType, channelId);
 
@@ -59,7 +59,7 @@ class MucRepo {
           memberUid: _accountRepo.currentUserUid.asString(),
           mucUid: channelUid.asString(),
           role: MucRole.OWNER));
-      _insertToDb(channelUid, channelName, memberUids.length + 1,
+      _insertToDb(channelUid, channelName, memberUids.length + 1,info,
           channelId: channelId);
       fetchMucInfo(channelUid);
       return channelUid;
@@ -140,6 +140,7 @@ class MucRepo {
       if (group != null) {
         _mucDao.insertMuc(Muc(
           name: group.info.name,
+          info: group.info.info,
           members: group.population.toInt(),
           uid: mucUid.asString(),
         ));
@@ -154,6 +155,7 @@ class MucRepo {
             name: channel.info.name,
             members: channel.population.toInt(),
             uid: mucUid.asString(),
+            info: channel.info.info,
             id: channel.info.id));
         insertUserInDb(mucUid, [
           Member(
@@ -360,11 +362,12 @@ class MucRepo {
     }
   }
 
-  _insertToDb(Uid mucUid, String mucName, int memberCount,
+  _insertToDb(Uid mucUid, String mucName, int memberCount,String  info,
       {String channelId}) async {
     await _mucDao.insertMuc(Muc(
         uid: mucUid.asString(),
         name: mucName,
+        info: info,
         members: memberCount,
         id: channelId ?? null));
     await _roomDao
