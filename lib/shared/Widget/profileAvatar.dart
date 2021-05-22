@@ -607,14 +607,13 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         return TextFormField(
                           style: TextStyle(color: Colors.black, fontSize: 18),
                           initialValue: muc.data.info ?? "",
-                          minLines: 1,
-
-                          maxLines: 4,
+                          minLines: muc.data.info.isNotEmpty? muc.data.info.split("\n").length:1,
+                          maxLines: muc.data.info.isNotEmpty?muc.data.info.split("\n").length+4:4 ,
                           onChanged: (str) {
                             mucInfo = str;
                             newChange.add(true);
                           },
-                          keyboardType: TextInputType.text,
+                          keyboardType: TextInputType.multiline,
                           decoration: buildInputDecoration(
                             widget.roomUid.category == Categories.GROUP
                                 ? _appLocalization
@@ -622,11 +621,13 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                 : _appLocalization
                                 .getTraslateValue("enter-channel-desc"),),
                         );
+
                       } else {
                         return SizedBox.shrink();
                       }
                     },
-                  )
+                  ),
+                  SizedBox(height: 10,),
                 ],
               )),
             ),

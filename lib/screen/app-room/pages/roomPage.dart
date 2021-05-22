@@ -49,7 +49,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
-const int PAGE_SIZE = 40;
+const int PAGE_SIZE = 20;
 
 class RoomPage extends StatefulWidget {
   final String roomId;

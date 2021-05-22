@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -16,12 +17,14 @@ class ContactPic extends StatelessWidget {
 
   var _userInfoDao = GetIt.I.get<UserInfoDao>();
 
+  var _accountRepo = GetIt.I.get<AccountRepo>();
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        CircleAvatarWidget(this.userUid, 24),
-        if (userUid.category == Categories.USER)
+        CircleAvatarWidget(this.userUid, 24,savedMessaeg: userUid.isSameEntity(_accountRepo.currentUserUid.asString()) ,),
+        if (userUid.category == Categories.USER && !userUid.isSameEntity(_accountRepo.currentUserUid.asString()) )
           StreamBuilder<UserInfo>(
               stream: _userInfoDao.getUserInfoAsStream(userUid.asString()),
               builder: (c, userInfo) {
@@ -34,8 +37,8 @@ class ContactPic extends StatelessWidget {
                         color: DateTime.now().millisecondsSinceEpoch -
                                     userInfo.data.lastActivity
                                         .millisecondsSinceEpoch <
-                                3000
-                            ? Colors.greenAccent
+                                30000
+                            ? Colors.greenAccent.shade700
                             : ExtraTheme.of(context).secondColor,
                         shape: BoxShape.circle,
                         border: Border.all(
@@ -45,7 +48,7 @@ class ContactPic extends StatelessWidget {
                       ),
                     ),
                     top: 32.0,
-                    right: 4.0,
+                    right: 0.0,
                   );else{
                     return SizedBox.shrink();
                 }
