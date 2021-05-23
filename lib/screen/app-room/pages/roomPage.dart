@@ -357,7 +357,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                     height: deviceHeight,
                                     // color: Colors.amber,
                                     child: Stack(
-                                      alignment: AlignmentDirectional.topStart,
+                                      alignment: AlignmentDirectional.center,
                                       children: [
                                         buildMessagesListView(
                                             _currentRoom.value,
@@ -580,7 +580,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 } else
                   return _routingService.backButtonLeading(
                     back: () {
-                      _notificationServices.reset("\t");
+                      // _notificationServices.reset("\t");
                     },
                   );
               }),

@@ -9,8 +9,8 @@ class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   NotificationDetails _notificationDetails;
 
-  Map<String, String> _notificationMessage = Map();
-  Map<String, int> _notificationMap = Map();
+  Map<String, List<int>> _notificationMessage = Map();
+
 
   NotificationServices() {
     if (!isDesktop()) Firebase.initializeApp();
@@ -32,7 +32,7 @@ class NotificationServices {
       int id, String title, String body, String payload) async {}
 
   cancelNotification(notificationId) {
-    flutterLocalNotificationsPlugin.cancelAll();
+    flutterLocalNotificationsPlugin.cancel(notificationId);
   }
 
   cancelAllNotification() {
@@ -81,7 +81,10 @@ class NotificationServices {
   void showNotification(
       pro.Message message, String roomUid, String roomName) async {
     try {
-      _notificationMap[roomUid] == message.id;
+      if(_notificationMessage[roomUid]== null){
+        _notificationMessage[roomUid] = List();
+      }
+      _notificationMessage[roomUid].add(message.id.toInt());
       switch (message.whichType()) {
         case pro.Message_Type.persistEvent:
         case pro.Message_Type.text:
@@ -120,15 +123,20 @@ class NotificationServices {
         case pro.Message_Type.sharePrivateDataAcceptance:
           showTextNotification(message.id.toInt(), roomUid, roomName, "Private");
           break;
-        case pro.Message_Type.notSet:
-          // TODO: Handle this case.
+
+        case pro.Message_Type.paymentTransaction:
+          showTextNotification(message.id.toInt(), roomUid, roomName, "Transaction");
+          break;
+
           break;
       }
     } catch (e) {}
   }
 
   void reset(String roomId) {
-    _notificationMessage[roomId] = "\t";
+    _notificationMessage[roomId]?.forEach((element) {
+      cancelNotification(element);
+    });
   }
 
   void playSoundNotification() async {

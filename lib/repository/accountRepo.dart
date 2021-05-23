@@ -109,7 +109,7 @@ class AccountRepo {
   Future _getAccessToken(String refreshToken) async {
     var getAccessToken = await authServiceStub
         .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
-    if(exp(getAccessToken.accessToken)){
+    if(wrongToken(getAccessToken.accessToken)){
       _getAccessToken(refreshToken);
       return;
     }
@@ -140,7 +140,7 @@ class AccountRepo {
     final DateTime iaTirationDate =
     new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["iat"]));
-    return((DateTime.now().millisecondsSinceEpoch- iaTirationDate.millisecondsSinceEpoch)>1*60*1000);
+    return((DateTime.now().millisecondsSinceEpoch- iaTirationDate.millisecondsSinceEpoch)>5*60*1000);
   }
   bool wrongToken(String token){
     final Map<String, dynamic> decodedToken = JwtDecoder.decode (token);
