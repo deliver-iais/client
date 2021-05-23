@@ -454,6 +454,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   currentSearchResultMessage: currentSearchResultMessage,
                   roomId: widget.roomId,
                   joinToMuc: widget.jointToMuc,
+
                   scrollDown: () {
                     if (searchResult.indexOf(currentSearchResultMessage) !=
                         searchResult.length)
@@ -470,8 +471,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     if (searchResult.indexOf(currentSearchResultMessage) != 0)
                       _itemScrollController.scrollTo(
                           index: searchResult[searchResult
-                                      .indexOf(currentSearchResultMessage) -
-                                  3]
+                                      .indexOf(currentSearchResultMessage) -1]
                               .id,duration: Duration(microseconds: 1));
                     setState(() {
                       currentSearchResultMessage = searchResult[
@@ -906,7 +906,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         _replayMessageId = id;
       });
    if(_replayMessageId!= -1)
-     Timer(Duration(seconds: 2), () {
+     Timer(Duration(seconds: 3), () {
       setState(() {
         _replayMessageId = -1;
       });

@@ -56,17 +56,14 @@ class _NewContactState extends State<NewContact> {
                   PhoneNumber phoneNumber = PhoneNumber()
                     ..nationalNumber = Int64.parseInt(_phoneNumber.number)
                     ..countryCode = int.parse(_phoneNumber.countryCode);
-                  await _contactRepo.sendContacts([
+                  await _contactRepo.addContact(
                     Contact()
                       ..phoneNumber = phoneNumber
                       ..firstName = _firstName
                       ..lastName = _lastName
-                  ]);
-
-                  await _contactRepo.getContacts();
+                  );
                   await showResult();
                   _routingServices.pop();
-                 // Navigator.pop(context);
                 }),
           )
         ],

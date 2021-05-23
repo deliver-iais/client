@@ -114,6 +114,12 @@ class ContactRepo {
 
   }
 
+  Future addContact(Contact contact) async {
+      _sendContacts([contact]);
+      getContacts();
+
+  }
+
   _sendContacts(List<Contact> contacts) async {
     var sendContacts = SaveContactsReq();
     contacts.forEach((element) {
