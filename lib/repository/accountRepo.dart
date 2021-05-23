@@ -109,6 +109,10 @@ class AccountRepo {
   Future _getAccessToken(String refreshToken) async {
     var getAccessToken = await authServiceStub
         .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
+    if(exp(getAccessToken.accessToken)){
+      _getAccessToken(refreshToken);
+      return;
+    }
     return getAccessToken;
   }
 
@@ -138,6 +142,17 @@ class AccountRepo {
         .add(new Duration(seconds: decodedToken["iat"]));
     return((DateTime.now().millisecondsSinceEpoch- iaTirationDate.millisecondsSinceEpoch)>5*60*1000);
   }
+  bool wrongToken(String token){
+    final Map<String, dynamic> decodedToken = JwtDecoder.decode (token);
+    final DateTime iatTime =
+    new DateTime.fromMillisecondsSinceEpoch(0)
+        .add(new Duration(seconds: decodedToken["iat"]));
+    final DateTime expTime =
+    new DateTime.fromMillisecondsSinceEpoch(0)
+        .add(new Duration(seconds: decodedToken["exp"]));
+    return((expTime.millisecondsSinceEpoch- iatTime.millisecondsSinceEpoch)>15*60*1000);
+  }
+
 
   void saveTokens(AccessTokenRes res) {
     _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
@@ -148,18 +163,16 @@ class AccountRepo {
   }
 
   Future<bool> usernameIsSet() async {
-
     final QueryServiceClient _queryServiceClient =
     GetIt.I.get<QueryServiceClient>();
     if (null != await sharedPrefs.get(USERNAME)) {
-      var res = sharedPrefs.get(USERNAME);
       return true;
     }
     try{
       var getIdRequest = await _queryServiceClient.getIdByUid(
           GetIdByUidReq()..uid = currentUserUid,
           options:
-          CallOptions(metadata: {'access_token': await getAccessToken()},timeout: Duration(seconds: 2)));
+          CallOptions(metadata: {'access_token': await getAccessToken()},timeout: Duration(seconds: 3)));
       var result =  await _userServices.getUserProfile(GetUserProfileReq(),
           options:
           CallOptions(metadata: {'access_token': await getAccessToken()}));

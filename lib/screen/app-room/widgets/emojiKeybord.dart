@@ -177,30 +177,30 @@ class _Emojikeybord extends State<EmojiKeybord> {
                     ],
                   )
                 : StickerWidget(onStickerTap: widget.onStickerTap,)),
-        Container(
-            color: Theme.of(context).accentColor,
-            height: 38,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                    icon: Image.asset("assets/icons/emojiIcon.png"),
-                    iconSize: 1,
-                    onPressed: () {
-                      setState(() {
-                        emojiState = true;
-                      });
-                    }),
-                IconButton(
-                    icon: new Image.asset('assets/icons/stickerIcon.png'),
-                    color: Colors.red,
-                    onPressed: () {
-                      setState(() {
-                        emojiState = false;
-                      });
-                    })
-              ],
-            ))
+        // Container(
+        //     color: Theme.of(context).accentColor,
+        //     height: 38,
+        //     child: Row(
+        //       mainAxisAlignment: MainAxisAlignment.center,
+        //       children: [
+        //         IconButton(
+        //             icon: Image.asset("assets/icons/emojiIcon.png"),
+        //             iconSize: 1,
+        //             onPressed: () {
+        //               setState(() {
+        //                 emojiState = true;
+        //               });
+        //             }),
+        //         IconButton(
+        //             icon: new Image.asset('assets/icons/stickerIcon.png'),
+        //             color: Colors.red,
+        //             onPressed: () {
+        //               setState(() {
+        //                 emojiState = false;
+        //               });
+        //             })
+        //       ],
+        //     ))
       ],
     ));
   }

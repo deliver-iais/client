@@ -1,7 +1,9 @@
+import 'package:deliver_flutter/models/messageType.dart';
 import 'package:moor/moor.dart';
 import '../Messages.dart';
 import '../database.dart';
 import 'dart:async';
+import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
 part 'MessageDao.g.dart';
 
@@ -69,11 +71,14 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
   }
 
   Future<List<Message>> getPage(String roomId, int page,
-      {int pageSize = 20}) async {
+      {int pageSize = 5}) async {
     return (select(messages)
           ..where((m) =>
               m.roomId.equals(roomId) &
-              m.id.isBetweenValues(page * pageSize, (page + 1) * pageSize)))
+              m.id.isBetweenValues(page * pageSize, (page + 1) * pageSize))
+          ..orderBy([
+            (m) => OrderingTerm(expression: m.id, mode: OrderingMode.desc),
+          ]))
         .get();
   }
 
@@ -99,7 +104,12 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
 
   Future<List<Message>> searchMessage(String str, String roomId) {
     return (select(messages)
-          ..where((tbl) => tbl.roomId.equals(roomId) & tbl.json.contains(str)))
+          ..where((tbl) =>
+              tbl.roomId.equals(roomId) &
+              tbl.type.equals(MessageType.TEXT.index))
+          ..orderBy([
+            (m) => OrderingTerm(expression: m.id, mode: OrderingMode.asc),
+          ]))
         .get();
   }
 }

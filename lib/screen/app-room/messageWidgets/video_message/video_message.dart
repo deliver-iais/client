@@ -109,7 +109,7 @@ class _VideoMessageState extends State<VideoMessage> {
                   return FutureBuilder<da.File>(
                     future: _fileRepo.getFileIfExist(video.uuid, video.name),
                     builder: (c, s) {
-                      if (s.hasData && s.data != null) {
+                      if (s.hasData && s.data != null ) {
                         return Stack(
                           children: [
                             VideoUi(

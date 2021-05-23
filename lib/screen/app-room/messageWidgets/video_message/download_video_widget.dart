@@ -47,18 +47,17 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                             return CircularPercentIndicator(
                               radius: 35.0,
                               lineWidth: 4.0,
-                              backgroundColor:Colors.blueAccent ,
                               percent: snapshot.data,
-                              center: Icon(Icons.arrow_downward),
-                              progressColor: Colors.blue,
+                              center: Icon(Icons.download_rounded),
+                              progressColor: Colors.black,
                             );
                           } else {
                             return CircularPercentIndicator(
                               radius: 35.0,
                               lineWidth: 4.0,
-                              percent: 0.1,
-                              center: Icon(Icons.arrow_downward),
-                              progressColor: Colors.blue,
+                              percent: 0.01,
+                              center: Icon(Icons.download_rounded,),
+                              progressColor: Colors.black,
                             );
                           }
                         },

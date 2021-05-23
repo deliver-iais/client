@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:badges/badges.dart';
@@ -49,7 +50,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
-const int PAGE_SIZE = 20;
+const int PAGE_SIZE = 5;
 
 class RoomPage extends StatefulWidget {
   final String roomId;
@@ -116,15 +117,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Map<String, int> _messagesPacketId = Map();
   List<Message> searchResult = List();
-  Message currentSearchResultMessage;
+  BehaviorSubject<Message> currentSearchResultMessage =  BehaviorSubject.seeded(null);
   Message _currentMessageForCheckTime = null;
 
   BehaviorSubject<int> unReadMessageScrollSubjet = BehaviorSubject.seeded(0);
 
-  // Cache<int, Widget> widgetCache =
-  //     LruCache<int, Widget>(storage: SimpleStorage(size: 100));
 
-  // TODO, get previous message
+
   Future<List<Message>> _getPendingMessage(dbId) async {
     return [await _messageRepo.getPendingMessage(dbId)];
   }
@@ -133,12 +132,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Future<List<Message>> _getMessageAndPreviousMessage(int id) async {
     String roomId = widget.roomId;
     var m1 = await _getMessage(id, roomId);
-    if (true) {
-      return [m1];
-    } else {
-      var m2 = await _getMessage(id - 1, roomId);
-      return [m1, m2];
-    }
+    return [m1];
   }
 
   Future<Message> _getMessage(int id, String roomId) async {
@@ -151,20 +145,21 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         await _messageRepo.getPage(page, roomId, id, pageSize: PAGE_SIZE);
     for (int i = 0; i < messages.length; i = i + 1) {
       _cache.set(messages[i].id, messages[i]);
-      try {
-        if (_messagesPacketId.containsKey(messages[i].packetId) &&
-            _messagesPacketId[messages[i].packetId] != messages[i].id &&
-            _messagesPacketId[messages[i].packetId] > messages[i].id)
-          _cache.set(
-              messages[i].id,
-              Message(
-                  packetId: null,
-                  id: messages[i].id,
-                  time: messages[i].time,
-                  roomId: messages[i].roomId,
-                  from: messages[i].from));
-      } catch (e) {}
-      _messagesPacketId[messages[i].packetId] = messages[i].id;
+      //   try {
+      //     if (_messagesPacketId.containsKey(messages[i].packetId) &&
+      //         _messagesPacketId[messages[i].packetId] != messages[i].id &&
+      //         _messagesPacketId[messages[i].packetId] > messages[i].id)
+      //       _cache.set(
+      //           messages[i].id,
+      //           Message(
+      //               packetId: null,
+      //               id: messages[i].id,
+      //               time: messages[i].time,
+      //               roomId: messages[i].roomId,
+      //               from: messages[i].from));
+      //   } catch (e) {}
+      //   _messagesPacketId[messages[i].packetId] = messages[i].id;
+      // }
     }
     return _cache.get(id);
   }
@@ -456,34 +451,34 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   keybrodWidget: keybrodWidget,
                   searchMode: _searchMode,
                   searchResult: searchResult,
-                  currentSearchResultMessage: currentSearchResultMessage,
+                  currentSearchResultMessage: currentSearchResultMessage.stream.value,
                   roomId: widget.roomId,
                   joinToMuc: widget.jointToMuc,
                   scrollDown: () {
-                    if (searchResult.indexOf(currentSearchResultMessage) !=
+                    if (searchResult.indexOf(currentSearchResultMessage.value) !=
                         searchResult.length)
                       _itemScrollController.scrollTo(
                           index: searchResult[searchResult
-                                      .indexOf(currentSearchResultMessage) +
-                                  1]
+                                      .indexOf(currentSearchResultMessage.value) +
+                                  3]
                               .id,
                           duration: Duration(milliseconds: 2));
                     setState(() {
-                      currentSearchResultMessage = searchResult[
-                          searchResult.indexOf(currentSearchResultMessage) + 1];
+                      currentSearchResultMessage.add(searchResult[
+                          searchResult.indexOf(currentSearchResultMessage.value)]);
                     });
                   },
                   scrollUp: () {
-                    if (searchResult.indexOf(currentSearchResultMessage) != 0)
+                    if (searchResult.indexOf(currentSearchResultMessage.value) != 0)
                       _itemScrollController.scrollTo(
                           index: searchResult[searchResult
-                                      .indexOf(currentSearchResultMessage) -
-                                  1]
+                                      .indexOf(currentSearchResultMessage.value) -
+                                  3]
                               .id,
                           duration: Duration(milliseconds: 2));
                     setState(() {
-                      currentSearchResultMessage = searchResult[
-                          searchResult.indexOf(currentSearchResultMessage) - 1];
+                      currentSearchResultMessage.add(searchResult[
+                          searchResult.indexOf(currentSearchResultMessage.value) - 1]);
                     });
                   })
             ],
@@ -670,7 +665,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       });
                 } else {
                   return PopupMenuButton(
-                    color: Theme.of(context).accentColor.withAlpha(90),
                     icon: Icon(Icons.more_vert),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
@@ -693,11 +687,20 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     if (str != null && str.length > 0) {
       subject.add(false);
       pattern = str;
+      Map<int,Message> resultMessaeg = Map();
       var res = await _messageRepo.searchMessage(str, widget.roomId);
-      if (res != null && res.length > 0) {
-        searchResult = res;
-        currentSearchResultMessage = searchResult.last;
-        _scrollToMessage(id: 0, position: currentSearchResultMessage.id);
+      res.forEach((element) {
+        if (element.json.toText().text.contains(str)) {
+          resultMessaeg[element.id] = element;
+        }
+      });
+      if (resultMessaeg != null && resultMessaeg.values.length > 0) {
+        setState(() {
+          searchResult = resultMessaeg.values.toList();
+        });
+        currentSearchResultMessage.add(searchResult.last);
+        _scrollToMessage(id: -1, position: currentSearchResultMessage.stream.value.id);
+
       } else {
         subject.add(true);
       }
@@ -807,8 +810,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                           .containsKey(messages[0].id) ||
                                       (messages[0].id != null &&
                                           messages[0].id == _replayMessageId) ||
-                                      currentSearchResultMessage != null &&
-                                          currentSearchResultMessage.id ==
+                                      currentSearchResultMessage.value != null &&
+                                          currentSearchResultMessage.stream.value.id ==
                                               messages[0].id
                                   ? Theme.of(context).disabledColor
                                   : Theme.of(context).backgroundColor,
@@ -899,12 +902,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   _scrollToMessage({int id, int position}) {
-    _itemScrollController.scrollTo(
-        index: position - 1, duration: Duration(milliseconds: 1));
-    if (id != null)
+    _itemScrollController.jumpTo(
+        index: position);
+    if (id != -1)
       setState(() {
         _replayMessageId = id;
       });
+   if(_replayMessageId!= -1)
+     Timer(Duration(seconds: 2), () {
+      setState(() {
+        _replayMessageId = -1;
+      });
+    });
   }
 
   Widget _selectMultiMessageAppBar() {

@@ -570,7 +570,7 @@ class MessageRepo {
   }
 
   Future<List<Message>> getPage(int page, String roomId, int containsId,
-      {int pageSize = 20}) async {
+      {int pageSize = 5}) async {
     var completer = _completerMap["$roomId-$page"];
 
     if (completer != null && !completer.isCompleted) {
