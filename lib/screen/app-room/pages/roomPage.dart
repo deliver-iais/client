@@ -117,7 +117,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Map<String, int> _messagesPacketId = Map();
   List<Message> searchResult = List();
-  BehaviorSubject<Message> currentSearchResultMessage =  BehaviorSubject.seeded(null);
+  Message currentSearchResultMessage;
   Message _currentMessageForCheckTime = null;
 
   BehaviorSubject<int> unReadMessageScrollSubjet = BehaviorSubject.seeded(0);
@@ -451,34 +451,31 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   keybrodWidget: keybrodWidget,
                   searchMode: _searchMode,
                   searchResult: searchResult,
-                  currentSearchResultMessage: currentSearchResultMessage.stream.value,
+                  currentSearchResultMessage: currentSearchResultMessage,
                   roomId: widget.roomId,
                   joinToMuc: widget.jointToMuc,
                   scrollDown: () {
-                    if (searchResult.indexOf(currentSearchResultMessage.value) !=
+                    if (searchResult.indexOf(currentSearchResultMessage) !=
                         searchResult.length)
                       _itemScrollController.scrollTo(
                           index: searchResult[searchResult
-                                      .indexOf(currentSearchResultMessage.value) +
-                                  3]
-                              .id,
-                          duration: Duration(milliseconds: 2));
+                                      .indexOf(currentSearchResultMessage)]
+                              .id,duration: Duration(microseconds: 1));
                     setState(() {
-                      currentSearchResultMessage.add(searchResult[
-                          searchResult.indexOf(currentSearchResultMessage.value)]);
+                      currentSearchResultMessage = searchResult[
+                          searchResult.indexOf(currentSearchResultMessage) + 1];
                     });
                   },
                   scrollUp: () {
-                    if (searchResult.indexOf(currentSearchResultMessage.value) != 0)
+                    if (searchResult.indexOf(currentSearchResultMessage) != 0)
                       _itemScrollController.scrollTo(
                           index: searchResult[searchResult
-                                      .indexOf(currentSearchResultMessage.value) -
+                                      .indexOf(currentSearchResultMessage) -
                                   3]
-                              .id,
-                          duration: Duration(milliseconds: 2));
+                              .id,duration: Duration(microseconds: 1));
                     setState(() {
-                      currentSearchResultMessage.add(searchResult[
-                          searchResult.indexOf(currentSearchResultMessage.value) - 1]);
+                      currentSearchResultMessage = searchResult[
+                          searchResult.indexOf(currentSearchResultMessage) - 1];
                     });
                   })
             ],
@@ -698,8 +695,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         setState(() {
           searchResult = resultMessaeg.values.toList();
         });
-        currentSearchResultMessage.add(searchResult.last);
-        _scrollToMessage(id: -1, position: currentSearchResultMessage.stream.value.id);
+        currentSearchResultMessage = searchResult.last;
+        _scrollToMessage(id: -1, position: currentSearchResultMessage.id);
 
       } else {
         subject.add(true);
@@ -810,8 +807,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                           .containsKey(messages[0].id) ||
                                       (messages[0].id != null &&
                                           messages[0].id == _replayMessageId) ||
-                                      currentSearchResultMessage.value != null &&
-                                          currentSearchResultMessage.stream.value.id ==
+                                      currentSearchResultMessage != null &&
+                                          currentSearchResultMessage.id ==
                                               messages[0].id
                                   ? Theme.of(context).disabledColor
                                   : Theme.of(context).backgroundColor,
@@ -902,8 +899,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   _scrollToMessage({int id, int position}) {
-    _itemScrollController.jumpTo(
-        index: position);
+    _itemScrollController.scrollTo(
+        index: position-3,duration: Duration(microseconds: 1));
     if (id != -1)
       setState(() {
         _replayMessageId = id;
