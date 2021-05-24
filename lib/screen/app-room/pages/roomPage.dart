@@ -242,6 +242,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void initState() {
+    print(widget.roomId);
     Timer(Duration(seconds: 1), () {
       _showOtherMessage.add(true);
     });

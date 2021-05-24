@@ -88,11 +88,14 @@ class CoreServices {
   void closeConnection() {
     _connectionStatus.add(ConnectionStatus.Disconnected);
     _clientPacket.close();
-    _connectionTimer.cancel();
+    if (_connectionTimer != null) _connectionTimer.cancel();
   }
 
   @visibleForTesting
   startCheckerTimer() async {
+    if (_connectionTimer!= null &&  _connectionTimer.isActive) {
+      return;
+    }
     if (_clientPacket.isClosed || _clientPacket.isPaused) {
       await startStream();
     }
@@ -161,21 +164,21 @@ class CoreServices {
 
   sendMessage(MessageByClient message) {
     if (_clientPacket != null && !_clientPacket.isClosed) {
-      if(_lastMessagePackId == null){
+      if (_lastMessagePackId == null) {
         _lastMessagePackId = message.packetId;
       }
       _clientPacket.add(ClientPacket()
         ..message = message
         ..id = message.packetId);
-      // Timer(Duration(seconds: 3), () async {
-      //   if (_lastMessagePackId != null) {
-      //     _lastMessagePackId = message.packetId;
-      //     closeConnection();
-      //     Timer(Duration(seconds: 2), () {
-      //       startCheckerTimer();
-      //     });
-      //   }
-      // });
+      Timer(Duration(seconds: 4), () async {
+        if (_lastMessagePackId != null) {
+          _lastMessagePackId = message.packetId;
+          closeConnection();
+          Timer(Duration(seconds: 3), () {
+            startCheckerTimer();
+          });
+        }
+      });
     } else {
       startStream();
     }
@@ -241,7 +244,7 @@ class CoreServices {
   }
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
-    if (messageDeliveryAck.packetId.contains(_lastMessagePackId)) {
+    if (_lastMessagePackId != null && messageDeliveryAck.packetId.contains(_lastMessagePackId)) {
       _lastMessagePackId = null;
     }
     if (messageDeliveryAck.id.toInt() == 0) {
@@ -390,7 +393,7 @@ saveMessageInMessagesDB(
         type: getMessageType(message.whichType()));
   } catch (e) {
     print(e.toString());
-    return null;
+    return msg;
   }
 
   int dbId = await messageDao.insertMessage(msg);

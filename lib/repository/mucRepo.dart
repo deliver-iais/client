@@ -81,7 +81,7 @@ class MucRepo {
     try {
       int i = 0;
       while (i <= len) {
-        var result = await mucServices.getGroupMembers(groupUid, 15, i);
+        var result = await mucServices.getGroupMembers(groupUid, 5, i);
         List<Member> members = new List();
         for (MucPro.Member member in result) {
           members.add(await fetchMemberNameAndUsername(Member(
@@ -91,7 +91,7 @@ class MucRepo {
         }
         insertUserInDb(groupUid, members);
         fetchMembersUserName(members);
-       i = i + 15;
+   //    i = i + 5;
       }
     } catch (e) {
       print(e.toString());
