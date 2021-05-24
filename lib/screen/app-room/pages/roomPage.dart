@@ -990,6 +990,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget showSentMessage(Message message, double _maxWidth, int lastMessageId,
       int pendingMessagesLength) {
+    BehaviorSubject<bool> dragSubject = BehaviorSubject.seeded(true);
+    var messageWidget = SentMessageBox(
+      message: message,
+      maxWidth: _maxWidth,
+      isSeen: message.id != null && message.id <= lastSeenMessageId,
+      pattern: pattern,
+      scrollToMessage: (int id) {
+        _scrollToMessage(id: id, position: pendingMessagesLength + id);
+      },
+      omUsernameClick: onUsernameClick,
+    );
     return GestureDetector(
       onTap: () {
         _selectMultiMessageSubject.stream.value
@@ -1009,17 +1020,29 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
-                SentMessageBox(
-                  message: message,
-                  maxWidth: _maxWidth,
-                  isSeen: message.id != null && message.id <= lastSeenMessageId,
-                  pattern: pattern,
-                  scrollToMessage: (int id) {
-                    _scrollToMessage(
-                        id: id, position: pendingMessagesLength + id);
+                Draggable(
+                  key: ValueKey(1),
+                  onDragStarted: () {
+                    dragSubject.add(false);
                   },
-                  omUsernameClick: onUsernameClick,
-                )
+                  onDragEnd: (t) {
+                    dragSubject.add(true);
+                    _repliedMessage.add(message);
+                  },
+                  axis: Axis.horizontal,
+                  feedback: messageWidget,
+                  child: StreamBuilder(
+                    stream: dragSubject.stream,
+                    builder: (c, ds) {
+                      if (ds.hasData)
+                        return Opacity(
+                            opacity: ds.data ? 1 : 0, child: messageWidget);
+                      else {
+                        return messageWidget;
+                      }
+                    },
+                  ),
+                ),
               ],
             ),
           ],
@@ -1030,6 +1053,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget showReceivedMessage(Message message, double _maxWidth,
       int lastMessageId, int pendingMessagesLength) {
+    BehaviorSubject<bool> dragSubject = BehaviorSubject.seeded(true);
+    var messageWidget =   RecievedMessageBox(
+      message: message,
+      maxWidth: _maxWidth,
+      pattern: pattern,
+      isGroup: widget.roomId.uid.category == Categories.GROUP,
+      scrollToMessage: (int id) {
+        _scrollToMessage(id: id, position: pendingMessagesLength + id);
+      },
+      omUsernameClick: onUsernameClick,
+    );
     return GestureDetector(
         onTap: () {
           _selectMultiMessageSubject.stream.value
@@ -1050,27 +1084,47 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 if (widget.roomId.getUid().category == Categories.GROUP)
-                  GestureDetector(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          bottom: 8.0, left: 5.0, right: 3.0),
-                      child: CircleAvatarWidget(message.from.uid, 18),
-                    ),
-                    onTap: () {
-                      _routingService.openRoom(message.from);
+                  StreamBuilder<bool>(
+                    stream: dragSubject.stream,
+                    builder: (context, snapshot) {
+                      if(snapshot.hasData && snapshot.data)
+                      return GestureDetector(
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              bottom: 8.0, left: 5.0, right: 3.0),
+                          child: CircleAvatarWidget(message.from.uid, 18),
+                        ),
+                        onTap: () {
+                          _routingService.openRoom(message.from);
+                        },
+                      );
+                      return SizedBox();
+                    }
+                  ),
+                Draggable(
+                  key: ValueKey(1),
+                  onDragStarted: () {
+                    dragSubject.add(false);
+                  },
+                  onDragEnd: (t) {
+                    dragSubject.add(true);
+                    _repliedMessage.add(message);
+                  },
+                  axis: Axis.horizontal,
+                  feedback: messageWidget,
+                  child: StreamBuilder(
+                    stream: dragSubject.stream,
+                    builder: (c, ds) {
+                      if (ds.hasData)
+                        return Opacity(
+                            opacity: ds.data ? 1 : 0, child: messageWidget);
+                      else {
+                        return messageWidget;
+                      }
                     },
                   ),
-                RecievedMessageBox(
-                  message: message,
-                  maxWidth: _maxWidth,
-                  pattern: pattern,
-                  isGroup: widget.roomId.uid.category == Categories.GROUP,
-                  scrollToMessage: (int id) {
-                    _scrollToMessage(
-                        id: id, position: pendingMessagesLength + id);
-                  },
-                  omUsernameClick: onUsernameClick,
-                )
+                ),
+
               ],
             ),
           ],

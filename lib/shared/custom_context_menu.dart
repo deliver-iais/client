@@ -27,9 +27,9 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
       context: context,
       position: RelativeRect.fromLTRB(
         _tapPosition.dx,
-        _tapPosition.dy,
+        _tapPosition.dy-30,
         overlay.semanticBounds.size.width - _tapPosition.dx,
-        overlay.semanticBounds.size.height - _tapPosition.dy,
+        overlay.semanticBounds.size.height + _tapPosition.dy,
       ),
       items: items,
       initialValue: initialValue,
