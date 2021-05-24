@@ -51,7 +51,6 @@ class _BoxContentState extends State<BoxContent> {
   CrossAxisAlignment last = CrossAxisAlignment.start;
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _routingServices = GetIt.I.get<RoutingService>();
-  var _memberDao = GetIt.I.get<MemberDao>();
 
   void initialLastCross(CrossAxisAlignment c) {
     last = c;
@@ -100,7 +99,7 @@ class _BoxContentState extends State<BoxContent> {
           return showName(snapshot.data);
         } else {
           return Text(
-            "UnKnown",
+            " ",
             style: TextStyle(color: Colors.blue),
           );
         }

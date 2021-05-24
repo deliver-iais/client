@@ -161,19 +161,21 @@ class CoreServices {
 
   sendMessage(MessageByClient message) {
     if (_clientPacket != null && !_clientPacket.isClosed) {
-      _lastMessagePackId = message.packetId;
+      if(_lastMessagePackId == null){
+        _lastMessagePackId = message.packetId;
+      }
       _clientPacket.add(ClientPacket()
         ..message = message
         ..id = message.packetId);
-      Timer(Duration(seconds: 3), () async {
-        if (_lastMessagePackId != null) {
-          _lastMessagePackId = message.packetId;
-          closeConnection();
-          Timer(Duration(seconds: 2), () {
-            startCheckerTimer();
-          });
-        }
-      });
+      // Timer(Duration(seconds: 3), () async {
+      //   if (_lastMessagePackId != null) {
+      //     _lastMessagePackId = message.packetId;
+      //     closeConnection();
+      //     Timer(Duration(seconds: 2), () {
+      //       startCheckerTimer();
+      //     });
+      //   }
+      // });
     } else {
       startStream();
     }

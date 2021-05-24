@@ -14,7 +14,7 @@ class RecievedMessageBox extends StatelessWidget {
   final Function omUsernameClick;
   final String pattern;
 
-  const RecievedMessageBox(
+ RecievedMessageBox(
       {Key key,
       this.message,
       this.maxWidth,
@@ -23,15 +23,15 @@ class RecievedMessageBox extends StatelessWidget {
       this.omUsernameClick,
       this.pattern})
       : super(key: key);
-
+  final  seenDao = GetIt.I.get<SeenDao>();
   @override
   Widget build(BuildContext context) {
-    var seenDao = GetIt.I.get<SeenDao>();
-    return StreamBuilder<Seen>(
+    return
+      StreamBuilder<Seen>(
         stream: seenDao.getByRoomIdandUserId(message.roomId, message.to),
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data.messageId < message.id) {
-            seenDao.updateSeen(snapshot.data.copyWith(messageId: message.id));
+           seenDao.updateSeen(snapshot.data.copyWith(messageId: message.id));
           }
           return Padding(
             padding: const EdgeInsets.only(bottom: 8.0, left: 5.0),

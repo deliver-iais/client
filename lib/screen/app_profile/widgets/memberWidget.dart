@@ -84,53 +84,42 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                 SizedBox(
                                   width: 10,
                                 ),
-                                FutureBuilder<Member>(
-                                  future: _memberDao.getMember(member.memberUid,
-                                      widget.mucUid.asString()),
-                                  builder: (BuildContext context,
-                                      AsyncSnapshot<Member> m) {
-                                    if (m.data != null &&
-                                        member.memberUid !=
-                                            _accountRepo.currentUserUid
-                                                .asString()) {
-                                      return Text(
-                                        m.data.name ?? m.data.username??"",
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                        ),
-                                      );
-                                    } else if (member.memberUid ==
-                                        _accountRepo.currentUserUid
-                                            .asString()) {
-                                      return FutureBuilder<Account>(
-                                        future: _accountRepo.getAccount(),
-                                        builder: (BuildContext context,
-                                            AsyncSnapshot<Account> snapshot) {
-                                          if (snapshot.data != null) {
-                                            return Text(
-                                              "${snapshot.data.firstName} ${snapshot.data.lastName ?? ""}",
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                              ),
-                                            );
-                                          } else {
-                                            return SizedBox.shrink();
-                                          }
-                                        },
-                                      );
-                                    } else {
-                                      return Text(
-                                        "Unknown",
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
+                                if (member.memberUid !=
+                                    _accountRepo.currentUserUid.asString())
+                                  Text(
+                                    member.name ?? member.username ?? "",
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  )
+                                else if (member.memberUid ==
+                                    _accountRepo.currentUserUid.asString())
+                                  FutureBuilder<Account>(
+                                    future: _accountRepo.getAccount(),
+                                    builder: (BuildContext context,
+                                        AsyncSnapshot<Account> snapshot) {
+                                      if (snapshot.data != null) {
+                                        return Text(
+                                          "${snapshot.data.firstName} ${snapshot.data.lastName ?? ""}",
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                          ),
+                                        );
+                                      } else {
+                                        return SizedBox.shrink();
+                                      }
+                                    },
+                                  )
+                                else
+                                  Text(
+                                    "Unknown",
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                    ),
+                                  ),
                               ],
                             ),
                             Row(
@@ -204,10 +193,16 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   Widget showMemberRole(Member member) {
     switch (member.role) {
       case MucRole.OWNER:
-        return  Row(
+        return Row(
           children: [
-            Icon(Icons.star,color: Colors.white,size: 20,)
-            ,SizedBox(width: 8,),
+            Icon(
+              Icons.star,
+              color: Colors.white,
+              size: 20,
+            ),
+            SizedBox(
+              width: 8,
+            ),
             Text(
               _appLocalization.getTraslateValue("Owner"),
               style: TextStyle(color: Colors.blue),
