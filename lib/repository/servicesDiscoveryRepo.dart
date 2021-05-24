@@ -70,8 +70,8 @@ final QueryClientChannel = ClientChannel("query.deliver-co.ir",
         credentials: ChannelCredentials.secure(),
         connectionTimeout: Duration(seconds: 2)));
 
-final BotClientChannel = ClientChannel("89.37.13.110",
-    port: 30040,
+final BotClientChannel = ClientChannel("ms-bot.deliver-co.ir",
+    port: 443,
     options: ChannelOptions(
         credentials: ChannelCredentials.secure(),
         connectionTimeout: Duration(seconds: 2)));

@@ -45,7 +45,7 @@ class InputMessage extends StatefulWidget {
       {@required this.currentRoom,
       this.replyMessageId,
       this.resetRoomPageDetails,
-      this.waitingForForward,
+      this.waitingForForward = false,
       this.sendForwardMessage,
       this.showMentionList,
       this.scrollToLastSentMessage});
@@ -69,10 +69,12 @@ class _InputMessageWidget extends State<InputMessage> {
   BehaviorSubject<bool> _showBotCommands = BehaviorSubject.seeded(false);
   String query;
   Timer recordAudioTimer;
-
-  bool _showMentionList = false;
+  BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
+  BehaviorSubject<bool> _showMentionList = BehaviorSubject.seeded(false);
 
   bool startAudioRecorder = false;
+
+  FocusNode myFocusNode;
 
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> NoActivitySubject = BehaviorSubject();
@@ -99,6 +101,7 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   void initState() {
     super.initState();
+    myFocusNode = FocusNode(skipTraversal: true);
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, Duration(seconds: 10)))
         .listen((activityType) {
@@ -111,7 +114,14 @@ class _InputMessageWidget extends State<InputMessage> {
     });
     controller = TextEditingController();
     currentRoom = widget.currentRoom;
+    controller.addListener(() {
+      if (controller.text.isNotEmpty && controller.text.length > 0)
+        _showSendIcon.add(true);
+      else
+        _showSendIcon.add(false);
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -119,20 +129,23 @@ class _InputMessageWidget extends State<InputMessage> {
     DX = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
       children: <Widget>[
-        if (_showMentionList &&
-            widget.currentRoom.roomId.getUid().category == Categories.GROUP)
-          ShowMentionList(
-            query: query,
-            onSelected: (s) {
-              controller.text = "${controller.text}${s} ";
-              controller.selection = TextSelection.fromPosition(
-                  TextPosition(offset: controller.text.length));
-              setState(() {
-                _showMentionList = false;
-              });
-            },
-            roomUid: widget.currentRoom.roomId,
-          ),
+        StreamBuilder(
+            stream: _showMentionList.stream,
+            builder: (c, showMention) {
+              if (showMention.hasData && showMention.data)
+                return ShowMentionList(
+                  query: query,
+                  onSelected: (s) {
+                    controller.text = "${controller.text}${s} ";
+                    controller.selection = TextSelection.fromPosition(
+                        TextPosition(offset: controller.text.length));
+                    _showMentionList.add(false);
+                  },
+                  roomUid: widget.currentRoom.roomId,
+                );
+              else
+                return SizedBox.shrink();
+            }),
         StreamBuilder(
             stream: _showBotCommands.stream,
             builder: (c, show) {
@@ -142,136 +155,144 @@ class _InputMessageWidget extends State<InputMessage> {
                   onCommandClick: (String command) {
                     controller.text = command;
                     _showBotCommands.add(false);
-                    setState(() {});
                   },
                 );
               } else {
                 return SizedBox.shrink();
               }
             }),
-         Container(
-            color:  Theme.of(context)
-                .accentColor
-                .withAlpha(50),
-            child: Stack(
-              // overflow: Overflow.visible,
-              children: <Widget>[
-                controller.text.isEmpty &&
-                        (widget.waitingForForward == null ||
-                            widget.waitingForForward == false)
-                    ? RecordAudioAnimation(
+        Container(
+          color: Theme.of(context).accentColor.withAlpha(50),
+          child: Stack(
+            // overflow: Overflow.visible,
+            children: <Widget>[
+              StreamBuilder(
+                  stream: _showSendIcon.stream,
+                  builder: (c, sh) {
+                    if (sh.hasData && !sh.data && !widget.waitingForForward) {
+                      return RecordAudioAnimation(
                         righPadding: x,
                         size: size,
-                      )
-                    : SizedBox.shrink(),
-                Row(
-                  children: <Widget>[
-                    !startAudioRecorder
-                        ? Expanded(
-                            child: Row(
-                              children: <Widget>[
-                                if (currentRoom.roomId.getUid().category !=
-                                    Categories.BOT)
-                                  StreamBuilder<bool>(
-                                      stream: backSubject.stream,
-                                      builder: (c, back) {
-                                        return IconButton(
-                                          icon: Icon(
-                                            back.hasData && back.data
-                                                ? Icons.keyboard
-                                                : Icons.mood,
-                                            color: Colors.white,
-                                          ),
-                                          onPressed: () {
-                                            if (back.data) {
-                                              backSubject.add(false);
-                                              setState(() {
-                                                FocusScope.of(context)
-                                                    .unfocus();
-                                              });
-                                            } else if (!back.data) {
-                                              FocusScope.of(context).unfocus();
-                                              Timer(Duration(milliseconds: 50),
-                                                  () {
-                                                backSubject.add(true);
-                                              });
-                                            }
-                                          },
-                                        );
-                                      }),
-                                if (currentRoom.roomId.getUid().category ==
-                                    Categories.BOT)
-                                  GestureDetector(
-                                    child: Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.black12,
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                            ),
-                                            child: Image.asset(
-                                              "assets/icons/bot_command.png",
-                                              width: 20,
-                                              height: 20,
-                                            )),
-                                        SizedBox(
-                                          width: 10,
-                                        )
-                                      ],
-                                    ),
-                                    onTap: () {
-                                      _showBotCommands.add(true);
-                                    },
-                                  ),
-                                Container(
-                                  child: Flexible(
-                                    child: TextField(
-                                      onTap: () {
-                                        backSubject.add(false);
-                                      },
-                                      minLines: 1,
-                                      maxLines: 15,
-                                      autofocus: false,
-                                      textInputAction: TextInputAction.newline,
-                                      controller: controller,
-                                      onSubmitted: null,
-                                      onChanged: (str) {
-                                        if (str?.length > 0)
-                                          isTypingActivitySubject
-                                              .add(ActivityType.TYPING);
-                                        else
-                                          NoActivitySubject.add(
-                                              ActivityType.NO_ACTIVITY);
-                                        onChange(str);
-                                      },
-                                      decoration: InputDecoration.collapsed(
-                                          hintText: appLocalization
-                                              .getTraslateValue("message")),
-                                    ),
-                                  ),
-                                ),
-                                controller.text?.isEmpty &&
-                                        (widget.waitingForForward == null ||
-                                            widget.waitingForForward == false)
-                                    ? IconButton(
+                      );
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  }),
+              Row(
+                children: <Widget>[
+                  !startAudioRecorder
+                      ? Expanded(
+                          child: Row(
+                            children: <Widget>[
+                              if (currentRoom.roomId.getUid().category !=
+                                  Categories.BOT)
+                                StreamBuilder<bool>(
+                                    stream: backSubject.stream,
+                                    builder: (c, back) {
+                                      return IconButton(
                                         icon: Icon(
-                                          Icons.attach_file,
-                                          color: IconTheme.of(context).color,
+                                          back.hasData && back.data
+                                              ? Icons.keyboard
+                                              : Icons.mood,
+                                          color: Colors.white,
                                         ),
                                         onPressed: () {
-                                          backSubject.add(false);
-                                          showButtonSheet();
-                                        })
-                                    : SizedBox(),
-                                controller.text.isEmpty &&
-                                        (widget.waitingForForward == null ||
-                                            widget.waitingForForward == false)
-                                    ? SizedBox.shrink()
-                                    : IconButton(
+                                          if (back.data) {
+                                            backSubject.add(false);
+                                              FocusScope.of(context).unfocus();
+                                          } else if (!back.data) {
+                                            FocusScope.of(context).unfocus();
+                                            Timer(Duration(milliseconds: 50),
+                                                () {
+                                              backSubject.add(true);
+                                            });
+                                          }
+                                        },
+                                      );
+                                    }),
+                              if (currentRoom.roomId.getUid().category ==
+                                  Categories.BOT)
+                                GestureDetector(
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black12,
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                          ),
+                                          child: Image.asset(
+                                            "assets/icons/bot_command.png",
+                                            width: 20,
+                                            height: 20,
+                                          )),
+                                      SizedBox(
+                                        width: 10,
+                                      )
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    _showBotCommands.add(true);
+                                  },
+                                ),
+                              Container(
+                                child: Flexible(
+                                  fit: FlexFit.tight,
+                                  child: TextField(
+                                    onTap: () {
+                                      backSubject.add(false);
+                                    },
+                                    minLines: 1,
+                                    style: TextStyle(fontSize: 19,height: 1.2),
+                                    maxLines: 15,
+                                    autofocus: false,
+                                    textInputAction: TextInputAction.newline,
+                                    controller: controller,
+                                    autocorrect: true,
+                                    focusNode: myFocusNode,
+                                    onSubmitted: null,
+                                    onChanged: (str) {
+                                      if (str?.length > 0)
+                                        isTypingActivitySubject
+                                            .add(ActivityType.TYPING);
+                                      else
+                                        NoActivitySubject.add(
+                                            ActivityType.NO_ACTIVITY);
+                                      onChange(str);
+                                    },
+                                    decoration: InputDecoration.collapsed(
+                                        hintText: appLocalization
+                                            .getTraslateValue("message"),
+                                ),
+                                  ),
+                                ),
+                              ),
+                              StreamBuilder(
+                                  stream: _showSendIcon.stream,
+                                  builder: (c, sh) {
+                                    if (sh.hasData && !sh.data && !widget.waitingForForward) {
+                                      return IconButton(
+                                          icon: Icon(
+                                            Icons.attach_file,
+                                            color: IconTheme.of(context).color,
+                                          ),
+                                          onPressed: () {
+                                            backSubject.add(false);
+                                            showButtonSheet();
+                                          });
+                                    } else {
+                                      return SizedBox.shrink();
+                                    }
+                                  }),
+                              StreamBuilder(
+                                  stream: _showSendIcon.stream,
+                                  builder: (c, sh) {
+                                    if ((sh.hasData && sh.data) ||
+                                        widget.waitingForForward) {
+                                      return IconButton(
                                         icon: Icon(
                                           Icons.send,
                                           color: Theme.of(context).primaryColor,
@@ -286,95 +307,102 @@ class _InputMessageWidget extends State<InputMessage> {
                                             : () {
                                                 sendMessage();
                                               },
-                                      ),
-                              ],
-                            ),
-                          )
-                        : RecordAudioSlideWidget(
-                            opacity: opacity(),
-                            time: time,
-                            rinning: startAudioRecorder),
-                    controller.text.isEmpty &&
-                            (widget.waitingForForward == null ||
-                                widget.waitingForForward == false)
-                        ? GestureDetector(
-                            onTapDown: (_) async {
-                              recordAudioPermission = await checkPermission
-                                  .checkAudioRecorderPermission();
-                            },
-                            onLongPressMoveUpdate: (tg) {
-                              if (tg.offsetFromOrigin.dx > -DX && started) {
-                                setState(() {
-                                  x = -tg.offsetFromOrigin.dx;
-                                  startAudioRecorder = true;
-                                });
-                              } else {
-                                if (started) {
-                                  started = false;
-                                  Vibration.vibrate(duration: 100);
-                                  setState(() {
-                                    startAudioRecorder = false;
-                                    x = 0;
-                                    size = 1;
-                                  });
-                                }
-                              }
-                            },
-                            onLongPressStart: (dw) async {
-                              if (recordAudioPermission) {
-                                sendRecordActivity();
-                                Vibration.vibrate(duration: 200);
-                                setState(() {
-                                  startAudioRecorder = true;
-                                  size = 2;
-                                  started = true;
-                                  time = DateTime.now();
-                                });
-
-                                await AudioRecorder.start(
-                                    path: await ExtStorage
-                                        .getExternalStoragePublicDirectory(
-                                            "${ExtStorage.DIRECTORY_MUSIC}/${randomString(10)}"),
-                                    audioOutputFormat: AudioOutputFormat.AAC);
-                              }
-                            },
-                            onLongPressEnd: (s) async {
-                              recordAudioTimer.cancel();
-                              NoActivitySubject.add(ActivityType.NO_ACTIVITY);
-                              setState(() {
-                                startAudioRecorder = false;
-                                x = 0;
-                                size = 1;
-                              });
-                              if (started) {
-                                try {
-                                  Recording recording =
-                                      await AudioRecorder.stop();
-                                  messageRepo.sendFileMessage(
-                                      widget.currentRoom.roomId.uid,
-                                      recording.path);
-                                } catch (e) {}
-                              }
-                            },
-                            child: Opacity(
-                              opacity: 0,
-                              child: Material(
-                                // button color
-                                child: SizedBox(
-                                  width: 50,
-                                  height: 50,
-                                ),
-                              ),
-                            ))
-                        : SizedBox(
-                            height: 50,
+                                      );
+                                    } else {
+                                      return SizedBox.shrink();
+                                    }
+                                  })
+                            ],
                           ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+                        )
+                      : RecordAudioSlideWidget(
+                          opacity: opacity(),
+                          time: time,
+                          rinning: startAudioRecorder),
+                  StreamBuilder(
+                      stream: _showSendIcon.stream,
+                      builder: (c, sm) {
+                        if (sm.hasData && !sm.data && !widget.waitingForForward) {
+                          return GestureDetector(
+                              onTapDown: (_) async {
+                                recordAudioPermission = await checkPermission
+                                    .checkAudioRecorderPermission();
+                              },
+                              onLongPressMoveUpdate: (tg) {
+                                if (tg.offsetFromOrigin.dx > -DX && started) {
+                                  setState(() {
+                                    x = -tg.offsetFromOrigin.dx;
+                                    startAudioRecorder = true;
+                                  });
+                                } else {
+                                  if (started) {
+                                    started = false;
+                                    Vibration.vibrate(duration: 100);
+                                    setState(() {
+                                      startAudioRecorder = false;
+                                      x = 0;
+                                      size = 1;
+                                    });
+                                  }
+                                }
+                              },
+                              onLongPressStart: (dw) async {
+                                if (recordAudioPermission) {
+                                  sendRecordActivity();
+                                  Vibration.vibrate(duration: 200);
+                                  setState(() {
+                                    startAudioRecorder = true;
+                                    size = 2;
+                                    started = true;
+                                    time = DateTime.now();
+                                  });
 
+                                  await AudioRecorder.start(
+                                      path: await ExtStorage
+                                          .getExternalStoragePublicDirectory(
+                                              "${ExtStorage.DIRECTORY_MUSIC}/${randomString(10)}"),
+                                      audioOutputFormat: AudioOutputFormat.AAC);
+                                }
+                              },
+                              onLongPressEnd: (s) async {
+                                recordAudioTimer.cancel();
+                                NoActivitySubject.add(ActivityType.NO_ACTIVITY);
+                                setState(() {
+                                  startAudioRecorder = false;
+                                  x = 0;
+                                  size = 1;
+                                });
+                                if (started) {
+                                  try {
+                                    Recording recording =
+                                        await AudioRecorder.stop();
+                                    messageRepo.sendFileMessage(
+                                        widget.currentRoom.roomId.uid,
+                                        recording.path);
+                                  } catch (e) {}
+                                }
+                              },
+                              child: Opacity(
+                                opacity: 0,
+                                child: Material(
+                                  // button color
+                                  child: SizedBox(
+                                    width: 50,
+                                    height: 50,
+                                  ),
+                                ),
+                              ));
+                        } else {
+                          return SizedBox(
+                            height: 50,
+                          );
+                        }
+                      })
+                ],
+              ),
+            ],
+          ),
+        ),
         StreamBuilder(
             stream: backSubject.stream,
             builder: (context, back) {
@@ -383,9 +411,7 @@ class _InputMessageWidget extends State<InputMessage> {
                     height: 270.0,
                     child: EmojiKeybord(
                       onTap: (emoji) {
-                        setState(() {
                           controller.text = controller.text + emoji.toString();
-                        });
                       },
                       onStickerTap: (Sticker sticker) {
                         messageRepo.sendStickerMessage(
@@ -422,7 +448,7 @@ class _InputMessageWidget extends State<InputMessage> {
       controller.clear();
       messageText = "";
 
-      _showMentionList = false;
+      _showMentionList.add(false);
     }
     widget.scrollToLastSentMessage();
   }
@@ -438,24 +464,23 @@ class _InputMessageWidget extends State<InputMessage> {
     messageText = str;
     if (currentRoom.roomId.getUid().category == Categories.GROUP) {
       if (str.isEmpty) {
-        _showMentionList = false;
-        setState(() {});
+        _showMentionList.add(false);
         return;
       }
       try {
         query = "";
         int i = str.lastIndexOf("@");
         if (i == -1) {
-          _showMentionList = false;
+          _showMentionList.add(false);
         }
         if ((i != 0 && str[i - 1] != " ") && str[i - 1] != "\n") {
           return;
         }
         if (i != -1 && !str.contains(" ", i)) {
           query = str.substring(i + 1, str.length);
-          _showMentionList = true;
+          _showMentionList.add(true);
         } else {
-          _showMentionList = false;
+          _showMentionList.add(false);
         }
       } catch (e) {}
     }
@@ -467,7 +492,6 @@ class _InputMessageWidget extends State<InputMessage> {
       }
     }
 
-    setState(() {});
   }
 
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;

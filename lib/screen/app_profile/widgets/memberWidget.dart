@@ -94,7 +94,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                             _accountRepo.currentUserUid
                                                 .asString()) {
                                       return Text(
-                                        m.data.name ?? m.data.username,
+                                        m.data.name ?? m.data.username??"",
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 16,

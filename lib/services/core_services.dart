@@ -51,6 +51,8 @@ class CoreServices {
   BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
+  String _lastMessagePackId = "";
+
   @visibleForTesting
   bool responseChecked = false;
 
@@ -84,6 +86,7 @@ class CoreServices {
   }
 
   void closeConnection() {
+    _connectionStatus.add(ConnectionStatus.Disconnected);
     _clientPacket.close();
     _connectionTimer.cancel();
   }
@@ -119,16 +122,10 @@ class CoreServices {
   startStream() async {
     try {
       _clientPacket = StreamController<ClientPacket>();
-      try{
-        _responseStream = _grpcCoreService.establishStream(
-            _clientPacket.stream,
-            options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()},
-            ));
-      }catch(e){
-        print(e.toString());
-      }
-
+      _responseStream = _grpcCoreService.establishStream(_clientPacket.stream,
+          options: CallOptions(
+            metadata: {'access_token': await _accountRepo.getAccessToken()},
+          ));
       _responseStream.listen((serverPacket) async {
         print(serverPacket.toString());
         gotResponse();
@@ -164,9 +161,19 @@ class CoreServices {
 
   sendMessage(MessageByClient message) {
     if (_clientPacket != null && !_clientPacket.isClosed) {
+      _lastMessagePackId = message.packetId;
       _clientPacket.add(ClientPacket()
         ..message = message
         ..id = message.packetId);
+      Timer(Duration(seconds: 3), () async {
+        if (_lastMessagePackId != null) {
+          _lastMessagePackId = message.packetId;
+          closeConnection();
+          Timer(Duration(seconds: 2), () {
+            startCheckerTimer();
+          });
+        }
+      });
     } else {
       startStream();
     }
@@ -232,6 +239,9 @@ class CoreServices {
   }
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
+    if (messageDeliveryAck.packetId.contains(_lastMessagePackId)) {
+      _lastMessagePackId = null;
+    }
     if (messageDeliveryAck.id.toInt() == 0) {
       return;
     }
@@ -290,8 +300,9 @@ class CoreServices {
       }
     }
 
-    if ((await _accountRepo.notification).contains("true") &&
-        (room != null && !room.mute)) {
+    if ((await _accountRepo.notification) == null ||
+        (await _accountRepo.notification).contains("true") &&
+            (room != null && !room.mute)) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)
@@ -355,16 +366,16 @@ saveMessageInMessagesDB(
     AccountRepo accountRepo, MessageDao messageDao, Message message) async {
   // ignore: missing_required_param
   Database.Message msg;
-  try{
-     msg = Database.Message(
+  try {
+    msg = Database.Message(
         id: message.id.toInt(),
         roomId: message.whichType() == Message_Type.persistEvent
             ? message.from.asString()
             : message.from.node.contains(accountRepo.currentUserUid.node)
-            ? message.to.asString()
-            : message.to.category == Categories.USER
-            ? message.from.asString()
-            : message.to.asString(),
+                ? message.to.asString()
+                : message.to.category == Categories.USER
+                    ? message.from.asString()
+                    : message.to.asString(),
         packetId: message.packetId,
         time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
         to: message.to.asString(),
@@ -375,12 +386,10 @@ saveMessageInMessagesDB(
         edited: message.edited,
         encrypted: message.encrypted,
         type: getMessageType(message.whichType()));
-  }catch(e){
+  } catch (e) {
     print(e.toString());
     return null;
-
   }
-
 
   int dbId = await messageDao.insertMessage(msg);
 
