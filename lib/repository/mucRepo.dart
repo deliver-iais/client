@@ -91,7 +91,7 @@ class MucRepo {
         }
         insertUserInDb(groupUid, members);
         fetchMembersUserName(members);
-   //    i = i + 5;
+      i = i + 5;
       }
     } catch (e) {
       print(e.toString());

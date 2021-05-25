@@ -20,6 +20,7 @@ import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
@@ -66,7 +67,7 @@ class _BoxContentState extends State<BoxContent> {
       children: [
         if (widget.message.roomId.uid.category == Categories.GROUP &&
             !widget.isSender)
-          senderNameBox(),
+          SizedBox(height:20,child: senderNameBox()),
         if (widget.message.to.getUid().category != Categories.BOT &&
             widget.message.replyToId != null &&
             widget.message.replyToId > 0)
@@ -111,7 +112,7 @@ class _BoxContentState extends State<BoxContent> {
     return GestureDetector(
       child: Text(
         name,
-        style: TextStyle(color: Colors.blue),
+        style: TextStyle(color: Colors.blue,fontSize: 15),
       ),
       onTap: () {
         _routingServices.openRoom(widget.message.from);
@@ -129,7 +130,7 @@ class _BoxContentState extends State<BoxContent> {
             return GestureDetector(
               child: Text(
                   "${_appLocalization.getTraslateValue("Forwarded_From")} ${snapshot.data}",
-                  style: TextStyle(color: ExtraTheme.of(context).text)),
+                  style: TextStyle(color: ExtraTheme.of(context).text,fontSize: 13)),
               onTap: () {
                 _routingServices.openRoom(widget.message.forwardedFrom);
               },
@@ -137,7 +138,7 @@ class _BoxContentState extends State<BoxContent> {
           } else {
             return Text(
                 "${_appLocalization.getTraslateValue("Forwarded_From")} Unknown",
-                style: TextStyle(color: ExtraTheme.of(context).secondColor));
+                style: TextStyle(color: ExtraTheme.of(context).secondColor,fontSize: 13));
           }
         },
       ),
@@ -206,16 +207,23 @@ class _BoxContentState extends State<BoxContent> {
         );
         break;
       case MessageType.sharePrivateDataRequest:
-        return SharePrivateDataRequestMessageWidget(message: widget.message,isSeen: widget.isSeen,isSender: widget.isSender,);
+        return SharePrivateDataRequestMessageWidget(
+          message: widget.message,
+          isSeen: widget.isSeen,
+          isSender: widget.isSender,
+        );
         break;
       case MessageType.sharePrivateDataAcceptance:
-        return SharePrivateDataAcceptMessageWidget(message: widget.message,isSeen: widget.isSeen,isSender: widget.isSender,);
+        return SharePrivateDataAcceptMessageWidget(
+          message: widget.message,
+          isSeen: widget.isSeen,
+          isSender: widget.isSender,
+        );
 
         break;
       case MessageType.NOT_SET:
         // TODO: Handle this case.
         break;
-
     }
     return Container();
   }

@@ -41,7 +41,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   @override
   void initState() {
     super.initState();
- //   _accountRepo.usernameIsSet();
+   _accountRepo.usernameIsSet();
     subject.stream
         .debounceTime(Duration(milliseconds: 250))
         .listen((username) async {

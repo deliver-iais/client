@@ -248,7 +248,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     minLines: 1,
                                     style: TextStyle(fontSize: 19,height: 1.2),
                                     maxLines: 15,
-                                    autofocus: false,
+                                    autofocus:false,
                                     textInputAction: TextInputAction.newline,
                                     controller: controller,
                                     autocorrect: true,

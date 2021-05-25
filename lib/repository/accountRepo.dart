@@ -14,6 +14,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:device_info/device_info.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:get_it/get_it.dart';
 
@@ -168,15 +169,19 @@ class AccountRepo {
     if (null != await sharedPrefs.get(USERNAME)) {
       return true;
     }
-    try{
-      var getIdRequest = await _queryServiceClient.getIdByUid(
-          GetIdByUidReq()..uid = currentUserUid,
+    try {
+      var getIdRequest = await _queryServiceClient. getIdByUid(
+          GetIdByUidReq()
+            ..uid = currentUserUid,
           options:
-          CallOptions(metadata: {'access_token': await getAccessToken()},timeout: Duration(seconds: 3)));
-      var result =  await _userServices.getUserProfile(GetUserProfileReq(),
+          CallOptions(metadata: {'access_token': await getAccessToken()},
+              timeout: Duration(seconds: 2)));
+      var result = await _userServices.getUserProfile(GetUserProfileReq(),
           options:
           CallOptions(metadata: {'access_token': await getAccessToken()}));
-      if (getIdRequest!= null && getIdRequest.id != null &&  getIdRequest.id.length>0 && result.profile.hasFirstName()) {
+      if ((getIdRequest != null && getIdRequest.id != null &&
+          getIdRequest.id.length > 1) || result.profile.hasFirstName() &&
+          result.profile.firstName.length > 1) {
         _saveProfilePrivateDate(
             username: getIdRequest.id,
             firstName: result.profile.firstName,
@@ -189,6 +194,7 @@ class AccountRepo {
     }catch(e){
       return false;
     }
+
 
   }
 

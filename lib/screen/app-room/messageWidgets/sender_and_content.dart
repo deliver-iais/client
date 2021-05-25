@@ -74,6 +74,7 @@ class SenderAndContent extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       softWrap: false,
+            style: TextStyle(fontSize: 15,color: Colors.white70),
                     )
                   : messages[0].type == MessageType.FILE
                       ? Text(
@@ -84,6 +85,7 @@ class SenderAndContent extends StatelessWidget {
                                   ? 'Video'
                                   : 'File',
                           maxLines: 1,
+                          style: TextStyle(fontSize: 15),
                           overflow: TextOverflow.ellipsis,
                           softWrap: false,
                         )
@@ -91,6 +93,7 @@ class SenderAndContent extends StatelessWidget {
               : Text(
                   content,
                   maxLines: 1,
+            style: TextStyle(fontSize: 15),
                   overflow: TextOverflow.ellipsis,
                   softWrap: false,
                 ),
@@ -106,7 +109,7 @@ class SenderAndContent extends StatelessWidget {
         color: inBox == true
             ? Theme.of(context).primaryColor.withGreen(70)
             : Theme.of(context).primaryColor,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.bold, fontSize: 15,
       ),
       maxLines: 1,
       softWrap: false,
