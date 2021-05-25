@@ -32,6 +32,7 @@ class BoxContent extends StatefulWidget {
   final bool isSeen;
   final Function onUsernameClick;
   final String pattern;
+  final Function onBotCommandClick;
 
   const BoxContent(
       {Key key,
@@ -41,6 +42,7 @@ class BoxContent extends StatefulWidget {
       this.isSeen,
       this.pattern,
       this.onUsernameClick,
+      this.onBotCommandClick,
       this.scrollToMessage})
       : super(key: key);
 
@@ -67,7 +69,7 @@ class _BoxContentState extends State<BoxContent> {
       children: [
         if (widget.message.roomId.uid.category == Categories.GROUP &&
             !widget.isSender)
-          SizedBox(height:20,child: senderNameBox()),
+          SizedBox(height: 20, child: senderNameBox()),
         if (widget.message.to.getUid().category != Categories.BOT &&
             widget.message.replyToId != null &&
             widget.message.replyToId > 0)
@@ -112,7 +114,7 @@ class _BoxContentState extends State<BoxContent> {
     return GestureDetector(
       child: Text(
         name,
-        style: TextStyle(color: Colors.blue,fontSize: 15),
+        style: TextStyle(color: Colors.blue, fontSize: 15),
       ),
       onTap: () {
         _routingServices.openRoom(widget.message.from);
@@ -130,7 +132,8 @@ class _BoxContentState extends State<BoxContent> {
             return GestureDetector(
               child: Text(
                   "${_appLocalization.getTraslateValue("Forwarded_From")} ${snapshot.data}",
-                  style: TextStyle(color: ExtraTheme.of(context).text,fontSize: 13)),
+                  style: TextStyle(
+                      color: ExtraTheme.of(context).text, fontSize: 13)),
               onTap: () {
                 _routingServices.openRoom(widget.message.forwardedFrom);
               },
@@ -138,7 +141,8 @@ class _BoxContentState extends State<BoxContent> {
           } else {
             return Text(
                 "${_appLocalization.getTraslateValue("Forwarded_From")} Unknown",
-                style: TextStyle(color: ExtraTheme.of(context).secondColor,fontSize: 13));
+                style: TextStyle(
+                    color: ExtraTheme.of(context).secondColor, fontSize: 13));
           }
         },
       ),
@@ -156,6 +160,9 @@ class _BoxContentState extends State<BoxContent> {
             maxWidth: widget.maxWidth,
             isSender: widget.isSender,
             isCaption: false,
+            isBotMessage:
+                widget.message.from.getUid().category == Categories.BOT,
+            onBotCommandClick: widget.onBotCommandClick,
             onUsernameClick: widget.onUsernameClick,
             isSeen: widget.isSeen,
           ),

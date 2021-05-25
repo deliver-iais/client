@@ -13,16 +13,16 @@ class RecievedMessageBox extends StatelessWidget {
   final Function scrollToMessage;
   final Function omUsernameClick;
   final String pattern;
-
+  final Function onBotCommandClick;
 
   RecievedMessageBox(
       {Key key,
       this.message,
       this.maxWidth,
+      this.onBotCommandClick,
       this.isGroup,
       this.scrollToMessage,
       this.omUsernameClick,
-
       this.pattern})
       : super(key: key);
   final seenDao = GetIt.I.get<SeenDao>();
@@ -42,6 +42,7 @@ class RecievedMessageBox extends StatelessWidget {
                     message: message,
                     maxWidth: maxWidth,
                     isSender: false,
+                    onBotCommandClick: onBotCommandClick,
                     scrollToMessage: scrollToMessage,
                     onUsernameClick: this.omUsernameClick,
                   )
@@ -53,6 +54,7 @@ class RecievedMessageBox extends StatelessWidget {
                       child: BoxContent(
                         message: message,
                         maxWidth: maxWidth,
+                        onBotCommandClick: onBotCommandClick,
                         isSender: false,
                         scrollToMessage: scrollToMessage,
                         pattern: this.pattern,

@@ -25,7 +25,7 @@ class BotRepo{
    var result = await _botServiceClient.getInfo(GetInfoReq()..bot= botUid,options: CallOptions(
     metadata: {"access_token" : await _accountRepo.getAccessToken()}
    ));
-  _botInfoDao.saveBotInfo( BotInfo( description: result.description, username: botUid.node,name: result.name, commands:json.decode(result.commands.toString())));
+  _botInfoDao.saveBotInfo( BotInfo( description: result.description, username: botUid.node,name: result.name, commands: jsonEncode(result.commands)));
   }
 
   Future<BotInfo> getBotInfo(Uid botUid)async{

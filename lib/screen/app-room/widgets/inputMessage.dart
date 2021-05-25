@@ -100,8 +100,8 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
+
     super.initState();
-    myFocusNode = FocusNode(skipTraversal: true);
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, Duration(seconds: 10)))
         .listen((activityType) {
@@ -153,7 +153,7 @@ class _InputMessageWidget extends State<InputMessage> {
                 return BotCommandsWidget(
                   botUid: widget.currentRoom.roomId.getUid(),
                   onCommandClick: (String command) {
-                    controller.text = command;
+                    controller.text = "/"+command;
                     _showBotCommands.add(false);
                   },
                 );
@@ -248,11 +248,10 @@ class _InputMessageWidget extends State<InputMessage> {
                                     minLines: 1,
                                     style: TextStyle(fontSize: 19,height: 1.2),
                                     maxLines: 15,
-                                    autofocus:false,
+                                    autofocus: widget.replyMessageId>0,
                                     textInputAction: TextInputAction.newline,
                                     controller: controller,
                                     autocorrect: true,
-                                    focusNode: myFocusNode,
                                     onSubmitted: null,
                                     onChanged: (str) {
                                       if (str?.length > 0)

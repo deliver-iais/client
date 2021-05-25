@@ -26,25 +26,45 @@ class _BotCommandsWidgetState extends State<BotCommandsWidget> {
       future: _botRepo.getBotInfo(widget.botUid),
       builder: (c, botInfo) {
         if (botInfo.hasData && botInfo.data != null) {
-          Map<String, String> botCommands = json.decode(botInfo.data.commands);
+          Map<String, dynamic> botCommands = jsonDecode(botInfo.data.commands.toString());
           return Container(
-            child: Expanded(
-                child: ListView.builder(
-                    itemCount: botCommands.length,
-                    itemBuilder: (c, index) {
-                      return GestureDetector(
-                        child: Text(
-                          botCommands.keys.toList()[index],
-                          style:
-                              TextStyle(color: Theme.of(context).primaryColor),
-                        ),
-                        onTap: () {
-                          widget.onCommandClick(
-                              botCommands.values.toList()[index]);
-                          Navigator.pop(context);
-                        },
-                      );
-                    })),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+            ),
+            child:   SizedBox(
+              height: botCommands.keys.length*32.toDouble(),
+                  child:  Scrollbar(
+                      child:ListView.builder(
+                      itemCount: botCommands.length,
+                      itemBuilder: (c, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                          child: GestureDetector(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "/"+botCommands.keys.toList()[index],
+                                  style:
+                                  TextStyle(color: Colors.black,fontSize: 18),
+                                ),
+                                Text(
+                                  botCommands.values.toList()[index],
+                                  style:
+                                      TextStyle(color: Theme.of(context).primaryColor,fontSize: 14),
+                                ),
+
+                              ],
+                            ),
+                            onTap: () {
+                              widget.onCommandClick(
+                                  botCommands.keys.toList()[index]);
+                            },
+                          ),
+                        );
+                      })),
+                ),
           );
         } else {
           return SizedBox.shrink();
@@ -53,8 +73,4 @@ class _BotCommandsWidgetState extends State<BotCommandsWidget> {
     );
   }
 
-  @override
-  void initState() {
-    _botRepo.featchBotInfo(widget.botUid);
-  }
 }

@@ -188,7 +188,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         .showMenu(
             context: context,
             items: <PopupMenuEntry<OperationOnMessage>>[
-              OperationOnMessageEntry(message)
+              OperationOnMessageEntry(
+                message,
+                hasPermissionInChannel: _hasPermissionInChannel.value,
+              )
             ],
             color: Theme.of(context).backgroundColor.withBlue(20))
         .then<void>((OperationOnMessage opr) {
@@ -1084,6 +1087,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       ),
     );
   }
+  onBotCommandClick(String command){
+    _messageRepo.sendTextMessage(widget.roomId.getUid(), command);
+  }
 
   Widget showReceivedMessage(Message message, double _maxWidth,
       int lastMessageId, int pendingMessagesLength) {
@@ -1092,6 +1098,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       message: message,
       maxWidth: _maxWidth,
       pattern: pattern,
+      onBotCommandClick: onBotCommandClick,
       isGroup: widget.roomId.uid.category == Categories.GROUP,
       scrollToMessage: (int id) {
         _scrollToMessage(id: id, position: pendingMessagesLength + id);
@@ -1131,10 +1138,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         onTap: () {
           _selectMultiMessageSubject.stream.value
               ? _addForwardMessage(message)
-              : widget.roomId.getUid().category != Categories.CHANNEL ||
-                      _hasPermissionInChannel.value
-                  ? _showCustomMenu(message)
-                  : null;
+              : _showCustomMenu(message);
         },
         onLongPress: () {
           _selectMultiMessageSubject.add(true);

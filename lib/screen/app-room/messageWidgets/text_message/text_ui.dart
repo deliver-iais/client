@@ -16,9 +16,11 @@ class TextUi extends StatelessWidget {
   final bool isSender;
   final bool isCaption;
   final bool isSeen;
+  final bool isBotMessage;
   final Function onUsernameClick;
   final double imageWidth;
   final String pattern;
+  final Function onBotCommandClick;
 
   const TextUi(
       {Key key,
@@ -30,6 +32,8 @@ class TextUi extends StatelessWidget {
       this.onUsernameClick,
       this.isCaption,
       this.pattern,
+      this.onBotCommandClick,
+      this.isBotMessage = false,
       this.imageWidth})
       : super(key: key);
 
@@ -93,7 +97,9 @@ class TextUi extends StatelessWidget {
         this.isSender,
         this.isSeen,
         this.onUsernameClick,
-        this.pattern);
+        this.pattern,
+        this.onBotCommandClick,
+        isBotMessage: isBotMessage);
 
     for (var i = 1; i <= idx; i++) {
       joint = Column(
@@ -112,7 +118,9 @@ class TextUi extends StatelessWidget {
               this.isSender,
               this.isSeen,
               this.onUsernameClick,
-              this.pattern),
+              this.pattern,
+              this.onBotCommandClick,
+              isBotMessage: isBotMessage),
           joint,
         ],
       );
@@ -135,7 +143,9 @@ class TextUi extends StatelessWidget {
               this.isSender,
               this.isSeen,
               this.onUsernameClick,
-              this.pattern),
+              this.pattern,
+              this.onBotCommandClick,
+              isBotMessage: isBotMessage),
         ],
       );
     }
@@ -175,8 +185,16 @@ class TextBlock {
     texts.add(t);
   }
 
-  build(double maxWidth, Message message, bool isLastBlock, bool isSender,
-      bool isSeen, Function onUsernameClick, String pattern) {
+  build(
+      double maxWidth,
+      Message message,
+      bool isLastBlock,
+      bool isSender,
+      bool isSeen,
+      Function onUsernameClick,
+      String pattern,
+      Function onBotCommandClick,
+      {isBotMessage = false}) {
     return Column(
         crossAxisAlignment:
             isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -187,8 +205,17 @@ class TextBlock {
               children: <Widget>[
                 Container(
                     constraints: BoxConstraints.loose(Size.fromWidth(maxWidth)),
-                    child: _textWidget(texts[i], message, isLastBlock, isSender,
-                        i, texts.length - 1, isSeen, onUsernameClick, pattern)),
+                    child: _textWidget(
+                        texts[i],
+                        message,
+                        isLastBlock,
+                        isSender,
+                        i,
+                        texts.length - 1,
+                        isSeen,
+                        onUsernameClick,
+                        pattern,
+                        onBotCommandClick,isBotMessage: isBotMessage)),
               ],
             )
         ]);
@@ -204,7 +231,9 @@ Widget _textWidget(
     int lenght,
     bool isSeen,
     Function onClick,
-    String pattern) {
+    String pattern,
+    Function onBotCommandClick,
+    {bool isBotMessage = false}) {
   return Wrap(
     alignment: WrapAlignment.end,
     crossAxisAlignment: WrapCrossAlignment.end,
@@ -233,9 +262,22 @@ Widget _textWidget(
               fontSize: 16,
             ),
             onTap: (username) async {
-              onClick(username);
+              onBotCommandClick(username);
             },
           ),
+          if (isBotMessage)
+            MatchText(
+              type: ParsedType.CUSTOM,
+              pattern:
+                  pattern != null ? pattern : "[/][a-zA-Z]([a-zA-Z0-9_]){4,19}",
+              style: TextStyle(
+                color: pattern != null ? Colors.red : Colors.yellowAccent,
+                fontSize: 16,
+              ),
+              onTap: (username) async {
+                onBotCommandClick(username);
+              },
+            ),
           MatchText(
             type: ParsedType.PHONE,
             style: TextStyle(
