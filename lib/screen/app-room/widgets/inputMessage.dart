@@ -207,15 +207,14 @@ class _InputMessageWidget extends State<InputMessage> {
                                       },
                                     );
                                   }),
-                              Container(
-                                child: Flexible(
-                                  fit: FlexFit.tight,
+                               Flexible(
                                   child: TextField(
                                     onTap: () {
                                       backSubject.add(false);
+                                     scrollTolast(1);
                                     },
                                     minLines: 1,
-                                    style: TextStyle(fontSize: 19, height: 1.2),
+                                    style: TextStyle(fontSize: 19, height: 1),
                                     maxLines: 15,
                                     autofocus: widget.replyMessageId > 1,
                                     textInputAction: TextInputAction.newline,
@@ -237,7 +236,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     ),
                                   ),
                                 ),
-                              ),
+
                               if (currentRoom.roomId.getUid().category ==
                                   Categories.BOT)
                                 StreamBuilder<bool>(
@@ -522,5 +521,14 @@ class _InputMessageWidget extends State<InputMessage> {
       messageRepo.sendFileMessageDeprecated(
           currentRoom.roomId.uid, result.paths);
     }
+  }
+
+  void scrollTolast(int count) {
+    if(count<3)
+      Timer(Duration(milliseconds: count*100), (){
+        widget.scrollToLastSentMessage();
+        scrollTolast(count+1);
+      });
+
   }
 }

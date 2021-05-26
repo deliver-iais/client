@@ -339,7 +339,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         return Scaffold(
           appBar: buildAppbar(snapshot),
           body: Container(
-            child: Column(
+                child:Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 StreamBuilder<List<PendingMessage>>(
@@ -407,7 +407,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                 _itemCount -
                                                                         position
                                                                             .data >
-                                                                    15 && widget.roomId.getUid().category != Categories.BOT) {
+                                                                    15 &&
+                                                                widget.roomId
+                                                                        .getUid()
+                                                                        .category !=
+                                                                    Categories
+                                                                        .BOT) {
                                                               return scrollWidget(
                                                                   0);
                                                             } else {
@@ -1039,12 +1044,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         dragSubject.add(false);
       },
       onDragEnd: (t) {
-        print(t.offset.dx);
         if (t.offset.dx < MediaQuery.of(context).size.width / 3 ||
             t.offset.dx > MediaQuery.of(context).size.width - 80) {
           _repliedMessage.add(message);
-          setState(() {
-          });
+          //  FocusScope.of(context).requestFocus(FocusNode());
         }
         dragSubject.add(true);
       },
@@ -1207,7 +1210,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   scrollToLast() {
     _itemScrollController.scrollTo(
-        index: _itemCount, duration: Duration(milliseconds: 10));
+        index: _itemCount-1,duration: Duration(microseconds: 1));
+
   }
 
   onUsernameClick(String username) async {
