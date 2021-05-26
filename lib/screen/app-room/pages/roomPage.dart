@@ -407,7 +407,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                 _itemCount -
                                                                         position
                                                                             .data >
-                                                                    15) {
+                                                                    15 && widget.roomId.getUid().category != Categories.BOT) {
                                                               return scrollWidget(
                                                                   0);
                                                             } else {
@@ -581,15 +581,29 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             }
           });
     } else
-      return NewMessageInput(
-        currentRoomId: widget.roomId,
-        replyMessageId:
-            _repliedMessage.value != null ? _repliedMessage.value.id ?? -1 : -1,
-        resetRoomPageDetails: _resetRoomPageDetails,
-        waitingForForward: _waitingForForwardedMessage.value,
-        sendForwardMessage: _sendForwardMessage,
-        scrollToLastSentMessage: scrollToLast,
-      );
+      return StreamBuilder(
+          stream: _repliedMessage.stream,
+          builder: (c, rm) {
+            if (rm.hasData && rm.data != null) {
+              return NewMessageInput(
+                currentRoomId: widget.roomId,
+                replyMessageId: rm.data.id,
+                resetRoomPageDetails: _resetRoomPageDetails,
+                waitingForForward: _waitingForForwardedMessage.value,
+                sendForwardMessage: _sendForwardMessage,
+                scrollToLastSentMessage: scrollToLast,
+              );
+            } else {
+              return NewMessageInput(
+                currentRoomId: widget.roomId,
+                replyMessageId: -1,
+                resetRoomPageDetails: _resetRoomPageDetails,
+                waitingForForward: _waitingForForwardedMessage.value,
+                sendForwardMessage: _sendForwardMessage,
+                scrollToLastSentMessage: scrollToLast,
+              );
+            }
+          });
   }
 
   PreferredSize buildAppbar(AsyncSnapshot<bool> snapshot) {
@@ -1029,6 +1043,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         if (t.offset.dx < MediaQuery.of(context).size.width / 3 ||
             t.offset.dx > MediaQuery.of(context).size.width - 80) {
           _repliedMessage.add(message);
+          setState(() {
+          });
         }
         dragSubject.add(true);
       },
@@ -1087,7 +1103,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       ),
     );
   }
-  onBotCommandClick(String command){
+
+  onBotCommandClick(String command) {
     _messageRepo.sendTextMessage(widget.roomId.getUid(), command);
   }
 

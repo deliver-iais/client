@@ -100,7 +100,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
-
     super.initState();
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, Duration(seconds: 10)))
@@ -121,7 +120,6 @@ class _InputMessageWidget extends State<InputMessage> {
         _showSendIcon.add(false);
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +151,9 @@ class _InputMessageWidget extends State<InputMessage> {
                 return BotCommandsWidget(
                   botUid: widget.currentRoom.roomId.getUid(),
                   onCommandClick: (String command) {
-                    controller.text = "/"+command;
+                    controller.text = "/" + command;
+                    controller.selection = TextSelection.fromPosition(
+                        TextPosition(offset: controller.text.length));
                     _showBotCommands.add(false);
                   },
                 );
@@ -184,60 +184,29 @@ class _InputMessageWidget extends State<InputMessage> {
                       ? Expanded(
                           child: Row(
                             children: <Widget>[
-                              if (currentRoom.roomId.getUid().category !=
-                                  Categories.BOT)
-                                StreamBuilder<bool>(
-                                    stream: backSubject.stream,
-                                    builder: (c, back) {
-                                      return IconButton(
-                                        icon: Icon(
-                                          back.hasData && back.data
-                                              ? Icons.keyboard
-                                              : Icons.mood,
-                                          color: Colors.white,
-                                        ),
-                                        onPressed: () {
-                                          if (back.data) {
-                                            backSubject.add(false);
-                                              FocusScope.of(context).unfocus();
-                                          } else if (!back.data) {
-                                            FocusScope.of(context).unfocus();
-                                            Timer(Duration(milliseconds: 50),
-                                                () {
-                                              backSubject.add(true);
-                                            });
-                                          }
-                                        },
-                                      );
-                                    }),
-                              if (currentRoom.roomId.getUid().category ==
-                                  Categories.BOT)
-                                GestureDetector(
-                                  child: Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 10,
+                              StreamBuilder<bool>(
+                                  stream: backSubject.stream,
+                                  builder: (c, back) {
+                                    return IconButton(
+                                      icon: Icon(
+                                        back.hasData && back.data
+                                            ? Icons.keyboard
+                                            : Icons.mood,
+                                        color: Colors.white,
                                       ),
-                                      Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.black12,
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                          child: Image.asset(
-                                            "assets/icons/bot_command.png",
-                                            width: 20,
-                                            height: 20,
-                                          )),
-                                      SizedBox(
-                                        width: 10,
-                                      )
-                                    ],
-                                  ),
-                                  onTap: () {
-                                    _showBotCommands.add(true);
-                                  },
-                                ),
+                                      onPressed: () {
+                                        if (back.data) {
+                                          backSubject.add(false);
+                                          FocusScope.of(context).unfocus();
+                                        } else if (!back.data) {
+                                          FocusScope.of(context).unfocus();
+                                          Timer(Duration(milliseconds: 50), () {
+                                            backSubject.add(true);
+                                          });
+                                        }
+                                      },
+                                    );
+                                  }),
                               Container(
                                 child: Flexible(
                                   fit: FlexFit.tight,
@@ -246,9 +215,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                       backSubject.add(false);
                                     },
                                     minLines: 1,
-                                    style: TextStyle(fontSize: 19,height: 1.2),
+                                    style: TextStyle(fontSize: 19, height: 1.2),
                                     maxLines: 15,
-                                    autofocus: widget.replyMessageId>0,
+                                    autofocus: widget.replyMessageId > 1,
                                     textInputAction: TextInputAction.newline,
                                     controller: controller,
                                     autocorrect: true,
@@ -263,16 +232,59 @@ class _InputMessageWidget extends State<InputMessage> {
                                       onChange(str);
                                     },
                                     decoration: InputDecoration.collapsed(
-                                        hintText: appLocalization
-                                            .getTraslateValue("message"),
-                                ),
+                                      hintText: appLocalization
+                                          .getTraslateValue("message"),
+                                    ),
                                   ),
                                 ),
                               ),
+                              if (currentRoom.roomId.getUid().category ==
+                                  Categories.BOT)
+                                StreamBuilder<bool>(
+                                    stream: _showSendIcon.stream,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData && !snapshot.data)
+                                        return GestureDetector(
+                                          child: Row(
+                                            children: [
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Container(
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                        width: 1,
+                                                        color: Colors.white),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
+                                                  ),
+                                                  child: SizedBox(
+                                                      width: 20,
+                                                      child: Center(
+                                                          child: Text(
+                                                        "/",
+                                                        style: TextStyle(
+                                                            fontSize: 19),
+                                                      )))),
+                                              SizedBox(
+                                                width: 15,
+                                              )
+                                            ],
+                                          ),
+                                          onTap: () {
+                                            _showBotCommands.add(true);
+                                          },
+                                        );
+                                      else
+                                        return SizedBox.shrink();
+                                    }),
                               StreamBuilder(
                                   stream: _showSendIcon.stream,
                                   builder: (c, sh) {
-                                    if (sh.hasData && !sh.data && !widget.waitingForForward) {
+                                    if (sh.hasData &&
+                                        !sh.data &&
+                                        !widget.waitingForForward) {
                                       return IconButton(
                                           icon: Icon(
                                             Icons.attach_file,
@@ -321,7 +333,9 @@ class _InputMessageWidget extends State<InputMessage> {
                   StreamBuilder(
                       stream: _showSendIcon.stream,
                       builder: (c, sm) {
-                        if (sm.hasData && !sm.data && !widget.waitingForForward) {
+                        if (sm.hasData &&
+                            !sm.data &&
+                            !widget.waitingForForward) {
                           return GestureDetector(
                               onTapDown: (_) async {
                                 recordAudioPermission = await checkPermission
@@ -410,7 +424,7 @@ class _InputMessageWidget extends State<InputMessage> {
                     height: 270.0,
                     child: EmojiKeybord(
                       onTap: (emoji) {
-                          controller.text = controller.text + emoji.toString();
+                        controller.text = controller.text + emoji.toString();
                       },
                       onStickerTap: (Sticker sticker) {
                         messageRepo.sendStickerMessage(
@@ -460,6 +474,12 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void onChange(String str) {
+    if (currentRoom.roomId.getUid().category == Categories.BOT) {
+      if (str.isNotEmpty && str.length == 1 && str.contains("/")) {
+        _showBotCommands.add(true);
+        return;
+      }
+    }
     messageText = str;
     if (currentRoom.roomId.getUid().category == Categories.GROUP) {
       if (str.isEmpty) {
@@ -490,7 +510,6 @@ class _InputMessageWidget extends State<InputMessage> {
         _showBotCommands.add(false);
       }
     }
-
   }
 
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;
