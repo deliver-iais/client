@@ -51,7 +51,7 @@ class CoreServices {
   BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
-  String _lastMessagePackId = "";
+
 
   @visibleForTesting
   bool responseChecked = false;
@@ -78,7 +78,6 @@ class CoreServices {
       return;
     }
     startStream();
-
     startCheckerTimer();
     _connectionStatus.distinct().listen((event) {
       connectionStatus.add(event);
@@ -164,21 +163,9 @@ class CoreServices {
 
   sendMessage(MessageByClient message) {
     if (_clientPacket != null && !_clientPacket.isClosed) {
-      if (_lastMessagePackId == null) {
-        _lastMessagePackId = message.packetId;
-      }
       _clientPacket.add(ClientPacket()
         ..message = message
         ..id = message.packetId);
-      Timer(Duration(seconds: 4), () async {
-        if (_lastMessagePackId != null) {
-          _lastMessagePackId = message.packetId;
-          closeConnection();
-          Timer(Duration(seconds: 3), () {
-            startCheckerTimer();
-          });
-        }
-      });
     } else {
       startStream();
     }
@@ -244,9 +231,6 @@ class CoreServices {
   }
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
-    if (_lastMessagePackId != null && messageDeliveryAck.packetId.contains(_lastMessagePackId)) {
-      _lastMessagePackId = null;
-    }
     if (messageDeliveryAck.id.toInt() == 0) {
       return;
     }

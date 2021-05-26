@@ -430,7 +430,7 @@ class MessageRepo {
       _pendingMessageDao.deletePendingMessage(pendingMessage.messagePacketId);
       return false;
     }
-    if(pendingMessage.remainingRetries<2){
+    if(pendingMessage.remainingRetries<3){
       _messageDao.updateMessage(message.copyWith(sendingFailed: true));
       return false;
     }
