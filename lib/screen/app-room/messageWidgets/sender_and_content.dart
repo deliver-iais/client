@@ -10,6 +10,7 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class SenderAndContent extends StatelessWidget {
@@ -36,16 +37,15 @@ class SenderAndContent extends StatelessWidget {
     }
     return title;
   }
+  AppLocalization appLocalization;
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    appLocalization = AppLocalization.of(context);
     String content = messages.length > 1
         ? '${messages.length} ' +
             appLocalization.getTraslateValue("ForwardedMessages")
-        : messages[0].type == MessageType.TEXT
-            ? (jsonDecode(messages[0].json))["1"]
-            : "File";
+        : getContent(messages[0]);
 
     return Container(
       width: 200,
@@ -100,6 +100,55 @@ class SenderAndContent extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  getContent(Message message) {
+    switch(message.type){
+
+      case MessageType.TEXT:
+       return message.json.toText().text;
+        break;
+      case MessageType.FILE:
+      return  appLocalization.getTraslateValue("File");
+        break;
+      case MessageType.STICKER:
+       return appLocalization.getTraslateValue("Sticker");
+        break;
+      case MessageType.LOCATION:
+       return "Location";
+        break;
+      case MessageType.LIVE_LOCATION:
+        return "Location";
+        break;
+      case MessageType.POLL:
+        return "Poll";
+        break;
+      case MessageType.FORM:
+        return "Form";
+        break;
+      case MessageType.PERSISTENT_EVENT:
+       return "\t";
+        break;
+      case MessageType.NOT_SET:
+        return "\t";
+        break;
+      case MessageType.BUTTONS:
+        return "Form";
+        break;
+      case MessageType.SHARE_UID:
+       return message.json.toShareUid().name;
+        break;
+      case MessageType.FORM_RESULT:
+        return "Form";
+        break;
+      case MessageType.sharePrivateDataRequest:
+        return "Request";
+        break;
+      case MessageType.sharePrivateDataAcceptance:
+        return "Request";
+        break;
+    }
+
   }
 
   Text showName(String s, BuildContext context) {

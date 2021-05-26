@@ -220,7 +220,18 @@ class _InputMessageWidget extends State<InputMessage> {
                                     textInputAction: TextInputAction.newline,
                                     controller: controller,
                                     autocorrect: true,
-                                    onSubmitted: null,
+                                    onSubmitted: (d){
+                                      controller.text?.isEmpty &&
+                                          (widget.waitingForForward ==
+                                              null ||
+                                              widget.waitingForForward ==
+                                                  false)
+                                          ? () async {}
+                                          : () {
+                                        sendMessage();
+                                      };
+
+                                    },
                                     onChanged: (str) {
                                       if (str?.length > 0)
                                         isTypingActivitySubject
