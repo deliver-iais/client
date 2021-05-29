@@ -143,7 +143,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                                       .getTraslateValue("disconnect"),
                                   style: TextStyle(
                                       fontSize: 16,
-                                      color: Theme.of(context).primaryColor))
+                                      color: ExtraTheme.of(context).connectionStatus))
                             ],
                           );
                         } else {
@@ -187,7 +187,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
               ),
             ),
             bottomNavigationBar: BottomAppBar(
-              color: Theme.of(context).backgroundColor,
+              color: ExtraTheme.of(context).bottomNavigationAppbar,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -225,8 +225,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
         icon: Icon(
           icon,
           color: assignedTab == tab
-              ? ExtraTheme.of(context).active
-              : ExtraTheme.of(context).details,
+              ? ExtraTheme.of(context).activePageIcon
+              : ExtraTheme.of(context).inactivePageIcon,
           size: 28,
         ),
         onPressed: () {
@@ -247,11 +247,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
         height: 120,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Theme.of(context).accentColor.withAlpha(50),
+          color: ExtraTheme.of(context).menuIconButton,
         ),
         child: tab == NavigationTabs.Chats
             ? PopupMenuButton(
-                color: Theme.of(context).backgroundColor.withAlpha(80),
+                color: ExtraTheme.of(context).popupMenuButton,
                 icon: Icon(
                   Icons.create,
                   color: Colors.white,
@@ -274,14 +274,14 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           children: [
                             Icon(
                               Icons.group,
-                              color: Colors.white,
+                              color: ExtraTheme.of(context).popupMenuButtonIcon,
                             ),
                             SizedBox(
                               width: 15,
                             ),
                             Text(
                               appLocalization.getTraslateValue("newGroup"),
-                              style: TextStyle(fontSize: 15),
+                              style: TextStyle(fontSize: 15, color: ExtraTheme.of(context).popupMenuButtonText),
                             ),
                           ],
                         ),
@@ -295,14 +295,14 @@ class _NavigationCenterState extends State<NavigationCenter> {
                               "assets/icons/channel_icon.png",
                               width: 25,
                               height: 25,
-                              color: Colors.white,
+                              color: ExtraTheme.of(context).popupMenuButtonIcon,
                             ),
                             SizedBox(
                               width: 15,
                             ),
                             Text(
                               appLocalization.getTraslateValue("newChannel"),
-                              style: TextStyle(fontSize: 15),
+                              style: TextStyle(fontSize: 15, color: ExtraTheme.of(context).popupMenuButtonText),
                             )
                           ],
                         ),
@@ -310,10 +310,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       )
                     ])
             : PopupMenuButton<String>(
-                color: Theme.of(context).accentColor.withAlpha(0),
+                color: ExtraTheme.of(context).popupMenuButton,
                 icon: Icon(
                   Icons.add,
-                  color: Colors.white,
+                  color: ExtraTheme.of(context).popupMenuButtonIcon,
                   size: 20,
                 ),
                 itemBuilder: (context) => [
@@ -325,9 +325,12 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           children: [
                             Icon(
                               Icons.account_box_sharp,
-                              color: Colors.white,
+                              color: ExtraTheme.of(context).popupMenuButtonIcon,
                             ),
-                            Text(appLocalization.getTraslateValue("newContact"))
+                            Text(
+                              appLocalization.getTraslateValue("newContact"),
+                              style: TextStyle(fontSize: 15, color: ExtraTheme.of(context).popupMenuButtonText),
+                            )
                           ],
                         ),
                       )),
@@ -412,7 +415,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     children: [
                       Text(
                         _appLocalization.getTraslateValue("local_search"),
-                        style: TextStyle(color: Colors.blue),
+                        style: TextStyle(color: ExtraTheme.of(context).localSearch),
                       ),
                       Container(
                         height: MediaQuery.of(context).size.height,
@@ -461,7 +464,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     return Text(
                       snaps.data,
                       style: TextStyle(
-                        color: ExtraTheme.of(context).infoChat,
+                        color: ExtraTheme.of(context).displayName,
                         fontSize: 18,
                       ),
                     );
@@ -469,7 +472,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     return Text(
                       "unKnown",
                       style: TextStyle(
-                        color: ExtraTheme.of(context).infoChat,
+                        color: ExtraTheme.of(context).displayName,
                         fontSize: 18,
                       ),
                     );

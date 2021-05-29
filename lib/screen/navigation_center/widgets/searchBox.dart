@@ -38,7 +38,7 @@ class SearchBox extends StatelessWidget {
           ),
           contentPadding: const EdgeInsets.all(10),
           filled: true,
-          fillColor: Theme.of(context).accentColor.withAlpha(50),
+          fillColor: ExtraTheme.of(context).searchBox,
           prefixIcon: Icon(
             Icons.search,
             color: ExtraTheme.of(context).details,

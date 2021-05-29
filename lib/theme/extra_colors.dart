@@ -14,17 +14,41 @@ class ExtraThemeData {
   Color boxDetails = Colors.white;
   Color boxBackground = Color(0xfde2f8f0);
   Color activeKey = Color(0xff15786c);
+  Color connectionStatus;
+  Color bottomNavigationAppbar;
+  Color activePageIcon;
+  Color inactivePageIcon;
+  Color menuIconButton;
+  Color popupMenuButton;
+  Color popupMenuButtonIcon;
+  Color popupMenuButton2;
+  Color localSearch;
+  Color displayName;
+  Color popupMenuButtonText;
+  Color searchBox;
   ExtraThemeData(
       {this.circleAvatarBackground,
-      this.details,
-      this.circleAvatarIcon,
-      this.secondColor,
-      this.active,
-      this.infoChat,
-      this.text,
+        this.details,
+        this.circleAvatarIcon,
+        this.secondColor,
+        this.active,
+        this.infoChat,
+        this.text,
         this.boxDetails,
         this.boxBackground,
-        this.activeKey});
+        this.activeKey,
+        this.connectionStatus,
+        this.bottomNavigationAppbar,
+        this.activePageIcon,
+        this.inactivePageIcon,
+        this.menuIconButton,
+        this.popupMenuButton,
+        this.popupMenuButtonIcon,
+        this.popupMenuButtonText,
+        this.searchBox,
+        this.localSearch,
+        this.displayName
+      });
 }
 
 class ExtraTheme extends InheritedWidget {
