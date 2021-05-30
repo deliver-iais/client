@@ -22,7 +22,7 @@ class ContactsPage extends StatelessWidget {
 
   _syncContacts() async {
     String s = await _prefs.get("SHOW_CONTACT_DIALOG");
-    if (s != null) {
+    if (s != null || isDesktop()) {
       contactRepo.syncContacts();
     }
   }

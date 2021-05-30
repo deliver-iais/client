@@ -169,7 +169,7 @@ class _InputMessageWidget extends State<InputMessage> {
               StreamBuilder(
                   stream: _showSendIcon.stream,
                   builder: (c, sh) {
-                    if (sh.hasData && !sh.data && !widget.waitingForForward) {
+                    if (sh.hasData && !sh.data && !widget.waitingForForward && !isDesktop()) {
                       return RecordAudioAnimation(
                         righPadding: x,
                         size: size,
@@ -217,7 +217,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     style: TextStyle(fontSize: 19, height: 1),
                                     maxLines: 15,
                                     autofocus: widget.replyMessageId > 1,
-                                    textInputAction: TextInputAction.newline,
+                                    textInputAction: isDesktop()?TextInputAction.send : TextInputAction.newline,
                                     controller: controller,
                                     autocorrect: true,
                                     onSubmitted: (d){
@@ -241,7 +241,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                             ActivityType.NO_ACTIVITY);
                                       onChange(str);
                                     },
-                                    decoration: InputDecoration(
+                                    decoration: InputDecoration.collapsed(
                                       hintText: appLocalization
                                           .getTraslateValue("message"),
                                     ),
@@ -312,7 +312,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   stream: _showSendIcon.stream,
                                   builder: (c, sh) {
                                     if ((sh.hasData && sh.data) ||
-                                        widget.waitingForForward) {
+                                        widget.waitingForForward || isDesktop()) {
                                       return IconButton(
                                         icon: Icon(
                                           Icons.send,
@@ -345,7 +345,7 @@ class _InputMessageWidget extends State<InputMessage> {
                       builder: (c, sm) {
                         if (sm.hasData &&
                             !sm.data &&
-                            !widget.waitingForForward) {
+                            !widget.waitingForForward && !isDesktop()) {
                           return GestureDetector(
                               onTapDown: (_) async {
                                 recordAudioPermission = await checkPermission
@@ -484,6 +484,10 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void onChange(String str) {
+    if(isDesktop() && str.isNotEmpty && str.lastIndexOf("\n")== str.length-1){
+      sendMessage();
+      return;
+    }
     if (currentRoom.roomId.getUid().category == Categories.BOT) {
       if (str.isNotEmpty && str.length == 1 && str.contains("/")) {
         _showBotCommands.add(true);

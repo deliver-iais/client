@@ -96,15 +96,10 @@ class Database extends _$Database {
       : super(LazyDatabase(() async {
           if (isDesktop()) {
             sqfliteFfiInit();
-            final path = await  PathProviderWindows().getApplicationDocumentsPath();
-            final file = File(p.join(path, 'db.sqlite'));
-            return VmDatabase(file, logStatements: false);
-          }else{
-            final dbFolder = await getApplicationDocumentsDirectory();
-            final file = File(p.join(dbFolder.path, 'db.sqlite'));
-            return VmDatabase(file, logStatements: false);
           }
-
+          final dbFolder = await getApplicationDocumentsDirectory();
+          final file = File(p.join(dbFolder.path, 'db.sqlite'));
+          return VmDatabase(file, logStatements: false);
         }));
 
   @override

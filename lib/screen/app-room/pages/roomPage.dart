@@ -52,7 +52,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
-const int PAGE_SIZE = 10;
+const int PAGE_SIZE = 40;
 
 class RoomPage extends StatefulWidget {
   final String roomId;
@@ -139,6 +139,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Future<Message> _getMessage(int id, String roomId) async {
     var msg = _cache.get(id);
+    print(msg.toString());
     if (msg != null) {
       return msg;
     }

@@ -64,7 +64,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   @override
   void initState() {
     super.initState();
-    if (widget.roomUid.category != Categories.USER) {
+    if (widget.roomUid.category != Categories.USER && widget.roomUid.category != Categories.BOT) {
       _mucType = widget.roomUid.category == Categories.GROUP
           ? MucType.GROUP
           : MucType.PUBLIC_CHANNEL;
@@ -191,7 +191,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     return ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.only(top: 70),
+          padding: const EdgeInsets.only(top: 40),
           child: Column(
             children: [
               showProgressBar
@@ -256,7 +256,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     return SliverAppBar(
         actions: <Widget>[
           if (widget.roomUid.category != Categories.SYSTEM)
-            widget.roomUid.category != Categories.USER
+            widget.roomUid.category != Categories.USER &&   widget.roomUid.category != Categories.BOT
                 ? PopupMenuButton(
                     color: Theme.of(context).backgroundColor.withBlue(10),
                     icon: Icon(Icons.more_vert),

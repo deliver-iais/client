@@ -180,7 +180,7 @@ class AccountRepo {
           options:
           CallOptions(metadata: {'access_token': await getAccessToken()}));
       if ((getIdRequest != null && getIdRequest.id != null &&
-          getIdRequest.id.length > 1) || result.profile.hasFirstName() &&
+          getIdRequest.id.isNotEmpty) && result.profile.hasFirstName() &&
           result.profile.firstName.length > 1) {
         _saveProfilePrivateDate(
             username: getIdRequest.id,
