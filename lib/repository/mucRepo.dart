@@ -5,6 +5,7 @@ import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
+import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/role.dart';
@@ -33,14 +34,14 @@ class MucRepo {
   var messageDao = GetIt.I.get<MessageDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var contactDao = GetIt.I.get<ContactDao>();
-
+  var _userInfoDao = GetIt.I.get<UserInfoDao>();
   var _queryServices = GetIt.I.get<QueryServiceClient>();
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   Future<Uid> createNewGroup(
       List<Uid> memberUids, String groupName, String info) async {
-    Uid groupUid = await mucServices.createNewGroup(groupName,info);
+    Uid groupUid = await mucServices.createNewGroup(groupName, info);
     if (groupUid != null) {
       sendMembers(groupUid, memberUids);
       _insertToDb(groupUid, groupName, memberUids.length + 1, info);
@@ -51,8 +52,8 @@ class MucRepo {
 
   Future<Uid> createNewChannel(String channelId, List<Uid> memberUids,
       String channelName, ChannelType channelType, String info) async {
-    Uid channelUid =
-        await mucServices.createNewChannel(channelName, channelType, channelId,info);
+    Uid channelUid = await mucServices.createNewChannel(
+        channelName, channelType, channelId, info);
 
     if (channelUid != null) {
       sendMembers(channelUid, memberUids);
@@ -81,7 +82,7 @@ class MucRepo {
     try {
       int i = 0;
       while (i <= len) {
-        var result = await mucServices.getGroupMembers(groupUid, 5, i);
+        var result = await mucServices.getGroupMembers(groupUid, 15, i);
         List<Member> members = new List();
         for (MucPro.Member member in result) {
           members.add(await fetchMemberNameAndUsername(Member(
@@ -91,7 +92,7 @@ class MucRepo {
         }
         insertUserInDb(groupUid, members);
         fetchMembersUserName(members);
-      i = i + 5;
+        i = i + 15;
       }
     } catch (e) {
       print(e.toString());
@@ -350,18 +351,25 @@ class MucRepo {
 
   modifyChannel(String mucUid, String name, String id, String info) async {
     ChannelInfo channelInfo;
-    channelInfo = id.isEmpty ? (ChannelInfo()..name = name..info =info) : ChannelInfo()
+    channelInfo = id.isEmpty
+        ? (ChannelInfo()
+          ..name = name
+          ..info = info)
+        : ChannelInfo()
       ..name = name
       ..id = id
       ..info = info;
 
     if (await mucServices.modifyChannel(channelInfo, mucUid.getUid())) {
       if (id.isEmpty) {
-        _mucDao.upsertMucCompanion(
-            MucsCompanion(uid: Value(mucUid), name: Value(name),info: Value(info)));
+        _mucDao.upsertMucCompanion(MucsCompanion(
+            uid: Value(mucUid), name: Value(name), info: Value(info)));
       } else {
         _mucDao.upsertMucCompanion(MucsCompanion(
-            uid: Value(mucUid), name: Value(name), id: Value(id),info: Value(info)));
+            uid: Value(mucUid),
+            name: Value(name),
+            id: Value(id),
+            info: Value(info)));
       }
     }
   }
@@ -456,9 +464,14 @@ class MucRepo {
     }
     for (var member in members) {
       if (member.username == null) {
-        var username =
-            await _contactRepo.searchUserByUid(member.memberUid.getUid());
-        member = member.copyWith(username: username);
+        var res = await _userInfoDao.getUserInfo(member.memberUid);
+        if (res != null && res.username.isNotEmpty) {
+          member = member.copyWith(username: res.username);
+        } else {
+          var username =
+              await _contactRepo.searchUserByUid(member.memberUid.getUid());
+          member = member.copyWith(username: username);
+        }
       }
       _memberDao.insertMember(member);
     }

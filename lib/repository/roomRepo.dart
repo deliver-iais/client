@@ -94,7 +94,10 @@ class RoomRepo {
         break;
       case Categories.BOT:
         var res  = await _botInfoDao.getBotInfo(uid.node);
-        return res.name;
+        if(res!= null && res.name.isNotEmpty){
+          return res.name;
+        }
+        return uid.node;
     }
     return "Unknown";
   }

@@ -241,7 +241,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                             ActivityType.NO_ACTIVITY);
                                       onChange(str);
                                     },
-                                    decoration: InputDecoration.collapsed(
+                                    decoration: InputDecoration(
                                       hintText: appLocalization
                                           .getTraslateValue("message"),
                                     ),

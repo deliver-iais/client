@@ -184,7 +184,7 @@ AppLocalization appLocalization;
                 Icons.phone,
                 color: Theme.of(context).primaryTextTheme.button.color,
               ),
-              prefix: Text("${_selectedCountry['dial_code']} \t" ,style: TextStyle(color: Colors.white),),
+              prefix: Text("${_selectedCountry['dial_code']}  " ,style: TextStyle(color: Colors.white),),
               fillColor: ExtraTheme.of(context).secondColor,
               labelText: appLocalization.getTraslateValue("phoneNumber"),
 //                        filled: true,

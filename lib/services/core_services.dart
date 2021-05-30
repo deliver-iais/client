@@ -51,8 +51,6 @@ class CoreServices {
   BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
-
-
   @visibleForTesting
   bool responseChecked = false;
 
@@ -92,7 +90,7 @@ class CoreServices {
 
   @visibleForTesting
   startCheckerTimer() async {
-    if (_connectionTimer!= null &&  _connectionTimer.isActive) {
+    if (_connectionTimer != null && _connectionTimer.isActive) {
       return;
     }
     if (_clientPacket.isClosed || _clientPacket.isPaused) {
@@ -289,7 +287,8 @@ class CoreServices {
       }
     }
 
-    if ((await _accountRepo.notification) == null ||
+    if (!message.from.isSameEntity(_accountRepo.currentUserUid.asString()) &&
+            (await _accountRepo.notification) == null ||
         (await _accountRepo.notification).contains("true") &&
             (room != null && !room.mute)) {
       showNotification(roomUid, message);

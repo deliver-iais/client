@@ -64,6 +64,8 @@ dependencies:
 
   file_picker:
 
+  path_provider_windows:
+
   path_provider_ex: ^1.0.1
 
   flutter_file_manager: ^0.2.0

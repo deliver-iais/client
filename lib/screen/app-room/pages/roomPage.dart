@@ -248,7 +248,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void initState() {
-    print(widget.roomId);
     Timer(Duration(seconds: 1), () {
       _showOtherMessage.add(true);
     });
@@ -801,7 +800,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   FutureBuilder<List<Message>> buildMessage(bool isPendingMessage,
       List pendingMessages, int index, Room currentRoom, double _maxWidth) {
-    return FutureBuilder<List<Message>>(
+    return  FutureBuilder<List<Message>>(
       future: isPendingMessage
           ? _getPendingMessage(
               pendingMessages[_itemCount - index - 1].messageDbId)
@@ -1027,7 +1026,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Widget showSentMessage(Message message, double _maxWidth, int lastMessageId,
       int pendingMessagesLength) {
     BehaviorSubject<bool> dragSubject = BehaviorSubject.seeded(true);
-    var messageWidget = SentMessageBox(
+    var messageWidget =  SentMessageBox(
       message: message,
       maxWidth: _maxWidth,
       isSeen: message.id != null && message.id <= lastSeenMessageId,
@@ -1215,9 +1214,15 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   onUsernameClick(String username) async {
-    String roomId = await _roomRepo.searchByUsername(username);
-    if (roomId != null) {
+    if(username.contains("_bot")){
+      String roomId = "4:${username.substring(1)}";
       _routingService.openRoom(roomId);
+    }else{
+      String roomId = await _roomRepo.searchByUsername(username);
+      if (roomId != null) {
+        _routingService.openRoom(roomId);
+      }
     }
+
   }
 }

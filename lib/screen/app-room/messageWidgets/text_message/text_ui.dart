@@ -262,7 +262,7 @@ Widget _textWidget(
               fontSize: 16,
             ),
             onTap: (username) async {
-              onBotCommandClick(username);
+              onClick(username);
             },
           ),
           if (isBotMessage)

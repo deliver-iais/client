@@ -5,6 +5,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -28,7 +29,7 @@ class ContactsPage extends StatelessWidget {
 
   _showSyncContactDialog(BuildContext context) async {
     String s = await _prefs.get("SHOW_CONTACT_DIALOG");
-    if (s == null) {
+    if (s == null && ! isDesktop()) {
       showDialog(
           context: context,
           builder: (context) {
@@ -45,9 +46,12 @@ class ContactsPage extends StatelessWidget {
                   size: 40,
                 ),
               ),
-              content: Text(
-                  _appLocalization.getTraslateValue("send_Contacts_message"),
-                  style: TextStyle(color: Colors.black, fontSize: 18)),
+              content: Container(
+                width: 200,
+                child: Text(
+                    _appLocalization.getTraslateValue("send_Contacts_message"),
+                    style: TextStyle(color: Colors.black, fontSize: 18)),
+              ),
               actions: <Widget>[
                 GestureDetector(
                   child: Text(

@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:ffi';
+
 import 'dart:io' as DartFile;
 import 'dart:math';
 
@@ -104,8 +103,6 @@ class MessageRepo {
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
-      
-        //   baae6e7c-d880-4dd0-948e-f6b5d38a74d0
         var room =
             await _roomDao.getByRoomIdFuture(roomMetadata.roomUid.asString());
         if (room != null &&
@@ -609,7 +606,7 @@ class MessageRepo {
 
     List<Message> msgList = [];
     for (MessageProto.Message message in messages) {
-      // ignore: unrelated_type_equality_checks
+     _pendingMessageDao.deletePendingMessage(message.packetId);
       try{
         if (message.whichType() == MessageProto.Message_Type.persistEvent){
           switch(message.persistEvent.whichType()){

@@ -91,7 +91,7 @@ class SenderAndContent extends StatelessWidget {
                         )
                       : Container()
               : Text(
-                  content,
+                  getContent(messages[0]),
                   maxLines: 1,
             style: TextStyle(fontSize: 15),
                   overflow: TextOverflow.ellipsis,
@@ -109,7 +109,7 @@ class SenderAndContent extends StatelessWidget {
        return message.json.toText().text;
         break;
       case MessageType.FILE:
-      return  appLocalization.getTraslateValue("File");
+      return  appLocalization.getTraslateValue("file");
         break;
       case MessageType.STICKER:
        return appLocalization.getTraslateValue("Sticker");

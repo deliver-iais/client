@@ -33,13 +33,13 @@ class _BotCommandsWidgetState extends State<BotCommandsWidget> {
               borderRadius: BorderRadius.all(Radius.circular(5)),
             ),
             child:   SizedBox(
-              height: botCommands.keys.length*32.toDouble(),
+              height: botCommands.keys.length*35.toDouble(),
                   child:  Scrollbar(
                       child:ListView.builder(
                       itemCount: botCommands.length,
                       itemBuilder: (c, index) {
                         return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                           child: GestureDetector(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
