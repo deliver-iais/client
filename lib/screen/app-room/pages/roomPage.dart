@@ -139,7 +139,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Future<Message> _getMessage(int id, String roomId) async {
     var msg = _cache.get(id);
-    print(msg.toString());
     if (msg != null) {
       return msg;
     }

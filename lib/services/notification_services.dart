@@ -11,7 +11,6 @@ class NotificationServices {
 
   Map<String, List<int>> _notificationMessage = Map();
 
-
   NotificationServices() {
     if (!isDesktop()) Firebase.initializeApp();
     var androidNotificationSetting =
@@ -32,11 +31,20 @@ class NotificationServices {
       int id, String title, String body, String payload) async {}
 
   cancelNotification(notificationId) {
-    flutterLocalNotificationsPlugin.cancel(notificationId);
+    try {
+      flutterLocalNotificationsPlugin.cancel(notificationId);
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   cancelAllNotification() {
-    flutterLocalNotificationsPlugin.cancelAll();
+    try{
+      flutterLocalNotificationsPlugin.cancelAll();
+    }catch(e){
+      print(e.toString());
+    }
+
   }
 
   showTextNotification(int notificationId, String roomId, String roomName,
@@ -81,7 +89,7 @@ class NotificationServices {
   void showNotification(
       pro.Message message, String roomUid, String roomName) async {
     try {
-      if(_notificationMessage[roomUid]== null){
+      if (_notificationMessage[roomUid] == null) {
         _notificationMessage[roomUid] = List();
       }
       _notificationMessage[roomUid].add(message.id.toInt());
@@ -112,20 +120,24 @@ class NotificationServices {
           showTextNotification(message.id.toInt(), roomUid, roomName, "from");
           break;
         case pro.Message_Type.shareUid:
-          showTextNotification(message.id.toInt(), roomUid, roomName, message.shareUid.name);
+          showTextNotification(
+              message.id.toInt(), roomUid, roomName, message.shareUid.name);
           break;
         case pro.Message_Type.formResult:
           showTextNotification(message.id.toInt(), roomUid, roomName, "from");
           break;
         case pro.Message_Type.sharePrivateDataRequest:
-          showTextNotification(message.id.toInt(), roomUid, roomName, "Private");
+          showTextNotification(
+              message.id.toInt(), roomUid, roomName, "Private");
           break;
         case pro.Message_Type.sharePrivateDataAcceptance:
-          showTextNotification(message.id.toInt(), roomUid, roomName, "Private");
+          showTextNotification(
+              message.id.toInt(), roomUid, roomName, "Private");
           break;
 
         case pro.Message_Type.paymentTransaction:
-          showTextNotification(message.id.toInt(), roomUid, roomName, "Transaction");
+          showTextNotification(
+              message.id.toInt(), roomUid, roomName, "Transaction");
           break;
 
           break;
