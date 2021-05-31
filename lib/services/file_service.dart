@@ -29,27 +29,27 @@ class FileService {
   Future<String> get _localPath async {
     if (await _checkPermission.checkStoragePermission() || isDesktop()) {
       final directory = await getApplicationDocumentsDirectory();
-      if (!await Directory('${directory.path}/Deliver').exists())
-        await Directory('${directory.path}/Deliver').create(recursive: true);
-      return directory.path + "/Deliver";
+      if (!await Directory('${directory.path}\\Deliver').exists())
+        await Directory('${directory.path}\\Deliver').create(recursive: true);
+      return directory.path+"\\Deliver";
     }
     throw Exception("There is no Storage Permission!");
   }
 
   Future<String> localFilePath(String fileUuid, String fileType) async {
     final path = await _localPath;
-    return '$path/$fileUuid.$fileType';
+    return '$path\\$fileUuid.$fileType';
   }
 
   Future<String> localThumbnailFilePath(
       String fileUuid, String fileType, ThumbnailSize size) async {
     final path = await _localPath;
-    return "$path/${enumToString(size)}-$fileUuid.$fileType";
+    return "$path\\${enumToString(size)}-$fileUuid.$fileType";
   }
 
   Future<File> localFile(String fileUuid, String fileType) async {
     final path = await _localPath;
-    return File('$path/$fileUuid.$fileType');
+    return File('$path\\$fileUuid.$fileType');
   }
 
   Future<File> localThumbnailFile(

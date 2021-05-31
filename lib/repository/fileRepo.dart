@@ -27,7 +27,7 @@ class FileRepo {
 
   Future<void> cloneFileInLocalDirectory(
       File file, String uploadKey, String name) async {
-      if(MediaType.parse(mime(file.path)).type=="image"){
+      if(MediaType.parse(mime(file.path)).type=="image" && !isDesktop()){
       ReceivePort receivePort = ReceivePort();
       Map myMap = Map<String,dynamic>();
       myMap['file'] = file.path;
