@@ -32,7 +32,7 @@ class NotificationServices {
 
   cancelNotification(notificationId) {
     try {
-      flutterLocalNotificationsPlugin.cancel(notificationId);
+   //   flutterLocalNotificationsPlugin.cancel(notificationId);
     } catch (e) {
       print(e.toString());
     }
@@ -40,7 +40,7 @@ class NotificationServices {
 
   cancelAllNotification() {
     try{
-      flutterLocalNotificationsPlugin.cancelAll();
+     // flutterLocalNotificationsPlugin.cancelAll();
     }catch(e){
       print(e.toString());
     }
@@ -89,10 +89,10 @@ class NotificationServices {
   void showNotification(
       pro.Message message, String roomUid, String roomName) async {
     try {
-      if (_notificationMessage[roomUid] == null) {
-        _notificationMessage[roomUid] = List();
-      }
-      _notificationMessage[roomUid].add(message.id.toInt());
+      // if (_notificationMessage[roomUid] == null) {
+      //   _notificationMessage[roomUid] = List();
+      // }
+      // _notificationMessage[roomUid].add(message.id.toInt());
       switch (message.whichType()) {
         case pro.Message_Type.persistEvent:
         case pro.Message_Type.text:
@@ -146,9 +146,9 @@ class NotificationServices {
   }
 
   void reset(String roomId) {
-    _notificationMessage[roomId]?.forEach((element) {
-      cancelNotification(element);
-    });
+    // _notificationMessage[roomId]?.forEach((element) {
+    //   cancelNotification(element);
+    // });
   }
 
   void playSoundNotification() async {

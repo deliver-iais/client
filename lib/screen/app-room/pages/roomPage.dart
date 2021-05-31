@@ -31,6 +31,7 @@ import 'package:deliver_flutter/screen/app-room/widgets/newMessageInput.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/recievedMessageBox.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/sendedMessageBox.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
+import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/botAppBar.dart';
@@ -246,11 +247,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       _lastShowedMessageId = lastSeen.messageId ?? 0;
     }
   }
-
+  var _fireBaseServices = GetIt.I.get<FireBaseServices>();
   void initState() {
     Timer(Duration(seconds: 1), () {
       _showOtherMessage.add(true);
     });
+    _fireBaseServices.sendFireBaseToken();
     _getLastShowMessageId();
     _getLastSeen();
     _itemPositionsListener.itemPositions.addListener(() {

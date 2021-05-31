@@ -45,7 +45,8 @@ class _ImageUiState extends State<ImageUi> {
       height = dimensions.height;
 
       return FutureBuilder<File>(
-          future: fileRepo.getFileIfExist(image.uuid, image.name),
+          future: fileRepo.getFileIfExist(image.uuid, image.name,
+              thumbnailSize: ThumbnailSize.medium),
           builder: (c, s) {
             if (s.hasData && s.data != null) {
               return Stack(
@@ -114,7 +115,8 @@ class _ImageUiState extends State<ImageUi> {
                         child: MaterialButton(
                           color: Theme.of(context).buttonColor,
                           onPressed: () async {
-                            await fileRepo.getFile(image.uuid, image.name);
+                            await fileRepo.getFile(image.uuid, image.name,
+                                thumbnailSize: ThumbnailSize.medium);
                             setState(() {});
                           },
                           shape: CircleBorder(),
