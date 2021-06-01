@@ -68,6 +68,8 @@ dependencies:
 
   path_provider_ex: ^1.0.1
 
+  overlay_support:
+
   flutter_file_manager: ^0.2.0
 
   android_intent: 0.3.7+7

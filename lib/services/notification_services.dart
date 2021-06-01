@@ -30,21 +30,20 @@ class NotificationServices {
   Future onDidReceiveLocalNotification(
       int id, String title, String body, String payload) async {}
 
-  cancelNotification(notificationId) {
+  cancelNotification(notificationId) async {
     try {
-   //   flutterLocalNotificationsPlugin.cancel(notificationId);
+    //await flutterLocalNotificationsPlugin.cancel(notificationId);
     } catch (e) {
       print(e.toString());
     }
   }
 
-  cancelAllNotification() {
+  cancelAllNotification() async {
     try{
-     // flutterLocalNotificationsPlugin.cancelAll();
+     // await flutterLocalNotificationsPlugin.cancelAll();
     }catch(e){
       print(e.toString());
     }
-
   }
 
   showTextNotification(int notificationId, String roomId, String roomName,
@@ -146,9 +145,10 @@ class NotificationServices {
   }
 
   void reset(String roomId) {
-    // _notificationMessage[roomId]?.forEach((element) {
-    //   cancelNotification(element);
-    // });
+    // if (_notificationMessage[roomId] != null)
+    //   _notificationMessage[roomId].forEach((element) async{
+    //    await  cancelNotification(element);
+    //   });
   }
 
   void playSoundNotification() async {
