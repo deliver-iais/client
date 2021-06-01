@@ -65,9 +65,8 @@ class _VideoUiState extends State<VideoUi> {
                 ),
                 if (isPlaying == true)
                   Positioned(
-                    top: 100,
                     left: 0.0,
-                    bottom: 0.0,
+                    bottom: 70,
                     right: 0.0,
                     child: SliderTheme(
                       data: SliderThemeData(
@@ -81,6 +80,7 @@ class _VideoUiState extends State<VideoUi> {
                       child: StreamBuilder<double>(
                         stream: _currentPositionSubject.stream,
                         builder: (c, s) {
+
                           if (s.hasData)
                             return Slider(
                                 value: s.data,

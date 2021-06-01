@@ -12,6 +12,8 @@ class Messages extends Table {
 
   DateTimeColumn get time => dateTime()();
 
+  BoolColumn get sendingFailed => boolean().withDefault(Constant(false))();
+
   TextColumn get from => text()();
 
   TextColumn get to => text()();

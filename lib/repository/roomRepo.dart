@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dcache/dcache.dart';
+import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
@@ -33,11 +34,16 @@ class RoomRepo {
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _userInfoDao = GetIt.I.get<UserInfoDao>();
   var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
-  var _memberDao = GetIt.I.get<MemberDao>();
+  var _botInfoDao = GetIt.I.get<BotInfoDao>();
+
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   Map<String, BehaviorSubject<Activity>> activityObject = Map();
+
+  insertRoom(String uid){
+    _roomDao.insertRoomCompanion(RoomsCompanion(roomId: Value(uid)));
+  }
 
   Future<String> getRoomDisplayName(Uid uid, {String roomUid}) async {
     switch (uid.category) {
@@ -87,7 +93,11 @@ class RoomRepo {
         }
         break;
       case Categories.BOT:
-        return uid.node[0].toUpperCase() + uid.node.substring(1);
+        var res  = await _botInfoDao.getBotInfo(uid.node);
+        if(res!= null && res.name.isNotEmpty){
+          return res.name;
+        }
+        return uid.node;
     }
     return "Unknown";
   }
@@ -149,9 +159,9 @@ class RoomRepo {
 
   Future<List<Uid>> getAllRooms() async {
     Map<Uid, Uid> finalList = Map();
-    var res = await _roomDao.getFutureAllRoomsWithMessage();
+    var res = await _roomDao.getAllRooms();
     for (var room in res) {
-      Uid uid = (room.rawData.data["rooms.room_id"].toString()).getUid();
+      Uid uid = room.roomId.getUid();
       finalList[uid] = uid;
     }
     return finalList.values.toList();
@@ -178,20 +188,16 @@ class RoomRepo {
     if (username.contains('@')) {
       username = username.substring(username.indexOf('@') + 1, username.length);
     }
-    print('1');
     var contact = await _contactDao.searchByUserName(username);
     if (contact != null) {
-      print('2');
       return contact.uid;
     } else {
       var userInfo = await _userInfoDao.getByUserName(username);
       if (userInfo != null) {
-        print('3');
         return userInfo.uid;
       } else {
         var uid = await _contactRepo.searchUserByUsername(username);
         if (uid != null)
-          print('4');
         _userInfoDao.upsertUserInfo(
               UserInfo(uid: uid.asString(), username: username));
         return uid.asString();

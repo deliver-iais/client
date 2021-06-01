@@ -4,17 +4,20 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class SenderAndContent extends StatelessWidget {
   final List<Message> messages;
   final bool inBox;
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
 
   SenderAndContent({Key key, this.messages, this.inBox}) : super(key: key);
 
@@ -34,31 +37,35 @@ class SenderAndContent extends StatelessWidget {
     }
     return title;
   }
+  AppLocalization appLocalization;
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    appLocalization = AppLocalization.of(context);
     String content = messages.length > 1
         ? '${messages.length} ' +
             appLocalization.getTraslateValue("ForwardedMessages")
-        : messages[0].type == MessageType.TEXT
-            ? (jsonDecode(messages[0].json))["1"]
-            : "File";
+        : getContent(messages[0]);
 
     return Container(
       width: 200,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FutureBuilder<String>(
-              future: _roomRepo.getRoomDisplayName(messages[0].from.uid,roomUid: messages[0].to),
-              builder: (ctx, AsyncSnapshot<String> s) {
-                if (s.hasData && s.data != null) {
-                  return showName(s.data, context);
-                } else {
-                  return showName("UnKnown", context);
-                }
-              }),
+          if (!messages[0]
+              .from
+              .getUid()
+              .isSameEntity(_accountRepo.currentUserUid.asString()))
+            FutureBuilder<String>(
+                future: _roomRepo.getRoomDisplayName(messages[0].from.uid,
+                    roomUid: messages[0].to),
+                builder: (ctx, AsyncSnapshot<String> s) {
+                  if (s.hasData && s.data != null) {
+                    return showName(s.data, context);
+                  } else {
+                    return showName("UnKnown", context);
+                  }
+                }),
           SizedBox(height: 3),
           inBox == true || messages.length == 0
               ? messages[0].type == MessageType.TEXT
@@ -67,6 +74,7 @@ class SenderAndContent extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       softWrap: false,
+            style: TextStyle(fontSize: 15,color: Colors.white70),
                     )
                   : messages[0].type == MessageType.FILE
                       ? Text(
@@ -77,13 +85,15 @@ class SenderAndContent extends StatelessWidget {
                                   ? 'Video'
                                   : 'File',
                           maxLines: 1,
+                          style: TextStyle(fontSize: 15),
                           overflow: TextOverflow.ellipsis,
                           softWrap: false,
                         )
                       : Container()
               : Text(
-                  content,
+                  getContent(messages[0]),
                   maxLines: 1,
+            style: TextStyle(fontSize: 15),
                   overflow: TextOverflow.ellipsis,
                   softWrap: false,
                 ),
@@ -92,14 +102,63 @@ class SenderAndContent extends StatelessWidget {
     );
   }
 
+  getContent(Message message) {
+    switch(message.type){
+
+      case MessageType.TEXT:
+       return message.json.toText().text;
+        break;
+      case MessageType.FILE:
+      return  appLocalization.getTraslateValue("file");
+        break;
+      case MessageType.STICKER:
+       return appLocalization.getTraslateValue("Sticker");
+        break;
+      case MessageType.LOCATION:
+       return "Location";
+        break;
+      case MessageType.LIVE_LOCATION:
+        return "Location";
+        break;
+      case MessageType.POLL:
+        return "Poll";
+        break;
+      case MessageType.FORM:
+        return "Form";
+        break;
+      case MessageType.PERSISTENT_EVENT:
+       return "\t";
+        break;
+      case MessageType.NOT_SET:
+        return "\t";
+        break;
+      case MessageType.BUTTONS:
+        return "Form";
+        break;
+      case MessageType.SHARE_UID:
+       return message.json.toShareUid().name;
+        break;
+      case MessageType.FORM_RESULT:
+        return "Form";
+        break;
+      case MessageType.sharePrivateDataRequest:
+        return "Request";
+        break;
+      case MessageType.sharePrivateDataAcceptance:
+        return "Request";
+        break;
+    }
+
+  }
+
   Text showName(String s, BuildContext context) {
     return Text(
       s,
       style: TextStyle(
         color: inBox == true
-            ? ExtraTheme.of(context).secondColor
+            ? Theme.of(context).primaryColor.withGreen(70)
             : Theme.of(context).primaryColor,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.bold, fontSize: 15,
       ),
       maxLines: 1,
       softWrap: false,

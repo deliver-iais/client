@@ -21,10 +21,10 @@ class ReplyWidgetInMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
     MessageDao messageDao = GetIt.I.get<MessageDao>();
-    return FutureBuilder<List<Message>>(
+    return FutureBuilder<Message>(
         future: messageDao.getMessageById(replyToId, roomId),
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data.length > 0)
+          if (snapshot.hasData)
             return Padding(
               padding: const EdgeInsets.only(top: 8.0, left: 8, right: 8),
               child: Container(
@@ -32,21 +32,21 @@ class ReplyWidgetInMessage extends StatelessWidget {
                     border: Border(
                         left: BorderSide(
                             color: accountRepo.currentUserUid.asString() ==
-                                    snapshot.data[0].from
+                                    snapshot.data.from
                                 ? ExtraTheme.of(context).secondColor
                                 : Theme.of(context).primaryColor,
                             width: 3))),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
                   child: SenderAndContent(
-                    messages: List<Message>.filled(1, snapshot.data[0]),
+                    messages: List<Message>.filled(1, snapshot.data),
                     inBox: true,
                   ),
                 ),
               ),
             );
           else
-            return CircularProgressIndicator();
+            return SizedBox.shrink();
         });
   }
 }

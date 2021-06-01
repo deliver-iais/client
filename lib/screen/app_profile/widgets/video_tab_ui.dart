@@ -79,7 +79,6 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                     thumbFile.hasData &&
                                     thumbFile.connectionState ==
                                         ConnectionState.done) {
-                                  print("FilevideoooooooPosition$position");
                                   return VideoThumbnail(
                                     userUid: widget.userUid,
                                     thumbnail: thumbFile.data,

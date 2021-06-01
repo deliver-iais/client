@@ -1,4 +1,5 @@
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
+import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/memberWidget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/mucMemberMentionWidget.dart';
@@ -12,6 +13,7 @@ class ShowMentionList extends StatelessWidget {
   MemberDao _memberDao = GetIt.I.get<MemberDao>();
 
   ShowMentionList({this.query, this.onSelected, this.roomUid});
+
 
   List<Member> mucMembers;
 

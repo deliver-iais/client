@@ -25,10 +25,10 @@ class _HomePageState extends State<HomePage>  with WidgetsBindingObserver{
   @override
   void initState() {
     super.initState();
-    _notificationServices.reset("\t");
+    _notificationServices.cancelAllNotification();
     checkIfUsernameIsSet();
     if (isAndroid()) {
-      checkShareFile(context);
+      //checkShareFile(context);
     }
     _coreServices.initStreamConnection();
   }
@@ -48,6 +48,7 @@ class _HomePageState extends State<HomePage>  with WidgetsBindingObserver{
 
   @override
   Widget build(BuildContext context) {
+
     return WillPopScope(
       onWillPop: () async {
         if (_routingService.canPerformBackButton()) return true;

@@ -20,6 +20,7 @@ class CircleAvatarWidget extends StatelessWidget {
   final double radius;
   final bool forceToUpdate;
   final bool showAsStreamOfAvatar;
+  final bool savedMessaeg;
 
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
@@ -27,7 +28,7 @@ class CircleAvatarWidget extends StatelessWidget {
   final _accountRepo = GetIt.I.get<AccountRepo>();
 
   CircleAvatarWidget(this.contactUid, this.radius,
-      {this.forceToUpdate = false, this.showAsStreamOfAvatar = false});
+      {this.forceToUpdate = false, this.showAsStreamOfAvatar = false,this.savedMessaeg = false});
 
   Color colorFor(String text) {
     var hash = 0;
@@ -51,13 +52,13 @@ class CircleAvatarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: radius,
-      backgroundColor: colorFor(contactUid.asString()),
+      backgroundColor: savedMessaeg?Colors.blue:colorFor(contactUid.asString()),
       child: contactUid.category == Categories.SYSTEM
           ? Image(
               image: AssetImage(
                   'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
             )
-          : showAsStreamOfAvatar
+          : savedMessaeg?Icon(Icons.bookmark,size: 30,color: Colors.white,): showAsStreamOfAvatar
               ? StreamBuilder<LastAvatar>(
                   stream: _avatarRepo.getLastAvatarStream(
                       contactUid, forceToUpdate),

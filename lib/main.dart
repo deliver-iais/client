@@ -149,7 +149,7 @@ void main() {
 
   if (isAndroid()) {
     SmsAutoFill().getAppSignature.then((signCode) {
-      //Fluttertoast.showToast(msg:"hash $signCode");
+    //  Fluttertoast.showToast(msg:"hash $signCode");
     });
   }
 

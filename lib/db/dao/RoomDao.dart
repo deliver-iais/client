@@ -38,7 +38,6 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
             newMessageId != null ? Value(newMessageId) : Value.absent()));
   }
 
-
 //TODO need to edit
   Stream<List<RoomWithMessage>> getAllRoomsWithMessage() {
     return ((select(rooms)..where((tbl) => tbl.deleted.equals(false))).join([
@@ -62,6 +61,10 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
         );
   }
 
+  Future<List<Room>> getAllRooms() {
+    return ((select(rooms)..where((tbl) => tbl.deleted.equals(false))).get());
+  }
+
   Future<List<TypedResult>> getFutureAllRoomsWithMessage() {
     return ((select(rooms)..where((tbl) => tbl.deleted.equals(false))).join([
       leftOuterJoin(
@@ -75,10 +78,14 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
   }
 
   Stream<Room> getByRoomId(String rid) {
-    return (select(rooms)..where((c) => c.roomId.equals(rid) & c.deleted.equals(false))).watchSingle();
+    return (select(rooms)
+          ..where((c) => c.roomId.equals(rid) & c.deleted.equals(false)))
+        .watchSingle();
   }
 
   Future<Room> getByRoomIdFuture(String rid) {
-    return (select(rooms)..where((c) => c.roomId.equals(rid) & c.deleted.equals(false))).getSingle();
+    return (select(rooms)
+          ..where((c) => c.roomId.equals(rid) & c.deleted.equals(false)))
+        .getSingle();
   }
 }

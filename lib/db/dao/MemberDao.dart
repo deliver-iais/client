@@ -22,7 +22,7 @@ class MemberDao extends DatabaseAccessor<Database> with _$MemberDaoMixin {
     return (delete(members)..where((t) => t.mucUid.equals(mucUid))).go();
   }
 
-  Future updateMember(Member updatedMember) =>
+  Future updateMember(MembersCompanion updatedMember) =>
       update(members).replace(updatedMember);
 
   Stream<List<Member>> getByMucUid(String mucUid) {
@@ -34,7 +34,7 @@ class MemberDao extends DatabaseAccessor<Database> with _$MemberDaoMixin {
     return (select(members)
           ..where((member) =>
               member.mucUid.equals(mucUid) &
-              (member.username.contains(query) | member.name.contains(query))))
+              (member.username.contains(query)| member.name.contains(query))))
         .get();
   }
 

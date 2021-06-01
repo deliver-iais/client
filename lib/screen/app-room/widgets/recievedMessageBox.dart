@@ -13,20 +13,22 @@ class RecievedMessageBox extends StatelessWidget {
   final Function scrollToMessage;
   final Function omUsernameClick;
   final String pattern;
+  final Function onBotCommandClick;
 
-  const RecievedMessageBox(
+  RecievedMessageBox(
       {Key key,
       this.message,
       this.maxWidth,
+      this.onBotCommandClick,
       this.isGroup,
       this.scrollToMessage,
       this.omUsernameClick,
       this.pattern})
       : super(key: key);
+  final seenDao = GetIt.I.get<SeenDao>();
 
   @override
   Widget build(BuildContext context) {
-    var seenDao = GetIt.I.get<SeenDao>();
     return StreamBuilder<Seen>(
         stream: seenDao.getByRoomIdandUserId(message.roomId, message.to),
         builder: (context, snapshot) {
@@ -40,17 +42,19 @@ class RecievedMessageBox extends StatelessWidget {
                     message: message,
                     maxWidth: maxWidth,
                     isSender: false,
+                    onBotCommandClick: onBotCommandClick,
                     scrollToMessage: scrollToMessage,
                     onUsernameClick: this.omUsernameClick,
                   )
                 : ClipRRect(
                     borderRadius: BorderRadius.all(Radius.circular(5)),
                     child: Container(
-                      color: ExtraTheme.of(context).secondColor,
+                      color: Theme.of(context).accentColor.withAlpha(60),
                       padding: const EdgeInsets.all(2),
                       child: BoxContent(
                         message: message,
                         maxWidth: maxWidth,
+                        onBotCommandClick: onBotCommandClick,
                         isSender: false,
                         scrollToMessage: scrollToMessage,
                         pattern: this.pattern,

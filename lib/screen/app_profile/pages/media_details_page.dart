@@ -415,6 +415,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               ),
               DownloadVideoWidget(
                 uuid: fileId,
+                name: fileName,
                 download: () async {
                   await download(fileId, fileName);
                 },

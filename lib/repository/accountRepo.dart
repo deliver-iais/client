@@ -14,6 +14,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:device_info/device_info.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:get_it/get_it.dart';
 
@@ -64,16 +65,22 @@ class AccountRepo {
   String platformVersion;
 
   Future getVerificationCode(String countryCode, String nationalNumber) async {
-    PhoneNumber phone = PhoneNumber()
-      ..countryCode = int.parse(countryCode)
-      ..nationalNumber = Int64.parseInt(nationalNumber);
-    this.phoneNumber = phone;
-    _savePhoneNumber();
-    var verificationCode =
-        await authServiceStub.getVerificationCode(GetVerificationCodeReq()
-          ..phoneNumber = phone
-          ..type = VerificationType.SMS);
-    return verificationCode;
+    try{
+      PhoneNumber phone = PhoneNumber()
+        ..countryCode = int.parse(countryCode)
+        ..nationalNumber = Int64.parseInt(nationalNumber);
+      this.phoneNumber = phone;
+      _savePhoneNumber();
+      var verificationCode =
+      await authServiceStub.getVerificationCode(GetVerificationCodeReq()
+        ..phoneNumber = phone
+        ..type = VerificationType.SMS,options: CallOptions(timeout: Duration(seconds: 3)));
+      return verificationCode;
+    }
+    catch(e){
+      return null;
+    }
+
   }
 
   Future sendVerificationCode(String code) async {
@@ -103,17 +110,20 @@ class AccountRepo {
   Future _getAccessToken(String refreshToken) async {
     var getAccessToken = await authServiceStub
         .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
+    if(wrongToken(getAccessToken.accessToken)){
+      _getAccessToken(refreshToken);
+      return;
+    }
     return getAccessToken;
   }
 
   Future<String> getAccessToken() async {
-    if (_isExpired(_access_token)) {
+    if (_isExpired(_access_token) || exp(_access_token)) {
       RenewAccessTokenRes renewAccessTokenRes =
           await _getAccessToken(_refreshToken);
       _saveTokens(renewAccessTokenRes);
       return renewAccessTokenRes.accessToken;
     } else {
-
       return _access_token;
     }
   }
@@ -126,6 +136,25 @@ class AccountRepo {
     return JwtDecoder.isExpired(access_token);
   }
 
+  bool exp(String token){
+    final Map<String, dynamic> decodedToken = JwtDecoder.decode (token);
+    final DateTime iaTirationDate =
+    new DateTime.fromMillisecondsSinceEpoch(0)
+        .add(new Duration(seconds: decodedToken["iat"]));
+    return((DateTime.now().millisecondsSinceEpoch- iaTirationDate.millisecondsSinceEpoch)>5*60*1000);
+  }
+  bool wrongToken(String token){
+    final Map<String, dynamic> decodedToken = JwtDecoder.decode (token);
+    final DateTime iatTime =
+    new DateTime.fromMillisecondsSinceEpoch(0)
+        .add(new Duration(seconds: decodedToken["iat"]));
+    final DateTime expTime =
+    new DateTime.fromMillisecondsSinceEpoch(0)
+        .add(new Duration(seconds: decodedToken["exp"]));
+    return((expTime.millisecondsSinceEpoch- iatTime.millisecondsSinceEpoch)>15*60*1000);
+  }
+
+
   void saveTokens(AccessTokenRes res) {
     _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
   }
@@ -135,22 +164,24 @@ class AccountRepo {
   }
 
   Future<bool> usernameIsSet() async {
-
     final QueryServiceClient _queryServiceClient =
     GetIt.I.get<QueryServiceClient>();
     if (null != await sharedPrefs.get(USERNAME)) {
-      var res = sharedPrefs.get(USERNAME);
       return true;
     }
-    try{
-      var getIdRequest = await _queryServiceClient.getIdByUid(
-          GetIdByUidReq()..uid = currentUserUid,
+    try {
+      var getIdRequest = await _queryServiceClient. getIdByUid(
+          GetIdByUidReq()
+            ..uid = currentUserUid,
           options:
-          CallOptions(metadata: {'access_token': await getAccessToken()},timeout: Duration(seconds: 2)));
-      var result =  await _userServices.getUserProfile(GetUserProfileReq(),
+          CallOptions(metadata: {'access_token': await getAccessToken()},
+              timeout: Duration(seconds: 2)));
+      var result = await _userServices.getUserProfile(GetUserProfileReq(),
           options:
           CallOptions(metadata: {'access_token': await getAccessToken()}));
-      if (getIdRequest!= null && getIdRequest.id != null &&  getIdRequest.id.length>0 && result.profile.hasFirstName()) {
+      if ((getIdRequest != null && getIdRequest.id != null &&
+          getIdRequest.id.isNotEmpty) && result.profile.hasFirstName() &&
+          result.profile.firstName.length > 1) {
         _saveProfilePrivateDate(
             username: getIdRequest.id,
             firstName: result.profile.firstName,
@@ -163,6 +194,7 @@ class AccountRepo {
     }catch(e){
       return false;
     }
+
 
   }
 

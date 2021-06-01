@@ -1,4 +1,5 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/role.dart';
@@ -31,6 +32,7 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
 
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomDao = GetIt.I.get<RoomDao>();
+  var _mucDao = GetIt.I.get<MucDao>();
 
   @override
   void initState() {
@@ -110,8 +112,27 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
                 ),
               ])),
       SizedBox(
-        height: 15,
+        height: 10,
       ),
+      StreamBuilder<Muc>(
+          stream: _mucDao.getMucByUidAsStream(widget.mucUid.asString()),
+          builder: (c, muc) {
+            if (muc.hasData && muc.data != null && muc.data.info.isNotEmpty) {
+              return Padding(
+                padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                child:
+                    Container(
+                      child:Text(
+                        muc.data.info,
+                        style: TextStyle(fontSize: 15, color: Colors.blue),
+                      ),
+
+                )
+
+              );
+            } else
+              return SizedBox.shrink();
+          }),
       GestureDetector(
         child: Padding(
           padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
@@ -119,7 +140,7 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
             children: [
               IconButton(
                 icon: Icon(Icons.person_add),
-                disabledColor: Colors.blue,
+                disabledColor: Colors.white,
                 onPressed: null,
               ),
               SizedBox(
@@ -127,7 +148,7 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
               ),
               Text(
                 appLocalization.getTraslateValue("AddMember"),
-                style: TextStyle(color: Colors.blue),
+                style: TextStyle(color: Colors.white,fontSize: 17),
               ),
             ],
           ),

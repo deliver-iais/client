@@ -1,7 +1,9 @@
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
+import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart' as Database;
+import 'package:deliver_flutter/repository/memberRepo.dart';
 
 
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
@@ -105,9 +107,19 @@ class ContactRepo {
     while (i < contacts.length) {
       _sendContacts(contacts.sublist(
           i, contacts.length > i + 49 ? i + 49 : contacts.length));
+
+     await getContacts();
       i = i + 50;
     }
-    getContacts();
+   getContacts();
+
+
+  }
+
+  Future addContact(Contact contact) async {
+      _sendContacts([contact]);
+      getContacts();
+
   }
 
   _sendContacts(List<Contact> contacts) async {

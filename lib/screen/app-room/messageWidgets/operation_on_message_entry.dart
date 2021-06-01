@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 
 class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final Message message;
+  final bool hasPermissionInChannel;
 
-  OperationOnMessageEntry(this.message);
+  OperationOnMessageEntry(this.message, {this.hasPermissionInChannel = true});
+
   @override
   OperationOnMessageEntryState createState() => OperationOnMessageEntryState();
 
@@ -40,28 +42,33 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.DELETE);
   }
 
+  onResend() {
+    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.RESEND);
+  }
+
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
 
     return Container(
-      height: 150,
+      height:widget.hasPermissionInChannel? 150:100,
       child: Column(
         children: [
-          Expanded(
-            child: FlatButton(
-                onPressed: () {
-                  onReply();
-                },
-                child: Row(children: [
-                  Icon(
-                    Icons.reply,
-                    size: 20,
-                  ),
-                  SizedBox(width: 8),
-                  Text(appLocalization.getTraslateValue("Reply")),
-                ])),
-          ),
+          if (widget.hasPermissionInChannel)
+            Expanded(
+              child: FlatButton(
+                  onPressed: () {
+                    onReply();
+                  },
+                  child: Row(children: [
+                    Icon(
+                      Icons.reply,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(appLocalization.getTraslateValue("Reply")),
+                  ])),
+            ),
           Expanded(
             child: FlatButton(
                 onPressed: () {
@@ -90,6 +97,22 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   Text(appLocalization.getTraslateValue("Forward")),
                 ])),
           ),
+          if (widget.message.sendingFailed != null &&
+              widget.message.sendingFailed)
+            Expanded(
+              child: FlatButton(
+                  onPressed: () {
+                    onResend();
+                  },
+                  child: Row(children: [
+                    Icon(
+                      Icons.refresh,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(appLocalization.getTraslateValue("Resend")),
+                  ])),
+            ),
           // widget.message.type == MessageType.TEXT
           //     ? Expanded(
           //         child: FlatButton(

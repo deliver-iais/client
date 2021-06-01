@@ -29,14 +29,23 @@ class _LoginPageState extends State<LoginPage> {
     var isValidated = _formKey?.currentState?.validate() ?? false;
     if (isValidated && phoneNumber != null) {
       try {
-        await accountRepo.getVerificationCode(
+        var res = await accountRepo.getVerificationCode(
             phoneNumber.countryCode, phoneNumber.number);
-        ExtendedNavigator.of(context).push(Routes.verificationPage);
+        if (res != null)
+          ExtendedNavigator.of(context).push(Routes.verificationPage);
+        else
+          Fluttertoast.showToast(
+//          TODO more detailed error message needed here.
+              msg: appLocalization.getTraslateValue("occurred_Error"),
+              toastLength: Toast.LENGTH_SHORT,
+              backgroundColor: Colors.black,
+              textColor: Colors.white,
+              fontSize: 16.0);
       } catch (e) {
         print(e);
         Fluttertoast.showToast(
 //          TODO more detailed error message needed here.
-            msg: appLocalization.getTraslateValue("error_occurred"),
+            msg: appLocalization.getTraslateValue("occurred_Error"),
             toastLength: Toast.LENGTH_SHORT,
             backgroundColor: Colors.black,
             textColor: Colors.white,
@@ -83,28 +92,7 @@ class _LoginPageState extends State<LoginPage> {
                     children: <Widget>[
                       // PhoneFieldHint(),
                       IntlPhoneField(
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.phone, color: Theme.of(context).primaryTextTheme.button.color,),
-                          fillColor: ExtraTheme.of(context).secondColor,
-                          labelText:
-                              appLocalization.getTraslateValue("phoneNumber"),
-//                        filled: true,
-                          labelStyle: TextStyle(color: Theme.of(context).primaryTextTheme.button.color),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                            borderSide: BorderSide(
-                              color: Theme.of(context).primaryColor,
-                              width: 2.0,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                            borderSide: BorderSide(
-                              color: Theme.of(context).primaryColor.withOpacity(0.5),
-                              width: 2.0,
-                            ),
-                          ),
-                        ),
+                        initialValue: phoneNumber!= null? phoneNumber.number:"",
                         validator: (value) => value.length != 10 ||
                                 (value.length > 0 && value[0] == '0')
                             ? appLocalization

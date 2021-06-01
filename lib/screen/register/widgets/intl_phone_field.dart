@@ -1,6 +1,7 @@
 library intl_phone_field;
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -26,7 +27,6 @@ class IntlPhoneField extends StatefulWidget {
 
   /// 2 Letter ISO Code
   final String initialCountryCode;
-  final InputDecoration decoration;
   final TextStyle style;
   final bool showDropdownIcon;
 
@@ -42,7 +42,6 @@ class IntlPhoneField extends StatefulWidget {
     this.keyboardType = TextInputType.number,
     this.controller,
     this.focusNode,
-    this.decoration,
     this.style,
     this.onSubmitted,
     this.validator,
@@ -122,7 +121,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                               style: TextStyle(fontSize: 30),
                             ),
                             title: Text(
-                              filteredCountries[index]['name'],
+                              filteredCountries[index]['code'],
                               style: TextStyle(fontWeight: FontWeight.w700),
                             ),
                             trailing: Text(
@@ -148,9 +147,11 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
     );
     setState(() {});
   }
-
+AppLocalization appLocalization;
   @override
   Widget build(BuildContext context) {
+    appLocalization = AppLocalization.of(context);
+    //  widget.decoration.prefix = _selectedCountry['dial_code'];
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -177,7 +178,33 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                   ),
                 );
             },
-            decoration: widget.decoration,
+
+            decoration: InputDecoration(
+              suffixIcon: Icon(
+                Icons.phone,
+                color: Theme.of(context).primaryTextTheme.button.color,
+              ),
+              prefix: Text("${_selectedCountry['dial_code']}  " ,style: TextStyle(color: Colors.white),),
+              fillColor: ExtraTheme.of(context).secondColor,
+              labelText: appLocalization.getTraslateValue("phoneNumber"),
+//                        filled: true,
+              labelStyle: TextStyle(
+                  color: Theme.of(context).primaryTextTheme.button.color),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.0),
+                borderSide: BorderSide(
+                  color: Theme.of(context).primaryColor,
+                  width: 2.0,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5.0),
+                borderSide: BorderSide(
+                  color: Theme.of(context).primaryColor.withOpacity(0.5),
+                  width: 2.0,
+                ),
+              ),
+            ),
             style: widget.style,
             onSaved: (value) {
               if (widget.onSaved != null)
@@ -231,7 +258,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
             SizedBox(width: 8),
             FittedBox(
               child: Text(
-                _selectedCountry['dial_code'],
+                _selectedCountry['code'],
                 style: TextStyle(fontWeight: FontWeight.w700),
               ),
             ),

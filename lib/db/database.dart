@@ -24,10 +24,12 @@ import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/models/role.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider_windows/path_provider_windows.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'dart:io';
 
@@ -88,9 +90,11 @@ part 'database.g.dart';
   BotInfoDao
 ])
 class Database extends _$Database {
+  final PathProviderWindows provider = PathProviderWindows();
+
   Database()
       : super(LazyDatabase(() async {
-          if (Platform.isWindows) {
+          if (isDesktop()) {
             sqfliteFfiInit();
           }
           final dbFolder = await getApplicationDocumentsDirectory();

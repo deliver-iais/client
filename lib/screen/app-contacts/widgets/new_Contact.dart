@@ -1,6 +1,9 @@
-import 'dart:ffi';
+
+
+
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:fixnum/fixnum.dart';
@@ -27,6 +30,7 @@ class _NewContactState extends State<NewContact> {
   p.PhoneNumber _phoneNumber;
 
   AppLocalization _appLocalization;
+  var _routingServices = GetIt.I.get<RoutingService>();
 
   var _contactRepo = GetIt.I.get<ContactRepo>();
 
@@ -35,37 +39,35 @@ class _NewContactState extends State<NewContact> {
 
   @override
   Widget build(BuildContext context) {
+
     _appLocalization = AppLocalization.of(context);
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.chevron_left),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        leading: _routingServices.backButtonLeading(),
+        title: Text(_appLocalization.getTraslateValue("newContact"),style: TextStyle(fontSize: 20),) ,
         actions: [
-          IconButton(
-              icon: Icon(Icons.check),
-              iconSize: 30,
-              onPressed: () async {
-                if (_phoneNumber == null) {
-                  return;
-                }
-                PhoneNumber phoneNumber = PhoneNumber()
-                  ..nationalNumber = Int64.parseInt(_phoneNumber.number)
-                  ..countryCode = int.parse(_phoneNumber.countryCode);
-              await _contactRepo.sendContacts([
-                  Contact()
-                    ..phoneNumber = phoneNumber
-                    ..firstName = _firstName
-                    ..lastName = _lastName
-                ]);
-
-                await _contactRepo.getContacts();
-                await showResult();
-                Navigator.pop(context);
-              })
+          Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: IconButton(
+                icon: Icon(Icons.check),
+                iconSize: 40,
+                onPressed: () async {
+                  if (_phoneNumber == null) {
+                    return;
+                  }
+                  PhoneNumber phoneNumber = PhoneNumber()
+                    ..nationalNumber = Int64.parseInt(_phoneNumber.number)
+                    ..countryCode = int.parse(_phoneNumber.countryCode);
+                  await _contactRepo.addContact(
+                    Contact()
+                      ..phoneNumber = phoneNumber
+                      ..firstName = _firstName
+                      ..lastName = _lastName
+                  );
+                  await showResult();
+                  _routingServices.pop();
+                }),
+          )
         ],
       ),
       body: FluidContainerWidget(
@@ -103,30 +105,6 @@ class _NewContactState extends State<NewContact> {
               height: 10,
             ),
             IntlPhoneField(
-              decoration: InputDecoration(
-                prefixIcon: Icon(
-                  Icons.phone,
-                  color: Theme.of(context).primaryTextTheme.button.color,
-                ),
-                fillColor: ExtraTheme.of(context).secondColor,
-                labelText: _appLocalization.getTraslateValue("phoneNumber"),
-                labelStyle: TextStyle(
-                    color: Theme.of(context).primaryTextTheme.button.color),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5.0),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).primaryColor,
-                    width: 2.0,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5.0),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).primaryColor.withOpacity(0.5),
-                    width: 2.0,
-                  ),
-                ),
-              ),
               validator: (value) => value.length != 10 ||
                       (value.length > 0 && value[0] == '0')
                   ? _appLocalization.getTraslateValue("invalid_mobile_number")
@@ -145,7 +123,7 @@ class _NewContactState extends State<NewContact> {
     );
   }
 
-  void showResult() async  {
+  void showResult() async {
     var result = await _contactRepo.ContactIsExist(_phoneNumber.number);
     if (result) {
       Fluttertoast.showToast(
