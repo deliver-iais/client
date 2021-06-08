@@ -14,17 +14,15 @@ class ExtraThemeData {
   Color boxDetails = Colors.white;
   Color boxBackground = Color(0xfde2f8f0);
   Color activeKey = Color(0xff15786c);
-  Color connectionStatus;
+  Color homeDetails;
   Color bottomNavigationAppbar;
   Color activePageIcon;
   Color inactivePageIcon;
   Color menuIconButton;
   Color popupMenuButton;
-  Color popupMenuButtonIcon;
+  Color popupMenuButtonDetails;
   Color popupMenuButton2;
-  Color localSearch;
   Color displayName;
-  Color popupMenuButtonText;
   Color searchBox;
   ExtraThemeData(
       {this.circleAvatarBackground,
@@ -37,16 +35,14 @@ class ExtraThemeData {
         this.boxDetails,
         this.boxBackground,
         this.activeKey,
-        this.connectionStatus,
+        this.homeDetails,
         this.bottomNavigationAppbar,
         this.activePageIcon,
         this.inactivePageIcon,
         this.menuIconButton,
         this.popupMenuButton,
-        this.popupMenuButtonIcon,
-        this.popupMenuButtonText,
+        this.popupMenuButtonDetails,
         this.searchBox,
-        this.localSearch,
         this.displayName
       });
 }

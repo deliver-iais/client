@@ -48,16 +48,15 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   boxBackground: Color(0xfde2f8f0),
   activeKey: Color(0xff15786c),
   //homePage
-    connectionStatus : Color(0xff4bd5af),
+    homeDetails : Color(0xff4bd5af),
     bottomNavigationAppbar : LightTheme.appBarTheme.color.withAlpha(200),
-    // activePageIcon : Color(0xff33ba97),//active in extra
     activePageIcon: LightTheme.backgroundColor,
     inactivePageIcon : LightTheme.accentColor.withAlpha(100), //details in extra
     menuIconButton : LightTheme.accentColor.withAlpha(50),
     popupMenuButton : LightTheme.backgroundColor.withOpacity(0.8),
-    popupMenuButtonIcon : LightTheme.accentColor,
-    popupMenuButtonText : LightTheme.accentColor,
+    popupMenuButtonDetails : LightTheme.accentColor,
     searchBox: LightTheme.appBarTheme.color.withAlpha(50),
-    localSearch : Colors.blue, // ?????
-  displayName : Colors.black//info chat in extra
+    displayName : Colors.black//info chat in extra
+    // roomPage
+
 );

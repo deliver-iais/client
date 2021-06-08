@@ -143,7 +143,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                                       .getTraslateValue("disconnect"),
                                   style: TextStyle(
                                       fontSize: 16,
-                                      color: ExtraTheme.of(context).connectionStatus))
+                                      color: ExtraTheme.of(context).homeDetails))
                             ],
                           );
                         } else {
@@ -274,14 +274,14 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           children: [
                             Icon(
                               Icons.group,
-                              color: ExtraTheme.of(context).popupMenuButtonIcon,
+                              color: ExtraTheme.of(context).popupMenuButtonDetails,
                             ),
                             SizedBox(
                               width: 15,
                             ),
                             Text(
                               appLocalization.getTraslateValue("newGroup"),
-                              style: TextStyle(fontSize: 15, color: ExtraTheme.of(context).popupMenuButtonText),
+                              style: TextStyle(fontSize: 15, color: ExtraTheme.of(context).popupMenuButtonDetails),
                             ),
                           ],
                         ),
@@ -295,14 +295,14 @@ class _NavigationCenterState extends State<NavigationCenter> {
                               "assets/icons/channel_icon.png",
                               width: 25,
                               height: 25,
-                              color: ExtraTheme.of(context).popupMenuButtonIcon,
+                              color: ExtraTheme.of(context).popupMenuButtonDetails,
                             ),
                             SizedBox(
                               width: 15,
                             ),
                             Text(
                               appLocalization.getTraslateValue("newChannel"),
-                              style: TextStyle(fontSize: 15, color: ExtraTheme.of(context).popupMenuButtonText),
+                              style: TextStyle(fontSize: 15, color: ExtraTheme.of(context).popupMenuButtonDetails),
                             )
                           ],
                         ),
@@ -313,7 +313,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 color: ExtraTheme.of(context).popupMenuButton,
                 icon: Icon(
                   Icons.add,
-                  color: ExtraTheme.of(context).popupMenuButtonIcon,
+                  color: Colors.white,
                   size: 20,
                 ),
                 itemBuilder: (context) => [
@@ -325,11 +325,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           children: [
                             Icon(
                               Icons.account_box_sharp,
-                              color: ExtraTheme.of(context).popupMenuButtonIcon,
+                              color: ExtraTheme.of(context).popupMenuButtonDetails,
                             ),
                             Text(
                               appLocalization.getTraslateValue("newContact"),
-                              style: TextStyle(fontSize: 15, color: ExtraTheme.of(context).popupMenuButtonText),
+                              style: TextStyle(fontSize: 15, color: ExtraTheme.of(context).popupMenuButtonDetails),
                             )
                           ],
                         ),
@@ -415,7 +415,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     children: [
                       Text(
                         _appLocalization.getTraslateValue("local_search"),
-                        style: TextStyle(color: ExtraTheme.of(context).localSearch),
+                        style: TextStyle(color: ExtraTheme.of(context).homeDetails),
                       ),
                       Container(
                         height: MediaQuery.of(context).size.height,
