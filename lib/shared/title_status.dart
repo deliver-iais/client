@@ -6,6 +6,7 @@ import 'package:deliver_flutter/repository/lastActivityRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/shared/activityStatuse.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -56,7 +57,7 @@ class _TitleStatusState extends State<TitleStatus> {
               case TitleStatusConditions.Normal:
                 if(widget.currentRoomUid.category == Categories.BOT)
                   return Text(title(appLocalization, snapshot.data),
-                      style: TextStyle(fontSize: 12,color: Theme.of(context).primaryColor));
+                      style: TextStyle(fontSize: 12,color: ExtraTheme.of(context).textDetails));
                 else
                   return activityWidget();
                 break;
@@ -64,7 +65,7 @@ class _TitleStatusState extends State<TitleStatus> {
               case TitleStatusConditions.Disconnected:
               case TitleStatusConditions.Connecting:
                 return Text(title(appLocalization, snapshot.data),
-                    style: TextStyle(fontSize: 12,color: Theme.of(context).primaryColor));
+                    style: TextStyle(fontSize: 12,color: ExtraTheme.of(context).textDetails));
                 break;
             }
             if (snapshot.data == TitleStatusConditions.Normal &&
@@ -148,14 +149,14 @@ class _TitleStatusState extends State<TitleStatus> {
                 return Text(
                   appLocalization.getTraslateValue('online'),
                   style: TextStyle(
-                      fontSize: 14, color: Theme.of(context).primaryColor),
+                      fontSize: 14, color: ExtraTheme.of(context).textDetails),
                 );
               } else {
                 String lastActivityTime =
                     userInfo.data.lastActivity.dateTimeFormat();
                 return Text(
                   "${appLocalization.getTraslateValue('lastSeen')} ${lastActivityTime} ",
-                  style: TextStyle(fontSize: 12,color: Theme.of(context).primaryColor),
+                  style: TextStyle(fontSize: 12,color: ExtraTheme.of(context).textDetails),
                 );
               }
             }

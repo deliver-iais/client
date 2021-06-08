@@ -36,6 +36,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/shared/mucAppbarTitle.dart';
 import 'package:deliver_flutter/shared/userAppBar.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -661,12 +662,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       });
                 } else {
                   return PopupMenuButton(
-                    color: Theme.of(context).accentColor.withAlpha(90),
-                    icon: Icon(Icons.more_vert),
+                      // color: Theme.of(context).accentColor.withAlpha(90),
+                      color: ExtraTheme.of(context).popupMenuButton,
+                    icon: Icon(Icons.more_vert, color: ExtraTheme.of(context).menuIconButton,),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
                           child:
-                              Text(_appLocalization.getTraslateValue("search")),
+                              Text(_appLocalization.getTraslateValue("search"), style: TextStyle(color: ExtraTheme.of(context).popupMenuButtonDetails,),),
                           value: "search"),
                     ],
                     onSelected: (search) {
@@ -679,6 +681,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       ),
     );
   }
+
 
   Future searchMessage(String str, BehaviorSubject subject) async {
     if (str != null && str.length > 0) {

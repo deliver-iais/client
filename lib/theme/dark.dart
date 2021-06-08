@@ -45,13 +45,17 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     boxBackground: Color(0x8bc1e0FF).withAlpha(50),
     activeKey: Color(0xFF2699FB),
     //homePage
-    homeDetails : DarkTheme.primaryColor,
+    textDetails : DarkTheme.primaryColor,
     bottomNavigationAppbar : DarkTheme.appBarTheme.color.withAlpha(200),
     activePageIcon : Colors.white,//active in extra
     inactivePageIcon : Color(0xFF9D9D9D),//details in extra
     menuIconButton : DarkTheme.accentColor.withAlpha(50),
-    popupMenuButton : DarkTheme.backgroundColor.withAlpha(80),
+    popupMenuButton : DarkTheme.accentColor.withAlpha(80),
     popupMenuButtonDetails : Colors.white,
     searchBox: DarkTheme.accentColor.withAlpha(50),
-    displayName : Colors.white
-);//info chat in extra);
+    displayName : Colors.white,//info chat in extra
+    sentMessageBox: DarkTheme.primaryColor,
+    receivedMessageBox: DarkTheme.accentColor.withAlpha(60),
+    textMessage: Colors.white,
+    messageDetails: Color(0xFFB3B3B3),
+);

@@ -67,6 +67,7 @@ class SenderAndContent extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       softWrap: false,
+                      style: TextStyle(color: ExtraTheme.of(context).textMessage),
                     )
                   : messages[0].type == MessageType.FILE
                       ? Text(
@@ -79,14 +80,17 @@ class SenderAndContent extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           softWrap: false,
-                        )
+                          style: TextStyle(color: ExtraTheme.of(context).messageDetails),
+
+          )
                       : Container()
               : Text(
                   content,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   softWrap: false,
-                ),
+                  style: TextStyle(color: ExtraTheme.of(context).textMessage),
+          ),
         ],
       ),
     );
@@ -97,8 +101,8 @@ class SenderAndContent extends StatelessWidget {
       s,
       style: TextStyle(
         color: inBox == true
-            ? ExtraTheme.of(context).secondColor
-            : Theme.of(context).primaryColor,
+            ? ExtraTheme.of(context).messageDetails
+          : Theme.of(context).primaryColor,
         fontWeight: FontWeight.bold,
       ),
       maxLines: 1,

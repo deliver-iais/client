@@ -3,6 +3,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
@@ -19,6 +20,7 @@ class TextUi extends StatelessWidget {
   final Function onUsernameClick;
   final double imageWidth;
   final String pattern;
+  final Color color;
 
   const TextUi(
       {Key key,
@@ -30,7 +32,8 @@ class TextUi extends StatelessWidget {
       this.onUsernameClick,
       this.isCaption,
       this.pattern,
-      this.imageWidth})
+      this.imageWidth,
+      this.color})
       : super(key: key);
 
   @override
@@ -66,7 +69,7 @@ class TextUi extends StatelessWidget {
     }
     List<String> lines = LineSplitter().convert(content);
     List<Widget> texts = [];
-    texts.add(disjointThenJoin(preProcess(lines)));
+    texts.add(disjointThenJoin(preProcess(lines, color)));
     return texts;
   }
 
@@ -143,15 +146,15 @@ class TextUi extends StatelessWidget {
   }
 }
 
-List<TextBlock> preProcess(List<String> texts) {
+List<TextBlock> preProcess(List<String> texts, Color color) {
   bool currentLang = texts[0].isPersian();
-  List<TextBlock> blocks = [TextBlock.withFirstText(texts[0])];
+  List<TextBlock> blocks = [TextBlock.withFirstText(texts[0], color)];
   for (var i = 1; i < texts.length; i++) {
     if (currentLang == texts[i].isPersian()) {
       blocks.last.add(texts[i]);
     } else {
       currentLang = !currentLang;
-      blocks.add(TextBlock.withFirstText(texts[i]));
+      blocks.add(TextBlock.withFirstText(texts[i], color));
     }
   }
   return blocks;
@@ -161,11 +164,12 @@ class TextBlock {
   bool isRtl = false;
   List<String> texts = [];
   int ml = -1;
-
-  TextBlock.withFirstText(String text) {
+  Color color;
+  TextBlock.withFirstText(String text, Color color) {
     isRtl = text.isPersian();
     texts.add(text);
     ml = text.length;
+    this.color = color;
   }
 
   add(String t) {
@@ -188,7 +192,7 @@ class TextBlock {
                 Container(
                     constraints: BoxConstraints.loose(Size.fromWidth(maxWidth)),
                     child: _textWidget(texts[i], message, isLastBlock, isSender,
-                        i, texts.length - 1, isSeen, onUsernameClick, pattern)),
+                        i, texts.length - 1, isSeen, onUsernameClick, pattern, this.color)),
               ],
             )
         ]);
@@ -204,7 +208,8 @@ Widget _textWidget(
     int lenght,
     bool isSeen,
     Function onClick,
-    String pattern) {
+    String pattern,
+    Color color) {
   return Wrap(
     alignment: WrapAlignment.end,
     crossAxisAlignment: WrapCrossAlignment.end,
@@ -212,6 +217,7 @@ Widget _textWidget(
       ParsedText(
         textDirection: text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
         text: text,
+        style: TextStyle(color: color),
         parse: <MatchText>[
           MatchText(
             type: ParsedType.URL,

@@ -143,7 +143,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                                       .getTraslateValue("disconnect"),
                                   style: TextStyle(
                                       fontSize: 16,
-                                      color: ExtraTheme.of(context).homeDetails))
+                                      color: ExtraTheme.of(context).textDetails))
                             ],
                           );
                         } else {
@@ -415,7 +415,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     children: [
                       Text(
                         _appLocalization.getTraslateValue("local_search"),
-                        style: TextStyle(color: ExtraTheme.of(context).homeDetails),
+                        style: TextStyle(color: ExtraTheme.of(context).textDetails),
                       ),
                       Container(
                         height: MediaQuery.of(context).size.height,

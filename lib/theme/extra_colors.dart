@@ -14,7 +14,7 @@ class ExtraThemeData {
   Color boxDetails = Colors.white;
   Color boxBackground = Color(0xfde2f8f0);
   Color activeKey = Color(0xff15786c);
-  Color homeDetails;
+  Color textDetails;
   Color bottomNavigationAppbar;
   Color activePageIcon;
   Color inactivePageIcon;
@@ -24,6 +24,10 @@ class ExtraThemeData {
   Color popupMenuButton2;
   Color displayName;
   Color searchBox;
+  Color sentMessageBox;
+  Color receivedMessageBox;
+  Color textMessage;
+  Color messageDetails;
   ExtraThemeData(
       {this.circleAvatarBackground,
         this.details,
@@ -35,7 +39,7 @@ class ExtraThemeData {
         this.boxDetails,
         this.boxBackground,
         this.activeKey,
-        this.homeDetails,
+        this.textDetails,
         this.bottomNavigationAppbar,
         this.activePageIcon,
         this.inactivePageIcon,
@@ -43,7 +47,11 @@ class ExtraThemeData {
         this.popupMenuButton,
         this.popupMenuButtonDetails,
         this.searchBox,
-        this.displayName
+        this.displayName,
+        this.sentMessageBox,
+        this.receivedMessageBox,
+        this.textMessage,
+        this.messageDetails
       });
 }
 
