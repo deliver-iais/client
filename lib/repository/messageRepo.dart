@@ -603,7 +603,6 @@ class MessageRepo {
 
   Future<List<Message>> _saveFetchMessages(
       List<MessageProto.Message> messages) async {
-
     List<Message> msgList = [];
     for (MessageProto.Message message in messages) {
      _pendingMessageDao.deletePendingMessage(message.packetId);
@@ -628,9 +627,12 @@ class MessageRepo {
 
         }else{
           print(e.toString());
+          continue;
         }
       }catch(e){
         print(e.toString());
+        continue;
+
       }
 
       msgList.add(

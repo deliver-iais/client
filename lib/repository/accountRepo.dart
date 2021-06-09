@@ -110,7 +110,7 @@ class AccountRepo {
   Future _getAccessToken(String refreshToken) async {
     var getAccessToken = await authServiceStub
         .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
-    if(wrongToken(getAccessToken.accessToken)){
+    if(wrongAccessToken(getAccessToken.accessToken) || wrongRefreshToken(getAccessToken.refreshToken)){
       _getAccessToken(refreshToken);
       return;
     }
@@ -143,7 +143,7 @@ class AccountRepo {
         .add(new Duration(seconds: decodedToken["iat"]));
     return((DateTime.now().millisecondsSinceEpoch- iaTirationDate.millisecondsSinceEpoch)>5*60*1000);
   }
-  bool wrongToken(String token){
+  bool wrongAccessToken(String token){
     final Map<String, dynamic> decodedToken = JwtDecoder.decode (token);
     final DateTime iatTime =
     new DateTime.fromMillisecondsSinceEpoch(0)
@@ -153,6 +153,18 @@ class AccountRepo {
         .add(new Duration(seconds: decodedToken["exp"]));
     return((expTime.millisecondsSinceEpoch- iatTime.millisecondsSinceEpoch)>15*60*1000);
   }
+
+  bool wrongRefreshToken(String token){
+    final Map<String, dynamic> decodedToken = JwtDecoder.decode (token);
+    final DateTime iatTime =
+    new DateTime.fromMillisecondsSinceEpoch(0)
+        .add(new Duration(seconds: decodedToken["iat"]));
+    final DateTime expTime =
+    new DateTime.fromMillisecondsSinceEpoch(0)
+        .add(new Duration(seconds: decodedToken["exp"]));
+    return((expTime.millisecondsSinceEpoch- iatTime.millisecondsSinceEpoch)<29*24*60*60*1000);
+  }
+
 
 
   void saveTokens(AccessTokenRes res) {

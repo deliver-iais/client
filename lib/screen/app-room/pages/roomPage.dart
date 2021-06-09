@@ -90,7 +90,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _botRepo = GetIt.I.get<BotRepo>();
   var _memberRepo = GetIt.I.get<MemberRepo>();
   String pattern;
-
+  Map<String ,DateTime> _downTimeMap = Map();
+  Map<String ,DateTime> _upTimeMap = Map();
   int lastSeenMessageId = -1;
   BehaviorSubject<bool> _waitingForForwardedMessage =
       BehaviorSubject.seeded(false);
@@ -106,6 +107,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   int _itemCount = 0;
   BehaviorSubject<int> _itemCountSubject = BehaviorSubject.seeded(0);
 
+
   bool _scrollToNewMessage = true;
   BehaviorSubject<Room> _currentRoom = BehaviorSubject.seeded(null);
   int _replayMessageId = -1;
@@ -120,7 +122,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Cache<int, Message> _cache =
       LruCache<int, Message>(storage: SimpleStorage(size: 50));
 
-  Map<String, int> _messagesPacketId = Map();
   List<Message> searchResult = List();
   Message currentSearchResultMessage;
   Message _currentMessageForCheckTime = null;
@@ -845,16 +846,22 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           bool showTimeDown =
               _currentMessageForCheckTime.time.millisecondsSinceEpoch >=
                   messages[0].time.millisecondsSinceEpoch;
-          if (messages[0].id != null && messages[0].id == 1) {
-            showTimeDown = false;
+          // if (messages[0].id != null && messages[0].id == 1) {
+          //   showTimeDown = false;
+          // }
+          if(newTime && showTimeDown){
+            _downTimeMap[messages[0].packetId] = _currentMessageForCheckTime.time;
+          }
+          if(newTime && !showTimeDown){
+            _upTimeMap[messages[0].packetId] = messages[0].time;
           }
 
           time = _currentMessageForCheckTime.time;
           _currentMessageForCheckTime = messages[0];
           return Column(
             children: <Widget>[
-              if (newTime && !showTimeDown)
-                ChatTime(currentMessageTime: messages[0].time),
+              if (_upTimeMap.containsKey(messages[0].packetId) )
+                ChatTime(currentMessageTime: _upTimeMap[messages[0].packetId]),
               if (currentRoom.lastMessageId != null &&
                   _lastShowedMessageId != -1 &&
                   _lastShowedMessageId == index &&
@@ -894,7 +901,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                             ),
                           ],
                         ),
-              if (newTime && showTimeDown) ChatTime(currentMessageTime: time),
+              if (_downTimeMap.containsKey(messages[0].packetId) )
+                ChatTime(currentMessageTime: _downTimeMap[messages[0].packetId]),
             ],
           );
         } else {
