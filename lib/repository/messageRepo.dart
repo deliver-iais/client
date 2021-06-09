@@ -627,11 +627,11 @@ class MessageRepo {
 
         }else{
           print(e.toString());
-          continue;
+          // continue;
         }
       }catch(e){
         print(e.toString());
-        continue;
+        // continue;
 
       }
 

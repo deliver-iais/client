@@ -846,9 +846,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           bool showTimeDown =
               _currentMessageForCheckTime.time.millisecondsSinceEpoch >=
                   messages[0].time.millisecondsSinceEpoch;
-          // if (messages[0].id != null && messages[0].id == 1) {
-          //   showTimeDown = false;
-          // }
+          if (messages[0].id != null && messages[0].id == 1) {
+            showTimeDown = false;
+          }
           if(newTime && showTimeDown){
             _downTimeMap[messages[0].packetId] = _currentMessageForCheckTime.time;
           }
