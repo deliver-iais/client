@@ -90,8 +90,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _botRepo = GetIt.I.get<BotRepo>();
   var _memberRepo = GetIt.I.get<MemberRepo>();
   String pattern;
-  Map<String ,DateTime> _downTimeMap = Map();
-  Map<String ,DateTime> _upTimeMap = Map();
+  Map<String, DateTime> _downTimeMap = Map();
+  Map<String, DateTime> _upTimeMap = Map();
   int lastSeenMessageId = -1;
   BehaviorSubject<bool> _waitingForForwardedMessage =
       BehaviorSubject.seeded(false);
@@ -106,7 +106,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
   BehaviorSubject<int> _itemCountSubject = BehaviorSubject.seeded(0);
-
 
   bool _scrollToNewMessage = true;
   BehaviorSubject<Room> _currentRoom = BehaviorSubject.seeded(null);
@@ -248,7 +247,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       _lastShowedMessageId = lastSeen.messageId ?? 0;
     }
   }
+
   var _fireBaseServices = GetIt.I.get<FireBaseServices>();
+
   void initState() {
     Timer(Duration(seconds: 1), () {
       _showOtherMessage.add(true);
@@ -341,7 +342,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         return Scaffold(
           appBar: buildAppbar(snapshot),
           body: Container(
-                child:Column(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 StreamBuilder<List<PendingMessage>>(
@@ -363,10 +364,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   i = _currentRoom.value.lastMessageId +
                                       pendingMessages.length; //TODO chang
                                 }
-                                // if (lastSeenMessageId > 0)
-                                //   unReadMessageScrollSubjet.add(
-                                //       _currentRoom.value.lastMessageId -
-                                //           lastSeenMessageId);
                                 if (_itemCount != 0 && i != _itemCount)
                                   _itemCountSubject.add(_itemCount);
                                 _itemCount = i;
@@ -803,7 +800,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   FutureBuilder<List<Message>> buildMessage(bool isPendingMessage,
       List pendingMessages, int index, Room currentRoom, double _maxWidth) {
-    return  FutureBuilder<List<Message>>(
+    return FutureBuilder<List<Message>>(
       future: isPendingMessage
           ? _getPendingMessage(
               pendingMessages[_itemCount - index - 1].messageDbId)
@@ -823,45 +820,21 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           }
           if (_currentMessageForCheckTime == null)
             _currentMessageForCheckTime = messages[0];
+          checkTime(messages);
 
-          bool newTime = false;
-          if (messages.length == 1 &&
-              messages[0].packetId != null &&
-              messages[0].id != null &&
-              messages[0].id.toInt() == 1) {
-            newTime = true;
-          } else if (_currentMessageForCheckTime != null &&
-              _currentMessageForCheckTime.id != null &&
-              messages[0] != null &&
-              messages[0].packetId != null &&
-              messages[0].id != null &&
-              messages[0].id > 1 &&
-              (_currentMessageForCheckTime.id - messages[0].id).abs() <= 1 &&
-              (_currentMessageForCheckTime.time.day != messages[0].time.day ||
-                  _currentMessageForCheckTime.time.month !=
-                      messages[0].time.month)) {
-            newTime = true;
-          }
-          var time;
-          bool showTimeDown =
-              _currentMessageForCheckTime.time.millisecondsSinceEpoch >=
-                  messages[0].time.millisecondsSinceEpoch;
-          if (messages[0].id != null && messages[0].id == 1) {
-            showTimeDown = false;
-          }
-          if(newTime && showTimeDown){
-            _downTimeMap[messages[0].packetId] = _currentMessageForCheckTime.time;
-          }
-          if(newTime && !showTimeDown){
-            _upTimeMap[messages[0].packetId] = messages[0].time;
-          }
-
-          time = _currentMessageForCheckTime.time;
-          _currentMessageForCheckTime = messages[0];
           return Column(
             children: <Widget>[
-              if (_upTimeMap.containsKey(messages[0].packetId) )
-                ChatTime(currentMessageTime: _upTimeMap[messages[0].packetId]),
+              if (_upTimeMap.containsKey(messages[0].packetId))
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius:
+                    BorderRadius.circular(
+                        8),
+                  ),
+                  child:  ChatTime(currentMessageTime: _upTimeMap[messages[0].packetId]),
+                ),
+
               if (currentRoom.lastMessageId != null &&
                   _lastShowedMessageId != -1 &&
                   _lastShowedMessageId == index &&
@@ -901,8 +874,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                             ),
                           ],
                         ),
-              if (_downTimeMap.containsKey(messages[0].packetId) )
-                ChatTime(currentMessageTime: _downTimeMap[messages[0].packetId]),
+              if (_downTimeMap.containsKey(messages[0].packetId))
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius:
+                    BorderRadius.circular(
+                        8),
+                  ),
+                  child: ChatTime(
+                      currentMessageTime: _downTimeMap[messages[0].packetId]),
+                ),
             ],
           );
         } else {
@@ -927,6 +909,53 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         }
       },
     );
+  }
+
+  void checkTime(List<Message> messages) {
+    print("${messages[0].id}     ${messages[0].time.toLocal().toString()}");
+    print(
+        "${_currentMessageForCheckTime.id}     ${_currentMessageForCheckTime.time.toLocal().toString()}");
+    try {
+      bool newTime = false;
+      if (messages.length == 1 &&
+          messages[0].packetId != null &&
+          messages[0].id != null &&
+          messages[0].id.toInt() == 1) {
+        newTime = true;
+      } else if (_currentMessageForCheckTime != null &&
+          _currentMessageForCheckTime.id != null &&
+          messages[0] != null &&
+          messages[0].id != null &&
+          messages[0].id > 1 &&
+          (_currentMessageForCheckTime.id - messages[0].id).abs() <= 1 &&
+          (_currentMessageForCheckTime.time.day != messages[0].time.day ||
+              _currentMessageForCheckTime.time.month !=
+                  messages[0].time.month)) {
+        newTime = true;
+      }
+      print(newTime);
+      bool showTimeDown =
+          _currentMessageForCheckTime.time.millisecondsSinceEpoch >=
+              messages[0].time.millisecondsSinceEpoch;
+      if (messages[0].id != null && messages[0].id == 1) {
+        showTimeDown = false;
+      }
+
+      if (newTime &&
+          showTimeDown &&
+          _currentMessageForCheckTime != null &&
+          !_upTimeMap.containsValue(_currentMessageForCheckTime.time)) {
+        _downTimeMap[messages[0].packetId] = _currentMessageForCheckTime.time;
+      }
+      if (newTime &&
+          !showTimeDown &&
+          !_downTimeMap.containsValue(messages[0].time)) {
+        _upTimeMap[messages[0].packetId] = messages[0].time;
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+    _currentMessageForCheckTime = messages[0];
   }
 
   Widget normalMessage(Message message, double maxWidth, Room currentRoom,
@@ -1036,7 +1065,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Widget showSentMessage(Message message, double _maxWidth, int lastMessageId,
       int pendingMessagesLength) {
     BehaviorSubject<bool> dragSubject = BehaviorSubject.seeded(true);
-    var messageWidget =  SentMessageBox(
+    var messageWidget = SentMessageBox(
       message: message,
       maxWidth: _maxWidth,
       isSeen: message.id != null && message.id <= lastSeenMessageId,
@@ -1219,20 +1248,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   scrollToLast() {
     _itemScrollController.scrollTo(
-        index: _itemCount-1,duration: Duration(microseconds: 1));
-
+        index: _itemCount - 1, duration: Duration(microseconds: 1));
   }
 
   onUsernameClick(String username) async {
-    if(username.contains("_bot")){
+    if (username.contains("_bot")) {
       String roomId = "4:${username.substring(1)}";
       _routingService.openRoom(roomId);
-    }else{
+    } else {
       String roomId = await _roomRepo.searchByUsername(username);
       if (roomId != null) {
         _routingService.openRoom(roomId);
       }
     }
-
   }
 }

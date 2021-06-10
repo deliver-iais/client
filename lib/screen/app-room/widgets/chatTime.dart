@@ -17,11 +17,15 @@ class ChatTime extends StatelessWidget {
           int currentMonth = DateTime.now().month;
           if (currentDay == currentMessageTime.day &&
               currentMonth == currentMessageTime.month) {
-            outT = 'Today';
-          } else
+            outT = ' Today ';
+          } else if(currentDay - currentMessageTime.day<2
+          ){
+            outT = ' Yesterday ';
+          }
+            else
             outT = currentMessageTime.dateTimeFormat();
-          return Text(
-            outT,
+          return  Text(
+             outT ,
             style: TextStyle(
               color: Theme.of(context).primaryColor,
               fontSize: 13,
