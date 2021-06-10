@@ -22,10 +22,12 @@ class MucServices {
   var channelServices =
       ChannelServices.ChannelServiceClient(MucServicesClientChannel);
 
-  Future<Uid> createNewGroup(String groupName,String info) async {
+  Future<Uid> createNewGroup(String groupName, String info) async {
     try {
       var request = await groupServices.createGroup(
-          GroupServices.CreateGroupReq()..name = groupName..info = info,
+          GroupServices.CreateGroupReq()
+            ..name = groupName
+            ..info = info,
           options: CallOptions(
               timeout: Duration(seconds: 2),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
@@ -45,7 +47,8 @@ class MucServices {
     try {
       await groupServices.addMembers(addMemberRequest,
           options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()},timeout: Duration(seconds: 2)));
+              metadata: {'access_token': await _accountRepo.getAccessToken()},
+              timeout: Duration(seconds: 2)));
 
       return true;
     } catch (e) {
@@ -110,7 +113,8 @@ class MucServices {
       await groupServices.leaveGroup(
           GroupServices.LeaveGroupReq()..group = groupUid,
           options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()},timeout: Duration(seconds: 2)));
+              metadata: {'access_token': await _accountRepo.getAccessToken()},
+              timeout: Duration(seconds: 2)));
       return true;
     } catch (e) {
       return false;
@@ -213,7 +217,8 @@ class MucServices {
   }
 
   Future<Uid> createNewChannel(
-      String channelName, ChannelType type, String channelId,String info) async {
+      String channelName, ChannelType type, String channelId, String info,
+      {bool retry = true}) async {
     try {
       var request = await channelServices.createChannel(
           CreateChannelReq()
@@ -226,7 +231,10 @@ class MucServices {
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return request.uid;
     } catch (e) {
-      return null;
+      if (retry)
+        createNewChannel(channelName, type, channelId, info, retry: false);
+      else
+        return null;
     }
   }
 
