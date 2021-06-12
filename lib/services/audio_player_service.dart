@@ -1,7 +1,8 @@
 import 'dart:async';
 
-import 'package:audioplayers/audio_cache.dart';
+
 import 'package:audioplayers/audioplayers.dart';
+import 'package:deliver_flutter/models/AudioPlayerState.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:open_file/open_file.dart';
 

@@ -1,4 +1,5 @@
-import 'package:audioplayers/audioplayers.dart';
+
+import 'package:deliver_flutter/models/AudioPlayerState.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

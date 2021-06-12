@@ -20,7 +20,7 @@ import 'package:flutter/services.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:grpc/grpc_web.dart';
+import 'package:grpc/grpc.dart';
 import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
 

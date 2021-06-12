@@ -551,16 +551,16 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
               return Column(
                 children: [
                   ListTile(
-                    title: FlutterLinkPreview(
-                      url: jsonDecode(snapshot.data[index].json)["url"],
-                      bodyStyle: TextStyle(
-                        fontSize: 10.0,
-                      ),
-                      titleStyle: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    // title: FlutterLinkPreview(
+                    //   url: jsonDecode(snapshot.data[index].json)["url"],
+                    //   bodyStyle: TextStyle(
+                    //     fontSize: 10.0,
+                    //   ),
+                    //   titleStyle: TextStyle(
+                    //     fontSize: 18.0,
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    // ),
                   ),
                   Divider(),
                 ],

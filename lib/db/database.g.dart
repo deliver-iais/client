@@ -40,34 +40,34 @@ class Message extends DataClass implements Insertable<Message> {
   factory Message.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
-    final dateTimeType = db.typeSystem.forDartType<DateTime>();
-    final boolType = db.typeSystem.forDartType<bool>();
     return Message(
-      dbId: intType.mapFromDatabaseResponse(data['${effectivePrefix}db_id']),
-      packetId: stringType
+      dbId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}db_id']),
+      packetId: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}packet_id']),
-      roomId:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
-      time:
-          dateTimeType.mapFromDatabaseResponse(data['${effectivePrefix}time']),
-      sendingFailed: boolType
+      roomId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
+      id: const IntType().mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      time: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}time']),
+      sendingFailed: const BoolType()
           .mapFromDatabaseResponse(data['${effectivePrefix}sending_failed']),
-      from: stringType.mapFromDatabaseResponse(data['${effectivePrefix}from']),
-      to: stringType.mapFromDatabaseResponse(data['${effectivePrefix}to']),
-      replyToId: intType
+      from: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}from']),
+      to: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}to']),
+      replyToId: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}reply_to_id']),
-      forwardedFrom: stringType
+      forwardedFrom: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}forwarded_from']),
-      edited:
-          boolType.mapFromDatabaseResponse(data['${effectivePrefix}edited']),
-      encrypted:
-          boolType.mapFromDatabaseResponse(data['${effectivePrefix}encrypted']),
-      type: $MessagesTable.$converter0.mapToDart(
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}type'])),
-      json: stringType.mapFromDatabaseResponse(data['${effectivePrefix}json']),
+      edited: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}edited']),
+      encrypted: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}encrypted']),
+      type: $MessagesTable.$converter0.mapToDart(const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}type'])),
+      json: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}json']),
     );
   }
   @override
@@ -271,7 +271,7 @@ class Message extends DataClass implements Insertable<Message> {
                                                   $mrjc(type.hashCode,
                                                       json.hashCode))))))))))))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Message &&
           other.dbId == this.dbId &&
@@ -356,7 +356,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     Expression<String> forwardedFrom,
     Expression<bool> edited,
     Expression<bool> encrypted,
-    Expression<int> type,
+    Expression<MessageType> type,
     Expression<String> json,
   }) {
     return RawValuesInsertable({
@@ -747,8 +747,8 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   Set<GeneratedColumn> get $primaryKey => {dbId};
   @override
   Message map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Message.fromData(data, _db, prefix: effectivePrefix);
+    return Message.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -779,22 +779,20 @@ class Room extends DataClass implements Insertable<Room> {
   factory Room.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
-    final boolType = db.typeSystem.forDartType<bool>();
-    final intType = db.typeSystem.forDartType<int>();
     return Room(
-      roomId:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
-      mentioned:
-          boolType.mapFromDatabaseResponse(data['${effectivePrefix}mentioned']),
-      lastMessageId: intType
+      roomId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
+      mentioned: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}mentioned']),
+      lastMessageId: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}last_message_id']),
-      mute: boolType.mapFromDatabaseResponse(data['${effectivePrefix}mute']),
-      deleted:
-          boolType.mapFromDatabaseResponse(data['${effectivePrefix}deleted']),
-      isBlock:
-          boolType.mapFromDatabaseResponse(data['${effectivePrefix}is_block']),
-      lastMessageDbId: intType.mapFromDatabaseResponse(
+      mute: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}mute']),
+      deleted: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}deleted']),
+      isBlock: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}is_block']),
+      lastMessageDbId: const IntType().mapFromDatabaseResponse(
           data['${effectivePrefix}last_message_db_id']),
     );
   }
@@ -918,7 +916,7 @@ class Room extends DataClass implements Insertable<Room> {
                   $mrjc(deleted.hashCode,
                       $mrjc(isBlock.hashCode, lastMessageDbId.hashCode)))))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Room &&
           other.roomId == this.roomId &&
@@ -1176,8 +1174,8 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
   Set<GeneratedColumn> get $primaryKey => {roomId};
   @override
   Room map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Room.fromData(data, _db, prefix: effectivePrefix);
+    return Room.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -1199,15 +1197,14 @@ class Avatar extends DataClass implements Insertable<Avatar> {
   factory Avatar.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
-    final intType = db.typeSystem.forDartType<int>();
     return Avatar(
-      uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
-      createdOn:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}created_on']),
-      fileId:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}file_id']),
-      fileName: stringType
+      uid: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}uid']),
+      createdOn: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}created_on']),
+      fileId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}file_id']),
+      fileName: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}file_name']),
     );
   }
@@ -1287,7 +1284,7 @@ class Avatar extends DataClass implements Insertable<Avatar> {
   int get hashCode => $mrjf($mrjc(uid.hashCode,
       $mrjc(createdOn.hashCode, $mrjc(fileId.hashCode, fileName.hashCode))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Avatar &&
           other.uid == this.uid &&
@@ -1469,8 +1466,8 @@ class $AvatarsTable extends Avatars with TableInfo<$AvatarsTable, Avatar> {
   Set<GeneratedColumn> get $primaryKey => {uid, createdOn};
   @override
   Avatar map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Avatar.fromData(data, _db, prefix: effectivePrefix);
+    return Avatar.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -1498,22 +1495,21 @@ class Contact extends DataClass implements Insertable<Contact> {
   factory Contact.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
-    final boolType = db.typeSystem.forDartType<bool>();
     return Contact(
-      username: stringType
+      username: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}username']),
-      uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
-      phoneNumber: stringType
+      uid: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}uid']),
+      phoneNumber: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}phone_number']),
-      firstName: stringType
+      firstName: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}first_name']),
-      lastName: stringType
+      lastName: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}last_name']),
-      isMute:
-          boolType.mapFromDatabaseResponse(data['${effectivePrefix}is_mute']),
-      isBlock:
-          boolType.mapFromDatabaseResponse(data['${effectivePrefix}is_block']),
+      isMute: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}is_mute']),
+      isBlock: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}is_block']),
     );
   }
   @override
@@ -1636,7 +1632,7 @@ class Contact extends DataClass implements Insertable<Contact> {
                   $mrjc(lastName.hashCode,
                       $mrjc(isMute.hashCode, isBlock.hashCode)))))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Contact &&
           other.username == this.username &&
@@ -1892,8 +1888,8 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
   Set<GeneratedColumn> get $primaryKey => {phoneNumber};
   @override
   Contact map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Contact.fromData(data, _db, prefix: effectivePrefix);
+    return Contact.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -1915,12 +1911,14 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
   factory FileInfo.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
     return FileInfo(
-      uuid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uuid']),
-      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
-      path: stringType.mapFromDatabaseResponse(data['${effectivePrefix}path']),
-      compressionSize: stringType
+      uuid: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}uuid']),
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      path: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}path']),
+      compressionSize: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}compression_size']),
     );
   }
@@ -1997,7 +1995,7 @@ class FileInfo extends DataClass implements Insertable<FileInfo> {
   int get hashCode => $mrjf($mrjc(uuid.hashCode,
       $mrjc(name.hashCode, $mrjc(path.hashCode, compressionSize.hashCode))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is FileInfo &&
           other.uuid == this.uuid &&
@@ -2184,8 +2182,8 @@ class $FileInfosTable extends FileInfos
   Set<GeneratedColumn> get $primaryKey => {uuid, compressionSize};
   @override
   FileInfo map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return FileInfo.fromData(data, _db, prefix: effectivePrefix);
+    return FileInfo.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -2207,15 +2205,15 @@ class Seen extends DataClass implements Insertable<Seen> {
   factory Seen.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
     return Seen(
-      dbId: intType.mapFromDatabaseResponse(data['${effectivePrefix}db_id']),
-      roomId:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
-      messageId:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}message_id']),
-      user: stringType.mapFromDatabaseResponse(data['${effectivePrefix}user']),
+      dbId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}db_id']),
+      roomId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
+      messageId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}message_id']),
+      user: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}user']),
     );
   }
   @override
@@ -2290,7 +2288,7 @@ class Seen extends DataClass implements Insertable<Seen> {
   int get hashCode => $mrjf($mrjc(dbId.hashCode,
       $mrjc(roomId.hashCode, $mrjc(messageId.hashCode, user.hashCode))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Seen &&
           other.dbId == this.dbId &&
@@ -2466,8 +2464,8 @@ class $SeensTable extends Seens with TableInfo<$SeensTable, Seen> {
   Set<GeneratedColumn> get $primaryKey => {dbId};
   @override
   Seen map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Seen.fromData(data, _db, prefix: effectivePrefix);
+    return Seen.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -2491,17 +2489,16 @@ class LastAvatar extends DataClass implements Insertable<LastAvatar> {
   factory LastAvatar.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
-    final intType = db.typeSystem.forDartType<int>();
     return LastAvatar(
-      uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
-      createdOn:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}created_on']),
-      fileId:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}file_id']),
-      fileName: stringType
+      uid: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}uid']),
+      createdOn: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}created_on']),
+      fileId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}file_id']),
+      fileName: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}file_name']),
-      lastUpdate: intType
+      lastUpdate: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}last_update']),
     );
   }
@@ -2599,7 +2596,7 @@ class LastAvatar extends DataClass implements Insertable<LastAvatar> {
           $mrjc(fileId.hashCode,
               $mrjc(fileName.hashCode, lastUpdate.hashCode)))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is LastAvatar &&
           other.uid == this.uid &&
@@ -2807,8 +2804,8 @@ class $LastAvatarsTable extends LastAvatars
   Set<GeneratedColumn> get $primaryKey => {uid};
   @override
   LastAvatar map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return LastAvatar.fromData(data, _db, prefix: effectivePrefix);
+    return LastAvatar.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -2833,19 +2830,17 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
     return PendingMessage(
-      messageDbId: intType
+      messageDbId: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}message_db_id']),
-      messagePacketId: stringType
+      messagePacketId: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}message_packet_id']),
-      roomId:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
-      remainingRetries: intType
+      roomId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
+      remainingRetries: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}remaining_retries']),
-      status: $PendingMessagesTable.$converter0.mapToDart(
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}status'])),
+      status: $PendingMessagesTable.$converter0.mapToDart(const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}status'])),
     );
   }
   @override
@@ -2944,7 +2939,7 @@ class PendingMessage extends DataClass implements Insertable<PendingMessage> {
           $mrjc(roomId.hashCode,
               $mrjc(remainingRetries.hashCode, status.hashCode)))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is PendingMessage &&
           other.messageDbId == this.messageDbId &&
@@ -2982,7 +2977,7 @@ class PendingMessagesCompanion extends UpdateCompanion<PendingMessage> {
     Expression<String> messagePacketId,
     Expression<String> roomId,
     Expression<int> remainingRetries,
-    Expression<int> status,
+    Expression<SendingStatus> status,
   }) {
     return RawValuesInsertable({
       if (messageDbId != null) 'message_db_id': messageDbId,
@@ -3161,8 +3156,8 @@ class $PendingMessagesTable extends PendingMessages
   Set<GeneratedColumn> get $primaryKey => {messageDbId};
   @override
   PendingMessage map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return PendingMessage.fromData(data, _db, prefix: effectivePrefix);
+    return PendingMessage.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -3191,20 +3186,19 @@ class Media extends DataClass implements Insertable<Media> {
   factory Media.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
     return Media(
-      createdOn:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}created_on']),
-      createdBy: stringType
+      createdOn: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}created_on']),
+      createdBy: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}created_by']),
-      messageId:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}message_id']),
-      type: $MediasTable.$converter0.mapToDart(
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}type'])),
-      roomId:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
-      json: stringType.mapFromDatabaseResponse(data['${effectivePrefix}json']),
+      messageId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}message_id']),
+      type: $MediasTable.$converter0.mapToDart(const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}type'])),
+      roomId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
+      json: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}json']),
     );
   }
   @override
@@ -3311,7 +3305,7 @@ class Media extends DataClass implements Insertable<Media> {
           $mrjc(messageId.hashCode,
               $mrjc(type.hashCode, $mrjc(roomId.hashCode, json.hashCode))))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Media &&
           other.createdOn == this.createdOn &&
@@ -3353,7 +3347,7 @@ class MediasCompanion extends UpdateCompanion<Media> {
     Expression<int> createdOn,
     Expression<String> createdBy,
     Expression<int> messageId,
-    Expression<int> type,
+    Expression<MediaType> type,
     Expression<String> roomId,
     Expression<String> json,
   }) {
@@ -3549,8 +3543,8 @@ class $MediasTable extends Medias with TableInfo<$MediasTable, Media> {
   Set<GeneratedColumn> get $primaryKey => {messageId};
   @override
   Media map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Media.fromData(data, _db, prefix: effectivePrefix);
+    return Media.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -3571,11 +3565,11 @@ class SharedPreference extends DataClass
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
     return SharedPreference(
-      key: stringType.mapFromDatabaseResponse(data['${effectivePrefix}key']),
-      value:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}value']),
+      key: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}key']),
+      value: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}value']),
     );
   }
   @override
@@ -3631,7 +3625,7 @@ class SharedPreference extends DataClass
   @override
   int get hashCode => $mrjf($mrjc(key.hashCode, value.hashCode));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is SharedPreference &&
           other.key == this.key &&
@@ -3751,8 +3745,8 @@ class $SharedPreferencesTable extends SharedPreferences
   Set<GeneratedColumn> get $primaryKey => {key};
   @override
   SharedPreference map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return SharedPreference.fromData(data, _db, prefix: effectivePrefix);
+    return SharedPreference.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -3776,17 +3770,16 @@ class Member extends DataClass implements Insertable<Member> {
   factory Member.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
-    final intType = db.typeSystem.forDartType<int>();
     return Member(
-      memberUid: stringType
+      memberUid: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}member_uid']),
-      mucUid:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}muc_uid']),
-      role: $MembersTable.$converter0.mapToDart(
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}role'])),
-      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
-      username: stringType
+      mucUid: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}muc_uid']),
+      role: $MembersTable.$converter0.mapToDart(const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}role'])),
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      username: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}username']),
     );
   }
@@ -3881,7 +3874,7 @@ class Member extends DataClass implements Insertable<Member> {
       $mrjc(mucUid.hashCode,
           $mrjc(role.hashCode, $mrjc(name.hashCode, username.hashCode)))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Member &&
           other.memberUid == this.memberUid &&
@@ -3916,7 +3909,7 @@ class MembersCompanion extends UpdateCompanion<Member> {
   static Insertable<Member> custom({
     Expression<String> memberUid,
     Expression<String> mucUid,
-    Expression<int> role,
+    Expression<MucRole> role,
     Expression<String> name,
     Expression<String> username,
   }) {
@@ -4085,8 +4078,8 @@ class $MembersTable extends Members with TableInfo<$MembersTable, Member> {
   Set<GeneratedColumn> get $primaryKey => {memberUid, mucUid};
   @override
   Member map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Member.fromData(data, _db, prefix: effectivePrefix);
+    return Member.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -4113,15 +4106,17 @@ class Muc extends DataClass implements Insertable<Muc> {
   factory Muc.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
-    final intType = db.typeSystem.forDartType<int>();
     return Muc(
-      uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
-      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
-      id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
-      info: stringType.mapFromDatabaseResponse(data['${effectivePrefix}info']),
-      members:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}members']),
+      uid: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}uid']),
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      id: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      info: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}info']),
+      members: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}members']),
     );
   }
   @override
@@ -4207,7 +4202,7 @@ class Muc extends DataClass implements Insertable<Muc> {
       $mrjc(name.hashCode,
           $mrjc(id.hashCode, $mrjc(info.hashCode, members.hashCode)))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Muc &&
           other.uid == this.uid &&
@@ -4410,8 +4405,8 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
   Set<GeneratedColumn> get $primaryKey => {uid};
   @override
   Muc map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Muc.fromData(data, _db, prefix: effectivePrefix);
+    return Muc.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -4427,13 +4422,11 @@ class LastSeen extends DataClass implements Insertable<LastSeen> {
   factory LastSeen.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
     return LastSeen(
-      messageId:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}message_id']),
-      roomId:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
+      messageId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}message_id']),
+      roomId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
     );
   }
   @override
@@ -4491,7 +4484,7 @@ class LastSeen extends DataClass implements Insertable<LastSeen> {
   @override
   int get hashCode => $mrjf($mrjc(messageId.hashCode, roomId.hashCode));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is LastSeen &&
           other.messageId == this.messageId &&
@@ -4607,8 +4600,8 @@ class $LastSeensTable extends LastSeens
   Set<GeneratedColumn> get $primaryKey => {roomId};
   @override
   LastSeen map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return LastSeen.fromData(data, _db, prefix: effectivePrefix);
+    return LastSeen.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -4640,25 +4633,23 @@ class MediasMetaDataData extends DataClass
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
-    final intType = db.typeSystem.forDartType<int>();
     return MediasMetaDataData(
-      roomId:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
-      imagesCount: intType
+      roomId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}room_id']),
+      imagesCount: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}images_count']),
-      videosCount: intType
+      videosCount: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}videos_count']),
-      filesCount: intType
+      filesCount: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}files_count']),
-      documentsCount: intType
+      documentsCount: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}documents_count']),
-      audiosCount: intType
+      audiosCount: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}audios_count']),
-      musicsCount: intType
+      musicsCount: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}musics_count']),
-      linkCount:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}link_count']),
+      linkCount: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}link_count']),
     );
   }
   @override
@@ -4798,7 +4789,7 @@ class MediasMetaDataData extends DataClass
                           $mrjc(
                               musicsCount.hashCode, linkCount.hashCode))))))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is MediasMetaDataData &&
           other.roomId == this.roomId &&
@@ -5136,8 +5127,8 @@ class $MediasMetaDataTable extends MediasMetaData
   Set<GeneratedColumn> get $primaryKey => {roomId};
   @override
   MediasMetaDataData map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return MediasMetaDataData.fromData(data, _db, prefix: effectivePrefix);
+    return MediasMetaDataData.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -5159,15 +5150,14 @@ class UserInfo extends DataClass implements Insertable<UserInfo> {
   factory UserInfo.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
-    final dateTimeType = db.typeSystem.forDartType<DateTime>();
     return UserInfo(
-      uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
-      username: stringType
+      uid: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}uid']),
+      username: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}username']),
-      lastActivity: dateTimeType
+      lastActivity: const DateTimeType()
           .mapFromDatabaseResponse(data['${effectivePrefix}last_activity']),
-      lastTimeActivityUpdated: dateTimeType.mapFromDatabaseResponse(
+      lastTimeActivityUpdated: const DateTimeType().mapFromDatabaseResponse(
           data['${effectivePrefix}last_time_activity_updated']),
     );
   }
@@ -5257,7 +5247,7 @@ class UserInfo extends DataClass implements Insertable<UserInfo> {
       $mrjc(username.hashCode,
           $mrjc(lastActivity.hashCode, lastTimeActivityUpdated.hashCode))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is UserInfo &&
           other.uid == this.uid &&
@@ -5444,8 +5434,8 @@ class $UserInfosTable extends UserInfos
   Set<GeneratedColumn> get $primaryKey => {uid};
   @override
   UserInfo map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return UserInfo.fromData(data, _db, prefix: effectivePrefix);
+    return UserInfo.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -5467,13 +5457,14 @@ class Sticker extends DataClass implements Insertable<Sticker> {
   factory Sticker.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
     return Sticker(
-      uuid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uuid']),
-      packId:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}pack_id']),
-      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
-      packName: stringType
+      uuid: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}uuid']),
+      packId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}pack_id']),
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      packName: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}pack_name']),
     );
   }
@@ -5551,7 +5542,7 @@ class Sticker extends DataClass implements Insertable<Sticker> {
   int get hashCode => $mrjf($mrjc(uuid.hashCode,
       $mrjc(packId.hashCode, $mrjc(name.hashCode, packName.hashCode))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Sticker &&
           other.uuid == this.uuid &&
@@ -5733,8 +5724,8 @@ class $StickersTable extends Stickers with TableInfo<$StickersTable, Sticker> {
   Set<GeneratedColumn> get $primaryKey => {uuid};
   @override
   Sticker map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Sticker.fromData(data, _db, prefix: effectivePrefix);
+    return Sticker.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -5754,15 +5745,12 @@ class StickerId extends DataClass implements Insertable<StickerId> {
   factory StickerId.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final dateTimeType = db.typeSystem.forDartType<DateTime>();
-    final stringType = db.typeSystem.forDartType<String>();
-    final boolType = db.typeSystem.forDartType<bool>();
     return StickerId(
-      getPackTime: dateTimeType
+      getPackTime: const DateTimeType()
           .mapFromDatabaseResponse(data['${effectivePrefix}get_pack_time']),
-      packId:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}pack_id']),
-      packISDownloaded: boolType.mapFromDatabaseResponse(
+      packId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}pack_id']),
+      packISDownloaded: const BoolType().mapFromDatabaseResponse(
           data['${effectivePrefix}pack_i_s_downloaded']),
     );
   }
@@ -5834,7 +5822,7 @@ class StickerId extends DataClass implements Insertable<StickerId> {
   int get hashCode => $mrjf($mrjc(
       getPackTime.hashCode, $mrjc(packId.hashCode, packISDownloaded.hashCode)));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is StickerId &&
           other.getPackTime == this.getPackTime &&
@@ -5988,8 +5976,8 @@ class $StickerIdsTable extends StickerIds
   Set<GeneratedColumn> get $primaryKey => {packId};
   @override
   StickerId map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return StickerId.fromData(data, _db, prefix: effectivePrefix);
+    return StickerId.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -6011,14 +5999,14 @@ class BotInfo extends DataClass implements Insertable<BotInfo> {
   factory BotInfo.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
     return BotInfo(
-      description: stringType
+      description: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}description']),
-      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
-      username: stringType
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      username: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}username']),
-      commands: stringType
+      commands: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}commands']),
     );
   }
@@ -6102,7 +6090,7 @@ class BotInfo extends DataClass implements Insertable<BotInfo> {
   int get hashCode => $mrjf($mrjc(description.hashCode,
       $mrjc(name.hashCode, $mrjc(username.hashCode, commands.hashCode))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is BotInfo &&
           other.description == this.description &&
@@ -6285,8 +6273,8 @@ class $BotInfosTable extends BotInfos with TableInfo<$BotInfosTable, BotInfo> {
   Set<GeneratedColumn> get $primaryKey => {username};
   @override
   BotInfo map(Map<String, dynamic> data, {String tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return BotInfo.fromData(data, _db, prefix: effectivePrefix);
+    return BotInfo.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
