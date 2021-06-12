@@ -30,22 +30,20 @@
     <string>Can I use the camera please?</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Can I use the mic please?</string>
-	<key>UISupportedInterfaceOrientations</key>
 	<key>CFBundleURLTypes</key>
-    	<array>
-    		<dict>
-    			<key>CFBundleTypeRole</key>
-    			<string>Editor</string>
-    			<key>CFBundleURLSchemes</key>
-    			<array>
-    				<string>ShareMedia</string>
-    			</array>
-    		</dict>
-    		<dict/>
-    	</array>
-
-      <key>NSPhotoLibraryUsageDescription</key>
-    	<string>To upload photos, please allow permission to access your photo library.</string>
+    <array>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>ShareMedia</string>
+            </array>
+        </dict>
+    </array>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>To upload photos, please allow permission to access your photo library.</string>
+    <key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
