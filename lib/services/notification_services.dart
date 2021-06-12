@@ -9,9 +9,8 @@ class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   NotificationDetails _notificationDetails;
 
+  Map<String, List<int>> _notificationMessage = Map();
 
-  Map<String, String> _notificationMessage = Map();
-  Map<String, int> _notificationMap = Map();
 
   NotificationServices() {
     if (!isDesktop()) Firebase.initializeApp();
@@ -33,11 +32,10 @@ class NotificationServices {
       int id, String title, String body, String payload) async {}
 
   cancelNotification(notificationId) {
-    flutterLocalNotificationsPlugin.cancelAll();
+    flutterLocalNotificationsPlugin.cancel(notificationId);
   }
 
-  cancelAllNotification(String roomId) {
-    _notificationMessage[roomId] = "";
+  cancelAllNotification() {
     flutterLocalNotificationsPlugin.cancelAll();
   }
 
@@ -83,7 +81,10 @@ class NotificationServices {
   void showNotification(
       pro.Message message, String roomUid, String roomName) async {
     try {
-      _notificationMap[roomUid] == message.id;
+      if(_notificationMessage[roomUid]== null){
+        _notificationMessage[roomUid] = List();
+      }
+      _notificationMessage[roomUid].add(message.id.toInt());
       switch (message.whichType()) {
         case pro.Message_Type.persistEvent:
         case pro.Message_Type.text:
@@ -94,26 +95,48 @@ class NotificationServices {
           showTextNotification(message.id.toInt(), roomUid, roomName, "File");
           break;
         case pro.Message_Type.sticker:
-          // TODO: Handle this case.
-          break;
-        case pro.Message_Type.location:
-          // TODO: Handle this case.
+          showTextNotification(
+              message.id.toInt(), roomUid, roomName, "sticker");
           break;
         case pro.Message_Type.liveLocation:
-          // TODO: Handle this case.
+        case pro.Message_Type.location:
+          showTextNotification(
+              message.id.toInt(), roomUid, roomName, "Location");
           break;
+
         case pro.Message_Type.poll:
-          // TODO: Handle this case.
+          showTextNotification(message.id.toInt(), roomUid, roomName, "poll");
           break;
+        case pro.Message_Type.buttons:
         case pro.Message_Type.form:
-          // TODO: Handle this case.
+          showTextNotification(message.id.toInt(), roomUid, roomName, "from");
+          break;
+        case pro.Message_Type.shareUid:
+          showTextNotification(message.id.toInt(), roomUid, roomName, message.shareUid.name);
+          break;
+        case pro.Message_Type.formResult:
+          showTextNotification(message.id.toInt(), roomUid, roomName, "from");
+          break;
+        case pro.Message_Type.sharePrivateDataRequest:
+          showTextNotification(message.id.toInt(), roomUid, roomName, "Private");
+          break;
+        case pro.Message_Type.sharePrivateDataAcceptance:
+          showTextNotification(message.id.toInt(), roomUid, roomName, "Private");
+          break;
+
+        case pro.Message_Type.paymentTransaction:
+          showTextNotification(message.id.toInt(), roomUid, roomName, "Transaction");
+          break;
+
           break;
       }
     } catch (e) {}
   }
 
   void reset(String roomId) {
-    _notificationMessage[roomId] = "\t";
+    _notificationMessage[roomId]?.forEach((element) {
+      cancelNotification(element);
+    });
   }
 
   void playSoundNotification() async {

@@ -18,6 +18,8 @@ class BotAppbar extends StatelessWidget {
 
   BotAppbar({Key key, this.botUid}) : super(key: key);
 
+  var _roomRepo = GetIt.I.get<RoomRepo>();
+
   @override
   Widget build(BuildContext context) {
     AppLocalization i18n = AppLocalization.of(context);
@@ -30,25 +32,34 @@ class BotAppbar extends StatelessWidget {
               SizedBox(
                 width: 15,
               ),
-              Column(
-                      children: [
-                        Text(
-                          botUid.node,
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        // TitleStatus(
-                        //   currentRoomUid:botUid,
-                        //   // normalConditionWidget: Text("last seen",style: TextStyle(fontSize: 12),) //todo last seen,
-                        // )
-          Text('bot',
-              style: TextStyle(fontSize: 12,color: ExtraTheme.of(context).textDetails))
-                      ],
-                    )
+              FutureBuilder<String>(
+                  future: _roomRepo.getRoomDisplayName(botUid),
+                  builder: (c, name) {
+                    if (name.hasData && name.data != null)
+                      return buildColumn(name.data, ExtraTheme.of(context).textDetails);
+                    else {
+                      return buildColumn(botUid.node, ExtraTheme.of(context).textDetails);
+                    }
+                  })
             ],
           ),
           onTap: () {
-                _routingService.openProfile(botUid.asString());
+            _routingService.openProfile(botUid.asString());
           },
         ));
+  }
+
+  Column buildColumn(String name, Color color) {
+    return Column(
+      children: [
+        Text(
+          name,
+          style: TextStyle(fontSize: 20, color: color),
+        ),
+        TitleStatus(
+          currentRoomUid: botUid,
+        )
+      ],
+    );
   }
 }

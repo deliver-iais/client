@@ -25,7 +25,9 @@ import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:flutter_link_preview/flutter_link_preview.dart';
@@ -181,7 +183,8 @@ class _ProfilePageState extends State<ProfilePage>
                                                         Categories.BOT
                                                     ? _showUsername(
                                                         widget.userUid.node,
-                                                        widget.userUid)
+                                                        widget.userUid,
+                                                        appLocalization)
                                                     : FutureBuilder<String>(
                                                         future: _roomRepo
                                                             .getUsername(
@@ -195,7 +198,8 @@ class _ProfilePageState extends State<ProfilePage>
                                                               null) {
                                                             return _showUsername(
                                                                 snapshot.data,
-                                                                widget.userUid);
+                                                                widget.userUid,
+                                                                appLocalization);
                                                           } else {
                                                             return SizedBox
                                                                 .shrink();
@@ -223,7 +227,6 @@ class _ProfilePageState extends State<ProfilePage>
                                               decoration: BoxDecoration(
                                                 borderRadius:
                                                     BorderRadius.circular(15),
-                                                // color: Theme.of(context).backgroundColor,
                                               ),
                                               height: 60,
                                               padding:
@@ -320,82 +323,83 @@ class _ProfilePageState extends State<ProfilePage>
                                                   Categories.SYSTEM &&
                                               widget.userUid.category !=
                                                   Categories.BOT)
-                                            Container(
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(15),
-                                                ),
-                                                height: 60,
-                                                padding:
-                                                    const EdgeInsetsDirectional
-                                                            .only(
-                                                        start: 7, end: 15),
-                                                child: FutureBuilder<Contact>(
-                                                  future:
-                                                      _contactRepo.getContact(
-                                                          widget.userUid),
-                                                  builder:
-                                                      (BuildContext context,
-                                                          AsyncSnapshot<Contact>
-                                                              snapshot) {
-                                                    if (snapshot.data != null) {
-                                                      return Stack(children: <
-                                                          Widget>[
-                                                        Row(
-                                                          children: [
-                                                            IconButton(
-                                                              icon: Icon(
-                                                                  Icons.phone, color: ExtraTheme.of(context).boxDetails),
-                                                              onPressed: () {},
-                                                            ),
-                                                            Text(appLocalization
-                                                                .getTraslateValue(
-                                                                    "phone"), style: TextStyle(color:ExtraTheme.of(context).boxDetails, ),),
-                                                          ],
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  top: 20),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .end,
+                                            FutureBuilder<Contact>(
+                                              future: _contactRepo
+                                                  .getContact(widget.userUid),
+                                              builder: (BuildContext context,
+                                                  AsyncSnapshot<Contact>
+                                                      snapshot) {
+                                                if (snapshot.data != null) {
+                                                  return Container(
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15),
+                                                    ),
+                                                    height: 60,
+                                                    padding:
+                                                        const EdgeInsetsDirectional
+                                                                .only(
+                                                            start: 7, end: 15),
+                                                    child: Stack(
+                                                        children: <Widget>[
+                                                          Row(
                                                             children: [
-                                                              ParsedText(
-                                                                textDirection:
-                                                                    TextDirection
-                                                                        .ltr,
-                                                                text:
-                                                                    "0${snapshot.data.phoneNumber}",
-                                                                parse: <
-                                                                    MatchText>[
-                                                                  MatchText(
-                                                                    type: ParsedType
-                                                                        .PHONE,
-                                                                    style:
-                                                                        TextStyle(
-                                                                      color: ExtraTheme.of(context).boxDetails,
-                                                                      fontSize:
-                                                                          16,
-                                                                    ),
-                                                                    onTap:
-                                                                        (phone) async {
-                                                                      await launch(
-                                                                          "tel:$phone");
-                                                                    },
-                                                                  ),
-                                                                ],
+                                                              IconButton(
+                                                                icon: Icon(Icons
+                                                                    .phone, color: ExtraTheme.of(context).boxDetails),
+                                                                onPressed:
+                                                                    () {},
                                                               ),
+                                                              Text(appLocalization
+                                                                  .getTraslateValue(
+                                                                      "phone"), style: TextStyle(color:ExtraTheme.of(context).boxDetails)),
                                                             ],
                                                           ),
-                                                        ),
-                                                      ]);
-                                                    } else {
-                                                      return SizedBox.shrink();
-                                                    }
-                                                  },
-                                                )),
+                                                          Padding(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    top: 20),
+                                                            child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .end,
+                                                              children: [
+                                                                ParsedText(
+                                                                  textDirection:
+                                                                      TextDirection
+                                                                          .ltr,
+                                                                  text:
+                                                                      "0${snapshot.data.phoneNumber}",
+                                                                  parse: <
+                                                                      MatchText>[
+                                                                    MatchText(
+                                                                      type: ParsedType
+                                                                          .PHONE,
+                                                                      style:
+                                                                          TextStyle(
+                                                                        color: ExtraTheme.of(context).boxDetails,
+                                                                        fontSize:
+                                                                            16,
+                                                                      ),
+                                                                      onTap:
+                                                                          (phone) async {
+                                                                        await launch(
+                                                                            "tel:$phone");
+                                                                      },
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ]),
+                                                  );
+                                                } else {
+                                                  return SizedBox.shrink();
+                                                }
+                                              },
+                                            )
                                         ],
                                       ),
                                     ),
@@ -566,16 +570,24 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
       });
 }
 
-Widget _showUsername(String username, Uid currentUid) {
+Widget _showUsername(
+    String username, Uid currentUid, AppLocalization _appLocalization) {
   var routingServices = GetIt.I.get<RoutingService>();
   return Padding(
     padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          username != null ? "@$username" : '',
-          style: TextStyle(fontSize: 18.0, color: Colors.blue),
+        GestureDetector(
+          child: Text(
+            username != null ? "@$username" : '',
+            style: TextStyle(fontSize: 18.0, color: Colors.blue),
+          ),
+          onLongPress: () {
+            Clipboard.setData(ClipboardData(text: "@$username"));
+            Fluttertoast.showToast(
+                msg: _appLocalization.getTraslateValue("Copied"));
+          },
         ),
         // SizedBox(
         //   width: 150,

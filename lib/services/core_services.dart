@@ -76,9 +76,6 @@ class CoreServices {
       return;
     }
     startStream();
-    // if (_connectionTimer != null && _connectionTimer.isActive) {
-    //   return;
-    // }
     startCheckerTimer();
     _connectionStatus.distinct().listen((event) {
       connectionStatus.add(event);
@@ -86,12 +83,16 @@ class CoreServices {
   }
 
   void closeConnection() {
+    _connectionStatus.add(ConnectionStatus.Disconnected);
     _clientPacket.close();
-    _connectionTimer.cancel();
+    if (_connectionTimer != null) _connectionTimer.cancel();
   }
 
   @visibleForTesting
   startCheckerTimer() async {
+    if (_connectionTimer != null && _connectionTimer.isActive) {
+      return;
+    }
     if (_clientPacket.isClosed || _clientPacket.isPaused) {
       await startStream();
     }
@@ -121,18 +122,10 @@ class CoreServices {
   startStream() async {
     try {
       _clientPacket = StreamController<ClientPacket>();
-      _responseStream = _grpcCoreService.establishStream(
-          _clientPacket.stream.asBroadcastStream(
-        onCancel: (c) async {
-          responseChecked = false;
-          await _clientPacket.close();
-          _connectionStatus.add(ConnectionStatus.Disconnected);
-        },
-      ),
+      _responseStream = _grpcCoreService.establishStream(_clientPacket.stream,
           options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()},
           ));
-      sendPingMessage();
       _responseStream.listen((serverPacket) async {
         print(serverPacket.toString());
         gotResponse();
@@ -261,17 +254,22 @@ class CoreServices {
       return;
     }
     saveMessage(_accountRepo, _messageDao, _roomDao, message, roomUid);
-    if (message.whichType() == Message_Type.persistEvent){
-      switch(message.persistEvent.whichType()){
+    if (message.whichType() == Message_Type.persistEvent) {
+      switch (message.persistEvent.whichType()) {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
-          switch(message.persistEvent.mucSpecificPersistentEvent.issue){
-            case  MucSpecificPersistentEvent_Issue.DELETED:
-              _roomDao.updateRoom(Database.RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+          switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
+            case MucSpecificPersistentEvent_Issue.DELETED:
+              _roomDao.updateRoom(Database.RoomsCompanion(
+                  roomId: Value(message.from.asString()),
+                  deleted: Value(true)));
               return;
               break;
             case MucSpecificPersistentEvent_Issue.KICK_USER:
-              if(message.persistEvent.mucSpecificPersistentEvent.assignee.isSameEntity(_accountRepo.currentUserUid.asString())){
-                _roomDao.updateRoom(Database.RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+              if (message.persistEvent.mucSpecificPersistentEvent.assignee
+                  .isSameEntity(_accountRepo.currentUserUid.asString())) {
+                _roomDao.updateRoom(Database.RoomsCompanion(
+                    roomId: Value(message.from.asString()),
+                    deleted: Value(true)));
                 return;
               }
               break;
@@ -287,13 +285,12 @@ class CoreServices {
           // TODO: Handle this case.
           break;
       }
-
     }
 
-
-
-    if ((await _accountRepo.notification).contains("true") &&
-        (room != null && !room.mute)) {
+    if (!message.from.isSameEntity(_accountRepo.currentUserUid.asString()) &&
+            (await _accountRepo.notification) == null ||
+        (await _accountRepo.notification).contains("true") &&
+            (room != null && !room.mute)) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)
@@ -356,25 +353,31 @@ Future<bool> checkMention(String text, AccountRepo accountRepo) async {
 saveMessageInMessagesDB(
     AccountRepo accountRepo, MessageDao messageDao, Message message) async {
   // ignore: missing_required_param
-  Database.Message msg = Database.Message(
-      id: message.id.toInt(),
-      roomId: message.whichType() == Message_Type.persistEvent
-          ? message.from.asString()
-          : message.from.node.contains(accountRepo.currentUserUid.node)
-              ? message.to.asString()
-              : message.to.category == Categories.USER
-                  ? message.from.asString()
-                  : message.to.asString(),
-      packetId: message.packetId,
-      time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
-      to: message.to.asString(),
-      from: message.from.asString(),
-      replyToId: message.replyToId.toInt(),
-      forwardedFrom: message.forwardFrom.asString(),
-      json: messageToJson(message),
-      edited: message.edited,
-      encrypted: message.encrypted,
-      type: getMessageType(message.whichType()));
+  Database.Message msg;
+  try {
+    msg = Database.Message(
+        id: message.id.toInt(),
+        roomId: message.whichType() == Message_Type.persistEvent
+            ? message.from.asString()
+            : message.from.node.contains(accountRepo.currentUserUid.node)
+                ? message.to.asString()
+                : message.to.category == Categories.USER
+                    ? message.from.asString()
+                    : message.to.asString(),
+        packetId: message.packetId,
+        time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
+        to: message.to.asString(),
+        from: message.from.asString(),
+        replyToId: message.replyToId.toInt(),
+        forwardedFrom: message.forwardFrom.asString(),
+        json: messageToJson(message),
+        edited: message.edited,
+        encrypted: message.encrypted,
+        type: getMessageType(message.whichType()));
+  } catch (e) {
+    print(e.toString());
+    return msg;
+  }
 
   int dbId = await messageDao.insertMessage(msg);
 

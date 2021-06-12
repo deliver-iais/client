@@ -27,6 +27,7 @@ class PendingMessageDao extends DatabaseAccessor<Database>
     }
   }
 
+
   Future updatePendingMessage(PendingMessage updatedPendingMessage) =>
       update(pendingMessages).replace(updatedPendingMessage);
 

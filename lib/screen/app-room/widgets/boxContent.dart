@@ -20,6 +20,7 @@ import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
@@ -31,6 +32,7 @@ class BoxContent extends StatefulWidget {
   final bool isSeen;
   final Function onUsernameClick;
   final String pattern;
+  final Function onBotCommandClick;
 
   const BoxContent(
       {Key key,
@@ -40,6 +42,7 @@ class BoxContent extends StatefulWidget {
       this.isSeen,
       this.pattern,
       this.onUsernameClick,
+      this.onBotCommandClick,
       this.scrollToMessage})
       : super(key: key);
 
@@ -51,7 +54,6 @@ class _BoxContentState extends State<BoxContent> {
   CrossAxisAlignment last = CrossAxisAlignment.start;
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _routingServices = GetIt.I.get<RoutingService>();
-  var _memberDao = GetIt.I.get<MemberDao>();
 
   void initialLastCross(CrossAxisAlignment c) {
     last = c;
@@ -67,7 +69,7 @@ class _BoxContentState extends State<BoxContent> {
       children: [
         if (widget.message.roomId.uid.category == Categories.GROUP &&
             !widget.isSender)
-          senderNameBox(),
+          SizedBox(height: 20, child: senderNameBox()),
         if (widget.message.to.getUid().category != Categories.BOT &&
             widget.message.replyToId != null &&
             widget.message.replyToId > 0)
@@ -100,7 +102,7 @@ class _BoxContentState extends State<BoxContent> {
           return showName(snapshot.data);
         } else {
           return Text(
-            "UnKnown",
+            " ",
             style: TextStyle(color: Colors.blue),
           );
         }
@@ -112,7 +114,7 @@ class _BoxContentState extends State<BoxContent> {
     return GestureDetector(
       child: Text(
         name,
-        style: TextStyle(color: Colors.blue),
+        style: TextStyle(color: Colors.blue, fontSize: 15),
       ),
       onTap: () {
         _routingServices.openRoom(widget.message.from);
@@ -130,7 +132,7 @@ class _BoxContentState extends State<BoxContent> {
             return GestureDetector(
               child: Text(
                   "${_appLocalization.getTraslateValue("Forwarded_From")} ${snapshot.data}",
-                  style: TextStyle(color: ExtraTheme.of(context).messageDetails)),
+                  style: TextStyle(color: ExtraTheme.of(context).messageDetails, fontSize: 13)),
               onTap: () {
                 _routingServices.openRoom(widget.message.forwardedFrom);
               },
@@ -138,7 +140,7 @@ class _BoxContentState extends State<BoxContent> {
           } else {
             return Text(
                 "${_appLocalization.getTraslateValue("Forwarded_From")} Unknown",
-                style: TextStyle(color: ExtraTheme.of(context).messageDetails));
+                style: TextStyle(color: ExtraTheme.of(context).messageDetails, fontSize: 13));
           }
         },
       ),
@@ -156,6 +158,9 @@ class _BoxContentState extends State<BoxContent> {
             maxWidth: widget.maxWidth,
             isSender: widget.isSender,
             isCaption: false,
+            isBotMessage:
+                widget.message.from.getUid().category == Categories.BOT,
+            onBotCommandClick: widget.onBotCommandClick,
             onUsernameClick: widget.onUsernameClick,
             isSeen: widget.isSeen,
             color: ExtraTheme.of(context).textMessage,
@@ -208,16 +213,23 @@ class _BoxContentState extends State<BoxContent> {
         );
         break;
       case MessageType.sharePrivateDataRequest:
-        return SharePrivateDataRequestMessageWidget(message: widget.message,isSeen: widget.isSeen,isSender: widget.isSender,);
+        return SharePrivateDataRequestMessageWidget(
+          message: widget.message,
+          isSeen: widget.isSeen,
+          isSender: widget.isSender,
+        );
         break;
       case MessageType.sharePrivateDataAcceptance:
-        return SharePrivateDataAcceptMessageWidget(message: widget.message,isSeen: widget.isSeen,isSender: widget.isSender,);
+        return SharePrivateDataAcceptMessageWidget(
+          message: widget.message,
+          isSeen: widget.isSeen,
+          isSender: widget.isSender,
+        );
 
         break;
       case MessageType.NOT_SET:
         // TODO: Handle this case.
         break;
-
     }
     return Container();
   }

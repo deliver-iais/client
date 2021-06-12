@@ -28,6 +28,7 @@ class MucInfoDeterminationPage extends StatefulWidget {
 class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   TextEditingController controller;
   TextEditingController idController;
+  TextEditingController infoController;
 
   String mucName = '';
   String channelId = "";
@@ -48,6 +49,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
     super.initState();
     controller = TextEditingController();
     idController = TextEditingController();
+    infoController = TextEditingController();
   }
 
   Future<bool> checkChannelD(String id) async {
@@ -137,6 +139,36 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         ],
                       )
                     : SizedBox.shrink(),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Flexible(
+                        child: Form(
+                      child: TextFormField(
+                          minLines: 1,
+                          maxLines: 4,
+                          autofocus: autofocus,
+                          textInputAction: TextInputAction.newline,
+                          controller: infoController,
+                          validator: validateUsername,
+                          onChanged: (str) {
+                            setState(() {
+                              channelId = str;
+                            });
+                          },
+                          decoration: buildInputDecoration(
+                              widget.isChannel
+                                  ? _appLocalization
+                                      .getTraslateValue("enter-channel-desc")
+                                  : _appLocalization
+                                      .getTraslateValue("enter-group-desc"),
+                              false)),
+                    )),
+                  ],
+                ),
                 StreamBuilder(
                     stream: showChannelIdError.stream,
                     builder: (c, e) {
@@ -227,13 +259,14 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                       idController.text,
                                       memberUidList,
                                       controller.text,
-                                      ChannelType.PUBLIC);
-                                controller.clear();
+                                      ChannelType.PUBLIC,
+                                      infoController.text);
                               }
                             } else {
                               micUid = await _mucRepo.createNewGroup(
-                                  memberUidList, controller.text);
-                              controller.clear();
+                                  memberUidList,
+                                  controller.text,
+                                  infoController.text);
                             }
                             if (micUid != null) {
                               _createMucService.reset();
@@ -317,7 +350,6 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   }
 
   String validateUsername(String value) {
-
     Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
     RegExp regex = new RegExp(pattern);
     if (value.isEmpty) {

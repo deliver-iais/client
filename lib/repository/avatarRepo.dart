@@ -44,23 +44,28 @@ class AvatarRepo {
   }
 
   getAvatarRequest(Uid userUid) async {
-    var getAvatarReq = GetAvatarReq();
-    getAvatarReq.uidList.add(userUid);
-    var getAvatars =
-    await avatarServices.getAvatar(getAvatarReq,
-        options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()}));
-    Avatar lastAvatar;
-    for (ProtocolAvatar.Avatar avatar in getAvatars.avatar) {
-      Avatar newAvatar = await saveAvatarInfo(
-          userUid, avatar.createdOn.toInt(), avatar.fileUuid, avatar.fileName);
-      lastAvatar = lastAvatar != null
-          ? (newAvatar.createdOn > lastAvatar.createdOn
-              ? newAvatar
-              : lastAvatar)
-          : newAvatar;
+    try{
+      var getAvatarReq = GetAvatarReq();
+      getAvatarReq.uidList.add(userUid);
+      var getAvatars =
+      await avatarServices.getAvatar(getAvatarReq,
+          options: CallOptions(
+              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      Avatar lastAvatar;
+      for (ProtocolAvatar.Avatar avatar in getAvatars.avatar) {
+        Avatar newAvatar = await saveAvatarInfo(
+            userUid, avatar.createdOn.toInt(), avatar.fileUuid, avatar.fileName);
+        lastAvatar = lastAvatar != null
+            ? (newAvatar.createdOn > lastAvatar.createdOn
+            ? newAvatar
+            : lastAvatar)
+            : newAvatar;
+      }
+      updateLastUpdateAvatarTime(userUid.asString(), lastAvatar);
+    }catch(e){
+      print(e.toString());
     }
-    updateLastUpdateAvatarTime(userUid.asString(), lastAvatar);
+
   }
 
   updateLastUpdateAvatarTime(String userUid, Avatar avatar) {

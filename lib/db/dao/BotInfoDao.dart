@@ -11,12 +11,12 @@ class BotInfoDao extends DatabaseAccessor<Database> with _$BotInfoDaoMixin {
 
   BotInfoDao(this.database) : super(database);
   
-  saveBotInfo(BotInfo botInfo){
+  Future saveBotInfo(BotInfo botInfo){
     into(botInfos).insertOnConflictUpdate(botInfo);
   }
   
   Future<BotInfo> getBotInfo(String username){
-    return(select(botInfos)..where((botInfo) => botInfo.username.equals(username) )).getSingle();
+    return(select(botInfos)..where((botInfo) => botInfo.username.contains(username) )).getSingle();
   }
 
 

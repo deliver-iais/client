@@ -13,6 +13,7 @@ class Message extends DataClass implements Insertable<Message> {
   final String roomId;
   final int id;
   final DateTime time;
+  final bool sendingFailed;
   final String from;
   final String to;
   final int replyToId;
@@ -27,6 +28,7 @@ class Message extends DataClass implements Insertable<Message> {
       @required this.roomId,
       this.id,
       @required this.time,
+      @required this.sendingFailed,
       @required this.from,
       @required this.to,
       this.replyToId,
@@ -51,6 +53,8 @@ class Message extends DataClass implements Insertable<Message> {
       id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       time:
           dateTimeType.mapFromDatabaseResponse(data['${effectivePrefix}time']),
+      sendingFailed: boolType
+          .mapFromDatabaseResponse(data['${effectivePrefix}sending_failed']),
       from: stringType.mapFromDatabaseResponse(data['${effectivePrefix}from']),
       to: stringType.mapFromDatabaseResponse(data['${effectivePrefix}to']),
       replyToId: intType
@@ -83,6 +87,9 @@ class Message extends DataClass implements Insertable<Message> {
     }
     if (!nullToAbsent || time != null) {
       map['time'] = Variable<DateTime>(time);
+    }
+    if (!nullToAbsent || sendingFailed != null) {
+      map['sending_failed'] = Variable<bool>(sendingFailed);
     }
     if (!nullToAbsent || from != null) {
       map['from'] = Variable<String>(from);
@@ -122,6 +129,9 @@ class Message extends DataClass implements Insertable<Message> {
           roomId == null && nullToAbsent ? const Value.absent() : Value(roomId),
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       time: time == null && nullToAbsent ? const Value.absent() : Value(time),
+      sendingFailed: sendingFailed == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sendingFailed),
       from: from == null && nullToAbsent ? const Value.absent() : Value(from),
       to: to == null && nullToAbsent ? const Value.absent() : Value(to),
       replyToId: replyToId == null && nullToAbsent
@@ -149,6 +159,7 @@ class Message extends DataClass implements Insertable<Message> {
       roomId: serializer.fromJson<String>(json['roomId']),
       id: serializer.fromJson<int>(json['id']),
       time: serializer.fromJson<DateTime>(json['time']),
+      sendingFailed: serializer.fromJson<bool>(json['sendingFailed']),
       from: serializer.fromJson<String>(json['from']),
       to: serializer.fromJson<String>(json['to']),
       replyToId: serializer.fromJson<int>(json['replyToId']),
@@ -168,6 +179,7 @@ class Message extends DataClass implements Insertable<Message> {
       'roomId': serializer.toJson<String>(roomId),
       'id': serializer.toJson<int>(id),
       'time': serializer.toJson<DateTime>(time),
+      'sendingFailed': serializer.toJson<bool>(sendingFailed),
       'from': serializer.toJson<String>(from),
       'to': serializer.toJson<String>(to),
       'replyToId': serializer.toJson<int>(replyToId),
@@ -185,6 +197,7 @@ class Message extends DataClass implements Insertable<Message> {
           String roomId,
           int id,
           DateTime time,
+          bool sendingFailed,
           String from,
           String to,
           int replyToId,
@@ -199,6 +212,7 @@ class Message extends DataClass implements Insertable<Message> {
         roomId: roomId ?? this.roomId,
         id: id ?? this.id,
         time: time ?? this.time,
+        sendingFailed: sendingFailed ?? this.sendingFailed,
         from: from ?? this.from,
         to: to ?? this.to,
         replyToId: replyToId ?? this.replyToId,
@@ -216,6 +230,7 @@ class Message extends DataClass implements Insertable<Message> {
           ..write('roomId: $roomId, ')
           ..write('id: $id, ')
           ..write('time: $time, ')
+          ..write('sendingFailed: $sendingFailed, ')
           ..write('from: $from, ')
           ..write('to: $to, ')
           ..write('replyToId: $replyToId, ')
@@ -240,19 +255,21 @@ class Message extends DataClass implements Insertable<Message> {
                   $mrjc(
                       time.hashCode,
                       $mrjc(
-                          from.hashCode,
+                          sendingFailed.hashCode,
                           $mrjc(
-                              to.hashCode,
+                              from.hashCode,
                               $mrjc(
-                                  replyToId.hashCode,
+                                  to.hashCode,
                                   $mrjc(
-                                      forwardedFrom.hashCode,
+                                      replyToId.hashCode,
                                       $mrjc(
-                                          edited.hashCode,
+                                          forwardedFrom.hashCode,
                                           $mrjc(
-                                              encrypted.hashCode,
-                                              $mrjc(type.hashCode,
-                                                  json.hashCode)))))))))))));
+                                              edited.hashCode,
+                                              $mrjc(
+                                                  encrypted.hashCode,
+                                                  $mrjc(type.hashCode,
+                                                      json.hashCode))))))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -262,6 +279,7 @@ class Message extends DataClass implements Insertable<Message> {
           other.roomId == this.roomId &&
           other.id == this.id &&
           other.time == this.time &&
+          other.sendingFailed == this.sendingFailed &&
           other.from == this.from &&
           other.to == this.to &&
           other.replyToId == this.replyToId &&
@@ -278,6 +296,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   final Value<String> roomId;
   final Value<int> id;
   final Value<DateTime> time;
+  final Value<bool> sendingFailed;
   final Value<String> from;
   final Value<String> to;
   final Value<int> replyToId;
@@ -292,6 +311,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     this.roomId = const Value.absent(),
     this.id = const Value.absent(),
     this.time = const Value.absent(),
+    this.sendingFailed = const Value.absent(),
     this.from = const Value.absent(),
     this.to = const Value.absent(),
     this.replyToId = const Value.absent(),
@@ -307,6 +327,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     @required String roomId,
     this.id = const Value.absent(),
     @required DateTime time,
+    this.sendingFailed = const Value.absent(),
     @required String from,
     @required String to,
     this.replyToId = const Value.absent(),
@@ -328,6 +349,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     Expression<String> roomId,
     Expression<int> id,
     Expression<DateTime> time,
+    Expression<bool> sendingFailed,
     Expression<String> from,
     Expression<String> to,
     Expression<int> replyToId,
@@ -343,6 +365,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
       if (roomId != null) 'room_id': roomId,
       if (id != null) 'id': id,
       if (time != null) 'time': time,
+      if (sendingFailed != null) 'sending_failed': sendingFailed,
       if (from != null) 'from': from,
       if (to != null) 'to': to,
       if (replyToId != null) 'reply_to_id': replyToId,
@@ -360,6 +383,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
       Value<String> roomId,
       Value<int> id,
       Value<DateTime> time,
+      Value<bool> sendingFailed,
       Value<String> from,
       Value<String> to,
       Value<int> replyToId,
@@ -374,6 +398,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
       roomId: roomId ?? this.roomId,
       id: id ?? this.id,
       time: time ?? this.time,
+      sendingFailed: sendingFailed ?? this.sendingFailed,
       from: from ?? this.from,
       to: to ?? this.to,
       replyToId: replyToId ?? this.replyToId,
@@ -402,6 +427,9 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     }
     if (time.present) {
       map['time'] = Variable<DateTime>(time.value);
+    }
+    if (sendingFailed.present) {
+      map['sending_failed'] = Variable<bool>(sendingFailed.value);
     }
     if (from.present) {
       map['from'] = Variable<String>(from.value);
@@ -439,6 +467,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
           ..write('roomId: $roomId, ')
           ..write('id: $id, ')
           ..write('time: $time, ')
+          ..write('sendingFailed: $sendingFailed, ')
           ..write('from: $from, ')
           ..write('to: $to, ')
           ..write('replyToId: $replyToId, ')
@@ -511,6 +540,17 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
       $tableName,
       false,
     );
+  }
+
+  final VerificationMeta _sendingFailedMeta =
+      const VerificationMeta('sendingFailed');
+  GeneratedBoolColumn _sendingFailed;
+  @override
+  GeneratedBoolColumn get sendingFailed =>
+      _sendingFailed ??= _constructSendingFailed();
+  GeneratedBoolColumn _constructSendingFailed() {
+    return GeneratedBoolColumn('sending_failed', $tableName, false,
+        defaultValue: Constant(false));
   }
 
   final VerificationMeta _fromMeta = const VerificationMeta('from');
@@ -612,6 +652,7 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
         roomId,
         id,
         time,
+        sendingFailed,
         from,
         to,
         replyToId,
@@ -656,6 +697,12 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
           _timeMeta, time.isAcceptableOrUnknown(data['time'], _timeMeta));
     } else if (isInserting) {
       context.missing(_timeMeta);
+    }
+    if (data.containsKey('sending_failed')) {
+      context.handle(
+          _sendingFailedMeta,
+          sendingFailed.isAcceptableOrUnknown(
+              data['sending_failed'], _sendingFailedMeta));
     }
     if (data.containsKey('from')) {
       context.handle(

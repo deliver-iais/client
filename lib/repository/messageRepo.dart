@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:ffi';
+
 import 'dart:io' as DartFile;
 import 'dart:math';
 
@@ -104,8 +103,6 @@ class MessageRepo {
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
-      
-        //   baae6e7c-d880-4dd0-948e-f6b5d38a74d0
         var room =
             await _roomDao.getByRoomIdFuture(roomMetadata.roomUid.asString());
         if (room != null &&
@@ -396,10 +393,10 @@ class MessageRepo {
     );
   }
 
-  _sendMessageToServer(int dbId) async {
+  _sendMessageToServer(int dbId,{bool resend = false}) async {
     var message = await _messageDao.getPendingMessage(dbId);
     var pendingMessage = await _pendingMessageDao.getByMessageDbId(dbId);
-    if (!_canPendingMessageResendAndDecreaseRemainingRetries(
+    if (!resend && !_canPendingMessageResendAndDecreaseRemainingRetries(
             pendingMessage, message) ||
         pendingMessage.status != SendingStatus.PENDING) {
       return;
@@ -419,6 +416,7 @@ class MessageRepo {
 
   bool _canPendingMessageResendAndDecreaseRemainingRetries(
       PendingMessage pendingMessage, Message message) {
+
     if (pendingMessage == null) {
       if (message != null) {
         _messageDao.deleteMessage(message);
@@ -429,8 +427,15 @@ class MessageRepo {
       _pendingMessageDao.deletePendingMessage(pendingMessage.messagePacketId);
       return false;
     }
+    if(pendingMessage.remainingRetries<3){
+      _messageDao.updateMessage(message.copyWith(sendingFailed: true));
+      return false;
+    }
     if (pendingMessage.remainingRetries > 0) {
       if (message.id == null) {
+        if(pendingMessage.remainingRetries<3){
+          _messageDao.updateMessage(message.copyWith(sendingFailed: true));
+        }
         _pendingMessageDao.insertPendingMessage(pendingMessage.copyWith(
             remainingRetries: pendingMessage.remainingRetries - 1));
         return true;
@@ -601,28 +606,36 @@ class MessageRepo {
 
     List<Message> msgList = [];
     for (MessageProto.Message message in messages) {
-      // ignore: unrelated_type_equality_checks
-      if (message.whichType() == MessageProto.Message_Type.persistEvent){
-        switch(message.persistEvent.whichType()){
-          case PersistentEvent_Type.mucSpecificPersistentEvent:
-            switch(message.persistEvent.mucSpecificPersistentEvent.issue){
-              case  MucSpecificPersistentEvent_Issue.DELETED:
-                _roomDao.updateRoom(RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
-                continue;
-                break;
-              case MucSpecificPersistentEvent_Issue.KICK_USER:
-                if(message.persistEvent.mucSpecificPersistentEvent.assignee.isSameEntity(_accountRepo.currentUserUid.asString())){
+     _pendingMessageDao.deletePendingMessage(message.packetId);
+      try{
+        if (message.whichType() == MessageProto.Message_Type.persistEvent){
+          switch(message.persistEvent.whichType()){
+            case PersistentEvent_Type.mucSpecificPersistentEvent:
+              switch(message.persistEvent.mucSpecificPersistentEvent.issue){
+                case  MucSpecificPersistentEvent_Issue.DELETED:
                   _roomDao.updateRoom(RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
                   continue;
-                }
-                break;
-            }
-            break;
-        }
+                  break;
+                case MucSpecificPersistentEvent_Issue.KICK_USER:
+                  if(message.persistEvent.mucSpecificPersistentEvent.assignee.isSameEntity(_accountRepo.currentUserUid.asString())){
+                    _roomDao.updateRoom(RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+                    continue;
+                  }
+                  break;
+              }
+              break;
+          }
 
+        }else{
+          print(e.toString());
+        }
+      }catch(e){
+        print(e.toString());
       }
+
       msgList.add(
           await saveMessageInMessagesDB(_accountRepo, _messageDao, message));
+
     }
     return msgList;
   }
@@ -730,5 +743,10 @@ class MessageRepo {
     );
     // Send Message
     await _sendMessageToServer(dbId);
+  }
+
+  void ResendMessage(Message message) async{
+    await _sendMessageToServer(message.dbId,resend: true);
+    _updateRoomLastMessage(message.roomId, message.dbId);
   }
 }

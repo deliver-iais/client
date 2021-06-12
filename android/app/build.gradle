@@ -47,7 +47,7 @@ android {
         applicationId "ir.we.deliver"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 3
+        versionCode 7
         versionName flutterVersionName
     }
     signingConfigs {
@@ -78,3 +78,4 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics:17.5.0'
     implementation 'com.google.firebase:firebase-messaging:<latest_version>'
 }
+//uild appbundle --target-platform android-arm,android-arm64,android-x64

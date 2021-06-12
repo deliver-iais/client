@@ -44,7 +44,7 @@ class PersistentEventMessage extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
             child: FutureBuilder(
               future: getPersistentMessage(persistentEventMessage),
               builder: (c, s) {

@@ -22,10 +22,10 @@ class MucServices {
   var channelServices =
       ChannelServices.ChannelServiceClient(MucServicesClientChannel);
 
-  Future<Uid> createNewGroup(String groupName) async {
+  Future<Uid> createNewGroup(String groupName,String info) async {
     try {
       var request = await groupServices.createGroup(
-          GroupServices.CreateGroupReq()..name = groupName,
+          GroupServices.CreateGroupReq()..name = groupName..info = info,
           options: CallOptions(
               timeout: Duration(seconds: 2),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
@@ -45,7 +45,7 @@ class MucServices {
     try {
       await groupServices.addMembers(addMemberRequest,
           options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+              metadata: {'access_token': await _accountRepo.getAccessToken()},timeout: Duration(seconds: 2)));
 
       return true;
     } catch (e) {
@@ -213,11 +213,12 @@ class MucServices {
   }
 
   Future<Uid> createNewChannel(
-      String channelName, ChannelType type, String channelId) async {
+      String channelName, ChannelType type, String channelId,String info) async {
     try {
       var request = await channelServices.createChannel(
           CreateChannelReq()
             ..name = channelName
+            ..info = info
             ..type = type
             ..id = channelId,
           options: CallOptions(
