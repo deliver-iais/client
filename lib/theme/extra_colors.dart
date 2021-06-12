@@ -28,6 +28,7 @@ class ExtraThemeData {
   Color receivedMessageBox;
   Color textMessage;
   Color messageDetails;
+  Color persistentEventMessage;
   ExtraThemeData(
       {this.circleAvatarBackground,
         this.details,
@@ -51,7 +52,8 @@ class ExtraThemeData {
         this.sentMessageBox,
         this.receivedMessageBox,
         this.textMessage,
-        this.messageDetails
+        this.messageDetails,
+        this.persistentEventMessage
       });
 }
 

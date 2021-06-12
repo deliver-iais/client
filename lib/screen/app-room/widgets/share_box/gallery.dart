@@ -91,7 +91,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                       ),
                       child: IconButton(
-                        icon: Icon(Icons.photo_camera, size: 40),
+                        icon: Icon(Icons.photo_camera, color: Colors.white, size: 40),
                         onPressed: () async {
                           try {
                             final picker = ImagePicker();

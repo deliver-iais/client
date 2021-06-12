@@ -14,6 +14,7 @@ ThemeData DarkTheme = ThemeData(
     backgroundColor: Colors.black,
     buttonColor: Color(0xFF2699FB),
     focusColor: Color(0xFF2699FB).withOpacity(0.5),
+    cardColor: Color(0xFF2699FB),
     textTheme: TextTheme(
       headline1: TextStyle(color: Colors.white, fontSize: 40),
       headline2: TextStyle(
@@ -57,5 +58,6 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     sentMessageBox: DarkTheme.primaryColor,
     receivedMessageBox: DarkTheme.accentColor.withAlpha(60),
     textMessage: Colors.white,
-    messageDetails: Color(0xFFB3B3B3),
+    messageDetails: Color(0xFF001D39),
+    persistentEventMessage: DarkTheme.accentColor.withAlpha(50),
 );

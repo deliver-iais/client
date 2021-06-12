@@ -14,7 +14,7 @@ class SeenStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     final SeenDao seenDao = GetIt.I.get<SeenDao>();
     Widget pendingMessage = Icon(Icons.access_alarm,
-        color: Theme.of(context).primaryColor, size: 15);
+        color: ExtraTheme.of(context).textMessage, size: 15);
     if (message.id == null)
       return pendingMessage;
     else if (isSeen != null && isSeen) {

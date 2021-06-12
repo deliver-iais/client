@@ -122,12 +122,12 @@ class _NavigationCenterState extends State<NavigationCenter> {
                             TitleStatusConditions.Updating) {
                           return Text(
                               _appLocalization.getTraslateValue("updating"),
-                              style: TextStyle(fontSize: 20));
+                              style: TextStyle(fontSize: 20, color: ExtraTheme.of(context).textDetails));
                         } else if (snapshot.data ==
                             TitleStatusConditions.Connecting) {
                           return Text(
                               _appLocalization.getTraslateValue("connecting"),
-                              style: TextStyle(fontSize: 20));
+                              style: TextStyle(fontSize: 20, color: ExtraTheme.of(context).textDetails));
                         } else if (snapshot.hasData &&
                             snapshot.data ==
                                 TitleStatusConditions.Disconnected) {

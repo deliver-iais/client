@@ -62,6 +62,9 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
     sentMessageBox:  Color(0xff00a394),
     receivedMessageBox: Color(0xff00805a).withAlpha(50),
     textMessage: Colors.black,
-    messageDetails: LightTheme.accentColor.withAlpha(200)
+    messageDetails: LightTheme.accentColor.withAlpha(200),
+    persistentEventMessage: LightTheme.backgroundColor,
+   // dark = DarkTheme.accentColor.withAlpha(50), ligh = background
+  //dark = blue light = boxdetails
 
 );

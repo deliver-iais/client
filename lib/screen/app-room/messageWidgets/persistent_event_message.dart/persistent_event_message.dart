@@ -39,8 +39,8 @@ class PersistentEventMessage extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: showLastMessage
-              ? Theme.of(context).backgroundColor
-              : ExtraTheme.of(context).details,
+              ?  ExtraTheme.of(context).persistentEventMessage
+              : Theme.of(context).primaryColor,
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         child: Padding(
@@ -54,7 +54,7 @@ class PersistentEventMessage extends StatelessWidget {
                     child: Text(
                     s.data,
                     style: TextStyle(
-                        color: ExtraTheme.of(context).infoChat, fontSize: 12),
+                        color: showLastMessage? ExtraTheme.of(context).textMessage : Colors.white, fontSize: 12),
                   ));
                 } else {
                   return SizedBox.shrink();

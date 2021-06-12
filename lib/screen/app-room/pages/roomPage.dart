@@ -116,6 +116,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   BehaviorSubject<int> unReadMessageScrollSubjet = BehaviorSubject.seeded(0);
 
+  Color menuColor;
+
   // Cache<int, Widget> widgetCache =
   //     LruCache<int, Widget>(storage: SimpleStorage(size: 100));
 
@@ -186,6 +188,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   void _showCustomMenu(Message message) {
     this.showMenu(
       context: context,
+      color: menuColor,
       items: <PopupMenuEntry<OperationOnMessage>>[
         OperationOnMessageEntry(message)
       ],
@@ -286,6 +289,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
     double _maxWidth = MediaQuery.of(context).size.width * 0.7;
+    menuColor = ExtraTheme.of(context).popupMenuButton;
     if (isLarge(context)) {
       _maxWidth =
           (MediaQuery.of(context).size.width - navigationPanelSize()) * 0.7;
@@ -810,7 +814,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     height: 60,
                     child: Center(
                       child: CircularProgressIndicator(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: ExtraTheme.of(context).textDetails,
                       ),
                     ));
               }
