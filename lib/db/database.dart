@@ -92,13 +92,16 @@ part 'database.g.dart';
 class Database extends _$Database {
   final PathProviderWindows provider = PathProviderWindows();
 
+
   Database()
       : super(LazyDatabase(() async {
           if (isDesktop()) {
             sqfliteFfiInit();
           }
+          moorRuntimeOptions.dontWarnAboutMultipleDatabases = true;
           final dbFolder = await getApplicationDocumentsDirectory();
           final file = File(p.join(dbFolder.path, 'db.sqlite'));
+
           return VmDatabase(file, logStatements: false);
         }));
 

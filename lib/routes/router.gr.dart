@@ -216,11 +216,11 @@ class RoomPageArguments {
   final bool jointToMuc;
   RoomPageArguments(
       {this.key,
-      this.roomId,
-      this.forwardedMessages,
-      this.inputFilePath,
-      this.shareUid,
-      this.jointToMuc});
+        this.roomId,
+        this.forwardedMessages,
+        this.inputFilePath,
+        this.shareUid,
+        this.jointToMuc});
 }
 
 /// ShareInputFile arguments holder class

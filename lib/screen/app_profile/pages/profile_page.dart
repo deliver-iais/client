@@ -30,7 +30,7 @@ import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:flutter_link_preview/flutter_link_preview.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {

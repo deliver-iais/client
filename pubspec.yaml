@@ -111,9 +111,10 @@ dependencies:
   contacts_service: 0.6.1
   random_string: 2.1.0
   flutter_local_notifications: 6.0.0
-  audioplayers: ^0.19.0
-  flutter_timer: 0.0.6
+#  audioplayers: ^0.19.0
+#  flutter_timer: 0.0.6
   uuid: 3.0.4
+  flutter_sound: 8.1.4
   # audio_recorder: 1.0.2
   percent_indicator: 2.1.8
   cached_network_image: 3.0.0

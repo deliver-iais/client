@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:android_intent/android_intent.dart';
-import 'package:audioplayers/audioplayers.dart';
+
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
@@ -20,6 +20,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_file_manager/flutter_file_manager.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider_ex/path_provider_ex.dart';
@@ -73,7 +74,7 @@ class _ShareBoxState extends State<ShareBox> {
 
   var currentPage = Page.Gallery;
 
-  AudioPlayer audioPlayer = AudioPlayer();
+  FlutterSoundPlayer _audioPlayer = FlutterSoundPlayer();
 
   @override
   Widget build(BuildContext context) {
@@ -107,11 +108,11 @@ class _ShareBoxState extends State<ShareBox> {
                           playMusic: (index, path) {
                             setState(() {
                               if (playAudioIndex == index) {
-                                audioPlayer.pause();
+                                _audioPlayer.pausePlayer();
                                 icons[index] = Icons.play_arrow;
                                 playAudioIndex = -1;
                               } else {
-                                audioPlayer.play(path);
+                                _audioPlayer.startPlayer(fromURI: path);
                                 icons.remove(playAudioIndex);
                                 icons[index] = Icons.pause;
                                 playAudioIndex = index;
@@ -243,7 +244,7 @@ class _ShareBoxState extends State<ShareBox> {
                             children: <Widget>[
                               CircleButton(() async {
                                 setState(() {
-                                  audioPlayer.stop();
+                                  _audioPlayer.stopPlayer();
                                   currentPage = Page.Gallery;
                                 });
                               },

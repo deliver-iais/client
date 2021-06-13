@@ -1,5 +1,5 @@
-import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:audioplayers/audioplayers.dart';
+
+
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:firebase_core/firebase_core.dart';
@@ -18,8 +18,8 @@ class NotificationServices {
     var iosNotificationSetting = new IOSInitializationSettings(
         onDidReceiveLocalNotification: onDidReceiveLocalNotification);
 
-    var initializationSettings = InitializationSettings(
-        androidNotificationSetting, iosNotificationSetting);
+    var initializationSettings = InitializationSettings(android:
+        androidNotificationSetting,iOS: iosNotificationSetting);
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: (room) {
       if (room != null && room.isNotEmpty) {}
@@ -50,10 +50,10 @@ class NotificationServices {
       String messageBody) async {
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
         'channel_id', 'channel_name', 'channel_description',
-        importance: Importance.Max, priority: Priority.High);
+        importance: Importance.max, priority: Priority.high);
     var iOSPlatformChannelSpecifics = IOSNotificationDetails();
     var platformChannelSpecifics = NotificationDetails(
-        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+       android: androidPlatformChannelSpecifics,iOS: iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.show(
       notificationId,
       roomName,
@@ -78,7 +78,7 @@ class NotificationServices {
         styleInformation: bigPictureStyleInformation);
     var iOSNotificationDetails = IOSNotificationDetails();
     _notificationDetails =
-        NotificationDetails(androidNotificationDetails, iOSNotificationDetails);
+        NotificationDetails(android:androidNotificationDetails,iOS: iOSNotificationDetails);
 
     await flutterLocalNotificationsPlugin.show(
         notificationId, roomName, imagePath, _notificationDetails,
@@ -152,8 +152,8 @@ class NotificationServices {
   }
 
   void playSoundNotification() async {
-    AssetsAudioPlayer.newPlayer().open(
-      Audio("assets/audios/ack.mp3"),
-    );
+    // AssetsAudioPlayer.newPlayer().open(
+    //   Audio("assets/audios/ack.mp3"),
+    // );
   }
 }

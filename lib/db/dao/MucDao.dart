@@ -28,15 +28,15 @@ class MucDao extends DatabaseAccessor<Database> with _$MucDaoMixin {
       );
 
   Stream<Muc> getByUid(String uid) {
-    return (select(mucs)..where((muc) => muc.uid.equals(uid))).watchSingle();
+    return (select(mucs)..where((muc) => muc.uid.equals(uid))).watchSingleOrNull();
   }
 
   Future<Muc> getMucByUid(String uid) {
-    return (select(mucs)..where((muc) => muc.uid.equals(uid))).getSingle();
+    return (select(mucs)..where((muc) => muc.uid.equals(uid))).getSingleOrNull();
   }
 
   Stream<Muc> getMucByUidAsStream(String uid) {
-    return (select(mucs)..where((muc) => muc.uid.equals(uid))).watchSingle();
+    return (select(mucs)..where((muc) => muc.uid.equals(uid))).watchSingleOrNull();
   }
 
   Future<List<Muc>> getMucByName(String text) {

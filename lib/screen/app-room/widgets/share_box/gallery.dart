@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/routes/router.gr.dart';
 
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';

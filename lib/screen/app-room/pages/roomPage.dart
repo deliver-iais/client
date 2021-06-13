@@ -912,9 +912,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   void checkTime(List<Message> messages) {
-    print("${messages[0].id}     ${messages[0].time.toLocal().toString()}");
-    print(
-        "${_currentMessageForCheckTime.id}     ${_currentMessageForCheckTime.time.toLocal().toString()}");
     try {
       bool newTime = false;
       if (messages.length == 1 &&
@@ -933,7 +930,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   messages[0].time.month)) {
         newTime = true;
       }
-      print(newTime);
+
       bool showTimeDown =
           _currentMessageForCheckTime.time.millisecondsSinceEpoch >=
               messages[0].time.millisecondsSinceEpoch;
@@ -1171,7 +1168,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         dragSubject.add(false);
       },
       onDragEnd: (t) {
-        print(t.offset.dx);
+
         if (t.offset.dx > MediaQuery.of(context).size.width / 3 ||
             t.offset.dx < -80) {
           _repliedMessage.add(message);

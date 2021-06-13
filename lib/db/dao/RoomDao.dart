@@ -53,8 +53,8 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
           (rows) => rows.map(
             (row) {
               return RoomWithMessage(
-                room: row.readTable(rooms),
-                lastMessage: row.readTable(messages),
+                room: row.readTableOrNull(rooms),
+                lastMessage: row.readTableOrNull(messages),
               );
             },
           ).toList(),
@@ -80,12 +80,12 @@ class RoomDao extends DatabaseAccessor<Database> with _$RoomDaoMixin {
   Stream<Room> getByRoomId(String rid) {
     return (select(rooms)
           ..where((c) => c.roomId.equals(rid) & c.deleted.equals(false)))
-        .watchSingle();
+        .watchSingleOrNull();
   }
 
   Future<Room> getByRoomIdFuture(String rid) {
     return (select(rooms)
           ..where((c) => c.roomId.equals(rid) & c.deleted.equals(false)))
-        .getSingle();
+        .getSingleOrNull();
   }
 }

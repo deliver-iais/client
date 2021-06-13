@@ -22,7 +22,7 @@ class SeenDao extends DatabaseAccessor<Database> with _$SeenDaoMixin {
     return (select(seens)
           ..where(
               (seen) => seen.roomId.equals(roomId) & seen.user.equals(user)))
-        .watchSingle();
+        .watchSingleOrNull();
   }
 
   Future<bool> isSeenSentMessage(Message message) async {
@@ -44,14 +44,14 @@ class SeenDao extends DatabaseAccessor<Database> with _$SeenDaoMixin {
           ])
           ..where((tbl) => tbl.roomId.equals(roomId))
           ..limit(1))
-        .getSingle();
+        .getSingleOrNull();
   }
 
   Stream<Seen> getByMessageId(int messageId, String roomId) {
     return (select(seens)
           ..where(
               (s) => s.messageId.equals(messageId) & s.roomId.equals(roomId)))
-        .watchSingle();
+        .watchSingleOrNull();
   }
 
   Stream<Seen> getRoomLastSeen(String roomId) {
@@ -64,10 +64,10 @@ class SeenDao extends DatabaseAccessor<Database> with _$SeenDaoMixin {
           ])
           ..where((tbl) => tbl.roomId.equals(roomId))
           ..limit(1))
-        .watchSingle();
+        .watchSingleOrNull();
   }
 
   Stream<Seen> getByDBId(int dbId) {
-    return (select(seens)..where((s) => s.dbId.equals(dbId))).watchSingle();
+    return (select(seens)..where((s) => s.dbId.equals(dbId))).watchSingleOrNull();
   }
 }

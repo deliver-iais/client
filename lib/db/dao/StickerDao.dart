@@ -15,7 +15,7 @@ class StickerDao extends DatabaseAccessor<Database> with _$StickerDaoMixin {
 
   Future<Sticker> getSticker(String uuid) {
     return (select(stickers)..where((tbl) => tbl.uuid.equals(uuid)))
-        .getSingle();
+        .getSingleOrNull();
   }
 
   Future<List<Sticker>> gatStickerPack(String packId) {

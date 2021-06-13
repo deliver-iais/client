@@ -20,12 +20,12 @@ class LastAvatarDao extends DatabaseAccessor<Database>
   Future<LastAvatar> getLastAvatar(String uid) {
     return (select(lastAvatars)
           ..where((lastAvatar) => lastAvatar.uid.equals(uid)))
-        .getSingle();
+        .getSingleOrNull();
   }
 
   Stream<LastAvatar> getLastAvatarStream(String uid) {
     return (select(lastAvatars)
           ..where((lastAvatar) => lastAvatar.uid.equals(uid)))
-        .watchSingle();
+        .watchSingleOrNull();
   }
 }

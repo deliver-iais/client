@@ -16,11 +16,11 @@ class SharedPreferencesDao extends DatabaseAccessor<Database>
 
   Future<String> get(String key) async =>
       (await (select(sharedPreferences)..where((sh) => sh.key.equals(key)))
-              .getSingle())
+              .getSingleOrNull())
           ?.value ??
       null;
 
   Stream<SharedPreference> watch(String key) =>
       ((select(sharedPreferences)..where((sh) => sh.key.equals(key)))
-          .watchSingle());
+          .watchSingleOrNull());
 }

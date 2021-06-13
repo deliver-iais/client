@@ -6,9 +6,10 @@ import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as M;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 
@@ -18,14 +19,23 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 String Firabase_Setting_Is_Set = "firabase_setting_is_set";
 
 class FireBaseServices {
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  AndroidNotificationChannel channel = const AndroidNotificationChannel(
+    'high_importance_channel', // id
+    'High Importance Notifications', // title
+    'This channel is used for important notifications.', // description
+    importance: Importance.high,
+  );
+
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =FlutterLocalNotificationsPlugin();
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var fireBaseServices = FirebaseServiceClient(FirebaseServicesClientChannel);
   SharedPreferencesDao _prefs = GetIt.I.get<SharedPreferencesDao>();
 
   sendFireBaseToken() async {
-    _firebaseMessaging.requestNotificationPermissions();
+    _firebaseMessaging.requestPermission();
     var fireBaseToken = await _firebaseMessaging.getToken();
     await _setFirebaseSetting();
     _sendFireBaseToken(fireBaseToken);
@@ -51,31 +61,17 @@ class FireBaseServices {
     }
   }
 
-  _setFirebaseSetting() {
+  _setFirebaseSetting()async {
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
     try {
-      _firebaseMessaging.configure(
-        onMessage: (Map<String, dynamic> message) async {
-          var _coreServices = GetIt.I.get<CoreServices>();
-          _coreServices.sendPingMessage();
-          if (message.containsKey("notification")) {
-            // Message msg = _decodeMessage(message["notification"]["body"]);
-          }
-          if (message.containsKey("data")) {
-            // Message msg = _decodeMessage(message["notification"]["body"]);
-          }
-        },
-        onBackgroundMessage: myBackgroundMessageHandler,
-        onLaunch: (Map<String, dynamic> message) async {
-          if (message.containsKey("notification")) {
-            //  print("fff");
-
-          }
-        },
-        onResume: (Map<String, dynamic> message) async {
-          if (message.containsKey("notification")) {
-            //  print("fff");
-          }
-        },
+      FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
+      _firebaseMessaging.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
       );
     } catch (e) {
       print(e);
@@ -83,14 +79,15 @@ class FireBaseServices {
   }
 }
 
-Message _decodeMessage(String notificationBody) {
+M.Message _decodeMessage(String notificationBody) {
   final dataTitle64 = base64.decode(notificationBody);
-  Message m = Message.fromBuffer(dataTitle64);
+  M.Message m = M.Message.fromBuffer(dataTitle64);
   return m;
 }
 
-Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
+Future<void> backgroundMessageHandler(RemoteMessage message) async {
   var _notificationServices = NotificationServices();
+
   var database = db.Database();
   var contactDao = database.contactDao;
   var roomDao = database.roomDao;
@@ -99,9 +96,12 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
   var accountRepo = AccountRepo(sharedPrefs: sharedPreferencesDao);
   var _userInfoDao = database.userInfoDao;
 
-  if (message.containsKey('data')) {
-    Message msg = _decodeMessage(message["data"]["body"]);
-    String roomName = message['data']['title'];
+  _notificationServices.showTextNotification(1,message.data.values.first.toString(),"val",message.data.values.toList()[1].toString());
+ _notificationServices.showTextNotification(1,message.data.values.first.toString(),"key",message.data.keys.toString());
+
+  if (message.data.containsKey('body')) {
+    M.Message msg = _decodeMessage(message.data["body"]["body"]);
+    String roomName = message.data['body']['title'];
     Uid roomUid = getRoomId(accountRepo, msg);
     db.Room room = await roomDao.getByRoomIdFuture(roomUid.asString());
     if (room != null && room.isBlock) {

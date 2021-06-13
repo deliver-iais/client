@@ -16,16 +16,16 @@ class UserInfoDao extends DatabaseAccessor<Database> with _$UserInfoDaoMixin {
   }
 
   Future<UserInfo> getUserInfo(String uid) {
-    return (select(userInfos)..where((tbl) => tbl.uid.equals(uid))).getSingle();
+    return (select(userInfos)..where((tbl) => tbl.uid.equals(uid))).getSingleOrNull();
   }
 
   Stream<UserInfo> getUserInfoAsStream(String uid) {
     return (select(userInfos)..where((tbl) => tbl.uid.equals(uid)))
-        .watchSingle();
-  }
+        .watchSingleOrNull();
+}
 
   Future<UserInfo> getByUserName(String username) {
     return (select(userInfos)..where((tbl) => tbl.username.equals(username)))
-        .getSingle();
+        .getSingleOrNull();
   }
 }

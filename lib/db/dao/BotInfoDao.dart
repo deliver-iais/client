@@ -16,7 +16,7 @@ class BotInfoDao extends DatabaseAccessor<Database> with _$BotInfoDaoMixin {
   }
   
   Future<BotInfo> getBotInfo(String username){
-    return(select(botInfos)..where((botInfo) => botInfo.username.contains(username) )).getSingle();
+    return(select(botInfos)..where((botInfo) => botInfo.username.contains(username) )).getSingleOrNull();
   }
 
 

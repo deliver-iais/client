@@ -18,6 +18,6 @@ class FileDao extends DatabaseAccessor<Database> with _$FileDaoMixin {
     return (select(fileInfos)
           ..where((file) =>
               file.uuid.equals(id) & file.compressionSize.equals(size)))
-        .getSingle();
+        .getSingleOrNull();
   }
 }

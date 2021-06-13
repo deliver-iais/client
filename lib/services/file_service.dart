@@ -59,10 +59,10 @@ class FileService {
 
   FileService() {
     _dio.interceptors
-        .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
+        .add(InterceptorsWrapper(onRequest: (RequestOptions options,RequestInterceptorHandler handler) async {
       options.baseUrl = FileServiceBaseUrl;
       options.headers["Authorization"] = await accountRepo.getAccessToken();
-      return options; //continue
+      return handler.next(options);//continue
     }));
   }
 
@@ -105,8 +105,8 @@ class FileService {
 
   // TODO, refactoring needed
   uploadFile(String filePath, {String uploadKey, Function sendActivity}) async {
-    _dio.interceptors
-        .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
+    _dio.interceptors.add(InterceptorsWrapper(onRequest:
+        (RequestOptions options, RequestInterceptorHandler handler) async {
       options.onSendProgress = (int i, int j) {
         if (sendActivity != null) sendActivity();
         if (filesUploadStatus[uploadKey] == null) {
@@ -115,13 +115,13 @@ class FileService {
         }
         filesUploadStatus[uploadKey].add((i / j));
       };
-      return options; //continue
+      handler.next(options);
     }));
 
     var formData = FormData.fromMap({
       "file": MultipartFile.fromFileSync(filePath,
           contentType:
-              MediaType.parse(mime(filePath) ?? "application/octet-stream")),
+          MediaType.parse(mime(filePath) ?? "application/octet-stream")),
     });
 
     return _dio.post(

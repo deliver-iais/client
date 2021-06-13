@@ -61,13 +61,13 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
   Stream<Message> getById(int id, String roomId) {
     return (select(messages)
           ..where((m) => m.roomId.equals(roomId) & m.id.equals(id)))
-        .watchSingle();
+        .watchSingleOrNull();
   }
 
   Future<Message> getMessageById(int id, String roomId) {
     return (select(messages)
           ..where((m) => m.roomId.equals(roomId) & m.id.equals(id)))
-        .getSingle();
+        .getSingleOrNull();
   }
 
   Future<List<Message>> getPage(String roomId, int page,
@@ -83,11 +83,11 @@ class MessageDao extends DatabaseAccessor<Database> with _$MessageDaoMixin {
   }
 
   Stream<Message> getByDbId(int dbId) {
-    return (select(messages)..where((m) => m.dbId.equals(dbId))).watchSingle();
+    return (select(messages)..where((m) => m.dbId.equals(dbId))).watchSingleOrNull();
   }
 
   Future<Message> getPendingMessage(int dbId) {
-    return (select(messages)..where((m) => m.dbId.equals(dbId))).getSingle();
+    return (select(messages)..where((m) => m.dbId.equals(dbId))).getSingleOrNull();
   }
 
   Stream getMessagesInCurrentWeek() {

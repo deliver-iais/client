@@ -16,13 +16,13 @@ class ContactDao extends DatabaseAccessor<Database> with _$ContactDaoMixin {
   Future deleteAvatar(Contact contact) => delete(contacts).delete(contact);
 
   Future<Contact> getContactByUid(String uid) {
-    return (select(contacts)..where((tbl) => tbl.uid.equals(uid))).getSingle();
+    return (select(contacts)..where((tbl) => tbl.uid.equals(uid))).getSingleOrNull();
   }
 
   Future<Contact> getContact(String phoneNumber) {
     return (select(contacts)
           ..where((tbl) => tbl.phoneNumber.equals(phoneNumber)))
-        .getSingle();
+        .getSingleOrNull();
   }
 
   Stream<List<Contact>> getAllContacts() => select(contacts).watch();
@@ -42,6 +42,6 @@ class ContactDao extends DatabaseAccessor<Database> with _$ContactDaoMixin {
 
   Future<Contact> searchByUserName(String username) {
     return (select(contacts)..where((tbl) => tbl.username.equals(username)))
-        .getSingle();
+        .getSingleOrNull();
   }
 }

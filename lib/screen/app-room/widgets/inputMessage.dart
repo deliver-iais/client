@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:audio_recorder/audio_recorder.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/bot_commandsWidget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/emojiKeybord.dart';
@@ -19,7 +18,8 @@ import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:flutter_timer/flutter_timer.dart';
+import 'package:flutter_sound/public/flutter_sound_recorder.dart';
+
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:image_size_getter/image_size_getter.dart';
@@ -71,6 +71,8 @@ class _InputMessageWidget extends State<InputMessage> {
   Timer recordAudioTimer;
   BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> _showMentionList = BehaviorSubject.seeded(false);
+  String path = "${ExtStorage.DIRECTORY_MUSIC}/${randomString(10)}";
+  FlutterSoundRecorder soundRecorder = FlutterSoundRecorder();
 
   bool startAudioRecorder = false;
 
@@ -380,11 +382,10 @@ class _InputMessageWidget extends State<InputMessage> {
                                     time = DateTime.now();
                                   });
 
-                                  await AudioRecorder.start(
-                                      path: await ExtStorage
-                                          .getExternalStoragePublicDirectory(
-                                              "${ExtStorage.DIRECTORY_MUSIC}/${randomString(10)}"),
-                                      audioOutputFormat: AudioOutputFormat.AAC);
+
+                                  await soundRecorder.startRecorder(
+                                    toFile: path,
+                                  );
                                 }
                               },
                               onLongPressEnd: (s) async {
@@ -397,11 +398,10 @@ class _InputMessageWidget extends State<InputMessage> {
                                 });
                                 if (started) {
                                   try {
-                                    Recording recording =
-                                        await AudioRecorder.stop();
+                                       var res =  await soundRecorder.stopRecorder();
                                     messageRepo.sendFileMessage(
                                         widget.currentRoom.roomId.uid,
-                                        recording.path);
+                                        res);
                                   } catch (e) {}
                                 }
                               },

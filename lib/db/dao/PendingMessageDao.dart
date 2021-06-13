@@ -33,12 +33,12 @@ class PendingMessageDao extends DatabaseAccessor<Database>
 
   Stream<PendingMessage> watchByMessageDbId(int dbId) {
     return (select(pendingMessages)..where((pm) => pm.messageDbId.equals(dbId)))
-        .watchSingle();
+        .watchSingleOrNull();
   }
 
   Future<PendingMessage> getByMessageDbId(int dbId) {
     return (select(pendingMessages)..where((pm) => pm.messageDbId.equals(dbId)))
-        .getSingle();
+        .getSingleOrNull();
   }
 
   Stream<List<PendingMessage>> getByRoomId(String roomId) {

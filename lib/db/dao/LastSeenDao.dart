@@ -22,6 +22,6 @@ class LastSeenDao extends DatabaseAccessor<Database> with _$LastSeenDaoMixin {
   Future<LastSeen> getByRoomId(String roomId) async {
     return (select(lastSeens)
           ..where((lastSeen) => lastSeen.roomId.equals(roomId)))
-        .getSingle();
+        .getSingleOrNull();
   }
 }

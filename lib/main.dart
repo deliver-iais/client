@@ -123,17 +123,18 @@ void setupDI() {
   getIt.registerSingleton<LastActivityRepo>(LastActivityRepo());
 }
 
-setupFlutterNotification() async {
+Future setupFlutterNotification() async {
   await Firebase.initializeApp();
 }
 
-void setupDIAndRunApp() {
+void setupDIAndRunApp()async {
+  if (isAndroid()){
+  await  setupFlutterNotification();
+}
   setupDI();
 
   // TODO: Android just now is available
-  if (isAndroid()) {
-    setupFlutterNotification();
-  }
+
  runApp(MyApp());
 }
 

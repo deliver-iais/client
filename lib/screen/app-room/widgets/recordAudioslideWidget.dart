@@ -1,8 +1,7 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_timer/flutter_timer.dart';
+
 
 class RecordAudioSlideWidget extends  StatelessWidget{
   final double opacity;
@@ -38,18 +37,18 @@ class RecordAudioSlideWidget extends  StatelessWidget{
             ],
           ),
         ),
-        TikTikTimer(
-          height: 20,
-          width: 70,
-          timerTextStyle: TextStyle(
-              fontSize: 14,
-              color: Theme.of(context).primaryColor),
-          initialDate: time,
-          running: rinning,
-          backgroundColor:
-          ExtraTheme.of(context).secondColor,
-          borderRadius: 0,
-        ),
+        // TikTikTimer(
+        //   height: 20,
+        //   width: 70,
+        //   timerTextStyle: TextStyle(
+        //       fontSize: 14,
+        //       color: Theme.of(context).primaryColor),
+        //   initialDate: time,
+        //   running: rinning,
+        //   backgroundColor:
+        //   ExtraTheme.of(context).secondColor,
+        //   borderRadius: 0,
+        // ),
         Opacity(
           opacity: opacity,
           child: Row(
