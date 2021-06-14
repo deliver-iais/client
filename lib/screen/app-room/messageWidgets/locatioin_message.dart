@@ -1,8 +1,9 @@
 import 'package:deliver_flutter/db/database.dart' as db;
 import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
+import 'package:deliver_flutter/shared/circleAvatar.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
-
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -39,15 +40,11 @@ class LocationMessageWidget extends StatelessWidget {
                 MarkerLayerOptions(
                   markers: [
                     Marker(
-                      width: 50.0,
-                      height: 50.0,
+                      width: 30.0,
+                      height: 30.0,
                       point: LatLng(location.latitude, location.longitude),
                       builder: (ctx) => Container(
-                        child: Icon(
-                          Icons.location_pin,
-                          color: Colors.red,
-                          size: 24,
-                        ),
+                        child: CircleAvatarWidget(message.from.getUid(),20)
                       ),
                     ),
                   ],

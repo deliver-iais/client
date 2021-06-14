@@ -1,9 +1,13 @@
 
 
+import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:audioplayer/audioplayer.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 
 class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
@@ -32,15 +36,14 @@ class NotificationServices {
 
   cancelNotification(notificationId) async {
     try {
-    //await flutterLocalNotificationsPlugin.cancel(notificationId);
+    await flutterLocalNotificationsPlugin.cancel(notificationId);
     } catch (e) {
       print(e.toString());
     }
   }
 
   cancelAllNotification() async {
-    try{
-     // await flutterLocalNotificationsPlugin.cancelAll();
+    try{await flutterLocalNotificationsPlugin.cancelAll();
     }catch(e){
       print(e.toString());
     }
@@ -88,10 +91,10 @@ class NotificationServices {
   void showNotification(
       pro.Message message, String roomUid, String roomName) async {
     try {
-      // if (_notificationMessage[roomUid] == null) {
-      //   _notificationMessage[roomUid] = List();
-      // }
-      // _notificationMessage[roomUid].add(message.id.toInt());
+      if (_notificationMessage[roomUid] == null) {
+        _notificationMessage[roomUid] = List();
+      }
+      _notificationMessage[roomUid].add(message.id.toInt());
       switch (message.whichType()) {
         case pro.Message_Type.persistEvent:
         case pro.Message_Type.text:
@@ -145,15 +148,15 @@ class NotificationServices {
   }
 
   void reset(String roomId) {
-    // if (_notificationMessage[roomId] != null)
-    //   _notificationMessage[roomId].forEach((element) async{
-    //    await  cancelNotification(element);
-    //   });
+    if (_notificationMessage[roomId] != null)
+      _notificationMessage[roomId].forEach((element) async{
+       await  cancelNotification(element);
+      });
   }
 
   void playSoundNotification() async {
-    // AssetsAudioPlayer.newPlayer().open(
-    //   Audio("assets/audios/ack.mp3"),
-    // );
+    AssetsAudioPlayer.newPlayer().open(
+      Audio("assets/audios/ack.mp3"),
+    );
   }
 }

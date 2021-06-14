@@ -11,8 +11,8 @@ class ReceivedMsgIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final LastSeenDao lastSeenDao = GetIt.I.get<LastSeenDao>();
-    return FutureBuilder<LastSeen>(
-      future: lastSeenDao.getByRoomId(lastMessage.roomId),
+    return StreamBuilder<LastSeen>(
+      stream: lastSeenDao.getByRoomIdAsStream(lastMessage.roomId),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
           if(snapshot.data.messageId != null){

@@ -73,8 +73,8 @@ class RoutingService {
       bool joinToMuc}) {
     backSubject.add(false);
     var widget = WillPopScope(
-        onWillPop: () {
-          if (!backSubject.value) {
+        onWillPop: ()async {
+          if (! await backSubject.stream.first) {
             return Future.value(true);
           } else {
             backSubject.add(false);
@@ -322,7 +322,6 @@ class RoutingService {
 
   Stream<String> get currentRouteStream => _route.stream;
 
-  String get currentRoute => _route.value;
 
   bool canPerformBackButton() {
     return _stack.length < 2 || (_stack?.last?.lockBackButton ?? false);

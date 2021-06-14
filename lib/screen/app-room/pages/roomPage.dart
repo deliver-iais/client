@@ -828,13 +828,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius:
-                    BorderRadius.circular(
-                        8),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child:  ChatTime(currentMessageTime: _upTimeMap[messages[0].packetId]),
+                  child: ChatTime(
+                      currentMessageTime: _upTimeMap[messages[0].packetId]),
                 ),
-
               if (currentRoom.lastMessageId != null &&
                   _lastShowedMessageId != -1 &&
                   _lastShowedMessageId == index &&
@@ -878,9 +876,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius:
-                    BorderRadius.circular(
-                        8),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: ChatTime(
                       currentMessageTime: _downTimeMap[messages[0].packetId]),
@@ -1123,7 +1119,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 if (widget.roomId.getUid().category != Categories.CHANNEL)
-                  draggableWidget
+                  if (message.type != MessageType.LOCATION &&
+                      message.type != MessageType.LIVE_LOCATION)
+                    draggableWidget
+                  else
+                    messageWidget
                 else
                   StreamBuilder(
                     stream: _hasPermissionInChannel.stream,
@@ -1168,7 +1168,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         dragSubject.add(false);
       },
       onDragEnd: (t) {
-
         if (t.offset.dx > MediaQuery.of(context).size.width / 3 ||
             t.offset.dx < -80) {
           _repliedMessage.add(message);
@@ -1226,7 +1225,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         return SizedBox();
                       }),
                 if (widget.roomId.getUid().category != Categories.CHANNEL)
-                  draggableMessageWidget
+                  if (message.type != MessageType.LOCATION && message.type != MessageType.LIVE_LOCATION)
+                    draggableMessageWidget
+                  else
+                    messageWidget
                 else
                   StreamBuilder(
                     stream: _hasPermissionInChannel.stream,

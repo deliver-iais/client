@@ -24,4 +24,10 @@ class LastSeenDao extends DatabaseAccessor<Database> with _$LastSeenDaoMixin {
           ..where((lastSeen) => lastSeen.roomId.equals(roomId)))
         .getSingleOrNull();
   }
+
+  Stream<LastSeen>getByRoomIdAsStream(String roomId) {
+    return (select(lastSeens)
+      ..where((lastSeen) => lastSeen.roomId.equals(roomId)))
+        .watchSingleOrNull();
+  }
 }

@@ -96,12 +96,9 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
   var accountRepo = AccountRepo(sharedPrefs: sharedPreferencesDao);
   var _userInfoDao = database.userInfoDao;
 
-  _notificationServices.showTextNotification(1,message.data.values.first.toString(),"val",message.data.values.toList()[1].toString());
- _notificationServices.showTextNotification(1,message.data.values.first.toString(),"key",message.data.keys.toString());
-
   if (message.data.containsKey('body')) {
-    M.Message msg = _decodeMessage(message.data["body"]["body"]);
-    String roomName = message.data['body']['title'];
+    M.Message msg = _decodeMessage(message.data["body"]);
+    String roomName = message.data['title'];
     Uid roomUid = getRoomId(accountRepo, msg);
     db.Room room = await roomDao.getByRoomIdFuture(roomUid.asString());
     if (room != null && room.isBlock) {

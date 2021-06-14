@@ -216,6 +216,7 @@ class CoreServices {
         roomId = seen.to;
         break;
     }
+    _lastSeenDao.insertLastSeen(Database.LastSeen(roomId: roomId.asString(),messageId: seen.id.toInt()),);
     _seenDao.insertSeen(Database.SeensCompanion.insert(
         messageId: seen.id.toInt(),
         user: seen.from.asString(),
