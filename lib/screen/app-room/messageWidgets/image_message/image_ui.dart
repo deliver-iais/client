@@ -4,13 +4,16 @@ import 'dart:ui';
 
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/screen/app-room/messageWidgets/circular_file_status_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:open_file/open_file.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ImageUi extends StatefulWidget {
   final Message message;
@@ -18,7 +21,8 @@ class ImageUi extends StatefulWidget {
   final bool isSender;
   final bool isSeen;
 
-  const ImageUi({Key key, this.message, this.maxWidth, this.isSender,this.isSeen})
+  const ImageUi(
+      {Key key, this.message, this.maxWidth, this.isSender, this.isSeen})
       : super(key: key);
 
   @override
@@ -28,7 +32,7 @@ class ImageUi extends StatefulWidget {
 class _ImageUiState extends State<ImageUi> {
   var fileRepo = GetIt.I.get<FileRepo>();
   filePb.File image;
-  bool isDownloaded;
+  BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
   bool showTime;
 
   @override
@@ -40,7 +44,7 @@ class _ImageUiState extends State<ImageUi> {
       image = widget.message.json.toFile();
 
       var dimensions =
-          getImageDimensions(image.width.toDouble(), image.height.toDouble());
+      getImageDimensions(image.width.toDouble(), image.height.toDouble());
       width = dimensions.width;
       height = dimensions.height;
 
@@ -63,16 +67,20 @@ class _ImageUiState extends State<ImageUi> {
                     ),
                   ),
                   image.caption.isEmpty
-                      ? TimeAndSeenStatus(widget.message, widget.isSender, true,widget.isSeen)
+                      ? TimeAndSeenStatus(
+                      widget.message, widget.isSender, true, widget.isSeen)
                       : Container()
                 ],
               );
             } else
               return GestureDetector(
                 onTap: () async {
-                  await fileRepo.getFile(image.uuid, image.name,
-                      thumbnailSize: ThumbnailSize.medium);
-                  setState(() {});
+                  _startDownload.add(true);
+                  await fileRepo.getFile(image.uuid, image.name,);
+                  _startDownload.add(false);
+                  setState(() {
+
+                  });
                 },
                 child: Container(
                   width: width,
@@ -111,28 +119,40 @@ class _ImageUiState extends State<ImageUi> {
                         ),
                       ),
                       Center(
-                        child: MaterialButton(
-                          color: Theme.of(context).buttonColor,
-                          onPressed: () async {
-                            await fileRepo.getFile(image.uuid, image.name,
-                                thumbnailSize: ThumbnailSize.medium);
-                            setState(() {});
+                        child: StreamBuilder(stream: _startDownload.stream,
+                          builder: (c, s) {
+                            if (s.hasData && s.data) {
+                              return CircularProgressIndicator(strokeWidth: 4,);
+                            } else
+                              return MaterialButton(
+                                  color: Theme
+                                      .of(context)
+                                      .buttonColor,
+                                  onPressed: () async {
+                                    _startDownload.add(true);
+                                    await fileRepo.getFile(
+                                        image.uuid, image.name);
+                                    setState(() {
+                                      _startDownload.add(false);
+                                    });
+                                  },
+                                  shape: CircleBorder(),
+                                  child: Icon(Icons.arrow_downward),
+                                  padding: const EdgeInsets.all(20),);
                           },
-                          shape: CircleBorder(),
-                          child: Icon(Icons.arrow_downward),
-                          padding: const EdgeInsets.all(20),
+
                         ),
                       ),
                       image.caption.isEmpty
                           ? TimeAndSeenStatus(
-                              widget.message, widget.isSender, true,widget.isSeen)
+                          widget.message, widget.isSender, true, widget.isSeen)
                           : Container()
                     ],
                   ),
                 ),
               );
-            }
-          );
+          }
+      );
     } catch (e) {
       return Container();
     }

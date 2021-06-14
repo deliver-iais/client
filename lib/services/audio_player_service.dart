@@ -1,13 +1,14 @@
 import 'dart:async';
 
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/models/AudioPlayerState.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:flutter_sound/public/flutter_sound_player.dart';
 import 'package:open_file/open_file.dart';
 
 class AudioPlayerService {
-  FlutterSoundPlayer audioPlayer;
+  AudioPlayer audioPlayer;
 
   String audioUuid;
   String audioName;
@@ -64,7 +65,7 @@ class AudioPlayerService {
 
   void seekToSecond(int second) {
     Duration newDuration = Duration(seconds: second);
-    this.audioPlayer.seekToPlayer(newDuration);
+    this.audioPlayer.seek(newDuration);
   }
 
   Stream<Duration> get audioCurrentPosition =>
@@ -82,6 +83,7 @@ class AudioPlayerService {
   }
 
   void onPlay(String path, String uuid, String name) {
+    audioPlayer = AudioPlayer();
     if (isDesktop()) {
       OpenFile.open(path);
     } else {
@@ -93,7 +95,7 @@ class AudioPlayerService {
       isPlaying = true;
       _audioPlayerController.add(true);
       _audioPlayerStateController[uuid].add(AudioPlayerState.PLAYING);
-      this.audioPlayer.startPlayer(fromURI: path);
+      this.audioPlayer.play(path, isLocal: true);
     }
   }
 
@@ -101,7 +103,7 @@ class AudioPlayerService {
     CURRENT_AUDIO_ID = "";
     isPlaying = false;
     _audioPlayerStateController[audioId].add(AudioPlayerState.PAUSED);
-    this.audioPlayer.pausePlayer();
+    this.audioPlayer.pause();
   }
 
   onStop(String audioId) {
@@ -109,6 +111,6 @@ class AudioPlayerService {
     resetAudioPlayerService();
     _audioPlayerController.add(false);
     _audioPlayerStateController[audioId].add(AudioPlayerState.STOPPED);
-    this.audioPlayer.stopPlayer();
+    this.audioPlayer.stop();
   }
 }
