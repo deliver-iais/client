@@ -254,6 +254,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     Timer(Duration(seconds: 1), () {
       _showOtherMessage.add(true);
     });
+    if(!isDesktop())
     _fireBaseServices.sendFireBaseToken();
     _getLastShowMessageId();
     _getLastSeen();

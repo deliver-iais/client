@@ -92,7 +92,8 @@ void setupDI() {
   getIt.registerSingleton<StickerServiceClient>(
       StickerServiceClient(StickerClientChannel));
 
-  getIt.registerSingleton<AccountRepo>(AccountRepo(sharedPrefs: db.sharedPreferencesDao));
+  getIt.registerSingleton<AccountRepo>(
+      AccountRepo(sharedPrefs: db.sharedPreferencesDao));
   getIt.registerSingleton<BotRepo>(BotRepo());
 
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
@@ -119,6 +120,7 @@ void setupDI() {
   getIt.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
 
   getIt.registerSingleton<MemberRepo>(MemberRepo());
+
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
   getIt.registerSingleton<LastActivityRepo>(LastActivityRepo());
 }
@@ -127,15 +129,15 @@ Future setupFlutterNotification() async {
   await Firebase.initializeApp();
 }
 
-void setupDIAndRunApp()async {
-  if (isAndroid()){
-  await  setupFlutterNotification();
-}
+void setupDIAndRunApp() async {
+  if (isAndroid()) {
+    await setupFlutterNotification();
+  }
   setupDI();
 
   // TODO: Android just now is available
 
- runApp(MyApp());
+  runApp(MyApp());
 }
 
 void main() {
@@ -150,7 +152,7 @@ void main() {
 
   if (isAndroid()) {
     SmsAutoFill().getAppSignature.then((signCode) {
-    //  Fluttertoast.showToast(msg:"hash $signCode");
+      //  Fluttertoast.showToast(msg:"hash $signCode");
     });
   }
 

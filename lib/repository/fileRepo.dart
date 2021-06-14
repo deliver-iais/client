@@ -51,19 +51,15 @@ class FileRepo {
       await _saveFileInfo(uploadKey, File(allLocalFiles['small']),  name, "small");
   }
       else {
-        final localFile = await _fileService.localFile(uploadKey, name);
-        localFile.writeAsBytesSync(file.readAsBytesSync());
-
-        await _saveFileInfo(uploadKey, localFile, name, "real");
+        await _saveFileInfo(uploadKey, file, name, "real");
       }
   }
 
 
   Future<FileProto.File> uploadClonedFile(String uploadKey, String name,{Function sendActivity}) async {
-    final clonedFilePath = await _fileService.localFilePath(uploadKey, name);
-
+    final clonedFilePath = await _fileDao.getFileInfo(uploadKey, "real");
     var value =
-        await _fileService.uploadFile(clonedFilePath, uploadKey: uploadKey,sendActivity: sendActivity);
+        await _fileService.uploadFile(clonedFilePath.path, uploadKey: uploadKey,sendActivity: sendActivity);
 
     var json = jsonDecode(value.toString());
     var uploadedFile = FileProto.File()

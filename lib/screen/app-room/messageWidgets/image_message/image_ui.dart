@@ -45,8 +45,7 @@ class _ImageUiState extends State<ImageUi> {
       height = dimensions.height;
 
       return FutureBuilder<File>(
-          future: fileRepo.getFileIfExist(image.uuid, image.name,
-              thumbnailSize: ThumbnailSize.medium),
+          future: fileRepo.getFileIfExist(image.uuid, image.name),
           builder: (c, s) {
             if (s.hasData && s.data != null) {
               return Stack(

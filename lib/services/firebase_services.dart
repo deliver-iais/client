@@ -20,7 +20,8 @@ String Firabase_Setting_Is_Set = "firabase_setting_is_set";
 
 class FireBaseServices {
 
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+
+  FirebaseMessaging _firebaseMessaging ;
   AndroidNotificationChannel channel = const AndroidNotificationChannel(
     'high_importance_channel', // id
     'High Importance Notifications', // title
@@ -35,6 +36,7 @@ class FireBaseServices {
   SharedPreferencesDao _prefs = GetIt.I.get<SharedPreferencesDao>();
 
   sendFireBaseToken() async {
+    _firebaseMessaging = FirebaseMessaging.instance;
     _firebaseMessaging.requestPermission();
     var fireBaseToken = await _firebaseMessaging.getToken();
     await _setFirebaseSetting();
