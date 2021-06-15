@@ -63,7 +63,7 @@ class AudioBar extends StatelessWidget {
                     IconButton(
                       icon: Icon(
                         Icons.close,
-                        color: ExtraTheme.of(context).details,
+                        color: ExtraTheme.of(context).centerPageDetails,
                         size: 20,
                       ),
                       onPressed: audioPlayerService.onStop(""),

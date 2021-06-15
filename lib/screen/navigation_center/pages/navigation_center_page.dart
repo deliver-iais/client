@@ -446,7 +446,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     return Text(
                       snaps.data,
                       style: TextStyle(
-                        color: ExtraTheme.of(context).displayName,
+                        color: ExtraTheme.of(context).chatOrContactItemDetails,
                         fontSize: 18,
                       ),
                     );
@@ -454,7 +454,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     return Text(
                       "unKnown",
                       style: TextStyle(
-                        color: ExtraTheme.of(context).displayName,
+                        color: ExtraTheme.of(context).chatOrContactItemDetails,
                         fontSize: 18,
                       ),
                     );

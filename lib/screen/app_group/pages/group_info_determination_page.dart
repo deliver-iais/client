@@ -93,7 +93,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                             validator: checkMucNameIsSet,
                             textInputAction: TextInputAction.send,
                             controller: controller,
-                            style: TextStyle(color: ExtraTheme.of(context).textfield),
+                            style: TextStyle(color: ExtraTheme.of(context).textField),
                             onChanged: (str) {
                               setState(() {
                                 mucName = str;
@@ -124,7 +124,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                               minLines: 1,
                               maxLines: 1,
                               autofocus: autofocus,
-                              style: TextStyle(color: ExtraTheme.of(context).textfield),
+                              style: TextStyle(color: ExtraTheme.of(context).textField),
                               textInputAction: TextInputAction.send,
                               controller: idController,
                               validator: validateUsername,
@@ -156,7 +156,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           autofocus: autofocus,
                           textInputAction: TextInputAction.newline,
                           controller: infoController,
-                          style: TextStyle(color: ExtraTheme.of(context).textfield),
+                          style: TextStyle(color: ExtraTheme.of(context).textField),
                           validator: validateUsername,
                           onChanged: (str) {
                             setState(() {

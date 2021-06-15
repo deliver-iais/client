@@ -43,7 +43,7 @@ class ChatItemToForward extends StatelessWidget {
                       return Text(
                         snaps.data,
                         style: TextStyle(
-                          color: ExtraTheme.of(context).infoChat,
+                          color: ExtraTheme.of(context).chatOrContactItemDetails,
                           fontSize: 18,
                         ),
                       );
@@ -51,7 +51,7 @@ class ChatItemToForward extends StatelessWidget {
                       return Text(
                         "unKnown",
                         style: TextStyle(
-                          color: ExtraTheme.of(context).infoChat,
+                          color: ExtraTheme.of(context).chatOrContactItemDetails,
                           fontSize: 18,
                         ),
                       );

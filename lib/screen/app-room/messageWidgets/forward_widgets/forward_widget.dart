@@ -14,7 +14,7 @@ class ForwardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: ExtraTheme.of(context).secondColor,
+      color: ExtraTheme.of(context).inputBoxBackground.withAlpha(100),
       child: Padding(
         padding: const EdgeInsets.only(
           left: 15,
@@ -29,7 +29,7 @@ class ForwardWidget extends StatelessWidget {
               size: 25,
             ),
             SizedBox(width: 10),
-            shareUid != null?Text(shareUid.name,style: TextStyle(color: Colors.blueAccent,fontSize: 20),):
+            shareUid != null?Text(shareUid.name,style: TextStyle(color: ExtraTheme.of(context).textDetails,fontSize: 20),):
             SenderAndContent(
               messages: forwardedMessages,
               inBox: false,

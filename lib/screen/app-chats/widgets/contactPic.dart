@@ -39,7 +39,7 @@ class ContactPic extends StatelessWidget {
                                         .millisecondsSinceEpoch <
                                 30000
                             ? Colors.greenAccent.shade700
-                            : ExtraTheme.of(context).secondColor,
+                            : Theme.of(context).accentColor,
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: Colors.black,

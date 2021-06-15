@@ -28,6 +28,13 @@ ThemeData LightTheme = ThemeData(
       color: Color(0xff1f655d),
       elevation: 0,
     ),
+    sliderTheme: SliderThemeData(
+      thumbColor: Color(0xff4bd5af),
+      trackHeight: 2.25,
+      activeTrackColor: Color(0xff4bd5af),
+      inactiveTrackColor: Color(0xff179c96),
+      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
+    ),
     iconTheme: IconThemeData(color: Color(0xff002121)),
     tabBarTheme: TabBarTheme(
         indicator: UnderlineTabIndicator(
@@ -40,15 +47,15 @@ ThemeData LightTheme = ThemeData(
 // ignore: non_constant_identifier_names
 ExtraThemeData LightExtraTheme = ExtraThemeData(
   circleAvatarBackground: Color(0xFF2699FB),
-  details: Color(0xff0b796c),
+  centerPageDetails: Color(0xff0b796c),
   circleAvatarIcon: Colors.white,
-  secondColor: Colors.white,
-  active: Color(0xff174b45),
-  infoChat: Colors.black,
-  text: Colors.white,
+  // secondColor: Colors.white,
+  // active: Color(0xff174b45),
+  // infoChat: Colors.black,
+  // text: Colors.white,
   boxDetails: Color(0xff15786c),
   boxBackground: Color(0xfde2f8f0),
-  activeKey: Color(0xff15786c),
+  activeSwitch: Color(0xff15786c),
   textDetails : Color(0xff4bd5af),
   //homePage
     bottomNavigationAppbar : LightTheme.appBarTheme.color.withAlpha(200),
@@ -58,23 +65,22 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
     popupMenuButton : LightTheme.backgroundColor.withOpacity(0.8),
     popupMenuButtonDetails : LightTheme.accentColor,
     searchBox: LightTheme.appBarTheme.color.withAlpha(50),
-    displayName : Colors.black,//info chat in extra
+    chatOrContactItemDetails : Colors.black,//info chat in extra
     // roomPage
     sentMessageBox:  Color(0xff01aa9a),
     receivedMessageBox: Color(0xff00805a).withAlpha(50),
     textMessage: LightTheme.accentColor,
     messageDetails: LightTheme.accentColor.withAlpha(200),
     persistentEventMessage: LightTheme.backgroundColor,
-    restAudioIndicator: LightTheme.accentColor,
     circularFileStatus: LightTheme.backgroundColor,
     fileMessageDetails: Color(0xff00a394),
-    textfield: LightTheme.accentColor,
+    textField: LightTheme.accentColor,
     inputBoxBackground: Color(0xff174b45).withAlpha(50),
    //group
   border: Color(0xff174b45),
-   // dark = DarkTheme.accentColor.withAlpha(50), ligh = background
-  //dark = blue light = boxdetails
-
+  // text1 : white black
+  // text2 : blue ligth green
+  // text3 : white dark green
 );
 
 // SendingFileCircularIndicator

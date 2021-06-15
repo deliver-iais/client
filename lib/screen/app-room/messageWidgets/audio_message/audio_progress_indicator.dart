@@ -44,16 +44,7 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                 stream: audioPlayerService.audioCurrentPosition,
                 builder: (context, snapshot2) {
                   currentPos = snapshot2.data ?? currentPos ?? Duration.zero;
-                  return SliderTheme(
-                    data: SliderThemeData(
-                      // thumbColor: ExtraTheme.of(context).active,
-                      thumbColor: ExtraTheme.of(context).textMessage,
-                      trackHeight: 2.25,
-                      activeTrackColor: ExtraTheme.of(context).textMessage,
-                      inactiveTrackColor: ExtraTheme.of(context).restAudioIndicator,
-                      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
-                    ),
-                    child: Slider(
+                      return Slider(
                         value: currentPos.inSeconds.toDouble(),
                         min: 0.0,
                         max: dur.inSeconds.toDouble(),
@@ -62,8 +53,7 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                             audioPlayerService.seekToSecond(value.toInt());
                             value = value;
                           });
-                        }),
-                  );
+                        });
                 });
           });
   }

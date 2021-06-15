@@ -297,7 +297,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                           return Switch(
                                                             activeColor: ExtraTheme
                                                                     .of(context)
-                                                                .activeKey,
+                                                                .activeSwitch,
                                                             value: !snapshot
                                                                 .data.mute,
                                                             onChanged:

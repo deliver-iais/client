@@ -192,7 +192,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                         back.hasData && back.data
                                             ? Icons.keyboard
                                             : Icons.mood,
-                                        color: ExtraTheme.of(context).textfield,
+                                        color: ExtraTheme.of(context).textField,
                                       ),
                                       onPressed: () {
                                         if (back.data) {
@@ -214,7 +214,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       scrollTolast(1);
                                     },
                                     minLines: 1,
-                                    style: TextStyle(fontSize: 19, height: 1, color: ExtraTheme.of(context).textfield),
+                                    style: TextStyle(fontSize: 19, height: 1, color: ExtraTheme.of(context).textField),
                                     maxLines: 15,
                                     autofocus: widget.replyMessageId > 1,
                                     textInputAction: isDesktop()?TextInputAction.send : TextInputAction.newline,
@@ -264,7 +264,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                                   decoration: BoxDecoration(
                                                     border: Border.all(
                                                         width: 1,
-                                                        color: ExtraTheme.of(context).textfield),
+                                                        color: ExtraTheme.of(context).textField),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             5),
@@ -276,7 +276,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                                         "/",
                                                         style: TextStyle(
                                                             fontSize: 19,
-                                                            color: ExtraTheme.of(context).textfield,
+                                                            color: ExtraTheme.of(context).textField,
                                                         ),
                                                       )))),
                                               SizedBox(
@@ -300,7 +300,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       return IconButton(
                                           icon: Icon(
                                             Icons.attach_file,
-                                            color: ExtraTheme.of(context).textfield,
+                                            color: ExtraTheme.of(context).textField,
                                           ),
                                           onPressed: () {
                                             backSubject.add(false);
@@ -318,7 +318,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       return IconButton(
                                         icon: Icon(
                                           Icons.send,
-                                            color: ExtraTheme.of(context).textfield,
+                                            color: ExtraTheme.of(context).textField,
                                         ),
                                         onPressed: controller.text?.isEmpty &&
                                                 (widget.waitingForForward ==

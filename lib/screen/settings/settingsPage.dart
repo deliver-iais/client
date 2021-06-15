@@ -249,7 +249,7 @@ class _SettingsPageState extends State<SettingsPage> {
               iconData: Icons.brightness_2,
               title: appLocalization.getTraslateValue("darkMode"),
               child: Switch(
-                activeColor: ExtraTheme.of(context).activeKey,
+                activeColor: ExtraTheme.of(context).activeSwitch,
                 value: _getTheme(),
                 onChanged: (newThemMode) {
                   _uxService.toggleTheme();
@@ -267,7 +267,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             notif.data.contains("true") ? true : false;
                         return Switch(
                           value: notification,
-                          activeColor: ExtraTheme.of(context).activeKey,
+                          activeColor: ExtraTheme.of(context).activeSwitch,
                           onChanged: (newNotifState) {
                             _accountRepo
                                 .setNotificationState(newNotifState.toString());
@@ -330,7 +330,7 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 SizedBox(width: 8),
                 Icon(
-                  iconData,color: ExtraTheme.of(context).activeKey,
+                  iconData,color: ExtraTheme.of(context).activeSwitch,
                   size: 18,
                 ),
                 SizedBox(width: 8),

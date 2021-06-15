@@ -26,6 +26,13 @@ ThemeData DarkTheme = ThemeData(
       color: Colors.black,
       elevation: 0,
     ),
+    sliderTheme: SliderThemeData(
+      thumbColor: Colors.white,
+      trackHeight: 2.25,
+      activeTrackColor: Colors.white,
+      inactiveTrackColor: Color(0xFFBCE0FD),
+      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
+    ),
     iconTheme: IconThemeData(color: Colors.white),
     tabBarTheme: TabBarTheme(
         indicator: UnderlineTabIndicator(
@@ -37,34 +44,33 @@ ThemeData DarkTheme = ThemeData(
 // ignore: non_constant_identifier_names
 ExtraThemeData DarkExtraTheme = ExtraThemeData(
     circleAvatarBackground: Color(0xFF2699FB),
-    details: Color(0xFF9D9D9D),
+    centerPageDetails: Color(0xFF9D9D9D),
     circleAvatarIcon: Colors.white,
-    secondColor: Color(0xFF393939),
-    active: Colors.white,
-    infoChat: Colors.white,
-    text: Color(0xFFBCE0FD),
+    // active: Colors.white,
+    // infoChat: Colors.white,
+    // text: Color(0xFFBCE0FD),
     boxDetails: Colors.white,
     boxBackground: Color(0x8bc1e0FF).withAlpha(50),
-    activeKey: Color(0xFF2699FB),
+    activeSwitch: Color(0xFF2699FB),
     //homePage
     textDetails : DarkTheme.primaryColor,
     bottomNavigationAppbar : DarkTheme.appBarTheme.color.withAlpha(200),
     activePageIcon : Colors.white,//active in extra
     inactivePageIcon : Color(0xFF9D9D9D),//details in extra
     menuIconButton : DarkTheme.accentColor.withAlpha(50),
-    popupMenuButton : DarkTheme.accentColor.withAlpha(80),
+    // popupMenuButton : Color(0x8b848b93),
+    popupMenuButton : Color(0x8b3c3f45),
     popupMenuButtonDetails : Colors.white,
     searchBox: DarkTheme.accentColor.withAlpha(50),
-    displayName : Colors.white,//info chat in extra
+    chatOrContactItemDetails : Colors.white,//info chat in extra
     sentMessageBox: DarkTheme.primaryColor,
     receivedMessageBox: DarkTheme.accentColor.withAlpha(60),
     textMessage: Colors.white,
     messageDetails: Color(0xFF001D39),
     persistentEventMessage: DarkTheme.accentColor.withAlpha(50),
-    restAudioIndicator : Color(0xFFBCE0FD),
     circularFileStatus: Color(0xFFBCE0FD),
     fileMessageDetails: DarkTheme.primaryColor,
-    textfield: Colors.white,
+    textField: Colors.white,
     inputBoxBackground: DarkTheme.accentColor.withAlpha(50),
   border: DarkTheme.primaryColor
 );
