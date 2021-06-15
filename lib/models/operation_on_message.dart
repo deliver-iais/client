@@ -7,5 +7,6 @@ enum OperationOnMessage {
   SHARE,
   SAVE_TO_GALLERY,
   SAVE_TO_DOWNLOADS,
-  RESEND
+  RESEND,
+  DELETE_PENDING_MESSAGE,
 }

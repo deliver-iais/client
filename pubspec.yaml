@@ -129,6 +129,7 @@ dependencies:
   firebase_core: 1.2.1
   flutter_swiper: 1.1.6
 
+
   ## mockito: 5.0.10 # Great Library for Mocking in Tests
 
   test:

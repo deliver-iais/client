@@ -25,7 +25,6 @@ import 'package:flutter/material.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 
-
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:image_size_getter/image_size_getter.dart';
@@ -72,6 +71,7 @@ class _InputMessageWidget extends State<InputMessage> {
   double size = 1;
   bool started = false;
   DateTime time = DateTime.now();
+  BehaviorSubject<DateTime> recordSubject = BehaviorSubject.seeded(DateTime.now()) ;
   double DX = 150.0;
   bool recordAudioPermission = false;
   FlutterSoundRecorder _soundRecorder = FlutterSoundRecorder();
@@ -80,8 +80,8 @@ class _InputMessageWidget extends State<InputMessage> {
   Timer recordAudioTimer;
   BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> _showMentionList = BehaviorSubject.seeded(false);
-  String path ;
-
+  String path;
+  Timer _ticktickTimer;
 
   bool startAudioRecorder = false;
 
@@ -354,7 +354,9 @@ class _InputMessageWidget extends State<InputMessage> {
                       : RecordAudioSlideWidget(
                           opacity: opacity(),
                           time: time,
-                          rinning: startAudioRecorder),
+                          rinning: startAudioRecorder,
+                          streamTime: recordSubject,
+                        ),
                   StreamBuilder(
                       stream: _showSendIcon.stream,
                       builder: (c, sm) {
@@ -376,9 +378,13 @@ class _InputMessageWidget extends State<InputMessage> {
                                 } else {
                                   if (started) {
                                     started = false;
-                                    Vibration.vibrate(duration: 100);
+                                    if(_ticktickTimer!=null) _ticktickTimer.cancel();
+                                    Vibration.vibrate(duration: 200);
                                     setState(() {
                                       startAudioRecorder = false;
+                                      _soundRecorder.closeAudioSession();
+                                      ;
+                                      _soundRecorder.stopRecorder();
                                       x = 0;
                                       size = 1;
                                     });
@@ -387,27 +393,32 @@ class _InputMessageWidget extends State<InputMessage> {
                               },
                               onLongPressStart: (dw) async {
                                 if (recordAudioPermission) {
-                                 var s  = await getApplicationDocumentsDirectory();
-                                 path  = s.path+"/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
+                                  var s =
+                                      await getApplicationDocumentsDirectory();
+                                  path = s.path +
+                                      "/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
+                                  recordSubject.add(DateTime.now());
+                                  setTime();
                                   sendRecordActivity();
                                   Vibration.vibrate(duration: 200);
                                   await _soundRecorder.openAudioSession();
-                                  _soundRecorder.startRecorder(toFile: path,
-                                  audioSource:  AudioSource.defaultSource,);
+                                  _soundRecorder.startRecorder(
+                                    toFile: path,
+                                    audioSource: AudioSource.defaultSource,
+                                  );
                                   setState(() {
                                     startAudioRecorder = true;
                                     size = 2;
                                     started = true;
                                     time = DateTime.now();
                                   });
-
                                 }
                               },
                               onLongPressEnd: (s) async {
-                               var res = await _soundRecorder.stopRecorder();
-                               print("fffff"+res..toString());
+                                if(_ticktickTimer!=null) _ticktickTimer.cancel();
+
+                                await _soundRecorder.stopRecorder();
                                 _soundRecorder.closeAudioSession();
-                                print(s.toString());
                                 recordAudioTimer.cancel();
                                 NoActivitySubject.add(ActivityType.NO_ACTIVITY);
                                 setState(() {
@@ -563,5 +574,13 @@ class _InputMessageWidget extends State<InputMessage> {
         widget.scrollToLastSentMessage();
         scrollTolast(count + 1);
       });
+  }
+
+
+  void setTime() {
+    _ticktickTimer = Timer(Duration(milliseconds: 500),(){
+      recordSubject.add(DateTime.now());
+      setTime();
+    });
   }
 }

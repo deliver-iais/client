@@ -751,4 +751,7 @@ class MessageRepo {
     await _sendMessageToServer(message.dbId,resend: true);
     _updateRoomLastMessage(message.roomId, message.dbId);
   }
+  void deletePendingMessage(Message message){
+    _pendingMessageDao.deletePendingMessage(message.packetId);
+  }
 }

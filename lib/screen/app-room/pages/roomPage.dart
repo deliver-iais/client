@@ -230,6 +230,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         case OperationOnMessage.RESEND:
           _messageRepo.ResendMessage(message);
           break;
+        case OperationOnMessage.DELETE_PENDING_MESSAGE:
+          _messageRepo.deletePendingMessage(message);
+          break;
       }
     });
   }

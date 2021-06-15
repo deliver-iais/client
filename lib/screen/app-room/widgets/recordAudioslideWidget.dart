@@ -1,14 +1,18 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/subjects.dart';
 
 
 class RecordAudioSlideWidget extends  StatelessWidget{
   final double opacity;
   final DateTime time;
   final bool rinning;
-  RecordAudioSlideWidget({this.opacity,this.time,this.rinning});
+  BehaviorSubject<DateTime> streamTime;
+  RecordAudioSlideWidget({this.opacity,this.time,this.rinning,this.streamTime});
   AppLocalization _appLocalization;
+
+  BehaviorSubject<bool> _show = BehaviorSubject.seeded(true);
 
   @override
   Widget build(BuildContext context) {
@@ -29,26 +33,38 @@ class RecordAudioSlideWidget extends  StatelessWidget{
               ),
               Opacity(
                 opacity: opacity,
-                child: Icon(
-                  Icons.fiber_manual_record,
-                  color: Colors.red,
-                ),
-              ),
+                child: StreamBuilder(stream:_show.stream,builder: (c,s){
+                  if(s.hasData && s.data){
+                    return Opacity(
+                      opacity: 0,
+                      child: Icon(
+                        Icons.fiber_manual_record,
+                        color: Colors.red,
+                      ),
+                    );
+                  } else
+                    return Opacity(
+                      opacity: 1,
+                      child: Icon(
+                        Icons.fiber_manual_record,
+                        color: Colors.red,
+                      ),
+                    );
+                }),
+              )
+
+
             ],
           ),
         ),
-        // TikTikTimer(
-        //   height: 20,
-        //   width: 70,
-        //   timerTextStyle: TextStyle(
-        //       fontSize: 14,
-        //       color: Theme.of(context).primaryColor),
-        //   initialDate: time,
-        //   running: rinning,
-        //   backgroundColor:
-        //   ExtraTheme.of(context).secondColor,
-        //   borderRadius: 0,
-        // ),
+        StreamBuilder<DateTime>(stream:streamTime.stream ,builder:(c,t){
+          _show.add(!_show.valueWrapper.value);
+          if(t.hasData && t.data != null && t.data.isAfter(time))
+            return Text("${t.data.difference(time)}");
+          else
+            return SizedBox.shrink();
+        }),
+
         Opacity(
           opacity: opacity,
           child: Row(

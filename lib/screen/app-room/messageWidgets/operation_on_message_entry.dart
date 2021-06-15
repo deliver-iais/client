@@ -45,6 +45,9 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   onResend() {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.RESEND);
   }
+  onDeletePendingMessage() {
+    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.DELETE_PENDING_MESSAGE);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +115,27 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     SizedBox(width: 8),
                     Text(appLocalization.getTraslateValue("Resend")),
                   ])),
+
             ),
+          if (widget.message.sendingFailed != null &&
+              widget.message.sendingFailed)
+            Expanded(
+              child: FlatButton(
+                  onPressed: () {
+                    onDeletePendingMessage();
+                  },
+                  child: Row(children: [
+                    Icon(
+                      Icons.delete,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(appLocalization.getTraslateValue("delete")),
+                  ])),
+
+            ),
+
+
           // widget.message.type == MessageType.TEXT
           //     ? Expanded(
           //         child: FlatButton(
