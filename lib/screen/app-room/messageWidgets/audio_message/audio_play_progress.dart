@@ -1,5 +1,6 @@
 
-import 'package:deliver_flutter/models/AudioPlayerState.dart';
+
+import 'package:audioplayer/audioplayer.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/audio_progress_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/time_progress_indicator.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';

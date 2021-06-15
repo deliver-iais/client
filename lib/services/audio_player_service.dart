@@ -1,8 +1,9 @@
 import 'dart:async';
 
 
-import 'package:audioplayers/audioplayers.dart';
-import 'package:deliver_flutter/models/AudioPlayerState.dart';
+
+import 'package:audioplayer/audioplayer.dart';
+
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:flutter_sound/public/flutter_sound_player.dart';
 import 'package:open_file/open_file.dart';
@@ -36,9 +37,6 @@ class AudioPlayerService {
   }
 
   AudioPlayerService() {
-    FlutterSoundPlayer audioPlayer = FlutterSoundPlayer();
-
-    //audioPlayer.setVolume(1);
     _audioPlayerController =
         _audioPlayerController = StreamController<bool>.broadcast();
     _audioPlayerStateController = Map();
@@ -64,8 +62,7 @@ class AudioPlayerService {
   }
 
   void seekToSecond(int second) {
-    Duration newDuration = Duration(seconds: second);
-    this.audioPlayer.seek(newDuration);
+    this.audioPlayer.seek(second.toDouble());
   }
 
   Stream<Duration> get audioCurrentPosition =>

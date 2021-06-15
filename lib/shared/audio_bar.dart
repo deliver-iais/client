@@ -1,5 +1,6 @@
 
-import 'package:deliver_flutter/models/AudioPlayerState.dart';
+
+import 'package:audioplayer/audioplayer.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';

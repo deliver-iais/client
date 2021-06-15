@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
+import 'package:flutter/services.dart';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/bot_commandsWidget.dart';
@@ -10,20 +12,26 @@ import 'package:deliver_flutter/screen/app-room/widgets/share_box.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/showMentionList.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+
+import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_chooser/file_chooser.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 
+
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:image_size_getter/image_size_getter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:random_string/random_string.dart';
+
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
 import 'package:ext_storage/ext_storage.dart';
@@ -66,13 +74,14 @@ class _InputMessageWidget extends State<InputMessage> {
   DateTime time = DateTime.now();
   double DX = 150.0;
   bool recordAudioPermission = false;
+  FlutterSoundRecorder _soundRecorder = FlutterSoundRecorder();
   BehaviorSubject<bool> _showBotCommands = BehaviorSubject.seeded(false);
   String query;
   Timer recordAudioTimer;
   BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> _showMentionList = BehaviorSubject.seeded(false);
-  String path = "${ExtStorage.DIRECTORY_MUSIC}/${randomString(10)}";
-  FlutterSoundRecorder soundRecorder = FlutterSoundRecorder();
+  String path ;
+
 
   bool startAudioRecorder = false;
 
@@ -103,6 +112,7 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   void initState() {
     super.initState();
+
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, Duration(seconds: 10)))
         .listen((activityType) {
@@ -171,7 +181,10 @@ class _InputMessageWidget extends State<InputMessage> {
               StreamBuilder(
                   stream: _showSendIcon.stream,
                   builder: (c, sh) {
-                    if (sh.hasData && !sh.data && !widget.waitingForForward && !isDesktop()) {
+                    if (sh.hasData &&
+                        !sh.data &&
+                        !widget.waitingForForward &&
+                        !isDesktop()) {
                       return RecordAudioAnimation(
                         righPadding: x,
                         size: size,
@@ -209,47 +222,46 @@ class _InputMessageWidget extends State<InputMessage> {
                                       },
                                     );
                                   }),
-                               Flexible(
-                                  child: TextField(
-                                    onTap: () {
-                                      backSubject.add(false);
-                                     scrollTolast(1);
-                                    },
-                                    minLines: 1,
-                                    style: TextStyle(fontSize: 19, height: 1),
-                                    maxLines: 15,
-                                    autofocus: widget.replyMessageId > 1,
-                                    textInputAction: isDesktop()?TextInputAction.send : TextInputAction.newline,
-                                    controller: controller,
-                                    autocorrect: true,
-                                    onSubmitted: (d){
-                                      controller.text?.isEmpty &&
-                                          (widget.waitingForForward ==
-                                              null ||
-                                              widget.waitingForForward ==
-                                                  false)
-                                          ? () async {}
-                                          : () {
-                                        sendMessage();
-                                      };
-
-                                    },
-                                    onChanged: (str) {
-                                      if (str?.length > 0)
-                                        isTypingActivitySubject
-                                            .add(ActivityType.TYPING);
-                                      else
-                                        NoActivitySubject.add(
-                                            ActivityType.NO_ACTIVITY);
-                                      onChange(str);
-                                    },
-                                    decoration: InputDecoration.collapsed(
-                                      hintText: appLocalization
-                                          .getTraslateValue("message"),
-                                    ),
+                              Flexible(
+                                child: TextField(
+                                  onTap: () {
+                                    backSubject.add(false);
+                                    scrollTolast(1);
+                                  },
+                                  minLines: 1,
+                                  style: TextStyle(fontSize: 19, height: 1),
+                                  maxLines: 15,
+                                  autofocus: widget.replyMessageId > 1,
+                                  textInputAction: isDesktop()
+                                      ? TextInputAction.send
+                                      : TextInputAction.newline,
+                                  controller: controller,
+                                  autocorrect: true,
+                                  onSubmitted: (d) {
+                                    controller.text?.isEmpty &&
+                                            (widget.waitingForForward == null ||
+                                                widget.waitingForForward ==
+                                                    false)
+                                        ? () async {}
+                                        : () {
+                                            sendMessage();
+                                          };
+                                  },
+                                  onChanged: (str) {
+                                    if (str?.length > 0)
+                                      isTypingActivitySubject
+                                          .add(ActivityType.TYPING);
+                                    else
+                                      NoActivitySubject.add(
+                                          ActivityType.NO_ACTIVITY);
+                                    onChange(str);
+                                  },
+                                  decoration: InputDecoration.collapsed(
+                                    hintText: appLocalization
+                                        .getTraslateValue("message"),
                                   ),
                                 ),
-
+                              ),
                               if (currentRoom.roomId.getUid().category ==
                                   Categories.BOT)
                                 StreamBuilder<bool>(
@@ -314,7 +326,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                   stream: _showSendIcon.stream,
                                   builder: (c, sh) {
                                     if ((sh.hasData && sh.data) ||
-                                        widget.waitingForForward || isDesktop()) {
+                                        widget.waitingForForward ||
+                                        isDesktop()) {
                                       return IconButton(
                                         icon: Icon(
                                           Icons.send,
@@ -347,7 +360,8 @@ class _InputMessageWidget extends State<InputMessage> {
                       builder: (c, sm) {
                         if (sm.hasData &&
                             !sm.data &&
-                            !widget.waitingForForward && !isDesktop()) {
+                            !widget.waitingForForward &&
+                            !isDesktop()) {
                           return GestureDetector(
                               onTapDown: (_) async {
                                 recordAudioPermission = await checkPermission
@@ -373,8 +387,13 @@ class _InputMessageWidget extends State<InputMessage> {
                               },
                               onLongPressStart: (dw) async {
                                 if (recordAudioPermission) {
+                                 var s  = await getApplicationDocumentsDirectory();
+                                 path  = s.path+"/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
                                   sendRecordActivity();
                                   Vibration.vibrate(duration: 200);
+                                  await _soundRecorder.openAudioSession();
+                                  _soundRecorder.startRecorder(toFile: path,
+                                  audioSource:  AudioSource.defaultSource,);
                                   setState(() {
                                     startAudioRecorder = true;
                                     size = 2;
@@ -382,13 +401,13 @@ class _InputMessageWidget extends State<InputMessage> {
                                     time = DateTime.now();
                                   });
 
-
-                                  await soundRecorder.startRecorder(
-                                    toFile: path,
-                                  );
                                 }
                               },
                               onLongPressEnd: (s) async {
+                               var res = await _soundRecorder.stopRecorder();
+                               print("fffff"+res..toString());
+                                _soundRecorder.closeAudioSession();
+                                print(s.toString());
                                 recordAudioTimer.cancel();
                                 NoActivitySubject.add(ActivityType.NO_ACTIVITY);
                                 setState(() {
@@ -398,10 +417,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                 });
                                 if (started) {
                                   try {
-                                       var res =  await soundRecorder.stopRecorder();
                                     messageRepo.sendFileMessage(
-                                        widget.currentRoom.roomId.uid,
-                                        res);
+                                        widget.currentRoom.roomId.uid, path);
                                   } catch (e) {}
                                 }
                               },
@@ -484,7 +501,9 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void onChange(String str) {
-    if(isDesktop() && str.isNotEmpty && str.lastIndexOf("\n")== str.length-1){
+    if (isDesktop() &&
+        str.isNotEmpty &&
+        str.lastIndexOf("\n") == str.length - 1) {
       sendMessage();
       return;
     }
@@ -539,11 +558,10 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void scrollTolast(int count) {
-    if(count<3)
-      Timer(Duration(milliseconds: count*100), (){
+    if (count < 3)
+      Timer(Duration(milliseconds: count * 100), () {
         widget.scrollToLastSentMessage();
-        scrollTolast(count+1);
+        scrollTolast(count + 1);
       });
-
   }
 }
