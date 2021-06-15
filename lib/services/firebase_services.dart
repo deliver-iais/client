@@ -6,6 +6,7 @@ import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as M;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -19,9 +20,8 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 String Firabase_Setting_Is_Set = "firabase_setting_is_set";
 
 class FireBaseServices {
+  FirebaseMessaging _firebaseMessaging;
 
-
-  FirebaseMessaging _firebaseMessaging ;
   AndroidNotificationChannel channel = const AndroidNotificationChannel(
     'high_importance_channel', // id
     'High Importance Notifications', // title
@@ -29,7 +29,8 @@ class FireBaseServices {
     importance: Importance.high,
   );
 
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =FlutterLocalNotificationsPlugin();
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var fireBaseServices = FirebaseServiceClient(FirebaseServicesClientChannel);
@@ -63,10 +64,10 @@ class FireBaseServices {
     }
   }
 
-  _setFirebaseSetting()async {
+  _setFirebaseSetting() async {
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
     try {
       FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
@@ -102,12 +103,17 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
     M.Message msg = _decodeMessage(message.data["body"]);
     String roomName = message.data['title'];
     Uid roomUid = getRoomId(accountRepo, msg);
+    var currentUseruid = await accountRepo.getCurrentUserUid();
     db.Room room = await roomDao.getByRoomIdFuture(roomUid.asString());
-    if (room != null && room.isBlock) {
+    if (room != null &&
+        room.isBlock &&
+        msg.from.isSameEntity(currentUseruid.asString())) {
       return;
     }
     CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg, roomUid);
-    if (msg.to.category == Categories.USER) {
+    if (msg.to.category == Categories.USER &&
+        msg.from.category != Categories.SYSTEM &&
+        msg.from.category != Categories.BOT) {
       db.Contact contact =
           await contactDao.getContactByUid(msg.from.asString());
       if (contact != null) {
@@ -122,12 +128,14 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
       }
     } else if (msg.from.category == Categories.SYSTEM) {
       roomName = "Deliver";
+    } else if (msg.from.category == Categories.BOT) {
+      if (roomName.isEmpty) roomName = "Bot";
     }
+
     if (msg.from.category == Categories.USER)
       updateLastActivityTime(_userInfoDao, getRoomId(accountRepo, msg),
           DateTime.fromMillisecondsSinceEpoch(msg.time.toInt()));
-    if (!msg.from.isSameEntity(accountRepo.currentUserUid.asString()) &&
-        (await accountRepo.notification).contains("true") &&
+    if ((await accountRepo.notification).contains("true") &&
         (room != null && !room.mute))
       _notificationServices.showNotification(
           msg, getRoomId(accountRepo, msg).asString(), roomName);

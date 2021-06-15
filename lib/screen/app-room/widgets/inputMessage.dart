@@ -297,7 +297,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                             ],
                                           ),
                                           onTap: () {
-                                            _showBotCommands.add(true);
+                                            _showBotCommands.add(!_showBotCommands.valueWrapper.value);
                                           },
                                         );
                                       else
@@ -404,6 +404,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                   await _soundRecorder.openAudioSession();
                                   _soundRecorder.startRecorder(
                                     toFile: path,
+                                    sampleRate: 128000,
+                                    numChannels: 2,
+                                    bitRate: 128000,
                                     audioSource: AudioSource.defaultSource,
                                   );
                                   setState(() {

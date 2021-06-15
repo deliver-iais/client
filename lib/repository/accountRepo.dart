@@ -32,6 +32,7 @@ const EMAIL = "email";
 const DESCRIPTION = "description";
 const PHONE_NUMBER = "phoneNumber";
 const NOTIFICATION = "notification";
+const CURRENT_USER_UID= "current_user_uid";
 
 class AccountRepo {
   final SharedPreferencesDao sharedPrefs;
@@ -50,9 +51,7 @@ class AccountRepo {
   String _refreshToken;
 
   var authServiceStub = AuthServiceClient(ProfileServicesClientChannel);
-  var _userServices = UserServiceClient(ProfileServicesClientChannel);
-
-
+  var _profile = UserServiceClient(ProfileServicesClientChannel);
 
   Future<void> init() async {
     var access_token = await sharedPrefs.get(ACCESS_TOKEN_KEY);
@@ -65,22 +64,21 @@ class AccountRepo {
   String platformVersion;
 
   Future getVerificationCode(String countryCode, String nationalNumber) async {
-    try{
+    try {
       PhoneNumber phone = PhoneNumber()
         ..countryCode = int.parse(countryCode)
         ..nationalNumber = Int64.parseInt(nationalNumber);
       this.phoneNumber = phone;
       _savePhoneNumber();
-      var verificationCode =
-      await authServiceStub.getVerificationCode(GetVerificationCodeReq()
-        ..phoneNumber = phone
-        ..type = VerificationType.SMS,options: CallOptions(timeout: Duration(seconds: 3)));
+      var verificationCode = await authServiceStub.getVerificationCode(
+          GetVerificationCodeReq()
+            ..phoneNumber = phone
+            ..type = VerificationType.SMS,
+          options: CallOptions(timeout: Duration(seconds: 3)));
       return verificationCode;
-    }
-    catch(e){
+    } catch (e) {
       return null;
     }
-
   }
 
   Future sendVerificationCode(String code) async {
@@ -110,7 +108,8 @@ class AccountRepo {
   Future _getAccessToken(String refreshToken) async {
     var getAccessToken = await authServiceStub
         .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
-    if(wrongAccessToken(getAccessToken.accessToken) || wrongRefreshToken(getAccessToken.refreshToken)){
+    if (wrongAccessToken(getAccessToken.accessToken) ||
+        wrongRefreshToken(getAccessToken.refreshToken)) {
       _getAccessToken(refreshToken);
       return;
     }
@@ -136,36 +135,34 @@ class AccountRepo {
     return JwtDecoder.isExpired(access_token);
   }
 
-  bool exp(String token){
-    final Map<String, dynamic> decodedToken = JwtDecoder.decode (token);
-    final DateTime iaTirationDate =
-    new DateTime.fromMillisecondsSinceEpoch(0)
+  bool exp(String token) {
+    final Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+    final DateTime iaTirationDate = new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["iat"]));
-    return((DateTime.now().millisecondsSinceEpoch- iaTirationDate.millisecondsSinceEpoch)>5*60*1000);
+    return ((DateTime.now().millisecondsSinceEpoch -
+            iaTirationDate.millisecondsSinceEpoch) >
+        5 * 60 * 1000);
   }
-  bool wrongAccessToken(String token){
-    final Map<String, dynamic> decodedToken = JwtDecoder.decode (token);
-    final DateTime iatTime =
-    new DateTime.fromMillisecondsSinceEpoch(0)
+
+  bool wrongAccessToken(String token) {
+    final Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+    final DateTime iatTime = new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["iat"]));
-    final DateTime expTime =
-    new DateTime.fromMillisecondsSinceEpoch(0)
+    final DateTime expTime = new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["exp"]));
-    return((expTime.millisecondsSinceEpoch- iatTime.millisecondsSinceEpoch)>15*60*1000);
+    return ((expTime.millisecondsSinceEpoch - iatTime.millisecondsSinceEpoch) >
+        15 * 60 * 1000);
   }
 
-  bool wrongRefreshToken(String token){
-    final Map<String, dynamic> decodedToken = JwtDecoder.decode (token);
-    final DateTime iatTime =
-    new DateTime.fromMillisecondsSinceEpoch(0)
+  bool wrongRefreshToken(String token) {
+    final Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+    final DateTime iatTime = new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["iat"]));
-    final DateTime expTime =
-    new DateTime.fromMillisecondsSinceEpoch(0)
+    final DateTime expTime = new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["exp"]));
-    return((expTime.millisecondsSinceEpoch- iatTime.millisecondsSinceEpoch)<29*24*60*60*1000);
+    return ((expTime.millisecondsSinceEpoch - iatTime.millisecondsSinceEpoch) <
+        29 * 24 * 60 * 60 * 1000);
   }
-
-
 
   void saveTokens(AccessTokenRes res) {
     _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
@@ -176,38 +173,56 @@ class AccountRepo {
   }
 
   Future<bool> usernameIsSet() async {
-    final QueryServiceClient _queryServiceClient =
-    GetIt.I.get<QueryServiceClient>();
     if (null != await sharedPrefs.get(USERNAME)) {
       return true;
     }
     try {
-      var getIdRequest = await _queryServiceClient. getIdByUid(
-          GetIdByUidReq()
-            ..uid = currentUserUid,
-          options:
-          CallOptions(metadata: {'access_token': await getAccessToken()},
+      var result = await _profile.getUserProfile(GetUserProfileReq(),
+          options: CallOptions(
+              metadata: {'access_token': await getAccessToken()},
               timeout: Duration(seconds: 2)));
-      var result = await _userServices.getUserProfile(GetUserProfileReq(),
-          options:
-          CallOptions(metadata: {'access_token': await getAccessToken()}));
-      if ((getIdRequest != null && getIdRequest.id != null &&
-          getIdRequest.id.isNotEmpty) || result.profile.hasFirstName() &&
-          result.profile.firstName.length > 1) {
+      if (result.hasProfile() && result.profile.firstName.isNotEmpty) {
+        getUsername(getUserProfileRes: result);
+        return true;
+      } else
+        return false;
+    } catch (e) {
+      return getUsername();
+    }
+  }
+
+  Future<bool> getUsername({GetUserProfileRes getUserProfileRes}) async {
+    try {
+      final QueryServiceClient _queryServiceClient =
+          GetIt.I.get<QueryServiceClient>();
+      var getIdRequest = await _queryServiceClient.getIdByUid(
+          GetIdByUidReq()..uid = currentUserUid,
+          options: CallOptions(
+              metadata: {'access_token': await getAccessToken()},
+              timeout: Duration(seconds: 2)));
+      if (getUserProfileRes != null){
         _saveProfilePrivateDate(
             username: getIdRequest.id,
-            firstName: result.profile.firstName,
-            lastName: result.profile.lastName,
-            email: result.profile.email);
+            firstName: getUserProfileRes.profile.firstName,
+            lastName: getUserProfileRes.profile.lastName,
+            email: getUserProfileRes.profile.email);
         return true;
-      } else {
-        return false;
       }
-    }catch(e){
+      else{
+       var result = await _profile.getUserProfile(GetUserProfileReq(),
+            options: CallOptions(
+                metadata: {'access_token': await getAccessToken()},
+                timeout: Duration(seconds: 2)));
+       _saveProfilePrivateDate(
+           username: getIdRequest.id,
+           firstName: result.profile.firstName,
+           lastName: result.profile.lastName,
+           email: result.profile.email);
+
+      }
+    } catch (e) {
       return false;
     }
-
-
   }
 
   void _setTokensAndCurrentUserUid(String access_token, String refreshToken) {
@@ -231,7 +246,12 @@ class AccountRepo {
         ..category = Categories.USER
         ..node = decodedToken["sub"];
       print("UserId " + currentUserUid.asString());
+      sharedPrefs.set(CURRENT_USER_UID,currentUserUid.asString());
     }
+  }
+
+  Future<Uid> getCurrentUserUid()async{
+    return (await sharedPrefs.get(CURRENT_USER_UID)).getUid();
   }
 
   Future<Account> getAccount() async {
@@ -247,7 +267,7 @@ class AccountRepo {
 
   Future<bool> checkUserName(String username) async {
     final QueryServiceClient _queryServiceClient =
-    GetIt.I.get<QueryServiceClient>();
+        GetIt.I.get<QueryServiceClient>();
     var checkUsernameRes = await _queryServiceClient.idIsAvailable(
         IdIsAvailableReq()..id = username,
         options:
@@ -262,7 +282,7 @@ class AccountRepo {
     String email,
   ) async {
     final QueryServiceClient _queryServiceClient =
-    GetIt.I.get<QueryServiceClient>();
+        GetIt.I.get<QueryServiceClient>();
     try {
       _queryServiceClient.setId(SetIdReq()..id = username,
           options:
@@ -279,7 +299,7 @@ class AccountRepo {
         saveUserProfileReq.email = email;
       }
 
-      _userServices.saveUserProfile(saveUserProfileReq,
+      _profile.saveUserProfile(saveUserProfileReq,
           options:
               CallOptions(metadata: {'access_token': await getAccessToken()}));
       _saveProfilePrivateDate(
