@@ -162,7 +162,7 @@ class _InputMessageWidget extends State<InputMessage> {
               }
             }),
         Container(
-          color: Theme.of(context).accentColor.withAlpha(50),
+          color: ExtraTheme.of(context).inputBoxBackground,
           child: Stack(
             // overflow: Overflow.visible,
             children: <Widget>[
@@ -192,7 +192,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                         back.hasData && back.data
                                             ? Icons.keyboard
                                             : Icons.mood,
-                                        color: Colors.white,
+                                        color: ExtraTheme.of(context).textfield,
                                       ),
                                       onPressed: () {
                                         if (back.data) {
@@ -214,7 +214,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       scrollTolast(1);
                                     },
                                     minLines: 1,
-                                    style: TextStyle(fontSize: 19, height: 1),
+                                    style: TextStyle(fontSize: 19, height: 1, color: ExtraTheme.of(context).textfield),
                                     maxLines: 15,
                                     autofocus: widget.replyMessageId > 1,
                                     textInputAction: isDesktop()?TextInputAction.send : TextInputAction.newline,
@@ -264,7 +264,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                                   decoration: BoxDecoration(
                                                     border: Border.all(
                                                         width: 1,
-                                                        color: Colors.white),
+                                                        color: ExtraTheme.of(context).textfield),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             5),
@@ -275,7 +275,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                                           child: Text(
                                                         "/",
                                                         style: TextStyle(
-                                                            fontSize: 19),
+                                                            fontSize: 19,
+                                                            color: ExtraTheme.of(context).textfield,
+                                                        ),
                                                       )))),
                                               SizedBox(
                                                 width: 15,
@@ -298,7 +300,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       return IconButton(
                                           icon: Icon(
                                             Icons.attach_file,
-                                            color: IconTheme.of(context).color,
+                                            color: ExtraTheme.of(context).textfield,
                                           ),
                                           onPressed: () {
                                             backSubject.add(false);
@@ -316,9 +318,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                       return IconButton(
                                         icon: Icon(
                                           Icons.send,
-                                          color: Theme.of(context).primaryColor,
+                                            color: ExtraTheme.of(context).textfield,
                                         ),
-                                        color: Colors.white,
                                         onPressed: controller.text?.isEmpty &&
                                                 (widget.waitingForForward ==
                                                         null ||

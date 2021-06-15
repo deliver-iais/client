@@ -14,8 +14,9 @@ ThemeData LightTheme = ThemeData(
     scaffoldBackgroundColor: Colors.white,
     backgroundColor: Color(0xfde2f8f0),
     buttonColor: Color(0xff1f655d),
-    focusColor: Color(0xFF2699FB).withOpacity(0.5),
+    focusColor: Color(0xff179c96).withOpacity(0.5),
     cardColor: Color(0xff489088),
+
     textTheme: TextTheme(
       headline1: TextStyle(color: Colors.white, fontSize: 40),
       headline2: TextStyle(
@@ -26,14 +27,15 @@ ThemeData LightTheme = ThemeData(
     appBarTheme: AppBarTheme(
       color: Color(0xff1f655d),
       elevation: 0,
-
     ),
+    iconTheme: IconThemeData(color: Color(0xff002121)),
     tabBarTheme: TabBarTheme(
         indicator: UnderlineTabIndicator(
             borderSide: BorderSide(width: 2.0, color: Colors.blue),
             insets: EdgeInsets.zero),
-        labelColor: Color(0xFF2699FB),
-        unselectedLabelColor: Colors.white));
+        labelColor: Color(0xff179c96),
+        unselectedLabelColor: Color(0xff002121),
+        ));
 
 // ignore: non_constant_identifier_names
 ExtraThemeData LightExtraTheme = ExtraThemeData(
@@ -47,7 +49,6 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   boxDetails: Color(0xff15786c),
   boxBackground: Color(0xfde2f8f0),
   activeKey: Color(0xff15786c),
-
   textDetails : Color(0xff4bd5af),
   //homePage
     bottomNavigationAppbar : LightTheme.appBarTheme.color.withAlpha(200),
@@ -59,12 +60,21 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
     searchBox: LightTheme.appBarTheme.color.withAlpha(50),
     displayName : Colors.black,//info chat in extra
     // roomPage
-    sentMessageBox:  Color(0xff00a394),
+    sentMessageBox:  Color(0xff01aa9a),
     receivedMessageBox: Color(0xff00805a).withAlpha(50),
-    textMessage: Colors.black,
+    textMessage: LightTheme.accentColor,
     messageDetails: LightTheme.accentColor.withAlpha(200),
     persistentEventMessage: LightTheme.backgroundColor,
+    restAudioIndicator: LightTheme.accentColor,
+    circularFileStatus: LightTheme.backgroundColor,
+    fileMessageDetails: Color(0xff00a394),
+    textfield: LightTheme.accentColor,
+    inputBoxBackground: Color(0xff174b45).withAlpha(50),
+   //group
+  border: Color(0xff174b45),
    // dark = DarkTheme.accentColor.withAlpha(50), ligh = background
   //dark = blue light = boxdetails
 
 );
+
+// SendingFileCircularIndicator

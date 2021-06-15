@@ -43,11 +43,11 @@ class RecordAudioSlideWidget extends  StatelessWidget{
           width: 70,
           timerTextStyle: TextStyle(
               fontSize: 14,
-              color: Theme.of(context).primaryColor),
+              color: ExtraTheme.of(context).textfield,
+          ),
           initialDate: time,
           running: rinning,
-          backgroundColor:
-          ExtraTheme.of(context).secondColor,
+          backgroundColor: ExtraTheme.of(context).inputBoxBackground,
           borderRadius: 0,
         ),
         Opacity(
@@ -59,7 +59,10 @@ class RecordAudioSlideWidget extends  StatelessWidget{
                   _appLocalization
                       .getTraslateValue("slideToCancel"),
                   style: TextStyle(
-                      fontSize: 12, color: Colors.white)),
+                      fontSize: 12,
+                      color: ExtraTheme.of(context).textfield,
+                  ),
+              ),
             ],
           ),
         ),

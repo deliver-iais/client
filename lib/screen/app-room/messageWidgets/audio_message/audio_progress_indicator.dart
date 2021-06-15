@@ -46,10 +46,11 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                   currentPos = snapshot2.data ?? currentPos ?? Duration.zero;
                   return SliderTheme(
                     data: SliderThemeData(
-                      thumbColor: ExtraTheme.of(context).active,
+                      // thumbColor: ExtraTheme.of(context).active,
+                      thumbColor: ExtraTheme.of(context).textMessage,
                       trackHeight: 2.25,
-                      activeTrackColor: ExtraTheme.of(context).active,
-                      inactiveTrackColor: ExtraTheme.of(context).text,
+                      activeTrackColor: ExtraTheme.of(context).textMessage,
+                      inactiveTrackColor: ExtraTheme.of(context).restAudioIndicator,
                       thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
                     ),
                     child: Slider(

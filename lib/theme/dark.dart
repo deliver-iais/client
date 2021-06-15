@@ -26,6 +26,7 @@ ThemeData DarkTheme = ThemeData(
       color: Colors.black,
       elevation: 0,
     ),
+    iconTheme: IconThemeData(color: Colors.white),
     tabBarTheme: TabBarTheme(
         indicator: UnderlineTabIndicator(
             borderSide: BorderSide(width: 2.0, color: Colors.blue),
@@ -60,4 +61,10 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     textMessage: Colors.white,
     messageDetails: Color(0xFF001D39),
     persistentEventMessage: DarkTheme.accentColor.withAlpha(50),
+    restAudioIndicator : Color(0xFFBCE0FD),
+    circularFileStatus: Color(0xFFBCE0FD),
+    fileMessageDetails: DarkTheme.primaryColor,
+    textfield: Colors.white,
+    inputBoxBackground: DarkTheme.accentColor.withAlpha(50),
+  border: DarkTheme.primaryColor
 );

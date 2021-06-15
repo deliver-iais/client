@@ -151,7 +151,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                             widget.onClick(index, image.path),
                                         icon: Icon(selected
                                             ? Icons.check_circle_outline
-                                            : Icons.panorama_fish_eye),
+                                            : Icons.panorama_fish_eye, color: Colors.white,),
                                       ),
                                     )
                                   : SizedBox.shrink(),

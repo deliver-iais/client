@@ -1,4 +1,5 @@
 import 'package:deliver_flutter/services/file_service.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -48,10 +49,11 @@ class _SendingFileCircularIndicatorState
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return CircularPercentIndicator(
+                    backgroundColor: ExtraTheme.of(context).circularFileStatus,
                     radius: 55.0,
                     lineWidth: 5.0,
                     percent: snapshot.data,
-                    progressColor: Colors.blue,
+                    progressColor: ExtraTheme.of(context).fileMessageDetails,
                   );
                 } else {
                   return SizedBox.shrink();
@@ -63,7 +65,7 @@ class _SendingFileCircularIndicatorState
             icon: Icon(
               Icons.close,
               color: widget.isMedia
-                  ? Theme.of(context).accentColor
+                  ? Theme.of(context).accentColor//?????TODO
                   : Theme.of(context).primaryColor,
               size: 38,
             ),

@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -50,13 +51,17 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
                           return Container(
                             child: Text(currentPos.toString().split('.')[0] +
                                 " / " +
-                                dur.toString().split('.')[0]),
+                                dur.toString().split('.')[0],
+                              style: TextStyle(color: ExtraTheme.of(context).textMessage
+                            ),),
                           );
                         return Text(
                           currentPos.toString().split('.')[0].substring(2) +
                               " / " +
                               dur.toString().split('.')[0].substring(2),
-                          style: TextStyle(fontSize: 11),
+                          style: TextStyle(fontSize: 11,
+                              color: ExtraTheme.of(context).textMessage
+                        ),
                         );
                       });
                 });
@@ -65,7 +70,9 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
               currentPos.toString().split('.')[0].substring(3) +
                   " / " +
                   dur.toString().split('.')[0].substring(3),
-              style: TextStyle(fontSize: 11),
+              style: TextStyle(fontSize: 11,
+                  color: ExtraTheme.of(context).textMessage
+              ),
             );
           }
         });

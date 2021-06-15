@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/services/file_service.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -36,7 +37,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                   image: Image.file(thumbnail.data).image,
                   fit: BoxFit.cover,
                 ),
-                color: Colors.black.withOpacity(0.5),
+                color: Colors.black.withOpacity(0.5),//TODO check
               ),
               child: Center(
                 child: startDownload
@@ -48,16 +49,16 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                               radius: 35.0,
                               lineWidth: 4.0,
                               percent: snapshot.data,
-                              center: Icon(Icons.download_rounded),
-                              progressColor: Colors.black,
+                              center: Icon(Icons.download_rounded, color: ExtraTheme.of(context).messageDetails,),
+                              progressColor: ExtraTheme.of(context).messageDetails,
                             );
                           } else {
                             return CircularPercentIndicator(
                               radius: 35.0,
                               lineWidth: 4.0,
                               percent: 0.01,
-                              center: Icon(Icons.download_rounded,),
-                              progressColor: Colors.black,
+                              center: Icon(Icons.download_rounded, color: ExtraTheme.of(context).messageDetails,),
+                              progressColor: ExtraTheme.of(context).messageDetails,
                             );
                           }
                         },
@@ -71,7 +72,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                     });
                   },
                   shape: CircleBorder(),
-                  child: Icon(Icons.download_rounded),
+                  child: Icon(Icons.download_rounded, color: ExtraTheme.of(context).messageDetails,),
                   padding: const EdgeInsets.all(10),
                 ),
               ));
@@ -93,22 +94,22 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                             radius: 35.0,
                             lineWidth: 4.0,
                             percent: snapshot.data,
-                            center: Icon(Icons.arrow_downward),
-                            progressColor: Colors.blue,
+                            center: Icon(Icons.arrow_downward, color: ExtraTheme.of(context).messageDetails,),
+                            progressColor: ExtraTheme.of(context).messageDetails,
                           );
                         } else {
                           return CircularPercentIndicator(
                             radius: 35.0,
                             lineWidth: 4.0,
                             percent: 0.1,
-                            center: Icon(Icons.arrow_downward),
-                            progressColor: Colors.blue,
+                            center: Icon(Icons.arrow_downward, color: ExtraTheme.of(context).messageDetails,),
+                            progressColor: ExtraTheme.of(context).messageDetails,
                           );
                         }
                       },
                     )
                   : IconButton(
-                      icon: Icon(Icons.file_download),
+                      icon: Icon(Icons.file_download, color: ExtraTheme.of(context).messageDetails,),
                       onPressed: () async {
                         startDownload = true;
                         widget.download();

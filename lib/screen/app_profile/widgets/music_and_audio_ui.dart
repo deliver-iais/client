@@ -5,6 +5,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/load-file-status.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbenum.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +77,7 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                                 style: TextStyle(
                                                     fontSize: 14,
                                                     fontWeight:
-                                                        FontWeight.bold)),
+                                                        FontWeight.bold, color: ExtraTheme.of(context).textMessage)),
                                           ),
                                           MusicPlayProgress(
                                             audioUuid: fileId,
@@ -113,7 +114,7 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                                   style: TextStyle(
                                                       fontSize: 14,
                                                       fontWeight:
-                                                          FontWeight.bold)),
+                                                          FontWeight.bold, color: ExtraTheme.of(context).textMessage)),
                                             ),
                                             MusicPlayProgress(
                                               audioUuid: fileId,

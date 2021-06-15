@@ -619,10 +619,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     TextEditingController controller = TextEditingController();
     BehaviorSubject<bool> checkSearchResult = BehaviorSubject.seeded(false);
     return PreferredSize(
-      preferredSize: Size.fromHeight(
-          snapshot.data == true || _audioPlayerService.lastDur != null
-              ? 100
-              : 60),
+      preferredSize: Size.fromHeight(60),
+          // snapshot.data == true || _audioPlayerService.lastDur != null
+          //     ? 100
+          //     : 60),
       child: AppBar(
         leading: GestureDetector(
           child: StreamBuilder(
@@ -720,7 +720,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 } else {
                   return PopupMenuButton(
                     color: ExtraTheme.of(context).popupMenuButton,
-                    icon: Icon(Icons.more_vert,  color: ExtraTheme.of(context).menuIconButton),
+                    icon: Icon(Icons.more_vert,  color: Colors.white),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
                           child:

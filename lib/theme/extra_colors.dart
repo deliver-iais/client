@@ -29,8 +29,15 @@ class ExtraThemeData {
   Color textMessage;
   Color messageDetails;
   Color persistentEventMessage;
+  Color restAudioIndicator;
+  Color circularFileStatus;
+  Color fileMessageDetails;
+  Color textfield;
+  Color inputBoxBackground;
+  Color border;
   ExtraThemeData(
-      {this.circleAvatarBackground,
+      {
+        this.circleAvatarBackground,
         this.details,
         this.circleAvatarIcon,
         this.secondColor,
@@ -53,7 +60,13 @@ class ExtraThemeData {
         this.receivedMessageBox,
         this.textMessage,
         this.messageDetails,
-        this.persistentEventMessage
+        this.persistentEventMessage,
+        this.restAudioIndicator,
+        this.circularFileStatus,
+        this.fileMessageDetails,
+        this.textfield,
+        this.inputBoxBackground,
+        this.border
       });
 }
 

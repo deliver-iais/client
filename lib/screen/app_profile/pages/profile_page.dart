@@ -177,14 +177,14 @@ class _ProfilePageState extends State<ProfilePage>
                                                     child: Text(
                                                       "@ Deliver",
                                                       style: TextStyle(
-                                                          color: Colors.white),
+                                                          color: ExtraTheme.of(context).boxDetails),
                                                     ))
                                                 : widget.userUid.category ==
                                                         Categories.BOT
                                                     ? _showUsername(
                                                         widget.userUid.node,
                                                         widget.userUid,
-                                                        appLocalization)
+                                                        appLocalization, context)
                                                     : FutureBuilder<String>(
                                                         future: _roomRepo
                                                             .getUsername(
@@ -199,7 +199,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                             return _showUsername(
                                                                 snapshot.data,
                                                                 widget.userUid,
-                                                                appLocalization);
+                                                                appLocalization, context);
                                                           } else {
                                                             return SizedBox
                                                                 .shrink();
@@ -554,10 +554,12 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
                       url: jsonDecode(snapshot.data[index].json)["url"],
                       bodyStyle: TextStyle(
                         fontSize: 10.0,
+                        color: ExtraTheme.of(context).textMessage
                       ),
                       titleStyle: TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.bold,
+                          color: ExtraTheme.of(context).textMessage
                       ),
                     ),
                   ),
@@ -571,7 +573,7 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
 }
 
 Widget _showUsername(
-    String username, Uid currentUid, AppLocalization _appLocalization) {
+    String username, Uid currentUid, AppLocalization _appLocalization, BuildContext context) {
   var routingServices = GetIt.I.get<RoutingService>();
   return Padding(
     padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
@@ -581,7 +583,7 @@ Widget _showUsername(
         GestureDetector(
           child: Text(
             username != null ? "@$username" : '',
-            style: TextStyle(fontSize: 18.0, color: Colors.blue),
+            style: TextStyle(fontSize: 18.0, color: ExtraTheme.of(context).boxDetails),
           ),
           onLongPress: () {
             Clipboard.setData(ClipboardData(text: "@$username"));
@@ -596,7 +598,7 @@ Widget _showUsername(
             icon: Icon(
               Icons.share,
               size: 22,
-              color: Colors.white,
+              color: ExtraTheme.of(context).boxDetails,
             ),
             onPressed: () {
               routingServices.openSelectForwardMessage(
