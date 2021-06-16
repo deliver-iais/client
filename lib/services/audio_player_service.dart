@@ -1,113 +1,77 @@
 import 'dart:async';
 
-
-
 import 'package:audioplayer/audioplayer.dart';
 
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:flutter_sound/public/flutter_sound_player.dart';
+
 import 'package:open_file/open_file.dart';
+import 'package:rxdart/rxdart.dart';
 
 class AudioPlayerService {
-  AudioPlayer audioPlayer;
+  AudioPlayer audioPlayer = AudioPlayer();
 
   String audioUuid;
   String audioName;
   String audioPath;
-  String description;
-  Duration lastDur;
-  Duration lastPos;
-  bool isPlaying;
 
-  StreamController<bool> _audioPlayerController;
 
-  Stream<bool> get isOn => _audioPlayerController.stream;
+  BehaviorSubject<AudioPlayerState> currentState = BehaviorSubject.seeded(AudioPlayerState.STOPPED);
 
-  Map<String, StreamController<AudioPlayerState>> _audioPlayerStateController;
+  BehaviorSubject<bool> isOn = BehaviorSubject.seeded(false);
 
-  // TODO, why we can access variable of class directly!!
+
   String CURRENT_AUDIO_ID = "";
 
   Stream<AudioPlayerState> audioPlayerState(String audioId) {
-    try {
-      return _audioPlayerStateController[audioId].stream;
-    } catch (e) {
-      onCompletion(audioId);
-    }
+      return currentState.stream;
   }
 
-  AudioPlayerService() {
-    _audioPlayerController =
-        _audioPlayerController = StreamController<bool>.broadcast();
-    _audioPlayerStateController = Map();
-    _audioPlayerController.add(false);
-    isPlaying = false;
-  }
 
-  setAudioDetails(String path, String description, String name, String uuid) {
-    this.description = description;
+
+  setAudioDetails(String path,String name, String uuid) {
+    this.audioPath = path;
     this.audioName = name;
     this.audioUuid = uuid;
-    this.audioPath = path;
   }
 
-  resetAudioPlayerService() {
-    audioUuid = null;
-    audioName = null;
-    audioPath = null;
-    description = null;
-    lastDur = null;
-    lastPos = null;
-    isPlaying = false;
-  }
 
   void seekToSecond(int second) {
     this.audioPlayer.seek(second.toDouble());
   }
 
-  Stream<Duration> get audioCurrentPosition =>
-     null;
+  BehaviorSubject<Duration> audioCurrentPosition =
+      BehaviorSubject.seeded(Duration(seconds: 0));
 
-  Stream<Duration> get audioDuration => null;
-
-  void onCompletion(String audioId) {
-    resetAudioPlayerService();
-    _audioPlayerController.add(false);
-    StreamController<AudioPlayerState> d =
-        StreamController<AudioPlayerState>.broadcast();
-    d.add(AudioPlayerState.COMPLETED);
-    _audioPlayerStateController[audioId] = d;
-  }
-
-  void onPlay(String path, String uuid, String name) {
-    audioPlayer = AudioPlayer();
+  void onPlay(String path, String uuid, String name) async {
+    setAudioDetails(path, name, uuid);
+    currentState.add(AudioPlayerState.PLAYING);
+     isOn.add(true);
+    if(!uuid.contains(CURRENT_AUDIO_ID))
+    await audioPlayer.stop();
     if (isDesktop()) {
       OpenFile.open(path);
     } else {
       CURRENT_AUDIO_ID = uuid;
-      _audioPlayerStateController.keys.forEach((element) {
-        _audioPlayerStateController[element].add(AudioPlayerState.STOPPED);
+      audioPlayer.onAudioPositionChanged.listen((event) {
+        audioCurrentPosition.add(event);
       });
-      setAudioDetails("Description", path, name, uuid);
-      isPlaying = true;
-      _audioPlayerController.add(true);
-      _audioPlayerStateController[uuid].add(AudioPlayerState.PLAYING);
-      this.audioPlayer.play(path, isLocal: true);
+
+      audioPlayer.play(path, isLocal: false);
     }
   }
 
-  onPause(String audioId) {
-    CURRENT_AUDIO_ID = "";
-    isPlaying = false;
-    _audioPlayerStateController[audioId].add(AudioPlayerState.PAUSED);
+  onPause(String audioId,{bool hideAppBar = false}) {
+    if(hideAppBar)
+      isOn.add(false);
+    currentState.add(AudioPlayerState.PAUSED);
+    CURRENT_AUDIO_ID = audioId;
     this.audioPlayer.pause();
   }
 
   onStop(String audioId) {
-    CURRENT_AUDIO_ID = "";
-    resetAudioPlayerService();
-    _audioPlayerController.add(false);
-    _audioPlayerStateController[audioId].add(AudioPlayerState.STOPPED);
+    isOn.add(false);
+    currentState.add(AudioPlayerState.STOPPED);
+    CURRENT_AUDIO_ID = audioId;
     this.audioPlayer.stop();
   }
 }

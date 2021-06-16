@@ -38,7 +38,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
               child: StreamBuilder<AudioPlayerState>(
                   stream: audioPlayerService.audioPlayerState(widget.fileId),
                   builder: (context, snapshot) {
-                    if (snapshot.data == AudioPlayerState.PLAYING || audioPlayerService.CURRENT_AUDIO_ID.contains(widget.fileId)) {
+                    if (snapshot.data == AudioPlayerState.PLAYING &&  audioPlayerService.CURRENT_AUDIO_ID.contains(widget.fileId)) {
                       return IconButton(
                         padding: EdgeInsets.all(0),
                         alignment: Alignment.center,
@@ -48,9 +48,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
                           size: 40,
                         ),
                         onPressed: () {
-                          setState(() {
-                            audioPlayerService.onPause(widget.fileId);
-                          });
+                            audioPlayerService.onPause(widget.fileId,hideAppBar: true);
                         },
                       );
                     } else {
@@ -63,13 +61,11 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
                             size: 40,
                           ),
                           onPressed: () {
-                            setState(() {
                               audioPlayerService.onPlay(
                                 audio.data.path,
                                 widget.fileId,
                                 widget.fileName,
                               );
-                            });
                           });
                     }
                   }),

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/services/audioPlayerAppBar.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/title_status.dart';
@@ -21,7 +22,6 @@ class BotAppbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization i18n = AppLocalization.of(context);
     return Container(
         color: Theme.of(context).appBarTheme.color,
         child: GestureDetector(

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:audioplayer/audioplayer.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 
@@ -11,6 +12,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/chatsPage.dart';
 import 'package:deliver_flutter/screen/app-contacts/widgets/contactsPage.dart';
+import 'package:deliver_flutter/services/audioPlayerAppBar.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/screen/navigation_center/widgets/searchBox.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -49,7 +51,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   var rootingServices = GetIt.I.get<RoutingService>();
   var contactRepo = GetIt.I.get<ContactRepo>();
   var _messageRepo = GetIt.I.get<MessageRepo>();
-  AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
+
 
   final Function tapOnCurrentUserAvatar;
 
@@ -58,7 +60,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
   AppLocalization _appLocalization;
 
   var _roomRepo = GetIt.I.get<RoomRepo>();
-
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _routingService = GetIt.I.get<RoutingService>();
   var _botRepo = GetIt.I.get<BotRepo>();
@@ -83,12 +84,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
-    return StreamBuilder<bool>(
-        stream: audioPlayerService.isOn,
-        builder: (context, snapshot) {
           return Scaffold(
             appBar: PreferredSize(
-              preferredSize: Size.fromHeight(snapshot.data == true ? 100 : 56),
+              preferredSize: Size.fromHeight(56),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 0.0),
                 child: AppBar(
@@ -177,6 +175,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       }
                     },
                   ),
+                  AudioPlayerAppBar(),
                   _searchMode
                       ? searchResult()
                       : Expanded(
@@ -186,6 +185,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 ],
               ),
             ),
+
             bottomNavigationBar: BottomAppBar(
               color: Theme.of(context).backgroundColor,
               child: Row(
@@ -203,7 +203,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
               ),
             ),
           );
-        });
+
   }
 
   Text buildText(BuildContext context) {

@@ -3,7 +3,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/chat_item_to_forward.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/forward_appbar.dart';
 import 'package:deliver_flutter/screen/navigation_center/widgets/searchBox.dart';
-import 'package:deliver_flutter/services/audio_player_service.dart';
+
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -26,15 +26,13 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
 
   @override
   Widget build(BuildContext context) {
-    AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
+
     var _roomRepo = GetIt.I.get<RoomRepo>();
-    return StreamBuilder<bool>(
-        stream: audioPlayerService.isOn,
-        builder: (context, snapshot) {
+
           return Scaffold(
             backgroundColor: Theme.of(context).backgroundColor,
             appBar: PreferredSize(
-              preferredSize: Size.fromHeight(snapshot.data == true ? 100 : 60),
+              preferredSize: Size.fromHeight( 60),
               child: ForwardAppbar(),
             ),
             body: Column(
@@ -78,7 +76,7 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
               ],
             ),
           );
-        });
+
   }
 
   ListView buildListView(List<Uid> uids) {
