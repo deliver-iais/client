@@ -26,29 +26,25 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Duration>(
-        stream: audioPlayerService.audioCurrentPosition.stream,
-        builder: (context, snapshot2) {
-          currentPos = snapshot2.data ?? currentPos ?? Duration.zero;
-          return SliderTheme(
-            data: SliderThemeData(
-              thumbColor: ExtraTheme.of(context).active,
-              trackHeight: 2.25,
-              activeTrackColor: ExtraTheme.of(context).active,
-              inactiveTrackColor: ExtraTheme.of(context).text,
-              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
-            ),
-            child: Slider(
-                value: currentPos.inSeconds.toDouble(),
-                min: 0.0,
-                max: widget.duration,
-                onChanged: (double value) {
-                  setState(() {
-                    audioPlayerService.seekToSecond(value.toInt());
-                    value = value;
-                  });
-                }),
-          );
-        });
+    return
+       StreamBuilder<Duration>(
+          stream: audioPlayerService.audioCurrentPosition,
+          builder: (context, snapshot1) {
+            return StreamBuilder<Duration>(
+                stream: audioPlayerService.audioCurrentPosition,
+                builder: (context, snapshot2) {
+                  currentPos = snapshot2.data ?? currentPos ?? Duration.zero;
+                      return Slider(
+                        value: currentPos.inSeconds.toDouble(),
+                        min: 0.0,
+                        max: widget.duration,
+                        onChanged: (double value) {
+                          setState(() {
+                            audioPlayerService.seekToSecond(value.toInt());
+                            value = value;
+                          });
+                        });
+                });
+          });
   }
 }

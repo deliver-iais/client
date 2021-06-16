@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/services.dart';
 
-import 'package:audio_recorder/audio_recorder.dart';
+
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/bot_commandsWidget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/emojiKeybord.dart';
