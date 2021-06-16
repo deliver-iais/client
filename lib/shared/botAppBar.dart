@@ -7,6 +7,7 @@ import 'package:deliver_flutter/services/audioPlayerAppBar.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/title_status.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -35,9 +36,9 @@ class BotAppbar extends StatelessWidget {
                   future: _roomRepo.getRoomDisplayName(botUid),
                   builder: (c, name) {
                     if (name.hasData && name.data != null)
-                      return buildColumn(name.data);
+                      return buildColumn(name.data, ExtraTheme.of(context).textDetails);
                     else {
-                      return buildColumn(botUid.node);
+                      return buildColumn(botUid.node, ExtraTheme.of(context).textDetails);
                     }
                   })
             ],
@@ -48,12 +49,12 @@ class BotAppbar extends StatelessWidget {
         ));
   }
 
-  Column buildColumn(String name) {
+  Column buildColumn(String name, Color color) {
     return Column(
       children: [
         Text(
           name,
-          style: TextStyle(fontSize: 20),
+          style: TextStyle(fontSize: 20, color: color),
         ),
         TitleStatus(
           currentRoomUid: botUid,

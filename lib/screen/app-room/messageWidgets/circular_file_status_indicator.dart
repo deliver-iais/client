@@ -52,10 +52,10 @@ class CircularFileStatusIndicator extends StatelessWidget {
         width: 50,
         height: 50,
         decoration: BoxDecoration(
-            shape: BoxShape.circle, color: ExtraTheme.of(context).text),
+            shape: BoxShape.circle, color: ExtraTheme.of(context).circularFileStatus),
         child: Icon(
           Icons.arrow_downward,
-          color: Theme.of(context).primaryColor,
+          color: ExtraTheme.of(context).fileMessageDetails,
           size: 35,
         ),
       ),

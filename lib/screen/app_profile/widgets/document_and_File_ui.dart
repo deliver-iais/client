@@ -80,7 +80,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                     shape: BoxShape.circle,
                                                     color:
                                                         ExtraTheme.of(context)
-                                                            .text,
+                                                            .circularFileStatus,
                                                   ),
                                                   child: IconButton(
                                                     padding:
@@ -108,7 +108,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                             fontSize: 14,
                                                             fontWeight:
                                                                 FontWeight
-                                                                    .bold)),
+                                                                    .bold, color: ExtraTheme.of(context).textMessage)),
                                                   ),
                                                 ],
                                               ),
@@ -143,7 +143,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                       style: TextStyle(
                                                           fontSize: 14,
                                                           fontWeight:
-                                                              FontWeight.bold)),
+                                                              FontWeight.bold, color: ExtraTheme.of(context).textMessage)),
                                                 ),
                                               ],
                                             ),

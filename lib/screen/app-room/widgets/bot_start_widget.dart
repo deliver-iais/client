@@ -18,7 +18,7 @@ class BotStartWidget extends StatelessWidget{
     AppLocalization appLocalization = AppLocalization.of(context);
     return Container(
       height: 45,
-      color: Colors.blue,
+      color: Theme.of(context).primaryColor,
       child: Center(
         child: GestureDetector(
           child: Text(appLocalization.getTraslateValue("start"),style: TextStyle(fontSize: 18,),),

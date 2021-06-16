@@ -95,55 +95,49 @@ class _ChatItemState extends State<ChatItem> {
                               child: _showDisplayName(
                                   name.data, context),
                             )),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              bottom: 4.0,right: 0
-                          ),
-                          child: Text(
-                            widget.roomWithMessage.lastMessage.time
-                                .dateTimeFormat(),
-                            maxLines: 1,
-                            style: TextStyle(
-                              color: ExtraTheme.of(context).details,
-                              fontSize: 11,
-                            ),
-                          ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: 4.0,right: 0
+                      ),
+                      child: Text(
+                        widget.roomWithMessage.lastMessage.time
+                            .dateTimeFormat(),
+                        maxLines: 1,
+                        style: TextStyle(
+                          color: ExtraTheme.of(context).centerPageDetails,
+                          fontSize: 11,
                         ),
-                      ],
-                    ),
-                    Flexible(
-                      flex: 90,
-                      child: StreamBuilder<Activity>(
-                          stream: _roomRepo.activityObject[
-                          widget.roomWithMessage.room.roomId.uid.node],
-                          builder: (c, s) {
-                            if (s.hasData &&
-                                s.data != null &&
-                                s.data.typeOfActivity != ActivityType.NO_ACTIVITY) {
-                              return ActivityStatuse(
-                                activity: s.data,
-                                roomUid: widget.roomWithMessage.room.roomId.uid,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: ExtraTheme.of(context).details,
-                                ),
-                              );
-                            } else {
-                              return lastMessageWidget(messageType, context);
-                            }
-                          }),
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
+                Flexible(
+                  flex: 90,
+                  child: StreamBuilder<Activity>(
+                      stream: _roomRepo.activityObject[
+                          widget.roomWithMessage.room.roomId.uid.node],
+                      builder: (c, s) {
+                        if (s.hasData &&
+                            s.data != null &&
+                            s.data.typeOfActivity != ActivityType.NO_ACTIVITY) {
+                          return ActivityStatuse(
+                            activity: s.data,
+                            roomUid: widget.roomWithMessage.room.roomId.uid,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: ExtraTheme.of(context).centerPageDetails,
+                            ),
+                          );
+                        } else {
+                          return lastMessageWidget(messageType, context);
+                        }
+                      }),
+                ),
+              ],
+            ),
           ),
-        );
-      }else{
-        return SizedBox.shrink();
-      }
-    }
-
+        ],
+      ),
     );
 
   }
@@ -202,7 +196,7 @@ class _ChatItemState extends State<ChatItem> {
     return Text(
       name,
       style: TextStyle(
-        color: ExtraTheme.of(context).infoChat,
+        color: ExtraTheme.of(context).chatOrContactItemDetails,
         fontSize: 16,
       ),
       maxLines: 1,

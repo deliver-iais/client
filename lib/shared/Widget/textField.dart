@@ -25,14 +25,14 @@ class TextFieldId extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: this.setbacroundColor ? ExtraTheme.of(context).secondColor:null,
+      backgroundColor: this.setbacroundColor ? Theme.of(context).accentColor:null,
         body:TextField(
           onChanged: this.onChange,
           key: Key(this.widgetkey),
           textAlignVertical: TextAlignVertical.center,
           textAlign: TextAlign.center,
           autofocus: false,
-          cursorColor: this.setColor ? ExtraTheme.of(context).text :Colors.white,
+          cursorColor: this.setColor ? ExtraTheme.of(context).textMessage :Colors.white,
           decoration: InputDecoration(
             counterText: "",
             focusedBorder: InputBorder.none,
@@ -41,7 +41,7 @@ class TextFieldId extends StatelessWidget {
             hintStyle: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: this.fontSize,
-              color: this.setColor ?ExtraTheme.of(context).text:Colors.white,
+              color: this.setColor ?ExtraTheme.of(context).textMessage:Colors.white,
             ),
           ),
           maxLength: this.maxLength,

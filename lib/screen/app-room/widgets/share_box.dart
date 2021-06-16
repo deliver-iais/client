@@ -212,7 +212,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   width: 16.0,
                                   height: 16.0,
                                   decoration: new BoxDecoration(
-                                    color: Colors.blue,
+                                    color: Theme.of(context).primaryColor,
                                     shape: BoxShape.circle,
                                     border: Border.all(
                                       color: Colors.white,
@@ -348,10 +348,10 @@ Widget CircleButton(Function onTap, IconData icon, String text, double size,
     children: <Widget>[
       ClipOval(
         child: Material(
-          color: Colors.blue, // button color
+          color: Theme.of(context).primaryColor, // button color
           child: InkWell(
               splashColor: Colors.red, // inkwell color
-              child: SizedBox(width: size, height: size, child: Icon(icon)),
+              child: SizedBox(width: size, height: size, child: Icon(icon, color: Colors.white,)),
               onTap: onTap),
         ),
       ),

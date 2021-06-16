@@ -18,7 +18,7 @@ class JointToMucWidget extends StatelessWidget {
     _appLocalization = AppLocalization.of(context);
     return Container(
         height: 45,
-        color: Colors.blueAccent,
+        color: Theme.of(context).primaryColor,
         child: Center(
           child: GestureDetector(
             child: Text(_appLocalization.getTraslateValue("joint")),

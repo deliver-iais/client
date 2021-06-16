@@ -82,6 +82,7 @@ class _NewContactState extends State<NewContact> {
                 onChanged: (firstName) {
                   _firstName = firstName;
                 },
+                style: TextStyle(color: ExtraTheme.of(context).textField),
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: _appLocalization.getTraslateValue("firstName")),
@@ -96,6 +97,7 @@ class _NewContactState extends State<NewContact> {
                 onChanged: (lastName) {
                   _lastName = lastName;
                 },
+                style: TextStyle(color: ExtraTheme.of(context).textField),
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: _appLocalization.getTraslateValue("lastName")),
@@ -109,6 +111,7 @@ class _NewContactState extends State<NewContact> {
                       (value.length > 0 && value[0] == '0')
                   ? _appLocalization.getTraslateValue("invalid_mobile_number")
                   : null,
+              style: TextStyle(color: ExtraTheme.of(context).textField),
               onChanged: (ph) {
                 _phoneNumber = ph;
               },

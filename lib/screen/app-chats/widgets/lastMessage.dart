@@ -85,7 +85,7 @@ class LastMessage extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               softWrap: false,
               style: TextStyle(
-                color: ExtraTheme.of(context).infoChat,
+                color: ExtraTheme.of(context).chatOrContactItemDetails,
                 fontSize: 11,
               ),
             ),

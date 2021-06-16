@@ -17,9 +17,9 @@ class UxService {
 
   BehaviorSubject<Language> _language = BehaviorSubject.seeded(DefaultLanguage);
 
-  get themeStream => _theme.stream;
+  // get themeStream => _theme.stream;
 
-  get extraThemeStream => _extraTheme.stream;
+  // get extraThemeStream => _extraTheme.stream;
 
   get  localeStream =>
     _sharedPrefs.watch("lang").map((event) {
@@ -34,6 +34,19 @@ class UxService {
       }
     });
 
+  get themeStream =>
+    _sharedPrefs.watch("theme").map((event) {
+      if (event != null) {
+        var theme = event.value;
+        if(event.value.contains("Dark")){
+          _theme.add(DarkTheme);
+          _extraTheme.add(DarkExtraTheme);
+        }else{
+          _theme.add(LightTheme);
+          _extraTheme.add(LightExtraTheme);
+        }
+      }
+    });
 
   get Persian =>
   _language.value.countryCode.contains(Farsi.countryCode);
@@ -50,9 +63,11 @@ class UxService {
 
   toggleTheme() {
     if (theme == DarkTheme) {
+      _sharedPrefs.set("theme", "Light");
       _theme.add(LightTheme);
       _extraTheme.add(LightExtraTheme);
     } else {
+      _sharedPrefs.set("theme", "Dark");
       _theme.add(DarkTheme);
       _extraTheme.add(DarkExtraTheme);
     }
@@ -62,6 +77,7 @@ class UxService {
     _sharedPrefs.set("lang", language.countryCode);
     _language.add(language);
   }
+
 
  int getTabIndex(String fileId){
    return tabIndexMap[fileId];

@@ -13,14 +13,13 @@ class SearchBox extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 5),
       child: TextField(
-        // style: textStyle,
+        style: TextStyle(color: ExtraTheme.of(context).centerPageDetails),
         textAlignVertical: TextAlignVertical.center,
         textAlign: TextAlign.start,
         autofocus: false,
         maxLines: 1,
         onChanged: this.onChange,
-
-        cursorColor: ExtraTheme.of(context).details,
+        cursorColor: ExtraTheme.of(context).centerPageDetails,
         decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25.0),
@@ -38,10 +37,10 @@ class SearchBox extends StatelessWidget {
           ),
           contentPadding: const EdgeInsets.all(10),
           filled: true,
-          fillColor: Theme.of(context).accentColor.withAlpha(50),
+          fillColor: ExtraTheme.of(context).searchBox,
           prefixIcon: Icon(
             Icons.search,
-            color: ExtraTheme.of(context).details,
+            color: ExtraTheme.of(context).centerPageDetails,
           ),
           hintText: appLocalization.getTraslateValue("search"),
         ),

@@ -68,15 +68,6 @@ class _VideoUiState extends State<VideoUi> {
                     left: 0.0,
                     bottom: 70,
                     right: 0.0,
-                    child: SliderTheme(
-                      data: SliderThemeData(
-                        thumbColor: ExtraTheme.of(context).active,
-                        trackHeight: 2.25,
-                        activeTrackColor: ExtraTheme.of(context).active,
-                        inactiveTrackColor: ExtraTheme.of(context).text,
-                        thumbShape:
-                            RoundSliderThumbShape(enabledThumbRadius: 4.5),
-                      ),
                       child: StreamBuilder<double>(
                         stream: _currentPositionSubject.stream,
                         builder: (c, s) {
@@ -94,9 +85,7 @@ class _VideoUiState extends State<VideoUi> {
                             return Container();
                         },
                       ),
-                    ),
                   ),
-
               ],
             ),
           ),

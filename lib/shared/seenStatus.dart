@@ -14,7 +14,7 @@ class SeenStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     final SeenDao seenDao = GetIt.I.get<SeenDao>();
     Widget pendingMessage = Icon(Icons.access_alarm,
-        color: Theme.of(context).primaryColor, size: 15);
+        color: ExtraTheme.of(context).textMessage, size: 15);
     if(message.sendingFailed != null && message.sendingFailed){
       return Icon(Icons.warning_outlined,size: 15,color: Colors.red,);
     }
@@ -23,7 +23,7 @@ class SeenStatus extends StatelessWidget {
     else if (isSeen != null && isSeen) {
       return Icon(
         Icons.done_all,
-        color: ExtraTheme.of(context).text,
+        color: ExtraTheme.of(context).textMessage,
         size: 15,
       );
     } else
@@ -33,13 +33,13 @@ class SeenStatus extends StatelessWidget {
           if (snapshot.hasData)
             return Icon(
               snapshot.data.messageId>=message.id?Icons.done_all:Icons.done,
-              color: ExtraTheme.of(context).text,
+              color: ExtraTheme.of(context).textMessage,
               size: 15,
             );
           else
             return Icon(
               Icons.done,
-              color: ExtraTheme.of(context).text,
+              color: ExtraTheme.of(context).textMessage,
               size: 15,
             );
         },

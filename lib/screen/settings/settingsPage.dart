@@ -109,7 +109,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     attachFile();
                   },
                   shape: CircleBorder(),
-                  child: Icon(Icons.add_a_photo),
+                  child: Icon(Icons.add_a_photo, color: Colors.white),
                   padding: const EdgeInsets.all(20),
                 ),
                 MaterialButton(
@@ -119,7 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         .openRoom(_accountRepo.currentUserUid.asString());
                   },
                   shape: CircleBorder(),
-                  child: Icon(Icons.bookmark),
+                  child: Icon(Icons.bookmark, color: Colors.white),
                   padding: const EdgeInsets.all(20),
                 ),
                 Tooltip(
@@ -180,7 +180,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
                     },
                     shape: CircleBorder(),
-                    child: Icon(Icons.exit_to_app),
+                    child: Icon(Icons.exit_to_app, color: Colors.white),
                     padding: const EdgeInsets.all(20),
                   ),
                 )
@@ -200,7 +200,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           return Text(
                             snapshot.data.userName ?? "",
                             style: TextStyle(
-                                color: ExtraTheme.of(context).text,
+                                color: ExtraTheme.of(context).boxDetails,
                                 fontSize: 13),
                           );
                         } else {
@@ -229,7 +229,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         return Text(
                           snapshot.data.phoneNumber,
                           style: TextStyle(
-                              color: ExtraTheme.of(context).text, fontSize: 13),
+                              color: ExtraTheme.of(context).boxDetails, fontSize: 13),
                         );
                       } else {
                         return SizedBox.shrink();
@@ -244,17 +244,18 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
             ),
-            // settingsRow(
-            //   context,
-            //   iconData: Icons.brightness_2,
-            //   title: appLocalization.getTraslateValue("darkMode"),
-            //   child: Switch(
-            //     value: _getTheme(),
-            //     onChanged: (newThemMode) {
-            //       _uxService.toggleTheme();
-            //     },
-            //   ),
-            // ),
+            settingsRow(
+              context,
+              iconData: Icons.brightness_2,
+              title: appLocalization.getTraslateValue("darkMode"),
+              child: Switch(
+                activeColor: ExtraTheme.of(context).activeSwitch,
+                value: _getTheme(),
+                onChanged: (newThemMode) {
+                  _uxService.toggleTheme();
+                },
+              ),
+            ),
             settingsRow(context,
                 iconData: Icons.notifications_active,
                 title: appLocalization.getTraslateValue("notification"),
@@ -266,6 +267,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             notif.data.contains("true") ? true : false;
                         return Switch(
                           value: notification,
+                          activeColor: ExtraTheme.of(context).activeSwitch,
                           onChanged: (newNotifState) {
                             _accountRepo
                                 .setNotificationState(newNotifState.toString());
@@ -289,7 +291,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: DropdownButton(
                     hint: Text(
                       (_uxService.locale as Locale).language().name,
-                      style: TextStyle(color: ExtraTheme.of(context).text),
+                      style: TextStyle(color: ExtraTheme.of(context).boxDetails),
                     ),
                     onChanged: (Language language) {
                       _changeLanguage(language);
@@ -328,13 +330,13 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 SizedBox(width: 8),
                 Icon(
-                  iconData,color: Colors.blue,
+                  iconData,color: ExtraTheme.of(context).activeSwitch,
                   size: 18,
                 ),
                 SizedBox(width: 8),
                 Text(
                   title,
-                  style: Theme.of(context).primaryTextTheme.button,
+                  style: TextStyle(color: ExtraTheme.of(context).boxDetails),
                 ),
               ],
             ),

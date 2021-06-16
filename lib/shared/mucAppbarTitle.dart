@@ -5,6 +5,7 @@ import 'package:deliver_flutter/services/audioPlayerAppBar.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/title_status.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -45,7 +46,7 @@ class MucAppbarTitle extends StatelessWidget {
                             child: TitleStatus(
                               normalConditionWidget: Text(
                                 '${snapshot.data.members} ' +
-                                    appLocalization.getTraslateValue("members"),
+                                    appLocalization.getTraslateValue("members"), style: TextStyle(color: ExtraTheme.of(context).textDetails),
                               ),
                               currentRoomUid: mucUid.uid,
                             ),

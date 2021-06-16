@@ -52,7 +52,7 @@ class VideoThumbnail extends StatelessWidget {
                       ),
                       border: Border.all(
                         width: 1,
-                        color: ExtraTheme.of(context).secondColor,
+                        color: ExtraTheme.of(context).border,
                       ),
                     )),
                   )
@@ -64,7 +64,7 @@ class VideoThumbnail extends StatelessWidget {
                     ),
                     border: Border.all(
                       width: 1,
-                      color: ExtraTheme.of(context).secondColor,
+                      color: ExtraTheme.of(context).border,
                     ),
                   )),
             if (showPlayIcon)

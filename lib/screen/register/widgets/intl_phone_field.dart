@@ -182,14 +182,14 @@ AppLocalization appLocalization;
             decoration: InputDecoration(
               suffixIcon: Icon(
                 Icons.phone,
-                color: Theme.of(context).primaryTextTheme.button.color,
+                color: ExtraTheme.of(context).textField,
               ),
-              prefix: Text("${_selectedCountry['dial_code']}  " ,style: TextStyle(color: Colors.white),),
-              fillColor: ExtraTheme.of(context).secondColor,
+              prefix: Text("${_selectedCountry['dial_code']}  " ,style: TextStyle(color: ExtraTheme.of(context).textField),),
+              // fillColor: ExtraTheme.of(context).secondColor,
               labelText: appLocalization.getTraslateValue("phoneNumber"),
 //                        filled: true,
               labelStyle: TextStyle(
-                  color: Theme.of(context).primaryTextTheme.button.color),
+                  color: ExtraTheme.of(context).textField),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5.0),
                 borderSide: BorderSide(
@@ -253,13 +253,13 @@ AppLocalization appLocalization;
             ],
             Text(
               _selectedCountry['flag'],
-              style: TextStyle(fontSize: 24),
+              style: TextStyle(fontSize: 24, color: ExtraTheme.of(context).textField),
             ),
             SizedBox(width: 8),
             FittedBox(
               child: Text(
                 _selectedCountry['code'],
-                style: TextStyle(fontWeight: FontWeight.w700),
+                style: TextStyle(fontWeight: FontWeight.w700, color: ExtraTheme.of(context).textField),
               ),
             ),
             SizedBox(width: 8),

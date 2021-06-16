@@ -40,7 +40,7 @@ ChatItemToShareFile({Key key, this.uid, this.sharedText,this.sharedFilePath})
                           return Text(
                             snaps.data,
                             style: TextStyle(
-                              color: ExtraTheme.of(context).infoChat,
+                              color: ExtraTheme.of(context).chatOrContactItemDetails,
                               fontSize: 18,
                             ),
                           );
@@ -48,7 +48,7 @@ ChatItemToShareFile({Key key, this.uid, this.sharedText,this.sharedFilePath})
                           return Text(
                             "unKnown",
                             style: TextStyle(
-                              color: ExtraTheme.of(context).infoChat,
+                              color: ExtraTheme.of(context).chatOrContactItemDetails,
                               fontSize: 18,
                             ),
                           );

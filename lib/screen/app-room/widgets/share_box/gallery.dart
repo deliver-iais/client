@@ -92,7 +92,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                       ),
                       child: IconButton(
-                        icon: Icon(Icons.photo_camera, size: 40),
+                        icon: Icon(Icons.photo_camera, color: Colors.white, size: 40),
                         onPressed: () async {
                           try {
                             final picker = ImagePicker();
@@ -152,7 +152,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                             widget.onClick(index, image.path),
                                         icon: Icon(selected
                                             ? Icons.check_circle_outline
-                                            : Icons.panorama_fish_eye),
+                                            : Icons.panorama_fish_eye, color: Colors.white,),
                                       ),
                                     )
                                   : SizedBox.shrink(),

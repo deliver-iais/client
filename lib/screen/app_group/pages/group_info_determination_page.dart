@@ -5,6 +5,7 @@ import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -92,6 +93,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                             validator: checkMucNameIsSet,
                             textInputAction: TextInputAction.send,
                             controller: controller,
+                            style: TextStyle(color: ExtraTheme.of(context).textField),
                             onChanged: (str) {
                               setState(() {
                                 mucName = str;
@@ -103,7 +105,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                         .getTraslateValue("enter-channel-name")
                                     : _appLocalization
                                         .getTraslateValue("enter-group-name"),
-                                true)),
+                                true, context)),
                       ),
                     ),
                   ],
@@ -122,6 +124,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                               minLines: 1,
                               maxLines: 1,
                               autofocus: autofocus,
+                              style: TextStyle(color: ExtraTheme.of(context).textField),
                               textInputAction: TextInputAction.send,
                               controller: idController,
                               validator: validateUsername,
@@ -133,7 +136,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                               decoration: buildInputDecoration(
                                   _appLocalization
                                       .getTraslateValue("enter-channel-id"),
-                                  true),
+                                  true, context),
                             ),
                           )),
                         ],
@@ -153,6 +156,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           autofocus: autofocus,
                           textInputAction: TextInputAction.newline,
                           controller: infoController,
+                          style: TextStyle(color: ExtraTheme.of(context).textField),
                           validator: validateUsername,
                           onChanged: (str) {
                             setState(() {
@@ -165,7 +169,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                       .getTraslateValue("enter-channel-desc")
                                   : _appLocalization
                                       .getTraslateValue("enter-group-desc"),
-                              false)),
+                              false, context)),
                     )),
                   ],
                 ),
@@ -233,7 +237,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                       child: IconButton(
                         alignment: Alignment.center,
                         padding: EdgeInsets.all(0),
-                        icon: Icon(Icons.check),
+                        icon: Icon(Icons.check, color: Colors.white),
                         onPressed: () async {
                           bool res =
                               mucNameKey?.currentState?.validate() ?? false;
@@ -298,7 +302,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                 child: IconButton(
                   alignment: Alignment.center,
                   padding: EdgeInsets.all(0),
-                  icon: Icon(Icons.arrow_back),
+                  icon: Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () async {
                     _routingService.pop();
                   },
@@ -311,14 +315,14 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
     );
   }
 
-  InputDecoration buildInputDecoration(label, bool isOptional) {
+  InputDecoration buildInputDecoration(label, bool isOptional, BuildContext context) {
     return InputDecoration(
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue),
+          borderSide: BorderSide(color: ExtraTheme.of(context).border),
           borderRadius: BorderRadius.circular(10),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue),
+          borderSide: BorderSide(color: ExtraTheme.of(context).border),
           borderRadius: BorderRadius.circular(10),
         ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -333,12 +337,12 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                 padding: const EdgeInsets.only(top: 20, left: 25),
                 child: Text(
                   "*",
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(color: ExtraTheme.of(context).border),
                 ),
               )
             : SizedBox.shrink(),
         labelText: label,
-        labelStyle: TextStyle(color: Colors.blue));
+        labelStyle: TextStyle(color:  ExtraTheme.of(context).border));
   }
 
   String checkMucNameIsSet(String value) {
