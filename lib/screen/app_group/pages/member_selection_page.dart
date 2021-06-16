@@ -5,6 +5,7 @@ import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -56,19 +57,25 @@ class MemberSelectionPage extends StatelessWidget {
                   }
                   int members = snapshot.data;
                   return AnimatedDefaultTextStyle(
-                    style: members > 0
-                        ? TextStyle(
+                    style: TextStyle(
                         fontSize: 16,
-                        color: Theme
+                        color: ExtraTheme
                             .of(context)
-                            .primaryColor,
-                        fontWeight: FontWeight.bold)
-                        : TextStyle(
-                        fontSize: 14,
-                        color: Theme
-                            .of(context)
-                            .accentColor,
-                        fontWeight: FontWeight.w100),
+                            .textDetails,
+                        fontWeight: FontWeight.bold),
+                    // style: members > 0
+                    //     ? TextStyle(
+                    //     fontSize: 16,
+                    //     color: Theme
+                    //         .of(context)
+                    //         .primaryColor,
+                    //     fontWeight: FontWeight.bold)
+                    //     : TextStyle(
+                    //     fontSize: 14,
+                    //     color: Theme
+                    //         .of(context)
+                    //         .accentColor,
+                    //     fontWeight: FontWeight.w100),
                     duration: ANIMATION_DURATION,
                     curve: Curves.easeIn,
                     child: Text(

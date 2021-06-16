@@ -41,7 +41,7 @@ class AudioPlayProgress extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               softWrap: false,
                               style:
-                                  TextStyle(color: ExtraTheme.of(context).text),
+                                  TextStyle(color: ExtraTheme.of(context).textMessage),
                             ),
                           ),
                         );

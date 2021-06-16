@@ -5,6 +5,7 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/image_message/ima
 import 'package:deliver_flutter/screen/app-room/messageWidgets/message_header.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/text_message/text_ui.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_message.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
@@ -61,6 +62,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
                 onUsernameClick: widget.onUsernameClick,
                 isCaption: true,
                 imageWidth: width,
+                color: ExtraTheme.of(context).textMessage,
               ),
             ),
           )

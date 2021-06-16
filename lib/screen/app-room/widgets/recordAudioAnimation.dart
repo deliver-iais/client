@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -20,12 +21,12 @@ class RecordAudioAnimation extends StatelessWidget {
           duration: ANIMATION_DURATION,
           width: 50 * size,
           height: 50 * size,
-          color: (1 - size) == 0 ? Colors.transparent : Colors.blue,
+          color: (1 - size) == 0 ? Colors.transparent : ExtraTheme.of(context).textDetails,
           child: Center(
             child: Icon(
               Icons.keyboard_voice,
               size: 14 * (size - 1) + IconTheme.of(context).size,
-              color: Colors.white,
+              color: ExtraTheme.of(context).textField,
             ),
           ),
         ),

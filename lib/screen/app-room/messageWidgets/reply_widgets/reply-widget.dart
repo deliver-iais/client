@@ -12,7 +12,7 @@ class ReplyWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: ExtraTheme.of(context).secondColor,
+      color: ExtraTheme.of(context).inputBoxBackground.withAlpha(100),
       child: Padding(
         padding: const EdgeInsets.only(
           left: 15,

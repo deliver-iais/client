@@ -1,6 +1,7 @@
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/boxContent.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
 class SentMessageBox extends StatelessWidget {
@@ -42,7 +43,7 @@ class SentMessageBox extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(5)),
                   child: Container(
                     padding: const EdgeInsets.all(2),
-                    color: Theme.of(context).primaryColor,
+                    color: ExtraTheme.of(context).sentMessageBox,
                     child: BoxContent(
                       message: message,
                       maxWidth: maxWidth,

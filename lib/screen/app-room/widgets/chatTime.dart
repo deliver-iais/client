@@ -1,4 +1,5 @@
 import 'package:deliver_flutter/shared/methods/dateTimeFormat.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
 class ChatTime extends StatelessWidget {
@@ -23,7 +24,7 @@ class ChatTime extends StatelessWidget {
           return Text(
             outT,
             style: TextStyle(
-              color: Theme.of(context).primaryColor,
+              color: ExtraTheme.of(context).textDetails,
               fontSize: 13,
             ),
           );

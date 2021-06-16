@@ -40,6 +40,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/shared/mucAppbarTitle.dart';
 import 'package:deliver_flutter/shared/userAppBar.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -126,6 +127,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   BehaviorSubject<bool> _hasPermissionInChannel = BehaviorSubject.seeded(true);
   BehaviorSubject<int> unReadMessageScrollSubjet = BehaviorSubject.seeded(0);
 
+  Color menuColor;
+
   Future<List<Message>> _getPendingMessage(dbId) async {
     return [await _messageRepo.getPendingMessage(dbId)];
   }
@@ -194,7 +197,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 hasPermissionInChannel: _hasPermissionInChannel.value,
               )
             ],
-            color: Theme.of(context).backgroundColor.withBlue(20))
+            color: menuColor)
         .then<void>((OperationOnMessage opr) {
       if (opr == null) return;
       switch (opr) {
@@ -325,6 +328,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
     double _maxWidth = MediaQuery.of(context).size.width * 0.7;
+    menuColor = ExtraTheme.of(context).popupMenuButton;
     if (isLarge(context)) {
       _maxWidth =
           (MediaQuery.of(context).size.width - navigationPanelSize()) * 0.7;
@@ -615,10 +619,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     TextEditingController controller = TextEditingController();
     BehaviorSubject<bool> checkSearchResult = BehaviorSubject.seeded(false);
     return PreferredSize(
-      preferredSize: Size.fromHeight(
-          snapshot.data == true || _audioPlayerService.lastDur != null
-              ? 100
-              : 60),
+      preferredSize: Size.fromHeight(60),
+          // snapshot.data == true || _audioPlayerService.lastDur != null
+          //     ? 100
+          //     : 60),
       child: AppBar(
         leading: GestureDetector(
           child: StreamBuilder(
@@ -715,11 +719,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       });
                 } else {
                   return PopupMenuButton(
-                    icon: Icon(Icons.more_vert),
+                    color: ExtraTheme.of(context).popupMenuButton,
+                    icon: Icon(Icons.more_vert,  color: Colors.white),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
                           child:
-                              Text(_appLocalization.getTraslateValue("search")),
+                              Text(_appLocalization.getTraslateValue("search"), style: TextStyle(color: ExtraTheme.of(context).popupMenuButtonDetails,),),
                           value: "search"),
                     ],
                     onSelected: (search) {
@@ -903,7 +908,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 height: 100,
                 child: Center(
                   child: CircularProgressIndicator(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: ExtraTheme.of(context).textDetails,
                   ),
                 ));
           }

@@ -89,7 +89,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                                       border: Border.all(
                                         width: 1,
                                         color:
-                                            ExtraTheme.of(context).secondColor,
+                                            ExtraTheme.of(context).border,
                                       ),
                                     )),
                                     transitionOnUserGestures: true,
@@ -137,7 +137,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                                         border: Border.all(
                                           width: 1,
                                           color:
-                                              ExtraTheme.of(context).secondColor,
+                                              ExtraTheme.of(context).border,
                                         ),
                                       )),
                                     ),

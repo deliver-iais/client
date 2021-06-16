@@ -161,7 +161,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                     style: TextStyle(
                                                       color: ExtraTheme.of(
                                                               context)
-                                                          .blueOfProfilePage,
+                                                          .boxDetails,
                                                       fontSize: 16.0,
                                                     ),
                                                   ),
@@ -177,14 +177,14 @@ class _ProfilePageState extends State<ProfilePage>
                                                     child: Text(
                                                       "@ Deliver",
                                                       style: TextStyle(
-                                                          color: Colors.white),
+                                                          color: ExtraTheme.of(context).boxDetails),
                                                     ))
                                                 : widget.userUid.category ==
                                                         Categories.BOT
                                                     ? _showUsername(
                                                         widget.userUid.node,
                                                         widget.userUid,
-                                                        appLocalization)
+                                                        appLocalization, context)
                                                     : FutureBuilder<String>(
                                                         future: _roomRepo
                                                             .getUsername(
@@ -199,7 +199,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                             return _showUsername(
                                                                 snapshot.data,
                                                                 widget.userUid,
-                                                                appLocalization);
+                                                                appLocalization, context);
                                                           } else {
                                                             return SizedBox
                                                                 .shrink();
@@ -218,9 +218,8 @@ class _ProfilePageState extends State<ProfilePage>
                                             color: ExtraTheme.of(context)
                                                 .borderOfProfilePage),
                                         borderRadius: BorderRadius.circular(15),
-                                        color: Theme.of(context)
-                                            .accentColor
-                                            .withAlpha(50),
+                                        color: ExtraTheme.of(context)
+                                            .boxBackground
                                       ),
                                       child: Column(
                                         children: [
@@ -238,13 +237,13 @@ class _ProfilePageState extends State<ProfilePage>
                                                   SizedBox(
                                                     width: 10,
                                                   ),
-                                                  Icon(Icons.message),
+                                                  Icon(Icons.message, color: ExtraTheme.of(context).boxDetails,),
                                                   SizedBox(
                                                     width: 10,
                                                   ),
                                                   Text(appLocalization
                                                       .getTraslateValue(
-                                                          "sendMessage")),
+                                                          "sendMessage"), style: TextStyle(color:ExtraTheme.of(context).boxDetails, ),),
                                                 ]),
                                                 onTap: () {
                                                   _routingService.openRoom(
@@ -275,11 +274,12 @@ class _ProfilePageState extends State<ProfilePage>
                                                             Icons
                                                                 .notifications_active,
                                                             size: 30,
+                                                              color: ExtraTheme.of(context).boxDetails
                                                           ),
                                                           SizedBox(width: 10),
                                                           Text(appLocalization
                                                               .getTraslateValue(
-                                                                  "notification")),
+                                                                  "notification"), style: TextStyle(color:ExtraTheme.of(context).boxDetails, ),),
                                                         ],
                                                       ),
                                                     ),
@@ -297,7 +297,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                           return Switch(
                                                             activeColor: ExtraTheme
                                                                     .of(context)
-                                                                .blueOfProfilePage,
+                                                                .activeSwitch,
                                                             value: !snapshot
                                                                 .data.mute,
                                                             onChanged:
@@ -347,13 +347,13 @@ class _ProfilePageState extends State<ProfilePage>
                                                             children: [
                                                               IconButton(
                                                                 icon: Icon(Icons
-                                                                    .phone),
+                                                                    .phone, color: ExtraTheme.of(context).boxDetails),
                                                                 onPressed:
                                                                     () {},
                                                               ),
                                                               Text(appLocalization
                                                                   .getTraslateValue(
-                                                                      "phone")),
+                                                                      "phone"), style: TextStyle(color:ExtraTheme.of(context).boxDetails)),
                                                             ],
                                                           ),
                                                           Padding(
@@ -378,8 +378,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                           .PHONE,
                                                                       style:
                                                                           TextStyle(
-                                                                        color: Colors
-                                                                            .blue,
+                                                                        color: ExtraTheme.of(context).boxDetails,
                                                                         fontSize:
                                                                             16,
                                                                       ),
@@ -555,10 +554,12 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
                       url: jsonDecode(snapshot.data[index].json)["url"],
                       bodyStyle: TextStyle(
                         fontSize: 10.0,
+                        color: ExtraTheme.of(context).textMessage
                       ),
                       titleStyle: TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.bold,
+                          color: ExtraTheme.of(context).textMessage
                       ),
                     ),
                   ),
@@ -572,7 +573,7 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
 }
 
 Widget _showUsername(
-    String username, Uid currentUid, AppLocalization _appLocalization) {
+    String username, Uid currentUid, AppLocalization _appLocalization, BuildContext context) {
   var routingServices = GetIt.I.get<RoutingService>();
   return Padding(
     padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
@@ -582,7 +583,7 @@ Widget _showUsername(
         GestureDetector(
           child: Text(
             username != null ? "@$username" : '',
-            style: TextStyle(fontSize: 18.0, color: Colors.blue),
+            style: TextStyle(fontSize: 18.0, color: ExtraTheme.of(context).boxDetails),
           ),
           onLongPress: () {
             Clipboard.setData(ClipboardData(text: "@$username"));
@@ -597,7 +598,7 @@ Widget _showUsername(
             icon: Icon(
               Icons.share,
               size: 22,
-              color: Colors.white,
+              color: ExtraTheme.of(context).boxDetails,
             ),
             onPressed: () {
               routingServices.openSelectForwardMessage(

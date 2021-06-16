@@ -31,7 +31,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
               height: 50,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: ExtraTheme.of(context).text,
+                color: ExtraTheme.of(context).circularFileStatus,
               ),
               child: StreamBuilder<AudioPlayerState>(
                   stream: audioPlayerService.audioPlayerState(widget.fileId),
@@ -42,7 +42,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
                         alignment: Alignment.center,
                         icon: Icon(
                           Icons.pause,
-                          color: Theme.of(context).primaryColor,
+                          color: ExtraTheme.of(context).fileMessageDetails,
                           size: 40,
                         ),
                         onPressed: () {
@@ -57,7 +57,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
                           alignment: Alignment.center,
                           icon: Icon(
                             Icons.play_arrow,
-                            color: Theme.of(context).primaryColor,
+                            color: ExtraTheme.of(context).fileMessageDetails,
                             size: 40,
                           ),
                           onPressed: () {

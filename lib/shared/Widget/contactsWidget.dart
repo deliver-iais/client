@@ -95,7 +95,7 @@ class ContactWidget extends StatelessWidget {
                         : "${contact.firstName}",
                 overflow: TextOverflow.clip,
                 style: TextStyle(
-                  color: ExtraTheme.of(context).infoChat,
+                  color: ExtraTheme.of(context).chatOrContactItemDetails,
                   fontSize: 18,
                 ),
               ),

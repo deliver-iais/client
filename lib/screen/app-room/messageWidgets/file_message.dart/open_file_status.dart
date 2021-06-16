@@ -22,7 +22,7 @@ class OpenFileStatus extends StatelessWidget {
       height: 50,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: ExtraTheme.of(context).text,
+        color: ExtraTheme.of(context).circularFileStatus,
       ),
       child: FutureBuilder<File>(
           future: fileRepo.getFile(file.uuid, file.name),
@@ -32,7 +32,7 @@ class OpenFileStatus extends StatelessWidget {
               alignment: Alignment.center,
               icon: Icon(
                 Icons.insert_drive_file,
-                color: Theme.of(context).primaryColor,
+                color: ExtraTheme.of(context).fileMessageDetails,
                 size: 33,
               ),
               onPressed: () {

@@ -114,7 +114,7 @@ class _ChatItemState extends State<ChatItem> {
                             .dateTimeFormat(),
                         maxLines: 1,
                         style: TextStyle(
-                          color: ExtraTheme.of(context).details,
+                          color: ExtraTheme.of(context).centerPageDetails,
                           fontSize: 11,
                         ),
                       ),
@@ -135,7 +135,7 @@ class _ChatItemState extends State<ChatItem> {
                             roomUid: widget.roomWithMessage.room.roomId.uid,
                             style: TextStyle(
                               fontSize: 16,
-                              color: ExtraTheme.of(context).details,
+                              color: ExtraTheme.of(context).centerPageDetails,
                             ),
                           );
                         } else {
@@ -205,7 +205,7 @@ class _ChatItemState extends State<ChatItem> {
     return Text(
       name,
       style: TextStyle(
-        color: ExtraTheme.of(context).infoChat,
+        color: ExtraTheme.of(context).chatOrContactItemDetails,
         fontSize: 16,
       ),
       maxLines: 1,

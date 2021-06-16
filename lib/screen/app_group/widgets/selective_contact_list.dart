@@ -111,7 +111,8 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
           children: [
             TextField(
                 decoration: InputDecoration(
-                    hintText: appLocalization.getTraslateValue("search")),
+                    hintText: appLocalization.getTraslateValue("search"),
+                ),
                 onChanged: (value) {
                   filterSearchResults(value);
                 },
@@ -197,7 +198,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               }
                             })
                         : IconButton(
-                            icon: Icon(Icons.arrow_forward),
+                            icon: Icon(Icons.arrow_forward, color: Colors.white,),
                             alignment: Alignment.center,
                             padding: EdgeInsets.all(0),
                             onPressed: () {

@@ -28,7 +28,7 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
             return this.inputMessage;
           } else  {
             return Container(
-              color: Theme.of(context).buttonColor,
+              color: Theme.of(context).primaryColor,
               height: 45,
               child: Center(
                   child: GestureDetector(

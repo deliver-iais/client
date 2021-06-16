@@ -48,14 +48,16 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                     radius: 55.0,
                                     lineWidth: 4.0,
                                     percent: snapshot.data,
-                                    progressColor: Colors.black,
+                                    backgroundColor: ExtraTheme.of(context).circularFileStatus,
+                                    progressColor: ExtraTheme.of(context).fileMessageDetails,
                                   );
                                 } else {
                                   return CircularPercentIndicator(
                                     radius: 55.0,
                                     lineWidth: 4.0,
                                     percent: 0.01,
-                                    progressColor: Colors.black,
+                                    backgroundColor: ExtraTheme.of(context).circularFileStatus,
+                                    progressColor: ExtraTheme.of(context).fileMessageDetails,
                                   );
                                 }
                               })
@@ -75,16 +77,18 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                     radius: 45.0,
                                     lineWidth: 4.0,
                                     percent: snapshot.data,
-                                    center: Icon(Icons.arrow_downward),
-                                    progressColor: Colors.black,
+                                    backgroundColor: ExtraTheme.of(context).circularFileStatus,
+                                    center: Icon(Icons.arrow_downward, color: ExtraTheme.of(context).fileMessageDetails),
+                                    progressColor: ExtraTheme.of(context).fileMessageDetails,
                                   );
                                 } else {
                                   return CircularPercentIndicator(
                                     radius: 45.0,
                                     lineWidth: 4.0,
                                     percent: 0.1,
-                                    center: Icon(Icons.arrow_downward),
-                                    progressColor: Colors.black,
+                                    center: Icon(Icons.arrow_downward, color: ExtraTheme.of(context).fileMessageDetails,),
+                                    backgroundColor: ExtraTheme.of(context).circularFileStatus,
+                                    progressColor: ExtraTheme.of(context).fileMessageDetails,
                                   );
                                 }
                               }))
@@ -95,13 +99,13 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                             height: 50,
                             decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: ExtraTheme.of(context).text),
+                                color: ExtraTheme.of(context).circularFileStatus),
                             child: pendingMessage.data != null
                                 ? IconButton(
                                     padding: EdgeInsets.all(0),
                                     icon: Icon(
                                       Icons.arrow_upward,
-                                      color: Theme.of(context).primaryColor,
+                                      color: ExtraTheme.of(context).fileMessageDetails,
                                       size: 33,
                                     ),
                                     onPressed: () {},
@@ -111,7 +115,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                                     alignment: Alignment.center,
                                     icon: Icon(
                                       Icons.arrow_downward,
-                                      color: Theme.of(context).primaryColor,
+                                      color: ExtraTheme.of(context).fileMessageDetails,
                                       size: 35,
                                     ),
                                     onPressed: () {

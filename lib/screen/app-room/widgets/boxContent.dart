@@ -132,8 +132,7 @@ class _BoxContentState extends State<BoxContent> {
             return GestureDetector(
               child: Text(
                   "${_appLocalization.getTraslateValue("Forwarded_From")} ${snapshot.data}",
-                  style: TextStyle(
-                      color: ExtraTheme.of(context).text, fontSize: 13)),
+                  style: TextStyle(color: ExtraTheme.of(context).messageDetails, fontSize: 13)),
               onTap: () {
                 _routingServices.openRoom(widget.message.forwardedFrom);
               },
@@ -141,8 +140,7 @@ class _BoxContentState extends State<BoxContent> {
           } else {
             return Text(
                 "${_appLocalization.getTraslateValue("Forwarded_From")} Unknown",
-                style: TextStyle(
-                    color: ExtraTheme.of(context).secondColor, fontSize: 13));
+                style: TextStyle(color: ExtraTheme.of(context).messageDetails, fontSize: 13));
           }
         },
       ),
@@ -165,6 +163,7 @@ class _BoxContentState extends State<BoxContent> {
             onBotCommandClick: widget.onBotCommandClick,
             onUsernameClick: widget.onUsernameClick,
             isSeen: widget.isSeen,
+            color: ExtraTheme.of(context).textMessage,
           ),
         );
         break;
