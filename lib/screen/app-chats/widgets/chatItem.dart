@@ -51,104 +51,101 @@ class _ChatItemState extends State<ChatItem> {
         ? "send"
         : "receive";
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 5),
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-          color: widget.isSelected ? Theme.of(context).focusColor : null,
-          border: widget.isSelected
-              ? null
-              : Border.all(color: Theme.of(context).dividerColor),
-          borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
-      height: 66,
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(bottom: 5),
-            child: ContactPic(widget.roomWithMessage.room.roomId.uid),
-          ),
-          SizedBox(
-            width: 10,
-          ),
-          Expanded(
-            flex: 90,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                        width: 200,
-                        child: widget.roomWithMessage.room.roomId.uid
+    return FutureBuilder<String>(future:_roomRepo.getRoomDisplayName(widget.roomWithMessage.room.roomId.getUid()),builder: (c, name){
+      if(name.hasData && name.data.isNotEmpty){
+        return  Container(
+          margin: const EdgeInsets.only(bottom: 5),
+          padding: const EdgeInsets.all(5),
+          decoration: BoxDecoration(
+              color: widget.isSelected ? Theme.of(context).focusColor : null,
+              border: widget.isSelected
+                  ? null
+                  : Border.all(color: Theme.of(context).dividerColor),
+              borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
+          height: 66,
+          child: Row(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(bottom: 5),
+                child: ContactPic(widget.roomWithMessage.room.roomId.uid),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                flex: 90,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                            width: 200,
+                            child: widget.roomWithMessage.room.roomId.uid
                                 .toString()
                                 .contains(
-                                    _accountRepo.currentUserUid.toString())
-                            ? _showDisplayName(
+                                _accountRepo.currentUserUid.toString())
+                                ? _showDisplayName(
                                 _appLocalization
                                     .getTraslateValue("saved_message"),
                                 context)
-                            : Padding(
+                                : Padding(
                               padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                              child: FutureBuilder<String>(
-                                  future: _roomRepo.getRoomDisplayName(
-                                      widget.roomWithMessage.room.roomId.uid,
-                                      roomUid:
-                                          widget.roomWithMessage.room.roomId),
-                                  builder: (BuildContext c,
-                                      AsyncSnapshot<String> snaps) {
-                                    if (snaps.hasData && snaps.data.isNotEmpty) {
-                                      return _showDisplayName(
-                                          snaps.data, context);
-                                    } else {
-                                      return _showDisplayName("Unknown", context);
-                                    }
-                                  }),
+                              child: _showDisplayName(
+                                  name.data, context),
                             )),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: 4.0,right: 0
-                      ),
-                      child: Text(
-                        widget.roomWithMessage.lastMessage.time
-                            .dateTimeFormat(),
-                        maxLines: 1,
-                        style: TextStyle(
-                          color: ExtraTheme.of(context).details,
-                          fontSize: 11,
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              bottom: 4.0,right: 0
+                          ),
+                          child: Text(
+                            widget.roomWithMessage.lastMessage.time
+                                .dateTimeFormat(),
+                            maxLines: 1,
+                            style: TextStyle(
+                              color: ExtraTheme.of(context).details,
+                              fontSize: 11,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
+                    ),
+                    Flexible(
+                      flex: 90,
+                      child: StreamBuilder<Activity>(
+                          stream: _roomRepo.activityObject[
+                          widget.roomWithMessage.room.roomId.uid.node],
+                          builder: (c, s) {
+                            if (s.hasData &&
+                                s.data != null &&
+                                s.data.typeOfActivity != ActivityType.NO_ACTIVITY) {
+                              return ActivityStatuse(
+                                activity: s.data,
+                                roomUid: widget.roomWithMessage.room.roomId.uid,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: ExtraTheme.of(context).details,
+                                ),
+                              );
+                            } else {
+                              return lastMessageWidget(messageType, context);
+                            }
+                          }),
                     ),
                   ],
                 ),
-                Flexible(
-                  flex: 90,
-                  child: StreamBuilder<Activity>(
-                      stream: _roomRepo.activityObject[
-                          widget.roomWithMessage.room.roomId.uid.node],
-                      builder: (c, s) {
-                        if (s.hasData &&
-                            s.data != null &&
-                            s.data.typeOfActivity != ActivityType.NO_ACTIVITY) {
-                          return ActivityStatuse(
-                            activity: s.data,
-                            roomUid: widget.roomWithMessage.room.roomId.uid,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: ExtraTheme.of(context).details,
-                            ),
-                          );
-                        } else {
-                          return lastMessageWidget(messageType, context);
-                        }
-                      }),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      }else{
+        return SizedBox.shrink();
+      }
+    }
+
     );
+
   }
 
   Widget lastMessageWidget(String messageType, BuildContext context) {

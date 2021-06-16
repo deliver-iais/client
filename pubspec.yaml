@@ -161,6 +161,7 @@ dev_dependencies:
     sdk: flutter
 
   moor_generator: 4.3.1
+  marquee: 2.1.0
   build_runner:
 #  auto_route_generator:
 

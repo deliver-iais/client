@@ -24,7 +24,6 @@ class ChatsPage extends StatelessWidget {
             stream: routingService.currentRouteStream,
             builder: (BuildContext c, AsyncSnapshot<Object> s) {
               var roomsWithMessages = snapshot.data ?? [];
-
               return Container(
                 child: Scrollbar(
                   child: ListView.builder(
