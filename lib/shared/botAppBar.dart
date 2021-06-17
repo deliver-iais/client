@@ -36,9 +36,9 @@ class BotAppbar extends StatelessWidget {
                   future: _roomRepo.getRoomDisplayName(botUid),
                   builder: (c, name) {
                     if (name.hasData && name.data != null)
-                      return buildColumn(name.data, ExtraTheme.of(context).textDetails);
+                      return buildColumn(name.data, context);
                     else {
-                      return buildColumn(botUid.node, ExtraTheme.of(context).textDetails);
+                      return buildColumn(botUid.node, context);
                     }
                   })
             ],
@@ -49,12 +49,13 @@ class BotAppbar extends StatelessWidget {
         ));
   }
 
-  Column buildColumn(String name, Color color) {
+  Column buildColumn(String name, BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           name,
-          style: TextStyle(fontSize: 20, color: color),
+          style: Theme.of(context).textTheme.headline2,
         ),
         TitleStatus(
           currentRoomUid: botUid,

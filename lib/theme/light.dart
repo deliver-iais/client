@@ -20,13 +20,14 @@ ThemeData LightTheme = ThemeData(
     textTheme: TextTheme(
       headline1: TextStyle(color: Colors.white, fontSize: 40),
       headline2: TextStyle(
-          color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
+          color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold),
       headline3: TextStyle(color: Colors.white, fontSize: 20),
       headline4: TextStyle(color: Colors.white, fontSize: 14),
     ),
     appBarTheme: AppBarTheme(
-      color: Color(0xff1f655d),
+      color: Colors.white,
       elevation: 0,
+      iconTheme: IconThemeData(color: Color(0xff002121))
     ),
     sliderTheme: SliderThemeData(
       thumbColor: Color(0xff4bd5af),
@@ -59,23 +60,23 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   textDetails : Color(0xff4bd5af),
   //homePage
     bottomNavigationAppbar : LightTheme.appBarTheme.color.withAlpha(200),
-    activePageIcon: LightTheme.backgroundColor,
+    activePageIcon: LightTheme.accentColor,
     inactivePageIcon : LightTheme.accentColor.withAlpha(100), //details in extra
     menuIconButton : LightTheme.accentColor.withAlpha(50),
-    popupMenuButton : LightTheme.backgroundColor.withOpacity(0.8),
+    popupMenuButton : LightTheme.backgroundColor.withOpacity(0.9),
     popupMenuButtonDetails : LightTheme.accentColor,
     searchBox: LightTheme.appBarTheme.color.withAlpha(50),
     chatOrContactItemDetails : Colors.black,//info chat in extra
     // roomPage
     sentMessageBox:  Color(0xff01aa9a),
-    receivedMessageBox: Color(0xff00805a).withAlpha(50),
+    receivedMessageBox: Colors.white,
     textMessage: LightTheme.accentColor,
     messageDetails: LightTheme.accentColor.withAlpha(200),
     persistentEventMessage: LightTheme.backgroundColor,
     circularFileStatus: LightTheme.backgroundColor,
     fileMessageDetails: Color(0xff00a394),
     textField: LightTheme.accentColor,
-    inputBoxBackground: Color(0xff174b45).withAlpha(50),
+    inputBoxBackground: Colors.white,
    //group
   border: Color(0xff174b45),
   // text1 : white black

@@ -630,6 +630,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   );
               }),
         ),
+        titleSpacing: 0.0,
         title: StreamBuilder(
           stream: _searchMode.stream,
           builder: (c, s) {
@@ -673,25 +674,23 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 ],
               );
             } else {
-              return Align(
-                  alignment: Alignment.centerLeft,
-                  child: StreamBuilder<bool>(
-                    stream: _selectMultiMessageSubject.stream,
-                    builder: (c, sm) {
-                      if (sm.hasData && sm.data) {
-                        return _selectMultiMessageAppBar();
-                      } else {
-                        if (_isMuc)
-                          return MucAppbarTitle(mucUid: widget.roomId);
-                        else if (widget.roomId.uid.category == Categories.BOT)
-                          return BotAppbar(botUid: widget.roomId.uid);
-                        else
-                          return UserAppbar(
-                            userUid: widget.roomId.uid,
-                          );
-                      }
-                    },
-                  ));
+              return StreamBuilder<bool>(
+                stream: _selectMultiMessageSubject.stream,
+                builder: (c, sm) {
+                  if (sm.hasData && sm.data) {
+                    return _selectMultiMessageAppBar();
+                  } else {
+                    if (_isMuc)
+                      return MucAppbarTitle(mucUid: widget.roomId);
+                    else if (widget.roomId.uid.category == Categories.BOT)
+                      return BotAppbar(botUid: widget.roomId.uid);
+                    else
+                      return UserAppbar(
+                        userUid: widget.roomId.uid,
+                      );
+                  }
+                },
+              );
             }
           },
         ),

@@ -90,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                 Expanded(
                   child: Column(
                     children: <Widget>[
-                      // PhoneFieldHint(),
+                      SizedBox(height: 5,),
                       IntlPhoneField(
                         initialValue: phoneNumber!= null? phoneNumber.number:"",
                         validator: (value) => value.length != 10 ||

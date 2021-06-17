@@ -94,30 +94,7 @@ class _ChatItemState extends State<ChatItem> {
                                         _appLocalization
                                             .getTraslateValue("saved_message"),
                                         context)
-                                    : Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            5, 0, 0, 0),
-                                        child: FutureBuilder<String>(
-                                            future:
-                                                _roomRepo.getRoomDisplayName(
-                                                    widget.roomWithMessage.room
-                                                        .roomId.uid,
-                                                    roomUid: widget
-                                                        .roomWithMessage
-                                                        .room
-                                                        .roomId),
-                                            builder: (BuildContext c,
-                                                AsyncSnapshot<String> snaps) {
-                                              if (snaps.hasData &&
-                                                  snaps.data.isNotEmpty) {
-                                                return _showDisplayName(
-                                                    snaps.data, context);
-                                              } else {
-                                                return _showDisplayName(
-                                                    "Unknown", context);
-                                              }
-                                            }),
-                                      )),
+                                    : _showDisplayName(name.data, context)),
                             Padding(
                               padding:
                                   const EdgeInsets.only(bottom: 4.0, right: 0),

@@ -230,7 +230,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     scrollTolast(1);
                                   },
                                   minLines: 1,
-                                  style: TextStyle(fontSize: 19, height: 1),
+                                  style: TextStyle(fontSize: 19, height: 1,color: ExtraTheme.of(context).textField),
                                   maxLines: 15,
                                   autofocus: widget.replyMessageId > 1,
                                   textInputAction: isDesktop()
