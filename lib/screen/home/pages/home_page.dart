@@ -25,6 +25,7 @@ class _HomePageState extends State<HomePage>  with WidgetsBindingObserver{
   @override
   void initState() {
     super.initState();
+
     _notificationServices.cancelAllNotification();
     checkIfUsernameIsSet();
     if (isAndroid()) {
@@ -64,8 +65,10 @@ class _HomePageState extends State<HomePage>  with WidgetsBindingObserver{
   }
 
   void checkIfUsernameIsSet() async {
-    if (!await _accountRepo.usernameIsSet()) {
+    if (!await _accountRepo.getProfile(retry: true)) {
       _routingService.openAccountSettings(forceToSetUsernameAndName: true);
+    }else{
+      _accountRepo.fetchProfile();
     }
   }
 }
