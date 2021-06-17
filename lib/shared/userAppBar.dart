@@ -46,10 +46,11 @@ class UserAppbar extends StatelessWidget {
                           AsyncSnapshot<String> snapshot) {
                         if (snapshot.data != null) {
                           return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 snapshot.data,
-                                style: TextStyle(fontSize: 20),
+                                style: Theme.of(context).textTheme.headline2,
                               ),
                               TitleStatus(
                                 currentRoomUid:userUid ,

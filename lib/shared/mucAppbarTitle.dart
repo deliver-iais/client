@@ -38,8 +38,7 @@ class MucAppbarTitle extends StatelessWidget {
                         children: [
                           Text(
                             snapshot.data.name,
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                            style: Theme.of(context).textTheme.headline2,
                           ),
                           DefaultTextStyle(
                             style: TextStyle(fontSize: 11),

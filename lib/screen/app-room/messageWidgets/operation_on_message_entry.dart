@@ -100,6 +100,21 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   Text(appLocalization.getTraslateValue("Forward")),
                 ])),
           ),
+
+          // Expanded(
+          //   child: FlatButton(
+          //       onPressed: () {
+          //         onForward();
+          //       },
+          //       child: Row(children: [
+          //         Icon(
+          //           Icons.forward,
+          //           size: 20,
+          //         ),
+          //         SizedBox(width: 8),
+          //         Text(appLocalization.getTraslateValue("Forward")),
+          //       ])),
+          // ),
           if (widget.message.sendingFailed != null &&
               widget.message.sendingFailed)
             Expanded(

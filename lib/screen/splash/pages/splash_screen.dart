@@ -60,7 +60,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _navigateToHomePage() async {
     _fireBaseServices.sendFireBaseToken();
-    bool setUserName = await _accountRepo.usernameIsSet();
+    bool setUserName = await _accountRepo.getProfile();
     if (setUserName) {
       ExtendedNavigator.of(context).pushAndRemoveUntil(
         Routes.homePage,
