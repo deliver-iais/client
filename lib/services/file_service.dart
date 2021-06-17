@@ -27,7 +27,7 @@ class FileService {
   Map<String, BehaviorSubject<double>> filesDownloadStatus = Map();
 
   Future<String> get _localPath async {
-    if (await _checkPermission.checkStoragePermission() || isDesktop()) {
+    if (await _checkPermission.checkStoragePermission() || isDesktop() || isIOS()) {
       final directory = await getApplicationDocumentsDirectory();
       if (!await Directory('${directory.path}/Deliver').exists())
         await Directory('${directory.path}/Deliver').create(recursive: true);

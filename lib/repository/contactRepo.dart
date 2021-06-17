@@ -1,10 +1,7 @@
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
-import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart' as Database;
-import 'package:deliver_flutter/repository/memberRepo.dart';
-
 
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:contacts_service/contacts_service.dart' as OsContact;
@@ -47,7 +44,9 @@ class ContactRepo {
   Map<PhoneNumber, String> _contactsDisplayName = Map();
 
   syncContacts() async {
-    if (await _checkPermission.checkContactPermission() || isDesktop()) {
+    if (await _checkPermission.checkContactPermission() ||
+        isDesktop() ||
+        isIOS()) {
       List<Contact> contacts = new List();
       if (!isDesktop()) {
         Iterable<OsContact.Contact> phoneContacts =
@@ -108,18 +107,15 @@ class ContactRepo {
       _sendContacts(contacts.sublist(
           i, contacts.length > i + 49 ? i + 49 : contacts.length));
 
-     await getContacts();
+      await getContacts();
       i = i + 50;
     }
-   getContacts();
-
-
+    getContacts();
   }
 
   Future addContact(Contact contact) async {
-      _sendContacts([contact]);
-      getContacts();
-
+    _sendContacts([contact]);
+    getContacts();
   }
 
   _sendContacts(List<Contact> contacts) async {
@@ -133,20 +129,25 @@ class ContactRepo {
   }
 
   Future getContacts() async {
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%R");
+
     var result = await contactServices.getContactListUsers(
         GetContactListUsersReq(),
         options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
 
+    print("SSSSSSSSS");
+    print(result);
+
     for (var contact in result.userList) {
       _contactDao.insertContact(Database.ContactsCompanion(
         uid: Value(contact.uid.asString()),
-        phoneNumber:Value( contact.phoneNumber.nationalNumber.toString()),
-        firstName:Value( _contactsDisplayName[contact.phoneNumber] != null
+        phoneNumber: Value(contact.phoneNumber.nationalNumber.toString()),
+        firstName: Value(_contactsDisplayName[contact.phoneNumber] != null
             ? _contactsDisplayName[contact.phoneNumber]
             : "${contact.firstName} ${contact.lastName.isNotEmpty ? contact.lastName : " "}"),
         isMute: Value(true),
-        isBlock:Value( false),
+        isBlock: Value(false),
       ));
 
       if (contact.uid != null) {
@@ -163,7 +164,8 @@ class ContactRepo {
           GetIdByUidReq()..uid = uid,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      _userInfoDao.upsertUserInfo(Database.UserInfo(uid: uid.asString(),username: result.id));
+      _userInfoDao.upsertUserInfo(
+          Database.UserInfo(uid: uid.asString(), username: result.id));
       return result.id;
     } catch (e) {
       return null;
@@ -186,8 +188,7 @@ class ContactRepo {
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
     List<Uid> searchResult = List();
     for (var room in result.itemList) {
-      searchResult
-          .add(room.uid);
+      searchResult.add(room.uid);
     }
     return searchResult;
   }
@@ -205,11 +206,11 @@ class ContactRepo {
 
   void getUsername(UserAsContact contact) async {
     var username = await searchUserByUid(contact.uid);
-    if (username!= null) {
+    if (username != null) {
       _contactDao.insertContact(Database.ContactsCompanion(
           phoneNumber: Value(contact.phoneNumber.nationalNumber.toString()),
-          username:Value(username),
-          uid:Value( contact.uid.asString())));
+          username: Value(username),
+          uid: Value(contact.uid.asString())));
     }
   }
 }

@@ -30,6 +30,7 @@ import 'package:deliver_flutter/screen/app-room/widgets/mute_and_unmute_room_wid
 import 'package:deliver_flutter/screen/app-room/widgets/newMessageInput.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/recievedMessageBox.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/sendedMessageBox.dart';
+import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
 import 'package:deliver_flutter/services/audioPlayerAppBar.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
@@ -258,6 +259,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
   void initState() {
+    deceaseUnreadCountMessage(widget.roomId);
     Timer(Duration(seconds: 1), () {
       _showOtherMessage.add(true);
     });

@@ -1,12 +1,15 @@
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class ReceivedMsgIcon extends StatelessWidget {
+class UnreadMessageCounterWidget extends StatelessWidget {
   final Message lastMessage;
 
-  const ReceivedMsgIcon(this.lastMessage);
+  UnreadMessageCounterWidget(this.lastMessage);
+
+  int lastMessageId= 0;
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +21,11 @@ class ReceivedMsgIcon extends StatelessWidget {
           if(snapshot.data.messageId != null){
             int lastSeen = snapshot.data.messageId;
             int unreadCount = lastMessage.id - lastSeen;
+            if(unreadCount>0){
+              addUnreadMessageCount(lastMessage.roomId,lastMessage.id,unreadCount);
+            }
+
+
             return (lastSeen < lastMessage.id)
                 ? Padding(
               padding: const EdgeInsets.only(
