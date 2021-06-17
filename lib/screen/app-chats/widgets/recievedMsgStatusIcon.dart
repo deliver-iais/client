@@ -9,7 +9,6 @@ class UnreadMessageCounterWidget extends StatelessWidget {
 
   UnreadMessageCounterWidget(this.lastMessage);
 
-  int lastMessageId= 0;
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +22,8 @@ class UnreadMessageCounterWidget extends StatelessWidget {
             int unreadCount = lastMessage.id - lastSeen;
             if(unreadCount>0){
               addUnreadMessageCount(lastMessage.roomId,lastMessage.id,unreadCount);
-            }
-
-
+            }else
+              deceaseUnreadCountMessage(lastMessage.roomId);
             return (lastSeen < lastMessage.id)
                 ? Padding(
               padding: const EdgeInsets.only(

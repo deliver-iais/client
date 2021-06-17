@@ -9,6 +9,7 @@ import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +51,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
+    var style = TextStyle(fontSize: 14,color: ExtraTheme.of(context).textField);
 
     return StreamBuilder<List<Member>>(
         stream: _memberRepo.getMembers(_mucUid.asString()),
@@ -90,6 +92,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                     member.name ?? member.username ?? "",
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
+                                      color: ExtraTheme.of(context).textField,
                                       fontSize: 16,
                                     ),
                                   )
@@ -105,6 +108,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
                                             fontSize: 16,
+                                            color: ExtraTheme.of(context).textField
                                           ),
                                         );
                                       } else {
@@ -133,9 +137,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                     : _myRoleInThisRoom == MucRole.ADMIN ||
                                             _myRoleInThisRoom == MucRole.OWNER
                                         ? PopupMenuButton(
-                                            color: Theme.of(context)
-                                                .backgroundColor
-                                                .withBlue(15),
+                                            color: ExtraTheme.of(context).popupMenuButton,
                                             icon: Icon(
                                               Icons.more_vert,
                                               size: 18,
@@ -149,19 +151,19 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                                             MucRole.MEMBER
                                                         ? Text(_appLocalization
                                                             .getTraslateValue(
-                                                                "change_role_to_admin"))
+                                                                "change_role_to_admin"),style: style,)
                                                         : Text(_appLocalization
                                                             .getTraslateValue(
-                                                                "change_role_to_member")),
+                                                                "change_role_to_member"),style: style,),
                                                     value: CHANGE_ROLE),
                                               new PopupMenuItem<String>(
                                                   child: Text(_appLocalization
                                                       .getTraslateValue(
-                                                          "kick")),
+                                                          "kick"),style: style,),
                                                   value: DELETE),
                                               new PopupMenuItem<String>(
                                                   child: Text(_appLocalization
-                                                      .getTraslateValue("ban")),
+                                                      .getTraslateValue("ban"),style: style,),
                                                   value: BAN),
                                             ],
                                             onSelected: (key) {

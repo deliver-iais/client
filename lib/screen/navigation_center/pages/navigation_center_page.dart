@@ -61,9 +61,8 @@ addUnreadMessageCount(String roomId,int lastId, int unread){
 deceaseUnreadCountMessage(String roomId){
   if(unReandCounterMessage[roomId] !=  null){
     unreadMessageCount.add(unreadMessageCount.valueWrapper.value-unReandCounterMessage[roomId]);
-    unReandCounterMessage[roomId] =0;
+    unReandCounterMessage[roomId] = 0;
   }
-
 }
 
 class _NavigationCenterState extends State<NavigationCenter> {
@@ -210,120 +209,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            buildIconButton(
-                context, Icons.question_answer, NavigationTabs.Chats),
-            SizedBox(
-              width: 20,
-            ),
-            buildIconButton(context, Icons.people, NavigationTabs.Contacts),
-          ],
-        ),
-      ),
-    );
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(56),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 0.0),
-          child: AppBar(
-            elevation: 0,
-            leading: Row(
-              children: [
-                SizedBox(
-                  width: 16,
-                ),
-                GestureDetector(
-                  child: Container(
-                    child: Center(
-                      child: CircleAvatarWidget(
-                        _accountRepo.currentUserUid,
-                        18,
-                        showAsStreamOfAvatar: true,
-                      ),
-                    ),
-                  ),
-                  onTap: tapOnCurrentUserAvatar,
-                ),
-              ],
-            ),
-            title: StreamBuilder<TitleStatusConditions>(
-                stream: _messageRepo.updatingStatus.stream,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData &&
-                      snapshot.data == TitleStatusConditions.Normal) {
-                    return buildText(context);
-                  } else if (snapshot.data == TitleStatusConditions.Updating) {
-                    return Text(_appLocalization.getTraslateValue("updating"),
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: ExtraTheme.of(context).textDetails));
-                  } else if (snapshot.data ==
-                      TitleStatusConditions.Connecting) {
-                    return Text(_appLocalization.getTraslateValue("connecting"),
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: ExtraTheme.of(context).textDetails));
-                  } else if (snapshot.hasData &&
-                      snapshot.data == TitleStatusConditions.Disconnected) {
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        buildText(context),
-                        SizedBox(
-                          width: 7,
-                        ),
-                        Text(_appLocalization.getTraslateValue("disconnect"),
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: ExtraTheme.of(context).textDetails))
-                      ],
-                    );
-                  } else {
-                    return buildText(context);
-                  }
-                }),
-            actions: [
-              buildMenu(context),
-              SizedBox(
-                width: 16,
-              )
-            ],
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
-          children: <Widget>[
-            SearchBox(
-              onChange: (str) {
-                if (str.length > 0) {
-                  setState(() {
-                    _searchMode = true;
-                  });
-                  subject.add(str);
-                } else {
-                  setState(() {
-                    _searchMode = false;
-                  });
-                }
-              },
-            ),
-            AudioPlayerAppBar(),
-            _searchMode
-                ? searchResult()
-                : Expanded(
-                    child: (tab == NavigationTabs.Chats)
-                        ? ChatsPage(key: ValueKey("ChatsPage"))
-                        : ContactsPage(key: ValueKey("ContactsPage"))),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: ExtraTheme.of(context).bottomNavigationAppbar,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
             Container(
               width: 60,
               child: Stack(
@@ -367,6 +252,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
         ),
       ),
     );
+
   }
 
   Text buildText(BuildContext context) {

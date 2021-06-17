@@ -63,12 +63,12 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
     activePageIcon: LightTheme.accentColor,
     inactivePageIcon : LightTheme.accentColor.withAlpha(100), //details in extra
     menuIconButton : LightTheme.accentColor.withAlpha(50),
-    popupMenuButton : LightTheme.backgroundColor.withOpacity(0.9),
+    popupMenuButton : Colors.white,
     popupMenuButtonDetails : LightTheme.accentColor,
-    searchBox: LightTheme.appBarTheme.color.withAlpha(50),
+    searchBox: Color(0xFFEEEEEE),
     chatOrContactItemDetails : Colors.black,//info chat in extra
     // roomPage
-    sentMessageBox:  Color(0xff01aa9a),
+    sentMessageBox:  Color(0xFFDCEDC8),
     receivedMessageBox: Colors.white,
     textMessage: LightTheme.accentColor,
     messageDetails: LightTheme.accentColor.withAlpha(200),
@@ -76,6 +76,7 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
     circularFileStatus: LightTheme.backgroundColor,
     fileMessageDetails: Color(0xff00a394),
     textField: LightTheme.accentColor,
+    username: Colors.blue,
     inputBoxBackground: Colors.white,
    //group
   border: Color(0xff174b45),

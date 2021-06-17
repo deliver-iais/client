@@ -189,6 +189,8 @@ flutter:
     - assets/audios/ack.mp3
     - assets/icons/mention.png
     - assets/icons/channel_icon.png
+    - assets/bac/b1.jpg
+    - assets/bac/b2.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

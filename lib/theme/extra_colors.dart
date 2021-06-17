@@ -20,10 +20,12 @@ class ExtraThemeData {
   Color popupMenuButtonDetails;
   Color chatOrContactItemDetails;
   Color searchBox;
+  Color username;
   Color sentMessageBox;
   Color receivedMessageBox;
   Color textMessage;//green white
   Color messageDetails;
+
   Color persistentEventMessage;
   Color circularFileStatus;
   Color fileMessageDetails;
@@ -46,6 +48,7 @@ class ExtraThemeData {
         this.popupMenuButton,
         this.popupMenuButtonDetails,
         this.searchBox,
+        this.username,
         this.chatOrContactItemDetails,
         this.sentMessageBox,
         this.receivedMessageBox,
@@ -58,6 +61,8 @@ class ExtraThemeData {
         this.inputBoxBackground,
         this.border
       });
+
+
 }
 
 class ExtraTheme extends InheritedWidget {

@@ -44,10 +44,10 @@ class TextUi extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         margin: EdgeInsets.only(left: 8),
-        child: Column(children: textMessages()));
+        child: Column(children: textMessages(context)));
   }
 
-  List<Widget> textMessages() {
+  List<Widget> textMessages(BuildContext context) {
     String content = "";
     if (isCaption) {
       int D = (imageWidth.round() / 12).ceil();
@@ -73,11 +73,11 @@ class TextUi extends StatelessWidget {
     }
     List<String> lines = LineSplitter().convert(content);
     List<Widget> texts = [];
-    texts.add(disjointThenJoin(preProcess(lines, color)));
+    texts.add(disjointThenJoin(preProcess(lines, color),context));
     return texts;
   }
 
-  disjointThenJoin(List<TextBlock> blocks) {
+  disjointThenJoin(List<TextBlock> blocks,BuildContext context) {
     var idx = 0;
     var m = 0;
     for (var i = 0; i < blocks.length; i++) {
@@ -101,7 +101,7 @@ class TextUi extends StatelessWidget {
         this.isSeen,
         this.onUsernameClick,
         this.pattern,
-        this.onBotCommandClick,
+        this.onBotCommandClick,context,
         isBotMessage: isBotMessage);
 
     for (var i = 1; i <= idx; i++) {
@@ -122,7 +122,7 @@ class TextUi extends StatelessWidget {
               this.isSeen,
               this.onUsernameClick,
               this.pattern,
-              this.onBotCommandClick,
+              this.onBotCommandClick,context,
               isBotMessage: isBotMessage),
           joint,
         ],
@@ -148,6 +148,7 @@ class TextUi extends StatelessWidget {
               this.onUsernameClick,
               this.pattern,
               this.onBotCommandClick,
+              context,
               isBotMessage: isBotMessage),
         ],
       );
@@ -197,7 +198,7 @@ class TextBlock {
       bool isSeen,
       Function onUsernameClick,
       String pattern,
-      Function onBotCommandClick,
+      Function onBotCommandClick,BuildContext context,
       {isBotMessage = false}) {
     return Column(
         crossAxisAlignment:
@@ -220,7 +221,7 @@ class TextBlock {
                         onUsernameClick,
                         pattern,
                         onBotCommandClick,
-                        this.color,
+                        this.color,context,
                         isBotMessage: isBotMessage)),
               ],
             )
@@ -240,6 +241,7 @@ Widget _textWidget(
     String pattern,
     Function onBotCommandClick,
     Color color,
+    BuildContext context,
     {bool isBotMessage = false}) {
   return Wrap(
     alignment: WrapAlignment.end,
@@ -253,7 +255,7 @@ Widget _textWidget(
           MatchText(
             type: ParsedType.URL,
             style: TextStyle(
-              color: Colors.yellowAccent,
+              color: ExtraTheme.of(context).username,
               fontSize: 16,
             ),
             onTap: (uri) async {
@@ -265,7 +267,7 @@ Widget _textWidget(
             pattern:
                 pattern != null ? pattern : "[@#][a-zA-Z]([a-zA-Z0-9_]){4,19}",
             style: TextStyle(
-              color: pattern != null ? Colors.red : Colors.yellowAccent,
+              color: ExtraTheme.of(context).username,
               fontSize: 16,
             ),
             onTap: (username) async {
@@ -278,7 +280,7 @@ Widget _textWidget(
               pattern:
                   pattern != null ? pattern : "[/][a-zA-Z]([a-zA-Z0-9_]){4,19}",
               style: TextStyle(
-                color: pattern != null ? Colors.red : Colors.yellowAccent,
+                color: ExtraTheme.of(context).username,
                 fontSize: 16,
               ),
               onTap: (username) async {
@@ -288,7 +290,7 @@ Widget _textWidget(
           MatchText(
             type: ParsedType.PHONE,
             style: TextStyle(
-              color: pattern != null ? Colors.red : Colors.yellowAccent,
+              color: ExtraTheme.of(context).username,
               fontSize: 16,
             ),
             onTap: (phone) async {

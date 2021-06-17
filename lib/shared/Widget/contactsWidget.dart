@@ -63,24 +63,7 @@ class ContactWidget extends StatelessWidget {
                           ),
                           radius: 23,
                         ),
-                  Positioned(
-                    child: Container(
-                      width: 12.0,
-                      height: 12.0,
-//                      decoration: new BoxDecoration(
-//                        color: contact.isOnline
-//                            ? Colors.green
-//                            : ExtraTheme.of(context).secondColor,
-//                        shape: BoxShape.circle,
-//                        border: Border.all(
-//                          color: Colors.black,
-//                          width: 2,
-//                        ),
-//                      ),
-                    ),
-                    top: 28.0,
-                    right: 0.0,
-                  ),
+
                 ],
               ),
               SizedBox(
@@ -104,7 +87,7 @@ class ContactWidget extends StatelessWidget {
           if (circleIcon != null)
             CircleAvatar(
               radius: 20,
-              backgroundColor: Theme.of(context).accentColor.withAlpha(50),
+              backgroundColor: Theme.of(context).accentColor.withAlpha(200),
               child: FittedBox(
                 child: Icon(
                   circleIcon,

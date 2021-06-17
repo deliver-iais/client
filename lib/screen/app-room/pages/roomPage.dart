@@ -153,21 +153,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         await _messageRepo.getPage(page, roomId, id, pageSize: PAGE_SIZE);
     for (int i = 0; i < messages.length; i = i + 1) {
       _cache.set(messages[i].id, messages[i]);
-      //   try {
-      //     if (_messagesPacketId.containsKey(messages[i].packetId) &&
-      //         _messagesPacketId[messages[i].packetId] != messages[i].id &&
-      //         _messagesPacketId[messages[i].packetId] > messages[i].id)
-      //       _cache.set(
-      //           messages[i].id,
-      //           Message(
-      //               packetId: null,
-      //               id: messages[i].id,
-      //               time: messages[i].time,
-      //               roomId: messages[i].roomId,
-      //               from: messages[i].from));
-      //   } catch (e) {}
-      //   _messagesPacketId[messages[i].packetId] = messages[i].id;
-      // }
     }
     return _cache.get(id);
   }
@@ -347,6 +332,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     return Scaffold(
       appBar: buildAppbar(),
       body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/bac/b2.png"),
+            fit: BoxFit.cover,
+
+          ),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
@@ -380,7 +372,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                               fit: FlexFit.loose,
                               child: Container(
                                   height: deviceHeight,
-                                  // color: Colors.amber,
                                   child: Stack(
                                     alignment: AlignmentDirectional.bottomStart,
                                     children: [
@@ -518,7 +509,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           ],
         ),
       ),
-      backgroundColor: Theme.of(context).backgroundColor,
     );
   }
 
@@ -709,11 +699,16 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 } else {
                   return PopupMenuButton(
                     color: ExtraTheme.of(context).popupMenuButton,
-                    icon: Icon(Icons.more_vert,  color: Colors.white),
+                    icon: Icon(Icons.more_vert, color: Colors.white),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
-                          child:
-                              Text(_appLocalization.getTraslateValue("search"), style: TextStyle(color: ExtraTheme.of(context).popupMenuButtonDetails,),),
+                          child: Text(
+                            _appLocalization.getTraslateValue("search"),
+                            style: TextStyle(
+                              color:
+                                  ExtraTheme.of(context).popupMenuButtonDetails,
+                            ),
+                          ),
                           value: "search"),
                     ],
                     onSelected: (search) {
@@ -758,7 +753,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           (_lastShowedMessageId != null && _lastShowedMessageId != -1)
               ? _lastShowedMessageId
               : _itemCount,
-      initialAlignment: 0,
+      initialAlignment: 1,
       physics: _scrollPhysics,
       reverse: false,
       itemPositionsListener: _itemPositionsListener,
@@ -853,7 +848,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                           currentSearchResultMessage.id ==
                                               messages[0].id
                                   ? Theme.of(context).disabledColor
-                                  : Theme.of(context).backgroundColor,
+                                  : null,
                           child: normalMessage(messages[0], _maxWidth,
                               currentRoom, pendingMessages),
                         )

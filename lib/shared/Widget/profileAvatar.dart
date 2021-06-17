@@ -252,13 +252,14 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 
   @override
   Widget build(BuildContext context) {
+    var style = TextStyle(fontSize: 14,color: ExtraTheme.of(context).textField);
     _appLocalization = AppLocalization.of(context);
     return SliverAppBar(
         actions: <Widget>[
           if (widget.roomUid.category != Categories.SYSTEM)
             widget.roomUid.category != Categories.USER &&   widget.roomUid.category != Categories.BOT
                 ? PopupMenuButton(
-                    color: Theme.of(context).backgroundColor.withBlue(10),
+                    color: ExtraTheme.of(context).popupMenuButton,
                     icon: Icon(Icons.more_vert),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
@@ -279,7 +280,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                           .getTraslateValue("leftGroup")
                                       : _appLocalization
                                           .getTraslateValue("leftChannel"),
-                                  style: TextStyle(fontSize: 14)),
+                                  style: style,),
                             ],
                           ),
                           value: "leftMuc"),
@@ -302,13 +303,14 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                           .getTraslateValue("deleteGroup")
                                       : _appLocalization
                                           .getTraslateValue("deleteChannel"),
-                                  style: TextStyle(fontSize: 14),
+                                  style: style,
                                 )
                               ],
                             ),
                             value: "deleteMuc"),
                       if (_setAvatarPermission)
                         new PopupMenuItem<String>(
+
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
@@ -323,7 +325,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                 Text(
                                     _appLocalization
                                         .getTraslateValue("setProfile"),
-                                    style: TextStyle(fontSize: 14)),
+                                    style: style),
                               ],
                             ),
                             value: "select"),
@@ -331,6 +333,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                           (widget.roomUid.category == Categories.GROUP ||
                               widget.roomUid.category == Categories.CHANNEL))
                         new PopupMenuItem<String>(
+
                             child: Row(
                               children: [
                                 Icon(
@@ -347,7 +350,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                             .getTraslateValue("manage_group")
                                         : _appLocalization
                                             .getTraslateValue("manage_channel"),
-                                    style: TextStyle(fontSize: 14)),
+                                    style: style),
                               ],
                             ),
                             value: "manage"),
@@ -363,7 +366,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                 width: 6,
                               ),
                               Text(_appLocalization.getTraslateValue("report"),
-                                  style: TextStyle(fontSize: 14)),
+                                  style: style),
                             ],
                           ),
                           value: "report"),
@@ -375,7 +378,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     builder: (c, room) {
                       if (room.hasData && room.data != null) {
                         return PopupMenuButton(
-                          color: Theme.of(context).backgroundColor.withBlue(10),
+                          color: ExtraTheme.of(context).popupMenuButton,
                           icon: Icon(Icons.more_vert),
                           itemBuilder: (_) => <PopupMenuItem<String>>[
                             new PopupMenuItem<String>(
@@ -389,7 +392,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                         ? _appLocalization
                                             .getTraslateValue("unBlockRoom")
                                         : _appLocalization
-                                            .getTraslateValue("blockRoom")),
+                                            .getTraslateValue("blockRoom"),style: style,),
                                   ],
                                 ),
                                 value: room.data.isBlock
@@ -403,7 +406,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                       width: 15,
                                     ),
                                     Text(_appLocalization
-                                        .getTraslateValue("report")),
+                                        .getTraslateValue("report"),style: style,),
                                   ],
                                 ),
                                 value: "report"),
