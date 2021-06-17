@@ -14,9 +14,9 @@ ThemeData LightTheme = ThemeData(
     scaffoldBackgroundColor: Colors.white,
     backgroundColor: Color(0xfde2f8f0),
     buttonColor: Color(0xff1f655d),
+    dividerTheme: DividerThemeData(space: 0.0, thickness: 1.5),
     focusColor: Color(0xff179c96).withOpacity(0.5),
     cardColor: Color(0xff489088),
-
     textTheme: TextTheme(
       headline1: TextStyle(color: Colors.white, fontSize: 40),
       headline2: TextStyle(

@@ -12,6 +12,7 @@ import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -37,6 +38,7 @@ class _ChatItemState extends State<ChatItem> {
 
   @override
   void initState() {
+    super.initState();
     if (widget.roomWithMessage.room.roomId.getUid().category == Categories.USER)
       _lastActivityRepo
           .updateLastActivity(widget.roomWithMessage.room.roomId.getUid());
@@ -57,21 +59,15 @@ class _ChatItemState extends State<ChatItem> {
         builder: (c, name) {
           if (name.hasData && name.data != null && name.data.isNotEmpty) {
             return Container(
-              margin: const EdgeInsets.only(bottom: 5),
               padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                  color:
-                      widget.isSelected ? Theme.of(context).focusColor : null,
-                  border: widget.isSelected
-                      ? null
-                      : Border.all(color: Theme.of(context).dividerColor),
-                  borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
+              color: widget.isSelected ? Theme.of(context).focusColor : null,
               height: 66,
               child: Row(
                 children: <Widget>[
                   Padding(
                     padding: EdgeInsets.only(bottom: 5),
-                    child: ContactPic(widget.roomWithMessage.room.roomId.uid),
+                    child:
+                        ContactPic(widget.roomWithMessage.room.roomId.getUid()),
                   ),
                   SizedBox(
                     width: 10,
@@ -91,10 +87,16 @@ class _ChatItemState extends State<ChatItem> {
                                         .contains(_accountRepo.currentUserUid
                                             .toString())
                                     ? _showDisplayName(
+                                        widget.roomWithMessage.room.roomId
+                                            .getUid(),
                                         _appLocalization
                                             .getTraslateValue("saved_message"),
                                         context)
-                                    : _showDisplayName(name.data, context)),
+                                    : _showDisplayName(
+                                        widget.roomWithMessage.room.roomId
+                                            .getUid(),
+                                        name.data,
+                                        context)),
                             Padding(
                               padding:
                                   const EdgeInsets.only(bottom: 4.0, right: 0),
@@ -198,16 +200,33 @@ class _ChatItemState extends State<ChatItem> {
     );
   }
 
-  _showDisplayName(name, context) {
-    return Text(
-      name,
-      style: TextStyle(
-        color: ExtraTheme.of(context).chatOrContactItemDetails,
-        fontSize: 16,
-      ),
-      maxLines: 1,
-      softWrap: false,
-      overflow: TextOverflow.ellipsis,
+  _showDisplayName(Uid uid, String name, BuildContext context) {
+    return Row(
+      children: [
+        if (uid.category == Categories.GROUP)
+          Icon(
+            Icons.group_rounded,
+          ),
+        if (uid.category == Categories.CHANNEL)
+          Icon(
+            Icons.rss_feed_rounded,
+          ),
+        if (uid.category == Categories.BOT)
+          Icon(
+            Icons.smart_toy_rounded,
+          ),
+        if (uid.category != Categories.USER) SizedBox(width: 4),
+        Text(
+          name,
+          style: TextStyle(
+            color: ExtraTheme.of(context).chatOrContactItemDetails,
+            fontSize: 16,
+          ),
+          maxLines: 1,
+          softWrap: false,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
     );
   }
 }

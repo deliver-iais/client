@@ -55,12 +55,16 @@ class CircleAvatarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var color = colorFor(context, contactUid.asString());
-    var textColor = color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+    var textColor =
+        color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
 
     return CircleAvatar(
       radius: radius,
-      backgroundColor:
-          savedMessaeg ? Colors.blue : color,
+      backgroundColor: savedMessaeg
+          ? Colors.blue
+          : contactUid.category == Categories.SYSTEM
+              ? Colors.blue
+              : color,
       child: contactUid.category == Categories.SYSTEM
           ? Image(
               image: AssetImage(
@@ -76,15 +80,18 @@ class CircleAvatarWidget extends StatelessWidget {
                   ? StreamBuilder<LastAvatar>(
                       stream: _avatarRepo.getLastAvatarStream(
                           contactUid, forceToUpdate),
-                      builder: (context, snapshot) => this.builder(context, snapshot, textColor))
+                      builder: (context, snapshot) =>
+                          this.builder(context, snapshot, textColor))
                   : FutureBuilder<LastAvatar>(
                       future:
                           _avatarRepo.getLastAvatar(contactUid, forceToUpdate),
-                      builder: (context, snapshot) => this.builder(context, snapshot, textColor)),
+                      builder: (context, snapshot) =>
+                          this.builder(context, snapshot, textColor)),
     );
   }
 
-  Widget builder(BuildContext context, AsyncSnapshot<LastAvatar> snapshot, Color textColor) {
+  Widget builder(BuildContext context, AsyncSnapshot<LastAvatar> snapshot,
+      Color textColor) {
     if (snapshot.hasData &&
         snapshot.data != null &&
         snapshot.data.fileId != null &&
@@ -121,8 +128,8 @@ class CircleAvatarWidget extends StatelessWidget {
                 String name = snapshot.data.replaceAll(' ', '');
                 return Center(
                   child: Text(name.length > 2 ? name.substring(0, 2) : name,
-                      style: TextStyle(
-                          color: textColor, fontSize: 18, height: 2)),
+                      style:
+                          TextStyle(color: textColor, fontSize: 18, height: 2)),
                 );
               } else {
                 return Icon(

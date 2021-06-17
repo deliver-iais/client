@@ -24,33 +24,31 @@ class ChatsPage extends StatelessWidget {
             stream: routingService.currentRouteStream,
             builder: (BuildContext c, AsyncSnapshot<Object> s) {
               var roomsWithMessages = snapshot.data ?? [];
-              return Container(
-                child: Scrollbar(
-                  child: ListView.builder(
-                    itemCount: roomsWithMessages.length,
-                    itemBuilder: (BuildContext ctx, int index) {
-                      if (roomsWithMessages[index].lastMessage !=
-                          null) {
-                        return GestureDetector(
-                          child: ChatItem(
-                            key: ValueKey(
-                                "chatItem/${roomsWithMessages[index].room.roomId}"),
-                            roomWithMessage: roomsWithMessages[index],
-                            isSelected: routingService.isInRoom(
-                                roomsWithMessages[index].room.roomId),
-                          ),
-                          onTap: () {
-                            routingService.openRoom(
-                                roomsWithMessages[index]
-                                    .room
-                                    .roomId
-                                    .toString(),);
-                          },
-                        );
-                      }
-                      return SizedBox.shrink();
-                    },
-                  ),
+              return Scrollbar(
+                child: ListView.separated(
+                  itemCount: roomsWithMessages.length,
+                  itemBuilder: (BuildContext ctx, int index) {
+                    if (roomsWithMessages[index].lastMessage != null) {
+                      return GestureDetector(
+                        child: ChatItem(
+                          key: ValueKey(
+                              "chatItem/${roomsWithMessages[index].room.roomId}"),
+                          roomWithMessage: roomsWithMessages[index],
+                          isSelected: routingService
+                              .isInRoom(roomsWithMessages[index].room.roomId),
+                        ),
+                        onTap: () {
+                          routingService.openRoom(
+                            roomsWithMessages[index].room.roomId.toString(),
+                          );
+                        },
+                      );
+                    }
+                    return SizedBox.shrink();
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return Divider();
+                  },
                 ),
               );
             },

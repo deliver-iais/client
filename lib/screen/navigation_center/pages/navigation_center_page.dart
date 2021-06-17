@@ -52,7 +52,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
   var contactRepo = GetIt.I.get<ContactRepo>();
   var _messageRepo = GetIt.I.get<MessageRepo>();
 
-
   final Function tapOnCurrentUserAvatar;
 
   NavigationTabs tab = NavigationTabs.Chats;
@@ -84,126 +83,122 @@ class _NavigationCenterState extends State<NavigationCenter> {
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
-          return Scaffold(
-            appBar: PreferredSize(
-              preferredSize: Size.fromHeight(56),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                child: AppBar(
-                  elevation: 0,
-                  leading: Row(
-                    children: [
-                      SizedBox(
-                        width: 16,
-                      ),
-                      GestureDetector(
-                        child: Container(
-                          child: Center(
-                            child: CircleAvatarWidget(
-                              _accountRepo.currentUserUid,
-                              18,
-                              showAsStreamOfAvatar: true,
-                            ),
-                          ),
-                        ),
-                        onTap: tapOnCurrentUserAvatar,
-                      ),
-                    ],
-                  ),
-                  title: StreamBuilder<TitleStatusConditions>(
-                      stream: _messageRepo.updatingStatus.stream,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData &&
-                            snapshot.data == TitleStatusConditions.Normal) {
-                          return buildText(context);
-                        } else if (snapshot.data ==
-                            TitleStatusConditions.Updating) {
-                          return Text(
-                              _appLocalization.getTraslateValue("updating"),
-                              style: TextStyle(fontSize: 20, color: ExtraTheme.of(context).textDetails));
-                        } else if (snapshot.data ==
-                            TitleStatusConditions.Connecting) {
-                          return Text(
-                              _appLocalization.getTraslateValue("connecting"),
-                              style: TextStyle(fontSize: 20, color: ExtraTheme.of(context).textDetails));
-                        } else if (snapshot.hasData &&
-                            snapshot.data ==
-                                TitleStatusConditions.Disconnected) {
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              buildText(context),
-                              SizedBox(
-                                width: 7,
-                              ),
-                              Text(
-                                  _appLocalization
-                                      .getTraslateValue("disconnect"),
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      color: ExtraTheme.of(context).textDetails))
-                            ],
-                          );
-                        } else {
-                          return buildText(context);
-                        }
-                      }),
-                  actions: [
-                    buildMenu(context),
-                    SizedBox(
-                      width: 16,
-                    )
-                  ],
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(56),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 0.0),
+          child: AppBar(
+            elevation: 0,
+            leading: Row(
+              children: [
+                SizedBox(
+                  width: 16,
                 ),
-              ),
-            ),
-            body: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                children: <Widget>[
-                  SearchBox(
-                    onChange: (str) {
-                      if (str.length > 0) {
-                        setState(() {
-                          _searchMode = true;
-                        });
-                        subject.add(str);
-                      } else {
-                        setState(() {
-                          _searchMode = false;
-                        });
-                      }
-                    },
+                GestureDetector(
+                  child: Container(
+                    child: Center(
+                      child: CircleAvatarWidget(
+                        _accountRepo.currentUserUid,
+                        18,
+                        showAsStreamOfAvatar: true,
+                      ),
+                    ),
                   ),
-                  AudioPlayerAppBar(),
-                  _searchMode
-                      ? searchResult()
-                      : Expanded(
-                          child: (tab == NavigationTabs.Chats)
-                              ? ChatsPage(key: ValueKey("ChatsPage"))
-                              : ContactsPage(key: ValueKey("ContactsPage"))),
-                ],
-              ),
+                  onTap: tapOnCurrentUserAvatar,
+                ),
+              ],
             ),
-
-            bottomNavigationBar: BottomAppBar(
-              color: ExtraTheme.of(context).bottomNavigationAppbar,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  buildIconButton(
-                      context, Icons.question_answer, NavigationTabs.Chats),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  buildIconButton(
-                      context, Icons.people, NavigationTabs.Contacts),
-                ],
-              ),
+            titleSpacing: 4.0,
+            title: StreamBuilder<TitleStatusConditions>(
+                stream: _messageRepo.updatingStatus.stream,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData &&
+                      snapshot.data == TitleStatusConditions.Normal) {
+                    return buildText(context);
+                  } else if (snapshot.data == TitleStatusConditions.Updating) {
+                    return Text(_appLocalization.getTraslateValue("updating"),
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: ExtraTheme.of(context).textDetails));
+                  } else if (snapshot.data ==
+                      TitleStatusConditions.Connecting) {
+                    return Text(_appLocalization.getTraslateValue("connecting"),
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: ExtraTheme.of(context).textDetails));
+                  } else if (snapshot.hasData &&
+                      snapshot.data == TitleStatusConditions.Disconnected) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        buildText(context),
+                        SizedBox(
+                          width: 7,
+                        ),
+                        Text(_appLocalization.getTraslateValue("disconnect"),
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: ExtraTheme.of(context).textDetails))
+                      ],
+                    );
+                  } else {
+                    return buildText(context);
+                  }
+                }),
+            actions: [
+              buildMenu(context),
+              SizedBox(
+                width: 16,
+              )
+            ],
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          children: <Widget>[
+            SearchBox(
+              onChange: (str) {
+                if (str.length > 0) {
+                  setState(() {
+                    _searchMode = true;
+                  });
+                  subject.add(str);
+                } else {
+                  setState(() {
+                    _searchMode = false;
+                  });
+                }
+              },
             ),
-          );
-
+            AudioPlayerAppBar(),
+            _searchMode
+                ? searchResult()
+                : Expanded(
+                    child: (tab == NavigationTabs.Chats)
+                        ? ChatsPage(key: ValueKey("ChatsPage"))
+                        : ContactsPage(key: ValueKey("ContactsPage"))),
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        color: ExtraTheme.of(context).bottomNavigationAppbar,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            buildIconButton(
+                context, Icons.question_answer, NavigationTabs.Chats),
+            SizedBox(
+              width: 20,
+            ),
+            buildIconButton(context, Icons.people, NavigationTabs.Contacts),
+          ],
+        ),
+      ),
+    );
   }
 
   Text buildText(BuildContext context) {
@@ -241,88 +236,102 @@ class _NavigationCenterState extends State<NavigationCenter> {
   IconButton buildMenu(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
     return IconButton(
-      padding: const EdgeInsets.only(top: 4, left: 6, bottom: 4, right: 0),
-      icon: Container(
-        width: 120,
-        height: 120,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: ExtraTheme.of(context).menuIconButton,
-        ),
-        child: tab == NavigationTabs.Chats
-            ? PopupMenuButton(
-                color: ExtraTheme.of(context).popupMenuButton,
-                icon: Icon(
-                  Icons.create,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                onSelected: selectChatMenu,
-                itemBuilder: (context) => [
-                      // if (kDebugMode)
-                      //   PopupMenuItem<String>(
-                      //     child: Row(
-                      //       children: [
-                      //         Text(appLocalization.getTraslateValue("newChat")),
-                      //       ],
-                      //     ),
-                      //     value: "newChat",
-                      //   ),
-                      PopupMenuItem<String>(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 40),
-                          child:Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Icon(
-                                Icons.group,
-                                color: ExtraTheme.of(context).popupMenuButtonDetails,
+        padding: const EdgeInsets.only(top: 4, left: 6, bottom: 4, right: 0),
+        icon: Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: ExtraTheme.of(context).menuIconButton,
+            ),
+            child: tab == NavigationTabs.Chats
+                ? PopupMenuButton(
+                    color: ExtraTheme.of(context).popupMenuButton,
+                    icon: Icon(
+                      Icons.create,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                      size: 20,
+                    ),
+                    onSelected: selectChatMenu,
+                    itemBuilder: (context) => [
+                          // if (kDebugMode)
+                          //   PopupMenuItem<String>(
+                          //     child: Row(
+                          //       children: [
+                          //         Text(appLocalization.getTraslateValue("newChat")),
+                          //       ],
+                          //     ),
+                          //     value: "newChat",
+                          //   ),
+                          PopupMenuItem<String>(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 40),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.group,
+                                    color: ExtraTheme.of(context)
+                                        .popupMenuButtonDetails,
+                                  ),
+                                  SizedBox(
+                                    width: 15,
+                                  ),
+                                  Text(
+                                    appLocalization
+                                        .getTraslateValue("newGroup"),
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: ExtraTheme.of(context)
+                                            .popupMenuButtonDetails),
+                                  ),
+                                ],
                               ),
-                              SizedBox(
-                                width: 15,
-                              ),
-                              Text(
-                                appLocalization.getTraslateValue("newGroup"),
-                                style: TextStyle(fontSize: 15, color: ExtraTheme.of(context).popupMenuButtonDetails),
-                              ),
-                            ],
+                            ),
+                            value: "newGroup",
                           ),
-                        ),
-                        value: "newGroup",
-                      ),
-                      PopupMenuItem<String>(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Image.asset(
-                              "assets/icons/channel_icon.png",
-                              width: 25,
-                              height: 25,
-                              color: ExtraTheme.of(context).popupMenuButtonDetails,
+                          PopupMenuItem<String>(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Image.asset(
+                                  "assets/icons/channel_icon.png",
+                                  width: 25,
+                                  height: 25,
+                                  color: ExtraTheme.of(context)
+                                      .popupMenuButtonDetails,
+                                ),
+                                SizedBox(
+                                  width: 15,
+                                ),
+                                Text(
+                                  appLocalization
+                                      .getTraslateValue("newChannel"),
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: ExtraTheme.of(context)
+                                          .popupMenuButtonDetails),
+                                )
+                              ],
                             ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            Text(
-                              appLocalization
-                                  .getTraslateValue("newChannel"),
-                              style: TextStyle(fontSize: 15, color: ExtraTheme.of(context).popupMenuButtonDetails),
-                            )
-                          ],
-                        ),
-                        value: "newChannel",
-                      )
-                    ])
-            : IconButton(
-                color: ExtraTheme.of(context).popupMenuButton,
-                onPressed: () {
-                  _routingService.openCreateNewContactPage();
-                },
-                icon: Icon(
-                  Icons.add,
-                  color: Colors.white,
-                  size: 20,
-                ))));
+                            value: "newChannel",
+                          )
+                        ])
+                : IconButton(
+                    color: ExtraTheme.of(context).popupMenuButton,
+                    onPressed: () {
+                      _routingService.openCreateNewContactPage();
+                    },
+                    icon: Icon(
+                      Icons.add,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                      size: 20,
+                    ))),
+        onPressed: null);
   }
 
   selectChatMenu(String key) {
@@ -397,7 +406,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     children: [
                       Text(
                         _appLocalization.getTraslateValue("local_search"),
-                        style: TextStyle(color: ExtraTheme.of(context).textDetails),
+                        style: TextStyle(
+                            color: ExtraTheme.of(context).textDetails),
                       ),
                       Container(
                         height: MediaQuery.of(context).size.height,
