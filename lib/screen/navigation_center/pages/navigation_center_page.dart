@@ -21,6 +21,7 @@ import 'package:deliver_flutter/shared/methods/helper.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -113,7 +114,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
             leading: Row(
               children: [
                 SizedBox(
-                  width: 16,
+                  width: 20,
                 ),
                 GestureDetector(
                   child: Container(
@@ -140,13 +141,13 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     return Text(_appLocalization.getTraslateValue("updating"),
                         style: TextStyle(
                             fontSize: 20,
-                            color: ExtraTheme.of(context).textDetails));
+                            color: Theme.of(context).textTheme.headline2.color));
                   } else if (snapshot.data ==
                       TitleStatusConditions.Connecting) {
                     return Text(_appLocalization.getTraslateValue("connecting"),
                         style: TextStyle(
                             fontSize: 20,
-                            color: ExtraTheme.of(context).textDetails));
+                            color: Theme.of(context).textTheme.headline2.color));
                   } else if (snapshot.hasData &&
                       snapshot.data == TitleStatusConditions.Disconnected) {
                     return Row(
@@ -159,7 +160,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         Text(_appLocalization.getTraslateValue("disconnect"),
                             style: TextStyle(
                                 fontSize: 16,
-                                color: ExtraTheme.of(context).textDetails))
+                                color: Colors.red))
                       ],
                     );
                   } else {
@@ -212,35 +213,35 @@ class _NavigationCenterState extends State<NavigationCenter> {
             Container(
               width: 60,
               child: Stack(
-                children: [
+                children: [   buildIconButton(
+                    context, Icons.question_answer, NavigationTabs.Chats),
                   StreamBuilder<int>(
                       stream: unreadMessageCount.stream,
                       builder: (c, s) {
-                        if (s.hasData && s.data != null && s.data > 0)
-                          return Positioned(
+                        if(s.hasData &&s.data>0)
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                              right: 0.0,
+                              top: 2,
+                              left: 23
+                            ),
                             child: Container(
-                              width: 20.0,
+                              width: s.data<100?25:28,
+                              height: s.data<100?25: 28,
+                              child: Center(child: Text("${s.data}",style: TextStyle(fontSize:15,color: Colors.white),)),
+                              alignment: Alignment.center,
                               decoration: new BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-
-                              child: Center(
-                                child: Text(
-                                  "${s.data}",
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                                color: Colors.red,
+                                shape: BoxShape.circle,
                               ),
                             ),
-                            bottom: 22,
-                            left: 25.0,
-                            top: 0,
                           );
                         else
                           return SizedBox.shrink();
+
                       }),
-                  buildIconButton(
-                      context, Icons.question_answer, NavigationTabs.Chats),
+
+
                 ],
               ),
             ),

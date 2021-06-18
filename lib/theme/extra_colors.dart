@@ -23,7 +23,8 @@ class ExtraThemeData {
   Color username;
   Color sentMessageBox;
   Color receivedMessageBox;
-  Color textMessage;//green white
+  Color textMessage;
+  Color seenStatus;//green white
   Color messageDetails;
 
   Color persistentEventMessage;
@@ -53,6 +54,7 @@ class ExtraThemeData {
         this.sentMessageBox,
         this.receivedMessageBox,
         this.textMessage,
+        this.seenStatus,
         this.messageDetails,
         this.persistentEventMessage,
         this.circularFileStatus,

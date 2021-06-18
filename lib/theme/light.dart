@@ -77,6 +77,7 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
     fileMessageDetails: Color(0xff00a394),
     textField: LightTheme.accentColor,
     username: Colors.blue,
+    seenStatus: Colors.blue,
     inputBoxBackground: Colors.white,
    //group
   border: Color(0xff174b45),
