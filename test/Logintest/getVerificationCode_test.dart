@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,7 +28,7 @@ void main() {
           ..phoneNumber = phoneNumber
           ..type = VerificationType.SMS))
         .thenAnswer((v) {
-      print("code is send ");
+      debug("code is send ");
     });
 
     var loginRequest = mockClient.getVerificationCode(GetVerificationCodeReq()
@@ -47,9 +48,9 @@ void main() {
       ..password = "12";
 
     when(mockClient.verifyAndGetToken(request)).thenAnswer((realInvocation) {
-      print("code is verify");
-      print("access_token and refreshToken is receved ");
-      print("save in SharedPreferences  "); // by soe error: save in shared not write.
+      debug("code is verify");
+      debug("access_token and refreshToken is receved ");
+      debug("save in SharedPreferences  "); // by soe error: save in shared not write.
     });
 
     var loginRequest = await mockClient.verifyAndGetToken(VerifyCodeReq()

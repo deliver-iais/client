@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:deliver_flutter/services/check_permissions_service.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:flutter_file_manager/flutter_file_manager.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider_ex/path_provider_ex.dart';
@@ -52,7 +53,7 @@ class FileItem extends FileBasic {
               .filesTree(extensions: ["pdf", "mp4", "pptx", "docx", "xlsx"]);
           files.addAll(f);
         }catch(e){
-          print(e.toString());
+          debug(e.toString());
         }
         return files;
       }

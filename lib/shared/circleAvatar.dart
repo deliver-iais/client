@@ -20,7 +20,7 @@ class CircleAvatarWidget extends StatelessWidget {
   final double radius;
   final bool forceToUpdate;
   final bool showAsStreamOfAvatar;
-  final bool savedMessaeg;
+  final bool showSavedMessageLogoIfNeeded;
 
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
@@ -30,7 +30,7 @@ class CircleAvatarWidget extends StatelessWidget {
   CircleAvatarWidget(this.contactUid, this.radius,
       {this.forceToUpdate = false,
       this.showAsStreamOfAvatar = false,
-      this.savedMessaeg = false});
+      this.showSavedMessageLogoIfNeeded = false});
 
   Color colorFor(BuildContext context, String text) {
     var hash = 0;
@@ -52,6 +52,10 @@ class CircleAvatarWidget extends StatelessWidget {
         colorSaturation: ColorSaturation.highSaturation);
   }
 
+  bool isSavedMessage() =>
+      showSavedMessageLogoIfNeeded &&
+      _accountRepo.isCurrentUser(contactUid.asString());
+
   @override
   Widget build(BuildContext context) {
     var color = colorFor(context, contactUid.asString());
@@ -60,20 +64,20 @@ class CircleAvatarWidget extends StatelessWidget {
 
     return CircleAvatar(
       radius: radius,
-      backgroundColor: savedMessaeg
+      backgroundColor: isSavedMessage()
           ? Colors.blue
           : contactUid.category == Categories.SYSTEM
-              ? Colors.blue
+              ? Colors.black12
               : color,
       child: contactUid.category == Categories.SYSTEM
           ? Image(
               image: AssetImage(
                   'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
             )
-          : savedMessaeg
+          : isSavedMessage()
               ? Icon(
                   Icons.bookmark,
-                  size: 30,
+                  size: radius,
                   color: Colors.white,
                 )
               : showAsStreamOfAvatar
@@ -129,12 +133,12 @@ class CircleAvatarWidget extends StatelessWidget {
                 return Center(
                   child: Text(name.length > 2 ? name.substring(0, 2) : name,
                       style:
-                          TextStyle(color: textColor, fontSize: 18, height: 2)),
+                          TextStyle(color: textColor, fontSize: (radius * 0.6).toInt().toDouble(), height: 2)),
                 );
               } else {
                 return Icon(
                   Icons.person,
-                  size: 30,
+                  size: radius,
                   color: Colors.white,
                 );
               }

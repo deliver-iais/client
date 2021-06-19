@@ -23,12 +23,8 @@ class ContactPic extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        CircleAvatarWidget(
-          this.userUid,
-          24,
-          savedMessaeg:
-              userUid.isSameEntity(_accountRepo.currentUserUid.asString()),
-        ),
+        CircleAvatarWidget(this.userUid, 24,
+            showSavedMessageLogoIfNeeded: true),
         if (userUid.category == Categories.USER &&
             !userUid.isSameEntity(_accountRepo.currentUserUid.asString()))
           StreamBuilder<UserInfo>(
@@ -46,7 +42,8 @@ class ContactPic extends StatelessWidget {
                               color: Colors.greenAccent.shade700,
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: Theme.of(context).scaffoldBackgroundColor,
+                                color:
+                                    Theme.of(context).scaffoldBackgroundColor,
                                 width: 2,
                               ),
                             ),

@@ -3,6 +3,7 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
@@ -38,14 +39,14 @@ class NotificationServices {
     try {
     await flutterLocalNotificationsPlugin.cancel(notificationId);
     } catch (e) {
-      print(e.toString());
+      debug(e.toString());
     }
   }
 
   cancelAllNotification() async {
     try{await flutterLocalNotificationsPlugin.cancelAll();
     }catch(e){
-      print(e.toString());
+      debug(e.toString());
     }
   }
 

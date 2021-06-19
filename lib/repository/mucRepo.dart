@@ -13,6 +13,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pb.dart' as MucPro;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -95,7 +96,7 @@ class MucRepo {
         i = i + 15;
       }
     } catch (e) {
-      print(e.toString());
+      debug(e.toString());
     }
   }
 
@@ -115,7 +116,7 @@ class MucRepo {
         i = i + 15;
       }
     } catch (e) {
-      print(e.toString());
+      debug(e.toString());
     }
   }
 

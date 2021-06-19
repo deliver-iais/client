@@ -7,6 +7,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
     as ProtocolAvatar;
@@ -63,7 +64,7 @@ class AvatarRepo {
       }
       updateLastUpdateAvatarTime(userUid.asString(), lastAvatar);
     }catch(e){
-      print(e.toString());
+      debug(e.toString());
     }
 
   }
@@ -98,11 +99,11 @@ class AvatarRepo {
         await _lastAvatarDao.getLastAvatar(userUid.asString());
 
     if (lastAvatar == null) {
-      print("last avatar is null");
+      debug("last avatar is null");
       return true;
     } else if ((nowTime - lastAvatar.lastUpdate) > 1800000) {
       // 24 hours
-      print("exceeded from 24 hours");
+      debug("exceeded from 24 hours");
       return true;
     } else {
       avatarCache.set(key, lastAvatar);
@@ -195,8 +196,8 @@ class AvatarRepo {
       saveAvatarInfo(
           _accountRepo.currentUserUid, createOn, fileInfo.uuid, fileInfo.name);
     } catch (e) {
-      print("rrrrrrrrrrrrrrrrrrrr"+addAvatarReq.token.toString());
-      print(e.toString());
+      debug("rrrrrrrrrrrrrrrrrrrr"+addAvatarReq.token.toString());
+      debug(e.toString());
     }
   }
 

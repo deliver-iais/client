@@ -4,6 +4,7 @@ import 'package:deliver_flutter/db/database.dart' as db;
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -59,7 +60,7 @@ class FireBaseServices {
             }));
         _prefs.set(Firabase_Setting_Is_Set, "true");
       } catch (e) {
-        print(e.toString());
+        debug(e.toString());
       }
     }
   }
@@ -77,7 +78,7 @@ class FireBaseServices {
         sound: true,
       );
     } catch (e) {
-      print(e);
+      debug(e);
     }
   }
 }

@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:test/test.dart';
 
 void main(){
@@ -15,7 +16,7 @@ void main(){
     }
     for(int i=0;i<4;i++){
       streamController.stream.first.then((value) => (){
-        print(value);
+        debug(value);
       });
 
     }

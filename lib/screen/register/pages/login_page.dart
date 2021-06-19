@@ -7,6 +7,7 @@ import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver_flutter/screen/register/widgets/phone_number.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/foundation.dart';
 
@@ -42,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
               textColor: Colors.white,
               fontSize: 16.0);
       } catch (e) {
-        print(e);
+        debug(e);
         Fluttertoast.showToast(
 //          TODO more detailed error message needed here.
             msg: appLocalization.getTraslateValue("occurred_Error"),

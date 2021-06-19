@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
@@ -38,10 +39,10 @@ class FileRepo {
       try {
 
         isolate = await FlutterIsolate.spawn(decodeIsolate,myMap);
-       print("isolate spawn finished successfulllyyyyyyyyyyyy");
+       debug("isolate spawn finished successfulllyyyyyyyyyyyy");
       }
       catch (e) {
-        print("isolate errrrrrrrrrrrrrrrorrrrrrrrr"+e.toString());
+        debug("isolate errrrrrrrrrrrrrrrorrrrrrrrr"+e.toString());
       }
       Map allLocalFiles = await receivePort.first as Map;
      isolate.kill();
@@ -72,7 +73,7 @@ class FileRepo {
       ..height = json["height"] ?? 0
       ..duration = json["duration"] ?? 0;
 
-    print(uploadedFile.toString());
+    debug(uploadedFile.toString());
 
 
     await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
