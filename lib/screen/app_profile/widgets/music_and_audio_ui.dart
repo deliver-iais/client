@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
@@ -52,8 +53,13 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                 child: ListView.builder(
                   itemCount: widget.mediaCount,
                   itemBuilder: (BuildContext ctx, int index) {
+
                     var fileId = jsonDecode(media.data[index].json)["uuid"];
                     var fileName = jsonDecode(media.data[index].json)["name"];
+                    var dur = jsonDecode(media.data[index].json)["duration"];
+                    print(media.data[index].json);
+                    print(dur.toString());
+
                     var messageId = media.data[index].messageId;
                     return FutureBuilder<bool>(
                         future: fileRepo.isExist(fileId, fileName),
@@ -77,10 +83,11 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                                 style: TextStyle(
                                                     fontSize: 14,
                                                     fontWeight:
-                                                        FontWeight.bold, color: ExtraTheme.of(context).textMessage)),
+                                                        FontWeight.bold, color: ExtraTheme.of(context).textMessage),overflow: TextOverflow.ellipsis,),
                                           ),
                                           MusicPlayProgress(
                                             audioUuid: fileId,
+                                            duration: double.parse(dur.toString()).toDouble() ,
                                           ),
                                         ],
                                       ),
@@ -118,6 +125,7 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                             ),
                                             MusicPlayProgress(
                                               audioUuid: fileId,
+                                              duration: double.parse(dur.toString()).toDouble(),
                                             ),
                                           ],
                                         ),

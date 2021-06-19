@@ -104,28 +104,29 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   ])),
             ),
           if (widget.message.type == MessageType.FILE && !isDesktop())
-            Expanded(
-                child: FutureBuilder<File>(
-              future: fileRepo.getFileIfExist(widget.message.json.toFile().uuid,
-                  widget.message.json.toFile().name),
-              builder: (c, s) {
-                if (s.hasData && s.data != null) {
-                  return FlatButton(
-                      onPressed: () {
-                        onShare();
-                      },
-                      child: Row(children: [
-                        Icon(
-                          Icons.share,
-                          size: 20,
-                        ),
-                        SizedBox(width: 8),
-                        Text(appLocalization.getTraslateValue("share")),
-                      ]));
-                } else
-                  return Container(height: 0,);
-              },
-            )),
+            FutureBuilder<File>(
+                future: fileRepo.getFileIfExist(
+                    widget.message.json.toFile().uuid,
+                    widget.message.json.toFile().name),
+                builder: (c, s) {
+                  if (s.hasData && s.data != null)
+                    return Expanded(
+                      child: FlatButton(
+                          onPressed: () {
+                            onShare();
+                          },
+                          child: Row(children: [
+                            Icon(
+                              Icons.share,
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            Text(appLocalization.getTraslateValue("share")),
+                          ])),
+                    );
+                  else
+                    return SizedBox.shrink();
+                }),
 
           Expanded(
             child: FlatButton(

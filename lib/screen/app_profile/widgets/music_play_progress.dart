@@ -9,9 +9,10 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 
 class MusicPlayProgress extends StatelessWidget {
   final String audioUuid;
+  final double duration;
   final _audioPlayerService = GetIt.I.get<AudioPlayerService>();
 
-  MusicPlayProgress({Key key, this.audioUuid}) : super(key: key);
+  MusicPlayProgress({Key key, this.audioUuid,this.duration}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +28,7 @@ class MusicPlayProgress extends StatelessWidget {
                     _audioPlayerService.CURRENT_AUDIO_ID.contains(audioUuid)) {
                   return AudioProgressIndicator(
                     audioUuid: audioUuid,
+                    duration: duration,
                   );
                 } else {
                   return Container(
@@ -40,6 +42,7 @@ class MusicPlayProgress extends StatelessWidget {
           padding: const EdgeInsets.only(left: 20.0, top: 44),
           child: TimeProgressIndicator(
             audioUuid: audioUuid,
+            duration:duration ,
           ),
         ),
       ],

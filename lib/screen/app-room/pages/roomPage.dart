@@ -54,6 +54,7 @@ import 'package:moor/moor.dart' as Moor;
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
+import 'package:share/share.dart';
 import 'package:vibration/vibration.dart';
 
 const int PAGE_SIZE = 40;
@@ -216,10 +217,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           try{
             var result = await _fileRepo.getFileIfExist(message.json.toFile().uuid, message.json.toFile().name);
             if(result.path.isNotEmpty)
-              await FlutterShare.shareFile(
-                title: 'Deliver',
-                filePath: result.path,
-              );
+              Share.shareFiles(['${result.path}'], text: message.json.toFile().caption.isNotEmpty?message.json.toFile().caption.isNotEmpty :'Deliver');
             break;
           }catch(e){
             print(e.toString());

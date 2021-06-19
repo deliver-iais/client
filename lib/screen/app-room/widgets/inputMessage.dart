@@ -232,7 +232,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   minLines: 1,
                                   style: TextStyle(fontSize: 19, height: 1,color: ExtraTheme.of(context).textField),
                                   maxLines: 15,
-                                  autofocus: widget.replyMessageId > 1,
+                                  autofocus: widget.replyMessageId > 1 || isDesktop(),
                                   textInputAction: isDesktop()
                                       ? TextInputAction.send
                                       : TextInputAction.newline,
