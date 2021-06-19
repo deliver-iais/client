@@ -1,8 +1,15 @@
+import 'dart:io';
+
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/operation_on_message.dart';
+import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
 class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final Message message;
@@ -45,16 +52,24 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   onResend() {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.RESEND);
   }
-  onDeletePendingMessage() {
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.DELETE_PENDING_MESSAGE);
+
+  onShare() {
+    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.SHARE);
   }
+
+  onDeletePendingMessage() {
+    Navigator.pop<OperationOnMessage>(
+        context, OperationOnMessage.DELETE_PENDING_MESSAGE);
+  }
+
+  FileRepo fileRepo = GetIt.I.get<FileRepo>();
 
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
 
     return Container(
-      height:widget.hasPermissionInChannel? 150:100,
+      height: widget.hasPermissionInChannel ? 150 : 100,
       child: Column(
         children: [
           if (widget.hasPermissionInChannel)
@@ -72,20 +87,46 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     Text(appLocalization.getTraslateValue("Reply")),
                   ])),
             ),
-          Expanded(
-            child: FlatButton(
-                onPressed: () {
-                  onCopy();
-                },
-                child: Row(children: [
-                  Icon(
-                    Icons.content_copy,
-                    size: 20,
-                  ),
-                  SizedBox(width: 8),
-                  Text(appLocalization.getTraslateValue("Copy")),
-                ])),
-          ),
+          if (widget.message.type == MessageType.TEXT ||
+              widget.message.type == MessageType.FILE)
+            Expanded(
+              child: FlatButton(
+                  onPressed: () {
+                    onCopy();
+                  },
+                  child: Row(children: [
+                    Icon(
+                      Icons.content_copy,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(appLocalization.getTraslateValue("Copy")),
+                  ])),
+            ),
+          if (widget.message.type == MessageType.FILE && !isDesktop())
+            Expanded(
+                child: FutureBuilder<File>(
+              future: fileRepo.getFileIfExist(widget.message.json.toFile().uuid,
+                  widget.message.json.toFile().name),
+              builder: (c, s) {
+                if (s.hasData && s.data != null) {
+                  return FlatButton(
+                      onPressed: () {
+                        onShare();
+                      },
+                      child: Row(children: [
+                        Icon(
+                          Icons.share,
+                          size: 20,
+                        ),
+                        SizedBox(width: 8),
+                        Text(appLocalization.getTraslateValue("share")),
+                      ]));
+                } else
+                  return Container(height: 0,);
+              },
+            )),
+
           Expanded(
             child: FlatButton(
                 onPressed: () {
@@ -130,7 +171,6 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     SizedBox(width: 8),
                     Text(appLocalization.getTraslateValue("Resend")),
                   ])),
-
             ),
           if (widget.message.sendingFailed != null &&
               widget.message.sendingFailed)
@@ -147,9 +187,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     SizedBox(width: 8),
                     Text(appLocalization.getTraslateValue("delete")),
                   ])),
-
             ),
-
 
           // widget.message.type == MessageType.TEXT
           //     ? Expanded(

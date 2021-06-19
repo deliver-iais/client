@@ -14,6 +14,7 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/operation_on_message.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
+import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
@@ -52,6 +53,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_share/flutter_share.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moor/moor.dart' as Moor;
@@ -96,6 +98,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _botRepo = GetIt.I.get<BotRepo>();
   var _memberRepo = GetIt.I.get<MemberRepo>();
+  var _fileRepo = GetIt.I.get<FileRepo>();
   String pattern;
   Map<String, DateTime> _downTimeMap = Map();
   Map<String, DateTime> _upTimeMap = Map();
@@ -190,7 +193,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               )
             ],
             color: menuColor)
-        .then<void>((OperationOnMessage opr) {
+        .then<void>((OperationOnMessage opr) async{
       if (opr == null) return;
       switch (opr) {
         case OperationOnMessage.REPLY:
@@ -198,7 +201,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _waitingForForwardedMessage.add(false);
           break;
         case OperationOnMessage.COPY:
+          if(message.type == MessageType.TEXT)
           Clipboard.setData(ClipboardData(text: message.json.toText().text));
+          else
+            Clipboard.setData(ClipboardData(text: message.json.toFile().caption??""));
           Fluttertoast.showToast(
               msg: _appLocalization.getTraslateValue("Copied"));
           break;
@@ -213,8 +219,23 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         case OperationOnMessage.EDIT:
           // TODO: Handle this case.
           break;
-        case OperationOnMessage.SHARE:
-          // TODO: Handle this case.
+        case OperationOnMessage.SHARE:{
+          try{
+            var result = await _fileRepo.getFileIfExist(message.json.toFile().uuid, message.json.toFile().name);
+            if(result.path.isNotEmpty)
+              await FlutterShare.shareFile(
+                title: 'Deliver',
+                filePath: result.path,
+              );
+            break;
+          }catch(e){
+            print(e.toString());
+            break;
+          }
+        }
+
+
+
           break;
         case OperationOnMessage.SAVE_TO_GALLERY:
           // TODO: Handle this case.

@@ -29,7 +29,7 @@ class _HomePageState extends State<HomePage>  with WidgetsBindingObserver{
     _notificationServices.cancelAllNotification();
     checkIfUsernameIsSet();
     if (isAndroid()) {
-      //checkShareFile(context);
+      checkShareFile(context);
     }
     _coreServices.initStreamConnection();
   }
@@ -45,6 +45,17 @@ class _HomePageState extends State<HomePage>  with WidgetsBindingObserver{
             arguments: ShareInputFileArguments(inputSharedFilePath: paths));
       }
     });
+    // ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
+    //   if (value != null) {
+    //     List<String> paths = List();
+    //     for (var path in value) {
+    //       paths.add(path.path);
+    //     }
+    //     ExtendedNavigator.of(context).pushAndRemoveUntil(
+    //         Routes.shareInputFile, (_) => false,
+    //         arguments: ShareInputFileArguments(inputSharedFilePath: paths));
+    //   }
+    // });
   }
 
   @override
