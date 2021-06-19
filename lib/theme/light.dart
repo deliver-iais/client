@@ -55,9 +55,9 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   // infoChat: Colors.black,
   // text: Colors.white,
   boxDetails: Color(0xff15786c),
-  boxBackground: Color(0xfde2f8f0),
+  boxBackground: Colors.white,
   activeSwitch: Color(0xff15786c),
-  textDetails : Color(0xff4bd5af),
+  textDetails : Colors.black,
   //homePage
     bottomNavigationAppbar : LightTheme.appBarTheme.color.withAlpha(200),
     activePageIcon: LightTheme.accentColor,
@@ -77,7 +77,11 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
     fileMessageDetails: Color(0xff00a394),
     textField: LightTheme.accentColor,
     username: Colors.blue,
+    titleStatus: Colors.blue,
     seenStatus: Colors.blue,
+
+
+    profileAvatarCard:Color(0xFFEEEEEE),
     inputBoxBackground: Colors.white,
    //group
   border: Color(0xff174b45),

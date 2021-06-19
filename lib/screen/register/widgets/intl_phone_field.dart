@@ -98,6 +98,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                       labelText: appLocalization
                           .getTraslateValue("search_by_country_name"),
                     ),
+                    style: TextStyle(color: ExtraTheme.of(context).textField),
                     onChanged: (value) {
                       setState(() {
                         filteredCountries = countries
@@ -163,6 +164,7 @@ AppLocalization appLocalization;
             readOnly: widget.readOnly,
             obscureText: widget.obscureText,
             textAlign: widget.textAlign,
+
             onTap: () {
               if (widget.onTap != null) widget.onTap();
             },
@@ -205,7 +207,7 @@ AppLocalization appLocalization;
                 ),
               ),
             ),
-            style: widget.style,
+            style: TextStyle(color: ExtraTheme.of(context).textField),
             onSaved: (value) {
               if (widget.onSaved != null)
                 widget.onSaved(

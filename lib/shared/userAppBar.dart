@@ -54,7 +54,6 @@ class UserAppbar extends StatelessWidget {
                               ),
                               TitleStatus(
                                 currentRoomUid:userUid ,
-                                  // normalConditionWidget: Text("last seen",style: TextStyle(fontSize: 12),) //todo last seen,
                                   )
                             ],
                           );

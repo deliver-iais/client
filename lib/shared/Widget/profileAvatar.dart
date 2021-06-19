@@ -239,7 +239,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     return Text(name,
         //textAlign: TextAlign.center,
         style: TextStyle(
-          color: Colors.white,
+          color: ExtraTheme.of(context).textField,
           fontSize: 22.0,
           shadows: <Shadow>[
             Shadow(

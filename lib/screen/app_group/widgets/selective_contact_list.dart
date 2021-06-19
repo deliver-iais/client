@@ -9,6 +9,7 @@ import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/screen/app_group/widgets/selective_contact.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -83,10 +84,10 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                 .replaceAll(new RegExp(r"\s\b|\b\s"), "")
                 .toLowerCase()
                 .contains(query) ||
-            item.lastName
+            (item.lastName!=null && item.lastName
                 .replaceAll(new RegExp(r"\s\b|\b\s"), "")
                 .toLowerCase()
-                .contains(query)) {
+                .contains(query))) {
           dummyListData.add(item);
         }
       });
@@ -116,6 +117,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                 onChanged: (value) {
                   filterSearchResults(value);
                 },
+                style: TextStyle(color: ExtraTheme.of(context).textField),
                 controller: editingController),
             Expanded(
                 child: FutureBuilder(

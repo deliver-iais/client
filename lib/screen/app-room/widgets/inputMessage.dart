@@ -334,7 +334,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       return IconButton(
                                         icon: Icon(
                                           Icons.send,
-                                            color: ExtraTheme.of(context).textField,
+                                            color: Colors.blue,
                                         ),
                                         onPressed: controller.text?.isEmpty &&
                                                 (widget.waitingForForward ==

@@ -140,7 +140,7 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
             children: [
               IconButton(
                 icon: Icon(Icons.person_add),
-                disabledColor: Colors.white,
+                disabledColor: Colors.blue,
                 onPressed: null,
               ),
               SizedBox(
@@ -148,7 +148,7 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
               ),
               Text(
                 appLocalization.getTraslateValue("AddMember"),
-                style: TextStyle(color: Colors.white,fontSize: 17),
+                style: TextStyle(color: ExtraTheme.of(context).textField,fontSize: 17),
               ),
             ],
           ),

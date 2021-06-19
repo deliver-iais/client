@@ -12,12 +12,14 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
         android:name=".Application"
         android:label="Deliver"
+        android:installLocation="auto"
         android:usesCleartextTraffic="true"
         android:requestLegacyExternalStorage="true"
         android:allowBackup="false"

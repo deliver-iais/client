@@ -149,14 +149,14 @@ class _TitleStatusState extends State<TitleStatus> {
                 return Text(
                   appLocalization.getTraslateValue('online'),
                   style: TextStyle(
-                      fontSize: 14, color: ExtraTheme.of(context).textDetails),
+                      fontSize: 14, color: ExtraTheme.of(context).titleStatus),
                 );
               } else {
                 String lastActivityTime =
                     userInfo.data.lastActivity.dateTimeFormat();
                 return Text(
                   "${appLocalization.getTraslateValue('lastSeen')} ${lastActivityTime.contains("just now")?appLocalization.getTraslateValue("just_now"):lastActivityTime} ",
-                  style: TextStyle(fontSize: 12,color: ExtraTheme.of(context).textDetails),
+                  style: TextStyle(fontSize: 12,color: ExtraTheme.of(context).titleStatus),
                 );
               }
             }

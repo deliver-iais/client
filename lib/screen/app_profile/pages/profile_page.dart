@@ -161,7 +161,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                     style: TextStyle(
                                                       color: ExtraTheme.of(
                                                               context)
-                                                          .boxDetails,
+                                                          .textField,
                                                       fontSize: 16.0,
                                                     ),
                                                   ),
@@ -177,7 +177,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                     child: Text(
                                                       "@ Deliver",
                                                       style: TextStyle(
-                                                          color: ExtraTheme.of(context).boxDetails),
+                                                          color: Colors.blue),
                                                     ))
                                                 : widget.userUid.category ==
                                                         Categories.BOT
@@ -237,13 +237,13 @@ class _ProfilePageState extends State<ProfilePage>
                                                   SizedBox(
                                                     width: 10,
                                                   ),
-                                                  Icon(Icons.message, color: ExtraTheme.of(context).boxDetails,),
+                                                  Icon(Icons.message, color: Colors.blue,),
                                                   SizedBox(
                                                     width: 10,
                                                   ),
                                                   Text(appLocalization
                                                       .getTraslateValue(
-                                                          "sendMessage"), style: TextStyle(color:ExtraTheme.of(context).boxDetails, ),),
+                                                          "sendMessage"), style: TextStyle(color:ExtraTheme.of(context).textField, ),),
                                                 ]),
                                                 onTap: () {
                                                   _routingService.openRoom(
@@ -274,12 +274,12 @@ class _ProfilePageState extends State<ProfilePage>
                                                             Icons
                                                                 .notifications_active,
                                                             size: 30,
-                                                              color: ExtraTheme.of(context).boxDetails
+                                                              color: Colors.blue
                                                           ),
                                                           SizedBox(width: 10),
                                                           Text(appLocalization
                                                               .getTraslateValue(
-                                                                  "notification"), style: TextStyle(color:ExtraTheme.of(context).boxDetails, ),),
+                                                                  "notification"), style: TextStyle(color:ExtraTheme.of(context).textField, ),),
                                                         ],
                                                       ),
                                                     ),
@@ -347,13 +347,13 @@ class _ProfilePageState extends State<ProfilePage>
                                                             children: [
                                                               IconButton(
                                                                 icon: Icon(Icons
-                                                                    .phone, color: ExtraTheme.of(context).boxDetails),
+                                                                    .phone, color: Colors.blue),
                                                                 onPressed:
                                                                     () {},
                                                               ),
                                                               Text(appLocalization
                                                                   .getTraslateValue(
-                                                                      "phone"), style: TextStyle(color:ExtraTheme.of(context).boxDetails)),
+                                                                      "phone"), style: TextStyle(color:ExtraTheme.of(context).textField)),
                                                             ],
                                                           ),
                                                           Padding(
@@ -378,7 +378,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                           .PHONE,
                                                                       style:
                                                                           TextStyle(
-                                                                        color: ExtraTheme.of(context).boxDetails,
+                                                                        color: Colors.blue,
                                                                         fontSize:
                                                                             16,
                                                                       ),
@@ -581,7 +581,7 @@ Widget _showUsername(
         GestureDetector(
           child: Text(
             username != null ? "@$username" : '',
-            style: TextStyle(fontSize: 18.0, color: ExtraTheme.of(context).boxDetails),
+            style: TextStyle(fontSize: 18.0, color: Colors.blue),
           ),
           onLongPress: () {
             Clipboard.setData(ClipboardData(text: "@$username"));
@@ -596,7 +596,7 @@ Widget _showUsername(
             icon: Icon(
               Icons.share,
               size: 22,
-              color: ExtraTheme.of(context).boxDetails,
+              color: Colors.blue,
             ),
             onPressed: () {
               routingServices.openSelectForwardMessage(

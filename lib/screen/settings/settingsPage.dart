@@ -92,10 +92,11 @@ class _SettingsPageState extends State<SettingsPage> {
               alignment: Alignment.centerLeft,
               child: Text(
                 appLocalization.getTraslateValue("settings"),
-                style: Theme.of(context).textTheme.headline3,
+                style: Theme.of(context).textTheme.headline2,
               ),
             ),
             leading: _routingService.backButtonLeading()),
+
         body: FluidContainerWidget(
           child: ListView(children: [
             ProfileAvatarCard(
@@ -200,7 +201,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           return Text(
                             snapshot.data.userName ?? "",
                             style: TextStyle(
-                                color: ExtraTheme.of(context).boxDetails,
+                                color: ExtraTheme.of(context).textField,
                                 fontSize: 13),
                           );
                         } else {
@@ -229,7 +230,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         return Text(
                           snapshot.data.phoneNumber,
                           style: TextStyle(
-                              color: ExtraTheme.of(context).boxDetails, fontSize: 13),
+                              color: ExtraTheme.of(context).textField, fontSize: 13),
                         );
                       } else {
                         return SizedBox.shrink();
@@ -291,7 +292,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: DropdownButton(
                     hint: Text(
                       (_uxService.locale as Locale).language().name,
-                      style: TextStyle(color: ExtraTheme.of(context).boxDetails),
+                      style: TextStyle(color: ExtraTheme.of(context).textField),
                     ),
                     onChanged: (Language language) {
                       _changeLanguage(language);
@@ -330,13 +331,13 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 SizedBox(width: 8),
                 Icon(
-                  iconData,color: ExtraTheme.of(context).activeSwitch,
+                  iconData,color: Colors.blue,
                   size: 18,
                 ),
                 SizedBox(width: 8),
                 Text(
                   title,
-                  style: TextStyle(color: ExtraTheme.of(context).boxDetails),
+                  style: TextStyle(color: ExtraTheme.of(context).textField),
                 ),
               ],
             ),

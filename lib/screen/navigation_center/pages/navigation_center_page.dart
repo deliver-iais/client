@@ -311,15 +311,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     ),
                     onSelected: selectChatMenu,
                     itemBuilder: (context) => [
-                          // if (kDebugMode)
-                          //   PopupMenuItem<String>(
-                          //     child: Row(
-                          //       children: [
-                          //         Text(appLocalization.getTraslateValue("newChat")),
-                          //       ],
-                          //     ),
-                          //     value: "newChat",
-                          //   ),
+
                           PopupMenuItem<String>(
                             child: Padding(
                               padding: const EdgeInsets.only(top: 40),

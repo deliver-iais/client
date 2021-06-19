@@ -13,6 +13,7 @@ class ExtraThemeData {
   Color activeSwitch = Color(0xff15786c);
   Color textDetails;//light green - blue
   Color bottomNavigationAppbar;
+  Color titleStatus;
   Color activePageIcon;
   Color inactivePageIcon;
   Color menuIconButton;
@@ -26,7 +27,7 @@ class ExtraThemeData {
   Color textMessage;
   Color seenStatus;//green white
   Color messageDetails;
-
+  Color  profileAvatarCard;
   Color persistentEventMessage;
   Color circularFileStatus;
   Color fileMessageDetails;
@@ -50,6 +51,8 @@ class ExtraThemeData {
         this.popupMenuButtonDetails,
         this.searchBox,
         this.username,
+        this.titleStatus,
+        this.profileAvatarCard,
         this.chatOrContactItemDetails,
         this.sentMessageBox,
         this.receivedMessageBox,
@@ -63,6 +66,8 @@ class ExtraThemeData {
         this.inputBoxBackground,
         this.border
       });
+
+
 
 
 }
