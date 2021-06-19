@@ -804,16 +804,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           return Column(
             children: <Widget>[
               if (_upTimeMap.containsKey(messages[0].packetId))
-                Container(
-                  margin: const EdgeInsets.all(4.0),
-                  padding: const EdgeInsets.all(4.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: ChatTime(
-                      currentMessageTime: _upTimeMap[messages[0].packetId]),
-                ),
+                ChatTime(
+                    currentMessageTime: _upTimeMap[messages[0].packetId]),
               if (currentRoom.lastMessageId != null &&
                   _lastShowedMessageId != -1 &&
                   _lastShowedMessageId == index &&
@@ -854,14 +846,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           ],
                         ),
               if (_downTimeMap.containsKey(messages[0].packetId))
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: ChatTime(
-                      currentMessageTime: _downTimeMap[messages[0].packetId]),
-                ),
+                ChatTime(
+                    currentMessageTime: _downTimeMap[messages[0].packetId]),
             ],
           );
         } else {

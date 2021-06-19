@@ -10,28 +10,36 @@ class ChatTime extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ValueNotifier<int> day = ValueNotifier<int>(DateTime.now().day);
-    return ValueListenableBuilder<int>(
-        valueListenable: day,
-        builder: (context, value, _) {
-          String outT = '';
-          int currentDay = DateTime.now().day;
-          int currentMonth = DateTime.now().month;
-          if (currentDay == currentMessageTime.day &&
-              currentMonth == currentMessageTime.month) {
-            outT = ' Today ';
-          } else if(currentDay - currentMessageTime.day<2
-          ){
-            outT = ' Yesterday ';
-          }
-            else
-            outT = currentMessageTime.dateTimeFormat();
-          return  Text(
-             outT ,
-            style: TextStyle(
-              color: ExtraTheme.of(context).textDetails,
-              fontSize: 13,
-            ),
-          );
-        });
+    return Container(
+      margin: const EdgeInsets.all(4.0),
+      padding: const EdgeInsets.all(4.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ValueListenableBuilder<int>(
+          valueListenable: day,
+          builder: (context, value, _) {
+            String outT = '';
+            int currentDay = DateTime.now().day;
+            int currentMonth = DateTime.now().month;
+            if (currentDay == currentMessageTime.day &&
+                currentMonth == currentMessageTime.month) {
+              outT = ' Today ';
+            } else if(currentDay - currentMessageTime.day<2
+            ){
+              outT = ' Yesterday ';
+            }
+              else
+              outT = currentMessageTime.dateTimeFormat();
+            return  Text(
+               outT ,
+              style: TextStyle(
+                color: ExtraTheme.of(context).textDetails,
+                fontSize: 13,
+              ),
+            );
+          }),
+    );
   }
 }
