@@ -47,21 +47,24 @@ class NavigationCenter extends StatefulWidget {
 }
 
 BehaviorSubject<int> unreadMessageCount = BehaviorSubject.seeded(0);
-Map<String ,int> unReadMessagemap = Map();
-Map<String ,int> unReandCounterMessage =Map();
-addUnreadMessageCount(String roomId,int lastId, int unread){
+Map<String, int> unReadMessagemap = Map();
+Map<String, int> unReandCounterMessage = Map();
+
+addUnreadMessageCount(String roomId, int lastId, int unread) {
   unReandCounterMessage[roomId] = unread;
-  if(unReadMessagemap[roomId]==null){
+  if (unReadMessagemap[roomId] == null) {
     unReadMessagemap[roomId] = lastId;
-    unreadMessageCount.add(unreadMessageCount.valueWrapper.value+unread);
-  }else if(unReadMessagemap[roomId] != lastId){
+    unreadMessageCount.add(unreadMessageCount.valueWrapper.value + unread);
+  } else if (unReadMessagemap[roomId] != lastId) {
     unReadMessagemap[roomId] = lastId;
-    unreadMessageCount.add(unreadMessageCount.valueWrapper.value+1);
+    unreadMessageCount.add(unreadMessageCount.valueWrapper.value + 1);
   }
 }
-deceaseUnreadCountMessage(String roomId){
-  if(unReandCounterMessage[roomId] !=  null){
-    unreadMessageCount.add(unreadMessageCount.valueWrapper.value-unReandCounterMessage[roomId]);
+
+deceaseUnreadCountMessage(String roomId) {
+  if (unReandCounterMessage[roomId] != null) {
+    unreadMessageCount.add(
+        unreadMessageCount.valueWrapper.value - unReandCounterMessage[roomId]);
     unReandCounterMessage[roomId] = 0;
   }
 }
@@ -141,13 +144,15 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     return Text(_appLocalization.getTraslateValue("updating"),
                         style: TextStyle(
                             fontSize: 20,
-                            color: Theme.of(context).textTheme.headline2.color));
+                            color:
+                                Theme.of(context).textTheme.headline2.color));
                   } else if (snapshot.data ==
                       TitleStatusConditions.Connecting) {
                     return Text(_appLocalization.getTraslateValue("connecting"),
                         style: TextStyle(
                             fontSize: 20,
-                            color: Theme.of(context).textTheme.headline2.color));
+                            color:
+                                Theme.of(context).textTheme.headline2.color));
                   } else if (snapshot.hasData &&
                       snapshot.data == TitleStatusConditions.Disconnected) {
                     return Row(
@@ -158,9 +163,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           width: 7,
                         ),
                         Text(_appLocalization.getTraslateValue("disconnect"),
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.red))
+                            style: TextStyle(fontSize: 16, color: Colors.red))
                       ],
                     );
                   } else {
@@ -177,7 +180,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Column(
           children: <Widget>[
             SearchBox(
@@ -213,22 +216,25 @@ class _NavigationCenterState extends State<NavigationCenter> {
             Container(
               width: 60,
               child: Stack(
-                children: [   buildIconButton(
-                    context, Icons.question_answer, NavigationTabs.Chats),
+                children: [
+                  buildIconButton(
+                      context, Icons.question_answer, NavigationTabs.Chats),
                   StreamBuilder<int>(
                       stream: unreadMessageCount.stream,
                       builder: (c, s) {
-                        if(s.hasData &&s.data>0)
+                        if (s.hasData && s.data > 0)
                           return Padding(
                             padding: const EdgeInsets.only(
-                              right: 0.0,
-                              top: 2,
-                              left: 23
-                            ),
+                                right: 0.0, top: 2, left: 23),
                             child: Container(
-                              width: s.data<100?25:28,
-                              height: s.data<100?25: 28,
-                              child: Center(child: Text("${s.data}",style: TextStyle(fontSize:15,color: Colors.white),)),
+                              width: s.data < 100 ? 25 : 28,
+                              height: s.data < 100 ? 25 : 28,
+                              child: Center(
+                                  child: Text(
+                                "${s.data}",
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.white),
+                              )),
                               alignment: Alignment.center,
                               decoration: new BoxDecoration(
                                 color: Colors.red,
@@ -238,10 +244,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           );
                         else
                           return SizedBox.shrink();
-
                       }),
-
-
                 ],
               ),
             ),
@@ -253,7 +256,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
         ),
       ),
     );
-
   }
 
   Text buildText(BuildContext context) {
@@ -311,7 +313,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     ),
                     onSelected: selectChatMenu,
                     itemBuilder: (context) => [
-
                           PopupMenuItem<String>(
                             child: Padding(
                               padding: const EdgeInsets.only(top: 40),

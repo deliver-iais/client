@@ -154,12 +154,12 @@ class _ChatItemState extends State<ChatItem> {
     //  if(widget.roomWithMessage.lastMessage.roomId == '4:father_bot')
     return Row(
       children: <Widget>[
-        messageType == "send"
-            ? SeenStatus(widget.roomWithMessage.lastMessage)
-            : Container(),
+        if (messageType == "send" )
+            SeenStatus(widget.roomWithMessage.lastMessage),
         Padding(
             padding: const EdgeInsets.only(
-              top: 3.0,
+              top: 2.0,
+              left: 4.0
             ),
             child: LastMessage(message: widget.roomWithMessage.lastMessage)),
         Expanded(
