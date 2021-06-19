@@ -805,6 +805,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             children: <Widget>[
               if (_upTimeMap.containsKey(messages[0].packetId))
                 Container(
+                  margin: const EdgeInsets.all(4.0),
+                  padding: const EdgeInsets.all(4.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),

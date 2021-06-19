@@ -55,7 +55,7 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   // infoChat: Colors.black,
   // text: Colors.white,
   boxDetails: Color(0xff15786c),
-  boxBackground: Color(0xfff0f8ff),
+  boxBackground: Colors.white,
   activeSwitch: Color(0xff15786c),
   textDetails : Colors.black,
   //homePage
