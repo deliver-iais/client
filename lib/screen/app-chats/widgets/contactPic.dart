@@ -23,37 +23,49 @@ class ContactPic extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        CircleAvatarWidget(this.userUid, 24,savedMessaeg: userUid.isSameEntity(_accountRepo.currentUserUid.asString()) ,),
-        if (userUid.category == Categories.USER && !userUid.isSameEntity(_accountRepo.currentUserUid.asString()) )
+        CircleAvatarWidget(
+          this.userUid,
+          24,
+          savedMessaeg:
+              userUid.isSameEntity(_accountRepo.currentUserUid.asString()),
+        ),
+        if (userUid.category == Categories.USER &&
+            !userUid.isSameEntity(_accountRepo.currentUserUid.asString()))
           StreamBuilder<UserInfo>(
               stream: _userInfoDao.getUserInfoAsStream(userUid.asString()),
               builder: (c, userInfo) {
-                if (userInfo.hasData && userInfo.data != null && userInfo.data.lastActivity != null)
-                  return Positioned(
-                    child: Container(
-                      width: 12.0,
-                      height: 12.0,
-                      decoration: new BoxDecoration(
-                        color: DateTime.now().millisecondsSinceEpoch -
-                                    userInfo.data.lastActivity
-                                        .millisecondsSinceEpoch <
-                                30000
-                            ? Colors.greenAccent.shade700
-                            : Theme.of(context).accentColor,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.black,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    top: 32.0,
-                    right: 0.0,
-                  );else{
-                    return SizedBox.shrink();
+                if (userInfo.hasData &&
+                    userInfo.data != null &&
+                    userInfo.data.lastActivity != null)
+                  return isOnline(userInfo)
+                      ? Positioned(
+                          child: Container(
+                            width: 12.0,
+                            height: 12.0,
+                            decoration: new BoxDecoration(
+                              color: Colors.greenAccent.shade700,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: ExtraTheme.of(context),
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                          top: 32.0,
+                          right: 0.0,
+                        )
+                      : SizedBox.shrink();
+                else {
+                  return SizedBox.shrink();
                 }
               }),
       ],
     );
+  }
+
+  bool isOnline(AsyncSnapshot<UserInfo> userInfo) {
+    return DateTime.now().millisecondsSinceEpoch -
+            userInfo.data.lastActivity.millisecondsSinceEpoch <
+        60000;
   }
 }
