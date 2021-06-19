@@ -14,14 +14,14 @@ ThemeData LightTheme = ThemeData(
     scaffoldBackgroundColor: Colors.white,
     backgroundColor: Color(0xfde2f8f0),
     buttonColor: Color(0xff1f655d),
-    dividerTheme: DividerThemeData(space: 0.0, thickness: 1.5),
+    dividerTheme: DividerThemeData(space: 1.0, thickness: 1.0, color: Color(0xFFd0d0d0)),
     focusColor: Color(0xff179c96).withOpacity(0.5),
     cardColor: Color(0xff489088),
     textTheme: TextTheme(
       headline1: TextStyle(color: Colors.white, fontSize: 40),
       headline2: TextStyle(
           color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold),
-      headline3: TextStyle(color: Colors.white, fontSize: 20),
+      headline3: TextStyle(color: Colors.black, fontSize: 20),
       headline4: TextStyle(color: Colors.white, fontSize: 14),
     ),
     appBarTheme: AppBarTheme(
@@ -55,11 +55,11 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   // infoChat: Colors.black,
   // text: Colors.white,
   boxDetails: Color(0xff15786c),
-  boxBackground: Colors.white,
+  boxBackground: Color(0xfff0f8ff),
   activeSwitch: Color(0xff15786c),
   textDetails : Colors.black,
   //homePage
-    bottomNavigationAppbar : LightTheme.appBarTheme.color.withAlpha(200),
+    bottomNavigationAppbar : LightTheme.appBarTheme.color,
     activePageIcon: LightTheme.accentColor,
     inactivePageIcon : LightTheme.accentColor.withAlpha(100), //details in extra
     menuIconButton : LightTheme.accentColor.withAlpha(50),

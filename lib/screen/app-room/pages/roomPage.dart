@@ -5,7 +5,6 @@ import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
-import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
@@ -25,18 +24,15 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/reply_widgets/rep
 import 'package:deliver_flutter/screen/app-room/pages/searchInMessageButtom.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/bot_start_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/chatTime.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/joint_to_muc_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/newMessageInput.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/recievedMessageBox.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/sendedMessageBox.dart';
 import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
 import 'package:deliver_flutter/services/audioPlayerAppBar.dart';
-import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/botAppBar.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/custom_context_menu.dart';
@@ -44,9 +40,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/shared/mucAppbarTitle.dart';
 import 'package:deliver_flutter/shared/userAppBar.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_flutter/theme/light.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -133,7 +127,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Message _currentMessageForCheckTime = null;
   BehaviorSubject<bool> _hasPermissionInChannel = BehaviorSubject.seeded(true);
   BehaviorSubject<int> unReadMessageScrollSubjet = BehaviorSubject.seeded(0);
-  var _ux = GetIt.I.get<UxService>();
 
   Color menuColor;
 
@@ -336,7 +329,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     return Scaffold(
       appBar: buildAppbar(),
       body: Container(
-        decoration: _ux.theme == LightTheme
+        decoration: Theme.of(context).brightness == Brightness.light
             ? BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage("assets/bac/b2.png"),
@@ -503,7 +496,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         ),
       ),
       backgroundColor:
-          _ux.theme == DarkTheme ? Theme.of(context).backgroundColor : null,
+      Theme.of(context).brightness == Brightness.light ? Theme.of(context).backgroundColor : null,
     );
   }
 

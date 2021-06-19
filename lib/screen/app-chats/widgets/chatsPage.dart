@@ -30,6 +30,7 @@ class ChatsPage extends StatelessWidget {
                   itemBuilder: (BuildContext ctx, int index) {
                     if (roomsWithMessages[index].lastMessage != null) {
                       return GestureDetector(
+                        behavior: HitTestBehavior.translucent,
                         child: ChatItem(
                           key: ValueKey(
                               "chatItem/${roomsWithMessages[index].room.roomId}"),

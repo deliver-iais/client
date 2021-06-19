@@ -73,8 +73,8 @@ class RoutingService {
       bool joinToMuc}) {
     backSubject.add(false);
     var widget = WillPopScope(
-        onWillPop: ()async {
-          if (! await backSubject.stream.first) {
+        onWillPop: () async {
+          if (!await backSubject.stream.first) {
             return Future.value(true);
           } else {
             backSubject.add(false);
@@ -116,7 +116,6 @@ class RoutingService {
         largePageNavigator: _navigationCenter,
         largePageMain: widget,
         smallPageMain: widget,
-        singlePageMain: widget,
         path: "/settings"));
   }
 
@@ -322,7 +321,6 @@ class RoutingService {
 
   Stream<String> get currentRouteStream => _route.stream;
 
-
   bool canPerformBackButton() {
     return _stack.length < 2 || (_stack?.last?.lockBackButton ?? false);
   }
@@ -351,6 +349,7 @@ class RoutingService {
             child: isLarge(context)
                 ? _largePageNavigator(context)
                 : _smallPageMain(context)),
+        if (isLarge(context)) VerticalDivider(),
         if (isLarge(context)) Expanded(child: _largePageMain(context))
       ],
     );
@@ -367,7 +366,6 @@ class RoutingService {
   _smallPageMain(BuildContext context) {
     return _stack.last.smallPageMain;
   }
-
 }
 
 class Empty extends StatelessWidget {
@@ -376,15 +374,23 @@ class Empty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Color.fromRGBO(5, 20, 30, 1),
+      decoration: BoxDecoration(
+        image: Theme.of(context).brightness == Brightness.light
+            ? DecorationImage(
+                image: AssetImage("assets/bac/b2.png"),
+                fit: BoxFit.cover,
+              )
+            : null,
+        color: Theme.of(context).backgroundColor,
+      ),
       child: Center(
         child: Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
-                color: Color.fromRGBO(255, 255, 255, 0.1)),
+                color: Theme.of(context).dividerColor.withOpacity(0.1)),
             child: Text("Please select a chat to start messaging",
-                style: Theme.of(context).textTheme.subtitle2)),
+                style: Theme.of(context).textTheme.headline3)),
       ),
     );
   }
