@@ -24,6 +24,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:desktop_notifications/desktop_notifications.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 
@@ -114,6 +115,7 @@ class CoreServices {
   }
 
   void gotResponse() {
+
     _connectionStatus.add(ConnectionStatus.Connected);
     backoffTime = MIN_BACKOFF_TIME;
     responseChecked = true;
@@ -160,7 +162,16 @@ class CoreServices {
     }
   }
 
-  sendMessage(MessageByClient message) {
+  sendMessage(MessageByClient message) async {
+    try{
+      var client = NotificationsClient();
+      await client.notify('Hello World!');
+      await client.close();
+    }catch(e){
+      print(e.toString());
+    }
+
+
     if (_clientPacket != null && !_clientPacket.isClosed) {
       _clientPacket.add(ClientPacket()
         ..message = message
