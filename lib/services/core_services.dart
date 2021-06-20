@@ -289,10 +289,10 @@ class CoreServices {
       }
     }
 
-    if (!message.from.node.contains(_accountRepo.currentUserUid.node) &&
+    if (!_accountRepo.isCurrentUser(message.from.asString()) && (
             (await _accountRepo.notification) == null ||
         (await _accountRepo.notification).contains("true") &&
-            (room != null && !room.mute)) {
+            (room != null && !room.mute))) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)

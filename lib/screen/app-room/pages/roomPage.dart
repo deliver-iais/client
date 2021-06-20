@@ -105,6 +105,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   BehaviorSubject<bool> _searchMode = BehaviorSubject.seeded(false);
   BehaviorSubject<Message> _repliedMessage = BehaviorSubject.seeded(null);
   BehaviorSubject<bool> _showOtherMessage = BehaviorSubject.seeded(false);
+  BehaviorSubject<int> _showP = BehaviorSubject.seeded(0);
   Map<int, Message> _selectedMessages = Map();
   AppLocalization _appLocalization;
   BehaviorSubject<bool> _selectMultiMessageSubject =
@@ -189,7 +190,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               )
             ],
             color: menuColor)
-        .then<void>((OperationOnMessage opr) async{
+        .then<void>((OperationOnMessage opr) async {
       if (opr == null) return;
       switch (opr) {
         case OperationOnMessage.REPLY:
@@ -197,10 +198,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _waitingForForwardedMessage.add(false);
           break;
         case OperationOnMessage.COPY:
-          if(message.type == MessageType.TEXT)
-          Clipboard.setData(ClipboardData(text: message.json.toText().text));
+          if (message.type == MessageType.TEXT)
+            Clipboard.setData(ClipboardData(text: message.json.toText().text));
           else
-            Clipboard.setData(ClipboardData(text: message.json.toFile().caption??""));
+            Clipboard.setData(
+                ClipboardData(text: message.json.toFile().caption ?? ""));
           Fluttertoast.showToast(
               msg: _appLocalization.getTraslateValue("Copied"));
           break;
@@ -215,18 +217,22 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         case OperationOnMessage.EDIT:
           // TODO: Handle this case.
           break;
-        case OperationOnMessage.SHARE:{
-          try{
-            var result = await _fileRepo.getFileIfExist(message.json.toFile().uuid, message.json.toFile().name);
-            if(result.path.isNotEmpty)
-               Share.shareFiles(['${result.path}'], text: message.json.toFile().caption.isNotEmpty?message.json.toFile().caption.isNotEmpty :'Deliver');
-            break;
-          }catch(e){
-            print(e.toString());
-            break;
+        case OperationOnMessage.SHARE:
+          {
+            try {
+              var result = await _fileRepo.getFileIfExist(
+                  message.json.toFile().uuid, message.json.toFile().name);
+              if (result.path.isNotEmpty)
+                Share.shareFiles(['${result.path}'],
+                    text: message.json.toFile().caption.isNotEmpty
+                        ? message.json.toFile().caption.isNotEmpty
+                        : 'Deliver');
+              break;
+            } catch (e) {
+              print(e.toString());
+              break;
+            }
           }
-        }
-
 
           break;
         case OperationOnMessage.SAVE_TO_GALLERY:
@@ -380,12 +386,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   pendingMessages.length; //TODO chang
                             }
                             if (_itemCount != 0 && i != _itemCount)
-                            _itemCountSubject.add(_itemCount);
+                              _itemCountSubject.add(_itemCount);
                             _itemCount = i;
                             return Expanded(
                               child: Stack(
                                 alignment: AlignmentDirectional.bottomStart,
                                 children: [
+                                  StreamBuilder<int>(stream: _showP.stream,builder: (c,s){
+                                    if(s.hasData && s.data>0)
+                                      return Center(child: CircularProgressIndicator(color: Colors.blue,),);
+                                    else return SizedBox.shrink();
+                                  },),
                                   buildMessagesListView(_currentRoom.value,
                                       pendingMessages, _maxWidth),
                                   Column(
@@ -520,8 +531,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           ],
         ),
       ),
-      backgroundColor:
-      Theme.of(context).brightness == Brightness.light ? Theme.of(context).backgroundColor : null,
+      backgroundColor: Theme.of(context).brightness == Brightness.light
+          ? Theme.of(context).backgroundColor
+          : null,
     );
   }
 
@@ -654,7 +666,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         onChanged: (s) {
                           checkSearchResult.add(false);
                         },
-                        style: TextStyle(color: ExtraTheme.of(context).textField),
+                        style:
+                            TextStyle(color: ExtraTheme.of(context).textField),
                         textInputAction: TextInputAction.search,
                         onSubmitted: (str) async {
                           searchMessage(str, checkSearchResult);
@@ -712,8 +725,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       });
                 } else {
                   return PopupMenuButton(
-                   color: ExtraTheme.of(context).popupMenuButton,
-                    icon: Icon(Icons.more_vert, color: ExtraTheme.of(context).textField),
+                    color: ExtraTheme.of(context).popupMenuButton,
+                    icon: Icon(Icons.more_vert,
+                        color: ExtraTheme.of(context).textField),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
                           child: Text(
@@ -761,7 +775,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget buildMessagesListView(
       Room currentRoom, List pendingMessages, double _maxWidth) {
-
     return ScrollablePositionedList.builder(
       itemCount: _itemCount,
       initialScrollIndex:
@@ -805,7 +818,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   buildMessage(bool isPendingMessage, List pendingMessages, int index,
       Room currentRoom, double _maxWidth) {
-
     return FutureBuilder<List<Message>>(
       future: isPendingMessage
           ? _getPendingMessage(
@@ -816,7 +828,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           if (index - _currentMessageSearchId > 49) {
             _currentMessageSearchId = -1;
           }
+
           var messages = messagesFuture.data;
+          // if (messages[0].id != null && _showP.valueWrapper.value == messages[0].id) {
+          //   _showP.add(0);
+          // }
+
           if (messages.length == 0) {
             return Container();
           } else if (messages.length > 0) {
@@ -828,11 +845,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _currentMessageForCheckTime = messages[0];
           checkTime(messages);
 
-          return  Column(
+          return Column(
             children: <Widget>[
               if (_upTimeMap.containsKey(messages[0].packetId))
-                ChatTime(
-                    currentMessageTime: _upTimeMap[messages[0].packetId]),
+                ChatTime(currentMessageTime: _upTimeMap[messages[0].packetId]),
               if (currentRoom.lastMessageId != null &&
                   _lastShowedMessageId != -1 &&
                   _lastShowedMessageId == index &&
@@ -888,11 +904,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   ),
                 ));
           }
-          return Container(
-              height: 50,
-              child: Center(
-                child: SizedBox.shrink()
-              ));
+          {
+            // if (_showP.valueWrapper.value == 0) _showP.add(index);
+            return Container(
+                height: 50, child: Center(child: SizedBox.shrink()));
+          }
         }
       },
     );

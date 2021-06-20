@@ -315,7 +315,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     itemBuilder: (context) => [
                           PopupMenuItem<String>(
                             child: Padding(
-                              padding: const EdgeInsets.only(top: 40),
+                              padding: const EdgeInsets.only(top: 0),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [

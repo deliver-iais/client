@@ -206,7 +206,6 @@ class AccountRepo {
               timeout: Duration(seconds: 2)));
       if (getIdRequest != null && getIdRequest.id.isNotEmpty) {
         sharedPrefs.set(USERNAME, getIdRequest.id);
-
         return true;
       } else {
         return false;

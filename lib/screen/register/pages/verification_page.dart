@@ -4,6 +4,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/material.dart';
@@ -120,15 +121,15 @@ class _VerificationPageState extends State<VerificationPage> {
                     height: 10,
                   ),
                   Text(
-                    _appLocalization.getTraslateValue("enter_code"),
-                    style: Theme.of(context).primaryTextTheme.headline5,
+                    _appLocalization.getTraslateValue("enter_code"),style:
+                      TextStyle(fontSize: 17,color: ExtraTheme.of(context).textField),
                   ),
                   SizedBox(
                     height: 30,
                   ),
                   Text(
                     _appLocalization.getTraslateValue("sendCode"),
-                    style: Theme.of(context).primaryTextTheme.bodyText2,
+                    style: TextStyle(fontSize: 17,color: ExtraTheme.of(context).textField),
                   ),
                   SizedBox(
                     height: 30,
