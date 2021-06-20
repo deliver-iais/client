@@ -984,6 +984,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         key: Key("${message.packetId}"),
         child: messageWidget);
 
+
     return GestureDetector(
         onTap: () {
           _selectMultiMessageSubject.stream.value
@@ -995,7 +996,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           _addForwardMessage(message);
         },
         onTapDown: storePosition,
-        child: widget.roomId.getUid().category != Categories.CHANNEL
+        child: isDesktop()?messageWidget:widget.roomId.getUid().category != Categories.CHANNEL
             ? dismissibleWidget
             : StreamBuilder(
                 stream: _hasPermissionInChannel.stream,
