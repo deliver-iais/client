@@ -47,7 +47,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_share/flutter_share.dart';
+
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moor/moor.dart' as Moor;
@@ -119,6 +119,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   ScrollPhysics _scrollPhysics = AlwaysScrollableScrollPhysics();
   int _currentMessageSearchId = -1;
   final ItemScrollController _itemScrollController = ItemScrollController();
+
   Subject<int> _lastSeenSubject = BehaviorSubject.seeded(-1);
   final ItemPositionsListener _itemPositionsListener =
       ItemPositionsListener.create();
@@ -217,14 +218,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           try{
             var result = await _fileRepo.getFileIfExist(message.json.toFile().uuid, message.json.toFile().name);
             if(result.path.isNotEmpty)
-              Share.shareFiles(['${result.path}'], text: message.json.toFile().caption.isNotEmpty?message.json.toFile().caption.isNotEmpty :'Deliver');
+               Share.shareFiles(['${result.path}'], text: message.json.toFile().caption.isNotEmpty?message.json.toFile().caption.isNotEmpty :'Deliver');
             break;
           }catch(e){
             print(e.toString());
             break;
           }
         }
-
 
 
           break;
@@ -359,7 +359,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
-            AudioPlayerAppBar(),
             StreamBuilder<List<PendingMessage>>(
                 stream: _pendingMessageDao.getByRoomId(widget.roomId),
                 builder: (context, pendingMessagesStream) {
@@ -380,7 +379,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   pendingMessages.length; //TODO chang
                             }
                             if (_itemCount != 0 && i != _itemCount)
-                              _itemCountSubject.add(_itemCount);
+                            _itemCountSubject.add(_itemCount);
                             _itemCount = i;
                             return Expanded(
                               child: Stack(
@@ -388,6 +387,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                 children: [
                                   buildMessagesListView(_currentRoom.value,
                                       pendingMessages, _maxWidth),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      AudioPlayerAppBar(),
+                                    ],
+                                  ),
                                   StreamBuilder(
                                       stream: _positionSubject.stream,
                                       builder: (c, position) {
@@ -755,6 +760,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget buildMessagesListView(
       Room currentRoom, List pendingMessages, double _maxWidth) {
+
     return ScrollablePositionedList.builder(
       itemCount: _itemCount,
       initialScrollIndex:
@@ -784,7 +790,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     currentRoom, _maxWidth);
               else
                 return SizedBox(
-                  height: 200,
+                  height: 50,
                 );
             },
           );
@@ -798,6 +804,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   buildMessage(bool isPendingMessage, List pendingMessages, int index,
       Room currentRoom, double _maxWidth) {
+
     return FutureBuilder<List<Message>>(
       future: isPendingMessage
           ? _getPendingMessage(
@@ -820,7 +827,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _currentMessageForCheckTime = messages[0];
           checkTime(messages);
 
-          return Column(
+          return  Column(
             children: <Widget>[
               if (_upTimeMap.containsKey(messages[0].packetId))
                 Container(
@@ -887,7 +894,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           if (_currentMessageSearchId == -1) {
             _currentMessageSearchId = index;
             return Container(
-                height: 100,
+                height: 50,
                 child: Center(
                   child: CircularProgressIndicator(
                     backgroundColor: ExtraTheme.of(context).textDetails,
@@ -895,12 +902,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 ));
           }
           return Container(
-              height: 100,
-              width: 20,
+              height: 50,
               child: Center(
-                child: SizedBox(
-                  height: 90,
-                ),
+                child: SizedBox.shrink()
               ));
         }
       },
@@ -953,9 +957,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget normalMessage(Message message, double maxWidth, Room currentRoom,
       List pendingMessages) {
-    if (message.id == null) {
-      return _createWidget(message, maxWidth, currentRoom, pendingMessages);
-    }
     Widget widget =
         _createWidget(message, maxWidth, currentRoom, pendingMessages);
     return widget;

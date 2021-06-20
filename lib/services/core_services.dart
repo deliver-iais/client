@@ -288,7 +288,7 @@ class CoreServices {
       }
     }
 
-    if (!message.from.isSameEntity(_accountRepo.currentUserUid.asString()) &&
+    if (!message.from.node.contains(_accountRepo.currentUserUid.node) &&
             (await _accountRepo.notification) == null ||
         (await _accountRepo.notification).contains("true") &&
             (room != null && !room.mute)) {

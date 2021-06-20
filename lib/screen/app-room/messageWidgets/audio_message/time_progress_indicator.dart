@@ -40,7 +40,7 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
                           currentPos.toString().split('.')[0].substring(2) +
                               " / " +
                               "${Duration(seconds: widget.duration.toInt()).toString().substring(0, 7)}",
-                          style: TextStyle(fontSize: 11),
+                          style: TextStyle(fontSize: 11,color: ExtraTheme.of(context).textField),
                         );
                       });
 
@@ -49,7 +49,7 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
               "00:00" +
                   " / " +
                   "${Duration(seconds: widget.duration.toInt()).toString().substring(0, 7)}",
-              style: TextStyle(fontSize: 11),
+              style: TextStyle(fontSize: 11,color: ExtraTheme.of(context).textField),
             );
           }
         });

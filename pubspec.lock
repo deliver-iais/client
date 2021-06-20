@@ -519,13 +519,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.2"
-  flutter_share:
-    dependency: "direct main"
-    description:
-      name: flutter_share
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.0"
   flutter_sound:
     dependency: "direct main"
     description:
@@ -1097,7 +1090,7 @@ packages:
       name: scrollable_positioned_list
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.8"
+    version: "0.1.10"
   share:
     dependency: "direct main"
     description:
