@@ -11,7 +11,7 @@ class UxService {
   Map tabIndexMap = new Map<String,int>();
   SharedPreferencesDao _sharedPrefs = GetIt.I.get<SharedPreferencesDao>();
 
-  BehaviorSubject<ThemeData> _theme = BehaviorSubject.seeded(DarkTheme);
+  BehaviorSubject<ThemeData> _theme = BehaviorSubject.seeded(LightTheme);
   BehaviorSubject<ExtraThemeData> _extraTheme = BehaviorSubject.seeded(
       DarkExtraTheme);
 
