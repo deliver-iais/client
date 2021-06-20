@@ -119,15 +119,15 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                           ListTile(
                             leading: Text(
                               filteredCountries[index]['flag'],
-                              style: TextStyle(fontSize: 30),
+                              style: TextStyle(fontSize: 30,color: ExtraTheme.of(context).textField),
                             ),
                             title: Text(
                               filteredCountries[index]['code'],
-                              style: TextStyle(fontWeight: FontWeight.w700),
+                              style: TextStyle(fontWeight: FontWeight.w700,color: ExtraTheme.of(context).textField),
                             ),
                             trailing: Text(
                               filteredCountries[index]['dial_code'],
-                              style: TextStyle(fontWeight: FontWeight.w700),
+                              style: TextStyle(fontWeight: FontWeight.w700,color: ExtraTheme.of(context).textField),
                             ),
                             onTap: () {
                               _selectedCountry = filteredCountries[index];
