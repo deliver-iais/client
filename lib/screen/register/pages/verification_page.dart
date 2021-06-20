@@ -4,6 +4,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -55,7 +56,7 @@ class _VerificationPageState extends State<VerificationPage> {
         _setErrorAndResetCode();
       }
     }).catchError((e) {
-      print(e);
+      debug(e);
       _setErrorAndResetCode();
     });
   }
@@ -150,11 +151,11 @@ class _VerificationPageState extends State<VerificationPage> {
                       currentCode: _verificationCode,
                       onCodeSubmitted: (code) {
                         _verificationCode = code;
-                        print(_verificationCode);
+                        debug(_verificationCode);
                         _sendVerificationCode();
                       },
                       onCodeChanged: (code) {
-                        print(_verificationCode);
+                        debug(_verificationCode);
                         _verificationCode = code;
                         if (code.length == 5) {
                           _sendVerificationCode();

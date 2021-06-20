@@ -16,6 +16,7 @@ import 'package:deliver_flutter/screen/app_profile/widgets/video_tab_ui.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
+import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
@@ -80,48 +81,50 @@ class _ProfilePageState extends State<ProfilePage>
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
 
-    return StreamBuilder<MediasMetaDataData>(
-        stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
-        builder: (context, AsyncSnapshot<MediasMetaDataData> snapshot) {
-          tabsCount = 0;
-          if (snapshot.hasData && snapshot.data != null) {
-            if (snapshot.data.imagesCount != 0) {
-              tabsCount = tabsCount + 1;
-            }
-            if (snapshot.data.videosCount != 0) {
-              tabsCount = tabsCount + 1;
-            }
-            if (snapshot.data.linkCount != 0) {
-              tabsCount = tabsCount + 1;
-            }
-            if (snapshot.data.filesCount != 0) {
-              tabsCount = tabsCount + 1;
-            }
-            if (snapshot.data.documentsCount != 0) {
-              tabsCount = tabsCount + 1;
-            }
-            if (snapshot.data.musicsCount != 0) {
-              tabsCount = tabsCount + 1;
-            }
-            if (snapshot.data.audiosCount != 0) {
-              tabsCount = tabsCount + 1;
-            }
-          }
+    return Scaffold(
+      body: FluidContainerWidget(
+        child: StreamBuilder<MediasMetaDataData>(
+            stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
+            builder: (context, AsyncSnapshot<MediasMetaDataData> snapshot) {
+              tabsCount = 0;
+              if (snapshot.hasData && snapshot.data != null) {
+                if (snapshot.data.imagesCount != 0) {
+                  tabsCount = tabsCount + 1;
+                }
+                if (snapshot.data.videosCount != 0) {
+                  tabsCount = tabsCount + 1;
+                }
+                if (snapshot.data.linkCount != 0) {
+                  tabsCount = tabsCount + 1;
+                }
+                if (snapshot.data.filesCount != 0) {
+                  tabsCount = tabsCount + 1;
+                }
+                if (snapshot.data.documentsCount != 0) {
+                  tabsCount = tabsCount + 1;
+                }
+                if (snapshot.data.musicsCount != 0) {
+                  tabsCount = tabsCount + 1;
+                }
+                if (snapshot.data.audiosCount != 0) {
+                  tabsCount = tabsCount + 1;
+                }
+              }
 
-          _tabController = TabController(
-              length: (widget.userUid.category == Categories.GROUP ||
-                      widget.userUid.category == Categories.CHANNEL)
-                  ? tabsCount + 1
-                  : tabsCount,
-              vsync: this,
-              initialIndex: _uxService.getTabIndex(widget.userUid.asString()));
-          _tabController.addListener(() {
-            _uxService.setTabIndex(
-                widget.userUid.asString(), _tabController.index);
-          });
+              _tabController = TabController(
+                  length: (widget.userUid.category == Categories.GROUP ||
+                          widget.userUid.category == Categories.CHANNEL)
+                      ? tabsCount + 1
+                      : tabsCount,
+                  vsync: this,
+                  initialIndex:
+                      _uxService.getTabIndex(widget.userUid.asString()));
+              _tabController.addListener(() {
+                _uxService.setTabIndex(
+                    widget.userUid.asString(), _tabController.index);
+              });
 
-          return Scaffold(
-              body: DefaultTabController(
+              return DefaultTabController(
                   length: (widget.userUid.category == Categories.USER ||
                           widget.userUid.category == Categories.SYSTEM ||
                           widget.userUid.category == Categories.BOT)
@@ -184,11 +187,13 @@ class _ProfilePageState extends State<ProfilePage>
                                                     ? _showUsername(
                                                         widget.userUid.node,
                                                         widget.userUid,
-                                                        appLocalization, context)
+                                                        appLocalization,
+                                                        context)
                                                     : FutureBuilder<String>(
                                                         future: _roomRepo
                                                             .getUsername(
-                                                                widget.userUid),
+                                                                widget
+                                                                    .userUid),
                                                         builder: (BuildContext
                                                                 context,
                                                             AsyncSnapshot<
@@ -198,8 +203,10 @@ class _ProfilePageState extends State<ProfilePage>
                                                               null) {
                                                             return _showUsername(
                                                                 snapshot.data,
-                                                                widget.userUid,
-                                                                appLocalization, context);
+                                                                widget
+                                                                    .userUid,
+                                                                appLocalization,
+                                                                context);
                                                           } else {
                                                             return SizedBox
                                                                 .shrink();
@@ -214,13 +221,13 @@ class _ProfilePageState extends State<ProfilePage>
                                       Categories.SYSTEM)
                                     Container(
                                       decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: ExtraTheme.of(context)
-                                                .borderOfProfilePage),
-                                        borderRadius: BorderRadius.circular(15),
-                                        color: ExtraTheme.of(context)
-                                            .boxBackground
-                                      ),
+                                          border: Border.all(
+                                              color: ExtraTheme.of(context)
+                                                  .borderOfProfilePage),
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          color: ExtraTheme.of(context)
+                                              .boxBackground),
                                       child: Column(
                                         children: [
                                           Container(
@@ -231,19 +238,30 @@ class _ProfilePageState extends State<ProfilePage>
                                               height: 60,
                                               padding:
                                                   const EdgeInsetsDirectional
-                                                      .only(start: 5, end: 15),
+                                                          .only(
+                                                      start: 5, end: 15),
                                               child: GestureDetector(
                                                 child: Row(children: <Widget>[
                                                   SizedBox(
                                                     width: 10,
                                                   ),
-                                                  Icon(Icons.message, color: Colors.blue,),
+                                                  Icon(
+                                                    Icons.message,
+                                                    color: Colors.blue,
+                                                  ),
                                                   SizedBox(
                                                     width: 10,
                                                   ),
-                                                  Text(appLocalization
-                                                      .getTraslateValue(
-                                                          "sendMessage"), style: TextStyle(color:ExtraTheme.of(context).textField, ),),
+                                                  Text(
+                                                    appLocalization
+                                                        .getTraslateValue(
+                                                            "sendMessage"),
+                                                    style: TextStyle(
+                                                      color: ExtraTheme.of(
+                                                              context)
+                                                          .textField,
+                                                    ),
+                                                  ),
                                                 ]),
                                                 onTap: () {
                                                   _routingService.openRoom(
@@ -261,7 +279,8 @@ class _ProfilePageState extends State<ProfilePage>
                                               height: 60,
                                               padding:
                                                   const EdgeInsetsDirectional
-                                                      .only(start: 13, end: 15),
+                                                          .only(
+                                                      start: 13, end: 15),
                                               child: Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment
@@ -271,23 +290,30 @@ class _ProfilePageState extends State<ProfilePage>
                                                       child: Row(
                                                         children: <Widget>[
                                                           Icon(
-                                                            Icons
-                                                                .notifications_active,
-                                                            size: 30,
-                                                              color: Colors.blue
-                                                          ),
+                                                              Icons
+                                                                  .notifications_active,
+                                                              size: 30,
+                                                              color: Colors
+                                                                  .blue),
                                                           SizedBox(width: 10),
-                                                          Text(appLocalization
-                                                              .getTraslateValue(
-                                                                  "notification"), style: TextStyle(color:ExtraTheme.of(context).textField, ),),
+                                                          Text(
+                                                            appLocalization
+                                                                .getTraslateValue(
+                                                                    "notification"),
+                                                            style: TextStyle(
+                                                              color: ExtraTheme.of(
+                                                                      context)
+                                                                  .textField,
+                                                            ),
+                                                          ),
                                                         ],
                                                       ),
                                                     ),
                                                     StreamBuilder<Room>(
-                                                      stream:
-                                                          _roomDao.getByRoomId(
-                                                              widget.userUid
-                                                                  .asString()),
+                                                      stream: _roomDao
+                                                          .getByRoomId(widget
+                                                              .userUid
+                                                              .asString()),
                                                       builder: (BuildContext
                                                               context,
                                                           AsyncSnapshot<Room>
@@ -295,9 +321,10 @@ class _ProfilePageState extends State<ProfilePage>
                                                         if (snapshot.data !=
                                                             null) {
                                                           return Switch(
-                                                            activeColor: ExtraTheme
-                                                                    .of(context)
-                                                                .activeSwitch,
+                                                            activeColor:
+                                                                ExtraTheme.of(
+                                                                        context)
+                                                                    .activeSwitch,
                                                             value: !snapshot
                                                                 .data.mute,
                                                             onChanged:
@@ -333,67 +360,75 @@ class _ProfilePageState extends State<ProfilePage>
                                                   return Container(
                                                     decoration: BoxDecoration(
                                                       borderRadius:
-                                                          BorderRadius.circular(
-                                                              15),
+                                                          BorderRadius
+                                                              .circular(15),
                                                     ),
                                                     height: 60,
                                                     padding:
                                                         const EdgeInsetsDirectional
                                                                 .only(
-                                                            start: 7, end: 15),
-                                                    child: Stack(
-                                                        children: <Widget>[
-                                                          Row(
-                                                            children: [
-                                                              IconButton(
-                                                                icon: Icon(Icons
-                                                                    .phone, color: Colors.blue),
-                                                                onPressed:
-                                                                    () {},
-                                                              ),
-                                                              Text(appLocalization
-                                                                  .getTraslateValue(
-                                                                      "phone"), style: TextStyle(color:ExtraTheme.of(context).textField)),
-                                                            ],
+                                                            start: 7,
+                                                            end: 15),
+                                                    child: Stack(children: <
+                                                        Widget>[
+                                                      Row(
+                                                        children: [
+                                                          IconButton(
+                                                            icon: Icon(
+                                                                Icons.phone,
+                                                                color: Colors
+                                                                    .blue),
+                                                            onPressed: () {},
                                                           ),
-                                                          Padding(
-                                                            padding:
-                                                                EdgeInsets.only(
-                                                                    top: 20),
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .end,
-                                                              children: [
-                                                                ParsedText(
-                                                                  textDirection:
-                                                                      TextDirection
-                                                                          .ltr,
-                                                                  text:
-                                                                      "0${snapshot.data.phoneNumber}",
-                                                                  parse: <
-                                                                      MatchText>[
-                                                                    MatchText(
-                                                                      type: ParsedType
-                                                                          .PHONE,
-                                                                      style:
-                                                                          TextStyle(
-                                                                        color: Colors.blue,
-                                                                        fontSize:
-                                                                            16,
-                                                                      ),
-                                                                      onTap:
-                                                                          (phone) async {
-                                                                        await launch(
-                                                                            "tel:$phone");
-                                                                      },
-                                                                    ),
-                                                                  ],
+                                                          Text(
+                                                              appLocalization
+                                                                  .getTraslateValue(
+                                                                      "phone"),
+                                                              style: TextStyle(
+                                                                  color: ExtraTheme.of(
+                                                                          context)
+                                                                      .textField)),
+                                                        ],
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                top: 20),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .end,
+                                                          children: [
+                                                            ParsedText(
+                                                              textDirection:
+                                                                  TextDirection
+                                                                      .ltr,
+                                                              text:
+                                                                  "0${snapshot.data.phoneNumber}",
+                                                              parse: <
+                                                                  MatchText>[
+                                                                MatchText(
+                                                                  type: ParsedType
+                                                                      .PHONE,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .blue,
+                                                                    fontSize:
+                                                                        16,
+                                                                  ),
+                                                                  onTap:
+                                                                      (phone) async {
+                                                                    await launch(
+                                                                        "tel:$phone");
+                                                                  },
                                                                 ),
                                                               ],
                                                             ),
-                                                          ),
-                                                        ]),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ]),
                                                   );
                                                 } else {
                                                   return SizedBox.shrink();
@@ -458,7 +493,8 @@ class _ProfilePageState extends State<ProfilePage>
                                           snapshot.data.documentsCount != 0)
                                         Tab(
                                             text: appLocalization
-                                                .getTraslateValue("documents")),
+                                                .getTraslateValue(
+                                                    "documents")),
                                       if (snapshot.hasData &&
                                           snapshot.data.musicsCount != 0)
                                         Tab(
@@ -498,13 +534,15 @@ class _ProfilePageState extends State<ProfilePage>
                             VideoTabUi(
                                 userUid: widget.userUid,
                                 videoCount: snapshot.data.videosCount),
-                          if (snapshot.hasData && snapshot.data.filesCount != 0)
+                          if (snapshot.hasData &&
+                              snapshot.data.filesCount != 0)
                             DocumentAndFileUi(
                               userUid: widget.userUid,
                               documentCount: snapshot.data.filesCount,
                               type: FetchMediasReq_MediaType.FILES,
                             ),
-                          if (snapshot.hasData && snapshot.data.linkCount != 0)
+                          if (snapshot.hasData &&
+                              snapshot.data.linkCount != 0)
                             linkWidget(widget.userUid, _mediaQueryRepo,
                                 snapshot.data.linkCount),
                           if (snapshot.hasData &&
@@ -528,8 +566,10 @@ class _ProfilePageState extends State<ProfilePage>
                                 mediaCount: snapshot.data.audiosCount),
                         ],
                         controller: _tabController,
-                      )))));
-        });
+                      ))));
+            }),
+      ),
+    );
   }
 }
 
@@ -550,17 +590,17 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
               return Column(
                 children: [
                   ListTile(
-                    // title: FlutterLinkPreview(
-                    //   url: jsonDecode(snapshot.data[index].json)["url"],
-                    //   bodyStyle: TextStyle(
-                    //     fontSize: 10.0,
-                    //   ),
-                    //   titleStyle: TextStyle(
-                    //     fontSize: 18.0,
-                    //     fontWeight: FontWeight.bold,
-                    //   ),
-                    // ),
-                  ),
+                      // title: FlutterLinkPreview(
+                      //   url: jsonDecode(snapshot.data[index].json)["url"],
+                      //   bodyStyle: TextStyle(
+                      //     fontSize: 10.0,
+                      //   ),
+                      //   titleStyle: TextStyle(
+                      //     fontSize: 18.0,
+                      //     fontWeight: FontWeight.bold,
+                      //   ),
+                      // ),
+                      ),
                   Divider(),
                 ],
               );
@@ -570,8 +610,8 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
       });
 }
 
-Widget _showUsername(
-    String username, Uid currentUid, AppLocalization _appLocalization, BuildContext context) {
+Widget _showUsername(String username, Uid currentUid,
+    AppLocalization _appLocalization, BuildContext context) {
   var routingServices = GetIt.I.get<RoutingService>();
   return Padding(
     padding: EdgeInsets.fromLTRB(20, 0, 0, 0),

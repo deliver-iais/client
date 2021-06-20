@@ -16,6 +16,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -127,7 +128,7 @@ class CoreServices {
             metadata: {'access_token': await _accountRepo.getAccessToken()},
           ));
       _responseStream.listen((serverPacket) async {
-        print(serverPacket.toString());
+        debug(serverPacket.toString());
         gotResponse();
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:
@@ -155,7 +156,7 @@ class CoreServices {
         }
       });
     } catch (e) {
-      print("correservice error");
+      debug("correservice error");
     }
   }
 
@@ -376,7 +377,7 @@ saveMessageInMessagesDB(
         encrypted: message.encrypted,
         type: getMessageType(message.whichType()));
   } catch (e) {
-    print(e.toString());
+    debug(e.toString());
     return msg;
   }
 

@@ -4,6 +4,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/thumbnail_video_ui.dart';
 import 'package:deliver_flutter/services/file_service.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/material.dart';
@@ -106,7 +107,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                   thumbnailFile.data != null &&
                                   thumbnailFile.connectionState ==
                                       ConnectionState.done) {
-                                print("FilevideoooooooPosition$position");
+                                debug("FilevideoooooooPosition$position");
                                 return VideoThumbnail(
                                   userUid: widget.userUid,
                                   thumbnail: thumbnailFile.data,

@@ -42,6 +42,7 @@ import 'package:deliver_flutter/shared/mucAppbarTitle.dart';
 import 'package:deliver_flutter/shared/userAppBar.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -830,16 +831,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           return  Column(
             children: <Widget>[
               if (_upTimeMap.containsKey(messages[0].packetId))
-                Container(
-                  margin: const EdgeInsets.all(4.0),
-                  padding: const EdgeInsets.all(4.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: ChatTime(
-                      currentMessageTime: _upTimeMap[messages[0].packetId]),
-                ),
+                ChatTime(
+                    currentMessageTime: _upTimeMap[messages[0].packetId]),
               if (currentRoom.lastMessageId != null &&
                   _lastShowedMessageId != -1 &&
                   _lastShowedMessageId == index &&
@@ -880,14 +873,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           ],
                         ),
               if (_downTimeMap.containsKey(messages[0].packetId))
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: ChatTime(
-                      currentMessageTime: _downTimeMap[messages[0].packetId]),
-                ),
+                ChatTime(
+                    currentMessageTime: _downTimeMap[messages[0].packetId]),
             ],
           );
         } else {
@@ -950,7 +937,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         _upTimeMap[messages[0].packetId] = messages[0].time;
       }
     } catch (e) {
-      print(e.toString());
+      debug(e.toString());
     }
     _currentMessageForCheckTime = messages[0];
   }

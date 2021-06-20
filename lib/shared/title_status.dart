@@ -7,6 +7,7 @@ import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/shared/activityStatuse.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -120,7 +121,7 @@ class _TitleStatusState extends State<TitleStatus> {
     return StreamBuilder<Activity>(
         stream: _roomRepo.activityObject[widget.currentRoomUid.node],
         builder: (c, activity) {
-          print(_roomRepo.activityObject.toString());
+          debug(_roomRepo.activityObject.toString());
           if (activity.hasData && activity.data != null) {
             if (activity.data.typeOfActivity == ActivityType.NO_ACTIVITY) {
               return normalActivity();

@@ -47,12 +47,8 @@ class ContactWidget extends StatelessWidget {
               Stack(
                 children: <Widget>[
                   contact.uid != null
-                      ? CircleAvatarWidget(
-                          contact.uid.uid,
-                          23,
-                          savedMessaeg: contact.uid
-                              .isSameEntity(accountRepo.currentUserUid),
-                        )
+                      ? CircleAvatarWidget(contact.uid.uid, 23,
+                          showSavedMessageLogoIfNeeded: true)
                       : CircleAvatar(
                           backgroundColor: Colors.blue,
                           child: Text(
@@ -63,7 +59,6 @@ class ContactWidget extends StatelessWidget {
                           ),
                           radius: 23,
                         ),
-
                 ],
               ),
               SizedBox(

@@ -5,6 +5,7 @@ import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -203,7 +204,7 @@ class AccountRepo {
           options: CallOptions(
               metadata: {'access_token': await getAccessToken()},
               timeout: Duration(seconds: 2)));
-      if (getIdRequest!= null && getIdRequest.id.isNotEmpty) {
+      if (getIdRequest != null && getIdRequest.id.isNotEmpty) {
         sharedPrefs.set(USERNAME, getIdRequest.id);
 
         return true;
@@ -235,7 +236,7 @@ class AccountRepo {
       currentUserUid = Uid()
         ..category = Categories.USER
         ..node = decodedToken["sub"];
-      print("UserId " + currentUserUid.asString());
+      debug("UserId " + currentUserUid.asString());
       sharedPrefs.set(CURRENT_USER_UID, currentUserUid.asString());
     }
   }
@@ -300,7 +301,7 @@ class AccountRepo {
 
       return true;
     } catch (e) {
-      print(e.toString());
+      debug(e.toString());
       return false;
     }
   }
@@ -327,8 +328,10 @@ class AccountRepo {
   void fetchProfile() async {
     if (null == await sharedPrefs.get(USERNAME)) {
       await getUsername();
-    }else if(null == await sharedPrefs.get(FIRST_NAME)){
+    } else if (null == await sharedPrefs.get(FIRST_NAME)) {
       await getProfile(retry: true);
     }
   }
+
+  bool isCurrentUser(String uid) => uid.isSameEntity(currentUserUid);
 }

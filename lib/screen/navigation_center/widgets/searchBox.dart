@@ -13,7 +13,7 @@ class SearchBox extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 5),
       child: TextField(
-        style: TextStyle(color: ExtraTheme.of(context).searchBox),
+        style: TextStyle(color: ExtraTheme.of(context).textField),
         textAlignVertical: TextAlignVertical.center,
         textAlign: TextAlign.start,
         autofocus: false,

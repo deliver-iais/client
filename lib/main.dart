@@ -42,6 +42,7 @@ import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -142,7 +143,7 @@ void setupDIAndRunApp() async {
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  print("Application has been started");
+  debug("Application has been started");
 
   if (isDesktop()) {
     _setWindowSize();
