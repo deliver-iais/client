@@ -260,6 +260,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0+4"
+  dbus:
+    dependency: transitive
+    description:
+      name: dbus
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.2"
   dcache:
     dependency: "direct main"
     description:
@@ -276,6 +283,13 @@ packages:
       url: "https://gitlab.iais.co/deliver-public/pub-dart-artifactory"
     source: git
     version: "1.7.0-rc.56"
+  desktop_notifications:
+    dependency: "direct main"
+    description:
+      name: desktop_notifications
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.0"
   device_info:
     dependency: "direct main"
     description:
@@ -1069,7 +1083,7 @@ packages:
       name: receive_sharing_intent
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.1"
+    version: "1.4.5"
   record:
     dependency: "direct main"
     description:
@@ -1090,7 +1104,14 @@ packages:
       name: scrollable_positioned_list
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.8"
+    version: "0.1.10"
+  share:
+    dependency: "direct main"
+    description:
+      name: share
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.4"
   shelf:
     dependency: transitive
     description:

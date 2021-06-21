@@ -17,7 +17,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 
 # build appbundle --target-platform android-arm,android-arm64,android-x64
-version: 1.2.6
+version: 1.2.7
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -123,7 +123,8 @@ dependencies:
   moor: 4.3.2 # Multi-Platform ORM
   sqlite3_flutter_libs: 0.2.0 # Moor Needed Library
   sms_autofill: 1.2.6
-  scrollable_positioned_list: 0.1.8
+  scrollable_positioned_list: 0.1.10
+  share: 2.0.4
   fluttertoast: ^3.1.3
   firebase_messaging: 10.0.1
   firebase_core: 1.2.1
@@ -137,9 +138,10 @@ dependencies:
 
 
 
-  receive_sharing_intent: 1.4.1
+  receive_sharing_intent: 1.4.5
 
   flutter_icons: 1.1.0
+  desktop_notifications: 0.5.0
 
 
   assets_audio_player: 3.0.3+3
@@ -189,6 +191,8 @@ flutter:
     - assets/audios/ack.mp3
     - assets/icons/mention.png
     - assets/icons/channel_icon.png
+    - assets/bac/bdark.jpg
+    - assets/bac/b2.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

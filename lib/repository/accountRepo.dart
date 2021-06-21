@@ -5,6 +5,7 @@ import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -32,7 +33,7 @@ const EMAIL = "email";
 const DESCRIPTION = "description";
 const PHONE_NUMBER = "phoneNumber";
 const NOTIFICATION = "notification";
-const CURRENT_USER_UID= "current_user_uid";
+const CURRENT_USER_UID = "current_user_uid";
 
 class AccountRepo {
   final SharedPreferencesDao sharedPrefs;
@@ -172,8 +173,8 @@ class AccountRepo {
     _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
   }
 
-  Future<bool> usernameIsSet() async {
-    if (null != await sharedPrefs.get(USERNAME)) {
+  Future<bool> getProfile({bool retry = false}) async {
+    if (null != await sharedPrefs.get(FIRST_NAME)) {
       return true;
     }
     try {
@@ -182,16 +183,19 @@ class AccountRepo {
               metadata: {'access_token': await getAccessToken()},
               timeout: Duration(seconds: 2)));
       if (result.hasProfile() && result.profile.firstName.isNotEmpty) {
-        getUsername(getUserProfileRes: result);
+        _saveProfilePrivateDate(
+            firstName: result.profile.firstName,
+            lastName: result.profile.lastName,
+            email: result.profile.email);
         return true;
       } else
-        return false;
+        return getUsername();
     } catch (e) {
-      return getUsername();
+      if (retry) return getProfile();
     }
   }
 
-  Future<bool> getUsername({GetUserProfileRes getUserProfileRes}) async {
+  Future<bool> getUsername() async {
     try {
       final QueryServiceClient _queryServiceClient =
           GetIt.I.get<QueryServiceClient>();
@@ -200,25 +204,11 @@ class AccountRepo {
           options: CallOptions(
               metadata: {'access_token': await getAccessToken()},
               timeout: Duration(seconds: 2)));
-      if (getUserProfileRes != null){
-        _saveProfilePrivateDate(
-            username: getIdRequest.id,
-            firstName: getUserProfileRes.profile.firstName,
-            lastName: getUserProfileRes.profile.lastName,
-            email: getUserProfileRes.profile.email);
+      if (getIdRequest != null && getIdRequest.id.isNotEmpty) {
+        sharedPrefs.set(USERNAME, getIdRequest.id);
         return true;
-      }
-      else{
-       var result = await _profile.getUserProfile(GetUserProfileReq(),
-            options: CallOptions(
-                metadata: {'access_token': await getAccessToken()},
-                timeout: Duration(seconds: 2)));
-       _saveProfilePrivateDate(
-           username: getIdRequest.id,
-           firstName: result.profile.firstName,
-           lastName: result.profile.lastName,
-           email: result.profile.email);
-
+      } else {
+        return false;
       }
     } catch (e) {
       return false;
@@ -245,12 +235,12 @@ class AccountRepo {
       currentUserUid = Uid()
         ..category = Categories.USER
         ..node = decodedToken["sub"];
-      print("UserId " + currentUserUid.asString());
-      sharedPrefs.set(CURRENT_USER_UID,currentUserUid.asString());
+      debug("UserId " + currentUserUid.asString());
+      sharedPrefs.set(CURRENT_USER_UID, currentUserUid.asString());
     }
   }
 
-  Future<Uid> getCurrentUserUid()async{
+  Future<Uid> getCurrentUserUid() async {
     return (await sharedPrefs.get(CURRENT_USER_UID)).getUid();
   }
 
@@ -310,14 +300,14 @@ class AccountRepo {
 
       return true;
     } catch (e) {
-      print(e.toString());
+      debug(e.toString());
       return false;
     }
   }
 
   _saveProfilePrivateDate(
       {String username, String firstName, String lastName, String email}) {
-    sharedPrefs.set(USERNAME, username);
+    if (username != null) sharedPrefs.set(USERNAME, username);
     sharedPrefs.set(FIRST_NAME, firstName);
     sharedPrefs.set(LAST_NAME, lastName);
     sharedPrefs.set(EMAIL, email);
@@ -333,4 +323,14 @@ class AccountRepo {
   }
 
   Future<String> get notification => sharedPrefs.get(NOTIFICATION);
+
+  void fetchProfile() async {
+    if (null == await sharedPrefs.get(USERNAME)) {
+      await getUsername();
+    } else if (null == await sharedPrefs.get(FIRST_NAME)) {
+      await getProfile(retry: true);
+    }
+  }
+
+  bool isCurrentUser(String uid) => uid.isSameEntity(currentUserUid);
 }

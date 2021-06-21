@@ -24,19 +24,19 @@ class LastMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalization _appLocalization = AppLocalization.of(context);
-    String data;
-    TextDirection td;
     String oneLine = message.type == MessageType.TEXT
-        ? (message.json.toText().text.split('\n'))[0]
+        ? (message.json.toText().text.trim().split('\n'))[0]
         : message.type == MessageType.PERSISTENT_EVENT
-            ? message.json.toPersistentEvent().mucSpecificPersistentEvent.issue.name
-            : message.type == MessageType.FILE ?_appLocalization.getTraslateValue("file"): message.type == MessageType.LOCATION?_appLocalization.getTraslateValue("location"):"message"
-    ;
-    if (oneLine.isPersian()) {
-      td = TextDirection.rtl;
-    } else
-      td = TextDirection.ltr;
-    data = oneLine;
+            ? message.json
+                .toPersistentEvent()
+                .mucSpecificPersistentEvent
+                .issue
+                .name
+            : message.type == MessageType.FILE
+                ? _appLocalization.getTraslateValue("file")
+                : message.type == MessageType.LOCATION
+                    ? _appLocalization.getTraslateValue("location")
+                    : "message";
     if (message.roomId.uid.category == Categories.GROUP &&
         message.type != MessageType.PERSISTENT_EVENT) {
       return Row(
@@ -56,15 +56,16 @@ class LastMessage extends StatelessWidget {
                     }
                   },
                 ),
-          Text(
-            oneLine.length > 20 ? oneLine.substring(0, 20) : oneLine,
-            maxLines: 1,
-            textDirection: td,
-            overflow: TextOverflow.fade,
-            style: TextStyle(
-              // color:
-              //     : ExtraTheme.of(context).infoChat,
-              fontSize: 13,
+          Container(
+            width: 100,
+            child: Text(
+              oneLine,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: ExtraTheme.of(context).chatOrContactItemDetails,
+                fontSize: 14,
+              ),
             ),
           ),
         ],
@@ -79,14 +80,13 @@ class LastMessage extends StatelessWidget {
         : Container(
             width: 230,
             child: Text(
-              data,
+              oneLine,
               maxLines: 1,
-              textDirection: td,
               overflow: TextOverflow.ellipsis,
               softWrap: false,
               style: TextStyle(
                 color: ExtraTheme.of(context).chatOrContactItemDetails,
-                fontSize: 11,
+                fontSize: 14,
               ),
             ),
           );
@@ -97,7 +97,7 @@ class LastMessage extends StatelessWidget {
       "$from :",
       style: TextStyle(
         color: Theme.of(context).primaryColor,
-        fontSize: 13,
+        fontSize: 14,
       ),
     );
   }

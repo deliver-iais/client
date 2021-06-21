@@ -7,6 +7,7 @@ import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:contacts_service/contacts_service.dart' as OsContact;
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/utils/log.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -73,7 +74,7 @@ class ContactRepo {
               ..phoneNumber = phoneNumber;
             contacts.add(contact);
           } catch (e) {
-            print("ContactRepo");
+            debug("ContactRepo");
           }
         }
       }
@@ -129,15 +130,15 @@ class ContactRepo {
   }
 
   Future getContacts() async {
-    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%R");
+    debug("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%R");
 
     var result = await contactServices.getContactListUsers(
         GetContactListUsersReq(),
         options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
 
-    print("SSSSSSSSS");
-    print(result);
+    debug("SSSSSSSSS");
+    debug(result);
 
     for (var contact in result.userList) {
       _contactDao.insertContact(Database.ContactsCompanion(

@@ -7,6 +7,7 @@ import 'package:deliver_flutter/models/fetchingDirectionType.dart';
 import 'package:deliver_flutter/models/mediaCount.dart';
 import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/utils/log.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -38,7 +39,7 @@ class MediaQueryRepo {
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       await insertMediaMetaData(uid, mediaResponse);
     } catch (e) {
-      print(e);
+      debug(e);
     }
     // return MediaCount()
     // ..imageCount = mediaResponse.allImagesCount.toInt()
@@ -141,7 +142,7 @@ class MediaQueryRepo {
           mediaType,
           DateTime.now().millisecondsSinceEpoch,
           FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
-      print("serverqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
+      debug("serverqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
       return mediasList;
     } else if (mediasList.length < mediaCount) {
       int pointer = mediasList.first.createdOn;
@@ -151,7 +152,7 @@ class MediaQueryRepo {
       var combinedList = [...newMediasServerList.reversed, ...mediasList];
       return combinedList;
     } else {
-      print("databaseqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
+      debug("databaseqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
       return mediasList;
     }
   }
@@ -194,18 +195,18 @@ class MediaQueryRepo {
       var getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      print("testtttttttttttttttt${getMediasRes.medias.length}");
+      debug("testtttttttttttttttt${getMediasRes.medias.length}");
       List<Media> medias =
           await _saveFetchedMedias(getMediasRes.medias, roomId, mediaType);
       return medias;
     } catch (e) {
-      print("errrrrrrrrrroooooooorrrrr:$e");
+      debug("errrrrrrrrrroooooooorrrrr:$e");
     }}
 
   Future<List<Media>> _saveFetchedMedias(List<MediaObject.Media> getMedias,
       Uid roomUid, FetchMediasReq_MediaType mediaType) async {
     List<Media> mediaList = [];
-    print(getMedias.length.toString());
+    debug(getMedias.length.toString());
     for (MediaObject.Media media in getMedias) {
       MediaType type = findFetchedMediaType(mediaType);
       String json = findFetchedMediaJson(media);

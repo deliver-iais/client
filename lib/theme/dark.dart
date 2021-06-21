@@ -13,6 +13,7 @@ ThemeData DarkTheme = ThemeData(
     bottomAppBarColor: Color.fromRGBO(255, 255, 255, 0.2),
     backgroundColor: Colors.black,
     buttonColor: Color(0xFF2699FB),
+    dividerTheme: DividerThemeData(space: 1.0, thickness: 1.0, color: Color(0xFF1b1b1b)),
     focusColor: Color(0xFF2699FB).withOpacity(0.5),
     cardColor: Color(0xFF2699FB),
     textTheme: TextTheme(
@@ -59,7 +60,7 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     inactivePageIcon : Color(0xFF9D9D9D),//details in extra
     menuIconButton : DarkTheme.accentColor.withAlpha(50),
     // popupMenuButton : Color(0x8b848b93),
-    popupMenuButton : Color(0x8b3c3f45),
+    popupMenuButton : Colors.black,
     popupMenuButtonDetails : Colors.white,
     searchBox: DarkTheme.accentColor.withAlpha(50),
     chatOrContactItemDetails : Colors.white,//info chat in extra
@@ -67,10 +68,14 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     receivedMessageBox: DarkTheme.accentColor.withAlpha(60),
     textMessage: Colors.white,
     messageDetails: Color(0xFF001D39),
+    titleStatus: Colors.blue,
     persistentEventMessage: DarkTheme.accentColor.withAlpha(50),
     circularFileStatus: Color(0xFFBCE0FD),
     fileMessageDetails: DarkTheme.primaryColor,
     textField: Colors.white,
+    username: Colors.yellowAccent,
+    seenStatus: Colors.white,
+    profileAvatarCard: DarkTheme.accentColor.withAlpha(50),
     inputBoxBackground: DarkTheme.accentColor.withAlpha(50),
   border: DarkTheme.primaryColor
 );

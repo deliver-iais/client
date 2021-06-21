@@ -64,7 +64,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   @override
   void initState() {
     super.initState();
-    if (widget.roomUid.category != Categories.USER && widget.roomUid.category != Categories.BOT) {
+    if (widget.roomUid.category != Categories.USER &&
+        widget.roomUid.category != Categories.BOT) {
       _mucType = widget.roomUid.category == Categories.GROUP
           ? MucType.GROUP
           : MucType.PUBLIC_CHANNEL;
@@ -188,58 +189,50 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   showAvatar() {
-    return ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: const EdgeInsets.only(top: 40),
-          child: Column(
-            children: [
-              showProgressBar
-                  ? CircleAvatar(
-                      radius: 100,
-                      backgroundImage:
-                          Image.file(File(_uploadAvatarPath)).image,
-                      child: Center(
-                        child: SizedBox(
-                            height: 70.0,
-                            width: 70.0,
-                            child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation(Colors.blue),
-                              strokeWidth: 6.0,
-                            )),
-                      ),
-                    )
-                  : GestureDetector(
-                      child: CircleAvatarWidget(
-                        widget.roomUid,
-                        110,
-                        showAsStreamOfAvatar: true,
-                      ),
-                      onTap: () async {
-                        var lastAvatar = await avatarRepo.getLastAvatar(
-                            widget.roomUid, false);
-                        if (lastAvatar.createdOn != null) {
-                          _routingServices.openShowAllAvatars(
-                              uid: widget.roomUid,
-                              hasPermissionToDeleteAvatar: _setAvatarPermission,
-                              heroTag: "avatar");
-                        }
-                      },
-                    ),
-              SizedBox(
-                height: 10,
+    return Container(
+      padding: const EdgeInsets.only(top: 40, bottom: 60),
+      child: showProgressBar
+          ? CircleAvatar(
+              radius: 100,
+              backgroundImage:
+                  Image.file(File(_uploadAvatarPath)).image,
+              child: Center(
+                child: SizedBox(
+                    height: 70.0,
+                    width: 70.0,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation(Colors.blue),
+                      strokeWidth: 6.0,
+                    )),
               ),
-            ],
-          ),
-          color: Theme.of(context).accentColor.withAlpha(50),
-        ));
+            )
+          : GestureDetector(
+              child: CircleAvatarWidget(
+                widget.roomUid,
+                110,
+                showAsStreamOfAvatar: true,
+                showSavedMessageLogoIfNeeded: true,
+              ),
+              onTap: () async {
+                var lastAvatar = await avatarRepo.getLastAvatar(
+                    widget.roomUid, false);
+                if (lastAvatar.createdOn != null) {
+                  _routingServices.openShowAllAvatars(
+                      uid: widget.roomUid,
+                      hasPermissionToDeleteAvatar: _setAvatarPermission,
+                      heroTag: "avatar");
+                }
+              },
+            ),
+      color: Theme.of(context).accentColor.withAlpha(50),
+    );
   }
 
   _showDisplayName(String name) {
     return Text(name,
         //textAlign: TextAlign.center,
         style: TextStyle(
-          color: Colors.white,
+          color: ExtraTheme.of(context).textField,
           fontSize: 22.0,
           shadows: <Shadow>[
             Shadow(
@@ -252,13 +245,16 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 
   @override
   Widget build(BuildContext context) {
+    var style =
+        TextStyle(fontSize: 14, color: ExtraTheme.of(context).textField);
     _appLocalization = AppLocalization.of(context);
     return SliverAppBar(
         actions: <Widget>[
           if (widget.roomUid.category != Categories.SYSTEM)
-            widget.roomUid.category != Categories.USER &&   widget.roomUid.category != Categories.BOT
+            widget.roomUid.category != Categories.USER &&
+                    widget.roomUid.category != Categories.BOT
                 ? PopupMenuButton(
-                    color: Theme.of(context).backgroundColor.withBlue(10),
+                    color: ExtraTheme.of(context).popupMenuButton,
                     icon: Icon(Icons.more_vert),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
@@ -274,12 +270,13 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                 width: 6,
                               ),
                               Text(
-                                  _mucType == MucType.GROUP
-                                      ? _appLocalization
-                                          .getTraslateValue("leftGroup")
-                                      : _appLocalization
-                                          .getTraslateValue("leftChannel"),
-                                  style: TextStyle(fontSize: 14)),
+                                _mucType == MucType.GROUP
+                                    ? _appLocalization
+                                        .getTraslateValue("leftGroup")
+                                    : _appLocalization
+                                        .getTraslateValue("leftChannel"),
+                                style: style,
+                              ),
                             ],
                           ),
                           value: "leftMuc"),
@@ -302,7 +299,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                           .getTraslateValue("deleteGroup")
                                       : _appLocalization
                                           .getTraslateValue("deleteChannel"),
-                                  style: TextStyle(fontSize: 14),
+                                  style: style,
                                 )
                               ],
                             ),
@@ -323,7 +320,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                 Text(
                                     _appLocalization
                                         .getTraslateValue("setProfile"),
-                                    style: TextStyle(fontSize: 14)),
+                                    style: style),
                               ],
                             ),
                             value: "select"),
@@ -347,7 +344,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                             .getTraslateValue("manage_group")
                                         : _appLocalization
                                             .getTraslateValue("manage_channel"),
-                                    style: TextStyle(fontSize: 14)),
+                                    style: style),
                               ],
                             ),
                             value: "manage"),
@@ -363,7 +360,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                 width: 6,
                               ),
                               Text(_appLocalization.getTraslateValue("report"),
-                                  style: TextStyle(fontSize: 14)),
+                                  style: style),
                             ],
                           ),
                           value: "report"),
@@ -375,7 +372,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     builder: (c, room) {
                       if (room.hasData && room.data != null) {
                         return PopupMenuButton(
-                          color: Theme.of(context).backgroundColor.withBlue(10),
+                          color: ExtraTheme.of(context).popupMenuButton,
                           icon: Icon(Icons.more_vert),
                           itemBuilder: (_) => <PopupMenuItem<String>>[
                             new PopupMenuItem<String>(
@@ -385,11 +382,14 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                     SizedBox(
                                       width: 15,
                                     ),
-                                    Text(room.data.isBlock
-                                        ? _appLocalization
-                                            .getTraslateValue("unBlockRoom")
-                                        : _appLocalization
-                                            .getTraslateValue("blockRoom")),
+                                    Text(
+                                      room.data.isBlock
+                                          ? _appLocalization
+                                              .getTraslateValue("unBlockRoom")
+                                          : _appLocalization
+                                              .getTraslateValue("blockRoom"),
+                                      style: style,
+                                    ),
                                   ],
                                 ),
                                 value: room.data.isBlock
@@ -402,8 +402,11 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                     SizedBox(
                                       width: 15,
                                     ),
-                                    Text(_appLocalization
-                                        .getTraslateValue("report")),
+                                    Text(
+                                      _appLocalization
+                                          .getTraslateValue("report"),
+                                      style: style,
+                                    ),
                                   ],
                                 ),
                                 value: "report"),
@@ -417,13 +420,13 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         ],
         forceElevated: widget.innerBoxIsScrolled,
         leading: routingService.backButtonLeading(),
-        expandedHeight: 300,
+        expandedHeight: 350,
         floating: false,
         pinned: true,
         flexibleSpace: FlexibleSpaceBar(
           centerTitle: true,
           collapseMode: CollapseMode.pin,
-          titlePadding: const EdgeInsets.all(0),
+          titlePadding: const EdgeInsets.all(10),
           title: Container(
             child: FutureBuilder<String>(
               future: _roomRepo.getRoomDisplayName(widget.roomUid),
@@ -436,8 +439,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               },
             ),
           ),
-          background: ClipRRect(
-              borderRadius: BorderRadius.circular(10), child: showAvatar()),
+          background: showAvatar(),
         ));
   }
 
@@ -503,7 +505,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
             ),
             content: Container(
               height: widget.roomUid.category == Categories.GROUP ? 200 : 300,
-              child:SingleChildScrollView(child:  Column(
+              child: SingleChildScrollView(
+                  child: Column(
                 children: [
                   FutureBuilder<String>(
                     future: _roomRepo.getRoomDisplayName(widget.roomUid),
@@ -597,7 +600,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                           } else
                             return SizedBox.shrink();
                         }),
-                  SizedBox(height: 10,),
+                  SizedBox(
+                    height: 10,
+                  ),
                   StreamBuilder<Muc>(
                     stream:
                         _mucDao.getMucByUidAsStream(widget.roomUid.asString()),
@@ -607,8 +612,12 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         return TextFormField(
                           style: TextStyle(color: Colors.black, fontSize: 18),
                           initialValue: muc.data.info ?? "",
-                          minLines: muc.data.info.isNotEmpty? muc.data.info.split("\n").length:1,
-                          maxLines: muc.data.info.isNotEmpty?muc.data.info.split("\n").length+4:4 ,
+                          minLines: muc.data.info.isNotEmpty
+                              ? muc.data.info.split("\n").length
+                              : 1,
+                          maxLines: muc.data.info.isNotEmpty
+                              ? muc.data.info.split("\n").length + 4
+                              : 4,
                           onChanged: (str) {
                             mucInfo = str;
                             newChange.add(true);
@@ -617,17 +626,19 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                           decoration: buildInputDecoration(
                             widget.roomUid.category == Categories.GROUP
                                 ? _appLocalization
-                                .getTraslateValue("enter-group-desc")
+                                    .getTraslateValue("enter-group-desc")
                                 : _appLocalization
-                                .getTraslateValue("enter-channel-desc"),),
+                                    .getTraslateValue("enter-channel-desc"),
+                          ),
                         );
-
                       } else {
                         return SizedBox.shrink();
                       }
                     },
                   ),
-                  SizedBox(height: 10,),
+                  SizedBox(
+                    height: 10,
+                  ),
                 ],
               )),
             ),
@@ -646,7 +657,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                       if (widget.roomUid.category ==
                                           Categories.GROUP) {
                                         _mucRepo.modifyGroup(
-                                            widget.roomUid.asString(), mucName??_currentName,mucInfo);
+                                            widget.roomUid.asString(),
+                                            mucName ?? _currentName,
+                                            mucInfo);
                                         _roomRepo.updateRoomName(widget.roomUid,
                                             mucName ?? _currentName);
                                         setState(() {});
@@ -656,7 +669,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                           _mucRepo.modifyChannel(
                                               widget.roomUid.asString(),
                                               mucName ?? _currentName,
-                                              _currentId,mucInfo);
+                                              _currentId,
+                                              mucInfo);
                                           _roomRepo.updateRoomName(
                                               widget.roomUid,
                                               mucName ?? _currentName);
@@ -668,7 +682,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                             _mucRepo.modifyChannel(
                                                 widget.roomUid.asString(),
                                                 mucName ?? _currentName,
-                                                channelId,mucInfo);
+                                                channelId,
+                                                mucInfo);
                                             _roomRepo.updateRoomName(
                                                 widget.roomUid,
                                                 mucName ?? _currentName);

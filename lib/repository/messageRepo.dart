@@ -12,6 +12,7 @@ import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -77,7 +78,7 @@ class MessageRepo {
     _coreServices.connectionStatus.listen((mode) {
       switch (mode) {
         case ConnectionStatus.Connected:
-          print('updating -----------------');
+          debug('updating -----------------');
           updating();
           sendPendingMessages();
           break;
@@ -139,11 +140,11 @@ class MessageRepo {
             getMentions(room);
           }
         } catch (e) {
-          print(e);
+          debug(e);
         }
       }
     } catch (e) {
-      print(e);
+      debug(e);
     }
     updatingStatus.add(TitleStatusConditions.Normal);
     getBlockedRoom();
@@ -163,7 +164,7 @@ class MessageRepo {
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
               room.lastCurrentUserSentMessageId.toInt())));
     } catch (e) {
-      print(e.toString());
+      debug(e.toString());
     }
     if (room.roomUid.category == Categories.USER ||
         room.roomUid.category == Categories.GROUP) {
@@ -626,11 +627,11 @@ class MessageRepo {
           }
 
         }else{
-          print(e.toString());
+          debug(e.toString());
           // continue;
         }
       }catch(e){
-        print(e.toString());
+        debug(e.toString());
         // continue;
 
       }

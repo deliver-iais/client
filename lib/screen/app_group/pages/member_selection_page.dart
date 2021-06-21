@@ -46,7 +46,7 @@ class MemberSelectionPage extends StatelessWidget {
               isChannel
                   ? appLocalization.getTraslateValue("newChannel")
                   : appLocalization.getTraslateValue("newGroup"),
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18,color: ExtraTheme.of(context).textField, fontWeight: FontWeight.bold),
             ),
 
             StreamBuilder<int>(
@@ -63,26 +63,14 @@ class MemberSelectionPage extends StatelessWidget {
                             .of(context)
                             .textDetails,
                         fontWeight: FontWeight.bold),
-                    // style: members > 0
-                    //     ? TextStyle(
-                    //     fontSize: 16,
-                    //     color: Theme
-                    //         .of(context)
-                    //         .primaryColor,
-                    //     fontWeight: FontWeight.bold)
-                    //     : TextStyle(
-                    //     fontSize: 14,
-                    //     color: Theme
-                    //         .of(context)
-                    //         .accentColor,
-                    //     fontWeight: FontWeight.w100),
+
                     duration: ANIMATION_DURATION,
                     curve: Curves.easeIn,
                     child: Text(
                       members >= 1
                           ? '$members ${appLocalization.getTraslateValue(
                           "ofMaxMember")}'
-                          : appLocalization.getTraslateValue("maxMember"),
+                          : appLocalization.getTraslateValue("maxMember"),style: TextStyle(color: ExtraTheme.of(context).titleStatus),
                     ),
                   );
                 })

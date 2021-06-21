@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart'
     as ChannelServices;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
@@ -252,7 +253,7 @@ class MucServices {
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
-      print(e.toString());
+      debug(e.toString());
       return false;
     }
   }

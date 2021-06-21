@@ -6,6 +6,7 @@ import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
@@ -25,16 +26,18 @@ class _HomePageState extends State<HomePage>  with WidgetsBindingObserver{
   @override
   void initState() {
     super.initState();
+
     _notificationServices.cancelAllNotification();
     checkIfUsernameIsSet();
     if (isAndroid()) {
-      //checkShareFile(context);
+      checkShareFile(context);
     }
     _coreServices.initStreamConnection();
   }
   checkShareFile(BuildContext context) {
     ReceiveSharingIntent.getMediaStream().listen((List<SharedMediaFile> value) {
       if (value != null) {
+        Fluttertoast.showToast(msg: value.length.toString());
         List<String> paths = List();
         for (var path in value) {
           paths.add(path.path);
@@ -44,6 +47,17 @@ class _HomePageState extends State<HomePage>  with WidgetsBindingObserver{
             arguments: ShareInputFileArguments(inputSharedFilePath: paths));
       }
     });
+    // ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
+    //   if (value != null) {
+    //     List<String> paths = List();
+    //     for (var path in value) {
+    //       paths.add(path.path);
+    //     }
+    //     ExtendedNavigator.of(context).pushAndRemoveUntil(
+    //         Routes.shareInputFile, (_) => false,
+    //         arguments: ShareInputFileArguments(inputSharedFilePath: paths));
+    //   }
+    // });
   }
 
   @override
@@ -64,8 +78,10 @@ class _HomePageState extends State<HomePage>  with WidgetsBindingObserver{
   }
 
   void checkIfUsernameIsSet() async {
-    if (!await _accountRepo.usernameIsSet()) {
+    if (!await _accountRepo.getProfile(retry: true)) {
       _routingService.openAccountSettings(forceToSetUsernameAndName: true);
+    }else{
+      _accountRepo.fetchProfile();
     }
   }
 }

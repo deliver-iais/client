@@ -24,7 +24,6 @@ class PersistentEventMessage extends StatelessWidget {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _uxService = GetIt.I.get<UxService>();
 
-
   PersistentEventMessage({Key key, this.message, this.showLastMessage})
       : super(key: key);
 
@@ -34,33 +33,34 @@ class PersistentEventMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     PersistentEvent persistentEventMessage = message.json.toPersistentEvent();
     _appLocalization = AppLocalization.of(context);
-    return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: showLastMessage
-              ?  ExtraTheme.of(context).persistentEventMessage
-              : Theme.of(context).primaryColor,
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
-        child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
-            child: FutureBuilder(
-              future: getPersistentMessage(persistentEventMessage),
-              builder: (c, s) {
-                if (s.hasData) {
-                  return Directionality(
-                    textDirection: _uxService.Persian?TextDirection.rtl:TextDirection.ltr,
-                    child: Text(
-                    s.data,
-                    style: TextStyle(
-                        color: showLastMessage? ExtraTheme.of(context).textMessage : Colors.white, fontSize: 12),
-                  ));
-                } else {
-                  return SizedBox.shrink();
-                }
-              },
-            )),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      decoration: BoxDecoration(
+        color: showLastMessage
+            ? ExtraTheme.of(context).persistentEventMessage
+            : Theme.of(context).primaryColor,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      child: FutureBuilder(
+        future: getPersistentMessage(persistentEventMessage),
+        builder: (c, s) {
+          if (s.hasData) {
+            return Directionality(
+                textDirection:
+                    _uxService.Persian ? TextDirection.rtl : TextDirection.ltr,
+                child: Text(
+                  s.data,
+                  style: TextStyle(
+                      color: showLastMessage
+                          ? ExtraTheme.of(context).textMessage
+                          : Colors.white,
+                      fontSize: 14),
+                ));
+          } else {
+            return SizedBox.shrink();
+          }
+        },
       ),
     );
   }
@@ -75,7 +75,8 @@ class PersistentEventMessage extends StatelessWidget {
         String assignee = await getName(
             persistentEventMessage.mucSpecificPersistentEvent.assignee,
             message.to.getUid());
-        bool isMe = persistentEventMessage.mucSpecificPersistentEvent.issuer.isSameEntity(_accountRepo.currentUserUid.asString());
+        bool isMe = persistentEventMessage.mucSpecificPersistentEvent.issuer
+            .isSameEntity(_accountRepo.currentUserUid.asString());
         switch (persistentEventMessage.mucSpecificPersistentEvent.issue) {
           case MucSpecificPersistentEvent_Issue.ADD_USER:
             return " $issuer ${isMe ? _appLocalization.getTraslateValue("you_add_user_to_muc") : _appLocalization.getTraslateValue("add_user_to_muc")} $assignee";
@@ -94,7 +95,7 @@ class PersistentEventMessage extends StatelessWidget {
           case MucSpecificPersistentEvent_Issue.MUC_CREATED:
             return message.from.uid.category == Categories.CHANNEL
                 ? "$issuer  ${isMe ? _appLocalization.getTraslateValue("you_create_channel") : _appLocalization.getTraslateValue("create_channel")}"
-                : "$issuer  ${isMe? _appLocalization.getTraslateValue("you_create_group") : _appLocalization.getTraslateValue("create_group")}";
+                : "$issuer  ${isMe ? _appLocalization.getTraslateValue("you_create_group") : _appLocalization.getTraslateValue("create_group")}";
           case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
             return "$issuer  ${_appLocalization.getTraslateValue("change_muc_name")}";
           case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:

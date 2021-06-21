@@ -4,6 +4,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user_room_meta.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as MessageProto;
@@ -134,7 +135,7 @@ void main() {
               lastMessageId: Value(5),
               lastMessageDbId: Value(5))))
           .thenAnswer((_) async {
-        print('jbkb.kkjvbk');
+        debug('jbkb.kkjvbk');
         return 0;
       });
       when(mockRoomDao.insertRoomCompanion(RoomsCompanion.insert(
@@ -175,7 +176,7 @@ void main() {
         ..lastMessageId = Int64(4));
 
       var mres = FetchMessagesRes();
-      print(mres.messages.length);
+      debug(mres.messages.length);
       when(mockAccountRepo.getAccessToken()).thenAnswer((_) async {
         return 'expected';
       });

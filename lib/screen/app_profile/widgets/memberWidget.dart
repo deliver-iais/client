@@ -9,6 +9,7 @@ import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +51,8 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   @override
   Widget build(BuildContext context) {
     _appLocalization = AppLocalization.of(context);
+    var style =
+        TextStyle(fontSize: 14, color: ExtraTheme.of(context).textField);
 
     return StreamBuilder<List<Member>>(
         stream: _memberRepo.getMembers(_mucUid.asString()),
@@ -61,129 +64,120 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
             List<Widget> widgets = [];
 
             snapshot.data.forEach((member) {
-              widgets.add(Container(
-                decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 0.1,
-                    ),
-                    borderRadius: BorderRadius.circular(10)),
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(10, 10, 0, 5),
-                  child: GestureDetector(
-                      onTap: () {
-                        _routingServices.openRoom(member.memberUid);
-                      },
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                CircleAvatarWidget(member.memberUid.uid, 18),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                if (member.memberUid !=
-                                    _accountRepo.currentUserUid.asString())
-                                  Text(
-                                    member.name ?? member.username ?? "",
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                    ),
-                                  )
-                                else if (member.memberUid ==
-                                    _accountRepo.currentUserUid.asString())
-                                  FutureBuilder<Account>(
-                                    future: _accountRepo.getAccount(),
-                                    builder: (BuildContext context,
-                                        AsyncSnapshot<Account> snapshot) {
-                                      if (snapshot.data != null) {
-                                        return Text(
-                                          "${snapshot.data.firstName} ${snapshot.data.lastName ?? ""}",
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                          ),
-                                        );
-                                      } else {
-                                        return SizedBox.shrink();
-                                      }
-                                    },
-                                  )
-                                else
-                                  Text(
-                                    "Unknown",
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                    ),
+              widgets.add(GestureDetector(
+                  onTap: () {
+                    _routingServices.openRoom(member.memberUid);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              CircleAvatarWidget(member.memberUid.uid, 18),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              if (member.memberUid !=
+                                  _accountRepo.currentUserUid.asString())
+                                Text(
+                                  member.name ?? member.username ?? "",
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: ExtraTheme.of(context).textField,
+                                    fontSize: 16,
                                   ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                showMemberRole(member),
-                                member.memberUid.contains(
-                                        _accountRepo.currentUserUid.asString())
-                                    ? SizedBox(
-                                        width: 50,
-                                      )
-                                    : _myRoleInThisRoom == MucRole.ADMIN ||
-                                            _myRoleInThisRoom == MucRole.OWNER
-                                        ? PopupMenuButton(
-                                            color: Theme.of(context)
-                                                .backgroundColor
-                                                .withBlue(15),
-                                            icon: Icon(
-                                              Icons.more_vert,
-                                              size: 18,
-                                            ),
-                                            itemBuilder: (_) =>
-                                                <PopupMenuItem<String>>[
-                                              if (_myRoleInThisRoom ==
-                                                  MucRole.OWNER)
-                                                new PopupMenuItem<String>(
-                                                    child: member.role ==
-                                                            MucRole.MEMBER
-                                                        ? Text(_appLocalization
-                                                            .getTraslateValue(
-                                                                "change_role_to_admin"))
-                                                        : Text(_appLocalization
-                                                            .getTraslateValue(
-                                                                "change_role_to_member")),
-                                                    value: CHANGE_ROLE),
-                                              new PopupMenuItem<String>(
-                                                  child: Text(_appLocalization
+                                )
+                              else if (member.memberUid ==
+                                  _accountRepo.currentUserUid.asString())
+                                FutureBuilder<Account>(
+                                  future: _accountRepo.getAccount(),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<Account> snapshot) {
+                                    if (snapshot.data != null) {
+                                      return Text(
+                                        "${snapshot.data.firstName} ${snapshot.data.lastName ?? ""}",
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: ExtraTheme.of(context)
+                                                .textField),
+                                      );
+                                    } else {
+                                      return SizedBox.shrink();
+                                    }
+                                  },
+                                )
+                              else
+                                Text(
+                                  "Unknown",
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              showMemberRole(member),
+                              if (!member.memberUid.contains(
+                                      _accountRepo.currentUserUid.asString()) &&
+                                  (_myRoleInThisRoom == MucRole.ADMIN ||
+                                      _myRoleInThisRoom == MucRole.OWNER))
+                                PopupMenuButton(
+                                  color: ExtraTheme.of(context).popupMenuButton,
+                                  icon: Icon(
+                                    Icons.more_vert,
+                                    size: 18,
+                                  ),
+                                  itemBuilder: (_) => <PopupMenuItem<String>>[
+                                    if (_myRoleInThisRoom == MucRole.OWNER)
+                                      new PopupMenuItem<String>(
+                                          child: member.role == MucRole.MEMBER
+                                              ? Text(
+                                                  _appLocalization
                                                       .getTraslateValue(
-                                                          "kick")),
-                                                  value: DELETE),
-                                              new PopupMenuItem<String>(
-                                                  child: Text(_appLocalization
-                                                      .getTraslateValue("ban")),
-                                                  value: BAN),
-                                            ],
-                                            onSelected: (key) {
-                                              onSelected(key, member);
-                                            },
-                                          )
-                                        : SizedBox(
-                                            width: 50,
-                                          )
-                              ],
-                            )
-                          ])),
-                ),
-              ));
+                                                          "change_role_to_admin"),
+                                                  style: style,
+                                                )
+                                              : Text(
+                                                  _appLocalization
+                                                      .getTraslateValue(
+                                                          "change_role_to_member"),
+                                                  style: style,
+                                                ),
+                                          value: CHANGE_ROLE),
+                                    new PopupMenuItem<String>(
+                                        child: Text(
+                                          _appLocalization
+                                              .getTraslateValue("kick"),
+                                          style: style,
+                                        ),
+                                        value: DELETE),
+                                    new PopupMenuItem<String>(
+                                        child: Text(
+                                          _appLocalization
+                                              .getTraslateValue("ban"),
+                                          style: style,
+                                        ),
+                                        value: BAN),
+                                  ],
+                                  onSelected: (key) {
+                                    onSelected(key, member);
+                                  },
+                                )
+                            ],
+                          )
+                        ]),
+                  )));
+              widgets.add(Divider());
             });
-            return Container(
-                child: Align(
-              alignment: Alignment.centerLeft,
-              child: Column(
-                children: widgets,
-              ),
-            ));
+            return Column(
+              children: widgets,
+            );
           } else {
             return SizedBox.shrink();
           }

@@ -14,19 +14,20 @@ ThemeData LightTheme = ThemeData(
     scaffoldBackgroundColor: Colors.white,
     backgroundColor: Color(0xfde2f8f0),
     buttonColor: Color(0xff1f655d),
+    dividerTheme: DividerThemeData(space: 1.0, thickness: 1.0, color: Color(0xFFe0e0e0)),
     focusColor: Color(0xff179c96).withOpacity(0.5),
     cardColor: Color(0xff489088),
-
     textTheme: TextTheme(
       headline1: TextStyle(color: Colors.white, fontSize: 40),
       headline2: TextStyle(
-          color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
-      headline3: TextStyle(color: Colors.white, fontSize: 20),
+          color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold),
+      headline3: TextStyle(color: Colors.black, fontSize: 20),
       headline4: TextStyle(color: Colors.white, fontSize: 14),
     ),
     appBarTheme: AppBarTheme(
-      color: Color(0xff1f655d),
+      color: Colors.white,
       elevation: 0,
+      iconTheme: IconThemeData(color: Color(0xff002121))
     ),
     sliderTheme: SliderThemeData(
       thumbColor: Color(0xff4bd5af),
@@ -54,28 +55,34 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   // infoChat: Colors.black,
   // text: Colors.white,
   boxDetails: Color(0xff15786c),
-  boxBackground: Color(0xfde2f8f0),
+  boxBackground: Colors.white,
   activeSwitch: Color(0xff15786c),
-  textDetails : Color(0xff4bd5af),
+  textDetails : Colors.black,
   //homePage
-    bottomNavigationAppbar : LightTheme.appBarTheme.color.withAlpha(200),
-    activePageIcon: LightTheme.backgroundColor,
+    bottomNavigationAppbar : LightTheme.appBarTheme.color,
+    activePageIcon: LightTheme.accentColor,
     inactivePageIcon : LightTheme.accentColor.withAlpha(100), //details in extra
     menuIconButton : LightTheme.accentColor.withAlpha(50),
-    popupMenuButton : LightTheme.backgroundColor.withOpacity(0.8),
+    popupMenuButton : Colors.white,
     popupMenuButtonDetails : LightTheme.accentColor,
-    searchBox: LightTheme.appBarTheme.color.withAlpha(50),
+    searchBox: Color(0xFFEEEEEE),
     chatOrContactItemDetails : Colors.black,//info chat in extra
     // roomPage
-    sentMessageBox:  Color(0xff01aa9a),
-    receivedMessageBox: Color(0xff00805a).withAlpha(50),
+    sentMessageBox:  Color(0xFFDCEDC8),
+    receivedMessageBox: Colors.white,
     textMessage: LightTheme.accentColor,
     messageDetails: LightTheme.accentColor.withAlpha(200),
     persistentEventMessage: LightTheme.backgroundColor,
     circularFileStatus: LightTheme.backgroundColor,
     fileMessageDetails: Color(0xff00a394),
     textField: LightTheme.accentColor,
-    inputBoxBackground: Color(0xff174b45).withAlpha(50),
+    username: Colors.blue,
+    titleStatus: Colors.blue,
+    seenStatus: Colors.blue,
+
+
+    profileAvatarCard:Color(0xFFEEEEEE),
+    inputBoxBackground: Colors.white,
    //group
   border: Color(0xff174b45),
   // text1 : white black

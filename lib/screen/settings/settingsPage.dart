@@ -92,10 +92,11 @@ class _SettingsPageState extends State<SettingsPage> {
               alignment: Alignment.centerLeft,
               child: Text(
                 appLocalization.getTraslateValue("settings"),
-                style: Theme.of(context).textTheme.headline3,
+                style: Theme.of(context).textTheme.headline2,
               ),
             ),
             leading: _routingService.backButtonLeading()),
+
         body: FluidContainerWidget(
           child: ListView(children: [
             ProfileAvatarCard(
@@ -121,68 +122,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   shape: CircleBorder(),
                   child: Icon(Icons.bookmark, color: Colors.white),
                   padding: const EdgeInsets.all(20),
-                ),
-                Tooltip(
-                  message: appLocalization.getTraslateValue("Log_out"),
-                  child: MaterialButton(
-                    color: Theme.of(context).errorColor,
-                    onPressed: () {
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-                              actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
-                              backgroundColor: Colors.white,
-                              title: Container(
-                                height: 50,
-                                color: Colors.blue,
-                                child: Icon(
-                                  Icons.exit_to_app,
-                                  color: Colors.white,
-                                  size: 40,
-                                ),
-                              ),
-                              content: Container(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                        appLocalization.getTraslateValue("sure_exit_app"),
-                                        style: TextStyle(color: Colors.black, fontSize: 18)),
-                                  ],
-                                ),
-                              ),
-                              actions: <Widget>[
-                                GestureDetector(
-                                  child: Text(
-                                    appLocalization.getTraslateValue("cancel"),
-                                    style: TextStyle(fontSize: 16, color: Colors.blue),
-                                  ),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                SizedBox(width: 15,),
-
-                                GestureDetector(
-                                  child: Text(
-                                    appLocalization.getTraslateValue("Log_out"),
-                                    style: TextStyle(fontSize: 16, color: Colors.red),
-                                  ),
-                                  onTap: () {
-                                    _routingService.logout(context);
-                                  },
-                                )
-                              ],
-                            );
-                          });
-
-                    },
-                    shape: CircleBorder(),
-                    child: Icon(Icons.exit_to_app, color: Colors.white),
-                    padding: const EdgeInsets.all(20),
-                  ),
                 )
               ],
             ),
@@ -200,7 +139,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           return Text(
                             snapshot.data.userName ?? "",
                             style: TextStyle(
-                                color: ExtraTheme.of(context).boxDetails,
+                                color: ExtraTheme.of(context).textField,
                                 fontSize: 13),
                           );
                         } else {
@@ -229,7 +168,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         return Text(
                           snapshot.data.phoneNumber,
                           style: TextStyle(
-                              color: ExtraTheme.of(context).boxDetails, fontSize: 13),
+                              color: ExtraTheme.of(context).textField, fontSize: 13),
                         );
                       } else {
                         return SizedBox.shrink();
@@ -291,7 +230,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: DropdownButton(
                     hint: Text(
                       (_uxService.locale as Locale).language().name,
-                      style: TextStyle(color: ExtraTheme.of(context).boxDetails),
+                      style: TextStyle(color: ExtraTheme.of(context).textField),
                     ),
                     onChanged: (Language language) {
                       _changeLanguage(language);
@@ -310,6 +249,68 @@ class _SettingsPageState extends State<SettingsPage> {
                                   ),
                                 ))
                         .toList())),
+            Divider(),
+            settingsRow(context,
+                iconData: Icons.exit_to_app,
+                title: appLocalization.getTraslateValue("Log_out"),
+                child: Row(
+                  children: <Widget>[
+                    IconButton(
+                        icon: Icon(Icons.exit_to_app),
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
+                                  actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
+                                  backgroundColor: Colors.white,
+                                  title: Container(
+                                    height: 50,
+                                    color: Colors.blue,
+                                    child: Icon(
+                                      Icons.exit_to_app,
+                                      color: Colors.white,
+                                      size: 40,
+                                    ),
+                                  ),
+                                  content: Container(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                            appLocalization.getTraslateValue("sure_exit_app"),
+                                            style: TextStyle(color: Colors.black, fontSize: 18)),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: <Widget>[
+                                    GestureDetector(
+                                      child: Text(
+                                        appLocalization.getTraslateValue("cancel"),
+                                        style: TextStyle(fontSize: 16, color: Colors.blue),
+                                      ),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    SizedBox(width: 15,),
+
+                                    GestureDetector(
+                                      child: Text(
+                                        appLocalization.getTraslateValue("Log_out"),
+                                        style: TextStyle(fontSize: 16, color: Colors.red),
+                                      ),
+                                      onTap: () {
+                                        _routingService.logout(context);
+                                      },
+                                    )
+                                  ],
+                                );
+                              });
+                        }),
+                  ],
+                )),
           ]),
         ));
   }
@@ -330,13 +331,13 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 SizedBox(width: 8),
                 Icon(
-                  iconData,color: ExtraTheme.of(context).activeSwitch,
+                  iconData,color: Colors.blue,
                   size: 18,
                 ),
                 SizedBox(width: 8),
                 Text(
                   title,
-                  style: TextStyle(color: ExtraTheme.of(context).boxDetails),
+                  style: TextStyle(color: ExtraTheme.of(context).textField),
                 ),
               ],
             ),

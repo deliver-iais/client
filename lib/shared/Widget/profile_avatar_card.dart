@@ -6,6 +6,7 @@ import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -79,7 +80,7 @@ class ProfileAvatarCard extends StatelessWidget {
                   if (snapshot.data != null) {
                     return Text(
                       "${snapshot.data.firstName }${snapshot.data.lastName ?? ""}",
-                      style: Theme.of(context).primaryTextTheme.headline5,
+                      style: TextStyle(fontSize: 25,color: ExtraTheme.of(context).textField),
                     );
                   } else {
                     return SizedBox.shrink();
@@ -92,7 +93,7 @@ class ProfileAvatarCard extends StatelessWidget {
               )
             ],
           ),
-          color: Theme.of(context).accentColor.withAlpha(50),
+          color: ExtraTheme.of(context).profileAvatarCard,
         ));
   }
 }

@@ -2,6 +2,7 @@ import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
@@ -49,7 +50,7 @@ void main() {
       res.messages.add(MessageProto.Message()..id = Int64(0));
       res.messages.add(MessageProto.Message()..id = Int64(1));
       res.messages.add(MessageProto.Message()..id = Int64(2));
-      print(res.messages);
+      debug(res.messages);
       when(mockQueryServiceClient.fetchMessages(any,
               options: anyNamed('options')))
           .thenAnswer((_) => MockResponseFuture<FetchMessagesRes>(res));

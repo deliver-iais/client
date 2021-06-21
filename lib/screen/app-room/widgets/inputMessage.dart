@@ -230,9 +230,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                     scrollTolast(1);
                                   },
                                   minLines: 1,
-                                  style: TextStyle(fontSize: 19, height: 1),
+                                  style: TextStyle(fontSize: 19, height: 1,color: ExtraTheme.of(context).textField),
                                   maxLines: 15,
-                                  autofocus: widget.replyMessageId > 1,
+                                  autofocus: widget.replyMessageId > 1 || isDesktop(),
                                   textInputAction: isDesktop()
                                       ? TextInputAction.send
                                       : TextInputAction.newline,
@@ -334,7 +334,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       return IconButton(
                                         icon: Icon(
                                           Icons.send,
-                                            color: ExtraTheme.of(context).textField,
+                                            color: Colors.blue,
                                         ),
                                         onPressed: controller.text?.isEmpty &&
                                                 (widget.waitingForForward ==
@@ -568,6 +568,7 @@ class _InputMessageWidget extends State<InputMessage> {
       allowsMultipleSelection: true,
     );
     if (result.paths != null) {
+      print(result.paths[0]);
       messageRepo.sendFileMessageDeprecated(
           currentRoom.roomId.uid, result.paths);
     }

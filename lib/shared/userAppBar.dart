@@ -29,16 +29,18 @@ class UserAppbar extends StatelessWidget {
         child: GestureDetector(
           child: Row(
             children: [
-              CircleAvatarWidget(userUid, 23),
+              CircleAvatarWidget(
+                userUid,
+                23,
+                showSavedMessageLogoIfNeeded: true,
+              ),
               SizedBox(
                 width: 15,
               ),
-              userUid
-                      .toString()
-                      .contains(_accountRepo.currentUserUid.toString())
+              _accountRepo.isCurrentUser(userUid.asString())
                   ? Text(
                       i18n.getTraslateValue("saved_message"),
-                      style: TextStyle(fontSize: 14),
+                      style: Theme.of(context).textTheme.headline3,
                     )
                   : FutureBuilder<String>(
                       future: _roomRepo.getRoomDisplayName(userUid),
@@ -46,15 +48,15 @@ class UserAppbar extends StatelessWidget {
                           AsyncSnapshot<String> snapshot) {
                         if (snapshot.data != null) {
                           return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 snapshot.data,
-                                style: TextStyle(fontSize: 20),
+                                style: Theme.of(context).textTheme.headline2,
                               ),
                               TitleStatus(
-                                currentRoomUid:userUid ,
-                                  // normalConditionWidget: Text("last seen",style: TextStyle(fontSize: 12),) //todo last seen,
-                                  )
+                                currentRoomUid: userUid,
+                              )
                             ],
                           );
                         } else {
@@ -65,9 +67,7 @@ class UserAppbar extends StatelessWidget {
             ],
           ),
           onTap: () {
-            userUid.toString().contains(_accountRepo.currentUserUid.toString())
-                ? _routingService.openSettings()
-                : _routingService.openProfile(userUid.asString());
+            _routingService.openProfile(userUid.asString());
           },
         ));
   }

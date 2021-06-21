@@ -4,6 +4,7 @@ import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -46,7 +47,7 @@ class BotRepo{
     searchInBots.add(uid);
    }
 
-   print(searchInBots.toString());
+   debug(searchInBots.toString());
    // for(var bot in result.bot){
    //  searchInBots.add(bot.bot);
    // }

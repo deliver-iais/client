@@ -1,10 +1,15 @@
 
 
+import 'dart:io';
+
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
+import 'package:desktop_notifications/desktop_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -38,32 +43,46 @@ class NotificationServices {
     try {
     await flutterLocalNotificationsPlugin.cancel(notificationId);
     } catch (e) {
-      print(e.toString());
+      debug(e.toString());
     }
   }
 
   cancelAllNotification() async {
     try{await flutterLocalNotificationsPlugin.cancelAll();
     }catch(e){
-      print(e.toString());
+      debug(e.toString());
     }
   }
 
   showTextNotification(int notificationId, String roomId, String roomName,
       String messageBody) async {
-    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-        'channel_id', 'channel_name', 'channel_description',
-        importance: Importance.max, priority: Priority.high);
-    var iOSPlatformChannelSpecifics = IOSNotificationDetails();
-    var platformChannelSpecifics = NotificationDetails(
-       android: androidPlatformChannelSpecifics,iOS: iOSPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(
-      notificationId,
-      roomName,
-      messageBody,
-      platformChannelSpecifics,
-      payload: 'Default_Sound',
-    );
+    if(isLinux()){
+        try{
+         // var res = await rootBundle.load('@assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher');
+         // print(res.getUint8(byteOffset));
+          var client = NotificationsClient();
+          await client.notify('Deliver',body:"$roomName \n  $messageBody",appIcon: "mail-send");
+          SystemSound.play(SystemSoundType.alert);
+
+        }catch(e){
+          print(e.toString());
+        }
+    }else {
+      var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+          'channel_id', 'channel_name', 'channel_description',
+          importance: Importance.max, priority: Priority.high);
+      var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+      var platformChannelSpecifics = NotificationDetails(
+          android: androidPlatformChannelSpecifics,
+          iOS: iOSPlatformChannelSpecifics);
+      await flutterLocalNotificationsPlugin.show(
+        notificationId,
+        roomName,
+        messageBody,
+        platformChannelSpecifics,
+        payload: 'Default_Sound',
+      );
+    }
   }
 
   showImageNotification(int notificationId, String roomId, String roomName,
@@ -90,6 +109,7 @@ class NotificationServices {
 
   void showNotification(
       pro.Message message, String roomUid, String roomName) async {
+
     try {
       if (_notificationMessage[roomUid] == null) {
         _notificationMessage[roomUid] = List();

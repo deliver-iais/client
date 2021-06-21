@@ -98,6 +98,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                       labelText: appLocalization
                           .getTraslateValue("search_by_country_name"),
                     ),
+                    style: TextStyle(color: ExtraTheme.of(context).textField),
                     onChanged: (value) {
                       setState(() {
                         filteredCountries = countries
@@ -118,15 +119,15 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                           ListTile(
                             leading: Text(
                               filteredCountries[index]['flag'],
-                              style: TextStyle(fontSize: 30),
+                              style: TextStyle(fontSize: 30,color: ExtraTheme.of(context).textField),
                             ),
                             title: Text(
                               filteredCountries[index]['code'],
-                              style: TextStyle(fontWeight: FontWeight.w700),
+                              style: TextStyle(fontWeight: FontWeight.w700,color: ExtraTheme.of(context).textField),
                             ),
                             trailing: Text(
                               filteredCountries[index]['dial_code'],
-                              style: TextStyle(fontWeight: FontWeight.w700),
+                              style: TextStyle(fontWeight: FontWeight.w700,color: ExtraTheme.of(context).textField),
                             ),
                             onTap: () {
                               _selectedCountry = filteredCountries[index];
@@ -163,6 +164,7 @@ AppLocalization appLocalization;
             readOnly: widget.readOnly,
             obscureText: widget.obscureText,
             textAlign: widget.textAlign,
+
             onTap: () {
               if (widget.onTap != null) widget.onTap();
             },
@@ -205,7 +207,7 @@ AppLocalization appLocalization;
                 ),
               ),
             ),
-            style: widget.style,
+            style: TextStyle(color: ExtraTheme.of(context).textField),
             onSaved: (value) {
               if (widget.onSaved != null)
                 widget.onSaved(
@@ -229,8 +231,8 @@ AppLocalization appLocalization;
             validator: validator,
             keyboardType: widget.keyboardType,
             inputFormatters: widget.inputFormatters,
-            maxLength: widget.maxLength,
             enabled: widget.enabled,
+            maxLength: widget.maxLength,
             autofocus: true,
             keyboardAppearance: widget.keyboardAppearance,
           ),

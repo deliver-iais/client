@@ -6,6 +6,7 @@ import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
@@ -41,7 +42,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   @override
   void initState() {
     super.initState();
-   _accountRepo.usernameIsSet();
+   _accountRepo.getProfile();
     subject.stream
         .debounceTime(Duration(milliseconds: 250))
         .listen((username) async {
@@ -108,6 +109,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 key: _usernameFormKey,
                                 child: TextFormField(
                                     minLines: 1,
+                                    style: TextStyle(color: ExtraTheme.of(context).textField),
                                     initialValue: snapshot.data.userName,
                                     textInputAction: TextInputAction.send,
                                     onChanged: (str) {
@@ -162,6 +164,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                               TextFormField(
                                 initialValue: snapshot.data.firstName ?? "",
                                 minLines: 1,
+                                style: TextStyle(color: ExtraTheme.of(context).textField),
                                 textInputAction: TextInputAction.send,
                                 onChanged: (str) {
                                   setState(() {
@@ -180,6 +183,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                               TextFormField(
                                   initialValue: snapshot.data.lastName ?? "",
                                   minLines: 1,
+                                  style: TextStyle(color: ExtraTheme.of(context).textField),
                                   textInputAction: TextInputAction.send,
                                   onChanged: (str) {
                                     setState(() {
@@ -196,6 +200,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                               TextFormField(
                                   initialValue: snapshot.data.email ?? "",
                                   minLines: 1,
+                                  style: TextStyle(color: ExtraTheme.of(context).textField),
                                   textInputAction: TextInputAction.send,
                                   onChanged: (str) {
                                     setState(() {

@@ -58,31 +58,6 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
                         Icons.notifications_active,
                         size: 30,
                       ),
-                      kDebugMode
-                          ? IconButton(
-                              icon: Icon(Icons.add),
-                              onPressed: () {
-                                //MemberType memberType = MemberType.MEMBER;
-                                DateTime lastSeenTime = DateTime.now();
-                                _memberRepo.insertMemberInfo(
-                                    "1:e61b9fe7-c618-4b6b-ab7f-6891374ee799",
-                                    mucUid.asString(),
-                                    lastSeenTime,
-                                    MucRole.MEMBER);
-                                _memberRepo.insertMemberInfo(
-                                    "1:e61b9fg7-c618-4b6b-ab7f-6891374ee799",
-                                    mucUid.asString(),
-                                    lastSeenTime,
-                                    MucRole.OWNER);
-                                _memberRepo.insertMemberInfo(
-                                    "1:e61b9fk7-c618-4b6b-ab7f-6891374ee799",
-                                    mucUid.asString(),
-                                    lastSeenTime,
-                                    MucRole.ADMIN);
-                              },
-                            )
-                          : SizedBox.shrink(),
-                      SizedBox(width: 10),
                       Text(
                         appLocalization.getTraslateValue("notification"),
                       ),
@@ -140,7 +115,7 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
             children: [
               IconButton(
                 icon: Icon(Icons.person_add),
-                disabledColor: Colors.white,
+                disabledColor: Colors.blue,
                 onPressed: null,
               ),
               SizedBox(
@@ -148,7 +123,7 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
               ),
               Text(
                 appLocalization.getTraslateValue("AddMember"),
-                style: TextStyle(color: Colors.white,fontSize: 17),
+                style: TextStyle(color: ExtraTheme.of(context).textField,fontSize: 17),
               ),
             ],
           ),

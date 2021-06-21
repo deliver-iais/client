@@ -16,6 +16,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -23,8 +24,10 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+
+
 
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -113,6 +116,7 @@ class CoreServices {
   }
 
   void gotResponse() {
+
     _connectionStatus.add(ConnectionStatus.Connected);
     backoffTime = MIN_BACKOFF_TIME;
     responseChecked = true;
@@ -127,7 +131,7 @@ class CoreServices {
             metadata: {'access_token': await _accountRepo.getAccessToken()},
           ));
       _responseStream.listen((serverPacket) async {
-        print(serverPacket.toString());
+        debug(serverPacket.toString());
         gotResponse();
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:
@@ -155,11 +159,12 @@ class CoreServices {
         }
       });
     } catch (e) {
-      print("correservice error");
+      debug("correservice error");
     }
   }
 
-  sendMessage(MessageByClient message) {
+  sendMessage(MessageByClient message) async {
+
     if (_clientPacket != null && !_clientPacket.isClosed) {
       _clientPacket.add(ClientPacket()
         ..message = message
@@ -288,10 +293,10 @@ class CoreServices {
       }
     }
 
-    if (!message.from.isSameEntity(_accountRepo.currentUserUid.asString()) &&
+    if (!_accountRepo.isCurrentUser(message.from.asString()) && (
             (await _accountRepo.notification) == null ||
         (await _accountRepo.notification).contains("true") &&
-            (room != null && !room.mute)) {
+            (room != null && !room.mute))) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)
@@ -376,7 +381,7 @@ saveMessageInMessagesDB(
         encrypted: message.encrypted,
         type: getMessageType(message.whichType()));
   } catch (e) {
-    print(e.toString());
+    debug(e.toString());
     return msg;
   }
 
