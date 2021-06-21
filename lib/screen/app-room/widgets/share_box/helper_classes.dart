@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:deliver_flutter/services/check_permissions_service.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:flutter_file_manager/flutter_file_manager.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider_ex/path_provider_ex.dart';
@@ -11,7 +10,6 @@ import 'package:storage_path/storage_path.dart';
 class StorageFile {
   final List files;
   final String folderName;
-
 
   StorageFile({this.files, this.folderName});
 
@@ -39,26 +37,25 @@ class FileItem extends FileBasic {
 
   FileItem({String path, this.title}) : super(path);
 
-   Future<List<File>> getFiles() async {
+  Future<List<File>> getFiles() async {
     var _checkPermission = GetIt.I.get<CheckPermissionsService>();
-    if(await _checkPermission.checkStoragePermission()){
+    if (await _checkPermission.checkStoragePermission()) {
       List<StorageInfo> storageInfo = await PathProviderEx.getStorageInfo();
       List<File> files = List();
       for (var s in storageInfo) {
-        try{
+        try {
           var root =
               s.rootDir; //storageInfo[1] for SD card, geting the root directory
           var fm = FileManager(root: Directory(root)); //
           List<File> f = await fm
               .filesTree(extensions: ["pdf", "mp4", "pptx", "docx", "xlsx"]);
           files.addAll(f);
-        }catch(e){
-          debug(e.toString());
+        } catch (e) {
+          print(e.toString());
         }
         return files;
       }
     }
-
   }
 }
 

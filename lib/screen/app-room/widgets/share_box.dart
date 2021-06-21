@@ -12,6 +12,7 @@ import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dar
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/music.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_chooser/file_chooser.dart';
 import 'package:file_picker/file_picker.dart';
@@ -274,14 +275,14 @@ class _ShareBoxState extends State<ShareBox> {
                                     messageRepo.sendFileMessage(
                                         widget.currentRoomId, path);
                                   }
-
                                 }
                               }, Icons.file_upload,
                                   appLocalization.getTraslateValue("file"), 40,
                                   context: context),
                               CircleButton(() async {
                                 if (await _checkPermissionsService
-                                    .checkLocationPermission()) {
+                                        .checkLocationPermission() ||
+                                    isIOS()) {
                                   if (!await _geolocator
                                       .isLocationServiceEnabled()) {
                                     final AndroidIntent intent =
@@ -313,7 +314,8 @@ class _ShareBoxState extends State<ShareBox> {
                                 FilePickerResult result =
                                     await FilePicker.platform.pickFiles(
                                         allowMultiple: true,
-                                        type: FileType.custom,allowedExtensions: ["mp3"]);
+                                        type: FileType.custom,
+                                        allowedExtensions: ["mp3"]);
                                 if (result != null) {
                                   Navigator.pop(context);
                                   for (var path in result.paths) {
@@ -351,7 +353,13 @@ Widget CircleButton(Function onTap, IconData icon, String text, double size,
           color: Theme.of(context).primaryColor, // button color
           child: InkWell(
               splashColor: Colors.red, // inkwell color
-              child: SizedBox(width: size, height: size, child: Icon(icon, color: Colors.white,)),
+              child: SizedBox(
+                  width: size,
+                  height: size,
+                  child: Icon(
+                    icon,
+                    color: Colors.white,
+                  )),
               onTap: onTap),
         ),
       ),
