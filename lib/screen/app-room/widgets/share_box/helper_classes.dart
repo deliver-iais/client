@@ -11,7 +11,6 @@ class StorageFile {
   final List files;
   final String folderName;
 
-
   StorageFile({this.files, this.folderName});
 
   factory StorageFile.fromJson(Map<String, dynamic> json) {
@@ -38,26 +37,25 @@ class FileItem extends FileBasic {
 
   FileItem({String path, this.title}) : super(path);
 
-   Future<List<File>> getFiles() async {
+  Future<List<File>> getFiles() async {
     var _checkPermission = GetIt.I.get<CheckPermissionsService>();
-    if(await _checkPermission.checkStoragePermission()){
+    if (await _checkPermission.checkStoragePermission()) {
       List<StorageInfo> storageInfo = await PathProviderEx.getStorageInfo();
       List<File> files = List();
       for (var s in storageInfo) {
-        try{
+        try {
           var root =
               s.rootDir; //storageInfo[1] for SD card, geting the root directory
           var fm = FileManager(root: Directory(root)); //
           List<File> f = await fm
               .filesTree(extensions: ["pdf", "mp4", "pptx", "docx", "xlsx"]);
           files.addAll(f);
-        }catch(e){
+        } catch (e) {
           print(e.toString());
         }
         return files;
       }
     }
-
   }
 }
 
