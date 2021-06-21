@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 
 
@@ -19,8 +19,6 @@ import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:file_chooser/file_chooser.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/db/database.dart';
@@ -28,13 +26,10 @@ import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:image_size_getter/image_size_getter.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:random_string/random_string.dart';
 
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
-import 'package:ext_storage/ext_storage.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 
 class InputMessage extends StatefulWidget {
@@ -232,7 +227,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   minLines: 1,
                                   style: TextStyle(fontSize: 19, height: 1,color: ExtraTheme.of(context).textField),
                                   maxLines: 15,
-                                  autofocus: widget.replyMessageId > 1 || isDesktop(),
+                                  autofocus: widget.replyMessageId > 0 || isDesktop(),
                                   textInputAction: isDesktop()
                                       ? TextInputAction.send
                                       : TextInputAction.newline,
@@ -564,14 +559,10 @@ class _InputMessageWidget extends State<InputMessage> {
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;
 
   _attachFileInWindowsMode() async {
-    final result = await showOpenPanel(
-      allowsMultipleSelection: true,
-    );
-    if (result.paths != null) {
-      print(result.paths[0]);
-      messageRepo.sendFileMessageDeprecated(
-          currentRoom.roomId.uid, result.paths);
-    }
+    final typeGroup = XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
+    final result = await openFiles(acceptedTypeGroups: [typeGroup]);
+    messageRepo.sendFileMessageDeprecated(
+        currentRoom.roomId.uid, result.map((e) => e.path).toList());
   }
 
   void scrollTolast(int count) {

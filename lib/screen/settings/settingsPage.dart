@@ -16,7 +16,7 @@ import 'package:deliver_flutter/shared/language.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:file_chooser/file_chooser.dart';
+import 'package:file_selector/file_selector.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -57,15 +57,10 @@ class _SettingsPageState extends State<SettingsPage> {
   attachFile() async {
     String path;
     if (isDesktop()) {
-      final result = await showOpenPanel(
-          allowsMultipleSelection: false,
-          allowedFileTypes: [
-            FileTypeFilterGroup(
-                fileExtensions: ['png', 'jpg', 'jpeg', 'gif'], label: "image")
-          ]);
-      if (result.paths.isNotEmpty) {
-        path = result.paths.first;
-      }
+      final typeGroup = XTypeGroup(
+          label: 'images', extensions: ['png', 'jpg', 'jpeg', 'gif']);
+      final result = await openFile(acceptedTypeGroups: [typeGroup]);
+      path = result.path;
     } else {
       var result = await ImagePicker().getImage(source: ImageSource.gallery);
       path = result.path;
@@ -96,7 +91,6 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             leading: _routingService.backButtonLeading()),
-
         body: FluidContainerWidget(
           child: ListView(children: [
             ProfileAvatarCard(
@@ -168,7 +162,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         return Text(
                           snapshot.data.phoneNumber,
                           style: TextStyle(
-                              color: ExtraTheme.of(context).textField, fontSize: 13),
+                              color: ExtraTheme.of(context).textField,
+                              fontSize: 13),
                         );
                       } else {
                         return SizedBox.shrink();
@@ -262,8 +257,10 @@ class _SettingsPageState extends State<SettingsPage> {
                               context: context,
                               builder: (context) {
                                 return AlertDialog(
-                                  titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-                                  actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
+                                  titlePadding: EdgeInsets.only(
+                                      left: 0, right: 0, top: 0),
+                                  actionsPadding:
+                                      EdgeInsets.only(bottom: 10, right: 5),
                                   backgroundColor: Colors.white,
                                   title: Container(
                                     height: 50,
@@ -276,30 +273,39 @@ class _SettingsPageState extends State<SettingsPage> {
                                   ),
                                   content: Container(
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                            appLocalization.getTraslateValue("sure_exit_app"),
-                                            style: TextStyle(color: Colors.black, fontSize: 18)),
+                                            appLocalization.getTraslateValue(
+                                                "sure_exit_app"),
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 18)),
                                       ],
                                     ),
                                   ),
                                   actions: <Widget>[
                                     GestureDetector(
                                       child: Text(
-                                        appLocalization.getTraslateValue("cancel"),
-                                        style: TextStyle(fontSize: 16, color: Colors.blue),
+                                        appLocalization
+                                            .getTraslateValue("cancel"),
+                                        style: TextStyle(
+                                            fontSize: 16, color: Colors.blue),
                                       ),
                                       onTap: () {
                                         Navigator.pop(context);
                                       },
                                     ),
-                                    SizedBox(width: 15,),
-
+                                    SizedBox(
+                                      width: 15,
+                                    ),
                                     GestureDetector(
                                       child: Text(
-                                        appLocalization.getTraslateValue("Log_out"),
-                                        style: TextStyle(fontSize: 16, color: Colors.red),
+                                        appLocalization
+                                            .getTraslateValue("Log_out"),
+                                        style: TextStyle(
+                                            fontSize: 16, color: Colors.red),
                                       ),
                                       onTap: () {
                                         _routingService.logout(context);
@@ -331,7 +337,8 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 SizedBox(width: 8),
                 Icon(
-                  iconData,color: Colors.blue,
+                  iconData,
+                  color: Colors.blue,
                   size: 18,
                 ),
                 SizedBox(width: 8),
@@ -342,7 +349,6 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
             child
-
           ],
         ),
       ),

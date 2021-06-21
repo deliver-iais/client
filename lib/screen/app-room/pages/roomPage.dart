@@ -133,7 +133,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Message currentSearchResultMessage;
   Message _currentMessageForCheckTime = null;
   BehaviorSubject<bool> _hasPermissionInChannel = BehaviorSubject.seeded(true);
-  BehaviorSubject<int> unReadMessageScrollSubjet = BehaviorSubject.seeded(0);
+  BehaviorSubject<int> unReadMessageScrollSubject = BehaviorSubject.seeded(0);
 
   Color menuColor;
 
@@ -194,8 +194,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       if (opr == null) return;
       switch (opr) {
         case OperationOnMessage.REPLY:
-          _repliedMessage.add(message);
-          _waitingForForwardedMessage.add(false);
+          onReply(message);
           break;
         case OperationOnMessage.COPY:
           if (message.type == MessageType.TEXT)
@@ -251,6 +250,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     });
   }
 
+  void onReply(Message message) {
+    _repliedMessage.add(message);
+    _waitingForForwardedMessage.add(false);
+  }
+
   _getLastSeen() async {
     Seen seen = await _seenDao.getRoomLastSeenId(widget.roomId);
     if (seen != null) {
@@ -285,10 +289,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _itemCountSubject.distinct().listen((event) {
       if (event != 0) {
         if (_scrollToNewMessage) {
-          unReadMessageScrollSubjet.add(0);
+          unReadMessageScrollSubject.add(0);
           scrollToLast();
         } else {
-          unReadMessageScrollSubjet.add(unReadMessageScrollSubjet.value + 1);
+          unReadMessageScrollSubject.add(unReadMessageScrollSubject.value + 1);
         }
       }
     });
@@ -392,11 +396,19 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                               child: Stack(
                                 alignment: AlignmentDirectional.bottomStart,
                                 children: [
-                                  StreamBuilder<int>(stream: _showP.stream,builder: (c,s){
-                                    if(s.hasData && s.data>0)
-                                      return Center(child: CircularProgressIndicator(color: Colors.blue,),);
-                                    else return SizedBox.shrink();
-                                  },),
+                                  StreamBuilder<int>(
+                                    stream: _showP.stream,
+                                    builder: (c, s) {
+                                      if (s.hasData && s.data > 0)
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            color: Colors.blue,
+                                          ),
+                                        );
+                                      else
+                                        return SizedBox.shrink();
+                                    },
+                                  ),
                                   buildMessagesListView(_currentRoom.value,
                                       pendingMessages, _maxWidth),
                                   Column(
@@ -414,7 +426,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                             _scrollToNewMessage = false;
                                             return StreamBuilder<int>(
                                                 stream:
-                                                    unReadMessageScrollSubjet
+                                                    unReadMessageScrollSubject
                                                         .stream,
                                                 builder: (c, count) {
                                                   if (count.hasData &&
@@ -438,12 +450,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                   }
                                                 });
                                           } else {
-                                            unReadMessageScrollSubjet.add(0);
+                                            unReadMessageScrollSubject.add(0);
                                             _scrollToNewMessage = true;
                                             return SizedBox.shrink();
                                           }
                                         } else {
-                                          unReadMessageScrollSubjet.add(0);
+                                          unReadMessageScrollSubject.add(0);
                                           _scrollToNewMessage = true;
                                           return SizedBox.shrink();
                                         }
@@ -570,7 +582,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             onPressed: () {
               _scrollToMessage(
                   position: count > 0 ? _lastShowedMessageId : _itemCount);
-              unReadMessageScrollSubjet.add(0);
+              unReadMessageScrollSubject.add(0);
             }));
   }
 
@@ -613,7 +625,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             } else {
               return NewMessageInput(
                 currentRoomId: widget.roomId,
-                replyMessageId: -1,
+                replyMessageId: 0,
                 resetRoomPageDetails: _resetRoomPageDetails,
                 waitingForForward: _waitingForForwardedMessage.value,
                 sendForwardMessage: _sendForwardMessage,
@@ -847,21 +859,28 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
           return Column(
             children: <Widget>[
-              if (_upTimeMap.containsKey(messages[0].packetId))
-                ChatTime(currentMessageTime: _upTimeMap[messages[0].packetId]),
               if (currentRoom.lastMessageId != null &&
                   _lastShowedMessageId != -1 &&
                   _lastShowedMessageId == index &&
                   !(messages[0].from.isSameEntity(_accountRepo.currentUserUid)))
                 Container(
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                  color: Colors.white,
-                  child: Text(
-                    _appLocalization.getTraslateValue("UnreadMessages"),
-                    style: TextStyle(color: Theme.of(context).primaryColor),
+                  color: Theme.of(context).backgroundColor,
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.all(4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.keyboard_arrow_down,
+                          color: Theme.of(context).primaryColor),
+                      Text(
+                        _appLocalization.getTraslateValue("UnreadMessages"),
+                        style: TextStyle(color: Theme.of(context).primaryColor),
+                      ),
+                    ],
                   ),
                 ),
+              if (_upTimeMap.containsKey(messages[0].packetId))
+                ChatTime(currentMessageTime: _upTimeMap[messages[0].packetId]),
               messages[0].packetId == null
                   ? SizedBox.shrink()
                   : messages[0].type != MessageType.PERSISTENT_EVENT
@@ -984,29 +1003,38 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         key: Key("${message.packetId}"),
         child: messageWidget);
 
-
     return GestureDetector(
         onTap: () {
-          _selectMultiMessageSubject.stream.value
-              ? _addForwardMessage(message)
-              : _showCustomMenu(message);
+          if (_selectMultiMessageSubject.stream.value)
+            _addForwardMessage(message);
+          else if (!isDesktop()) _showCustomMenu(message);
         },
+        onSecondaryTap: !isDesktop()
+            ? null
+            : () {
+                if (!_selectMultiMessageSubject.stream.value)
+                  _showCustomMenu(message);
+              },
+        onDoubleTap: !isDesktop() ? null : () => onReply(message),
         onLongPress: () {
           _selectMultiMessageSubject.add(true);
           _addForwardMessage(message);
         },
         onTapDown: storePosition,
-        child: isDesktop()?messageWidget:widget.roomId.getUid().category != Categories.CHANNEL
-            ? dismissibleWidget
-            : StreamBuilder(
-                stream: _hasPermissionInChannel.stream,
-                builder: (c, hp) {
-                  if (hp.hasData && hp.data)
-                    return dismissibleWidget;
-                  else
-                    return messageWidget;
-                },
-              ));
+        onSecondaryTapDown: storePosition,
+        child: isDesktop()
+            ? messageWidget
+            : widget.roomId.getUid().category != Categories.CHANNEL
+                ? dismissibleWidget
+                : StreamBuilder(
+                    stream: _hasPermissionInChannel.stream,
+                    builder: (c, hp) {
+                      if (hp.hasData && hp.data)
+                        return dismissibleWidget;
+                      else
+                        return messageWidget;
+                    },
+                  ));
   }
 
   Widget selectMultiMessage({Message message}) {}
@@ -1154,7 +1182,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   scrollToLast() {
     _itemScrollController.scrollTo(
-        index: _itemCount - 1, duration: Duration(microseconds: 1));
+        index: _itemCount - 1, duration: Duration(microseconds: 1000));
   }
 
   onUsernameClick(String username) async {

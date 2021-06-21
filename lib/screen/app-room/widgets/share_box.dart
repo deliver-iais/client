@@ -8,24 +8,19 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/file.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/music.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:file_chooser/file_chooser.dart';
 import 'package:file_picker/file_picker.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_file_manager/flutter_file_manager.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:path_provider_ex/path_provider_ex.dart';
-import 'package:storage_path/storage_path.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;

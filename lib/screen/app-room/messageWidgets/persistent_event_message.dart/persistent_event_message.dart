@@ -48,7 +48,7 @@ class PersistentEventMessage extends StatelessWidget {
           if (s.hasData) {
             return Directionality(
                 textDirection:
-                    _uxService.Persian ? TextDirection.rtl : TextDirection.ltr,
+                    _uxService.isPersian ? TextDirection.rtl : TextDirection.ltr,
                 child: Text(
                   s.data,
                   style: TextStyle(

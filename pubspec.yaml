@@ -75,13 +75,13 @@ dependencies:
     git:
       url: git://github.com/google/flutter-desktop-embedding.git
       path: plugins/window_size
-      ref: 0efb6b14a802a01b5432b2a2ee97c7f4821f2ab2
+      ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
 
-  file_chooser:
-    git:
-      url: git://github.com/google/flutter-desktop-embedding.git
-      path: plugins/file_chooser
-      ref: 0efb6b14a802a01b5432b2a2ee97c7f4821f2ab2
+  file_selector: 0.8.2
+  file_selector_macos: 0.0.4
+  file_selector_linux: 0.0.2
+  file_selector_windows: 0.0.2
+
   dio: 4.0.0 # HTTP Invoker Library
   mime_type: 0.3.2 # Get mime type of file path
   jwt_decoder: 1.0.1
@@ -103,10 +103,10 @@ dependencies:
   sqflite_common_ffi: 2.0.0+1
 
   audioplayer: 0.8.1
-
+  audioplayers: 0.19.0
 
   video_player: 1.0.1
-  open_file: 3.2.1
+  open_file: 3.2.1 # Open file in OS
 
   contacts_service: 0.6.1
   random_string: 2.1.0
@@ -149,14 +149,6 @@ dependencies:
   flutter_parsed_text: 1.2.5
 
   device_info: 2.0.2
-
-
-
-  path_provider_fde:
-    git:
-      url: git://github.com/google/flutter-desktop-embedding.git
-      path: plugins/flutter_plugins/path_provider_fde
-      ref: 66e4b05
 
 dev_dependencies:
   flutter_test:

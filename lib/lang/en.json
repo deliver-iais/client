@@ -185,5 +185,6 @@
   "sure_left_channel": "Left Channel ?",
   "Desc":"Description",
   "bot": "bot",
-  "share": "Share"
+  "share": "Share",
+  "loading": "Loading..."
 }

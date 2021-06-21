@@ -29,20 +29,23 @@ class ChatsPage extends StatelessWidget {
                   itemCount: roomsWithMessages.length,
                   itemBuilder: (BuildContext ctx, int index) {
                     if (roomsWithMessages[index].lastMessage != null) {
-                      return GestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        child: ChatItem(
-                          key: ValueKey(
-                              "chatItem/${roomsWithMessages[index].room.roomId}"),
-                          roomWithMessage: roomsWithMessages[index],
-                          isSelected: routingService
-                              .isInRoom(roomsWithMessages[index].room.roomId),
+                      return MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          child: ChatItem(
+                            key: ValueKey(
+                                "chatItem/${roomsWithMessages[index].room.roomId}"),
+                            roomWithMessage: roomsWithMessages[index],
+                            isSelected: routingService
+                                .isInRoom(roomsWithMessages[index].room.roomId),
+                          ),
+                          onTap: () {
+                            routingService.openRoom(
+                              roomsWithMessages[index].room.roomId.toString(),
+                            );
+                          },
                         ),
-                        onTap: () {
-                          routingService.openRoom(
-                            roomsWithMessages[index].room.roomId.toString(),
-                          );
-                        },
                       );
                     }
                     return SizedBox.shrink();

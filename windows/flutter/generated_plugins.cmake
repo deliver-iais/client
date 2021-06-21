@@ -3,8 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  file_chooser
-  path_provider_fde
+  file_selector_windows
   url_launcher_windows
   window_size
 )

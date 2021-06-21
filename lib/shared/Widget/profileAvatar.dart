@@ -20,7 +20,7 @@ import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:file_chooser/file_chooser.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -89,14 +89,11 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 
   selectAvatar() async {
     if (isDesktop()) {
-      final imagePath = await showOpenPanel(
-          allowsMultipleSelection: false,
-          allowedFileTypes: [
-            FileTypeFilterGroup(
-                fileExtensions: ['png', 'jpg', 'jpeg', 'gif'], label: "image")
-          ]);
-      if (imagePath.paths.isNotEmpty) {
-        _setAvatar(imagePath.paths.first);
+      final typeGroup = XTypeGroup(
+          label: 'images', extensions: ['png', 'jpg', 'jpeg', 'gif']);
+      final result = await openFile(acceptedTypeGroups: [typeGroup]);
+      if (result.path.isNotEmpty) {
+        _setAvatar(result.path);
       }
     } else {
       showModalBottomSheet(
@@ -194,8 +191,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       child: showProgressBar
           ? CircleAvatar(
               radius: 100,
-              backgroundImage:
-                  Image.file(File(_uploadAvatarPath)).image,
+              backgroundImage: Image.file(File(_uploadAvatarPath)).image,
               child: Center(
                 child: SizedBox(
                     height: 70.0,
@@ -214,8 +210,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                 showSavedMessageLogoIfNeeded: true,
               ),
               onTap: () async {
-                var lastAvatar = await avatarRepo.getLastAvatar(
-                    widget.roomUid, false);
+                var lastAvatar =
+                    await avatarRepo.getLastAvatar(widget.roomUid, false);
                 if (lastAvatar.createdOn != null) {
                   _routingServices.openShowAllAvatars(
                       uid: widget.roomUid,

@@ -11,7 +11,6 @@ import 'package:deliver_flutter/db/database.dart' as Database;
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -164,7 +163,6 @@ class CoreServices {
   }
 
   sendMessage(MessageByClient message) async {
-
     if (_clientPacket != null && !_clientPacket.isClosed) {
       _clientPacket.add(ClientPacket()
         ..message = message
@@ -196,7 +194,7 @@ class CoreServices {
   }
 
   sendActivityMessage(ActivityByClient activity, String id) {
-    if (!_clientPacket.isClosed)
+    if (!_clientPacket.isClosed && !_accountRepo.isCurrentUser(activity.to.asString()))
       _clientPacket.add(ClientPacket()
         ..activity = activity
         ..id = id);

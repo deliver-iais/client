@@ -7,6 +7,8 @@ import 'package:deliver_flutter/services/audioPlayerAppBar.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/title_status.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -56,6 +58,14 @@ class UserAppbar extends StatelessWidget {
                               ),
                               TitleStatus(
                                 currentRoomUid: userUid,
+                                normalConditionWidget:
+                                    userUid.category == Categories.SYSTEM
+                                        ? Text("Notification Service",
+                                            style: TextStyle(
+                                                fontSize: 11,
+                                                color: ExtraTheme.of(context)
+                                                    .textDetails))
+                                        : const SizedBox.shrink(),
                               )
                             ],
                           );

@@ -119,17 +119,20 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 SizedBox(
                   width: 20,
                 ),
-                GestureDetector(
-                  child: Container(
-                    child: Center(
-                      child: CircleAvatarWidget(
-                        _accountRepo.currentUserUid,
-                        18,
-                        showAsStreamOfAvatar: true,
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    child: Container(
+                      child: Center(
+                        child: CircleAvatarWidget(
+                          _accountRepo.currentUserUid,
+                          18,
+                          showAsStreamOfAvatar: true,
+                        ),
                       ),
                     ),
+                    onTap: tapOnCurrentUserAvatar,
                   ),
-                  onTap: tapOnCurrentUserAvatar,
                 ),
               ],
             ),

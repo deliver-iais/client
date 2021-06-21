@@ -40,20 +40,29 @@ class MucAppbarTitle extends StatelessWidget {
                             snapshot.data.name,
                             style: Theme.of(context).textTheme.headline2,
                           ),
-                          DefaultTextStyle(
-                            style: TextStyle(fontSize: 11),
-                            child: TitleStatus(
-                              normalConditionWidget: Text(
-                                '${snapshot.data.members} ' +
-                                    appLocalization.getTraslateValue("members"), style: TextStyle(color: ExtraTheme.of(context).textDetails),
-                              ),
-                              currentRoomUid: mucUid.uid,
+                          TitleStatus(
+                            normalConditionWidget: Text(
+                              '${snapshot.data.members} ' +
+                                  appLocalization.getTraslateValue("members"),
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  color: ExtraTheme.of(context).textDetails),
                             ),
+                            currentRoomUid: mucUid.uid,
                           )
                         ],
                       );
                     else
-                      return Container();
+                      return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                AppLocalization.of(context)
+                                    .getTraslateValue("loading"),
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: ExtraTheme.of(context).textDetails))
+                          ]);
                   })
             ],
           ),

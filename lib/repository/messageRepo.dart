@@ -46,7 +46,6 @@ import 'package:mime_type/mime_type.dart';
 import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/foundation.dart';
-import 'mucRepo.dart';
 
 enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
@@ -394,11 +393,12 @@ class MessageRepo {
     );
   }
 
-  _sendMessageToServer(int dbId,{bool resend = false}) async {
+  _sendMessageToServer(int dbId, {bool resend = false}) async {
     var message = await _messageDao.getPendingMessage(dbId);
     var pendingMessage = await _pendingMessageDao.getByMessageDbId(dbId);
-    if (!resend && !_canPendingMessageResendAndDecreaseRemainingRetries(
-            pendingMessage, message) ||
+    if (!resend &&
+            !_canPendingMessageResendAndDecreaseRemainingRetries(
+                pendingMessage, message) ||
         pendingMessage.status != SendingStatus.PENDING) {
       return;
     }
@@ -417,7 +417,6 @@ class MessageRepo {
 
   bool _canPendingMessageResendAndDecreaseRemainingRetries(
       PendingMessage pendingMessage, Message message) {
-
     if (pendingMessage == null) {
       if (message != null) {
         _messageDao.deleteMessage(message);
@@ -428,13 +427,13 @@ class MessageRepo {
       _pendingMessageDao.deletePendingMessage(pendingMessage.messagePacketId);
       return false;
     }
-    if(pendingMessage.remainingRetries<3){
+    if (pendingMessage.remainingRetries < 3) {
       _messageDao.updateMessage(message.copyWith(sendingFailed: true));
       return false;
     }
     if (pendingMessage.remainingRetries > 0) {
       if (message.id == null) {
-        if(pendingMessage.remainingRetries<3){
+        if (pendingMessage.remainingRetries < 3) {
           _messageDao.updateMessage(message.copyWith(sendingFailed: true));
         }
         _pendingMessageDao.insertPendingMessage(pendingMessage.copyWith(
@@ -606,31 +605,35 @@ class MessageRepo {
       List<MessageProto.Message> messages) async {
     List<Message> msgList = [];
     for (MessageProto.Message message in messages) {
-     _pendingMessageDao.deletePendingMessage(message.packetId);
-      try{
-        if (message.whichType() == MessageProto.Message_Type.persistEvent){
-          switch(message.persistEvent.whichType()){
+      _pendingMessageDao.deletePendingMessage(message.packetId);
+      try {
+        if (message.whichType() == MessageProto.Message_Type.persistEvent) {
+          switch (message.persistEvent.whichType()) {
             case PersistentEvent_Type.mucSpecificPersistentEvent:
-              switch(message.persistEvent.mucSpecificPersistentEvent.issue){
-                case  MucSpecificPersistentEvent_Issue.DELETED:
-                  _roomDao.updateRoom(RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+              switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
+                case MucSpecificPersistentEvent_Issue.DELETED:
+                  _roomDao.updateRoom(RoomsCompanion(
+                      roomId: Value(message.from.asString()),
+                      deleted: Value(true)));
                   continue;
                   break;
                 case MucSpecificPersistentEvent_Issue.KICK_USER:
-                  if(message.persistEvent.mucSpecificPersistentEvent.assignee.isSameEntity(_accountRepo.currentUserUid.asString())){
-                    _roomDao.updateRoom(RoomsCompanion(roomId:Value( message.from.asString()),deleted: Value(true)));
+                  if (message.persistEvent.mucSpecificPersistentEvent.assignee
+                      .isSameEntity(_accountRepo.currentUserUid.asString())) {
+                    _roomDao.updateRoom(RoomsCompanion(
+                        roomId: Value(message.from.asString()),
+                        deleted: Value(true)));
                     continue;
                   }
                   break;
               }
               break;
           }
-
-        }else{
+        } else {
           debug(e.toString());
           // continue;
         }
-      }catch(e){
+      } catch (e) {
         debug(e.toString());
         // continue;
 
@@ -638,7 +641,6 @@ class MessageRepo {
 
       msgList.add(
           await saveMessageInMessagesDB(_accountRepo, _messageDao, message));
-
     }
     return msgList;
   }
@@ -748,11 +750,12 @@ class MessageRepo {
     await _sendMessageToServer(dbId);
   }
 
-  void ResendMessage(Message message) async{
-    await _sendMessageToServer(message.dbId,resend: true);
+  void ResendMessage(Message message) async {
+    await _sendMessageToServer(message.dbId, resend: true);
     _updateRoomLastMessage(message.roomId, message.dbId);
   }
-  void deletePendingMessage(Message message){
+
+  void deletePendingMessage(Message message) {
     _pendingMessageDao.deletePendingMessage(message.packetId);
   }
 }

@@ -8,12 +8,12 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class UxService {
-  Map tabIndexMap = new Map<String,int>();
+  Map tabIndexMap = new Map<String, int>();
   SharedPreferencesDao _sharedPrefs = GetIt.I.get<SharedPreferencesDao>();
 
-  BehaviorSubject<ThemeData> _theme = BehaviorSubject.seeded(DarkTheme);
-  BehaviorSubject<ExtraThemeData> _extraTheme = BehaviorSubject.seeded(
-      DarkExtraTheme);
+  BehaviorSubject<ThemeData> _theme = BehaviorSubject.seeded(LightTheme);
+  BehaviorSubject<ExtraThemeData> _extraTheme =
+      BehaviorSubject.seeded(LightExtraTheme);
 
   BehaviorSubject<Language> _language = BehaviorSubject.seeded(DefaultLanguage);
 
@@ -21,38 +21,30 @@ class UxService {
 
   // get extraThemeStream => _extraTheme.stream;
 
-  get  localeStream =>
-    _sharedPrefs.watch("lang").map((event) {
-      if (event != null) {
-        var code = event.value;
-        if (code.contains(Farsi.countryCode)) {
-           _language.add(Farsi);
+  get localeStream => _sharedPrefs.watch("lang").map((event) {
+        if (event != null) {
+          var code = event.value;
+          if (code.contains(Farsi.countryCode)) {
+            _language.add(Farsi);
+          } else if (code.contains(English.countryCode)) {
+            _language.add(English);
+          }
         }
-        else if (code.contains(English.countryCode)) {
-           _language.add(English);
+      });
+
+  get themeStream => _sharedPrefs.watch("theme").map((event) {
+        if (event != null) {
+          if (event.value.contains("Dark")) {
+            _theme.add(DarkTheme);
+            _extraTheme.add(DarkExtraTheme);
+          } else {
+            _theme.add(LightTheme);
+            _extraTheme.add(LightExtraTheme);
+          }
         }
-      }
-    });
+      });
 
-  get themeStream =>
-    _sharedPrefs.watch("theme").map((event) {
-      if (event != null) {
-        var theme = event.value;
-        if(event.value.contains("Dark")){
-          _theme.add(DarkTheme);
-          _extraTheme.add(DarkExtraTheme);
-        }else{
-          _theme.add(LightTheme);
-          _extraTheme.add(LightExtraTheme);
-        }
-      }
-    });
-
-  get Persian =>
-  _language.value.countryCode.contains(Farsi.countryCode);
-
-
-
+  get isPersian => _language.value.countryCode.contains(Farsi.countryCode);
 
   get theme => _theme.value;
 
@@ -78,12 +70,11 @@ class UxService {
     _language.add(language);
   }
 
-
- int getTabIndex(String fileId){
-   return tabIndexMap[fileId];
+  int getTabIndex(String fileId) {
+    return tabIndexMap[fileId];
   }
 
-  setTabIndex(String fileId,int index){
-    tabIndexMap[fileId]= index;
+  setTabIndex(String fileId, int index) {
+    tabIndexMap[fileId] = index;
   }
 }
