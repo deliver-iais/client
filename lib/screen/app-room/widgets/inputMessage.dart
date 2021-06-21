@@ -568,6 +568,7 @@ class _InputMessageWidget extends State<InputMessage> {
       allowsMultipleSelection: true,
     );
     if (result.paths != null) {
+      print(result.paths[0]);
       messageRepo.sendFileMessageDeprecated(
           currentRoom.roomId.uid, result.paths);
     }
