@@ -48,7 +48,7 @@ class FileItem extends FileBasic {
               s.rootDir; //storageInfo[1] for SD card, geting the root directory
           var fm = FileManager(root: Directory(root)); //
           List<File> f = await fm
-              .filesTree(extensions: ["pdf", "mp4", "pptx", "docx", "xlsx"]);
+              .filesTree(extensions: ["pdf", "mp4", "pptx", "docx", "xlsx", "rar"]);
           files.addAll(f);
         } catch (e) {
           print(e.toString());
