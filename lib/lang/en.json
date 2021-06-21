@@ -186,5 +186,6 @@
   "Desc":"Description",
   "bot": "bot",
   "share": "Share",
-  "loading": "Loading..."
+  "loading": "Loading...",
+  "version": "Version"
 }
