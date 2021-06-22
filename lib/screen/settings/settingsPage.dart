@@ -5,7 +5,6 @@ import 'package:deliver_flutter/models/account.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
-import 'package:deliver_flutter/services/firebase_services.dart';
 
 import 'package:deliver_flutter/services/routing_service.dart';
 
@@ -19,11 +18,16 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:file_selector/file_selector.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 
 class SettingsPage extends StatefulWidget {
+  bool isDeveloperMode = false;
+
   SettingsPage({Key key}) : super(key: key);
 
   @override
@@ -41,6 +45,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   bool _uploadNewAvatar = false;
   String _newAvatarPath;
+
+  int developerModeCounterCountDown = 10;
 
   bool _getTheme() {
     if (_uxService.theme == DarkTheme) {
@@ -317,6 +323,70 @@ class _SettingsPageState extends State<SettingsPage> {
                         }),
                   ],
                 )),
+            settingsRow(
+              context,
+              iconData: Icons.copyright_outlined,
+              title: appLocalization.getTraslateValue("version"),
+              child: Row(
+                children: <Widget>[
+                  if (widget.isDeveloperMode)
+                    FutureBuilder(
+                      future: SmsAutoFill().getAppSignature,
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          return GestureDetector(
+                            onTap: () => Clipboard.setData(ClipboardData(
+                                text: snapshot.data ?? "no hashcode - ")),
+                            child: Text(
+                              snapshot.data ?? "no hashcode - ",
+                              style: TextStyle(
+                                  color: ExtraTheme.of(context).textField,
+                                  fontSize: 13),
+                            ),
+                          );
+                        } else {
+                          return GestureDetector(
+                            onTap: () => Clipboard.setData(ClipboardData(
+                                text: snapshot.data ?? "no hashcode - ")),
+                            child: Text(
+                              "no hashcode - ",
+                              style: TextStyle(
+                                color: ExtraTheme.of(context).textField,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  GestureDetector(
+                    onTap: () {
+                      print(developerModeCounterCountDown);
+                      developerModeCounterCountDown--;
+                      if (developerModeCounterCountDown < 1) {
+                        setState(() {
+                          widget.isDeveloperMode = true;
+                        });
+                      }
+                    },
+                    child: FutureBuilder(
+                      future: PackageInfo.fromPlatform(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          return Text(
+                            snapshot.data.version ?? "",
+                            style: TextStyle(
+                                color: ExtraTheme.of(context).textField,
+                                fontSize: 13),
+                          );
+                        } else {
+                          return SizedBox.shrink();
+                        }
+                      },
+                    ),
+                  )
+                ],
+              ),
+            ),
           ]),
         ));
   }

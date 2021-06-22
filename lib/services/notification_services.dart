@@ -1,18 +1,11 @@
-
-
-
-
 import 'package:assets_audio_player/assets_audio_player.dart';
-
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:desktop_notifications/desktop_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
 
 class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
@@ -26,9 +19,12 @@ class NotificationServices {
         new AndroidInitializationSettings('@mipmap/ic_launcher');
     var iosNotificationSetting = new IOSInitializationSettings(
         onDidReceiveLocalNotification: onDidReceiveLocalNotification);
+    var macNotificationSetting = new MacOSInitializationSettings();
 
-    var initializationSettings = InitializationSettings(android:
-        androidNotificationSetting,iOS: iosNotificationSetting);
+    var initializationSettings = InitializationSettings(
+        android: androidNotificationSetting,
+        iOS: iosNotificationSetting,
+        macOS: macNotificationSetting);
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: (room) {
       if (room != null && room.isNotEmpty) {}
@@ -41,40 +37,44 @@ class NotificationServices {
 
   cancelNotification(notificationId) async {
     try {
-    await flutterLocalNotificationsPlugin.cancel(notificationId);
+      await flutterLocalNotificationsPlugin.cancel(notificationId);
     } catch (e) {
       debug(e.toString());
     }
   }
 
   cancelAllNotification() async {
-    try{await flutterLocalNotificationsPlugin.cancelAll();
-    }catch(e){
+    try {
+      await flutterLocalNotificationsPlugin.cancelAll();
+    } catch (e) {
       debug(e.toString());
     }
   }
 
   showTextNotification(int notificationId, String roomId, String roomName,
       String messageBody) async {
-    if(isLinux()){
-        try{
-         // var res = await rootBundle.load('@assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher');
-         // print(res.getUint8(byteOffset));
-          var client = NotificationsClient();
-          await client.notify('Deliver',body:"$roomName \n  $messageBody",appIcon: "mail-send");
-          SystemSound.play(SystemSoundType.alert);
-
-        }catch(e){
-          print(e.toString());
-        }
-    }else {
+    if (isLinux()) {
+      try {
+        // var res = await rootBundle.load('@assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher');
+        // print(res.getUint8(byteOffset));
+        var client = NotificationsClient();
+        await client.notify('Deliver',
+            body: "$roomName \n  $messageBody", appIcon: "mail-send");
+        SystemSound.play(SystemSoundType.alert);
+      } catch (e) {
+        print(e.toString());
+      }
+    } else {
       var androidPlatformChannelSpecifics = AndroidNotificationDetails(
           'channel_id', 'channel_name', 'channel_description',
           importance: Importance.max, priority: Priority.high);
       var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+      var macOSPlatformChannelSpecifics = MacOSNotificationDetails();
       var platformChannelSpecifics = NotificationDetails(
           android: androidPlatformChannelSpecifics,
-          iOS: iOSPlatformChannelSpecifics);
+          iOS: iOSPlatformChannelSpecifics,
+          macOS: macOSPlatformChannelSpecifics
+      );
       await flutterLocalNotificationsPlugin.show(
         notificationId,
         roomName,
@@ -99,8 +99,8 @@ class NotificationServices {
         'channel_ID', 'cs', 'desc',
         styleInformation: bigPictureStyleInformation);
     var iOSNotificationDetails = IOSNotificationDetails();
-    _notificationDetails =
-        NotificationDetails(android:androidNotificationDetails,iOS: iOSNotificationDetails);
+    _notificationDetails = NotificationDetails(
+        android: androidNotificationDetails, iOS: iOSNotificationDetails);
 
     await flutterLocalNotificationsPlugin.show(
         notificationId, roomName, imagePath, _notificationDetails,
@@ -109,7 +109,6 @@ class NotificationServices {
 
   void showNotification(
       pro.Message message, String roomUid, String roomName) async {
-
     try {
       if (_notificationMessage[roomUid] == null) {
         _notificationMessage[roomUid] = List();
@@ -169,8 +168,8 @@ class NotificationServices {
 
   void reset(String roomId) {
     if (_notificationMessage[roomId] != null)
-      _notificationMessage[roomId].forEach((element) async{
-       await  cancelNotification(element);
+      _notificationMessage[roomId].forEach((element) async {
+        await cancelNotification(element);
       });
   }
 
