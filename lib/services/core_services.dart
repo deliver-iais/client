@@ -15,6 +15,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
@@ -304,7 +305,7 @@ class CoreServices {
 
   Future showNotification(Uid roomUid, Message message) async {
     String roomName = await _roomRepo.getRoomDisplayName(roomUid);
-    if (_routingServices.isInRoom(roomUid.asString())) {
+    if (_routingServices.isInRoom(roomUid.asString()) && !isDesktop()) {
       _notificationServices.playSoundNotification();
     } else {
       _notificationServices.showNotification(
