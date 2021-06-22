@@ -14,6 +14,7 @@ import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/share_box/helper_classes.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/theme/constants.dart';
@@ -88,46 +89,48 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   selectAvatar() async {
-    if (isDesktop()) {
+    if (isDesktop() || (await ImageItem.getImages()) == null && (await ImageItem.getImages()) .length<1 ) {
       final typeGroup = XTypeGroup(
-          label: 'images', extensions: ['png', 'jpg', 'jpeg', 'gif']);
+          label: 'images', extensions: ['png', 'jpg', 'jpeg',]);
       final result = await openFile(acceptedTypeGroups: [typeGroup]);
       if (result.path.isNotEmpty) {
         _setAvatar(result.path);
       }
     } else {
-      showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          isDismissible: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) {
-            return DraggableScrollableSheet(
-              initialChildSize: 0.3,
-              minChildSize: 0.2,
-              maxChildSize: 1,
-              expand: false,
-              builder: (context, scrollController) {
-                return Container(
-                    color: Colors.white,
-                    child: Stack(children: <Widget>[
-                      Container(
-                        padding: const EdgeInsets.all(0),
-                        child: ShareBoxGallery(
-                          scrollController: scrollController,
-                          onClick: (File croppedFile) async {
-                            _setAvatar(croppedFile.path);
-                          },
-                          selectedImages: _selectedImages,
-                          selectGallery: false,
+
+        showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            isDismissible: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) {
+              return DraggableScrollableSheet(
+                initialChildSize: 0.3,
+                minChildSize: 0.2,
+                maxChildSize: 1,
+                expand: false,
+                builder: (context, scrollController) {
+                  return Container(
+                      color: Colors.white,
+                      child: Stack(children: <Widget>[
+                        Container(
+                          padding: const EdgeInsets.all(0),
+                          child: ShareBoxGallery(
+                            scrollController: scrollController,
+                            onClick: (File croppedFile) async {
+                              _setAvatar(croppedFile.path);
+                            },
+                            selectedImages: _selectedImages,
+                            selectGallery: false,
+                          ),
                         ),
-                      ),
-                    ]));
-              },
-            );
-          });
+                      ]));
+                },
+              );
+            });
+      }
     }
-  }
+
 
   _navigateHomePage() {
     _routingServices.reset();

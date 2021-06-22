@@ -11,6 +11,7 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/dow
 import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -515,7 +516,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             ? PopupMenuButton(
                 icon: Icon(
                   Icons.more_vert,
-                  color: Colors.white,
+                  color: ExtraTheme.of(context).textField,
                   size: 20,
                 ),
                 itemBuilder: (cc) => [
