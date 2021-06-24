@@ -27,8 +27,6 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:flutter/cupertino.dart';
 
-
-
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:moor/moor.dart';
@@ -116,7 +114,6 @@ class CoreServices {
   }
 
   void gotResponse() {
-
     _connectionStatus.add(ConnectionStatus.Connected);
     backoffTime = MIN_BACKOFF_TIME;
     responseChecked = true;
@@ -195,7 +192,8 @@ class CoreServices {
   }
 
   sendActivityMessage(ActivityByClient activity, String id) {
-    if (!_clientPacket.isClosed && !_accountRepo.isCurrentUser(activity.to.asString()))
+    if (!_clientPacket.isClosed &&
+        !_accountRepo.isCurrentUser(activity.to.asString()))
       _clientPacket.add(ClientPacket()
         ..activity = activity
         ..id = id);
@@ -220,12 +218,19 @@ class CoreServices {
         roomId = seen.to;
         break;
     }
-    _lastSeenDao.insertLastSeen(Database.LastSeen(roomId: roomId.asString(),messageId: seen.id.toInt()),);
-    _seenDao.insertSeen(Database.SeensCompanion.insert(
-        messageId: seen.id.toInt(),
-        user: seen.from.asString(),
-        roomId: roomId.asString()));
-    updateLastActivityTime(_userInfoDAo, seen.from, DateTime.now());
+    if (_accountRepo.isCurrentUser(seen.from.asString())) {
+      _lastSeenDao.insertLastSeen(
+        Database.LastSeen(
+            roomId: roomId.asString(), messageId: seen.id.toInt()),
+      );
+    }
+      _seenDao.insertSeen(Database.SeensCompanion.insert(
+          messageId: seen.id.toInt(),
+          user: seen.from.asString(),
+          roomId: roomId.asString()));
+      updateLastActivityTime(_userInfoDAo, seen.from, DateTime.now());
+
+
   }
 
   _saveActivityMessage(Activity activity) {
@@ -292,10 +297,10 @@ class CoreServices {
       }
     }
 
-    if (!_accountRepo.isCurrentUser(message.from.asString()) && (
-            (await _accountRepo.notification) == null ||
-        (await _accountRepo.notification).contains("true") &&
-            (room != null && !room.mute))) {
+    if (!_accountRepo.isCurrentUser(message.from.asString()) &&
+        ((await _accountRepo.notification) == null ||
+            (await _accountRepo.notification).contains("true") &&
+                (room != null && !room.mute))) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)

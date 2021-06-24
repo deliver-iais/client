@@ -187,7 +187,7 @@ class MyApp extends StatelessWidget {
           extraThemeData: uxService.extraTheme,
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'Flutter Demo',
+            title: 'Deliver',
             locale: uxService.locale,
             theme: uxService.theme,
             supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],

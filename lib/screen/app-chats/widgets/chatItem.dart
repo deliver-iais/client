@@ -1,4 +1,5 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/roomWithMessage.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/lastActivityRepo.dart';
@@ -60,7 +61,7 @@ class _ChatItemState extends State<ChatItem> {
             return Container(
               padding: const EdgeInsets.all(5),
               color: widget.isSelected ? Theme.of(context).focusColor : null,
-              height: 66,
+              height: widget.roomWithMessage.lastMessage.type == MessageType.PERSISTENT_EVENT?72:66,
               child: Row(
                 children: <Widget>[
                   Padding(

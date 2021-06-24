@@ -79,6 +79,7 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
     username: Colors.blue,
     titleStatus: Colors.blue,
     seenStatus: Colors.blue,
+    pinMessageTheme:Color(0xFFDCEDC8),
 
 
     profileAvatarCard:Color(0xFFEEEEEE),

@@ -82,10 +82,13 @@ class MucRepo {
   getGroupMembers(Uid groupUid, int len) async {
     try {
       int i = 0;
-      while (i <= len) {
+      int membersSize = 0;
+      bool finish = false;
+      while (i <= len || !finish) {
         var result = await mucServices.getGroupMembers(groupUid, 15, i);
         List<Member> members = new List();
-        for (MucPro.Member member in result) {
+        if (len == 0) membersSize = membersSize + result.members.length;
+        for (MucPro.Member member in result.members) {
           members.add(await fetchMemberNameAndUsername(Member(
               mucUid: groupUid.asString(),
               memberUid: member.uid.asString(),
@@ -93,8 +96,12 @@ class MucRepo {
         }
         insertUserInDb(groupUid, members);
         fetchMembersUserName(members);
+        finish = result.finished ==null? true:result.finished;
         i = i + 15;
       }
+      if (len == 0)
+        _mucDao.upsertMucCompanion(MucsCompanion(
+            uid: Value(groupUid.asString()), members: Value(membersSize)));
     } catch (e) {
       debug(e.toString());
     }
@@ -103,17 +110,25 @@ class MucRepo {
   getChannelMembers(Uid channelUid, int len) async {
     try {
       int i = 0;
-      while (i <= len) {
+      len =0;
+      int membersSize = 0;
+      bool finish = false;
+      while (i <= len || !finish) {
         var result = await mucServices.getChannelMembers(channelUid, 15, i);
         List<Member> members = new List();
-        for (MucPro.Member member in result) {
+        if (len == 0) membersSize = membersSize + result.members.length;
+        for (MucPro.Member member in result.members) {
           members.add(await fetchMemberNameAndUsername(Member(
               mucUid: channelUid.asString(),
               memberUid: member.uid.asString(),
               role: getLocalRole(member.role))));
         }
         insertUserInDb(channelUid, members);
+        finish = result.finished;
         i = i + 15;
+        if (len == 0)
+          _mucDao.upsertMucCompanion(MucsCompanion(
+              uid: Value(channelUid.asString()), members: Value(membersSize)));
       }
     } catch (e) {
       debug(e.toString());

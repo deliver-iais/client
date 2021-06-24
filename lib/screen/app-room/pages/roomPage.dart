@@ -46,6 +46,7 @@ import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -56,6 +57,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:share/share.dart';
+import 'package:sorted_list/sorted_list.dart';
 import 'package:vibration/vibration.dart';
 
 const int PAGE_SIZE = 40;
@@ -112,6 +114,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       BehaviorSubject.seeded(false);
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
+  var _pinMessages = SortedList<Message>((a, b) => a.id.compareTo(b.id));
+  BehaviorSubject<int> _lastPinedMessage = BehaviorSubject.seeded(0);
+
   BehaviorSubject<int> _itemCountSubject = BehaviorSubject.seeded(0);
 
   bool _scrollToNewMessage = true;
@@ -133,6 +138,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Message currentSearchResultMessage;
   Message _currentMessageForCheckTime = null;
   BehaviorSubject<bool> _hasPermissionInChannel = BehaviorSubject.seeded(true);
+  BehaviorSubject<bool> _hasPermissionInGroup = BehaviorSubject.seeded(false);
   BehaviorSubject<int> unReadMessageScrollSubject = BehaviorSubject.seeded(0);
 
   Color menuColor;
@@ -187,6 +193,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               OperationOnMessageEntry(
                 message,
                 hasPermissionInChannel: _hasPermissionInChannel.value,
+                hasPermissionInGroup: _hasPermissionInGroup.value,
+                isPined: _pinMessages.contains(message),
               )
             ],
             color: menuColor)
@@ -245,6 +253,25 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           break;
         case OperationOnMessage.DELETE_PENDING_MESSAGE:
           _messageRepo.deletePendingMessage(message);
+          break;
+        case OperationOnMessage.PIN_MESSAGE:
+          var isPin = await _messageRepo.pinMessage(message);
+          isPin = true;
+          if (isPin) {
+            _pinMessages.add(message);
+            _lastPinedMessage.add(_pinMessages.last.id);
+          } else {
+            Fluttertoast.showToast(
+                msg: _appLocalization.getTraslateValue("occurred_Error"));
+          }
+          break;
+        case OperationOnMessage.UN_PIN_MESSAGE:
+          var res = await _messageRepo.unPinMessage(message);
+          if (true) {
+            _pinMessages.remove(message);
+            _lastPinedMessage
+                .add(_pinMessages.length > 0 ? _pinMessages.last.id : 0);
+          }
           break;
       }
     });
@@ -331,12 +358,21 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     if (widget.roomId.getUid().category == Categories.CHANNEL) {
       checkRole();
     }
+    if (widget.roomId.getUid().category == Categories.GROUP) {
+      checkGroupRole();
+    }
   }
 
   Future checkRole() async {
     var res = await _memberRepo.isMucAdminOrOwner(
         _accountRepo.currentUserUid.asString(), widget.roomId);
     _hasPermissionInChannel.add(res);
+  }
+
+  Future checkGroupRole() async {
+    var res = await _memberRepo.isMucAdminOrOwner(
+        _accountRepo.currentUserUid.asString(), widget.roomId);
+    _hasPermissionInGroup.add(res);
   }
 
   fetchMucInfo(Uid uid) async {
@@ -414,6 +450,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
+                                      PinMessageWidget(),
                                       AudioPlayerAppBar(),
                                     ],
                                   ),
@@ -1195,5 +1232,105 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         _routingService.openRoom(roomId);
       }
     }
+  }
+
+  Widget PinMessageWidget() {
+    return StreamBuilder<int>(
+        stream: _lastPinedMessage.stream,
+        builder: (c, id) {
+          if (id.hasData && id.data > 0) {
+            var body = "";
+            Message mes;
+             _pinMessages.forEach((m) {
+               if(m.id == id.data){
+                 mes = m;
+               }
+             });
+            switch (mes.type) {
+              case MessageType.TEXT:
+                body = mes.json.toText().text;
+                break;
+              case MessageType.FILE:
+                body = "File";
+                break;
+              case MessageType.STICKER:
+                body = "Sticker";
+                break;
+              case MessageType.LOCATION:
+                body = "Location";
+                break;
+              case MessageType.LIVE_LOCATION:
+                body = "Live Location";
+                break;
+              case MessageType.POLL:
+                body = "Poll";
+                break;
+              case MessageType.FORM:
+                body = "Form";
+                break;
+              case MessageType.PERSISTENT_EVENT:
+                // TODO: Handle this case.
+                break;
+              case MessageType.NOT_SET:
+                // TODO: Handle this case.
+                break;
+              case MessageType.BUTTONS:
+                body = "From";
+                break;
+              case MessageType.SHARE_UID:
+                body = "contact";
+                break;
+              case MessageType.FORM_RESULT:
+                // TODO: Handle this case.
+                break;
+              case MessageType.sharePrivateDataRequest:
+                body = "Private Data";
+                break;
+              case MessageType.sharePrivateDataAcceptance:
+                // TODO: Handle this case.
+                break;
+            }
+            return GestureDetector(
+              onTap: () {
+                _itemScrollController.scrollTo(
+                    index: _lastPinedMessage.valueWrapper.value,
+                    duration: Duration(microseconds: 1));
+                setState(() {
+                  _replayMessageId = id.data;
+                });
+                if (_pinMessages.length > 1) {
+                  _lastPinedMessage
+                      .add(_pinMessages[_pinMessages.indexOf(mes) - 1].id);
+                }
+              },
+              child: Container(
+                color: ExtraTheme.of(context).pinMessageTheme,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          _appLocalization.getTraslateValue("pinned_message"),
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      height: 30,
+                        width: MediaQuery.of(context).size.width - 30,
+                        child: Text(
+                          body,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: ExtraTheme.of(context).textField,
+                          ),
+                        ))
+                  ],
+                ),
+              ),
+            );
+          } else
+            return SizedBox.shrink();
+        });
   }
 }

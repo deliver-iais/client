@@ -20,7 +20,7 @@ class LastActivityRepo {
     var userInfo = await _userInfoDao.getUserInfo(userUId.asString());
     if (userInfo != null &&
         userInfo.lastActivity != null &&
-        DateTime.now().second - userInfo.lastTimeActivityUpdated.second <
+        DateTime.now().millisecondsSinceEpoch - userInfo.lastTimeActivityUpdated.millisecondsSinceEpoch<
             10 * 60) {
       return;
     } else {
@@ -33,6 +33,7 @@ class LastActivityRepo {
         GetLastActivityReq()..uid = currentUserUid,
         options: CallOptions(
             metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    print("last activity : "+lastActivityTime.lastActivityTime.toString());
     if (lastActivityTime != null) {
       _userInfoDao.upsertUserInfo(UserInfo(
           uid: currentUserUid.asString(),

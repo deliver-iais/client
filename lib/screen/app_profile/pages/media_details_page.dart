@@ -220,7 +220,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           return buildMeidaCenter(
               context, i, snaps.data, fileId, widget.heroTag);
         } else {
-          return Center();
+          return Center(child: CircularProgressIndicator(color: Colors.blue,),);
         }
       },
     );
@@ -504,7 +504,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             stream: _swipePositionSubject.stream,
             builder: (c, position) {
               if (position.hasData && position.data != null)
-                return Text("${position.data + 1} of ${totalLength}");
+                return Text("${position.data + 1} of ${totalLength}",style: TextStyle(color: ExtraTheme.of(context).textField),);
               else {
                 return SizedBox.shrink();
               }

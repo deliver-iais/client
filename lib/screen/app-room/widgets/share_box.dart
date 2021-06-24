@@ -246,12 +246,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   FilePickerResult result =
                                   await FilePicker.platform.pickFiles(
                                       allowMultiple: true,
-                                      type: FileType.image,
-                                      allowedExtensions: [
-                                        'png',
-                                        'jpg',
-                                        'jpeg',
-                                      ]);
+                                      type: FileType.custom,);
                                   if (result != null) {
                                     Navigator.pop(context);
                                     for (var path in result.paths) {

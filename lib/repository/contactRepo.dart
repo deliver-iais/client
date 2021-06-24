@@ -45,6 +45,8 @@ class ContactRepo {
   Map<PhoneNumber, String> _contactsDisplayName = Map();
 
   syncContacts() async {
+    _getPhoneNumber("145446464644456  6");
+    await getContacts();
     if (await _checkPermission.checkContactPermission() ||
         isDesktop() ||
         isIOS()) {
@@ -59,22 +61,33 @@ class ContactRepo {
 
         for (OsContact.Contact phoneContact in phoneContacts) {
           try {
-            String contactPhoneNumber = phoneContact.phones.first.value
-                .toString()
-                .replaceAll(' ', '')
-                .replaceAll('+', '')
-                .replaceAll('(', '')
-                .replaceAll(')', '')
-                .replaceAll('-', '');
+            for (var p in phoneContact.phones){
+              String contactPhoneNumber = p.value
+                  .toString()
+                  .replaceAll(new RegExp(r"\s+\b|\b\s"), '')
+                  .replaceAll('+', '')
+                  .replaceAll('(', '')
+                  .replaceAll(')', '')
+                  .replaceAll('-', '');
 
-            PhoneNumber phoneNumber = _getPhoneNumber(contactPhoneNumber);
-            _contactsDisplayName[phoneNumber] = phoneContact.displayName;
-            Contact contact = Contact()
-              ..lastName = phoneContact.displayName
-              ..phoneNumber = phoneNumber;
-            contacts.add(contact);
+              PhoneNumber phoneNumber = _getPhoneNumber(contactPhoneNumber);
+              _contactsDisplayName[phoneNumber] = phoneContact.displayName;
+              Contact contact = Contact()
+                ..lastName = phoneContact.displayName
+                ..phoneNumber = phoneNumber;
+              contacts.add(contact);
+            }
+            debug("+++++++++++++++++++++++++++++++++++++");
+            debug(phoneContact.displayName);
+            phoneContact.phones.forEach((element) => debug(element));
+            debug(phoneContact.toString());
+
           } catch (e) {
-            debug("ContactRepo");
+            debug("______________________________");
+            debug(e.toString());
+            debug(phoneContact.displayName);
+            phoneContact.phones.forEach((element) => debug(element));
+            debug(phoneContact.toString());
           }
         }
       }
@@ -103,42 +116,48 @@ class ContactRepo {
   }
 
   Future sendContacts(List<Contact> contacts) async {
-    int i = 0;
-    while (i < contacts.length) {
-      _sendContacts(contacts.sublist(
-          i, contacts.length > i + 49 ? i + 49 : contacts.length));
+    try{
+      int i = 0;
+      while (i < contacts.length) {
+        _sendContacts(contacts.sublist(
+            i, contacts.length > i + 49 ? i + 49 : contacts.length));
 
-      await getContacts();
-      i = i + 50;
+        await getContacts();
+        i = i + 50;
+      }
+      getContacts();
+    }catch(e){
+      print(e.toString());
     }
-    getContacts();
+
   }
 
   Future addContact(Contact contact) async {
     _sendContacts([contact]);
-    getContacts();
+
   }
 
   _sendContacts(List<Contact> contacts) async {
-    var sendContacts = SaveContactsReq();
-    contacts.forEach((element) {
-      sendContacts.contactList.add(element);
-    });
-    await contactServices.saveContacts(sendContacts,
-        options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()}));
+    try{
+      var sendContacts = SaveContactsReq();
+      contacts.forEach((element) {
+        sendContacts.contactList.add(element);
+      });
+      await contactServices.saveContacts(sendContacts,
+          options: CallOptions(
+              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+    }catch(e){
+      print(e.toString());
+    }
+
   }
 
-  Future getContacts() async {
-    debug("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%R");
-
+  Future
+  getContacts() async {
     var result = await contactServices.getContactListUsers(
         GetContactListUsersReq(),
         options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
-
-    debug("SSSSSSSSS");
-    debug(result);
 
     for (var contact in result.userList) {
       _contactDao.insertContact(Database.ContactsCompanion(
@@ -183,8 +202,8 @@ class ContactRepo {
   }
 
   Future<List<Uid>> searchUser(String query) async {
-    var result = await _queryServiceClient.searchUidByIdOrName(
-        SearchUidByIdOrNameReq()..text = query,
+    var result = await _queryServiceClient.searchUid(
+        SearchUidReq()..text = query,
         options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
     List<Uid> searchResult = List();
