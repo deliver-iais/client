@@ -22,6 +22,7 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/f
 import 'package:deliver_flutter/screen/app-room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/reply_widgets/reply-widget.dart';
+import 'package:deliver_flutter/screen/app-room/pages/pinMessageAppBar.dart';
 import 'package:deliver_flutter/screen/app-room/pages/searchInMessageButtom.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/bot_start_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/chatTime.dart';
@@ -266,7 +267,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           }
           break;
         case OperationOnMessage.UN_PIN_MESSAGE:
-          var res = await _messageRepo.unPinMessage(message);
+      //    var res = await _messageRepo.unPinMessage(message);
           if (true) {
             _pinMessages.remove(message);
             _lastPinedMessage
@@ -1235,102 +1236,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Widget PinMessageWidget() {
-    return StreamBuilder<int>(
-        stream: _lastPinedMessage.stream,
-        builder: (c, id) {
-          if (id.hasData && id.data > 0) {
-            var body = "";
-            Message mes;
-             _pinMessages.forEach((m) {
-               if(m.id == id.data){
-                 mes = m;
-               }
-             });
-            switch (mes.type) {
-              case MessageType.TEXT:
-                body = mes.json.toText().text;
-                break;
-              case MessageType.FILE:
-                body = "File";
-                break;
-              case MessageType.STICKER:
-                body = "Sticker";
-                break;
-              case MessageType.LOCATION:
-                body = "Location";
-                break;
-              case MessageType.LIVE_LOCATION:
-                body = "Live Location";
-                break;
-              case MessageType.POLL:
-                body = "Poll";
-                break;
-              case MessageType.FORM:
-                body = "Form";
-                break;
-              case MessageType.PERSISTENT_EVENT:
-                // TODO: Handle this case.
-                break;
-              case MessageType.NOT_SET:
-                // TODO: Handle this case.
-                break;
-              case MessageType.BUTTONS:
-                body = "From";
-                break;
-              case MessageType.SHARE_UID:
-                body = "contact";
-                break;
-              case MessageType.FORM_RESULT:
-                // TODO: Handle this case.
-                break;
-              case MessageType.sharePrivateDataRequest:
-                body = "Private Data";
-                break;
-              case MessageType.sharePrivateDataAcceptance:
-                // TODO: Handle this case.
-                break;
-            }
-            return GestureDetector(
-              onTap: () {
-                _itemScrollController.scrollTo(
-                    index: _lastPinedMessage.valueWrapper.value,
-                    duration: Duration(microseconds: 1));
-                setState(() {
-                  _replayMessageId = id.data;
-                });
-                if (_pinMessages.length > 1) {
-                  _lastPinedMessage
-                      .add(_pinMessages[_pinMessages.indexOf(mes) - 1].id);
-                }
-              },
-              child: Container(
-                color: ExtraTheme.of(context).pinMessageTheme,
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          _appLocalization.getTraslateValue("pinned_message"),
-                          style: TextStyle(color: Colors.blue),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      height: 30,
-                        width: MediaQuery.of(context).size.width - 30,
-                        child: Text(
-                          body,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: ExtraTheme.of(context).textField,
-                          ),
-                        ))
-                  ],
-                ),
-              ),
-            );
-          } else
-            return SizedBox.shrink();
-        });
+    return PinMessageAppBar(lastPinedMessage: _lastPinedMessage,pinMessages: _pinMessages,onTap: (int id , Message mes){
+      _itemScrollController.scrollTo(
+          index: _lastPinedMessage.valueWrapper.value,
+          duration: Duration(microseconds: 1));
+      setState(() {
+        _replayMessageId = id;
+      });
+      if (_pinMessages.length > 1) {
+        _lastPinedMessage
+            .add(_pinMessages[_pinMessages.indexOf(mes) - 1].id);
+      }
+    },);
+
   }
 }

@@ -156,6 +156,8 @@ class CoreServices {
         }
       });
     } catch (e) {
+      startStream();
+      debug(e.toString());
       debug("correservice error");
     }
   }
