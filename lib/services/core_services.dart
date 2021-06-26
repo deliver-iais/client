@@ -280,9 +280,14 @@ class CoreServices {
               break;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:{
               var muc = await _mucDao.getMucByUid(roomUid.asString());
-              List pinMessages = json.decode(muc.pinMessagesId);
-              pinMessages.add(message.persistEvent.mucSpecificPersistentEvent.messageId.toInt());
-              _mucDao.upsertMucCompanion(Database.MucsCompanion.insert(uid: muc.uid, name: muc.name,pinMessagesId:Value( json.encode(pinMessages.toString()).toString())));
+              print(muc.toString());
+              List pinMessages = json.decode(muc.pinMessagesId.toString());
+              List<int> pm = List();
+              pinMessages.forEach((element) {
+                pm.add(element as int);
+              });
+              pm.add(message.persistEvent.mucSpecificPersistentEvent.messageId.toInt());
+              _mucDao.upsertMucCompanion(Database.MucsCompanion.insert(uid: muc.uid, name: muc.name,pinMessagesId:Value(json.encode(pm.toString()))));
               break;
             }
 

@@ -371,22 +371,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     }
   }
 
+
   Future<void> getPinMessages() async {
-    var res = await _mucRepo.getPinMessages(widget.roomId);
-    if (res != null) {
-      res.forEach((element) async {
-        var m = await _getMessage(element, widget.roomId);
-        _pinMessages.add(m);
-        _lastPinedMessage.add(_pinMessages.last.id);
-      });
-    }
-  }
-  Future<void> getPinMessagese() async {
  _mucDao.getMucByUidAsStream(widget.roomId).listen((muc) {
     if (muc != null) {
-      List <int> res = json.decode(muc.pinMessagesId);
+      List  res = json.decode(muc.pinMessagesId);
      res.forEach((element) async {
-       var m = await _getMessage(element, widget.roomId);
+       var m = await _getMessage(element as int, widget.roomId);
        _pinMessages.add(m);
        _lastPinedMessage.add(_pinMessages.last.id);
      });
