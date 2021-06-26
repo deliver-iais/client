@@ -22,6 +22,8 @@ import 'package:flutter_sound/flutter_sound.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 
+import 'share_box/helper_classes.dart';
+
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
   final int replyMessageId;
@@ -239,6 +241,20 @@ class _ShareBoxState extends State<ShareBox> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: <Widget>[
                               CircleButton(() async {
+                                var res = await ImageItem.getImages();
+                                if(res == null  || res.length<1){
+                                  FilePickerResult result =
+                                  await FilePicker.platform.pickFiles(
+                                      allowMultiple: true,
+                                      type: FileType.custom,);
+                                  if (result != null) {
+                                    Navigator.pop(context);
+                                    for (var path in result.paths) {
+                                      messageRepo.sendFileMessage(
+                                          widget.currentRoomId, path);
+                                    }
+                                  }
+                                }else
                                 setState(() {
                                   _audioPlayer.stopPlayer();
                                   currentPage = Page.Gallery;
@@ -262,7 +278,7 @@ class _ShareBoxState extends State<ShareBox> {
                                       'png',
                                       'jpg',
                                       'jpeg',
-                                      'gif'
+                                      'gif','rar'
                                     ]);
                                 if (result != null) {
                                   Navigator.pop(context);

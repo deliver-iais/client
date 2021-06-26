@@ -12,6 +12,7 @@ import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
+import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
@@ -64,6 +65,7 @@ class MessageRepo {
   var _fileRepo = GetIt.I.get<FileRepo>();
   var _seenDao = GetIt.I.get<SeenDao>();
   var _lastSeenDao = GetIt.I.get<LastSeenDao>();
+  var mucServices = GetIt.I.get<MucServices>();
 
   var _coreServices = GetIt.I.get<CoreServices>();
 
@@ -96,7 +98,6 @@ class MessageRepo {
   // TODO: Refactor Needed
   @visibleForTesting
   updating() async {
-    updatingStatus.add(TitleStatusConditions.Updating);
     try {
       var getAllUserRoomMetaRes = await _queryServiceClient.getAllUserRoomMeta(
           GetAllUserRoomMetaReq(),
@@ -111,6 +112,7 @@ class MessageRepo {
             room.lastMessageId != 0) {
           continue;
         }
+        updatingStatus.add(TitleStatusConditions.Updating);
         try {
           var fetchMessagesRes = await _queryServiceClient.fetchMessages(
               FetchMessagesReq()
@@ -196,6 +198,8 @@ class MessageRepo {
       e.toString();
     }
   }
+
+  Future getPinMessage(Uid roomUid) async {}
 
   getBlockedRoom() async {
     var result = await _queryServiceClient.getBlockedList(GetBlockedListReq(),
@@ -531,28 +535,30 @@ class MessageRepo {
 
   sendForwardedMessage(Uid room, List<Message> forwardedMessage) async {
     for (Message forwardedMessage in forwardedMessage) {
-      String packetId = _getPacketId();
+      Timer(Duration(seconds: 2), () async {
+        String packetId = _getPacketId() + forwardedMessage.packetId;
 
-      int dbId = await _messageDao.insertMessage(Message(
-          roomId: room.asString(),
-          packetId: packetId,
-          time: now(),
-          type: forwardedMessage.type,
-          from: _accountRepo.currentUserUid.asString(),
-          to: room.asString(),
-          forwardedFrom: forwardedMessage.from,
-          json: forwardedMessage.json));
+        int dbId = await _messageDao.insertMessage(Message(
+            roomId: room.asString(),
+            packetId: packetId,
+            time: now(),
+            type: forwardedMessage.type,
+            from: _accountRepo.currentUserUid.asString(),
+            to: room.asString(),
+            forwardedFrom: forwardedMessage.from,
+            json: forwardedMessage.json));
 
-      _savePendingMessage(
-          room.asString(), dbId, packetId, SendingStatus.PENDING);
+        _savePendingMessage(
+            room.asString(), dbId, packetId, SendingStatus.PENDING);
 
-      _updateRoomLastMessage(
-        room.asString(),
-        dbId,
-      );
+        _updateRoomLastMessage(
+          room.asString(),
+          dbId,
+        );
 
-      // Send Message
-      _sendMessageToServer(dbId);
+        // Send Message
+      await  _sendMessageToServer(dbId);
+      });
     }
   }
 
@@ -757,5 +763,21 @@ class MessageRepo {
 
   void deletePendingMessage(Message message) {
     _pendingMessageDao.deletePendingMessage(message.packetId);
+  }
+
+  Future<bool> pinMessage(Message message) async {
+    try {
+      return await mucServices.pinMessage(message);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> unPinMessage(Message message) async {
+    try {
+      return await mucServices.unpinMessage(message);
+    } catch (e) {
+      return false;
+    }
   }
 }

@@ -50,7 +50,7 @@
   "done": "Done",
   "avatar": "Avatar",
   "select": "Select",
-  "setProfile": "Set Profile",
+  "setProfile": "Set Avatar",
   "delete": "delete ",
   "ofMaxMember": "of 200000 selected",
   "maxMember": "up to 200000 members",
@@ -187,5 +187,8 @@
   "bot": "bot",
   "share": "Share",
   "loading": "Loading...",
-  "version": "Version"
+  "version": "Version",
+  "pin":"pin message",
+  "Unpin": "unpin message",
+  "pinned_message": "Pinned Message"
 }

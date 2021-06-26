@@ -292,11 +292,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.7.0-rc.56"
-      resolved-ref: "88e6a5a9111d6a2da1f5f6e627a183273e80f5bd"
+      ref: "tags/v1.7.0-rc.85"
+      resolved-ref: "1bf707452ae50b60e37ad3172dcfe92db1e2019d"
       url: "https://gitlab.iais.co/deliver-public/pub-dart-artifactory"
     source: git
-    version: "1.7.0-rc.56"
+    version: "1.7.0-rc.85"
   desktop_notifications:
     dependency: "direct main"
     description:
@@ -1239,6 +1239,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.6"
+  sorted_list:
+    dependency: "direct main"
+    description:
+      name: sorted_list
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
   source_gen:
     dependency: transitive
     description:

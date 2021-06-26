@@ -34,6 +34,9 @@ class ExtraThemeData {
   Color textField; //green white
   Color inputBoxBackground;
   Color border;
+  Color  pinMessageTheme;
+
+
   ExtraThemeData(
       {
         this.circleAvatarBackground,
@@ -63,6 +66,7 @@ class ExtraThemeData {
         this.circularFileStatus,
         this.fileMessageDetails,
         this.textField,
+        this.pinMessageTheme,
         this.inputBoxBackground,
         this.border
       });

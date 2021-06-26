@@ -14,8 +14,13 @@ import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final Message message;
   final bool hasPermissionInChannel;
+  final bool hasPermissionInGroup;
+  final bool isPined;
 
-  OperationOnMessageEntry(this.message, {this.hasPermissionInChannel = true});
+  OperationOnMessageEntry(this.message,
+      {this.hasPermissionInChannel = true,
+      this.hasPermissionInGroup = true,
+      this.isPined = false});
 
   @override
   OperationOnMessageEntryState createState() => OperationOnMessageEntryState();
@@ -56,6 +61,14 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   onShare() {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.SHARE);
   }
+  onPinMessage(){
+    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.PIN_MESSAGE);
+  }
+  onUnPinMessage(){
+    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.UN_PIN_MESSAGE);
+  }
+
+
 
   onDeletePendingMessage() {
     Navigator.pop<OperationOnMessage>(
@@ -87,6 +100,38 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     Text(appLocalization.getTraslateValue("Reply")),
                   ])),
             ),
+          if (widget.hasPermissionInGroup)
+            if (!widget.isPined)
+              Expanded(
+                child: FlatButton(
+                    onPressed: () {
+                      onPinMessage();
+                    },
+                    child: Row(children: [
+                      Icon(
+                        Icons.push_pin,
+                        size: 20,
+                      ),
+                      SizedBox(width: 8),
+                      Text(appLocalization.getTraslateValue("pin")),
+                    ])),
+              )
+            else
+              Expanded(
+                child: FlatButton(
+                    onPressed: () {
+                      onUnPinMessage();
+                    },
+                    child: Row(children: [
+                      Icon(
+                        Icons.remove,
+                        size: 20,
+                      ),
+                      SizedBox(width: 8),
+                      Text(appLocalization.getTraslateValue("Unpin")),
+                    ])),
+              ),
+
           if (widget.message.type == MessageType.TEXT ||
               widget.message.type == MessageType.FILE)
             Expanded(

@@ -196,7 +196,6 @@ class AvatarRepo {
       saveAvatarInfo(
           _accountRepo.currentUserUid, createOn, fileInfo.uuid, fileInfo.name);
     } catch (e) {
-      debug("rrrrrrrrrrrrrrrrrrrr"+addAvatarReq.token.toString());
       debug(e.toString());
     }
   }

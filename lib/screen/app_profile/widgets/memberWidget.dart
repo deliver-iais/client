@@ -82,12 +82,15 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                               ),
                               if (member.memberUid !=
                                   _accountRepo.currentUserUid.asString())
-                                Text(
-                                  member.name ?? member.username ?? "",
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: ExtraTheme.of(context).textField,
-                                    fontSize: 16,
+                                Container(
+                                  width: MediaQuery.of(context).size.width / 3,
+                                  child: Text(
+                                    member.name ?? member.username ?? "",
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: ExtraTheme.of(context).textField,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                 )
                               else if (member.memberUid ==
@@ -97,13 +100,18 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                   builder: (BuildContext context,
                                       AsyncSnapshot<Account> snapshot) {
                                     if (snapshot.data != null) {
-                                      return Text(
-                                        "${snapshot.data.firstName} ${snapshot.data.lastName ?? ""}",
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: ExtraTheme.of(context)
-                                                .textField),
+                                      return Container(
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                3,
+                                        child: Text(
+                                          "${snapshot.data.firstName}  ${snapshot.data.lastName ?? ""} ",
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              color: ExtraTheme.of(context)
+                                                  .textField),
+                                        ),
                                       );
                                     } else {
                                       return SizedBox.shrink();
@@ -126,7 +134,8 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                               if (!member.memberUid.contains(
                                       _accountRepo.currentUserUid.asString()) &&
                                   (_myRoleInThisRoom == MucRole.ADMIN ||
-                                      _myRoleInThisRoom == MucRole.OWNER))
+                                      _myRoleInThisRoom == MucRole.OWNER) &&
+                                  member.role != MucRole.OWNER)
                                 PopupMenuButton(
                                   color: ExtraTheme.of(context).popupMenuButton,
                                   icon: Icon(
@@ -168,6 +177,16 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                   onSelected: (key) {
                                     onSelected(key, member);
                                   },
+                                ),
+                              if (member.memberUid.contains(_accountRepo
+                                          .currentUserUid
+                                          .asString()) &&
+                                      (_myRoleInThisRoom == MucRole.ADMIN ||
+                                          _myRoleInThisRoom == MucRole.OWNER) ||
+                                  (_myRoleInThisRoom == MucRole.ADMIN &&
+                                      member.role == MucRole.OWNER))
+                                SizedBox(
+                                  width: 40,
                                 )
                             ],
                           )

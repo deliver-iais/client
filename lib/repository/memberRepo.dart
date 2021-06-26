@@ -30,11 +30,11 @@ class MemberRepo {
   }
 
   Future<bool> isMucAdminOrOwner(String memberUid, String mucUid) async {
-    if(memberRoleCash[mucUid] != null){
-      return memberRoleCash[mucUid];
-    }
+    // if(memberRoleCash[mucUid] != null){
+    //   return memberRoleCash[mucUid];
+    // }
     var member = await _memberDao.getMember(memberUid, mucUid);
-    if (member.role == MucRole.OWNER) {
+    if (member.role == MucRole.OWNER || member.role == MucRole.ADMIN) {
       memberRoleCash[mucUid] = true;
       return true;
     } else if (mucUid.uid.category == Categories.CHANNEL) {

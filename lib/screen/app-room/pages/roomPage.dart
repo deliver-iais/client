@@ -22,6 +22,7 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/f
 import 'package:deliver_flutter/screen/app-room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/reply_widgets/reply-widget.dart';
+import 'package:deliver_flutter/screen/app-room/pages/pinMessageAppBar.dart';
 import 'package:deliver_flutter/screen/app-room/pages/searchInMessageButtom.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/bot_start_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/chatTime.dart';
@@ -46,6 +47,7 @@ import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -56,6 +58,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:share/share.dart';
+import 'package:sorted_list/sorted_list.dart';
 import 'package:vibration/vibration.dart';
 
 const int PAGE_SIZE = 40;
@@ -112,6 +115,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       BehaviorSubject.seeded(false);
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
+  var _pinMessages = SortedList<Message>((a, b) => a.id.compareTo(b.id));
+  BehaviorSubject<int> _lastPinedMessage = BehaviorSubject.seeded(0);
+
   BehaviorSubject<int> _itemCountSubject = BehaviorSubject.seeded(0);
 
   bool _scrollToNewMessage = true;
@@ -133,6 +139,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Message currentSearchResultMessage;
   Message _currentMessageForCheckTime = null;
   BehaviorSubject<bool> _hasPermissionInChannel = BehaviorSubject.seeded(true);
+  BehaviorSubject<bool> _hasPermissionInGroup = BehaviorSubject.seeded(false);
   BehaviorSubject<int> unReadMessageScrollSubject = BehaviorSubject.seeded(0);
 
   Color menuColor;
@@ -187,6 +194,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               OperationOnMessageEntry(
                 message,
                 hasPermissionInChannel: _hasPermissionInChannel.value,
+                hasPermissionInGroup: _hasPermissionInGroup.value,
+                isPined: _pinMessages.contains(message),
               )
             ],
             color: menuColor)
@@ -245,6 +254,24 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           break;
         case OperationOnMessage.DELETE_PENDING_MESSAGE:
           _messageRepo.deletePendingMessage(message);
+          break;
+        case OperationOnMessage.PIN_MESSAGE:
+          var isPin = await _messageRepo.pinMessage(message);
+          if (isPin) {
+            _pinMessages.add(message);
+            _lastPinedMessage.add(_pinMessages.last.id);
+          } else {
+            Fluttertoast.showToast(
+                msg: _appLocalization.getTraslateValue("occurred_Error"));
+          }
+          break;
+        case OperationOnMessage.UN_PIN_MESSAGE:
+          var res = await _messageRepo.unPinMessage(message);
+          if (res) {
+            _pinMessages.remove(message);
+            _lastPinedMessage
+                .add(_pinMessages.length > 0 ? _pinMessages.last.id : 0);
+          }
           break;
       }
     });
@@ -329,7 +356,26 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       _botRepo.featchBotInfo(widget.roomId.getUid());
     }
     if (widget.roomId.getUid().category == Categories.CHANNEL) {
+      getPinMessages();
       checkRole();
+    }
+    if (widget.roomId.getUid().category == Categories.GROUP) {
+      getPinMessages();
+      checkGroupRole();
+    }
+  }
+
+  Future<void> getPinMessages() async {
+    var joint =
+        await _mucRepo.getGroupJointToken(groupUid: widget.roomId.getUid());
+    print(joint.toString());
+    var res = await _mucRepo.getPinMessages(widget.roomId);
+    if (res != null) {
+      res.forEach((element) async {
+        var m = await _getMessage(element, widget.roomId);
+        _pinMessages.add(m);
+      });
+      if (res.length > 0) _lastPinedMessage.add(_pinMessages.last.id);
     }
   }
 
@@ -337,6 +383,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     var res = await _memberRepo.isMucAdminOrOwner(
         _accountRepo.currentUserUid.asString(), widget.roomId);
     _hasPermissionInChannel.add(res);
+  }
+
+  Future checkGroupRole() async {
+    var res = await _memberRepo.isMucAdminOrOwner(
+        _accountRepo.currentUserUid.asString(), widget.roomId);
+    _hasPermissionInGroup.add(res);
   }
 
   fetchMucInfo(Uid uid) async {
@@ -414,6 +466,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
+                                      PinMessageWidget(),
                                       AudioPlayerAppBar(),
                                     ],
                                   ),
@@ -1195,5 +1248,23 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         _routingService.openRoom(roomId);
       }
     }
+  }
+
+  Widget PinMessageWidget() {
+    return PinMessageAppBar(
+      lastPinedMessage: _lastPinedMessage,
+      pinMessages: _pinMessages,
+      onTap: (int id, Message mes) {
+        _itemScrollController.scrollTo(
+            index: _lastPinedMessage.valueWrapper.value,
+            duration: Duration(microseconds: 1));
+        setState(() {
+          _replayMessageId = id;
+        });
+        if (_pinMessages.length > 1) {
+          _lastPinedMessage.add(_pinMessages[_pinMessages.indexOf(mes) - 1].id);
+        }
+      },
+    );
   }
 }

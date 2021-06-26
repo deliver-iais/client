@@ -88,7 +88,7 @@ dependencies:
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://gitlab.iais.co/deliver-public/pub-dart-artifactory
-      ref: tags/v1.7.0-rc.56
+      ref: tags/v1.7.0-rc.85
   grpc: 3.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   protobuf: 2.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
@@ -125,6 +125,7 @@ dependencies:
   moor: 4.3.2 # Multi-Platform ORM
   sqlite3_flutter_libs: 0.2.0 # Moor Needed Library
   sms_autofill: 1.2.6
+  sorted_list: 1.0.0
   scrollable_positioned_list: 0.1.10
   share: 2.0.4
   fluttertoast: ^3.1.3

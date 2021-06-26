@@ -2,6 +2,7 @@ import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
+import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:desktop_notifications/desktop_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
@@ -115,7 +116,6 @@ class NotificationServices {
       }
       _notificationMessage[roomUid].add(message.id.toInt());
       switch (message.whichType()) {
-        case pro.Message_Type.persistEvent:
         case pro.Message_Type.text:
           showTextNotification(
               message.id.toInt(), roomUid, roomName, message.text.text);
@@ -160,6 +160,52 @@ class NotificationServices {
           showTextNotification(
               message.id.toInt(), roomUid, roomName, "Transaction");
           break;
+        case pro.Message_Type.persistEvent:
+          String s = "";
+          switch(message.persistEvent.whichType()){
+            case PersistentEvent_Type.mucSpecificPersistentEvent:
+             switch(message.persistEvent.mucSpecificPersistentEvent.issue){
+               case MucSpecificPersistentEvent_Issue.ADD_USER:
+                 s=  " عضو اضافه شد.";
+                 break;
+
+               case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
+                s = "عکس پروفایل عوض شد";
+                break;
+               case MucSpecificPersistentEvent_Issue.JOINED_USER:
+                 s = "به گروه پیوست.";
+                 break;
+
+               case MucSpecificPersistentEvent_Issue.KICK_USER:
+                 s = "مخاطب از گروه حذف شد.";
+                 break;
+               case MucSpecificPersistentEvent_Issue.LEAVE_USER:
+                 s = "مخاطب  گروه  را ترک کرد.";
+                 break;
+               case MucSpecificPersistentEvent_Issue.MUC_CREATED:
+                 s = " گروه  ساخته شد.";
+                 break;
+               case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
+                 s = " نام تغییر پیدا کرد.";
+                 break;
+               case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
+                 s = "پیام پین شد.";
+                 break;
+             }
+              break;
+            case PersistentEvent_Type.messageManipulationPersistentEvent:
+             //
+              break;
+            case PersistentEvent_Type.adminSpecificPersistentEvent:
+              s= "به دلیور پیوست";
+
+              break;
+            case PersistentEvent_Type.notSet:
+              // TODO: Handle this case.
+              break;
+          }
+          showTextNotification(
+              message.id.toInt(), roomUid, roomName, s);
 
           break;
       }

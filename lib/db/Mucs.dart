@@ -10,6 +10,8 @@ class Mucs extends Table {
 
   TextColumn get info => text().nullable()();
 
+  TextColumn get pinMessagesId => text().nullable()();
+
   IntColumn get members => integer().nullable()();
 
   @override

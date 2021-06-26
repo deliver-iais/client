@@ -14,12 +14,14 @@ import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/share_box/helper_classes.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -89,11 +91,25 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 
   selectAvatar() async {
     if (isDesktop()) {
-      final typeGroup = XTypeGroup(
-          label: 'images', extensions: ['png', 'jpg', 'jpeg', 'gif']);
+      final typeGroup = XTypeGroup(label: 'images', extensions: [
+        'png',
+        'jpg',
+        'jpeg',
+      ]);
       final result = await openFile(acceptedTypeGroups: [typeGroup]);
       if (result.path.isNotEmpty) {
         _setAvatar(result.path);
+      }
+    } else if ((await ImageItem.getImages()) == null ||
+        (await ImageItem.getImages()).length < 1) {
+      FilePickerResult result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.custom,
+      );
+      if (result != null) {
+        for (var path in result.paths) {
+          _setAvatar(path);
+        }
       }
     } else {
       showModalBottomSheet(

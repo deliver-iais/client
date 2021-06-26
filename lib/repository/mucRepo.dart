@@ -21,6 +21,7 @@ import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart' as MucPro;
 import 'package:deliver_public_protocol/pub/v1/models/muc.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:grpc/grpc.dart';
@@ -82,10 +83,13 @@ class MucRepo {
   getGroupMembers(Uid groupUid, int len) async {
     try {
       int i = 0;
-      while (i <= len) {
+      int membersSize = 0;
+      bool finish = false;
+      while (i <= len || !finish) {
         var result = await mucServices.getGroupMembers(groupUid, 15, i);
         List<Member> members = new List();
-        for (MucPro.Member member in result) {
+        if (len == 0) membersSize = membersSize + result.members.length;
+        for (MucPro.Member member in result.members) {
           members.add(await fetchMemberNameAndUsername(Member(
               mucUid: groupUid.asString(),
               memberUid: member.uid.asString(),
@@ -93,27 +97,45 @@ class MucRepo {
         }
         insertUserInDb(groupUid, members);
         fetchMembersUserName(members);
+        finish = result.finished ==null? true:result.finished;
         i = i + 15;
       }
+      if (len == 0)
+        _mucDao.upsertMucCompanion(MucsCompanion(
+            uid: Value(groupUid.asString()), members: Value(membersSize)));
     } catch (e) {
       debug(e.toString());
     }
+  }
+  Future getGroupJointToken({Uid groupUid}) async{
+    return await mucServices.getGroupJointToken(groupUid:  groupUid);
+  }
+  Future getChannelJointToken({Uid channelUid}) async{
+    return await mucServices.getChannelJointToken(channelUid: channelUid);
   }
 
   getChannelMembers(Uid channelUid, int len) async {
     try {
       int i = 0;
-      while (i <= len) {
+      len =0;
+      int membersSize = 0;
+      bool finish = false;
+      while (i <= len || !finish) {
         var result = await mucServices.getChannelMembers(channelUid, 15, i);
         List<Member> members = new List();
-        for (MucPro.Member member in result) {
+        if (len == 0) membersSize = membersSize + result.members.length;
+        for (MucPro.Member member in result.members) {
           members.add(await fetchMemberNameAndUsername(Member(
               mucUid: channelUid.asString(),
               memberUid: member.uid.asString(),
               role: getLocalRole(member.role))));
         }
         insertUserInDb(channelUid, members);
+        finish = result.finished;
         i = i + 15;
+        if (len == 0)
+          _mucDao.upsertMucCompanion(MucsCompanion(
+              uid: Value(channelUid.asString()), members: Value(membersSize)));
       }
     } catch (e) {
       debug(e.toString());
@@ -139,9 +161,12 @@ class MucRepo {
     if (mucUid.category == Categories.GROUP) {
       MucPro.GetGroupRes group = await getGroupInfo(mucUid);
       if (group != null) {
+        print("%%%%%%%%%%%%"+group.pinMessages.length.toString());
+
         _mucDao.insertMuc(Muc(
           name: group.info.name,
           info: group.info.info,
+          pinMessagesId: json.decode(getAsInt(group.pinMessages)).toString(),
           members: group.population.toInt(),
           uid: mucUid.asString(),
         ));
@@ -157,6 +182,7 @@ class MucRepo {
             members: channel.population.toInt(),
             uid: mucUid.asString(),
             info: channel.info.info,
+            pinMessagesId: json.decode(getAsInt(channel.pinMessages)).toString(),
             id: channel.info.id));
         insertUserInDb(mucUid, [
           Member(
@@ -480,5 +506,22 @@ class MucRepo {
 
   Stream<Member> checkJointToMuc({String roomUid}) {
     return _memberDao.isJoint(roomUid, _accountRepo.currentUserUid.asString());
+  }
+
+ Future<List<int>> getPinMessages(String mucUid)async {
+    var muc = await _mucDao.getMucByUid(mucUid);
+    List pm = json.decode(muc.pinMessagesId);
+    List<int> pinMessages = List();
+    pm.forEach((element) {pinMessages.add(element as int );});
+    return pinMessages;
+
+ }
+
+  String getAsInt(List<Int64> pinMessages) {
+    List<int> pm = List();
+    pinMessages.forEach((element) {
+      pm.add(element.toInt());
+    });
+    return pm.toString();
   }
 }
