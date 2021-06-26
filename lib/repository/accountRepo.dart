@@ -107,14 +107,19 @@ class AccountRepo {
   }
 
   Future _getAccessToken(String refreshToken) async {
-    var getAccessToken = await authServiceStub
-        .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
-    if (wrongAccessToken(getAccessToken.accessToken) ||
-        wrongRefreshToken(getAccessToken.refreshToken)) {
-      _getAccessToken(refreshToken);
-      return;
+    try{
+      var getAccessToken = await authServiceStub
+          .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
+      if (wrongAccessToken(getAccessToken.accessToken) ||
+          wrongRefreshToken(getAccessToken.refreshToken)) {
+        _getAccessToken(refreshToken);
+        return;
+      }
+      return getAccessToken;
+    }catch(e){
+      print(e.toString());
     }
-    return getAccessToken;
+
   }
 
   Future<String> getAccessToken() async {
@@ -124,7 +129,6 @@ class AccountRepo {
       _saveTokens(renewAccessTokenRes);
       return renewAccessTokenRes.accessToken;
     } else {
-
       return _access_token;
     }
   }
@@ -152,6 +156,10 @@ class AccountRepo {
         .add(new Duration(seconds: decodedToken["iat"]));
     final DateTime expTime = new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["exp"]));
+    if((expTime.millisecondsSinceEpoch - iatTime.millisecondsSinceEpoch) >
+        15 * 60 * 1000){
+      return true;
+    }
     return ((expTime.millisecondsSinceEpoch - iatTime.millisecondsSinceEpoch) >
         15 * 60 * 1000);
   }

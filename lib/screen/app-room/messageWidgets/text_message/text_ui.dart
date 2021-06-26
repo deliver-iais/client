@@ -253,6 +253,17 @@ Widget _textWidget(
         style: TextStyle(color: color, fontSize: 16),
         parse: <MatchText>[
           MatchText(
+            type: ParsedType.CUSTOM,
+            pattern: r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)",
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 16,
+            ),
+            onTap: (phone) async {
+              await launch("tel:$phone");
+            },
+          ),
+          MatchText(
             type: ParsedType.URL,
             style: TextStyle(
               color: ExtraTheme.of(context).username,
@@ -287,6 +298,7 @@ Widget _textWidget(
                 onBotCommandClick(username);
               },
             ),
+
           MatchText(
             type: ParsedType.PHONE,
             style: TextStyle(
@@ -297,6 +309,7 @@ Widget _textWidget(
               await launch("tel:$phone");
             },
           ),
+
         ],
       ),
       if (i == lenght && isLastBlock)

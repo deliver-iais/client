@@ -190,5 +190,6 @@
   "version": "Version",
   "pin":"pin message",
   "Unpin": "unpin message",
-  "pinned_message": "Pinned Message"
+  "pinned_message": "Pinned Message",
+  "create_invite_link": "Invite Link"
 }

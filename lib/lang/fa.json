@@ -190,5 +190,6 @@
   "version": "ورژن",
   "pin":"سنجاق کردن",
   "Unpin": "حذف سنجاق",
-  "pinned_message": "پیام های سنجاق شده"
+  "pinned_message": "پیام های سنجاق شده",
+  "create_invite_link": "لینک دعوت"
 }
