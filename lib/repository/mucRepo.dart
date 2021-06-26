@@ -107,6 +107,12 @@ class MucRepo {
       debug(e.toString());
     }
   }
+  Future getGroupJointToken({Uid groupUid}) async{
+    return await mucServices.getGroupJointToken(groupUid:  groupUid);
+  }
+  Future getChannelJointToken({Uid channelUid}) async{
+    return await mucServices.getChannelJointToken(channelUid: channelUid);
+  }
 
   getChannelMembers(Uid channelUid, int len) async {
     try {

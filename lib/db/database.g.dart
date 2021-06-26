@@ -4474,7 +4474,7 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
 class LastSeen extends DataClass implements Insertable<LastSeen> {
   final int messageId;
   final String roomId;
-  LastSeen({this.messageId, @required this.roomId});
+  LastSeen({@required this.messageId, @required this.roomId});
   factory LastSeen.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -4607,11 +4607,8 @@ class $LastSeensTable extends LastSeens
   @override
   GeneratedIntColumn get messageId => _messageId ??= _constructMessageId();
   GeneratedIntColumn _constructMessageId() {
-    return GeneratedIntColumn(
-      'message_id',
-      $tableName,
-      true,
-    );
+    return GeneratedIntColumn('message_id', $tableName, false,
+        defaultValue: Constant(0));
   }
 
   final VerificationMeta _roomIdMeta = const VerificationMeta('roomId');

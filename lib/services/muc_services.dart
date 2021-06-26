@@ -410,7 +410,7 @@ class MucServices {
   }
 
   Future<bool> pinMessage(db.Message message) async {
-    try{
+    try {
       if (message.roomId.getUid().category == Categories.GROUP) {
         groupServices.pinMessage(
             GroupServices.PinMessageReq()
@@ -429,14 +429,39 @@ class MucServices {
                 timeout: Duration(seconds: 2)));
       }
       return true;
-    }catch(e){
+    } catch (e) {
       return false;
     }
+  }
 
+  Future<Int64> getGroupJointToken({Uid groupUid}) async {
+    try{
+      var res = await groupServices.createToken(
+          GroupServices.CreateTokenReq()..uid = groupUid..numberOfAvailableJoins = Int64(5),
+          options: CallOptions(
+              metadata: {'access_token': await _accountRepo.getAccessToken()},
+              timeout: Duration(seconds: 2)));
+      return res.joinToken;
+    }catch(e){
+      return null;
+    }
+  }
+
+  Future<Int64> getChannelJointToken({Uid channelUid}) async {
+    try{
+      var res = await channelServices.createToken(
+          ChannelServices.CreateTokenReq()..uid = channelUid,
+          options: CallOptions(
+              metadata: {'access_token': await _accountRepo.getAccessToken()},
+              timeout: Duration(seconds: 2)));
+      return res.joinToken;
+    }catch(e){
+      return null;
+    }
   }
 
   Future<bool> unpinMessage(db.Message message) async {
-    try{
+    try {
       if (message.roomId.getUid().category == Categories.GROUP) {
         groupServices.unpinMessage(
             GroupServices.UnpinMessageReq()
@@ -455,9 +480,8 @@ class MucServices {
                 timeout: Duration(seconds: 2)));
       }
       return true;
-    }catch(e){
+    } catch (e) {
       return false;
     }
-
   }
 }

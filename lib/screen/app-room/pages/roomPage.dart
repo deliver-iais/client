@@ -366,12 +366,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Future<void> getPinMessages() async {
+    var joint =
+        await _mucRepo.getGroupJointToken(groupUid: widget.roomId.getUid());
+    print(joint.toString());
     var res = await _mucRepo.getPinMessages(widget.roomId);
-    res.forEach((element) async {
-      var m = await _getMessage(element, widget.roomId);
-      _pinMessages.add(m);
-    });
-    _lastPinedMessage.add(_pinMessages.last.id);
+    if (res != null) {
+      res.forEach((element) async {
+        var m = await _getMessage(element, widget.roomId);
+        _pinMessages.add(m);
+      });
+      _lastPinedMessage.add(_pinMessages.last.id);
+    }
   }
 
   Future checkRole() async {
