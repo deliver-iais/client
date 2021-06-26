@@ -142,7 +142,7 @@ class MediaQueryRepo {
           mediaType,
           DateTime.now().millisecondsSinceEpoch,
           FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
-      debug("serverqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
+
       return mediasList;
     } else if (mediasList.length < mediaCount) {
       int pointer = mediasList.first.createdOn;
@@ -152,7 +152,6 @@ class MediaQueryRepo {
       var combinedList = [...newMediasServerList.reversed, ...mediasList];
       return combinedList;
     } else {
-      debug("databaseqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq${mediasList.length}");
       return mediasList;
     }
   }

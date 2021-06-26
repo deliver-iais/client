@@ -25,6 +25,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -178,6 +179,24 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       case "manage":
         showManageDialog();
         break;
+      case "invite_link":
+        createInviteLink();
+    }
+  }
+
+  createInviteLink() async {
+    String token = "";
+    if (widget.roomUid.category == Categories.GROUP) {
+      token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
+    } else {
+      token = await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
+    }
+    if(token!= null &&  token.isNotEmpty){
+      _showInviteLinkDialog(token);
+
+    } else{
+      Fluttertoast.showToast(
+          msg: _appLocalization.getTraslateValue("occurred_Error"));
     }
   }
 
@@ -316,6 +335,30 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                               ],
                             ),
                             value: "deleteMuc"),
+                      if (_modifyMUc)
+                        new PopupMenuItem<String>(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.add_link_outlined,
+                                  color: Colors.blue,
+                                  size: 23,
+                                ),
+                                SizedBox(
+                                  width: 6,
+                                ),
+                                Text(
+                                  _mucType == MucType.GROUP
+                                      ? _appLocalization.getTraslateValue(
+                                          "create_invite_link")
+                                      : _appLocalization.getTraslateValue(
+                                          "create_invite_link"),
+                                  style: style,
+                                )
+                              ],
+                            ),
+                            value: "invite_link"),
                       if (_setAvatarPermission)
                         new PopupMenuItem<String>(
                             child: Row(
@@ -895,5 +938,51 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
             ],
           );
         });
+  }
+  void _showInviteLinkDialog(String token) async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
+            actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
+            backgroundColor: Colors.white,
+            title: Container(
+              height: 40,
+              color: Colors.blue,
+              child: Icon(
+                Icons.add_link,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+            content: Container(
+              child: Text(generateInviteLink(token),style: TextStyle(color: Colors.blue),)
+            ),
+            actions: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  GestureDetector(
+                    child: Text(
+                      _appLocalization.getTraslateValue("Copy"),
+                      style: TextStyle(fontSize: 16, color: Colors.blue),
+                    ),
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: generateInviteLink(token)));
+                      Fluttertoast.showToast(
+                          msg: _appLocalization.getTraslateValue("Copied"));
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          );
+        });
+  }
+
+  generateInviteLink(String token) {
+    return "http://deliver-co.ir/${widget.roomUid.category}/${widget.roomUid.node}/$token";
   }
 }
