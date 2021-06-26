@@ -1,5 +1,3 @@
-
-
 import 'package:audioplayer/audioplayer.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/audio_progress_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/time_progress_indicator.dart';
@@ -11,14 +9,12 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-
 class AudioPlayProgress extends StatelessWidget {
-   final File audio;
+  final File audio;
   final String audioUuid;
   final _audioPlayerService = GetIt.I.get<AudioPlayerService>();
 
-  AudioPlayProgress({Key key, this.audioUuid,this.audio}) : super(key: key);
-
+  AudioPlayProgress({Key key, this.audioUuid, this.audio}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +29,10 @@ class AudioPlayProgress extends StatelessWidget {
                     stream: _audioPlayerService.audioPlayerState(audioUuid),
                     builder: (c, state) {
                       if (state.data != null &&
-                          state.data == AudioPlayerState.PLAYING && _audioPlayerService.CURRENT_AUDIO_ID.isNotEmpty&&  _audioPlayerService.CURRENT_AUDIO_ID.contains(audioUuid)) {
+                          state.data == AudioPlayerState.PLAYING &&
+                          _audioPlayerService.CURRENT_AUDIO_ID.isNotEmpty &&
+                          _audioPlayerService.CURRENT_AUDIO_ID
+                              .contains(audioUuid)) {
                         return AudioProgressIndicator(
                           duration: audio.duration,
                           audioUuid: audioUuid,
@@ -45,7 +44,9 @@ class AudioPlayProgress extends StatelessWidget {
                             sizeFormater(audio.size.toInt()) +
                                 " " +
                                 findFileType(audio.name),
-                            style: TextStyle(fontSize: 10,color: ExtraTheme.of(context).textField),
+                            style: TextStyle(
+                                fontSize: 10,
+                                color: ExtraTheme.of(context).textField),
                           ),
                         );
                       }

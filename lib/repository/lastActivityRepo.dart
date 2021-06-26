@@ -1,4 +1,3 @@
-
 import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -14,13 +13,16 @@ class LastActivityRepo {
 
 
   final QueryServiceClient _queryServiceClient =
-      GetIt.I.get<QueryServiceClient>();
+  GetIt.I.get<QueryServiceClient>();
 
   updateLastActivity(Uid userUId) async {
     var userInfo = await _userInfoDao.getUserInfo(userUId.asString());
     if (userInfo != null &&
         userInfo.lastActivity != null &&
-        DateTime.now().millisecondsSinceEpoch - userInfo.lastTimeActivityUpdated.millisecondsSinceEpoch<
+        DateTime
+            .now()
+            .millisecondsSinceEpoch -
+            userInfo.lastTimeActivityUpdated.millisecondsSinceEpoch <
             10 * 60) {
       return;
     } else {
@@ -30,10 +32,12 @@ class LastActivityRepo {
 
   void _getLastActivityTime(Uid currentUserUid) async {
     var lastActivityTime = await _queryServiceClient.getLastActivity(
-        GetLastActivityReq()..uid = currentUserUid,
+        GetLastActivityReq()
+          ..uid = currentUserUid,
         options: CallOptions(
             metadata: {"access_token": await _accountRepo.getAccessToken()}));
-    print("last activity : "+lastActivityTime.lastActivityTime.toString());
+    print("last activity : " + lastActivityTime.toString());
+
     if (lastActivityTime != null) {
       _userInfoDao.upsertUserInfo(UserInfo(
           uid: currentUserUid.asString(),
