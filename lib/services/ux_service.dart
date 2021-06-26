@@ -17,10 +17,6 @@ class UxService {
 
   BehaviorSubject<Language> _language = BehaviorSubject.seeded(DefaultLanguage);
 
-  // get themeStream => _theme.stream;
-
-  // get extraThemeStream => _extraTheme.stream;
-
   get localeStream => _sharedPrefs.watch("lang").map((event) {
         if (event != null) {
           var code = event.value;

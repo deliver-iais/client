@@ -180,9 +180,9 @@ flutter:
     - assets/icons/stickerIcon.png
     - assets/icons/emojiIcon.png
     - assets/audios/r.mp3
+    - assets/audios/ack.mp3
     - lib/lang/fa.json
     - lib/lang/en.json
-    - assets/audios/ack.mp3
     - assets/icons/mention.png
     - assets/icons/channel_icon.png
     - assets/bac/bdark.jpg
