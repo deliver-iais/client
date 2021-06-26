@@ -375,7 +375,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         var m = await _getMessage(element, widget.roomId);
         _pinMessages.add(m);
       });
-      _lastPinedMessage.add(_pinMessages.last.id);
+      if (res.length > 0) _lastPinedMessage.add(_pinMessages.last.id);
     }
   }
 

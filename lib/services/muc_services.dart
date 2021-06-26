@@ -434,10 +434,10 @@ class MucServices {
     }
   }
 
-  Future<Int64> getGroupJointToken({Uid groupUid}) async {
+  Future getGroupJointToken({Uid groupUid}) async {
     try{
       var res = await groupServices.createToken(
-          GroupServices.CreateTokenReq()..uid = groupUid..numberOfAvailableJoins = Int64(5),
+          GroupServices.CreateTokenReq()..uid = groupUid..validUntil = Int64(-1),
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()},
               timeout: Duration(seconds: 2)));
@@ -447,10 +447,10 @@ class MucServices {
     }
   }
 
-  Future<Int64> getChannelJointToken({Uid channelUid}) async {
+  Future getChannelJointToken({Uid channelUid}) async {
     try{
       var res = await channelServices.createToken(
-          ChannelServices.CreateTokenReq()..uid = channelUid,
+          ChannelServices.CreateTokenReq()..uid = channelUid..validUntil = Int64(-1),
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()},
               timeout: Duration(seconds: 2)));
