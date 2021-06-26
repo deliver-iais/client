@@ -97,7 +97,7 @@ class MucRepo {
         }
         insertUserInDb(groupUid, members);
         fetchMembersUserName(members);
-        finish = result.finished ==null? true:result.finished;
+        finish = result.finished == null ? true : result.finished;
         i = i + 15;
       }
       if (len == 0)
@@ -107,17 +107,19 @@ class MucRepo {
       debug(e.toString());
     }
   }
-  Future getGroupJointToken({Uid groupUid}) async{
-    return await mucServices.getGroupJointToken(groupUid:  groupUid);
+
+  Future getGroupJointToken({Uid groupUid}) async {
+    return await mucServices.getGroupJointToken(groupUid: groupUid);
   }
-  Future getChannelJointToken({Uid channelUid}) async{
+
+  Future getChannelJointToken({Uid channelUid}) async {
     return await mucServices.getChannelJointToken(channelUid: channelUid);
   }
 
   getChannelMembers(Uid channelUid, int len) async {
     try {
       int i = 0;
-      len =0;
+      len = 0;
       int membersSize = 0;
       bool finish = false;
       while (i <= len || !finish) {
@@ -161,7 +163,9 @@ class MucRepo {
     if (mucUid.category == Categories.GROUP) {
       MucPro.GetGroupRes group = await getGroupInfo(mucUid);
       if (group != null) {
-        print("%%%%%%%%%%%%"+group.pinMessages.length.toString());
+        print("%%%%%%%%%%%%" +
+            group.info.name +
+            group.pinMessages.length.toString());
 
         _mucDao.insertMuc(Muc(
           name: group.info.name,
@@ -182,7 +186,8 @@ class MucRepo {
             members: channel.population.toInt(),
             uid: mucUid.asString(),
             info: channel.info.info,
-            pinMessagesId: json.decode(getAsInt(channel.pinMessages)).toString(),
+            pinMessagesId:
+                json.decode(getAsInt(channel.pinMessages)).toString(),
             id: channel.info.id));
         insertUserInDb(mucUid, [
           Member(
@@ -508,14 +513,15 @@ class MucRepo {
     return _memberDao.isJoint(roomUid, _accountRepo.currentUserUid.asString());
   }
 
- Future<List<int>> getPinMessages(String mucUid)async {
+  Future<List<int>> getPinMessages(String mucUid) async {
     var muc = await _mucDao.getMucByUid(mucUid);
     List pm = json.decode(muc.pinMessagesId);
     List<int> pinMessages = List();
-    pm.forEach((element) {pinMessages.add(element as int );});
+    pm.forEach((element) {
+      pinMessages.add(element as int);
+    });
     return pinMessages;
-
- }
+  }
 
   String getAsInt(List<Int64> pinMessages) {
     List<int> pm = List();
