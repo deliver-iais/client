@@ -206,14 +206,17 @@ class _ChatItemState extends State<ChatItem> {
         if (uid.category == Categories.GROUP)
           Icon(
             Icons.group_rounded,
+            size: 16,
           ),
         if (uid.category == Categories.CHANNEL)
           Icon(
             Icons.rss_feed_rounded,
+            size: 16,
           ),
         if (uid.category == Categories.BOT)
           Icon(
             Icons.smart_toy_rounded,
+            size: 16,
           ),
         if (uid.category != Categories.USER) SizedBox(width: 4),
         Text(
