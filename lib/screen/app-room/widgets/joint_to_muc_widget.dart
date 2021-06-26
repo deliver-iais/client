@@ -7,8 +7,9 @@ import 'package:get_it/get_it.dart';
 
 class JointToMucWidget extends StatelessWidget {
   final Uid mucUid;
+  final String token;
 
-  JointToMucWidget(this.mucUid);
+  JointToMucWidget(this.mucUid,this.token);
 
   var _mucRepo = GetIt.I.get<MucRepo>();
   AppLocalization _appLocalization;
@@ -24,8 +25,8 @@ class JointToMucWidget extends StatelessWidget {
             child: Text(_appLocalization.getTraslateValue("joint")),
             onTap: () {
               mucUid.category == Categories.GROUP
-                  ? _mucRepo.joinGroup(mucUid)
-                  : _mucRepo.joinChannel(mucUid);
+                  ? _mucRepo.joinGroup(mucUid,token)
+                  : _mucRepo.joinChannel(mucUid,token);
             },
           ),
         ));

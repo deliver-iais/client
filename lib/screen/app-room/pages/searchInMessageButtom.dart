@@ -78,7 +78,7 @@ class _searchInMessageButtomState extends State<searchInMessageButtom> {
                 if (isJoint.hasData && isJoint.data != null) {
                   return widget.keybrodWidget();
                 } else {
-                  return JointToMucWidget(widget.roomId.getUid());
+                  return SizedBox.shrink();
                 }
               })
               : widget.keybrodWidget();

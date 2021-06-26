@@ -256,16 +256,6 @@ Widget _textWidget(
             type: ParsedType.CUSTOM,
             pattern: r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)",
             style: TextStyle(
-              color: Colors.red,
-              fontSize: 16,
-            ),
-            onTap: (phone) async {
-              await launch("tel:$phone");
-            },
-          ),
-          MatchText(
-            type: ParsedType.URL,
-            style: TextStyle(
               color: ExtraTheme.of(context).username,
               fontSize: 16,
             ),
@@ -273,6 +263,16 @@ Widget _textWidget(
               await launch(uri);
             },
           ),
+          // MatchText(
+          //   type: ParsedType.URL,
+          //   style: TextStyle(
+          //     color: ExtraTheme.of(context).username,
+          //     fontSize: 16,
+          //   ),
+          //   onTap: (uri) async {
+          //     await launch(uri);
+          //   },
+          // ),
           MatchText(
             type: ParsedType.CUSTOM,
             pattern:

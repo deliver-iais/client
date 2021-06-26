@@ -1,7 +1,9 @@
+import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter/cupertino.dart';
@@ -20,6 +22,7 @@ class ShareUidMessageWidget extends StatelessWidget {
   ShareUidMessageWidget({this.message, this.isSender, this.isSeen});
 
   var _routingServices = GetIt.I.get<RoutingService>();
+  var _mucDao = GetIt.I.get<MucDao>();
 
   proto.ShareUid _shareUid;
 
@@ -32,15 +35,27 @@ class ShareUidMessageWidget extends StatelessWidget {
           child: Text(
             _shareUid.name,
             style: TextStyle(
-              fontSize: 16,
-              color: Colors.amber,
+              fontSize: 18,
+              color: ExtraTheme
+                  .of(context)
+                  .username,
             ),
           ),
-          onTap: () {
-            _routingServices.openRoom(_shareUid.uid.asString(),
-                joinToMuc: (_shareUid.uid.category == Categories.GROUP ||
-                    _shareUid.uid.category == Categories.CHANNEL));
-          },
+          onTap: () async {
+            if ((_shareUid.uid.category == Categories.GROUP ||
+                _shareUid.uid.category == Categories.CHANNEL)) {
+              var muc = await _mucDao.getMucByUid(_shareUid.uid.asString());
+              if (muc == null)
+                _routingServices.openRoom(_shareUid.uid.asString(),
+                    joinToken: _shareUid.joinToken);
+              else
+                _routingServices.openRoom(_shareUid.uid.asString(),
+                );
+            } else {
+              _routingServices.openRoom(_shareUid.uid.asString());
+              }
+
+              },
         ),
         Padding(
           padding: const EdgeInsets.only(left: 8.0, top: 5),

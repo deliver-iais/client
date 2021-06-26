@@ -193,12 +193,12 @@ class MucServices {
     }
   }
 
-  Future<bool> joinGroup(Uid groupUid) async {
+  Future<bool> joinGroup(Uid groupUid,String token) async {
     try {
       await groupServices.joinGroup(
-          GroupServices.JoinGroupReq()..group = groupUid,
+          GroupServices.JoinGroupReq()..group = groupUid..token =token,
           options: CallOptions(
-              timeout: Duration(seconds: 2),
+              timeout: Duration(seconds: 4),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
@@ -380,12 +380,12 @@ class MucServices {
     }
   }
 
-  Future<bool> joinChannel(Uid channelUid) async {
+  Future<bool> joinChannel(Uid channelUid,String token) async {
     try {
       await channelServices.joinChannel(
-          ChannelServices.JoinChannelReq()..channel = channelUid,
+          ChannelServices.JoinChannelReq()..channel = channelUid..token,
           options: CallOptions(
-              timeout: Duration(seconds: 1),
+              timeout: Duration(seconds: 4),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
@@ -437,7 +437,7 @@ class MucServices {
   Future getGroupJointToken({Uid groupUid}) async {
     try{
       var res = await groupServices.createToken(
-          GroupServices.CreateTokenReq()..uid = groupUid..validUntil = Int64(-1),
+          GroupServices.CreateTokenReq()..uid = groupUid..validUntil = Int64(-1)..numberOfAvailableJoins = Int64(-1),
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()},
               timeout: Duration(seconds: 2)));

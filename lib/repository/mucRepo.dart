@@ -161,8 +161,6 @@ class MucRepo {
     if (mucUid.category == Categories.GROUP) {
       MucPro.GetGroupRes group = await getGroupInfo(mucUid);
       if (group != null) {
-        print("%%%%%%%%%%%%"+group.pinMessages.length.toString());
-
         _mucDao.insertMuc(Muc(
           name: group.info.name,
           info: group.info.info,
@@ -337,8 +335,8 @@ class MucRepo {
     //todo change database
   }
 
-  joinGroup(Uid groupUid) async {
-    var result = await mucServices.joinGroup(groupUid);
+  joinGroup(Uid groupUid,String token) async {
+    var result = await mucServices.joinGroup(groupUid,token);
     if (result) {
       MucPro.GetGroupRes newGroup = await getGroupInfo(groupUid);
       getGroupMembers(groupUid, newGroup.population.toInt());
@@ -347,11 +345,14 @@ class MucRepo {
           name: newGroup.info.name,
           members: newGroup.population.toInt(),
           info: newGroup.info.info));
+      return true;
     }
+    return false;
+
   }
 
-  joinChannel(Uid channelUid) async {
-    var result = await mucServices.joinChannel(channelUid);
+  joinChannel(Uid channelUid,String token) async {
+    var result = await mucServices.joinChannel(channelUid,token);
     if (result) {
       GetChannelRes newChannel = await getChannelInfo(channelUid);
       getChannelMembers(channelUid, newChannel.population.toInt());

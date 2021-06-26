@@ -12,6 +12,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/helper_classes.dart';
@@ -59,6 +60,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _mucDao = GetIt.I.get<MucDao>();
+  String mucName ="";
   AppLocalization _appLocalization;
   MucType _mucType;
   BehaviorSubject<bool> showChannelIdError = BehaviorSubject.seeded(false);
@@ -487,6 +489,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               future: _roomRepo.getRoomDisplayName(widget.roomUid),
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 if (snapshot.data != null) {
+                  mucName = snapshot.data;
                   return _showDisplayName(snapshot.data);
                 } else {
                   return _showDisplayName("Unknown");
@@ -965,13 +968,16 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                 children: [
                   GestureDetector(
                     child: Text(
-                      _appLocalization.getTraslateValue("Copy"),
+                      _appLocalization.getTraslateValue("share"),
                       style: TextStyle(fontSize: 16, color: Colors.blue),
                     ),
                     onTap: () {
-                      Clipboard.setData(ClipboardData(text: generateInviteLink(token)));
-                      Fluttertoast.showToast(
-                          msg: _appLocalization.getTraslateValue("Copied"));
+                      _routingServices.openSelectForwardMessage(
+                          sharedUid: proto.ShareUid()
+                            ..name = mucName
+                            ..joinToken = token
+                            ..uid = widget.roomUid);
+
                       Navigator.pop(context);
                     },
                   ),

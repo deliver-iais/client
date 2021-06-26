@@ -150,7 +150,7 @@ class Router extends RouterBase {
           forwardedMessages: args.forwardedMessages,
           inputFilePath: args.inputFilePath,
           shareUid: args.shareUid,
-          jointToMuc: args.jointToMuc,
+          jointToken: args.jointToMuc,
         ),
         settings: data,
       );
@@ -213,7 +213,7 @@ class RoomPageArguments {
   final List<dynamic> forwardedMessages;
   final List<String> inputFilePath;
   final ShareUid shareUid;
-  final bool jointToMuc;
+  final String jointToMuc;
   RoomPageArguments(
       {this.key,
         this.roomId,

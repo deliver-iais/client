@@ -45,8 +45,8 @@ class ContactRepo {
   Map<PhoneNumber, String> _contactsDisplayName = Map();
 
   syncContacts() async {
-    _getPhoneNumber("145446464644456  6");
-    await getContacts();
+  //  _getPhoneNumber("145446464644456  6");
+   // getContacts();
     if (await _checkPermission.checkContactPermission() ||
         isDesktop() ||
         isIOS()) {
