@@ -362,7 +362,9 @@ class MucRepo {
           members: newChannel.population.toInt(),
           id: newChannel.info.id,
           info: newChannel.info.info));
+      return true;
     }
+    return false;
   }
 
   modifyGroup(String mucId, String name, String info) async {

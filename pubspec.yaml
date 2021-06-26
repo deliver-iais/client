@@ -132,14 +132,11 @@ dependencies:
   firebase_messaging: 10.0.1
   firebase_core: 1.2.1
   flutter_swiper: 1.1.6
-
-
   ## mockito: 5.0.10 # Great Library for Mocking in Tests
-
   test:
   badges: 1.1.4
 
-
+  modal_bottom_sheet: 2.0.0
 
   receive_sharing_intent: 1.4.5
 
