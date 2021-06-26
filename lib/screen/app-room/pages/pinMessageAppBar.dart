@@ -91,9 +91,9 @@ class PinMessageAppBar extends StatelessWidget{
                         children: [
                           Text(
                             appLocalization.getTraslateValue("pinned_message"),
-                            style: TextStyle(color: Colors.blue),
+                            style: TextStyle(color: Colors.blue,fontSize: 13),
                           ),
-                          IconButton(onPressed: (){}, icon: Icon(Icons.push_pin,size: 15,))
+                          IconButton(onPressed: (){}, icon: Icon(Icons.push_pin,size: 14,))
                         ],
                       ),
 

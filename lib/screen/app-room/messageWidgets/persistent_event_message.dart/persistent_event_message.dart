@@ -72,12 +72,16 @@ class PersistentEventMessage extends StatelessWidget {
         String issuer = await getName(
             persistentEventMessage.mucSpecificPersistentEvent.issuer,
             message.to.getUid());
-        String assignee = await getName(
+        String assignee = persistentEventMessage.mucSpecificPersistentEvent.issue !=   MucSpecificPersistentEvent_Issue.PIN_MESSAGE?
+        await getName(
             persistentEventMessage.mucSpecificPersistentEvent.assignee,
-            message.to.getUid());
+            message.to.getUid()):"";
         bool isMe = persistentEventMessage.mucSpecificPersistentEvent.issuer
             .isSameEntity(_accountRepo.currentUserUid.asString());
         switch (persistentEventMessage.mucSpecificPersistentEvent.issue) {
+          case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
+            return "$issuer ${_appLocalization.getTraslateValue("pin_message")}";
+            break;
           case MucSpecificPersistentEvent_Issue.ADD_USER:
             return " $issuer ${isMe ? _appLocalization.getTraslateValue("you_add_user_to_muc") : _appLocalization.getTraslateValue("add_user_to_muc")} $assignee";
 
@@ -87,19 +91,23 @@ class PersistentEventMessage extends StatelessWidget {
                 : "$issuer  ${_appLocalization.getTraslateValue("change_group_avatar")}";
           case MucSpecificPersistentEvent_Issue.JOINED_USER:
             return "$issuer ${_appLocalization.getTraslateValue("joint_to_group")}";
+            break;
 
           case MucSpecificPersistentEvent_Issue.KICK_USER:
             return "$issuer ،  ${_appLocalization.getTraslateValue("kick_from_muc")} $assignee";
+            break;
           case MucSpecificPersistentEvent_Issue.LEAVE_USER:
             return "$issuer ${_appLocalization.getTraslateValue("left_the_group")}";
+            break;
           case MucSpecificPersistentEvent_Issue.MUC_CREATED:
             return message.from.uid.category == Categories.CHANNEL
                 ? "$issuer  ${isMe ? _appLocalization.getTraslateValue("you_create_channel") : _appLocalization.getTraslateValue("create_channel")}"
                 : "$issuer  ${isMe ? _appLocalization.getTraslateValue("you_create_group") : _appLocalization.getTraslateValue("create_group")}";
+            break;
           case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
             return "$issuer  ${_appLocalization.getTraslateValue("change_muc_name")}";
-          case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-            return "$issuer ${_appLocalization.getTraslateValue("pin_message")}";
+            break;
+
         }
 
         break;

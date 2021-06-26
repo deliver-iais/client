@@ -83,13 +83,13 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                               if (member.memberUid !=
                                   _accountRepo.currentUserUid.asString())
                                 Container(
-                                  width: MediaQuery.of(context).size.width / 3,
+                                  width: MediaQuery.of(context).size.width / 4,
                                   child: Text(
                                     member.name ?? member.username ?? "",
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       color: ExtraTheme.of(context).textField,
-                                      fontSize: 16,
+                                      fontSize: 14,
                                     ),
                                   ),
                                 )
@@ -103,12 +103,12 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                       return Container(
                                         width:
                                             MediaQuery.of(context).size.width /
-                                                3,
+                                                4,
                                         child: Text(
                                           "${snapshot.data.firstName}  ${snapshot.data.lastName ?? ""} ",
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 14,
                                               color: ExtraTheme.of(context)
                                                   .textField),
                                         ),

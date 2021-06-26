@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
+import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
@@ -70,6 +71,7 @@ class CoreServices {
 
   Timer _connectionTimer;
   var _lastPongTime = 0;
+  var _mucDao = GetIt.I.get<MucDao>();
 
 //TODO test
   initStreamConnection() async {
@@ -276,6 +278,14 @@ class CoreServices {
                   deleted: Value(true)));
               return;
               break;
+            case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:{
+              var muc = await _mucDao.getMucByUid(roomUid.asString());
+              List pinMessages = json.decode(muc.pinMessagesId);
+              pinMessages.add(message.persistEvent.mucSpecificPersistentEvent.messageId.toInt());
+              _mucDao.upsertMucCompanion(Database.MucsCompanion.insert(uid: muc.uid, name: muc.name,pinMessagesId:Value( json.encode(pinMessages.toString()).toString())));
+              break;
+            }
+
             case MucSpecificPersistentEvent_Issue.KICK_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
                   .isSameEntity(_accountRepo.currentUserUid.asString())) {
