@@ -21,22 +21,39 @@ class LastMessage extends StatelessWidget {
 
   LastMessage({Key key, this.message}) : super(key: key);
 
+  messageText(BuildContext context) {
+    AppLocalization _appLocalization = AppLocalization.of(context);
+    switch (message.type) {
+      case MessageType.TEXT:
+        return (message.json.toText().text.trim().split('\n'))[0];
+      case MessageType.PERSISTENT_EVENT:
+        return message.json
+            .toPersistentEvent()
+            .mucSpecificPersistentEvent
+            .issue
+            .name;
+      case MessageType.FILE:
+        return _appLocalization.getTraslateValue("file");
+      case MessageType.LOCATION:
+        return _appLocalization.getTraslateValue("location");
+      case MessageType.SHARE_UID:
+        if (message.json.toShareUid().uid.category == Categories.USER)
+          return message.json.toShareUid().name;
+        else
+          return _appLocalization.getTraslateValue("inviteLink") +
+              " " +
+              message.json.toShareUid().name;
+        break;
+      default:
+        return "Message";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     AppLocalization _appLocalization = AppLocalization.of(context);
-    String oneLine = message.type == MessageType.TEXT
-        ? (message.json.toText().text.trim().split('\n'))[0]
-        : message.type == MessageType.PERSISTENT_EVENT
-            ? message.json
-                .toPersistentEvent()
-                .mucSpecificPersistentEvent
-                .issue
-                .name
-            : message.type == MessageType.FILE
-                ? _appLocalization.getTraslateValue("file")
-                : message.type == MessageType.LOCATION
-                    ? _appLocalization.getTraslateValue("location")
-                    : "message";
+    String oneLine = messageText(context);
+    bool shouldHighlight = message.type != MessageType.TEXT;
     if (message.roomId.uid.category == Categories.GROUP &&
         message.type != MessageType.PERSISTENT_EVENT) {
       return Row(
@@ -63,7 +80,9 @@ class LastMessage extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: ExtraTheme.of(context).chatOrContactItemDetails,
+                color: shouldHighlight
+                    ? ExtraTheme.of(context).username
+                    : ExtraTheme.of(context).chatOrContactItemDetails,
                 fontSize: 14,
               ),
             ),
@@ -85,7 +104,9 @@ class LastMessage extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               softWrap: false,
               style: TextStyle(
-                color: ExtraTheme.of(context).chatOrContactItemDetails,
+                color: shouldHighlight
+                    ? ExtraTheme.of(context).username
+                    : ExtraTheme.of(context).chatOrContactItemDetails,
                 fontSize: 14,
               ),
             ),

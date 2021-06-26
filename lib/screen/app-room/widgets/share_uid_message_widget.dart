@@ -4,12 +4,10 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter/cupertino.dart';
@@ -114,7 +112,10 @@ class ShareUidMessageWidget extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(left: 4.0),
                           child: Text(
-                            _shareUid.name,
+                            _shareUid.name +
+                                (_shareUid.uid.category != Categories.USER
+                                    ? " ${AppLocalization.of(context).getTraslateValue("inviteLink")}"
+                                    : ""),
                             style: TextStyle(
                               fontSize: 16,
                               color: ExtraTheme.of(context).username,
@@ -127,88 +128,85 @@ class ShareUidMessageWidget extends StatelessWidget {
                   onPressed: () async {
                     if ((_shareUid.uid.category == Categories.GROUP ||
                         _shareUid.uid.category == Categories.CHANNEL)) {
-                      var muc = await _mucDao
-                          .getMucByUid(_shareUid.uid.asString());
+                      var muc =
+                          await _mucDao.getMucByUid(_shareUid.uid.asString());
                       if (muc != null) {
                         _routingServices.openRoom(_shareUid.uid.asString());
+                      } else {
+                        showFloatingModalBottomSheet(
+                          context: context,
+                          builder: (context) => Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                CircleAvatarWidget(_shareUid.uid, 40,
+                                    forceText: _shareUid.name),
+                                Text(
+                                  _shareUid.name,
+                                  style: Theme.of(context).textTheme.headline3,
+                                ),
+                                SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    MaterialButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        child: Text(AppLocalization.of(context)
+                                            .getTraslateValue("skip"))),
+                                    MaterialButton(
+                                        onPressed: () async {
+                                          // Navigator.of(context).pop();
+                                          if ((_shareUid.uid.category ==
+                                              Categories.GROUP ||
+                                              _shareUid.uid.category ==
+                                                  Categories.CHANNEL)) {
+                                            var muc = await _mucDao.getMucByUid(
+                                                _shareUid.uid.asString());
+                                            if (muc == null) {
+                                              if (_shareUid.uid.category ==
+                                                  Categories.GROUP) {
+                                                var res =
+                                                await _mucRepo.joinGroup(
+                                                    _shareUid.uid,
+                                                    _shareUid.joinToken);
+                                                if (res) {
+                                                  _routingServices.openRoom(
+                                                      _shareUid.uid.asString());
+                                                }
+                                              } else {
+                                                var res =
+                                                await _mucRepo.joinChannel(
+                                                    _shareUid.uid,
+                                                    _shareUid.joinToken);
+                                                if (res) {
+                                                  _routingServices.openRoom(
+                                                      _shareUid.uid.asString());
+                                                }
+                                              }
+                                            } else
+                                              _routingServices.openRoom(
+                                                _shareUid.uid.asString(),
+                                              );
+                                          } else {
+                                            _routingServices.openRoom(
+                                                _shareUid.uid.asString());
+                                          }
+                                        },
+                                        child: Text(AppLocalization.of(context)
+                                            .getTraslateValue("join")))
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
                       }
                     } else {
-                      showFloatingModalBottomSheet(
-                        context: context,
-                        builder: (context) => Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              CircleAvatarWidget(_shareUid.uid, 40,
-                                  forceText: _shareUid.name),
-                              Text(
-                                _shareUid.name,
-                                style:
-                                Theme.of(context).textTheme.headline3,
-                              ),
-                              SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
-                                children: [
-                                  MaterialButton(
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(),
-                                      child: Text(
-                                          AppLocalization.of(context)
-                                              .getTraslateValue("skip"))),
-                                  MaterialButton(
-                                      onPressed: () async {
-                                        // Navigator.of(context).pop();
-                                        if ((_shareUid.uid.category ==
-                                            Categories.GROUP ||
-                                            _shareUid.uid.category ==
-                                                Categories.CHANNEL)) {
-                                          var muc =
-                                          await _mucDao.getMucByUid(
-                                              _shareUid.uid.asString());
-                                          if (muc == null) {
-                                            if (_shareUid.uid.category ==
-                                                Categories.GROUP) {
-                                              var res =
-                                              await _mucRepo.joinGroup(
-                                                  _shareUid.uid,
-                                                  _shareUid.joinToken);
-                                              if (res) {
-                                                _routingServices.openRoom(
-                                                    _shareUid.uid
-                                                        .asString());
-                                              }
-                                            } else {
-                                              var res = await _mucRepo
-                                                  .joinChannel(
-                                                  _shareUid.uid,
-                                                  _shareUid.joinToken);
-                                              if (res) {
-                                                _routingServices.openRoom(
-                                                    _shareUid.uid
-                                                        .asString());
-                                              }
-                                            }
-                                          } else
-                                            _routingServices.openRoom(
-                                              _shareUid.uid.asString(),
-                                            );
-                                        } else {
-                                          _routingServices.openRoom(
-                                              _shareUid.uid.asString());
-                                        }
-                                      },
-                                      child: Text(
-                                          AppLocalization.of(context)
-                                              .getTraslateValue("join")))
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
+                      _routingServices.openRoom(
+                          _shareUid.uid.asString());
                     }
                   },
                 ),
