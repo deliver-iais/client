@@ -772,7 +772,7 @@ class MessageRepo {
 
   Future<bool> pinMessage(Message message)async {
     try{
-      mucServices.pinMessage(message);
+     return await mucServices.pinMessage(message);
     }catch(e){
       return false;
     }

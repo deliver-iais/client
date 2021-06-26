@@ -21,6 +21,7 @@ import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart' as MucPro;
 import 'package:deliver_public_protocol/pub/v1/models/muc.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:grpc/grpc.dart';
@@ -154,9 +155,12 @@ class MucRepo {
     if (mucUid.category == Categories.GROUP) {
       MucPro.GetGroupRes group = await getGroupInfo(mucUid);
       if (group != null) {
+        print("%%%%%%%%%%%%"+group.pinMessages.length.toString());
+
         _mucDao.insertMuc(Muc(
           name: group.info.name,
           info: group.info.info,
+          pinMessagesId: json.decode(getAsInt(group.pinMessages)).toString(),
           members: group.population.toInt(),
           uid: mucUid.asString(),
         ));
@@ -172,6 +176,7 @@ class MucRepo {
             members: channel.population.toInt(),
             uid: mucUid.asString(),
             info: channel.info.info,
+            pinMessagesId: json.decode(getAsInt(channel.pinMessages)).toString(),
             id: channel.info.id));
         insertUserInDb(mucUid, [
           Member(
@@ -495,5 +500,22 @@ class MucRepo {
 
   Stream<Member> checkJointToMuc({String roomUid}) {
     return _memberDao.isJoint(roomUid, _accountRepo.currentUserUid.asString());
+  }
+
+ Future<List<int>> getPinMessages(String mucUid)async {
+    var muc = await _mucDao.getMucByUid(mucUid);
+    List pm = json.decode(muc.pinMessagesId);
+    List<int> pinMessages = List();
+    pm.forEach((element) {pinMessages.add(element as int );});
+    return pinMessages;
+
+ }
+
+  String getAsInt(List<Int64> pinMessages) {
+    List<int> pm = List();
+    pinMessages.forEach((element) {
+      pm.add(element.toInt());
+    });
+    return pm.toString();
   }
 }

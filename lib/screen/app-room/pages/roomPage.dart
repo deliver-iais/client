@@ -257,7 +257,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           break;
         case OperationOnMessage.PIN_MESSAGE:
           var isPin = await _messageRepo.pinMessage(message);
-          isPin = true;
           if (isPin) {
             _pinMessages.add(message);
             _lastPinedMessage.add(_pinMessages.last.id);
@@ -267,8 +266,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           }
           break;
         case OperationOnMessage.UN_PIN_MESSAGE:
-      //    var res = await _messageRepo.unPinMessage(message);
-          if (true) {
+          var res = await _messageRepo.unPinMessage(message);
+          if (res) {
             _pinMessages.remove(message);
             _lastPinedMessage
                 .add(_pinMessages.length > 0 ? _pinMessages.last.id : 0);
@@ -357,11 +356,22 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       _botRepo.featchBotInfo(widget.roomId.getUid());
     }
     if (widget.roomId.getUid().category == Categories.CHANNEL) {
+      getPinMessages();
       checkRole();
     }
     if (widget.roomId.getUid().category == Categories.GROUP) {
+      getPinMessages();
       checkGroupRole();
     }
+  }
+
+  Future<void> getPinMessages() async {
+    var res = await _mucRepo.getPinMessages(widget.roomId);
+    res.forEach((element) async {
+      var m = await _getMessage(element, widget.roomId);
+      _pinMessages.add(m);
+    });
+    _lastPinedMessage.add(_pinMessages.last.id);
   }
 
   Future checkRole() async {
@@ -1236,18 +1246,20 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Widget PinMessageWidget() {
-    return PinMessageAppBar(lastPinedMessage: _lastPinedMessage,pinMessages: _pinMessages,onTap: (int id , Message mes){
-      _itemScrollController.scrollTo(
-          index: _lastPinedMessage.valueWrapper.value,
-          duration: Duration(microseconds: 1));
-      setState(() {
-        _replayMessageId = id;
-      });
-      if (_pinMessages.length > 1) {
-        _lastPinedMessage
-            .add(_pinMessages[_pinMessages.indexOf(mes) - 1].id);
-      }
-    },);
-
+    return PinMessageAppBar(
+      lastPinedMessage: _lastPinedMessage,
+      pinMessages: _pinMessages,
+      onTap: (int id, Message mes) {
+        _itemScrollController.scrollTo(
+            index: _lastPinedMessage.valueWrapper.value,
+            duration: Duration(microseconds: 1));
+        setState(() {
+          _replayMessageId = id;
+        });
+        if (_pinMessages.length > 1) {
+          _lastPinedMessage.add(_pinMessages[_pinMessages.indexOf(mes) - 1].id);
+        }
+      },
+    );
   }
 }

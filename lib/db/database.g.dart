@@ -4096,12 +4096,14 @@ class Muc extends DataClass implements Insertable<Muc> {
   final String name;
   final String id;
   final String info;
+  final String pinMessagesId;
   final int members;
   Muc(
       {@required this.uid,
       @required this.name,
       this.id,
       this.info,
+      this.pinMessagesId,
       this.members});
   factory Muc.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
@@ -4115,6 +4117,8 @@ class Muc extends DataClass implements Insertable<Muc> {
           .mapFromDatabaseResponse(data['${effectivePrefix}id']),
       info: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}info']),
+      pinMessagesId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}pin_messages_id']),
       members: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}members']),
     );
@@ -4134,6 +4138,9 @@ class Muc extends DataClass implements Insertable<Muc> {
     if (!nullToAbsent || info != null) {
       map['info'] = Variable<String>(info);
     }
+    if (!nullToAbsent || pinMessagesId != null) {
+      map['pin_messages_id'] = Variable<String>(pinMessagesId);
+    }
     if (!nullToAbsent || members != null) {
       map['members'] = Variable<int>(members);
     }
@@ -4146,6 +4153,9 @@ class Muc extends DataClass implements Insertable<Muc> {
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       info: info == null && nullToAbsent ? const Value.absent() : Value(info),
+      pinMessagesId: pinMessagesId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pinMessagesId),
       members: members == null && nullToAbsent
           ? const Value.absent()
           : Value(members),
@@ -4160,6 +4170,7 @@ class Muc extends DataClass implements Insertable<Muc> {
       name: serializer.fromJson<String>(json['name']),
       id: serializer.fromJson<String>(json['id']),
       info: serializer.fromJson<String>(json['info']),
+      pinMessagesId: serializer.fromJson<String>(json['pinMessagesId']),
       members: serializer.fromJson<int>(json['members']),
     );
   }
@@ -4171,17 +4182,24 @@ class Muc extends DataClass implements Insertable<Muc> {
       'name': serializer.toJson<String>(name),
       'id': serializer.toJson<String>(id),
       'info': serializer.toJson<String>(info),
+      'pinMessagesId': serializer.toJson<String>(pinMessagesId),
       'members': serializer.toJson<int>(members),
     };
   }
 
   Muc copyWith(
-          {String uid, String name, String id, String info, int members}) =>
+          {String uid,
+          String name,
+          String id,
+          String info,
+          String pinMessagesId,
+          int members}) =>
       Muc(
         uid: uid ?? this.uid,
         name: name ?? this.name,
         id: id ?? this.id,
         info: info ?? this.info,
+        pinMessagesId: pinMessagesId ?? this.pinMessagesId,
         members: members ?? this.members,
       );
   @override
@@ -4191,6 +4209,7 @@ class Muc extends DataClass implements Insertable<Muc> {
           ..write('name: $name, ')
           ..write('id: $id, ')
           ..write('info: $info, ')
+          ..write('pinMessagesId: $pinMessagesId, ')
           ..write('members: $members')
           ..write(')'))
         .toString();
@@ -4199,8 +4218,12 @@ class Muc extends DataClass implements Insertable<Muc> {
   @override
   int get hashCode => $mrjf($mrjc(
       uid.hashCode,
-      $mrjc(name.hashCode,
-          $mrjc(id.hashCode, $mrjc(info.hashCode, members.hashCode)))));
+      $mrjc(
+          name.hashCode,
+          $mrjc(
+              id.hashCode,
+              $mrjc(info.hashCode,
+                  $mrjc(pinMessagesId.hashCode, members.hashCode))))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4209,6 +4232,7 @@ class Muc extends DataClass implements Insertable<Muc> {
           other.name == this.name &&
           other.id == this.id &&
           other.info == this.info &&
+          other.pinMessagesId == this.pinMessagesId &&
           other.members == this.members);
 }
 
@@ -4217,12 +4241,14 @@ class MucsCompanion extends UpdateCompanion<Muc> {
   final Value<String> name;
   final Value<String> id;
   final Value<String> info;
+  final Value<String> pinMessagesId;
   final Value<int> members;
   const MucsCompanion({
     this.uid = const Value.absent(),
     this.name = const Value.absent(),
     this.id = const Value.absent(),
     this.info = const Value.absent(),
+    this.pinMessagesId = const Value.absent(),
     this.members = const Value.absent(),
   });
   MucsCompanion.insert({
@@ -4230,6 +4256,7 @@ class MucsCompanion extends UpdateCompanion<Muc> {
     @required String name,
     this.id = const Value.absent(),
     this.info = const Value.absent(),
+    this.pinMessagesId = const Value.absent(),
     this.members = const Value.absent(),
   })  : uid = Value(uid),
         name = Value(name);
@@ -4238,6 +4265,7 @@ class MucsCompanion extends UpdateCompanion<Muc> {
     Expression<String> name,
     Expression<String> id,
     Expression<String> info,
+    Expression<String> pinMessagesId,
     Expression<int> members,
   }) {
     return RawValuesInsertable({
@@ -4245,6 +4273,7 @@ class MucsCompanion extends UpdateCompanion<Muc> {
       if (name != null) 'name': name,
       if (id != null) 'id': id,
       if (info != null) 'info': info,
+      if (pinMessagesId != null) 'pin_messages_id': pinMessagesId,
       if (members != null) 'members': members,
     });
   }
@@ -4254,12 +4283,14 @@ class MucsCompanion extends UpdateCompanion<Muc> {
       Value<String> name,
       Value<String> id,
       Value<String> info,
+      Value<String> pinMessagesId,
       Value<int> members}) {
     return MucsCompanion(
       uid: uid ?? this.uid,
       name: name ?? this.name,
       id: id ?? this.id,
       info: info ?? this.info,
+      pinMessagesId: pinMessagesId ?? this.pinMessagesId,
       members: members ?? this.members,
     );
   }
@@ -4279,6 +4310,9 @@ class MucsCompanion extends UpdateCompanion<Muc> {
     if (info.present) {
       map['info'] = Variable<String>(info.value);
     }
+    if (pinMessagesId.present) {
+      map['pin_messages_id'] = Variable<String>(pinMessagesId.value);
+    }
     if (members.present) {
       map['members'] = Variable<int>(members.value);
     }
@@ -4292,6 +4326,7 @@ class MucsCompanion extends UpdateCompanion<Muc> {
           ..write('name: $name, ')
           ..write('id: $id, ')
           ..write('info: $info, ')
+          ..write('pinMessagesId: $pinMessagesId, ')
           ..write('members: $members')
           ..write(')'))
         .toString();
@@ -4350,6 +4385,20 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
     );
   }
 
+  final VerificationMeta _pinMessagesIdMeta =
+      const VerificationMeta('pinMessagesId');
+  GeneratedTextColumn _pinMessagesId;
+  @override
+  GeneratedTextColumn get pinMessagesId =>
+      _pinMessagesId ??= _constructPinMessagesId();
+  GeneratedTextColumn _constructPinMessagesId() {
+    return GeneratedTextColumn(
+      'pin_messages_id',
+      $tableName,
+      true,
+    );
+  }
+
   final VerificationMeta _membersMeta = const VerificationMeta('members');
   GeneratedIntColumn _members;
   @override
@@ -4363,7 +4412,8 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
   }
 
   @override
-  List<GeneratedColumn> get $columns => [uid, name, id, info, members];
+  List<GeneratedColumn> get $columns =>
+      [uid, name, id, info, pinMessagesId, members];
   @override
   $MucsTable get asDslTable => this;
   @override
@@ -4393,6 +4443,12 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
     if (data.containsKey('info')) {
       context.handle(
           _infoMeta, info.isAcceptableOrUnknown(data['info'], _infoMeta));
+    }
+    if (data.containsKey('pin_messages_id')) {
+      context.handle(
+          _pinMessagesIdMeta,
+          pinMessagesId.isAcceptableOrUnknown(
+              data['pin_messages_id'], _pinMessagesIdMeta));
     }
     if (data.containsKey('members')) {
       context.handle(_membersMeta,

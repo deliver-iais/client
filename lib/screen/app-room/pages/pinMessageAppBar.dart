@@ -84,20 +84,20 @@ class PinMessageAppBar extends StatelessWidget{
               child: Container(
                 color: ExtraTheme.of(context).pinMessageTheme,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          appLocalization.getTraslateValue("pinned_message"),
-                          style: TextStyle(color: Colors.blue),
-                        ),
-                        IconButton(onPressed: (){}, icon: Icon(Icons.push_pin,size: 16,))
-                      ],
-                    ),
+                     Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            appLocalization.getTraslateValue("pinned_message"),
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                          IconButton(onPressed: (){}, icon: Icon(Icons.push_pin,size: 15,))
+                        ],
+                      ),
+
                     Container(
-                        height: 20,
                         width: MediaQuery.of(context).size.width - 30,
                         child: Text(
                           body,
