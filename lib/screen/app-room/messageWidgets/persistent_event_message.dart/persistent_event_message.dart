@@ -92,6 +92,7 @@ class PersistentEventMessage extends StatelessWidget {
           case MucSpecificPersistentEvent_Issue.JOINED_USER:
             return "$issuer ${_appLocalization.getTraslateValue("joint_to_group")}";
             break;
+            return "$issuer ${_appLocalization.getTraslateValue("joined_to_group")}";
 
           case MucSpecificPersistentEvent_Issue.KICK_USER:
             return "$issuer ،  ${_appLocalization.getTraslateValue("kick_from_muc")} $assignee";

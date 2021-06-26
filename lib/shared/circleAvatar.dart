@@ -18,6 +18,7 @@ import 'package:get_it/get_it.dart';
 class CircleAvatarWidget extends StatelessWidget {
   final Uid contactUid;
   final double radius;
+  final String forceText;
   final bool forceToUpdate;
   final bool showAsStreamOfAvatar;
   final bool showSavedMessageLogoIfNeeded;
@@ -29,6 +30,7 @@ class CircleAvatarWidget extends StatelessWidget {
 
   CircleAvatarWidget(this.contactUid, this.radius,
       {this.forceToUpdate = false,
+      this.forceText = "",
       this.showAsStreamOfAvatar = false,
       this.showSavedMessageLogoIfNeeded = false});
 
@@ -124,40 +126,33 @@ class CircleAvatarWidget extends StatelessWidget {
   }
 
   Widget showDisplayName(Color textColor) {
-    return contactUid != _accountRepo.currentUserUid
-        ? FutureBuilder<String>(
-            future: _roomRepo.getRoomDisplayName(contactUid),
-            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-              if (snapshot.data != null) {
-                String name = snapshot.data.replaceAll(' ', '');
-                return Center(
-                  child: Text(name.length > 2 ? name.substring(0, 2) : name,
-                      style:
-                          TextStyle(color: textColor, fontSize: (radius * 0.6).toInt().toDouble(), height: 2)),
-                );
-              } else {
-                return Icon(
-                  Icons.person,
-                  size: radius,
-                  color: Colors.white,
-                );
-              }
-            },
-          )
-        : FutureBuilder<Account>(
-            future: _accountRepo.getAccount(),
-            builder: (BuildContext context, AsyncSnapshot<Account> snapshot) {
-              if (snapshot.data != null) {
-                return Text(
-                    snapshot.data.firstName != null
-                        ? snapshot.data.firstName.substring(0, 2)
-                        : "",
-                    style: TextStyle(
-                        color: Colors.white, fontSize: radius, height: 2));
-              } else {
-                return SizedBox.shrink();
-              }
-            },
+    if (this.forceText.isNotEmpty) {
+      return avatarAlt(this.forceText, textColor);
+    }
+    return FutureBuilder<String>(
+      future: _roomRepo.getRoomDisplayName(contactUid),
+      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+        if (snapshot.data != null) {
+          String name = snapshot.data.replaceAll(' ', '');
+          return avatarAlt(name, textColor);
+        } else {
+          return Icon(
+            Icons.person,
+            size: radius,
+            color: Colors.white,
           );
+        }
+      },
+    );
+  }
+
+  Center avatarAlt(String name, Color textColor) {
+    return Center(
+      child: Text(name.length > 2 ? name.substring(0, 2) : name,
+          style: TextStyle(
+              color: textColor,
+              fontSize: (radius * 0.6).toInt().toDouble(),
+              height: 2)),
+    );
   }
 }

@@ -22,7 +22,7 @@ class JointToMucWidget extends StatelessWidget {
         color: Theme.of(context).primaryColor,
         child: Center(
           child: GestureDetector(
-            child: Text(_appLocalization.getTraslateValue("joint")),
+            child: Text(_appLocalization.getTraslateValue("join")),
             onTap: () {
               mucUid.category == Categories.GROUP
                   ? _mucRepo.joinGroup(mucUid,token)

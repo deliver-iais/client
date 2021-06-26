@@ -36,12 +36,11 @@ class RoomRepo {
   var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   var _botInfoDao = GetIt.I.get<BotInfoDao>();
 
-
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   Map<String, BehaviorSubject<Activity>> activityObject = Map();
 
-  insertRoom(String uid){
+  insertRoom(String uid) {
     _roomDao.insertRoomCompanion(RoomsCompanion(roomId: Value(uid)));
   }
 
@@ -52,12 +51,14 @@ class RoomRepo {
         break;
       case Categories.USER:
         String name = await _roomNameCache.get(uid.asString());
-        if (name != null && !name.contains("null")) {
+        if (_accountRepo.isCurrentUser(uid.asString())) {
+          return (await _accountRepo.getAccount()).firstName;
+        } else if (name != null && !name.contains("null")) {
           return name;
         } else {
           var contact = await _contactDao.getContactByUid(uid.asString());
           if (contact != null) {
-            String contactName = "${contact.firstName}";
+            String contactName = contact.firstName;
             _roomNameCache.set(uid.asString(), contactName);
             return contactName;
           } else {
@@ -93,8 +94,8 @@ class RoomRepo {
         }
         break;
       case Categories.BOT:
-        var res  = await _botInfoDao.getBotInfo(uid.node);
-        if(res!= null && res.name.isNotEmpty){
+        var res = await _botInfoDao.getBotInfo(uid.node);
+        if (res != null && res.name.isNotEmpty) {
           return res.name;
         }
         return uid.node;
@@ -198,7 +199,7 @@ class RoomRepo {
       } else {
         var uid = await _contactRepo.searchUserByUsername(username);
         if (uid != null)
-        _userInfoDao.upsertUserInfo(
+          _userInfoDao.upsertUserInfo(
               UserInfo(uid: uid.asString(), username: username));
         return uid.asString();
       }
