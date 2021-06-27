@@ -7,9 +7,11 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/operation_on_message.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final Message message;
@@ -61,14 +63,15 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   onShare() {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.SHARE);
   }
-  onPinMessage(){
+
+  onPinMessage() {
     Navigator.pop<OperationOnMessage>(context, OperationOnMessage.PIN_MESSAGE);
   }
-  onUnPinMessage(){
-    Navigator.pop<OperationOnMessage>(context, OperationOnMessage.UN_PIN_MESSAGE);
+
+  onUnPinMessage() {
+    Navigator.pop<OperationOnMessage>(
+        context, OperationOnMessage.UN_PIN_MESSAGE);
   }
-
-
 
   onDeletePendingMessage() {
     Navigator.pop<OperationOnMessage>(
@@ -100,7 +103,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     Text(appLocalization.getTraslateValue("Reply")),
                   ])),
             ),
-          if (widget.hasPermissionInGroup)
+          if ((widget.message.roomId.getUid().category == Categories.GROUP &&
+                  widget.hasPermissionInGroup) ||
+              (widget.message.roomId.getUid().category == Categories.CHANNEL &&
+                  widget.hasPermissionInChannel))
             if (!widget.isPined)
               Expanded(
                 child: FlatButton(

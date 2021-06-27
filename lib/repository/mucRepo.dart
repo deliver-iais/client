@@ -338,13 +338,7 @@ class MucRepo {
   joinGroup(Uid groupUid,String token) async {
     var result = await mucServices.joinGroup(groupUid,token);
     if (result) {
-      MucPro.GetGroupRes newGroup = await getGroupInfo(groupUid);
-      getGroupMembers(groupUid, newGroup.population.toInt());
-      _mucDao.insertMuc(Muc(
-          uid: groupUid.asString(),
-          name: newGroup.info.name,
-          members: newGroup.population.toInt(),
-          info: newGroup.info.info));
+      fetchMucInfo(groupUid);
       return true;
     }
     return false;
@@ -354,14 +348,7 @@ class MucRepo {
   joinChannel(Uid channelUid,String token) async {
     var result = await mucServices.joinChannel(channelUid,token);
     if (result) {
-      GetChannelRes newChannel = await getChannelInfo(channelUid);
-      getChannelMembers(channelUid, newChannel.population.toInt());
-      _mucDao.insertMuc(Muc(
-          uid: channelUid.asString(),
-          name: newChannel.info.name,
-          members: newChannel.population.toInt(),
-          id: newChannel.info.id,
-          info: newChannel.info.info));
+      fetchMucInfo(channelUid);
       return true;
     }
     return false;

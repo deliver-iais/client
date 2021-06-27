@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
@@ -72,6 +73,7 @@ class ShareUidMessageWidget extends StatelessWidget {
 
   var _routingServices = GetIt.I.get<RoutingService>();
   var _mucDao = GetIt.I.get<MucDao>();
+  var _messageRepo = GetIt.I.get<MessageRepo>();
 
   proto.ShareUid _shareUid;
 
@@ -175,6 +177,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                 if (res) {
                                                   _routingServices.openRoom(
                                                       _shareUid.uid.asString());
+                                                  Navigator.of(context).pop();
                                                 }
                                               } else {
                                                 var res =
@@ -182,8 +185,10 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                     _shareUid.uid,
                                                     _shareUid.joinToken);
                                                 if (res) {
+                                                  _messageRepo.updateNewChannel(_shareUid.uid);
                                                   _routingServices.openRoom(
                                                       _shareUid.uid.asString());
+                                                  Navigator.of(context).pop();
                                                 }
                                               }
                                             } else

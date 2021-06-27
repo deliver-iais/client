@@ -287,7 +287,7 @@ class CoreServices {
                 pm.add(element as int);
               });
               pm.add(message.persistEvent.mucSpecificPersistentEvent.messageId.toInt());
-              _mucDao.upsertMucCompanion(Database.MucsCompanion.insert(uid: muc.uid, name: muc.name,pinMessagesId:Value(json.encode(pm.toString()))));
+              _mucDao.upsertMucCompanion(Database.MucsCompanion.insert(uid: muc.uid, name: muc.name,pinMessagesId:Value(json.decode(pm.toString()).toString())));
               break;
             }
 

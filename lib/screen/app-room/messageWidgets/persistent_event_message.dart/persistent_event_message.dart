@@ -47,8 +47,9 @@ class PersistentEventMessage extends StatelessWidget {
         builder: (c, s) {
           if (s.hasData) {
             return Directionality(
-                textDirection:
-                    _uxService.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                textDirection: _uxService.isPersian
+                    ? TextDirection.rtl
+                    : TextDirection.ltr,
                 child: Text(
                   s.data,
                   style: TextStyle(
@@ -69,13 +70,21 @@ class PersistentEventMessage extends StatelessWidget {
       PersistentEvent persistentEventMessage) async {
     switch (persistentEventMessage.whichType()) {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
-        String issuer = await getName(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer,
-            message.to.getUid());
-        String assignee = persistentEventMessage.mucSpecificPersistentEvent.issue !=   MucSpecificPersistentEvent_Issue.PIN_MESSAGE?
-        await getName(
-            persistentEventMessage.mucSpecificPersistentEvent.assignee,
-            message.to.getUid()):"";
+        String issuer =
+            (persistentEventMessage.mucSpecificPersistentEvent.issue ==
+                        MucSpecificPersistentEvent_Issue.PIN_MESSAGE) &&
+                    message.to.getUid().category == Categories.CHANNEL
+                ? ""
+                : await getName(
+                    persistentEventMessage.mucSpecificPersistentEvent.issuer,
+                    message.to.getUid());
+        String assignee =
+            persistentEventMessage.mucSpecificPersistentEvent.issue !=
+                    MucSpecificPersistentEvent_Issue.PIN_MESSAGE
+                ? await getName(
+                    persistentEventMessage.mucSpecificPersistentEvent.assignee,
+                    message.to.getUid())
+                : "";
         bool isMe = persistentEventMessage.mucSpecificPersistentEvent.issuer
             .isSameEntity(_accountRepo.currentUserUid.asString());
         switch (persistentEventMessage.mucSpecificPersistentEvent.issue) {
@@ -90,9 +99,8 @@ class PersistentEventMessage extends StatelessWidget {
                 ? "$issuer } ${_appLocalization.getTraslateValue("change_channel_avatar")}"
                 : "$issuer  ${_appLocalization.getTraslateValue("change_group_avatar")}";
           case MucSpecificPersistentEvent_Issue.JOINED_USER:
-            return "$issuer ${_appLocalization.getTraslateValue("joint_to_group")}";
-            break;
             return "$issuer ${_appLocalization.getTraslateValue("joined_to_group")}";
+            break;
 
           case MucSpecificPersistentEvent_Issue.KICK_USER:
             return "$issuer ،  ${_appLocalization.getTraslateValue("kick_from_muc")} $assignee";
@@ -108,7 +116,6 @@ class PersistentEventMessage extends StatelessWidget {
           case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
             return "$issuer  ${_appLocalization.getTraslateValue("change_muc_name")}";
             break;
-
         }
 
         break;

@@ -77,15 +77,16 @@ class PinMessageAppBar extends StatelessWidget{
                 break;
             }
             return GestureDetector(
-
               onTap: () {
                onTap(id.data,mes);
                },
               child: Container(
+                padding:const EdgeInsets.only(left: 8,right: 3,bottom: 8,top: 0) ,
                 color: ExtraTheme.of(context).pinMessageTheme,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Divider(),
                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -93,19 +94,19 @@ class PinMessageAppBar extends StatelessWidget{
                             appLocalization.getTraslateValue("pinned_message"),
                             style: TextStyle(color: Colors.blue,fontSize: 13),
                           ),
-                          IconButton(onPressed: (){}, icon: Icon(Icons.push_pin,size: 14,))
+                          IconButton(onPressed: (){
+                            lastPinedMessage.add(0);
+                          }, icon: Icon(Icons.close,size: 14,color: Colors.blue,))
                         ],
                       ),
-
                     Container(
-                        width: MediaQuery.of(context).size.width - 30,
                         child: Text(
                           body,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: ExtraTheme.of(context).textField,
                           ),
-                        ))
+                        )),
                   ],
                 ),
               ),

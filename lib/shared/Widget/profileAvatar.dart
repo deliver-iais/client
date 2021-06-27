@@ -960,16 +960,22 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               ),
             ),
             content: Container(
-              child: Text(generateInviteLink(token),style: TextStyle(color: Colors.blue),)
+              child: Text(generateInviteLink(token),style: TextStyle(color: Colors.black),)
             ),
             actions: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   GestureDetector(
-                    child: Text(
-                      _appLocalization.getTraslateValue("share"),
-                      style: TextStyle(fontSize: 16, color: Colors.blue),
+                    child: Container(
+                      decoration:BoxDecoration(
+                        color:  Colors.blue,
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                      ) ,
+                      child: Text(
+                        _appLocalization.getTraslateValue("share"),
+                        style: TextStyle(fontSize: 21, color: Colors.white),
+                      ),
                     ),
                     onTap: () {
                       _routingServices.openSelectForwardMessage(

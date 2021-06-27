@@ -77,6 +77,6 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     seenStatus: Colors.white,
     profileAvatarCard: DarkTheme.accentColor.withAlpha(50),
     inputBoxBackground: DarkTheme.accentColor.withAlpha(50),
-    pinMessageTheme: Colors.blueGrey,
+    pinMessageTheme:  Color(0xFF263238),
   border: DarkTheme.primaryColor
 );

@@ -301,6 +301,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
   void initState() {
+
     deceaseUnreadCountMessage(widget.roomId);
     Timer(Duration(seconds: 1), () {
       _showOtherMessage.add(true);
@@ -370,7 +371,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Future<void> getPinMessages() async {
  _mucDao.getMucByUidAsStream(widget.roomId).listen((muc) {
     if (muc != null) {
-      List  res = json.decode(muc.pinMessagesId);
+      List  res = json.decode(muc.pinMessagesId.toString());
      res.forEach((element) async {
        var m = await _getMessage(element as int, widget.roomId);
        _pinMessages.add(m);

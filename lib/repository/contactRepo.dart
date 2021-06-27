@@ -45,8 +45,8 @@ class ContactRepo {
   Map<PhoneNumber, String> _contactsDisplayName = Map();
 
   syncContacts() async {
-  //  _getPhoneNumber("145446464644456  6");
-   // getContacts();
+  //  _getPhoneNumber("+989124131853", "");
+
     if (await _checkPermission.checkContactPermission() ||
         isDesktop() ||
         isIOS()) {
@@ -60,42 +60,51 @@ class ContactRepo {
                 iOSLocalizedLabels: false);
 
         for (OsContact.Contact phoneContact in phoneContacts) {
-          try {
-            for (var p in phoneContact.phones){
-              String contactPhoneNumber = p.value
-                  .toString()
-                  .replaceAll(new RegExp(r"\s+\b|\b\s"), '')
-                  .replaceAll('+', '')
-                  .replaceAll('(', '')
-                  .replaceAll(')', '')
-                  .replaceAll('-', '');
 
-              PhoneNumber phoneNumber = _getPhoneNumber(contactPhoneNumber);
-              _contactsDisplayName[phoneNumber] = phoneContact.displayName;
-              Contact contact = Contact()
-                ..lastName = phoneContact.displayName
-                ..phoneNumber = phoneNumber;
-              contacts.add(contact);
+            for (var p in phoneContact.phones) {
+              try {
+                String contactPhoneNumber = p.value
+                    .toString()
+                    .replaceAll(new RegExp(r"\s+\b|\b\s"), '')
+                    .replaceAll('+', '')
+                    .replaceAll('(', '')
+                    .replaceAll(')', '')
+                    .replaceAll('-', '');
+                PhoneNumber phoneNumber = _getPhoneNumber(
+                    contactPhoneNumber, phoneContact.displayName);
+                _contactsDisplayName[phoneNumber] = phoneContact.displayName;
+                Contact contact = Contact()
+                  ..lastName = phoneContact.displayName
+                  ..phoneNumber = phoneNumber;
+                int i= 0;
+                while(i<3){
+                  PhoneNumber phoneNumber = _getPhoneNumber(
+                      contactPhoneNumber, phoneContact.displayName);
+                  phoneNumber..nationalNumber = phoneNumber.nationalNumber+Int64(i);
+                  _contactsDisplayName[phoneNumber] = phoneContact.displayName;
+                  Contact contact = Contact()
+                    ..lastName = phoneContact.displayName
+                    ..phoneNumber = phoneNumber;
+                  contacts.add(contact);
+                  i = i+1;
+                }
+
+                debug("+++++++++++++++++++++++++++++++++++++");
+                debug("${p.value} +++++ ${phoneContact.displayName}");
+              }catch(e){
+                debug("______________________________");
+                debug(e.toString());
+                debug("${phoneContact.displayName} ______${p.value}");
+              }
             }
-            debug("+++++++++++++++++++++++++++++++++++++");
-            debug(phoneContact.displayName);
-            phoneContact.phones.forEach((element) => debug(element));
-            debug(phoneContact.toString());
-
-          } catch (e) {
-            debug("______________________________");
-            debug(e.toString());
-            debug(phoneContact.displayName);
-            phoneContact.phones.forEach((element) => debug(element));
-            debug(phoneContact.toString());
-          }
         }
       }
       sendContacts(contacts);
     }
   }
 
-  PhoneNumber _getPhoneNumber(String phone) {
+  PhoneNumber _getPhoneNumber(String phone,String name) {
+
     PhoneNumber phoneNumber = PhoneNumber();
     switch (phone.length) {
       case 11:
@@ -112,13 +121,13 @@ class ContactRepo {
         phoneNumber.nationalNumber = Int64.parseInt(phone.substring(0, 10));
         return phoneNumber;
     }
-    throw Exception("Not Valid Number $phone");
+    throw Exception("Not Valid Number  $name ***** $phone");
   }
 
   Future sendContacts(List<Contact> contacts) async {
     try{
       int i = 0;
-      while (i < contacts.length) {
+      while (i <= contacts.length) {
         _sendContacts(contacts.sublist(
             i, contacts.length > i + 49 ? i + 49 : contacts.length));
 

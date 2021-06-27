@@ -95,6 +95,35 @@ class MessageRepo {
 
   var _completerMap = Map<String, Completer<List<Message>>>();
 
+  updateNewChannel(Uid roomUid) async {
+        try {
+          var fetchMessagesRes = await _queryServiceClient.fetchMessages(
+              FetchMessagesReq()
+                ..roomUid = roomUid
+                ..pointer = Int64(1)
+                ..type = FetchMessagesReq_Type.FORWARD_FETCH
+                ..limit = 2,
+              options: CallOptions(timeout: Duration(seconds: 1), metadata: {
+                'access_token': await _accountRepo.getAccessToken()
+              }));
+          List<Message> messages =
+          await _saveFetchMessages(fetchMessagesRes.messages);
+
+          // TODO if there is Pending Message this line has a bug!!
+          if (messages.isNotEmpty) {
+            _roomDao.insertRoomCompanion(RoomsCompanion.insert(
+                roomId: roomUid.asString(),
+                lastMessageId: Value(messages.last.id),
+                lastMessageDbId: Value(messages.last.dbId)));
+          }
+
+
+        } catch (e) {
+          debug(e);
+        }
+
+  }
+
   // TODO: Refactor Needed
   @visibleForTesting
   updating() async {
