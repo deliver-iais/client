@@ -228,13 +228,11 @@ class CoreServices {
             roomId: roomId.asString(), messageId: seen.id.toInt()),
       );
     }
-      _seenDao.insertSeen(Database.SeensCompanion.insert(
-          messageId: seen.id.toInt(),
-          user: seen.from.asString(),
-          roomId: roomId.asString()));
-      updateLastActivityTime(_userInfoDAo, seen.from, DateTime.now());
-
-
+    _seenDao.insertSeen(Database.SeensCompanion.insert(
+        messageId: seen.id.toInt(),
+        user: seen.from.asString(),
+        roomId: roomId.asString()));
+    updateLastActivityTime(_userInfoDAo, seen.from, DateTime.now());
   }
 
   _saveActivityMessage(Activity activity) {
@@ -280,9 +278,8 @@ class CoreServices {
               break;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:{
               var muc = await _mucDao.getMucByUid(roomUid.asString());
-              print(muc.toString());
               List pinMessages = json.decode(muc.pinMessagesId.toString());
-              List<int> pm = List();
+              List<int> pm = [];
               pinMessages.forEach((element) {
                 pm.add(element as int);
               });

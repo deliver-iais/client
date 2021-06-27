@@ -121,7 +121,6 @@ class _TitleStatusState extends State<TitleStatus> {
     return StreamBuilder<Activity>(
         stream: _roomRepo.activityObject[widget.currentRoomUid.node],
         builder: (c, activity) {
-          debug(_roomRepo.activityObject.toString());
           if (activity.hasData && activity.data != null) {
             if (activity.data.typeOfActivity == ActivityType.NO_ACTIVITY) {
               return normalActivity();
