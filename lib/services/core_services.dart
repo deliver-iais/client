@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
+import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
@@ -64,7 +65,7 @@ class CoreServices {
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _routingServices = GetIt.I.get<RoutingService>();
   var _lastSeenDao = GetIt.I.get<LastSeenDao>();
-
+  var _memberDao = GetIt.I.get<MemberDao>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
   var _userInfoDAo = GetIt.I.get<UserInfoDao>();
@@ -228,13 +229,11 @@ class CoreServices {
             roomId: roomId.asString(), messageId: seen.id.toInt()),
       );
     }
-      _seenDao.insertSeen(Database.SeensCompanion.insert(
-          messageId: seen.id.toInt(),
-          user: seen.from.asString(),
-          roomId: roomId.asString()));
-      updateLastActivityTime(_userInfoDAo, seen.from, DateTime.now());
-
-
+    _seenDao.insertSeen(Database.SeensCompanion.insert(
+        messageId: seen.id.toInt(),
+        user: seen.from.asString(),
+        roomId: roomId.asString()));
+    updateLastActivityTime(_userInfoDAo, seen.from, DateTime.now());
   }
 
   _saveActivityMessage(Activity activity) {
@@ -278,18 +277,24 @@ class CoreServices {
                   deleted: Value(true)));
               return;
               break;
-            case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:{
-              var muc = await _mucDao.getMucByUid(roomUid.asString());
-              print(muc.toString());
-              List pinMessages = json.decode(muc.pinMessagesId.toString());
-              List<int> pm = List();
-              pinMessages.forEach((element) {
-                pm.add(element as int);
-              });
-              pm.add(message.persistEvent.mucSpecificPersistentEvent.messageId.toInt());
-              _mucDao.upsertMucCompanion(Database.MucsCompanion.insert(uid: muc.uid, name: muc.name,pinMessagesId:Value(json.decode(pm.toString()).toString())));
-              break;
-            }
+            case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
+              {
+                var muc = await _mucDao.getMucByUid(roomUid.asString());
+                print(muc.toString());
+                List pinMessages = json.decode(muc.pinMessagesId.toString());
+                List<int> pm = List();
+                pinMessages.forEach((element) {
+                  pm.add(element as int);
+                });
+                pm.add(message.persistEvent.mucSpecificPersistentEvent.messageId
+                    .toInt());
+                _mucDao.upsertMucCompanion(Database.MucsCompanion.insert(
+                    uid: muc.uid,
+                    name: muc.name,
+                    pinMessagesId:
+                        Value(json.decode(pm.toString()).toString())));
+                break;
+              }
 
             case MucSpecificPersistentEvent_Issue.KICK_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
@@ -300,6 +305,25 @@ class CoreServices {
                 return;
               }
               break;
+            case MucSpecificPersistentEvent_Issue.JOINED_USER:
+            case MucSpecificPersistentEvent_Issue.ADD_USER:
+              if (message.persistEvent.mucSpecificPersistentEvent.assignee
+                  .isSameEntity(_accountRepo.currentUserUid.asString())) {
+                _roomDao.updateRoom(Database.RoomsCompanion(
+                    roomId: Value(message.from.asString()),
+                    deleted: Value(false)));
+              }
+              break;
+
+            case MucSpecificPersistentEvent_Issue.LEAVE_USER:
+              {
+                _memberDao.deleteMember(Database.Member(
+                  memberUid: message
+                      .persistEvent.mucSpecificPersistentEvent.issuer
+                      .asString(),
+                  mucUid: roomUid.asString(),
+                ));
+              }
           }
           break;
         case PersistentEvent_Type.messageManipulationPersistentEvent:

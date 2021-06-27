@@ -60,7 +60,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _mucDao = GetIt.I.get<MucDao>();
-  String mucName ="";
+  String mucName = "";
   AppLocalization _appLocalization;
   MucType _mucType;
   BehaviorSubject<bool> showChannelIdError = BehaviorSubject.seeded(false);
@@ -193,10 +193,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     } else {
       token = await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
     }
-    if(token!= null &&  token.isNotEmpty){
+    if (token != null && token.isNotEmpty) {
       _showInviteLinkDialog(token);
-
-    } else{
+    } else {
       Fluttertoast.showToast(
           msg: _appLocalization.getTraslateValue("occurred_Error"));
     }
@@ -290,36 +289,13 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     color: ExtraTheme.of(context).popupMenuButton,
                     icon: Icon(Icons.more_vert),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
-                      new PopupMenuItem<String>(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Icon(
-                                Icons.arrow_back_outlined,
-                                color: Colors.blue,
-                                size: 23,
-                              ),
-                              SizedBox(
-                                width: 6,
-                              ),
-                              Text(
-                                _mucType == MucType.GROUP
-                                    ? _appLocalization
-                                        .getTraslateValue("leftGroup")
-                                    : _appLocalization
-                                        .getTraslateValue("leftChannel"),
-                                style: style,
-                              ),
-                            ],
-                          ),
-                          value: "leftMuc"),
-                      if (_modifyMUc)
+                      if (!_modifyMUc)
                         new PopupMenuItem<String>(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Icon(
-                                  Icons.delete,
+                                  Icons.arrow_back_outlined,
                                   color: Colors.blue,
                                   size: 23,
                                 ),
@@ -329,14 +305,14 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                 Text(
                                   _mucType == MucType.GROUP
                                       ? _appLocalization
-                                          .getTraslateValue("deleteGroup")
+                                          .getTraslateValue("leftGroup")
                                       : _appLocalization
-                                          .getTraslateValue("deleteChannel"),
+                                          .getTraslateValue("leftChannel"),
                                   style: style,
-                                )
+                                ),
                               ],
                             ),
-                            value: "deleteMuc"),
+                            value: "leftMuc"),
                       if (_modifyMUc)
                         new PopupMenuItem<String>(
                             child: Row(
@@ -421,6 +397,30 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                             ],
                           ),
                           value: "report"),
+                      if (_modifyMUc)
+                        new PopupMenuItem<String>(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.delete,
+                                  color: Colors.blue,
+                                  size: 23,
+                                ),
+                                SizedBox(
+                                  width: 6,
+                                ),
+                                Text(
+                                  _mucType == MucType.GROUP
+                                      ? _appLocalization
+                                          .getTraslateValue("deleteGroup")
+                                      : _appLocalization
+                                          .getTraslateValue("deleteChannel"),
+                                  style: style,
+                                )
+                              ],
+                            ),
+                            value: "deleteMuc"),
                     ],
                     onSelected: onSelected,
                   )
@@ -910,7 +910,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
             ),
             actions: <Widget>[
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   GestureDetector(
                     child: Text(
@@ -942,6 +942,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           );
         });
   }
+
   void _showInviteLinkDialog(String token) async {
     showDialog(
         context: context,
@@ -960,18 +961,20 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               ),
             ),
             content: Container(
-              child: Text(generateInviteLink(token),style: TextStyle(color: Colors.black),)
-            ),
+                child: Text(
+              generateInviteLink(token),
+              style: TextStyle(color: Colors.black),
+            )),
             actions: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   GestureDetector(
                     child: Container(
-                      decoration:BoxDecoration(
-                        color:  Colors.blue,
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
                         borderRadius: BorderRadius.all(Radius.circular(5)),
-                      ) ,
+                      ),
                       child: Text(
                         _appLocalization.getTraslateValue("share"),
                         style: TextStyle(fontSize: 21, color: Colors.white),

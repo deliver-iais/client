@@ -76,25 +76,13 @@ class ContactRepo {
                 Contact contact = Contact()
                   ..lastName = phoneContact.displayName
                   ..phoneNumber = phoneNumber;
-                int i= 0;
-                while(i<3){
-                  PhoneNumber phoneNumber = _getPhoneNumber(
-                      contactPhoneNumber, phoneContact.displayName);
-                  phoneNumber..nationalNumber = phoneNumber.nationalNumber+Int64(i);
-                  _contactsDisplayName[phoneNumber] = phoneContact.displayName;
-                  Contact contact = Contact()
-                    ..lastName = phoneContact.displayName
-                    ..phoneNumber = phoneNumber;
-                  contacts.add(contact);
-                  i = i+1;
-                }
-
-                debug("+++++++++++++++++++++++++++++++++++++");
-                debug("${p.value} +++++ ${phoneContact.displayName}");
+                contacts.add(contact);
+                // debug("+++++++++++++++++++++++++++++++++++++");
+                // debug("${p.value} +++++ ${phoneContact.displayName}");
               }catch(e){
-                debug("______________________________");
-                debug(e.toString());
-                debug("${phoneContact.displayName} ______${p.value}");
+                // debug("______________________________");
+                // debug(e.toString());
+                // debug("${phoneContact.displayName} ______${p.value}");
               }
             }
         }
@@ -125,14 +113,14 @@ class ContactRepo {
   }
 
   Future sendContacts(List<Contact> contacts) async {
+    await getContacts();
     try{
       int i = 0;
       while (i <= contacts.length) {
         _sendContacts(contacts.sublist(
-            i, contacts.length > i + 49 ? i + 49 : contacts.length));
+            i, contacts.length > i + 79 ? i + 79 : contacts.length));
 
-        await getContacts();
-        i = i + 50;
+        i = i + 80;
       }
       getContacts();
     }catch(e){
