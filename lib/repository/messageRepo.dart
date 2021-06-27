@@ -665,7 +665,6 @@ class MessageRepo {
               break;
           }
         } else {
-          debug(e.toString());
           // continue;
         }
       } catch (e) {

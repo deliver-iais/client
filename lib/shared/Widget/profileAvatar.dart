@@ -238,25 +238,29 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     )),
               ),
             )
-          : GestureDetector(
-              child: CircleAvatarWidget(
-                widget.roomUid,
-                110,
-                showAsStreamOfAvatar: true,
-                showSavedMessageLogoIfNeeded: true,
+          : Center(
+              child: Container(
+                child: GestureDetector(
+                  child: CircleAvatarWidget(
+                    widget.roomUid,
+                    110,
+                    showAsStreamOfAvatar: true,
+                    showSavedMessageLogoIfNeeded: true,
+                  ),
+                  onTap: () async {
+                    var lastAvatar =
+                        await avatarRepo.getLastAvatar(widget.roomUid, false);
+                    if (lastAvatar.createdOn != null) {
+                      _routingServices.openShowAllAvatars(
+                          uid: widget.roomUid,
+                          hasPermissionToDeleteAvatar: _setAvatarPermission,
+                          heroTag: "avatar");
+                    }
+                  },
+                ),
               ),
-              onTap: () async {
-                var lastAvatar =
-                    await avatarRepo.getLastAvatar(widget.roomUid, false);
-                if (lastAvatar.createdOn != null) {
-                  _routingServices.openShowAllAvatars(
-                      uid: widget.roomUid,
-                      hasPermissionToDeleteAvatar: _setAvatarPermission,
-                      heroTag: "avatar");
-                }
-              },
             ),
-      color: Theme.of(context).accentColor.withAlpha(50),
+      color: Theme.of(context).accentColor.withAlpha(30),
     );
   }
 
@@ -268,8 +272,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           fontSize: 22.0,
           shadows: <Shadow>[
             Shadow(
-              blurRadius: 30.0,
-              color: Color.fromARGB(255, 0, 0, 0),
+              blurRadius: 10.0,
+              color: Color.fromARGB(100, 0, 0, 0),
             ),
           ],
         ));

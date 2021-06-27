@@ -60,7 +60,7 @@ class _ChatItemState extends State<ChatItem> {
           if (name.hasData && name.data != null && name.data.isNotEmpty) {
             return Container(
               padding: const EdgeInsets.all(5),
-              color: widget.isSelected ? Theme.of(context).focusColor : null,
+              color: widget.isSelected ? Theme.of(context).focusColor : Colors.transparent,
               height: widget.roomWithMessage.lastMessage.type == MessageType.PERSISTENT_EVENT?72:66,
               child: Row(
                 children: <Widget>[

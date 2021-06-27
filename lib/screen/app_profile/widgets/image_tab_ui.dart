@@ -17,7 +17,9 @@ import 'package:get_it/get_it.dart';
 class ImageTabUi extends StatefulWidget {
   int imagesCount;
   Uid userUid;
+
   ImageTabUi(this.imagesCount, this.userUid, {Key key}) : super(key: key);
+
   @override
   _ImageTabUiState createState() => _ImageTabUiState();
 }
@@ -26,6 +28,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
   var _routingService = GetIt.I.get<RoutingService>();
   var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Media>>(
@@ -49,83 +52,40 @@ class _ImageTabUiState extends State<ImageTabUi> {
                 itemBuilder: (context, position) {
                   var fileId = jsonDecode(snaps.data[position].json)["uuid"];
                   var fileName = jsonDecode(snaps.data[position].json)["name"];
-                  return FutureBuilder(
-                    future: _fileRepo.isExist(fileId, fileName,
-                        thumbnailSize: ThumbnailSize.medium),
-                    builder: (BuildContext c, AsyncSnapshot isExist) {
-                      if (isExist.hasData &&
-                          isExist.data != null &&
-                          isExist.connectionState == ConnectionState.done &&
-                          isExist.data == true) {
-                        return FutureBuilder(
-                            future: _fileRepo.getFile(fileId, fileName,
-                                thumbnailSize: ThumbnailSize.medium),
-                            builder: (BuildContext c, AsyncSnapshot snaps) {
-                              if (snaps.hasData &&
-                                  snaps.data != null &&
-                                  snaps.connectionState ==
-                                      ConnectionState.done) {
-
-                                return GestureDetector(
-                                  onTap: () {
-                                    _routingService.openShowAllMedia(
-                                      uid: widget.userUid,
-                                      hasPermissionToDeletePic: true,
-                                      mediaPosition: position,
-                                      heroTag: "btn$position",
-                                      mediasLength: widget.imagesCount,
-                                    );
-                                  },
-                                  child: Hero(
-                                    tag: "btn$position",
-                                    child: Container(
-                                        decoration: new BoxDecoration(
-                                      image: new DecorationImage(
-                                        image: Image.file(
-                                          snaps.data,
-                                        ).image,
-                                        fit: BoxFit.cover,
-                                      ),
-                                      border: Border.all(
-                                        width: 1,
-                                        color:
-                                            ExtraTheme.of(context).border,
-                                      ),
-                                    )),
-                                    transitionOnUserGestures: true,
-                                  ),
-                                );
-                              } else {
-                                return Container(width: 0.0, height: 0.0);
-                              }
-                            });
-                      } else if (isExist.hasData &&
-                          isExist.data != null &&
-                          isExist.connectionState == ConnectionState.done &&
-                          isExist.data == false) {
-                        return FutureBuilder(
-                            future: _fileRepo.getFile(fileId, fileName,
-                                thumbnailSize: ThumbnailSize.small),
-                            builder: (BuildContext c, AsyncSnapshot snaps) {
-                              if (snaps.hasData &&
-                                  snaps.data != null &&
-                                  snaps.connectionState ==
-                                      ConnectionState.done) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    _routingService.openShowAllMedia(
-                                      uid: widget.userUid,
-                                      hasPermissionToDeletePic: true,
-                                      mediaPosition: position,
-                                      heroTag: "btn$position",
-                                      mediasLength: widget.imagesCount,
-                                    );
-                                  },
-                                  child: Hero(
-                                    tag: "btn$position",
-                                    child: ImageFiltered(
-                                      imageFilter: ImageFilter.blur(
-                                          sigmaX: 4,sigmaY: 4),
+                  return Container(
+                    decoration: new BoxDecoration(
+                      border: Border.all(
+                        width: 2,
+                      ),
+                    ),
+                    child: FutureBuilder(
+                      future: _fileRepo.isExist(fileId, fileName,
+                          thumbnailSize: ThumbnailSize.medium),
+                      builder: (BuildContext c, AsyncSnapshot isExist) {
+                        if (isExist.hasData &&
+                            isExist.data != null &&
+                            isExist.connectionState == ConnectionState.done &&
+                            isExist.data == true) {
+                          return FutureBuilder(
+                              future: _fileRepo.getFile(fileId, fileName,
+                                  thumbnailSize: ThumbnailSize.medium),
+                              builder: (BuildContext c, AsyncSnapshot snaps) {
+                                if (snaps.hasData &&
+                                    snaps.data != null &&
+                                    snaps.connectionState ==
+                                        ConnectionState.done) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      _routingService.openShowAllMedia(
+                                        uid: widget.userUid,
+                                        hasPermissionToDeletePic: true,
+                                        mediaPosition: position,
+                                        heroTag: "btn$position",
+                                        mediasLength: widget.imagesCount,
+                                      );
+                                    },
+                                    child: Hero(
+                                      tag: "btn$position",
                                       child: Container(
                                           decoration: new BoxDecoration(
                                         image: new DecorationImage(
@@ -134,27 +94,69 @@ class _ImageTabUiState extends State<ImageTabUi> {
                                           ).image,
                                           fit: BoxFit.cover,
                                         ),
-                                        border: Border.all(
-                                          width: 1,
-                                          color:
-                                              ExtraTheme.of(context).border,
-                                        ),
                                       )),
+                                      transitionOnUserGestures: true,
                                     ),
-                                    transitionOnUserGestures: true,
-                                  ),
-                                );
-                              } else {
-                                return Container(width: 0.0, height: 0.0);
-                              }
-                            });
-                      } else {
-                        return Container(
-                          width: 0,
-                          height: 0,
-                        );
-                      }
-                    },
+                                  );
+                                } else {
+                                  return Container(width: 0.0, height: 0.0);
+                                }
+                              });
+                        } else if (isExist.hasData &&
+                            isExist.data != null &&
+                            isExist.connectionState == ConnectionState.done &&
+                            isExist.data == false) {
+                          return FutureBuilder(
+                              future: _fileRepo.getFile(fileId, fileName,
+                                  thumbnailSize: ThumbnailSize.small),
+                              builder: (BuildContext c, AsyncSnapshot snaps) {
+                                if (snaps.hasData &&
+                                    snaps.data != null &&
+                                    snaps.connectionState ==
+                                        ConnectionState.done) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      _routingService.openShowAllMedia(
+                                        uid: widget.userUid,
+                                        hasPermissionToDeletePic: true,
+                                        mediaPosition: position,
+                                        heroTag: "btn$position",
+                                        mediasLength: widget.imagesCount,
+                                      );
+                                    },
+                                    child: Hero(
+                                      tag: "btn$position",
+                                      child: ClipRRect(
+                                        child: ImageFiltered(
+                                          imageFilter: ImageFilter.blur(
+                                              tileMode: TileMode.decal,
+                                              sigmaX: 2,
+                                              sigmaY: 2),
+                                          child: Container(
+                                              decoration: new BoxDecoration(
+                                                  image: new DecorationImage(
+                                            image: Image.file(
+                                              snaps.data,
+                                            ).image,
+                                            fit: BoxFit.cover,
+                                          ))),
+                                        ),
+                                      ),
+                                      transitionOnUserGestures: true,
+                                    ),
+                                  );
+                                } else {
+                                  return Container(width: 0.0, height: 0.0);
+                                }
+                              });
+                        } else {
+                          return Container(
+                            width: 0,
+                            height: 0,
+                          );
+                        }
+                      },
+                    ),
                   );
                 });
           }
