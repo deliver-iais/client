@@ -73,9 +73,9 @@ class CircleAvatarWidget extends StatelessWidget {
               : color,
       child: contactUid.category == Categories.SYSTEM
           ? Image(
-              image: AssetImage(
-                  'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
-            )
+            image: AssetImage(
+                'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
+          )
           : isSavedMessage()
               ? Icon(
                   Icons.bookmark,

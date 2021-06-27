@@ -60,7 +60,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _mucDao = GetIt.I.get<MucDao>();
-  String mucName ="";
+  String mucName = "";
   AppLocalization _appLocalization;
   MucType _mucType;
   BehaviorSubject<bool> showChannelIdError = BehaviorSubject.seeded(false);
@@ -193,10 +193,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     } else {
       token = await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
     }
-    if(token!= null &&  token.isNotEmpty){
+    if (token != null && token.isNotEmpty) {
       _showInviteLinkDialog(token);
-
-    } else{
+    } else {
       Fluttertoast.showToast(
           msg: _appLocalization.getTraslateValue("occurred_Error"));
     }
@@ -239,25 +238,29 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     )),
               ),
             )
-          : GestureDetector(
-              child: CircleAvatarWidget(
-                widget.roomUid,
-                110,
-                showAsStreamOfAvatar: true,
-                showSavedMessageLogoIfNeeded: true,
+          : Center(
+              child: Container(
+                child: GestureDetector(
+                  child: CircleAvatarWidget(
+                    widget.roomUid,
+                    110,
+                    showAsStreamOfAvatar: true,
+                    showSavedMessageLogoIfNeeded: true,
+                  ),
+                  onTap: () async {
+                    var lastAvatar =
+                        await avatarRepo.getLastAvatar(widget.roomUid, false);
+                    if (lastAvatar.createdOn != null) {
+                      _routingServices.openShowAllAvatars(
+                          uid: widget.roomUid,
+                          hasPermissionToDeleteAvatar: _setAvatarPermission,
+                          heroTag: "avatar");
+                    }
+                  },
+                ),
               ),
-              onTap: () async {
-                var lastAvatar =
-                    await avatarRepo.getLastAvatar(widget.roomUid, false);
-                if (lastAvatar.createdOn != null) {
-                  _routingServices.openShowAllAvatars(
-                      uid: widget.roomUid,
-                      hasPermissionToDeleteAvatar: _setAvatarPermission,
-                      heroTag: "avatar");
-                }
-              },
             ),
-      color: Theme.of(context).accentColor.withAlpha(50),
+      color: Theme.of(context).accentColor.withAlpha(30),
     );
   }
 
@@ -269,8 +272,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           fontSize: 22.0,
           shadows: <Shadow>[
             Shadow(
-              blurRadius: 30.0,
-              color: Color.fromARGB(255, 0, 0, 0),
+              blurRadius: 10.0,
+              color: Color.fromARGB(100, 0, 0, 0),
             ),
           ],
         ));
@@ -942,6 +945,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           );
         });
   }
+
   void _showInviteLinkDialog(String token) async {
     showDialog(
         context: context,
@@ -960,18 +964,20 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               ),
             ),
             content: Container(
-              child: Text(generateInviteLink(token),style: TextStyle(color: Colors.black),)
-            ),
+                child: Text(
+              generateInviteLink(token),
+              style: TextStyle(color: Colors.black),
+            )),
             actions: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   GestureDetector(
                     child: Container(
-                      decoration:BoxDecoration(
-                        color:  Colors.blue,
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
                         borderRadius: BorderRadius.all(Radius.circular(5)),
-                      ) ,
+                      ),
                       child: Text(
                         _appLocalization.getTraslateValue("share"),
                         style: TextStyle(fontSize: 21, color: Colors.white),

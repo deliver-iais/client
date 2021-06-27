@@ -253,6 +253,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.1"
+  csslib:
+    dependency: transitive
+    description:
+      name: csslib
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.16.2"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -533,6 +540,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
+  flutter_link_preview:
+    dependency: "direct main"
+    description:
+      name: flutter_link_preview
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.5.6"
   flutter_local_notifications:
     dependency: "direct main"
     description:
@@ -639,6 +653,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+  gbk2utf8:
+    dependency: transitive
+    description:
+      name: gbk2utf8
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
   geolocator:
     dependency: "direct main"
     description:
@@ -695,8 +716,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
-  http:
+  html:
     dependency: transitive
+    description:
+      name: html
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.14.0+4"
+  http:
+    dependency: "direct overridden"
     description:
       name: http
       url: "https://pub.dartlang.org"

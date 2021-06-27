@@ -53,10 +53,11 @@ class MucServices {
       await groupServices.addMembers(addMemberRequest,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()},
-              timeout: Duration(seconds: 2)));
+              timeout: Duration(seconds: 4)));
 
       return true;
     } catch (e) {
+      debug(e);
       return false;
     }
   }

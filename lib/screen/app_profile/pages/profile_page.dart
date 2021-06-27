@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -27,6 +28,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_link_preview/flutter_link_preview.dart';
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
@@ -84,7 +86,8 @@ class _ProfilePageState extends State<ProfilePage>
     return Scaffold(
       body: FluidContainerWidget(
         child: StreamBuilder<MediasMetaDataData>(
-            stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
+            stream:
+                _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
             builder: (context, AsyncSnapshot<MediasMetaDataData> snapshot) {
               tabsCount = 0;
               if (snapshot.hasData && snapshot.data != null) {
@@ -162,9 +165,9 @@ class _ProfilePageState extends State<ProfilePage>
                                                         .getTraslateValue(
                                                             "info"),
                                                     style: TextStyle(
-                                                      color: ExtraTheme.of(
-                                                              context)
-                                                          .textField,
+                                                      color:
+                                                          ExtraTheme.of(context)
+                                                              .textField,
                                                       fontSize: 16.0,
                                                     ),
                                                   ),
@@ -192,8 +195,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                     : FutureBuilder<String>(
                                                         future: _roomRepo
                                                             .getUsername(
-                                                                widget
-                                                                    .userUid),
+                                                                widget.userUid),
                                                         builder: (BuildContext
                                                                 context,
                                                             AsyncSnapshot<
@@ -203,8 +205,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                               null) {
                                                             return _showUsername(
                                                                 snapshot.data,
-                                                                widget
-                                                                    .userUid,
+                                                                widget.userUid,
                                                                 appLocalization,
                                                                 context);
                                                           } else {
@@ -235,31 +236,28 @@ class _ProfilePageState extends State<ProfilePage>
                                                 borderRadius:
                                                     BorderRadius.circular(15),
                                               ),
-                                              height: 60,
+                                              height: 50,
                                               padding:
                                                   const EdgeInsetsDirectional
-                                                          .only(
-                                                      start: 5, end: 15),
+                                                      .only(start: 5, end: 15),
                                               child: GestureDetector(
                                                 child: Row(children: <Widget>[
-                                                  SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Icon(
-                                                    Icons.message,
-                                                    color: Colors.blue,
-                                                  ),
-                                                  SizedBox(
-                                                    width: 10,
+                                                  IconButton(
+                                                    icon: Icon(
+                                                        Icons
+                                                            .message,
+                                                        color: Colors
+                                                            .blue),
+                                                    onPressed: () {},
                                                   ),
                                                   Text(
                                                     appLocalization
                                                         .getTraslateValue(
                                                             "sendMessage"),
                                                     style: TextStyle(
-                                                      color: ExtraTheme.of(
-                                                              context)
-                                                          .textField,
+                                                      color:
+                                                          ExtraTheme.of(context)
+                                                              .textField,
                                                     ),
                                                   ),
                                                 ]),
@@ -270,17 +268,10 @@ class _ProfilePageState extends State<ProfilePage>
                                                 },
                                               )),
                                           Container(
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                    color: ExtraTheme.of(
-                                                            context)
-                                                        .borderOfProfilePage),
-                                              ),
-                                              height: 60,
+                                              height: 50,
                                               padding:
                                                   const EdgeInsetsDirectional
-                                                          .only(
-                                                      start: 13, end: 15),
+                                                      .only(start: 7, end: 15),
                                               child: Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment
@@ -289,20 +280,21 @@ class _ProfilePageState extends State<ProfilePage>
                                                     Container(
                                                       child: Row(
                                                         children: <Widget>[
-                                                          Icon(
-                                                              Icons
-                                                                  .notifications_active,
-                                                              size: 30,
-                                                              color: Colors
-                                                                  .blue),
-                                                          SizedBox(width: 10),
+                                                          IconButton(
+                                                            icon: Icon(
+                                                                Icons
+                                                                    .notifications_active,
+                                                                color: Colors
+                                                                    .blue),
+                                                            onPressed: () {},
+                                                          ),
                                                           Text(
                                                             appLocalization
                                                                 .getTraslateValue(
                                                                     "notification"),
                                                             style: TextStyle(
-                                                              color: ExtraTheme.of(
-                                                                      context)
+                                                              color: ExtraTheme
+                                                                      .of(context)
                                                                   .textField,
                                                             ),
                                                           ),
@@ -310,10 +302,10 @@ class _ProfilePageState extends State<ProfilePage>
                                                       ),
                                                     ),
                                                     StreamBuilder<Room>(
-                                                      stream: _roomDao
-                                                          .getByRoomId(widget
-                                                              .userUid
-                                                              .asString()),
+                                                      stream:
+                                                          _roomDao.getByRoomId(
+                                                              widget.userUid
+                                                                  .asString()),
                                                       builder: (BuildContext
                                                               context,
                                                           AsyncSnapshot<Room>
@@ -358,77 +350,48 @@ class _ProfilePageState extends State<ProfilePage>
                                                       snapshot) {
                                                 if (snapshot.data != null) {
                                                   return Container(
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius
-                                                              .circular(15),
-                                                    ),
-                                                    height: 60,
+                                                    height: 50,
                                                     padding:
                                                         const EdgeInsetsDirectional
                                                                 .only(
-                                                            start: 7,
-                                                            end: 15),
-                                                    child: Stack(children: <
-                                                        Widget>[
-                                                      Row(
-                                                        children: [
-                                                          IconButton(
-                                                            icon: Icon(
-                                                                Icons.phone,
-                                                                color: Colors
-                                                                    .blue),
-                                                            onPressed: () {},
+                                                            start: 7, end: 15),
+                                                    child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: <Widget>[
+                                                          Row(
+                                                            children: [
+                                                              IconButton(
+                                                                icon: Icon(
+                                                                    Icons.phone,
+                                                                    color: Colors
+                                                                        .blue),
+                                                                onPressed:
+                                                                    () {},
+                                                              ),
+                                                              Text(
+                                                                  appLocalization
+                                                                      .getTraslateValue(
+                                                                          "phone"),
+                                                                  style: TextStyle(
+                                                                      color: ExtraTheme.of(
+                                                                              context)
+                                                                          .textField)),
+                                                            ],
                                                           ),
-                                                          Text(
-                                                              appLocalization
-                                                                  .getTraslateValue(
-                                                                      "phone"),
+                                                          MaterialButton(
+                                                            onPressed: () => launch(
+                                                                "tel:0${snapshot.data.phoneNumber}"),
+                                                            child: Text(
+                                                              "0${snapshot.data.phoneNumber}",
                                                               style: TextStyle(
                                                                   color: ExtraTheme.of(
                                                                           context)
-                                                                      .textField)),
-                                                        ],
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                top: 20),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .end,
-                                                          children: [
-                                                            ParsedText(
-                                                              textDirection:
-                                                                  TextDirection
-                                                                      .ltr,
-                                                              text:
-                                                                  "0${snapshot.data.phoneNumber}",
-                                                              parse: <
-                                                                  MatchText>[
-                                                                MatchText(
-                                                                  type: ParsedType
-                                                                      .PHONE,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                        .blue,
-                                                                    fontSize:
-                                                                        16,
-                                                                  ),
-                                                                  onTap:
-                                                                      (phone) async {
-                                                                    await launch(
-                                                                        "tel:$phone");
-                                                                  },
-                                                                ),
-                                                              ],
+                                                                      .username),
                                                             ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ]),
+                                                          )
+                                                        ]),
                                                   );
                                                 } else {
                                                   return SizedBox.shrink();
@@ -493,8 +456,7 @@ class _ProfilePageState extends State<ProfilePage>
                                           snapshot.data.documentsCount != 0)
                                         Tab(
                                             text: appLocalization
-                                                .getTraslateValue(
-                                                    "documents")),
+                                                .getTraslateValue("documents")),
                                       if (snapshot.hasData &&
                                           snapshot.data.musicsCount != 0)
                                         Tab(
@@ -534,15 +496,13 @@ class _ProfilePageState extends State<ProfilePage>
                             VideoTabUi(
                                 userUid: widget.userUid,
                                 videoCount: snapshot.data.videosCount),
-                          if (snapshot.hasData &&
-                              snapshot.data.filesCount != 0)
+                          if (snapshot.hasData && snapshot.data.filesCount != 0)
                             DocumentAndFileUi(
                               userUid: widget.userUid,
                               documentCount: snapshot.data.filesCount,
                               type: FetchMediasReq_MediaType.FILES,
                             ),
-                          if (snapshot.hasData &&
-                              snapshot.data.linkCount != 0)
+                          if (snapshot.hasData && snapshot.data.linkCount != 0)
                             linkWidget(widget.userUid, _mediaQueryRepo,
                                 snapshot.data.linkCount),
                           if (snapshot.hasData &&
@@ -589,18 +549,15 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
             itemBuilder: (BuildContext ctx, int index) {
               return Column(
                 children: [
-                  ListTile(
-                      // title: FlutterLinkPreview(
-                      //   url: jsonDecode(snapshot.data[index].json)["url"],
-                      //   bodyStyle: TextStyle(
-                      //     fontSize: 10.0,
-                      //   ),
-                      //   titleStyle: TextStyle(
-                      //     fontSize: 18.0,
-                      //     fontWeight: FontWeight.bold,
-                      //   ),
-                      // ),
-                      ),
+                  FlutterLinkPreview(
+                    url: jsonDecode(snapshot.data[index].json)["url"],
+                    bodyStyle: TextStyle(fontSize: 12.0, height: 1.4),
+                    useMultithread: true,
+                    titleStyle: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   Divider(),
                 ],
               );
