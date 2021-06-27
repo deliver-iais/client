@@ -96,7 +96,6 @@ class MucRepo {
               role: getLocalRole(member.role))));
         }
         insertUserInDb(groupUid, members);
-        fetchMembersUserName(members);
         finish = result.finished ==null? true:result.finished;
         i = i + 15;
       }
@@ -148,12 +147,15 @@ class MucRepo {
       return member.copyWith(
           name: contact.firstName, username: contact.username);
     } else {
-      var username =
-          await _contactRepo.searchUserByUid(member.memberUid.getUid());
-      if (username != null)
-        return member.copyWith(username: username);
-      else
-        return member;
+      var userInfo = await _userInfoDao.getUserInfo(member.memberUid);
+      if(userInfo!= null && userInfo.username.isNotEmpty )
+        return   member.copyWith(username: userInfo.username);
+      else{
+        var username =
+        await _contactRepo.searchUserByUid(member.memberUid.getUid());
+        if (username != null)
+          return member.copyWith(username: username);
+      }
     }
   }
 
@@ -472,27 +474,27 @@ class MucRepo {
     throw Exception("Not Valid Role! $role");
   }
 
-  void fetchMembersUserName(List<Member> members) async {
-    for (var member in members) {
-      var contact = await contactDao.getContactByUid(member.memberUid);
-      if (contact != null)
-        member = member.copyWith(
-            name: contact.firstName, username: contact.username);
-    }
-    for (var member in members) {
-      if (member.username == null) {
-        var res = await _userInfoDao.getUserInfo(member.memberUid);
-        if (res != null && res.username.isNotEmpty) {
-          member = member.copyWith(username: res.username);
-        } else {
-          var username =
-              await _contactRepo.searchUserByUid(member.memberUid.getUid());
-          member = member.copyWith(username: username);
-        }
-      }
-      _memberDao.insertMember(member);
-    }
-  }
+  // void fetchMembersUserName(List<Member> members) async {
+  //   for (var member in members) {
+  //     var contact = await contactDao.getContactByUid(member.memberUid);
+  //     if (contact != null)
+  //       member = member.copyWith(
+  //           name: contact.firstName, username: contact.username);
+  //   }
+  //   for (var member in members) {
+  //     if (member.username == null) {
+  //       var res = await _userInfoDao.getUserInfo(member.memberUid);
+  //       if (res != null && res.username.isNotEmpty) {
+  //         member = member.copyWith(username: res.username);
+  //       } else {
+  //         var username =
+  //             await _contactRepo.searchUserByUid(member.memberUid.getUid());
+  //         member = member.copyWith(username: username);
+  //       }
+  //     }
+  //     _memberDao.insertMember(member);
+  //   }
+  // }
 
   Stream<Member> checkJointToMuc({String roomUid}) {
     return _memberDao.isJoint(roomUid, _accountRepo.currentUserUid.asString());
