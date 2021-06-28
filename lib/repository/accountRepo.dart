@@ -115,7 +115,7 @@ class AccountRepo {
       var getAccessToken = await authServiceStub
           .renewAccessToken(RenewAccessTokenReq()
         ..refreshToken = refreshToken);
-      if (wrongAccessToken(getAccessToken.accessToken) ||
+      if (wrongAccessToken(getAccessToken.accessToken ,getAccessToken.refreshToken , refreshToken) ||
           wrongRefreshToken(getAccessToken.refreshToken)) {
         _getAccessToken(refreshToken);
         return;
@@ -159,7 +159,7 @@ class AccountRepo {
       return false;
   }
 
-  bool wrongAccessToken(String token) {
+  bool wrongAccessToken(String token,String refreshToken, String oldRefreshToken) {
     final Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
     final DateTime iatTime = new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["iat"]));
@@ -168,7 +168,7 @@ class AccountRepo {
     if ((expTime.millisecondsSinceEpoch - iatTime.millisecondsSinceEpoch) >
         15 * 60 * 1000) {
       var messageRepo = GetIt.I.get<MessageRepo>();
-     if(kDebugMode) messageRepo.sendErrorMessage("accessTonken = $token");
+     if(kDebugMode) messageRepo.sendErrorMessage("accessTonken = $token \n refrsh= $refreshToken \n oldRefreshToken $oldRefreshToken");
       return true;
 
     }

@@ -85,18 +85,22 @@ class MucRepo {
       int i = 0;
       int membersSize = 0;
       len = 0;
-      bool finish = true;
+      bool finish = false;
       List<Member> members = [];
-      while (i <= len || finish) {
+      while (i <= len || !finish) {
         var result = await mucServices.getGroupMembers(groupUid, 15, i);
         if (len == 0) membersSize = membersSize + result.members.length;
         for (MucPro.Member member in result.members) {
-          members.add(await fetchMemberNameAndUsername(Member(
-              mucUid: groupUid.asString(),
-              memberUid: member.uid.asString(),
-              role: getLocalRole(member.role))));
-        }
+          try{
+            members.add(await fetchMemberNameAndUsername(Member(
+                mucUid: groupUid.asString(),
+                memberUid: member.uid.asString(),
+                role: getLocalRole(member.role))));
+          }catch(e){
+            debug(e.toString());
+          }
 
+        }
         finish = result.finished;
         i = i + 15;
       }
@@ -128,13 +132,18 @@ class MucRepo {
         var result = await mucServices.getChannelMembers(channelUid, 15, i);
         if (len == 0) membersSize = membersSize + result.members.length;
         for (MucPro.Member member in result.members) {
-          members.add(await fetchMemberNameAndUsername(Member(
-              mucUid: channelUid.asString(),
-              memberUid: member.uid.asString(),
-              role: getLocalRole(member.role))));
+          try{
+            members.add(await fetchMemberNameAndUsername(Member(
+                mucUid: channelUid.asString(),
+                memberUid: member.uid.asString(),
+                role: getLocalRole(member.role))));
+          }catch(e){
+            debug(e.toString());
+          }
+
         }
 
-        print("#####${result.finished}");
+        debug("#####${result.finished}");
         finish = result.finished;
         i = i + 15;
         if (len == 0)
@@ -154,7 +163,7 @@ class MucRepo {
           name: contact.firstName, username: contact.username);
     } else {
       var userInfo = await _userInfoDao.getUserInfo(member.memberUid);
-      if (userInfo != null && userInfo.username.isNotEmpty)
+      if (userInfo != null && userInfo.username != null )
         return member.copyWith(username: userInfo.username);
       else {
         var username =
@@ -168,14 +177,15 @@ class MucRepo {
     if (mucUid.category == Categories.GROUP) {
       MucPro.GetGroupRes group = await getGroupInfo(mucUid);
       if (group != null) {
-        print("%%%%%%${group.token}");
+        debug("%%%%%%${group.token}");
         _mucDao.insertMuc(Muc(
           name: group.info.name,
+          members: group.population.toInt(),
+          uid: mucUid.asString(),
           info: group.info.info,
           token: group.token,
           pinMessagesId: json.decode(getAsInt(group.pinMessages)).toString(),
-          members: group.population.toInt(),
-          uid: mucUid.asString(),
+
         ));
 
         getGroupMembers(mucUid, group.population.toInt());
@@ -482,6 +492,7 @@ class MucRepo {
       case Role.NONE:
         return MucRole.NONE;
         break;
+
     }
     throw Exception("Not Valid Role! $role");
   }

@@ -53,16 +53,43 @@ class MucAppbarTitle extends StatelessWidget {
                         ],
                       );
                     else
-                      return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                AppLocalization.of(context)
-                                    .getTraslateValue("loading"),
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: ExtraTheme.of(context).textDetails))
-                          ]);
+                      return FutureBuilder<Muc>(future: _mucDao.getMucByUid(mucUid),builder:(c,s){
+                        if(s.hasData &&s.data != null){
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                s.data.name,
+                                style: Theme.of(context).textTheme.headline2,
+                              ),
+                              TitleStatus(
+                                normalConditionWidget: Text(
+                                  '${s.data.members} ' +
+                                      appLocalization.getTraslateValue("members"),
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      color: ExtraTheme.of(context).textDetails),
+                                ),
+                                currentRoomUid: mucUid.uid,
+                              )
+                            ],
+                          );
+
+                        }else{
+                          return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    AppLocalization.of(context)
+                                        .getTraslateValue("loading"),
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: ExtraTheme.of(context).textDetails))
+                              ]);
+                        }
+
+                      });
+
                   })
             ],
           ),

@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 
-
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/bot_commandsWidget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/emojiKeybord.dart';
@@ -67,7 +66,9 @@ class _InputMessageWidget extends State<InputMessage> {
   double size = 1;
   bool started = false;
   DateTime time = DateTime.now();
-  BehaviorSubject<DateTime> recordSubject = BehaviorSubject.seeded(DateTime.now()) ;
+  BehaviorSubject<DateTime> recordSubject =
+      BehaviorSubject.seeded(DateTime.now());
+
   double DX = 150.0;
   bool recordAudioPermission = false;
   FlutterSoundRecorder _soundRecorder = FlutterSoundRecorder();
@@ -108,6 +109,7 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   void initState() {
     super.initState();
+    myFocusNode = FocusNode();
 
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, Duration(seconds: 10)))
@@ -222,18 +224,26 @@ class _InputMessageWidget extends State<InputMessage> {
                                 child: TextField(
                                   onTap: () {
                                     backSubject.add(false);
-                                    scrollTolast(1);
+                                    //     scrollTolast(1);
                                   },
                                   minLines: 1,
-                                  style: TextStyle(fontSize: 19, height: 1,color: ExtraTheme.of(context).textField),
+                                  style: TextStyle(
+                                      fontSize: 19,
+                                      height: 1,
+                                      color: ExtraTheme.of(context).textField),
                                   maxLines: 15,
-                                  autofocus: widget.replyMessageId > 0 || isDesktop(),
+                                  autofocus:
+                                      widget.replyMessageId > 0 || isDesktop(),
                                   textInputAction: isDesktop()
-                                      ? TextInputAction.send
+                                      ? TextInputAction.next
                                       : TextInputAction.newline,
                                   controller: controller,
                                   autocorrect: true,
+                                  focusNode: myFocusNode,
                                   onSubmitted: (d) {
+                                    if (isDesktop())
+                                      FocusScope.of(context)
+                                          .requestFocus(myFocusNode);
                                     controller.text?.isEmpty &&
                                             (widget.waitingForForward == null ||
                                                 widget.waitingForForward ==
@@ -274,7 +284,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                                   decoration: BoxDecoration(
                                                     border: Border.all(
                                                         width: 1,
-                                                        color: ExtraTheme.of(context).textField),
+                                                        color: ExtraTheme.of(
+                                                                context)
+                                                            .textField),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             5),
@@ -285,8 +297,10 @@ class _InputMessageWidget extends State<InputMessage> {
                                                           child: Text(
                                                         "/",
                                                         style: TextStyle(
-                                                            fontSize: 19,
-                                                            color: ExtraTheme.of(context).textField,
+                                                          fontSize: 19,
+                                                          color: ExtraTheme.of(
+                                                                  context)
+                                                              .textField,
                                                         ),
                                                       )))),
                                               SizedBox(
@@ -295,7 +309,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                             ],
                                           ),
                                           onTap: () {
-                                            _showBotCommands.add(!_showBotCommands.valueWrapper.value);
+                                            _showBotCommands.add(
+                                                !_showBotCommands
+                                                    .valueWrapper.value);
                                           },
                                         );
                                       else
@@ -310,7 +326,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                       return IconButton(
                                           icon: Icon(
                                             Icons.attach_file,
-                                            color: ExtraTheme.of(context).textField,
+                                            color: ExtraTheme.of(context)
+                                                .textField,
                                           ),
                                           onPressed: () {
                                             backSubject.add(false);
@@ -329,7 +346,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       return IconButton(
                                         icon: Icon(
                                           Icons.send,
-                                            color: Colors.blue,
+                                          color: Colors.blue,
                                         ),
                                         onPressed: controller.text?.isEmpty &&
                                                 (widget.waitingForForward ==
@@ -375,7 +392,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                 } else {
                                   if (started) {
                                     started = false;
-                                    if(_ticktickTimer!=null) _ticktickTimer.cancel();
+                                    if (_ticktickTimer != null)
+                                      _ticktickTimer.cancel();
                                     Vibration.vibrate(duration: 200);
                                     setState(() {
                                       startAudioRecorder = false;
@@ -415,7 +433,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                 }
                               },
                               onLongPressEnd: (s) async {
-                                if(_ticktickTimer!=null) _ticktickTimer.cancel();
+                                if (_ticktickTimer != null)
+                                  _ticktickTimer.cancel();
 
                                 await _soundRecorder.stopRecorder();
                                 _soundRecorder.closeAudioSession();
@@ -573,9 +592,8 @@ class _InputMessageWidget extends State<InputMessage> {
       });
   }
 
-
   void setTime() {
-    _ticktickTimer = Timer(Duration(milliseconds: 500),(){
+    _ticktickTimer = Timer(Duration(milliseconds: 500), () {
       recordSubject.add(DateTime.now());
       setTime();
     });
