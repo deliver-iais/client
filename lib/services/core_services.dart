@@ -290,7 +290,7 @@ class CoreServices {
                     .toInt());
                 _mucDao.upsertMucCompanion(Database.MucsCompanion.insert(
                     uid: muc.uid,
-                    name: muc.name,
+                    name: Value(muc.name),
                     pinMessagesId:
                         Value(json.decode(pm.toString()).toString())));
                 break;

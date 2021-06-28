@@ -4094,13 +4094,15 @@ class $MembersTable extends Members with TableInfo<$MembersTable, Member> {
 class Muc extends DataClass implements Insertable<Muc> {
   final String uid;
   final String name;
+  final String token;
   final String id;
   final String info;
   final String pinMessagesId;
   final int members;
   Muc(
       {@required this.uid,
-      @required this.name,
+      this.name,
+      this.token,
       this.id,
       this.info,
       this.pinMessagesId,
@@ -4113,6 +4115,8 @@ class Muc extends DataClass implements Insertable<Muc> {
           .mapFromDatabaseResponse(data['${effectivePrefix}uid']),
       name: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      token: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}token']),
       id: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}id']),
       info: const StringType()
@@ -4131,6 +4135,9 @@ class Muc extends DataClass implements Insertable<Muc> {
     }
     if (!nullToAbsent || name != null) {
       map['name'] = Variable<String>(name);
+    }
+    if (!nullToAbsent || token != null) {
+      map['token'] = Variable<String>(token);
     }
     if (!nullToAbsent || id != null) {
       map['id'] = Variable<String>(id);
@@ -4151,6 +4158,8 @@ class Muc extends DataClass implements Insertable<Muc> {
     return MucsCompanion(
       uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      token:
+          token == null && nullToAbsent ? const Value.absent() : Value(token),
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       info: info == null && nullToAbsent ? const Value.absent() : Value(info),
       pinMessagesId: pinMessagesId == null && nullToAbsent
@@ -4168,6 +4177,7 @@ class Muc extends DataClass implements Insertable<Muc> {
     return Muc(
       uid: serializer.fromJson<String>(json['uid']),
       name: serializer.fromJson<String>(json['name']),
+      token: serializer.fromJson<String>(json['token']),
       id: serializer.fromJson<String>(json['id']),
       info: serializer.fromJson<String>(json['info']),
       pinMessagesId: serializer.fromJson<String>(json['pinMessagesId']),
@@ -4180,6 +4190,7 @@ class Muc extends DataClass implements Insertable<Muc> {
     return <String, dynamic>{
       'uid': serializer.toJson<String>(uid),
       'name': serializer.toJson<String>(name),
+      'token': serializer.toJson<String>(token),
       'id': serializer.toJson<String>(id),
       'info': serializer.toJson<String>(info),
       'pinMessagesId': serializer.toJson<String>(pinMessagesId),
@@ -4190,6 +4201,7 @@ class Muc extends DataClass implements Insertable<Muc> {
   Muc copyWith(
           {String uid,
           String name,
+          String token,
           String id,
           String info,
           String pinMessagesId,
@@ -4197,6 +4209,7 @@ class Muc extends DataClass implements Insertable<Muc> {
       Muc(
         uid: uid ?? this.uid,
         name: name ?? this.name,
+        token: token ?? this.token,
         id: id ?? this.id,
         info: info ?? this.info,
         pinMessagesId: pinMessagesId ?? this.pinMessagesId,
@@ -4207,6 +4220,7 @@ class Muc extends DataClass implements Insertable<Muc> {
     return (StringBuffer('Muc(')
           ..write('uid: $uid, ')
           ..write('name: $name, ')
+          ..write('token: $token, ')
           ..write('id: $id, ')
           ..write('info: $info, ')
           ..write('pinMessagesId: $pinMessagesId, ')
@@ -4221,15 +4235,18 @@ class Muc extends DataClass implements Insertable<Muc> {
       $mrjc(
           name.hashCode,
           $mrjc(
-              id.hashCode,
-              $mrjc(info.hashCode,
-                  $mrjc(pinMessagesId.hashCode, members.hashCode))))));
+              token.hashCode,
+              $mrjc(
+                  id.hashCode,
+                  $mrjc(info.hashCode,
+                      $mrjc(pinMessagesId.hashCode, members.hashCode)))))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Muc &&
           other.uid == this.uid &&
           other.name == this.name &&
+          other.token == this.token &&
           other.id == this.id &&
           other.info == this.info &&
           other.pinMessagesId == this.pinMessagesId &&
@@ -4239,6 +4256,7 @@ class Muc extends DataClass implements Insertable<Muc> {
 class MucsCompanion extends UpdateCompanion<Muc> {
   final Value<String> uid;
   final Value<String> name;
+  final Value<String> token;
   final Value<String> id;
   final Value<String> info;
   final Value<String> pinMessagesId;
@@ -4246,6 +4264,7 @@ class MucsCompanion extends UpdateCompanion<Muc> {
   const MucsCompanion({
     this.uid = const Value.absent(),
     this.name = const Value.absent(),
+    this.token = const Value.absent(),
     this.id = const Value.absent(),
     this.info = const Value.absent(),
     this.pinMessagesId = const Value.absent(),
@@ -4253,16 +4272,17 @@ class MucsCompanion extends UpdateCompanion<Muc> {
   });
   MucsCompanion.insert({
     @required String uid,
-    @required String name,
+    this.name = const Value.absent(),
+    this.token = const Value.absent(),
     this.id = const Value.absent(),
     this.info = const Value.absent(),
     this.pinMessagesId = const Value.absent(),
     this.members = const Value.absent(),
-  })  : uid = Value(uid),
-        name = Value(name);
+  }) : uid = Value(uid);
   static Insertable<Muc> custom({
     Expression<String> uid,
     Expression<String> name,
+    Expression<String> token,
     Expression<String> id,
     Expression<String> info,
     Expression<String> pinMessagesId,
@@ -4271,6 +4291,7 @@ class MucsCompanion extends UpdateCompanion<Muc> {
     return RawValuesInsertable({
       if (uid != null) 'uid': uid,
       if (name != null) 'name': name,
+      if (token != null) 'token': token,
       if (id != null) 'id': id,
       if (info != null) 'info': info,
       if (pinMessagesId != null) 'pin_messages_id': pinMessagesId,
@@ -4281,6 +4302,7 @@ class MucsCompanion extends UpdateCompanion<Muc> {
   MucsCompanion copyWith(
       {Value<String> uid,
       Value<String> name,
+      Value<String> token,
       Value<String> id,
       Value<String> info,
       Value<String> pinMessagesId,
@@ -4288,6 +4310,7 @@ class MucsCompanion extends UpdateCompanion<Muc> {
     return MucsCompanion(
       uid: uid ?? this.uid,
       name: name ?? this.name,
+      token: token ?? this.token,
       id: id ?? this.id,
       info: info ?? this.info,
       pinMessagesId: pinMessagesId ?? this.pinMessagesId,
@@ -4303,6 +4326,9 @@ class MucsCompanion extends UpdateCompanion<Muc> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (token.present) {
+      map['token'] = Variable<String>(token.value);
     }
     if (id.present) {
       map['id'] = Variable<String>(id.value);
@@ -4324,6 +4350,7 @@ class MucsCompanion extends UpdateCompanion<Muc> {
     return (StringBuffer('MucsCompanion(')
           ..write('uid: $uid, ')
           ..write('name: $name, ')
+          ..write('token: $token, ')
           ..write('id: $id, ')
           ..write('info: $info, ')
           ..write('pinMessagesId: $pinMessagesId, ')
@@ -4357,7 +4384,19 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
     return GeneratedTextColumn(
       'name',
       $tableName,
-      false,
+      true,
+    );
+  }
+
+  final VerificationMeta _tokenMeta = const VerificationMeta('token');
+  GeneratedTextColumn _token;
+  @override
+  GeneratedTextColumn get token => _token ??= _constructToken();
+  GeneratedTextColumn _constructToken() {
+    return GeneratedTextColumn(
+      'token',
+      $tableName,
+      true,
     );
   }
 
@@ -4413,7 +4452,7 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
 
   @override
   List<GeneratedColumn> get $columns =>
-      [uid, name, id, info, pinMessagesId, members];
+      [uid, name, token, id, info, pinMessagesId, members];
   @override
   $MucsTable get asDslTable => this;
   @override
@@ -4434,8 +4473,10 @@ class $MucsTable extends Mucs with TableInfo<$MucsTable, Muc> {
     if (data.containsKey('name')) {
       context.handle(
           _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
-    } else if (isInserting) {
-      context.missing(_nameMeta);
+    }
+    if (data.containsKey('token')) {
+      context.handle(
+          _tokenMeta, token.isAcceptableOrUnknown(data['token'], _tokenMeta));
     }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));

@@ -146,7 +146,7 @@ class _ChatItemState extends State<ChatItem> {
               ),
             );
           } else
-            return SizedBox(height: 30,width: 60,);
+            return SizedBox(height: 66,width: MediaQuery.of(context).size.width,);
         });
   }
 

@@ -187,11 +187,14 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   createInviteLink() async {
-    String token = "";
-    if (widget.roomUid.category == Categories.GROUP) {
-      token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
-    } else {
-      token = await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
+    var muc = await _mucDao.getMucByUid(widget.roomUid.asString());
+    String token = muc.token;
+    if (token == null || token.isEmpty || token.length == 0) {
+      if (widget.roomUid.category == Categories.GROUP) {
+        token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
+      } else {
+        token = await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
+      }
     }
     if (token != null && token.isNotEmpty) {
       _showInviteLinkDialog(token);
@@ -847,7 +850,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
             ),
             actions: <Widget>[
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   GestureDetector(
                     child: Text(

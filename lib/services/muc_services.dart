@@ -449,7 +449,7 @@ class MucServices {
             ..numberOfAvailableJoins = Int64(-1),
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()},
-              timeout: Duration(seconds: 2)));
+              timeout: Duration(seconds: 3)));
       return res.joinToken;
     } catch (e) {
       return null;

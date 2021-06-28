@@ -4,7 +4,9 @@ class Mucs extends Table {
 
   TextColumn get uid => text()();
 
-  TextColumn get name => text()();
+  TextColumn get name => text().nullable()();
+
+  TextColumn get token => text().nullable()();
 
   TextColumn get id => text().nullable()();
 

@@ -287,7 +287,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         },
                       ),
                     )
-                  : SizedBox.shrink(),
+                  : CircularProgressIndicator(color: Colors.blueAccent,)
             ),
             Positioned(
               bottom: 0,
