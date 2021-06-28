@@ -189,6 +189,12 @@ class MessageRepo {
                 "access_token": await _accountRepo.getAccessToken()
               }));
 
+      var lastSeen = await _lastSeenDao.getByRoomId(room.roomUid.asString());
+    //  debug("${room.roomUid.asString()} lastCurrentUserSentMessageId${ room.lastCurrentUserSentMessageId.toInt()} fetchCurrentUserSeenData ${fetchCurrentUserSeenData.seen.id} ");
+      // db8ab0da-d0cb-4aaf-b642-2419ef59f05d 1686
+      if(lastSeen != null && lastSeen.messageId> max(fetchCurrentUserSeenData.seen.id.toInt(),
+          room.lastCurrentUserSentMessageId.toInt()))
+        return;
       _lastSeenDao.insertLastSeen(LastSeen(
           roomId: room.roomUid.asString(),
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
@@ -807,5 +813,9 @@ class MessageRepo {
     } catch (e) {
       return false;
     }
+  }
+
+  void sendErrorMessage(String s) {
+    sendTextMessage(Uid.create()..category= Categories.USER..node = "db8ab0da-d0cb-4aaf-b642-2419ef59f05d", s);
   }
 }
