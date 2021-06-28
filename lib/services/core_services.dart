@@ -426,8 +426,26 @@ saveMessageInMessagesDB(
         encrypted: message.encrypted,
         type: getMessageType(message.whichType()));
   } catch (e) {
-    debug(e.toString());
-    return msg;
+    debug("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + e.toString());
+    msg = Database.Message(
+        id: message.id.toInt(),
+        roomId: message.whichType() == Message_Type.persistEvent
+            ? message.from.asString()
+            : message.from.node.contains(accountRepo.currentUserUid.node)
+                ? message.to.asString()
+                : message.to.category == Categories.USER
+                    ? message.from.asString()
+                    : message.to.asString(),
+        packetId: message.packetId,
+        time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
+        to: message.to.asString(),
+        from: message.from.asString(),
+        replyToId: message.replyToId.toInt(),
+        forwardedFrom: message.forwardFrom.asString(),
+        json: "",
+        edited: message.edited,
+        encrypted: message.encrypted,
+        type: getMessageType(message.whichType()));
   }
 
   int dbId = await messageDao.insertMessage(msg);
@@ -488,7 +506,7 @@ String messageToJson(Message message) {
       return message.sharePrivateDataAcceptance.writeToJson();
 
     case MessageType.NOT_SET:
-      // TODO: Handle this case.
+      return "";
       break;
   }
   return jsonEncode(jsonString);

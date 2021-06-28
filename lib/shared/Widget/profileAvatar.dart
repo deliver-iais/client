@@ -296,6 +296,74 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     color: ExtraTheme.of(context).popupMenuButton,
                     icon: Icon(Icons.more_vert),
                     itemBuilder: (_) => <PopupMenuItem<String>>[
+                      if (_setAvatarPermission)
+                        new PopupMenuItem<String>(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.add_a_photo_rounded,
+                                  color: Colors.blue,
+                                  size: 23,
+                                ),
+                                SizedBox(
+                                  width: 6,
+                                ),
+                                Text(
+                                    _appLocalization
+                                        .getTraslateValue("setProfile"),
+                                    style: style),
+                              ],
+                            ),
+                            value: "select"),
+                      if (_modifyMUc)
+                        new PopupMenuItem<String>(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.add_link_outlined,
+                                  color: Colors.blue,
+                                  size: 23,
+                                ),
+                                SizedBox(
+                                  width: 6,
+                                ),
+                                Text(
+                                  _mucType == MucType.GROUP
+                                      ? _appLocalization.getTraslateValue(
+                                      "create_invite_link")
+                                      : _appLocalization.getTraslateValue(
+                                      "create_invite_link"),
+                                  style: style,
+                                )
+                              ],
+                            ),
+                            value: "invite_link"),
+                      if (_modifyMUc &&
+                          (widget.roomUid.category == Categories.GROUP ||
+                              widget.roomUid.category == Categories.CHANNEL))
+                        new PopupMenuItem<String>(
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.settings,
+                                  color: Colors.blue,
+                                  size: 23,
+                                ),
+                                SizedBox(
+                                  width: 6,
+                                ),
+                                Text(
+                                    widget.roomUid.category == Categories.GROUP
+                                        ? _appLocalization
+                                        .getTraslateValue("manage_group")
+                                        : _appLocalization
+                                        .getTraslateValue("manage_channel"),
+                                    style: style),
+                              ],
+                            ),
+                            value: "manage"),
                       if (!_modifyMUc)
                         new PopupMenuItem<String>(
                             child: Row(
@@ -320,74 +388,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                               ],
                             ),
                             value: "leftMuc"),
-                      if (_modifyMUc)
-                        new PopupMenuItem<String>(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Icon(
-                                  Icons.add_link_outlined,
-                                  color: Colors.blue,
-                                  size: 23,
-                                ),
-                                SizedBox(
-                                  width: 6,
-                                ),
-                                Text(
-                                  _mucType == MucType.GROUP
-                                      ? _appLocalization.getTraslateValue(
-                                          "create_invite_link")
-                                      : _appLocalization.getTraslateValue(
-                                          "create_invite_link"),
-                                  style: style,
-                                )
-                              ],
-                            ),
-                            value: "invite_link"),
-                      if (_setAvatarPermission)
-                        new PopupMenuItem<String>(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Icon(
-                                  Icons.add_a_photo_rounded,
-                                  color: Colors.blue,
-                                  size: 23,
-                                ),
-                                SizedBox(
-                                  width: 6,
-                                ),
-                                Text(
-                                    _appLocalization
-                                        .getTraslateValue("setProfile"),
-                                    style: style),
-                              ],
-                            ),
-                            value: "select"),
-                      if (_modifyMUc &&
-                          (widget.roomUid.category == Categories.GROUP ||
-                              widget.roomUid.category == Categories.CHANNEL))
-                        new PopupMenuItem<String>(
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.settings,
-                                  color: Colors.blue,
-                                  size: 23,
-                                ),
-                                SizedBox(
-                                  width: 6,
-                                ),
-                                Text(
-                                    widget.roomUid.category == Categories.GROUP
-                                        ? _appLocalization
-                                            .getTraslateValue("manage_group")
-                                        : _appLocalization
-                                            .getTraslateValue("manage_channel"),
-                                    style: style),
-                              ],
-                            ),
-                            value: "manage"),
+
+
+
                       new PopupMenuItem<String>(
                           child: Row(
                             children: [

@@ -167,8 +167,8 @@ class MucRepo {
   Future<String> fetchMucInfo(Uid mucUid) async {
     if (mucUid.category == Categories.GROUP) {
       MucPro.GetGroupRes group = await getGroupInfo(mucUid);
-      print("%%%%%%${group.token}");
       if (group != null) {
+        print("%%%%%%${group.token}");
         _mucDao.insertMuc(Muc(
           name: group.info.name,
           info: group.info.info,

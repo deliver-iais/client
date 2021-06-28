@@ -551,11 +551,12 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
                 children: [
                   FlutterLinkPreview(
                     url: jsonDecode(snapshot.data[index].json)["url"],
-                    bodyStyle: TextStyle(fontSize: 12.0, height: 1.4),
+                    bodyStyle: TextStyle(fontSize: 12.0, height: 1.4,color: ExtraTheme.of(context).textField),
                     useMultithread: true,
                     titleStyle: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.bold,
+                      color: ExtraTheme.of(context).textField
                     ),
                   ),
                   Divider(),
