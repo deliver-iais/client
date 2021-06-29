@@ -11,11 +11,7 @@ abstract class AvatarDao {
 
   Future<void> saveAvatars(String uid, List<Avatar> avatars);
 
-  Future<void> saveLastAvatar(LastAvatar la);
-
   Future<void> removeAvatar(Avatar avatar);
-
-  Future<void> removeLastAvatar(LastAvatar avatar);
 
   Future<void> closeAvatarBox(String uid);
 }
@@ -23,8 +19,6 @@ abstract class AvatarDao {
 class AvatarDaoImpl implements AvatarDao {
   Stream<List<Avatar>> watchAvatars(String uid) async* {
     var box = await _open(uid);
-
-    yield box.values.toList();
 
     yield* box.watch().map((event) => box.values.toList());
   }
@@ -35,23 +29,70 @@ class AvatarDaoImpl implements AvatarDao {
     var box = await _open(uid);
 
     for (var value in avatars) {
-      box.put(value.createdOn.toInt().toString(), value);
+      box.put(value.createdOn.toString(), value);
+    }
+
+    await saveLastAvatar(avatars, uid);
+  }
+
+  Future<void> saveLastAvatar(List<Avatar> avatars, String uid) async {
+    var box2 = await _open2();
+
+    var lastAvatarOfList = avatars.fold<Avatar>(
+        null,
+        (value, element) => value == null
+            ? element
+            : value.createdOn > element.createdOn
+                ? value
+                : element);
+
+    var lastAvatar = box2.get(uid);
+
+    if (lastAvatar == null ||
+        lastAvatar.createdOn < lastAvatarOfList.createdOn) {
+      box2.put(
+          lastAvatarOfList.uid,
+          LastAvatar(
+              uid: lastAvatarOfList.uid,
+              createdOn: lastAvatarOfList.createdOn,
+              fileId: lastAvatarOfList.fileId,
+              fileName: lastAvatarOfList.fileName,
+              lastUpdate: DateTime.now().millisecondsSinceEpoch));
     }
   }
 
   Future<void> removeAvatar(Avatar avatar) async {
     var box = await _open(avatar.uid);
 
-    box.delete(avatar.createdOn.toInt().toString());
+    await box.delete(avatar.createdOn.toString());
+
+    var box2 = await _open2();
+
+    var lastAvatar = box2.get(avatar.uid);
+
+    if (avatar.createdOn == lastAvatar.createdOn) {
+      await box2.delete(lastAvatar.uid);
+
+      if (box.values.length > 0) {
+        var lastAvatarOfList = box.values.fold<Avatar>(
+            null,
+            (value, element) => value == null
+                ? element
+                : value.createdOn > element.createdOn
+                    ? value
+                    : element);
+
+        box2.put(
+            lastAvatarOfList.uid,
+            LastAvatar(
+                uid: lastAvatarOfList.uid,
+                createdOn: lastAvatarOfList.createdOn,
+                fileId: lastAvatarOfList.fileId,
+                fileName: lastAvatarOfList.fileName,
+                lastUpdate: DateTime.now().millisecondsSinceEpoch));
+      }
+    }
   }
-
-  static String _key(uid) => "avatar-$uid";
-
-  static Future<Box<Avatar>> _open(String uid) =>
-      Hive.openBox<Avatar>(_key(uid));
-
-  Future<void> closeAvatarBox(String uid) =>
-      Hive.box<Avatar>(_key(uid)).close();
 
   Future<LastAvatar> getLastAvatar(String uid) async {
     var box = await _open2();
@@ -62,25 +103,18 @@ class AvatarDaoImpl implements AvatarDao {
   Stream<LastAvatar> watchLastAvatar(String uid) async* {
     var box = await _open2();
 
-    // TODO check if needed
-    yield box.get(uid);
-
     yield* box.watch(key: uid).map((event) => box.get(uid));
   }
 
-  Future<void> saveLastAvatar(LastAvatar la) async {
-    var box = await _open2();
-
-    box.put(la.uid, la);
-  }
-
-  Future<void> removeLastAvatar(LastAvatar avatar) async {
-    var box = await _open2();
-
-    box.delete(avatar.uid);
-  }
+  static String _key(uid) => "avatar-$uid";
 
   static String _key2() => "last-avatar";
+
+  static Future<Box<Avatar>> _open(String uid) =>
+      Hive.openBox<Avatar>(_key(uid));
+
+  Future<void> closeAvatarBox(String uid) =>
+      Hive.box<Avatar>(_key(uid)).close();
 
   static Future<Box<LastAvatar>> _open2() => Hive.openBox<LastAvatar>(_key2());
 }

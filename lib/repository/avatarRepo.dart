@@ -57,29 +57,9 @@ class AvatarRepo {
           .toList();
 
       _avatarDao.saveAvatars(userUid.asString(), avatars);
-
-      var lastAvatar = avatars.fold<Avatar>(
-          null,
-          (value, element) => value == null
-              ? element
-              : value.createdOn > element.createdOn
-                  ? value
-                  : element);
-
-      updateLastUpdateAvatarTime(userUid.asString(), lastAvatar);
     } catch (e) {
       debug(e.toString());
     }
-  }
-
-  updateLastUpdateAvatarTime(String userUid, Avatar avatar) {
-    LastAvatar lastAvatar = LastAvatar(
-        uid: userUid,
-        createdOn: avatar?.createdOn,
-        fileId: avatar?.fileId,
-        fileName: avatar?.fileName,
-        lastUpdate: DateTime.now().millisecondsSinceEpoch);
-    _avatarDao.saveLastAvatar(lastAvatar);
   }
 
   Future<bool> needsUpdate(Uid userUid) async {
@@ -163,7 +143,6 @@ class AvatarRepo {
           createdOn: createdOn,
           fileId: fileInfo.uuid,
           fileName: fileInfo.name);
-      updateLastUpdateAvatarTime(uid.asString(), avatar);
       return avatar;
     } else {
       return null;
@@ -212,11 +191,5 @@ class AvatarRepo {
         options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
     await _avatarDao.removeAvatar(avatar);
-    var lastAvatar = await getLastAvatar(_accountRepo.currentUserUid, false);
-    if (Int64.parseInt(lastAvatar.createdOn.toRadixString(10)) ==
-        deleteAvatar.createdOn) {
-      _avatarDao.removeLastAvatar(lastAvatar);
-      await fetchAvatar(_accountRepo.currentUserUid, false);
-    }
   }
 }
