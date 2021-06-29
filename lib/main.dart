@@ -3,7 +3,6 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/dao/avatar_dao.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
-import 'package:deliver_flutter/box/last_avatar.dart';
 import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
@@ -66,7 +65,6 @@ void setupDI() async {
   await Hive.initFlutter("db");
 
   Hive.registerAdapter(AvatarAdapter());
-  Hive.registerAdapter(LastAvatarAdapter());
 
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<AvatarDao>(AvatarDaoImpl());

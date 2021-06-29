@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:deliver_flutter/box/last_avatar.dart';
+import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
@@ -82,12 +82,12 @@ class CircleAvatarWidget extends StatelessWidget {
                   color: Colors.white,
                 )
               : showAsStreamOfAvatar
-                  ? StreamBuilder<LastAvatar>(
+                  ? StreamBuilder<Avatar>(
                       stream: _avatarRepo.getLastAvatarStream(
                           contactUid, forceToUpdate),
                       builder: (context, snapshot) =>
                           this.builder(context, snapshot, textColor))
-                  : FutureBuilder<LastAvatar>(
+                  : FutureBuilder<Avatar>(
                       future:
                           _avatarRepo.getLastAvatar(contactUid, forceToUpdate),
                       builder: (context, snapshot) =>
@@ -95,7 +95,7 @@ class CircleAvatarWidget extends StatelessWidget {
     );
   }
 
-  Widget builder(BuildContext context, AsyncSnapshot<LastAvatar> snapshot,
+  Widget builder(BuildContext context, AsyncSnapshot<Avatar> snapshot,
       Color textColor) {
     if (snapshot.hasData &&
         snapshot.data != null &&

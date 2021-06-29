@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/dao/avatar_dao.dart';
-import 'package:deliver_flutter/box/last_avatar.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
@@ -30,7 +29,7 @@ class AvatarRepo {
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
   Cache avatarCache =
-      LruCache<String, LastAvatar>(storage: SimpleStorage(size: 40));
+      LruCache<String, Avatar>(storage: SimpleStorage(size: 40));
 
   var avatarServices = AvatarServiceClient(AvatarServicesClientChannel);
 
@@ -71,7 +70,7 @@ class AvatarRepo {
 
     var key = "${userUid.category}-${userUid.node}";
 
-    LastAvatar ac = avatarCache.get(key);
+    Avatar ac = avatarCache.get(key);
 
     if (ac != null && (nowTime - ac.lastUpdate) > 1800000) {
       trace("exceeded from 24 hours in cache - $nowTime ${ac.lastUpdate}");
@@ -80,7 +79,7 @@ class AvatarRepo {
       return false;
     }
 
-    LastAvatar lastAvatar = await _avatarDao.getLastAvatar(userUid.asString());
+    Avatar lastAvatar = await _avatarDao.getLastAvatar(userUid.asString());
 
     if (lastAvatar == null) {
       trace("last avatar is null - $userUid");
@@ -101,11 +100,11 @@ class AvatarRepo {
     yield* _avatarDao.watchAvatars(userUid.asString());
   }
 
-  Future<LastAvatar> getLastAvatar(Uid userUid, bool forceToUpdate) async {
+  Future<Avatar> getLastAvatar(Uid userUid, bool forceToUpdate) async {
     fetchAvatar(userUid, forceToUpdate);
     var key = "${userUid.category}-${userUid.node}";
 
-    LastAvatar ac = avatarCache.get(key);
+    var ac = avatarCache.get(key);
     if (ac != null) {
       return ac;
     }
@@ -120,7 +119,7 @@ class AvatarRepo {
     return uploadAvatar(file, uid, token: token);
   }
 
-  Stream<LastAvatar> getLastAvatarStream(Uid userUid, bool forceToUpdate) {
+  Stream<Avatar> getLastAvatarStream(Uid userUid, bool forceToUpdate) {
     fetchAvatar(userUid, forceToUpdate);
     var key = "${userUid.category}-${userUid.node}";
 

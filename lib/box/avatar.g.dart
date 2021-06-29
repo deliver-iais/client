@@ -21,13 +21,14 @@ class AvatarAdapter extends TypeAdapter<Avatar> {
       createdOn: fields[1] as int,
       fileId: fields[2] as String,
       fileName: fields[3] as String,
+      lastUpdate: fields[4] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Avatar obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class AvatarAdapter extends TypeAdapter<Avatar> {
       ..writeByte(2)
       ..write(obj.fileId)
       ..writeByte(3)
-      ..write(obj.fileName);
+      ..write(obj.fileName)
+      ..writeByte(4)
+      ..write(obj.lastUpdate);
   }
 
   @override

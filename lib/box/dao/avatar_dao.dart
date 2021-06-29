@@ -1,13 +1,12 @@
 import 'package:deliver_flutter/box/avatar.dart';
-import 'package:deliver_flutter/box/last_avatar.dart';
 import 'package:hive/hive.dart';
 
 abstract class AvatarDao {
   Stream<List<Avatar>> watchAvatars(String uid);
 
-  Stream<LastAvatar> watchLastAvatar(String uid);
+  Stream<Avatar> watchLastAvatar(String uid);
 
-  Future<LastAvatar> getLastAvatar(String uid);
+  Future<Avatar> getLastAvatar(String uid);
 
   Future<void> saveAvatars(String uid, List<Avatar> avatars);
 
@@ -19,6 +18,8 @@ abstract class AvatarDao {
 class AvatarDaoImpl implements AvatarDao {
   Stream<List<Avatar>> watchAvatars(String uid) async* {
     var box = await _open(uid);
+
+    yield box.values.toList();
 
     yield* box.watch().map((event) => box.values.toList());
   }
@@ -52,11 +53,7 @@ class AvatarDaoImpl implements AvatarDao {
         lastAvatar.createdOn < lastAvatarOfList.createdOn) {
       box2.put(
           lastAvatarOfList.uid,
-          LastAvatar(
-              uid: lastAvatarOfList.uid,
-              createdOn: lastAvatarOfList.createdOn,
-              fileId: lastAvatarOfList.fileId,
-              fileName: lastAvatarOfList.fileName,
+          lastAvatarOfList.copyWith(
               lastUpdate: DateTime.now().millisecondsSinceEpoch));
     }
   }
@@ -84,24 +81,22 @@ class AvatarDaoImpl implements AvatarDao {
 
         box2.put(
             lastAvatarOfList.uid,
-            LastAvatar(
-                uid: lastAvatarOfList.uid,
-                createdOn: lastAvatarOfList.createdOn,
-                fileId: lastAvatarOfList.fileId,
-                fileName: lastAvatarOfList.fileName,
+            lastAvatarOfList.copyWith(
                 lastUpdate: DateTime.now().millisecondsSinceEpoch));
       }
     }
   }
 
-  Future<LastAvatar> getLastAvatar(String uid) async {
+  Future<Avatar> getLastAvatar(String uid) async {
     var box = await _open2();
 
     return box.get(uid);
   }
 
-  Stream<LastAvatar> watchLastAvatar(String uid) async* {
+  Stream<Avatar> watchLastAvatar(String uid) async* {
     var box = await _open2();
+
+    yield box.get(uid);
 
     yield* box.watch(key: uid).map((event) => box.get(uid));
   }
@@ -116,5 +111,5 @@ class AvatarDaoImpl implements AvatarDao {
   Future<void> closeAvatarBox(String uid) =>
       Hive.box<Avatar>(_key(uid)).close();
 
-  static Future<Box<LastAvatar>> _open2() => Hive.openBox<LastAvatar>(_key2());
+  static Future<Box<Avatar>> _open2() => Hive.openBox<Avatar>(_key2());
 }

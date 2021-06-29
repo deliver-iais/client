@@ -19,5 +19,23 @@ class Avatar {
   @HiveField(3)
   String fileName;
 
-  Avatar({this.uid, this.createdOn, this.fileId, this.fileName});
+  @HiveField(4)
+  int lastUpdate;
+
+  Avatar(
+      {this.uid, this.createdOn, this.fileId, this.fileName, this.lastUpdate});
+
+  Avatar copyWith(
+          {String uid,
+          int createdOn,
+          String fileId,
+          String fileName,
+          int lastUpdate}) =>
+      Avatar(
+        uid: uid ?? this.uid,
+        createdOn: createdOn ?? this.createdOn,
+        fileId: fileId ?? this.fileId,
+        fileName: fileName ?? this.fileName,
+        lastUpdate: lastUpdate ?? this.lastUpdate,
+      );
 }
