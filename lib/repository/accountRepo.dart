@@ -54,7 +54,6 @@ class AccountRepo {
 
   String _refreshToken;
 
-
   var authServiceStub = AuthServiceClient(ProfileServicesClientChannel);
   var _profile = UserServiceClient(ProfileServicesClientChannel);
 
@@ -100,12 +99,12 @@ class AccountRepo {
     }
 
     var sendVerificationCode =
-    await authServiceStub.verifyAndGetToken(VerifyCodeReq()
-      ..phoneNumber = this.phoneNumber
-      ..code = code
-      ..device = device
+        await authServiceStub.verifyAndGetToken(VerifyCodeReq()
+          ..phoneNumber = this.phoneNumber
+          ..code = code
+          ..device = device
 //          TODO add password mechanism
-      ..password = "");
+          ..password = "");
 
     return sendVerificationCode;
   }
@@ -113,9 +112,9 @@ class AccountRepo {
   Future _getAccessToken(String refreshToken) async {
     try {
       var getAccessToken = await authServiceStub
-          .renewAccessToken(RenewAccessTokenReq()
-        ..refreshToken = refreshToken);
-      if (wrongAccessToken(getAccessToken.accessToken ,getAccessToken.refreshToken , refreshToken) ||
+          .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
+      if (wrongAccessToken(getAccessToken.accessToken,
+              getAccessToken.refreshToken, refreshToken) ||
           wrongRefreshToken(getAccessToken.refreshToken)) {
         _getAccessToken(refreshToken);
         return;
@@ -129,7 +128,7 @@ class AccountRepo {
   Future<String> getAccessToken() async {
     if (_isExpired(_access_token) || exp(_access_token)) {
       RenewAccessTokenRes renewAccessTokenRes =
-      await _getAccessToken(_refreshToken);
+          await _getAccessToken(_refreshToken);
       _saveTokens(renewAccessTokenRes);
       return renewAccessTokenRes.accessToken;
     } else {
@@ -149,17 +148,16 @@ class AccountRepo {
     final Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
     final DateTime iaTirationDate = new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["iat"]));
-    if (((DateTime
-        .now()
-        .millisecondsSinceEpoch -
-        iaTirationDate.millisecondsSinceEpoch) >
+    if (((DateTime.now().millisecondsSinceEpoch -
+            iaTirationDate.millisecondsSinceEpoch) >
         15 * 60 * 1000)) {
       return true;
     } else
       return false;
   }
 
-  bool wrongAccessToken(String token,String refreshToken, String oldRefreshToken) {
+  bool wrongAccessToken(
+      String token, String refreshToken, String oldRefreshToken) {
     final Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
     final DateTime iatTime = new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["iat"]));
@@ -168,11 +166,11 @@ class AccountRepo {
     if ((expTime.millisecondsSinceEpoch - iatTime.millisecondsSinceEpoch) >
         15 * 60 * 1000) {
       var messageRepo = GetIt.I.get<MessageRepo>();
-     if(kDebugMode) messageRepo.sendErrorMessage("accessTonken = $token \n refrsh= $refreshToken \n oldRefreshToken $oldRefreshToken");
+      if (kDebugMode)
+        messageRepo.sendErrorMessage(
+            "accessTonken = $token \n refrsh= $refreshToken \n oldRefreshToken $oldRefreshToken");
       return true;
-
-    }
-    else
+    } else
       return false;
   }
 
@@ -185,7 +183,7 @@ class AccountRepo {
     if (((expTime.millisecondsSinceEpoch - iatTime.millisecondsSinceEpoch) <
         29 * 24 * 60 * 60 * 1000)) {
       var messageRepo = GetIt.I.get<MessageRepo>();
-      if(kDebugMode) messageRepo.sendErrorMessage("refreshTonken = $token");
+      if (kDebugMode) messageRepo.sendErrorMessage("refreshTonken = $token");
       return true;
     }
     return false;
@@ -224,10 +222,9 @@ class AccountRepo {
   Future<bool> getUsername() async {
     try {
       final QueryServiceClient _queryServiceClient =
-      GetIt.I.get<QueryServiceClient>();
+          GetIt.I.get<QueryServiceClient>();
       var getIdRequest = await _queryServiceClient.getIdByUid(
-          GetIdByUidReq()
-            ..uid = currentUserUid,
+          GetIdByUidReq()..uid = currentUserUid,
           options: CallOptions(
               metadata: {'access_token': await getAccessToken()},
               timeout: Duration(seconds: 2)));
@@ -284,26 +281,26 @@ class AccountRepo {
 
   Future<bool> checkUserName(String username) async {
     final QueryServiceClient _queryServiceClient =
-    GetIt.I.get<QueryServiceClient>();
+        GetIt.I.get<QueryServiceClient>();
     var checkUsernameRes = await _queryServiceClient.idIsAvailable(
-        IdIsAvailableReq()
-          ..id = username,
+        IdIsAvailableReq()..id = username,
         options:
-        CallOptions(metadata: {'access_token': await getAccessToken()}));
+            CallOptions(metadata: {'access_token': await getAccessToken()}));
     return checkUsernameRes.isAvailable;
   }
 
-  Future<bool> setAccountDetails(String username,
-      String firstName,
-      String lastName,
-      String email,) async {
+  Future<bool> setAccountDetails(
+    String username,
+    String firstName,
+    String lastName,
+    String email,
+  ) async {
     final QueryServiceClient _queryServiceClient =
-    GetIt.I.get<QueryServiceClient>();
+        GetIt.I.get<QueryServiceClient>();
     try {
-      _queryServiceClient.setId(SetIdReq()
-        ..id = username,
+      _queryServiceClient.setId(SetIdReq()..id = username,
           options:
-          CallOptions(metadata: {"access_token": await getAccessToken()}));
+              CallOptions(metadata: {"access_token": await getAccessToken()}));
 
       SaveUserProfileReq saveUserProfileReq = SaveUserProfileReq();
       if (firstName != null) {
@@ -318,7 +315,7 @@ class AccountRepo {
 
       _profile.saveUserProfile(saveUserProfileReq,
           options:
-          CallOptions(metadata: {'access_token': await getAccessToken()}));
+              CallOptions(metadata: {'access_token': await getAccessToken()}));
       _saveProfilePrivateDate(
           username: username,
           firstName: firstName,

@@ -105,7 +105,7 @@ class MucRepo {
         i = i + 15;
       }
       insertUserInDb(groupUid, members);
-      if (len == 0)
+      if (len <= membersSize)
         _mucDao.upsertMucCompanion(MucsCompanion(
             uid: Value(groupUid.asString()), members: Value(membersSize)));
     } catch (e) {
@@ -142,10 +142,9 @@ class MucRepo {
 
         }
 
-        debug("#####${result.finished}");
         finish = result.finished;
         i = i + 15;
-        if (len == 0)
+        if (len<=membersSize)
           _mucDao.upsertMucCompanion(MucsCompanion(
               uid: Value(channelUid.asString()), members: Value(membersSize)));
       }

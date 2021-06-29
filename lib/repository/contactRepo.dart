@@ -113,7 +113,7 @@ class ContactRepo {
   }
 
   Future sendContacts(List<Contact> contacts) async {
-    await getContacts();
+     getContacts();
     try{
       int i = 0;
       while (i <= contacts.length) {
