@@ -10,6 +10,14 @@ class AvatarDao {
     return avatars;
   }
 
+  static Stream<List<Avatar>> getStream(String uid) async* {
+    var box = await _open(uid);
+
+    yield box.values.toList();
+
+    yield* box.watch().map((event) => box.values.toList());
+  }
+
   static Future<void> save(String uid, List<Avatar> avatars) async {
     if (avatars.isEmpty) return;
 

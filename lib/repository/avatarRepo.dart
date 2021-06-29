@@ -122,7 +122,7 @@ class AvatarRepo {
   Stream<List<Avatar>> getAvatar(Uid userUid, bool forceToUpdate) async* {
     await fetchAvatar(userUid, forceToUpdate);
 
-    // yield* _avatarDao.getByUid(userUid.asString());
+    yield* AvatarDao.getStream(userUid.asString());
   }
 
   Future<LastAvatar> getLastAvatar(Uid userUid, bool forceToUpdate) async {

@@ -112,49 +112,48 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   }
 
   Widget buildAvatar(BuildContext context) {
-    return Container();
-    // return StreamBuilder<List<Avatar>>(
-    //     stream: _avatarRepo.getAvatar(widget.userUid, false),
-    //     builder: (cont, snapshot) {
-    //       if (!snapshot.hasData || snapshot.data == null) {
-    //         return Center(
-    //           child: CircularProgressIndicator(
-    //             backgroundColor: Colors.blue,
-    //           ),
-    //         );
-    //       } else {
-    //         _allAvatars = snapshot.data;
-    //         if (_allAvatars.length <= 0) {
-    //           _routingService.pop();
-    //           return Center(
-    //             child: CircularProgressIndicator(
-    //               backgroundColor: Colors.blue,
-    //             ),
-    //           );
-    //         }
-    //         return Scaffold(
-    //             appBar: buildAppBar(swipePosition, snapshot.data.length),
-    //             body: Swiper(
-    //                 scrollDirection: Axis.horizontal,
-    //                 itemBuilder: (c, i) {
-    //                   _swipePositionSubject.add(i);
-    //                   var fileId = _allAvatars[i].fileId;
-    //                   var fileName = _allAvatars[i].fileName;
-    //                   var file = _fileCache.get(fileId);
-    //                   if (file != null) {
-    //                     return buildMeidaCenter(
-    //                         context, i, file, fileId, "avatar$i");
-    //                   } else {
-    //                     return buildFutureMediaBuilder(
-    //                         fileId, fileName, context, i);
-    //                   }
-    //                 },
-    //                 itemCount: snapshot.data.length,
-    //                 viewportFraction: 1.0,
-    //                 scale: 0.9,
-    //                 loop: false));
-    //       }
-    //     });
+    return StreamBuilder<List<Avatar>>(
+        stream: _avatarRepo.getAvatar(widget.userUid, false),
+        builder: (cont, snapshot) {
+          if (!snapshot.hasData || snapshot.data == null) {
+            return Center(
+              child: CircularProgressIndicator(
+                backgroundColor: Colors.blue,
+              ),
+            );
+          } else {
+            _allAvatars = snapshot.data;
+            if (_allAvatars.length <= 0) {
+              _routingService.pop();
+              return Center(
+                child: CircularProgressIndicator(
+                  backgroundColor: Colors.blue,
+                ),
+              );
+            }
+            return Scaffold(
+                appBar: buildAppBar(swipePosition, snapshot.data.length),
+                body: Swiper(
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (c, i) {
+                      _swipePositionSubject.add(i);
+                      var fileId = _allAvatars[i].fileId;
+                      var fileName = _allAvatars[i].fileName;
+                      var file = _fileCache.get(fileId);
+                      if (file != null) {
+                        return buildMeidaCenter(
+                            context, i, file, fileId, "avatar$i");
+                      } else {
+                        return buildFutureMediaBuilder(
+                            fileId, fileName, context, i);
+                      }
+                    },
+                    itemCount: snapshot.data.length,
+                    viewportFraction: 1.0,
+                    scale: 0.9,
+                    loop: false));
+          }
+        });
   }
 
   Widget buildMediaOrVideoWidget(BuildContext context, isVideo) {
@@ -493,7 +492,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           direction: Axis.vertical,
           runSpacing: 40,
           children: [
-            Text("${name}"),
+            Text(name),
             SizedBox(height: 10),
             Text("$createdOn"),
           ],
