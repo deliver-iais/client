@@ -19,3 +19,4 @@ const LAST_AVATAR_TRACK_ID = 2;
 const CONTACT_TRACK_ID = 3;
 const UID_ID_NAME_TRACK_ID = 4;
 const ID_UID_TRACK_ID = 5;
+const SEEN_TRACK_ID = 6;

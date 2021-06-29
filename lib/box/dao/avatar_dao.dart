@@ -1,18 +1,27 @@
 import 'package:deliver_flutter/box/avatar.dart';
+import 'package:deliver_flutter/box/last_avatar.dart';
 import 'package:hive/hive.dart';
 
 abstract class AvatarDao {
-  Stream<List<Avatar>> watch(String uid);
+  Stream<List<Avatar>> watchAvatars(String uid);
 
-  Future<void> save(String uid, List<Avatar> avatars);
+  Stream<LastAvatar> watchLastAvatar(String uid);
 
-  Future<void> remove(Avatar avatar);
+  Future<LastAvatar> getLastAvatar(String uid);
 
-  Future<void> close(String uid);
+  Future<void> saveAvatars(String uid, List<Avatar> avatars);
+
+  Future<void> saveLastAvatar(LastAvatar la);
+
+  Future<void> removeAvatar(Avatar avatar);
+
+  Future<void> removeLastAvatar(LastAvatar avatar);
+
+  Future<void> closeAvatarBox(String uid);
 }
 
 class AvatarDaoImpl implements AvatarDao {
-  Stream<List<Avatar>> watch(String uid) async* {
+  Stream<List<Avatar>> watchAvatars(String uid) async* {
     var box = await _open(uid);
 
     yield box.values.toList();
@@ -20,7 +29,7 @@ class AvatarDaoImpl implements AvatarDao {
     yield* box.watch().map((event) => box.values.toList());
   }
 
-  Future<void> save(String uid, List<Avatar> avatars) async {
+  Future<void> saveAvatars(String uid, List<Avatar> avatars) async {
     if (avatars.isEmpty) return;
 
     var box = await _open(uid);
@@ -30,7 +39,7 @@ class AvatarDaoImpl implements AvatarDao {
     }
   }
 
-  Future<void> remove(Avatar avatar) async {
+  Future<void> removeAvatar(Avatar avatar) async {
     var box = await _open(avatar.uid);
 
     box.delete(avatar.createdOn.toInt().toString());
@@ -41,5 +50,37 @@ class AvatarDaoImpl implements AvatarDao {
   static Future<Box<Avatar>> _open(String uid) =>
       Hive.openBox<Avatar>(_key(uid));
 
-  Future<void> close(String uid) => Hive.box<Avatar>(_key(uid)).close();
+  Future<void> closeAvatarBox(String uid) =>
+      Hive.box<Avatar>(_key(uid)).close();
+
+  Future<LastAvatar> getLastAvatar(String uid) async {
+    var box = await _open2();
+
+    return box.get(uid);
+  }
+
+  Stream<LastAvatar> watchLastAvatar(String uid) async* {
+    var box = await _open2();
+
+    // TODO check if needed
+    yield box.get(uid);
+
+    yield* box.watch(key: uid).map((event) => box.get(uid));
+  }
+
+  Future<void> saveLastAvatar(LastAvatar la) async {
+    var box = await _open2();
+
+    box.put(la.uid, la);
+  }
+
+  Future<void> removeLastAvatar(LastAvatar avatar) async {
+    var box = await _open2();
+
+    box.delete(avatar.uid);
+  }
+
+  static String _key2() => "last-avatar";
+
+  static Future<Box<LastAvatar>> _open2() => Hive.openBox<LastAvatar>(_key2());
 }

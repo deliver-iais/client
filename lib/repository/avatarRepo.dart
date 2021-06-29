@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/dao/avatar_dao.dart';
-import 'package:deliver_flutter/box/dao/last_avatar_dao.dart';
 import 'package:deliver_flutter/box/last_avatar.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
@@ -26,7 +25,6 @@ import 'package:fixnum/fixnum.dart';
 
 class AvatarRepo {
   var _avatarDao = GetIt.I.get<AvatarDao>();
-  var _lastAvatarDao = GetIt.I.get<LastAvatarDao>();
   var _mucServices = GetIt.I.get<MucServices>();
   var _fileRepo = GetIt.I.get<FileRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
@@ -58,7 +56,7 @@ class AvatarRepo {
               ))
           .toList();
 
-      _avatarDao.save(userUid.asString(), avatars);
+      _avatarDao.saveAvatars(userUid.asString(), avatars);
 
       var lastAvatar = avatars.fold<Avatar>(
           null,
@@ -81,7 +79,7 @@ class AvatarRepo {
         fileId: avatar?.fileId,
         fileName: avatar?.fileName,
         lastUpdate: DateTime.now().millisecondsSinceEpoch);
-    _lastAvatarDao.save(lastAvatar);
+    _avatarDao.saveLastAvatar(lastAvatar);
   }
 
   Future<bool> needsUpdate(Uid userUid) async {
@@ -102,7 +100,7 @@ class AvatarRepo {
       return false;
     }
 
-    LastAvatar lastAvatar = await _lastAvatarDao.get(userUid.asString());
+    LastAvatar lastAvatar = await _avatarDao.getLastAvatar(userUid.asString());
 
     if (lastAvatar == null) {
       trace("last avatar is null - $userUid");
@@ -120,7 +118,7 @@ class AvatarRepo {
   Stream<List<Avatar>> getAvatar(Uid userUid, bool forceToUpdate) async* {
     await fetchAvatar(userUid, forceToUpdate);
 
-    yield* _avatarDao.watch(userUid.asString());
+    yield* _avatarDao.watchAvatars(userUid.asString());
   }
 
   Future<LastAvatar> getLastAvatar(Uid userUid, bool forceToUpdate) async {
@@ -132,7 +130,7 @@ class AvatarRepo {
       return ac;
     }
 
-    ac = await _lastAvatarDao.get(userUid.asString());
+    ac = await _avatarDao.getLastAvatar(userUid.asString());
     avatarCache.set(key, ac);
     return ac;
   }
@@ -146,7 +144,7 @@ class AvatarRepo {
     fetchAvatar(userUid, forceToUpdate);
     var key = "${userUid.category}-${userUid.node}";
 
-    return _lastAvatarDao.getStream(userUid.asString()).map((la) {
+    return _avatarDao.watchLastAvatar(userUid.asString()).map((la) {
       avatarCache.set(key, la);
       return la;
     });
@@ -189,7 +187,7 @@ class AvatarRepo {
       await avatarServices.addAvatar(addAvatarReq,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      await _avatarDao.save(_accountRepo.currentUserUid.asString(), [
+      await _avatarDao.saveAvatars(_accountRepo.currentUserUid.asString(), [
         Avatar(
             uid: _accountRepo.currentUserUid.asString(),
             createdOn: createOn,
@@ -213,11 +211,11 @@ class AvatarRepo {
     await avatarServices.removeAvatar(removeAvatarReq,
         options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
-    await _avatarDao.remove(avatar);
+    await _avatarDao.removeAvatar(avatar);
     var lastAvatar = await getLastAvatar(_accountRepo.currentUserUid, false);
     if (Int64.parseInt(lastAvatar.createdOn.toRadixString(10)) ==
         deleteAvatar.createdOn) {
-      _lastAvatarDao.remove(lastAvatar);
+      _avatarDao.removeLastAvatar(lastAvatar);
       await fetchAvatar(_accountRepo.currentUserUid, false);
     }
   }

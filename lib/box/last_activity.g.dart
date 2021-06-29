@@ -1,37 +1,37 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'id_uid.dart';
+part of 'last_activity.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class IdUidAdapter extends TypeAdapter<IdUid> {
+class LastActivityAdapter extends TypeAdapter<LastActivity> {
   @override
-  final int typeId = 5;
+  final int typeId = 6;
 
   @override
-  IdUid read(BinaryReader reader) {
+  LastActivity read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return IdUid(
-      id: fields[0] as String,
-      uid: fields[1] as String,
-      lastUpdate: fields[3] as int,
+    return LastActivity(
+      uid: fields[0] as String,
+      time: fields[1] as int,
+      lastUpdate: fields[2] as int,
     );
   }
 
   @override
-  void write(BinaryWriter writer, IdUid obj) {
+  void write(BinaryWriter writer, LastActivity obj) {
     writer
       ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
       ..write(obj.uid)
-      ..writeByte(3)
+      ..writeByte(1)
+      ..write(obj.time)
+      ..writeByte(2)
       ..write(obj.lastUpdate);
   }
 
@@ -41,7 +41,7 @@ class IdUidAdapter extends TypeAdapter<IdUid> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is IdUidAdapter &&
+      other is LastActivityAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
