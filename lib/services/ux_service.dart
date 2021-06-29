@@ -18,7 +18,7 @@ class UxService {
 
   BehaviorSubject<Language> _language = BehaviorSubject.seeded(DefaultLanguage);
 
-  get localeStream => _sharedDao.getStream("lang").map((event) {
+  get localeStream => _sharedDao.getStream(SHARED_DAO_LANGUAGE).map((event) {
         if (event != null) {
           var code = event;
           if (code.contains(Farsi.countryCode)) {
@@ -29,11 +29,14 @@ class UxService {
         }
       });
 
-  get themeStream => _sharedDao.getStream("theme").map((event) {
+  get themeStream => _sharedDao.getStream(SHARED_DAO_THEME).map((event) {
         if (event != null) {
-          if (event.contains("Dark")) {
+          if (event.contains(DarkThemeName)) {
             _theme.add(DarkTheme);
             _extraTheme.add(DarkExtraTheme);
+          } else if (event.contains(LightThemeName)) {
+            _theme.add(LightTheme);
+            _extraTheme.add(LightExtraTheme);
           } else {
             _theme.add(LightTheme);
             _extraTheme.add(LightExtraTheme);
@@ -52,11 +55,11 @@ class UxService {
 
   toggleTheme() {
     if (theme == DarkTheme) {
-      _sharedDao.put(SHARED_DAO_THEME, "Light");
+      _sharedDao.put(SHARED_DAO_THEME, LightThemeName);
       _theme.add(LightTheme);
       _extraTheme.add(LightExtraTheme);
     } else {
-      _sharedDao.put(SHARED_DAO_THEME, "Dark");
+      _sharedDao.put(SHARED_DAO_THEME, DarkThemeName);
       _theme.add(DarkTheme);
       _extraTheme.add(DarkExtraTheme);
     }
