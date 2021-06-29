@@ -84,7 +84,7 @@ class MucRepo {
     try {
       int i = 0;
       int membersSize = 0;
-      len = 0;
+
       bool finish = false;
       List<Member> members = [];
       while (i <= len || !finish) {
@@ -124,7 +124,6 @@ class MucRepo {
   getChannelMembers(Uid channelUid, int len) async {
     try {
       int i = 0;
-      len =0;
       int membersSize = 0;
       bool finish = false;
       List<Member> members = [];
