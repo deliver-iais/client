@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
@@ -111,48 +112,49 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   }
 
   Widget buildAvatar(BuildContext context) {
-    return StreamBuilder<List<Avatar>>(
-        stream: _avatarRepo.getAvatar(widget.userUid, false),
-        builder: (cont, snapshot) {
-          if (!snapshot.hasData || snapshot.data == null) {
-            return Center(
-              child: CircularProgressIndicator(
-                backgroundColor: Colors.blue,
-              ),
-            );
-          } else {
-            _allAvatars = snapshot.data;
-            if (_allAvatars.length <= 0) {
-              _routingService.pop();
-              return Center(
-                child: CircularProgressIndicator(
-                  backgroundColor: Colors.blue,
-                ),
-              );
-            }
-            return Scaffold(
-                appBar: buildAppBar(swipePosition, snapshot.data.length),
-                body: Swiper(
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (c, i) {
-                      _swipePositionSubject.add(i);
-                      var fileId = _allAvatars[i].fileId;
-                      var fileName = _allAvatars[i].fileName;
-                      var file = _fileCache.get(fileId);
-                      if (file != null) {
-                        return buildMeidaCenter(
-                            context, i, file, fileId, "avatar$i");
-                      } else {
-                        return buildFutureMediaBuilder(
-                            fileId, fileName, context, i);
-                      }
-                    },
-                    itemCount: snapshot.data.length,
-                    viewportFraction: 1.0,
-                    scale: 0.9,
-                    loop: false));
-          }
-        });
+    return Container();
+    // return StreamBuilder<List<Avatar>>(
+    //     stream: _avatarRepo.getAvatar(widget.userUid, false),
+    //     builder: (cont, snapshot) {
+    //       if (!snapshot.hasData || snapshot.data == null) {
+    //         return Center(
+    //           child: CircularProgressIndicator(
+    //             backgroundColor: Colors.blue,
+    //           ),
+    //         );
+    //       } else {
+    //         _allAvatars = snapshot.data;
+    //         if (_allAvatars.length <= 0) {
+    //           _routingService.pop();
+    //           return Center(
+    //             child: CircularProgressIndicator(
+    //               backgroundColor: Colors.blue,
+    //             ),
+    //           );
+    //         }
+    //         return Scaffold(
+    //             appBar: buildAppBar(swipePosition, snapshot.data.length),
+    //             body: Swiper(
+    //                 scrollDirection: Axis.horizontal,
+    //                 itemBuilder: (c, i) {
+    //                   _swipePositionSubject.add(i);
+    //                   var fileId = _allAvatars[i].fileId;
+    //                   var fileName = _allAvatars[i].fileName;
+    //                   var file = _fileCache.get(fileId);
+    //                   if (file != null) {
+    //                     return buildMeidaCenter(
+    //                         context, i, file, fileId, "avatar$i");
+    //                   } else {
+    //                     return buildFutureMediaBuilder(
+    //                         fileId, fileName, context, i);
+    //                   }
+    //                 },
+    //                 itemCount: snapshot.data.length,
+    //                 viewportFraction: 1.0,
+    //                 scale: 0.9,
+    //                 loop: false));
+    //       }
+    //     });
   }
 
   Widget buildMediaOrVideoWidget(BuildContext context, isVideo) {
@@ -211,7 +213,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   FutureBuilder<File> buildFutureMediaBuilder(
       fileId, fileName, BuildContext context, int i) {
     return FutureBuilder<File>(
-      future: _fileRepo.getFile(fileId, fileName,thumbnailSize: ThumbnailSize.large),
+      future: _fileRepo.getFile(fileId, fileName,
+          thumbnailSize: ThumbnailSize.large),
       builder: (BuildContext c, AsyncSnapshot snaps) {
         if (snaps.hasData &&
             snaps.data != null &&
@@ -220,7 +223,11 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           return buildMeidaCenter(
               context, i, snaps.data, fileId, widget.heroTag);
         } else {
-          return Center(child: CircularProgressIndicator(color: Colors.blue,),);
+          return Center(
+            child: CircularProgressIndicator(
+              color: Colors.blue,
+            ),
+          );
         }
       },
     );
@@ -504,7 +511,10 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             stream: _swipePositionSubject.stream,
             builder: (c, position) {
               if (position.hasData && position.data != null)
-                return Text("${position.data + 1} of ${totalLength}",style: TextStyle(color: ExtraTheme.of(context).textField),);
+                return Text(
+                  "${position.data + 1} of ${totalLength}",
+                  style: TextStyle(color: ExtraTheme.of(context).textField),
+                );
               else {
                 return SizedBox.shrink();
               }

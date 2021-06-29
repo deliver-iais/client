@@ -1,9 +1,9 @@
 import 'package:hive/hive.dart';
 
-part 'avatar.g.dart';
+part 'last_avatar.g.dart';
 
-@HiveType(typeId: 1)
-class Avatar {
+@HiveType(typeId: 2)
+class LastAvatar {
   // Table ID
   @HiveField(0)
   String uid;
@@ -18,5 +18,9 @@ class Avatar {
   @HiveField(3)
   String fileName;
 
-  Avatar({this.uid, this.createdOn, this.fileId, this.fileName});
+  @HiveField(4)
+  int lastUpdate;
+
+  LastAvatar(
+      {this.uid, this.createdOn, this.fileId, this.fileName, this.lastUpdate});
 }

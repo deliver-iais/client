@@ -1,18 +1,14 @@
-import 'package:deliver_flutter/db/Avatars.dart';
 import 'package:deliver_flutter/db/BotInfos.dart';
 import 'package:deliver_flutter/db/Media.dart';
-import 'package:deliver_flutter/db/LastAvatar.dart';
 import 'package:deliver_flutter/db/MediaMetaData.dart';
 import 'package:deliver_flutter/db/Messages.dart';
 import 'package:deliver_flutter/db/SharedPreferences.dart';
 import 'package:deliver_flutter/db/StickerId.dart';
 import 'package:deliver_flutter/db/Stickers.dart';
-import 'package:deliver_flutter/db/dao/AvatarDao.dart';
 import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
-import 'package:deliver_flutter/db/dao/LastAvatarDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
@@ -53,11 +49,9 @@ part 'database.g.dart';
 @UseMoor(tables: [
   Messages,
   Rooms,
-  Avatars,
   Contacts,
   FileInfos,
   Seens,
-  LastAvatars,
   PendingMessages,
   Medias,
   SharedPreferences,
@@ -72,11 +66,9 @@ part 'database.g.dart';
 ], daos: [
   MessageDao,
   RoomDao,
-  AvatarDao,
   ContactDao,
   FileDao,
   SeenDao,
-  LastAvatarDao,
   PendingMessageDao,
   MediaDao,
   SharedPreferencesDao,

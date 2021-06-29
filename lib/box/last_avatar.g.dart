@@ -1,33 +1,34 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'avatar.dart';
+part of 'last_avatar.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class AvatarAdapter extends TypeAdapter<Avatar> {
+class LastAvatarAdapter extends TypeAdapter<LastAvatar> {
   @override
-  final int typeId = 1;
+  final int typeId = 2;
 
   @override
-  Avatar read(BinaryReader reader) {
+  LastAvatar read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Avatar(
+    return LastAvatar(
       uid: fields[0] as String,
       createdOn: fields[1] as int,
       fileId: fields[2] as String,
       fileName: fields[3] as String,
+      lastUpdate: fields[4] as int,
     );
   }
 
   @override
-  void write(BinaryWriter writer, Avatar obj) {
+  void write(BinaryWriter writer, LastAvatar obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class AvatarAdapter extends TypeAdapter<Avatar> {
       ..writeByte(2)
       ..write(obj.fileId)
       ..writeByte(3)
-      ..write(obj.fileName);
+      ..write(obj.fileName)
+      ..writeByte(4)
+      ..write(obj.lastUpdate);
   }
 
   @override
@@ -44,7 +47,7 @@ class AvatarAdapter extends TypeAdapter<Avatar> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AvatarAdapter &&
+      other is LastAvatarAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

@@ -1,7 +1,6 @@
 import 'dart:math';
 
-import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/account.dart';
+import 'package:deliver_flutter/box/last_avatar.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
