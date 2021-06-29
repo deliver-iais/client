@@ -1,4 +1,5 @@
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/language.dart';
 import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -51,18 +52,18 @@ class UxService {
 
   toggleTheme() {
     if (theme == DarkTheme) {
-      _sharedDao.put("theme", "Light");
+      _sharedDao.put(SHARED_DAO_THEME, "Light");
       _theme.add(LightTheme);
       _extraTheme.add(LightExtraTheme);
     } else {
-      _sharedDao.put("theme", "Dark");
+      _sharedDao.put(SHARED_DAO_THEME, "Dark");
       _theme.add(DarkTheme);
       _extraTheme.add(DarkExtraTheme);
     }
   }
 
   changeLanguage(Language language) {
-    _sharedDao.put("lang", language.countryCode);
+    _sharedDao.put(SHARED_DAO_LANGUAGE, language.countryCode);
     _language.add(language);
   }
 

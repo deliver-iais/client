@@ -4,6 +4,7 @@ import 'package:deliver_flutter/db/database.dart' as db;
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -17,8 +18,6 @@ import 'package:grpc/grpc.dart';
 
 import 'notification_services.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-
-const FIREBASE_SETTING_IS_SET = "firebase_setting_is_set";
 
 class FireBaseServices {
   AndroidNotificationChannel channel = const AndroidNotificationChannel(
@@ -47,7 +46,8 @@ class FireBaseServices {
   }
 
   _sendFireBaseToken(String fireBaseToken) async {
-    String firebaseSetting = await _sharedDao.get(FIREBASE_SETTING_IS_SET);
+    String firebaseSetting =
+        await _sharedDao.get(SHARED_DAO_FIREBASE_SETTING_IS_SET);
     if (firebaseSetting == null) {
       try {
         await _firebaseServices.registration(
@@ -55,7 +55,7 @@ class FireBaseServices {
             options: CallOptions(metadata: {
               'access_token': await _accountRepo.getAccessToken()
             }));
-        _sharedDao.put(FIREBASE_SETTING_IS_SET, "true");
+        _sharedDao.put(SHARED_DAO_FIREBASE_SETTING_IS_SET, "true");
       } catch (e) {
         debug(e.toString());
       }
