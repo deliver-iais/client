@@ -68,9 +68,9 @@ void setupDI() async {
   await Hive.initFlutter("db");
 
   Hive.registerAdapter(AvatarAdapter());
+  Hive.registerAdapter(LastActivityAdapter());
   Hive.registerAdapter(ContactAdapter());
   Hive.registerAdapter(UidIdNameAdapter());
-  Hive.registerAdapter(LastActivityAdapter());
   Hive.registerAdapter(SeenAdapter());
 
   GetIt getIt = GetIt.instance;
