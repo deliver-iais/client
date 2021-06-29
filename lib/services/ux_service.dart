@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
+import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/shared/language.dart';
 import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -9,7 +9,7 @@ import 'package:rxdart/rxdart.dart';
 
 class UxService {
   Map tabIndexMap = new Map<String, int>();
-  SharedPreferencesDao _sharedPrefs = GetIt.I.get<SharedPreferencesDao>();
+  final _sharedDao = GetIt.I.get<SharedDao>();
 
   BehaviorSubject<ThemeData> _theme = BehaviorSubject.seeded(LightTheme);
   BehaviorSubject<ExtraThemeData> _extraTheme =
@@ -17,9 +17,9 @@ class UxService {
 
   BehaviorSubject<Language> _language = BehaviorSubject.seeded(DefaultLanguage);
 
-  get localeStream => _sharedPrefs.watch("lang").map((event) {
+  get localeStream => _sharedDao.getStream("lang").map((event) {
         if (event != null) {
-          var code = event.value;
+          var code = event;
           if (code.contains(Farsi.countryCode)) {
             _language.add(Farsi);
           } else if (code.contains(English.countryCode)) {
@@ -28,9 +28,9 @@ class UxService {
         }
       });
 
-  get themeStream => _sharedPrefs.watch("theme").map((event) {
+  get themeStream => _sharedDao.getStream("theme").map((event) {
         if (event != null) {
-          if (event.value.contains("Dark")) {
+          if (event.contains("Dark")) {
             _theme.add(DarkTheme);
             _extraTheme.add(DarkExtraTheme);
           } else {
@@ -51,18 +51,18 @@ class UxService {
 
   toggleTheme() {
     if (theme == DarkTheme) {
-      _sharedPrefs.set("theme", "Light");
+      _sharedDao.put("theme", "Light");
       _theme.add(LightTheme);
       _extraTheme.add(LightExtraTheme);
     } else {
-      _sharedPrefs.set("theme", "Dark");
+      _sharedDao.put("theme", "Dark");
       _theme.add(DarkTheme);
       _extraTheme.add(DarkExtraTheme);
     }
   }
 
   changeLanguage(Language language) {
-    _sharedPrefs.set("lang", language.countryCode);
+    _sharedDao.put("lang", language.countryCode);
     _language.add(language);
   }
 

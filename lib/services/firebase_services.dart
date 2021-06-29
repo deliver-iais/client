@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
+import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/db/database.dart' as db;
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
@@ -18,11 +18,9 @@ import 'package:grpc/grpc.dart';
 import 'notification_services.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
-String Firabase_Setting_Is_Set = "firabase_setting_is_set";
+const FIREBASE_SETTING_IS_SET = "firebase_setting_is_set";
 
 class FireBaseServices {
-  FirebaseMessaging _firebaseMessaging;
-
   AndroidNotificationChannel channel = const AndroidNotificationChannel(
     'high_importance_channel', // id
     'High Importance Notifications', // title
@@ -30,35 +28,34 @@ class FireBaseServices {
     importance: Importance.high,
   );
 
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-
   var _accountRepo = GetIt.I.get<AccountRepo>();
-  var fireBaseServices = FirebaseServiceClient(FirebaseServicesClientChannel);
-  SharedPreferencesDao _prefs = GetIt.I.get<SharedPreferencesDao>();
+  var _sharedDao = GetIt.I.get<SharedDao>();
+  var _firebaseServices = FirebaseServiceClient(FirebaseServicesClientChannel);
+  var _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  FirebaseMessaging _firebaseMessaging;
 
   sendFireBaseToken() async {
     _firebaseMessaging = FirebaseMessaging.instance;
     _firebaseMessaging.requestPermission();
-    var fireBaseToken = await _firebaseMessaging.getToken();
     await _setFirebaseSetting();
-    _sendFireBaseToken(fireBaseToken);
+    _sendFireBaseToken(await _firebaseMessaging.getToken());
   }
 
-  deleteFirabseInstaceIs() {
-    FireBaseServices().deleteFirabseInstaceIs();
+  deleteToken() {
+    _firebaseMessaging.deleteToken();
   }
 
   _sendFireBaseToken(String fireBaseToken) async {
-    String firabase_setting = await _prefs.get(Firabase_Setting_Is_Set);
-    if (firabase_setting == null) {
+    String firebaseSetting = await _sharedDao.get(FIREBASE_SETTING_IS_SET);
+    if (firebaseSetting == null) {
       try {
-        await fireBaseServices.registration(
+        await _firebaseServices.registration(
             RegistrationReq()..tokenId = fireBaseToken,
             options: CallOptions(metadata: {
               'access_token': await _accountRepo.getAccessToken()
             }));
-        _prefs.set(Firabase_Setting_Is_Set, "true");
+        _sharedDao.put(FIREBASE_SETTING_IS_SET, "true");
       } catch (e) {
         debug(e.toString());
       }
@@ -66,7 +63,7 @@ class FireBaseServices {
   }
 
   _setFirebaseSetting() async {
-    await flutterLocalNotificationsPlugin
+    await _flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
@@ -92,23 +89,24 @@ M.Message _decodeMessage(String notificationBody) {
 Future<void> backgroundMessageHandler(RemoteMessage message) async {
   var _notificationServices = NotificationServices();
 
+  GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
+
   var database = db.Database();
   var contactDao = database.contactDao;
   var roomDao = database.roomDao;
   var messageDao = database.messageDao;
-  var sharedPreferencesDao = database.sharedPreferencesDao;
-  var accountRepo = AccountRepo(sharedPrefs: sharedPreferencesDao);
-  var _userInfoDao = database.userInfoDao;
+  var userInfoDao = database.userInfoDao;
+  var accountRepo = AccountRepo();
 
   if (message.data.containsKey('body')) {
     M.Message msg = _decodeMessage(message.data["body"]);
     String roomName = message.data['title'];
     Uid roomUid = getRoomId(accountRepo, msg);
-    var currentUseruid = await accountRepo.getCurrentUserUid();
+    var currentUserUid = await accountRepo.getCurrentUserUid();
     db.Room room = await roomDao.getByRoomIdFuture(roomUid.asString());
     if (room != null &&
         room.isBlock &&
-        msg.from.isSameEntity(currentUseruid.asString())) {
+        msg.from.isSameEntity(currentUserUid.asString())) {
       return;
     }
     CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg, roomUid);
@@ -124,7 +122,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
           roomName = "$roomName ${contact.lastName}";
         }
       } else {
-        var res = await _userInfoDao.getUserInfo(msg.from.asString());
+        var res = await userInfoDao.getUserInfo(msg.from.asString());
         if (res != null) roomName = res.username;
       }
     } else if (msg.from.category == Categories.SYSTEM) {
@@ -134,7 +132,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
     }
 
     if (msg.from.category == Categories.USER)
-      updateLastActivityTime(_userInfoDao, getRoomId(accountRepo, msg),
+      updateLastActivityTime(userInfoDao, getRoomId(accountRepo, msg),
           DateTime.fromMillisecondsSinceEpoch(msg.time.toInt()));
     if ((await accountRepo.notification).contains("true") &&
         (room != null && !room.mute))

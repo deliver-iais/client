@@ -2,7 +2,6 @@ import 'package:deliver_flutter/db/BotInfos.dart';
 import 'package:deliver_flutter/db/Media.dart';
 import 'package:deliver_flutter/db/MediaMetaData.dart';
 import 'package:deliver_flutter/db/Messages.dart';
-import 'package:deliver_flutter/db/SharedPreferences.dart';
 import 'package:deliver_flutter/db/StickerId.dart';
 import 'package:deliver_flutter/db/Stickers.dart';
 import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
@@ -12,7 +11,6 @@ import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
-import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
 import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
 import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
@@ -54,7 +52,6 @@ part 'database.g.dart';
   Seens,
   PendingMessages,
   Medias,
-  SharedPreferences,
   Members,
   Mucs,
   LastSeens,
@@ -71,7 +68,6 @@ part 'database.g.dart';
   SeenDao,
   PendingMessageDao,
   MediaDao,
-  SharedPreferencesDao,
   MemberDao,
   MucDao,
   LastSeenDao,

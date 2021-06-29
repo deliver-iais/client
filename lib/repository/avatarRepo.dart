@@ -60,8 +60,6 @@ class AvatarRepo {
 
       AvatarDao.save(userUid.asString(), avatars);
 
-      debug("******************************* $avatars");
-
       var lastAvatar = avatars.fold<Avatar>(
           null,
           (value, element) => value == null

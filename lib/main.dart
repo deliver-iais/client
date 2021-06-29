@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/avatar.dart';
+import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/last_avatar.dart';
 import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
@@ -10,7 +11,6 @@ import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/SeenDao.dart';
-import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
 import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
 import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
@@ -61,9 +61,17 @@ import 'db/dao/MucDao.dart';
 import 'db/dao/RoomDao.dart';
 import 'repository/mucRepo.dart';
 
-void setupDI() {
+void setupDI() async {
+  await Hive.initFlutter();
+
+  Hive.registerAdapter(AvatarAdapter());
+  Hive.registerAdapter(LastAvatarAdapter());
+
   GetIt getIt = GetIt.instance;
+  getIt.registerSingleton<SharedDao>(SharedDaoImpl());
+
   Database db = Database();
+
   getIt.registerSingleton<Database>(db);
   getIt.registerSingleton<MessageDao>(db.messageDao);
   getIt.registerSingleton<RoomDao>(db.roomDao);
@@ -72,7 +80,6 @@ void setupDI() {
   getIt.registerSingleton<SeenDao>(db.seenDao);
   getIt.registerSingleton<MediaDao>(db.mediaDao);
   getIt.registerSingleton<PendingMessageDao>(db.pendingMessageDao);
-  getIt.registerSingleton<SharedPreferencesDao>(db.sharedPreferencesDao);
   getIt.registerSingleton<MucDao>(db.mucDao);
   getIt.registerSingleton<MemberDao>(db.memberDao);
   getIt.registerSingleton<LastSeenDao>(db.lastSeenDao);
@@ -90,8 +97,7 @@ void setupDI() {
   getIt.registerSingleton<StickerServiceClient>(
       StickerServiceClient(StickerClientChannel));
 
-  getIt.registerSingleton<AccountRepo>(
-      AccountRepo(sharedPrefs: db.sharedPreferencesDao));
+  getIt.registerSingleton<AccountRepo>(AccountRepo());
   getIt.registerSingleton<BotRepo>(BotRepo());
 
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
@@ -131,7 +137,7 @@ void setupDIAndRunApp() async {
   if (isAndroid()) {
     await setupFlutterNotification();
   }
-  setupDI();
+  await setupDI();
 
   // TODO: Android just now is available
 
@@ -139,11 +145,6 @@ void setupDIAndRunApp() async {
 }
 
 void main() async {
-  await Hive.initFlutter();
-
-  Hive.registerAdapter(AvatarAdapter());
-  Hive.registerAdapter(LastAvatarAdapter());
-
   WidgetsFlutterBinding.ensureInitialized();
   debug("Application has been started");
 
@@ -151,12 +152,6 @@ void main() async {
     _setWindowSize();
 
     setWindowTitle("Deliver");
-  }
-
-  if (isAndroid()) {
-    SmsAutoFill().getAppSignature.then((signCode) {
-      //  Fluttertoast.showToast(msg:"hash $signCode");
-    });
   }
 
   setupDIAndRunApp();

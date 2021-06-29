@@ -1,9 +1,7 @@
 import 'dart:io';
 
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/box/avatar.dart';
-import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/utils/log.dart';
@@ -16,7 +14,6 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:device_info/device_info.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:get_it/get_it.dart';
@@ -40,9 +37,7 @@ const NOTIFICATION = "notification";
 const CURRENT_USER_UID = "current_user_uid";
 
 class AccountRepo {
-  final SharedPreferencesDao sharedPrefs;
-
-  AccountRepo({@required this.sharedPrefs});
+  final _sharedDao = GetIt.I.get<SharedDao>();
 
   // TODO add account name protocol to server
   String currentUsername = "@john_doe";
@@ -51,18 +46,16 @@ class AccountRepo {
     ..node = "john";
   Avatar avatar;
   PhoneNumber phoneNumber;
-  String _access_token;
-
+  String _accessToken;
   String _refreshToken;
 
-
-  var authServiceStub = AuthServiceClient(ProfileServicesClientChannel);
+  var _authServiceStub = AuthServiceClient(ProfileServicesClientChannel);
   var _profile = UserServiceClient(ProfileServicesClientChannel);
 
   Future<void> init() async {
-    var access_token = await sharedPrefs.get(ACCESS_TOKEN_KEY);
-    var refreshToken = await sharedPrefs.get(REFRESH_TOKEN_KEY);
-    _setTokensAndCurrentUserUid(access_token, refreshToken);
+    var accessToken = await _sharedDao.get(ACCESS_TOKEN_KEY);
+    var refreshToken = await _sharedDao.get(REFRESH_TOKEN_KEY);
+    _setTokensAndCurrentUserUid(accessToken, refreshToken);
   }
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -76,7 +69,7 @@ class AccountRepo {
         ..nationalNumber = Int64.parseInt(nationalNumber);
       this.phoneNumber = phone;
       _savePhoneNumber();
-      var verificationCode = await authServiceStub.getVerificationCode(
+      var verificationCode = await _authServiceStub.getVerificationCode(
           GetVerificationCodeReq()
             ..phoneNumber = phone
             ..type = VerificationType.SMS,
@@ -101,22 +94,22 @@ class AccountRepo {
     }
 
     var sendVerificationCode =
-    await authServiceStub.verifyAndGetToken(VerifyCodeReq()
-      ..phoneNumber = this.phoneNumber
-      ..code = code
-      ..device = device
+        await _authServiceStub.verifyAndGetToken(VerifyCodeReq()
+          ..phoneNumber = this.phoneNumber
+          ..code = code
+          ..device = device
 //          TODO add password mechanism
-      ..password = "");
+          ..password = "");
 
     return sendVerificationCode;
   }
 
   Future _getAccessToken(String refreshToken) async {
     try {
-      var getAccessToken = await authServiceStub
-          .renewAccessToken(RenewAccessTokenReq()
-        ..refreshToken = refreshToken);
-      if (wrongAccessToken(getAccessToken.accessToken ,getAccessToken.refreshToken , refreshToken) ||
+      var getAccessToken = await _authServiceStub
+          .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
+      if (wrongAccessToken(getAccessToken.accessToken,
+              getAccessToken.refreshToken, refreshToken) ||
           wrongRefreshToken(getAccessToken.refreshToken)) {
         _getAccessToken(refreshToken);
         return;
@@ -128,13 +121,13 @@ class AccountRepo {
   }
 
   Future<String> getAccessToken() async {
-    if (_isExpired(_access_token) || exp(_access_token)) {
+    if (_isExpired(_accessToken) || exp(_accessToken)) {
       RenewAccessTokenRes renewAccessTokenRes =
-      await _getAccessToken(_refreshToken);
+          await _getAccessToken(_refreshToken);
       _saveTokens(renewAccessTokenRes);
       return renewAccessTokenRes.accessToken;
     } else {
-      return _access_token;
+      return _accessToken;
     }
   }
 
@@ -150,17 +143,16 @@ class AccountRepo {
     final Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
     final DateTime iaTirationDate = new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["iat"]));
-    if (((DateTime
-        .now()
-        .millisecondsSinceEpoch -
-        iaTirationDate.millisecondsSinceEpoch) >
+    if (((DateTime.now().millisecondsSinceEpoch -
+            iaTirationDate.millisecondsSinceEpoch) >
         15 * 60 * 1000)) {
       return true;
     } else
       return false;
   }
 
-  bool wrongAccessToken(String token,String refreshToken, String oldRefreshToken) {
+  bool wrongAccessToken(
+      String token, String refreshToken, String oldRefreshToken) {
     final Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
     final DateTime iatTime = new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["iat"]));
@@ -169,11 +161,11 @@ class AccountRepo {
     if ((expTime.millisecondsSinceEpoch - iatTime.millisecondsSinceEpoch) >
         15 * 60 * 1000) {
       var messageRepo = GetIt.I.get<MessageRepo>();
-     if(kDebugMode) messageRepo.sendErrorMessage("accessTonken = $token \n refrsh= $refreshToken \n oldRefreshToken $oldRefreshToken");
+      if (kDebugMode)
+        messageRepo.sendErrorMessage(
+            "accessTonken = $token \n refrsh= $refreshToken \n oldRefreshToken $oldRefreshToken");
       return true;
-
-    }
-    else
+    } else
       return false;
   }
 
@@ -186,7 +178,7 @@ class AccountRepo {
     if (((expTime.millisecondsSinceEpoch - iatTime.millisecondsSinceEpoch) <
         29 * 24 * 60 * 60 * 1000)) {
       var messageRepo = GetIt.I.get<MessageRepo>();
-      if(kDebugMode) messageRepo.sendErrorMessage("refreshTonken = $token");
+      if (kDebugMode) messageRepo.sendErrorMessage("refreshTonken = $token");
       return true;
     }
     return false;
@@ -201,7 +193,7 @@ class AccountRepo {
   }
 
   Future<bool> getProfile({bool retry = false}) async {
-    if (null != await sharedPrefs.get(FIRST_NAME)) {
+    if (null != await _sharedDao.get(FIRST_NAME)) {
       return true;
     }
     try {
@@ -225,15 +217,14 @@ class AccountRepo {
   Future<bool> getUsername() async {
     try {
       final QueryServiceClient _queryServiceClient =
-      GetIt.I.get<QueryServiceClient>();
+          GetIt.I.get<QueryServiceClient>();
       var getIdRequest = await _queryServiceClient.getIdByUid(
-          GetIdByUidReq()
-            ..uid = currentUserUid,
+          GetIdByUidReq()..uid = currentUserUid,
           options: CallOptions(
               metadata: {'access_token': await getAccessToken()},
               timeout: Duration(seconds: 2)));
       if (getIdRequest != null && getIdRequest.id.isNotEmpty) {
-        sharedPrefs.set(USERNAME, getIdRequest.id);
+        _sharedDao.put(USERNAME, getIdRequest.id);
         return true;
       } else {
         return false;
@@ -250,10 +241,10 @@ class AccountRepo {
         refreshToken.isEmpty) {
       return;
     }
-    _access_token = access_token;
+    _accessToken = access_token;
     _refreshToken = refreshToken;
-    sharedPrefs.set(REFRESH_TOKEN_KEY, refreshToken);
-    sharedPrefs.set(ACCESS_TOKEN_KEY, access_token);
+    _sharedDao.put(REFRESH_TOKEN_KEY, refreshToken);
+    _sharedDao.put(ACCESS_TOKEN_KEY, access_token);
     setCurrentUid(access_token);
   }
 
@@ -264,47 +255,47 @@ class AccountRepo {
         ..category = Categories.USER
         ..node = decodedToken["sub"];
       debug("UserId " + currentUserUid.asString());
-      sharedPrefs.set(CURRENT_USER_UID, currentUserUid.asString());
+      _sharedDao.put(CURRENT_USER_UID, currentUserUid.asString());
     }
   }
 
   Future<Uid> getCurrentUserUid() async {
-    return (await sharedPrefs.get(CURRENT_USER_UID)).getUid();
+    return (await _sharedDao.get(CURRENT_USER_UID)).getUid();
   }
 
   Future<Account> getAccount() async {
     return Account()
-      ..phoneNumber = await sharedPrefs.get(PHONE_NUMBER)
-      ..userName = await sharedPrefs.get(USERNAME)
-      ..firstName = await sharedPrefs.get(FIRST_NAME)
-      ..lastName = await sharedPrefs.get(LAST_NAME)
-      ..email = await sharedPrefs.get(EMAIL)
-      ..password = await sharedPrefs.get(PASSWORD)
-      ..description = await sharedPrefs.get(DESCRIPTION);
+      ..phoneNumber = await _sharedDao.get(PHONE_NUMBER)
+      ..userName = await _sharedDao.get(USERNAME)
+      ..firstName = await _sharedDao.get(FIRST_NAME)
+      ..lastName = await _sharedDao.get(LAST_NAME)
+      ..email = await _sharedDao.get(EMAIL)
+      ..password = await _sharedDao.get(PASSWORD)
+      ..description = await _sharedDao.get(DESCRIPTION);
   }
 
   Future<bool> checkUserName(String username) async {
     final QueryServiceClient _queryServiceClient =
-    GetIt.I.get<QueryServiceClient>();
+        GetIt.I.get<QueryServiceClient>();
     var checkUsernameRes = await _queryServiceClient.idIsAvailable(
-        IdIsAvailableReq()
-          ..id = username,
+        IdIsAvailableReq()..id = username,
         options:
-        CallOptions(metadata: {'access_token': await getAccessToken()}));
+            CallOptions(metadata: {'access_token': await getAccessToken()}));
     return checkUsernameRes.isAvailable;
   }
 
-  Future<bool> setAccountDetails(String username,
-      String firstName,
-      String lastName,
-      String email,) async {
+  Future<bool> setAccountDetails(
+    String username,
+    String firstName,
+    String lastName,
+    String email,
+  ) async {
     final QueryServiceClient _queryServiceClient =
-    GetIt.I.get<QueryServiceClient>();
+        GetIt.I.get<QueryServiceClient>();
     try {
-      _queryServiceClient.setId(SetIdReq()
-        ..id = username,
+      _queryServiceClient.setId(SetIdReq()..id = username,
           options:
-          CallOptions(metadata: {"access_token": await getAccessToken()}));
+              CallOptions(metadata: {"access_token": await getAccessToken()}));
 
       SaveUserProfileReq saveUserProfileReq = SaveUserProfileReq();
       if (firstName != null) {
@@ -319,7 +310,7 @@ class AccountRepo {
 
       _profile.saveUserProfile(saveUserProfileReq,
           options:
-          CallOptions(metadata: {'access_token': await getAccessToken()}));
+              CallOptions(metadata: {'access_token': await getAccessToken()}));
       _saveProfilePrivateDate(
           username: username,
           firstName: firstName,
@@ -335,27 +326,27 @@ class AccountRepo {
 
   _saveProfilePrivateDate(
       {String username, String firstName, String lastName, String email}) {
-    if (username != null) sharedPrefs.set(USERNAME, username);
-    sharedPrefs.set(FIRST_NAME, firstName);
-    sharedPrefs.set(LAST_NAME, lastName);
-    sharedPrefs.set(EMAIL, email);
+    if (username != null) _sharedDao.put(USERNAME, username);
+    _sharedDao.put(FIRST_NAME, firstName);
+    _sharedDao.put(LAST_NAME, lastName);
+    _sharedDao.put(EMAIL, email);
   }
 
   _savePhoneNumber() {
-    sharedPrefs.set(PHONE_NUMBER,
+    _sharedDao.put(PHONE_NUMBER,
         "${this.phoneNumber.countryCode}${this.phoneNumber.nationalNumber}");
   }
 
   setNotificationState(String notif) {
-    sharedPrefs.set(NOTIFICATION, notif);
+    _sharedDao.put(NOTIFICATION, notif);
   }
 
-  Future<String> get notification => sharedPrefs.get(NOTIFICATION);
+  Future<String> get notification => _sharedDao.get(NOTIFICATION);
 
   void fetchProfile() async {
-    if (null == await sharedPrefs.get(USERNAME)) {
+    if (null == await _sharedDao.get(USERNAME)) {
       await getUsername();
-    } else if (null == await sharedPrefs.get(FIRST_NAME)) {
+    } else if (null == await _sharedDao.get(FIRST_NAME)) {
       await getProfile(retry: true);
     }
   }

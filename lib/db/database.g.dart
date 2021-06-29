@@ -2924,205 +2924,6 @@ class $MediasTable extends Medias with TableInfo<$MediasTable, Media> {
       const EnumIndexConverter<MediaType>(MediaType.values);
 }
 
-class SharedPreference extends DataClass
-    implements Insertable<SharedPreference> {
-  final String key;
-  final String value;
-  SharedPreference({@required this.key, @required this.value});
-  factory SharedPreference.fromData(
-      Map<String, dynamic> data, GeneratedDatabase db,
-      {String prefix}) {
-    final effectivePrefix = prefix ?? '';
-    return SharedPreference(
-      key: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}key']),
-      value: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}value']),
-    );
-  }
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (!nullToAbsent || key != null) {
-      map['key'] = Variable<String>(key);
-    }
-    if (!nullToAbsent || value != null) {
-      map['value'] = Variable<String>(value);
-    }
-    return map;
-  }
-
-  SharedPreferencesCompanion toCompanion(bool nullToAbsent) {
-    return SharedPreferencesCompanion(
-      key: key == null && nullToAbsent ? const Value.absent() : Value(key),
-      value:
-          value == null && nullToAbsent ? const Value.absent() : Value(value),
-    );
-  }
-
-  factory SharedPreference.fromJson(Map<String, dynamic> json,
-      {ValueSerializer serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
-    return SharedPreference(
-      key: serializer.fromJson<String>(json['key']),
-      value: serializer.fromJson<String>(json['value']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'key': serializer.toJson<String>(key),
-      'value': serializer.toJson<String>(value),
-    };
-  }
-
-  SharedPreference copyWith({String key, String value}) => SharedPreference(
-        key: key ?? this.key,
-        value: value ?? this.value,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('SharedPreference(')
-          ..write('key: $key, ')
-          ..write('value: $value')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => $mrjf($mrjc(key.hashCode, value.hashCode));
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is SharedPreference &&
-          other.key == this.key &&
-          other.value == this.value);
-}
-
-class SharedPreferencesCompanion extends UpdateCompanion<SharedPreference> {
-  final Value<String> key;
-  final Value<String> value;
-  const SharedPreferencesCompanion({
-    this.key = const Value.absent(),
-    this.value = const Value.absent(),
-  });
-  SharedPreferencesCompanion.insert({
-    @required String key,
-    @required String value,
-  })  : key = Value(key),
-        value = Value(value);
-  static Insertable<SharedPreference> custom({
-    Expression<String> key,
-    Expression<String> value,
-  }) {
-    return RawValuesInsertable({
-      if (key != null) 'key': key,
-      if (value != null) 'value': value,
-    });
-  }
-
-  SharedPreferencesCompanion copyWith(
-      {Value<String> key, Value<String> value}) {
-    return SharedPreferencesCompanion(
-      key: key ?? this.key,
-      value: value ?? this.value,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (key.present) {
-      map['key'] = Variable<String>(key.value);
-    }
-    if (value.present) {
-      map['value'] = Variable<String>(value.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('SharedPreferencesCompanion(')
-          ..write('key: $key, ')
-          ..write('value: $value')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $SharedPreferencesTable extends SharedPreferences
-    with TableInfo<$SharedPreferencesTable, SharedPreference> {
-  final GeneratedDatabase _db;
-  final String _alias;
-  $SharedPreferencesTable(this._db, [this._alias]);
-  final VerificationMeta _keyMeta = const VerificationMeta('key');
-  GeneratedTextColumn _key;
-  @override
-  GeneratedTextColumn get key => _key ??= _constructKey();
-  GeneratedTextColumn _constructKey() {
-    return GeneratedTextColumn(
-      'key',
-      $tableName,
-      false,
-    );
-  }
-
-  final VerificationMeta _valueMeta = const VerificationMeta('value');
-  GeneratedTextColumn _value;
-  @override
-  GeneratedTextColumn get value => _value ??= _constructValue();
-  GeneratedTextColumn _constructValue() {
-    return GeneratedTextColumn(
-      'value',
-      $tableName,
-      false,
-    );
-  }
-
-  @override
-  List<GeneratedColumn> get $columns => [key, value];
-  @override
-  $SharedPreferencesTable get asDslTable => this;
-  @override
-  String get $tableName => _alias ?? 'shared_preferences';
-  @override
-  final String actualTableName = 'shared_preferences';
-  @override
-  VerificationContext validateIntegrity(Insertable<SharedPreference> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('key')) {
-      context.handle(
-          _keyMeta, key.isAcceptableOrUnknown(data['key'], _keyMeta));
-    } else if (isInserting) {
-      context.missing(_keyMeta);
-    }
-    if (data.containsKey('value')) {
-      context.handle(
-          _valueMeta, value.isAcceptableOrUnknown(data['value'], _valueMeta));
-    } else if (isInserting) {
-      context.missing(_valueMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {key};
-  @override
-  SharedPreference map(Map<String, dynamic> data, {String tablePrefix}) {
-    return SharedPreference.fromData(data, _db,
-        prefix: tablePrefix != null ? '$tablePrefix.' : null);
-  }
-
-  @override
-  $SharedPreferencesTable createAlias(String alias) {
-    return $SharedPreferencesTable(_db, alias);
-  }
-}
-
 class Member extends DataClass implements Insertable<Member> {
   final String memberUid;
   final String mucUid;
@@ -5762,9 +5563,6 @@ abstract class _$Database extends GeneratedDatabase {
       _pendingMessages ??= $PendingMessagesTable(this);
   $MediasTable _medias;
   $MediasTable get medias => _medias ??= $MediasTable(this);
-  $SharedPreferencesTable _sharedPreferences;
-  $SharedPreferencesTable get sharedPreferences =>
-      _sharedPreferences ??= $SharedPreferencesTable(this);
   $MembersTable _members;
   $MembersTable get members => _members ??= $MembersTable(this);
   $MucsTable _mucs;
@@ -5797,9 +5595,6 @@ abstract class _$Database extends GeneratedDatabase {
       _pendingMessageDao ??= PendingMessageDao(this as Database);
   MediaDao _mediaDao;
   MediaDao get mediaDao => _mediaDao ??= MediaDao(this as Database);
-  SharedPreferencesDao _sharedPreferencesDao;
-  SharedPreferencesDao get sharedPreferencesDao =>
-      _sharedPreferencesDao ??= SharedPreferencesDao(this as Database);
   MemberDao _memberDao;
   MemberDao get memberDao => _memberDao ??= MemberDao(this as Database);
   MucDao _mucDao;
@@ -5829,7 +5624,6 @@ abstract class _$Database extends GeneratedDatabase {
         seens,
         pendingMessages,
         medias,
-        sharedPreferences,
         members,
         mucs,
         lastSeens,
