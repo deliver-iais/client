@@ -167,12 +167,6 @@ _setWindowSize() async {
       platformWindow.screen.frame.width, platformWindow.screen.frame.height));
 }
 
-// DynamicLibrary _openOnLinux() {
-//   final script = File(Platform.script.toFilePath());
-//   final libraryNextToScript = File('${script.path}/sqlite3');
-//   return DynamicLibrary.open(libraryNextToScript.path);
-// }
-
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
