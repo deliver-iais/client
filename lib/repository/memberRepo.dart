@@ -31,7 +31,7 @@ class MemberRepo {
 
   Future<bool> isMucAdminOrOwner(String memberUid, String mucUid) async {
     // if(memberRoleCash[mucUid] != null){
-    //   return memberRoleCash[mucUid];
+    //   return memberRoleCash[mucUid];KKk
     // }
     var member = await _memberDao.getMember(memberUid, mucUid);
     if (member.role == MucRole.OWNER || member.role == MucRole.ADMIN) {
