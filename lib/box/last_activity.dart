@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 
 part 'last_activity.g.dart';
 
-@HiveType(typeId: SEEN_TRACK_ID)
+@HiveType(typeId: LAST_ACTIVITY_TRACK_ID)
 class LastActivity {
   @HiveField(0)
   String uid;

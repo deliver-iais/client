@@ -1,8 +1,12 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/avatar.dart';
+import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/dao/avatar_dao.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
+import 'package:deliver_flutter/box/last_activity.dart';
+import 'package:deliver_flutter/box/seen.dart';
+import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
@@ -53,7 +57,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:sms_autofill/sms_autofill.dart';
 import 'package:window_size/window_size.dart';
 import 'db/dao/LastSeenDao.dart';
 import 'db/dao/MessageDao.dart';
@@ -65,6 +68,10 @@ void setupDI() async {
   await Hive.initFlutter("db");
 
   Hive.registerAdapter(AvatarAdapter());
+  Hive.registerAdapter(ContactAdapter());
+  Hive.registerAdapter(UidIdNameAdapter());
+  Hive.registerAdapter(LastActivityAdapter());
+  Hive.registerAdapter(SeenAdapter());
 
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<AvatarDao>(AvatarDaoImpl());

@@ -8,7 +8,7 @@ part of 'seen.dart';
 
 class SeenAdapter extends TypeAdapter<Seen> {
   @override
-  final int typeId = 6;
+  final int typeId = 5;
 
   @override
   Seen read(BinaryReader reader) {
