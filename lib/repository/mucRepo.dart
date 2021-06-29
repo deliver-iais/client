@@ -199,7 +199,7 @@ class MucRepo {
             info: channel.info.info,
             token: channel.token,
             pinMessagesId:
-                json.decode(getAsInt(channel.pinMessages)).toString(),
+                jsonEncode(getAsInt(channel.pinMessages)).toString(),
             id: channel.info.id));
         insertUserInDb(mucUid, [
           Member(

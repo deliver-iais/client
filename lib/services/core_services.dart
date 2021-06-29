@@ -37,8 +37,8 @@ import 'package:fixnum/fixnum.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
-const MIN_BACKOFF_TIME = 4;
-const MAX_BACKOFF_TIME = 32;
+const MIN_BACKOFF_TIME = 2;
+const MAX_BACKOFF_TIME = 8;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
@@ -292,7 +292,7 @@ class CoreServices {
                     uid: muc.uid,
                     name: Value(muc.name),
                     pinMessagesId:
-                        Value(json.decode(pm.toString()).toString())));
+                        Value(jsonEncode(pm.toString()).toString())));
                 break;
               }
 

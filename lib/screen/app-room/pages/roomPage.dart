@@ -371,7 +371,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Future<void> getPinMessages() async {
  _mucDao.getMucByUidAsStream(widget.roomId).listen((muc) {
     if (muc != null) {
-      List  res = json.decode(muc.pinMessagesId.toString());
+      List  res = jsonDecode(muc.pinMessagesId.toString());
      res.forEach((element) async {
        var m = await _getMessage(element as int, widget.roomId);
        _pinMessages.add(m);
@@ -403,6 +403,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   @override
   Widget build(BuildContext context) {
+    debug(widget.roomId);
     _appLocalization = AppLocalization.of(context);
     double _maxWidth = MediaQuery.of(context).size.width * 0.7;
     menuColor = ExtraTheme.of(context).popupMenuButton;
