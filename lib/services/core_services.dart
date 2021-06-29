@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
@@ -37,8 +38,8 @@ import 'package:fixnum/fixnum.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
-const MIN_BACKOFF_TIME = 4;
-const MAX_BACKOFF_TIME = 32;
+const MIN_BACKOFF_TIME = 2;
+const MAX_BACKOFF_TIME = 8;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
@@ -280,19 +281,13 @@ class CoreServices {
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
               {
                 var muc = await _mucDao.getMucByUid(roomUid.asString());
-                print(muc.toString());
-                List pinMessages = json.decode(muc.pinMessagesId.toString());
-                List<int> pm = List();
-                pinMessages.forEach((element) {
-                  pm.add(element as int);
-                });
-                pm.add(message.persistEvent.mucSpecificPersistentEvent.messageId
-                    .toInt());
+                var pinMessages = muc.pinMessagesId;
+                pinMessages = "$pinMessages ,  ${message.persistEvent.mucSpecificPersistentEvent.messageId.toString()} ,";
                 _mucDao.upsertMucCompanion(Database.MucsCompanion.insert(
                     uid: muc.uid,
                     name: Value(muc.name),
                     pinMessagesId:
-                        Value(json.decode(pm.toString()).toString())));
+                        Value(pinMessages)));
                 break;
               }
 

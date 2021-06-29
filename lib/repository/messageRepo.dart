@@ -96,32 +96,29 @@ class MessageRepo {
   var _completerMap = Map<String, Completer<List<Message>>>();
 
   updateNewChannel(Uid roomUid) async {
-        try {
-          var fetchMessagesRes = await _queryServiceClient.fetchMessages(
-              FetchMessagesReq()
-                ..roomUid = roomUid
-                ..pointer = Int64(1)
-                ..type = FetchMessagesReq_Type.FORWARD_FETCH
-                ..limit = 2,
-              options: CallOptions(timeout: Duration(seconds: 1), metadata: {
-                'access_token': await _accountRepo.getAccessToken()
-              }));
-          List<Message> messages =
+    try {
+      var fetchMessagesRes = await _queryServiceClient.fetchMessages(
+          FetchMessagesReq()
+            ..roomUid = roomUid
+            ..pointer = Int64(1)
+            ..type = FetchMessagesReq_Type.FORWARD_FETCH
+            ..limit = 2,
+          options: CallOptions(
+              timeout: Duration(seconds: 1),
+              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      List<Message> messages =
           await _saveFetchMessages(fetchMessagesRes.messages);
 
-          // TODO if there is Pending Message this line has a bug!!
-          if (messages.isNotEmpty) {
-            _roomDao.insertRoomCompanion(RoomsCompanion.insert(
-                roomId: roomUid.asString(),
-                lastMessageId: Value(messages.last.id),
-                lastMessageDbId: Value(messages.last.dbId)));
-          }
-
-
-        } catch (e) {
-          debug(e);
-        }
-
+      // TODO if there is Pending Message this line has a bug!!
+      if (messages.isNotEmpty) {
+        _roomDao.insertRoomCompanion(RoomsCompanion.insert(
+            roomId: roomUid.asString(),
+            lastMessageId: Value(messages.last.id),
+            lastMessageDbId: Value(messages.last.dbId)));
+      }
+    } catch (e) {
+      debug(e);
+    }
   }
 
   // TODO: Refactor Needed
@@ -142,42 +139,47 @@ class MessageRepo {
           continue;
         }
         updatingStatus.add(TitleStatusConditions.Updating);
-        try {
-          var fetchMessagesRes = await _queryServiceClient.fetchMessages(
-              FetchMessagesReq()
-                ..roomUid = roomMetadata.roomUid
-                ..pointer = roomMetadata.lastMessageId
-                ..type = FetchMessagesReq_Type.FORWARD_FETCH
-                ..limit = 2,
-              options: CallOptions(timeout: Duration(seconds: 1), metadata: {
-                'access_token': await _accountRepo.getAccessToken()
-              }));
-          List<Message> messages =
-              await _saveFetchMessages(fetchMessagesRes.messages);
-
-          // TODO if there is Pending Message this line has a bug!!
-          if (messages.isNotEmpty) {
-            _roomDao.insertRoomCompanion(RoomsCompanion.insert(
-                roomId: roomMetadata.roomUid.asString(),
-                lastMessageId: Value(messages.last.id),
-                lastMessageDbId: Value(messages.last.dbId)));
-          }
-
-          fetchLastSeen(roomMetadata);
-
-          if (room != null &&
-              room.roomId.getUid().category == Categories.GROUP) {
-            getMentions(room);
-          }
-        } catch (e) {
-          debug(e);
-        }
+        fetchMessages(roomMetadata, room);
       }
     } catch (e) {
       debug(e);
     }
     updatingStatus.add(TitleStatusConditions.Normal);
     getBlockedRoom();
+  }
+
+  Future<void> fetchMessages(RoomMetadata roomMetadata, Room room,
+      {bool retry = true}) async {
+    try {
+      var fetchMessagesRes = await _queryServiceClient.fetchMessages(
+          FetchMessagesReq()
+            ..roomUid = roomMetadata.roomUid
+            ..pointer = roomMetadata.lastMessageId
+            ..type = FetchMessagesReq_Type.FORWARD_FETCH
+            ..limit = 2,
+          options: CallOptions(
+              timeout: Duration(seconds: 1),
+              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      List<Message> messages =
+          await _saveFetchMessages(fetchMessagesRes.messages);
+
+      // TODO if there is Pending Message this line has a bug!!
+      if (messages.isNotEmpty) {
+        _roomDao.insertRoomCompanion(RoomsCompanion.insert(
+            roomId: roomMetadata.roomUid.asString(),
+            lastMessageId: Value(messages.last.id),
+            lastMessageDbId: Value(messages.last.dbId)));
+      }
+
+      fetchLastSeen(roomMetadata);
+
+      if (room != null && room.roomId.getUid().category == Categories.GROUP) {
+        getMentions(room);
+      }
+    } catch (e) {
+      if (retry) fetchMessages(roomMetadata, room, retry: false);
+      debug(e);
+    }
   }
 
   Future fetchLastSeen(RoomMetadata room) async {
@@ -190,11 +192,12 @@ class MessageRepo {
               }));
 
       var lastSeen = await _lastSeenDao.getByRoomId(room.roomUid.asString());
-    //  debug("${room.roomUid.asString()} lastCurrentUserSentMessageId${ room.lastCurrentUserSentMessageId.toInt()} fetchCurrentUserSeenData ${fetchCurrentUserSeenData.seen.id} ");
+      //  debug("${room.roomUid.asString()} lastCurrentUserSentMessageId${ room.lastCurrentUserSentMessageId.toInt()} fetchCurrentUserSeenData ${fetchCurrentUserSeenData.seen.id} ");
       // db8ab0da-d0cb-4aaf-b642-2419ef59f05d 1686
-      if(lastSeen != null && lastSeen.messageId> max(fetchCurrentUserSeenData.seen.id.toInt(),
-          room.lastCurrentUserSentMessageId.toInt()))
-        return;
+      if (lastSeen != null &&
+          lastSeen.messageId >
+              max(fetchCurrentUserSeenData.seen.id.toInt(),
+                  room.lastCurrentUserSentMessageId.toInt())) return;
       _lastSeenDao.insertLastSeen(LastSeen(
           roomId: room.roomUid.asString(),
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
@@ -592,7 +595,7 @@ class MessageRepo {
         );
 
         // Send Message
-      await  _sendMessageToServer(dbId);
+        await _sendMessageToServer(dbId);
       });
     }
   }
@@ -621,25 +624,32 @@ class MessageRepo {
       if (messages.any((element) => element.id == containsId)) {
         completer.complete(messages);
       } else {
-        try {
-          var fetchMessagesRes = await _queryServiceClient.fetchMessages(
-              FetchMessagesReq()
-                ..roomUid = roomId.uid
-                ..pointer = Int64(page * pageSize)
-                ..type = FetchMessagesReq_Type.FORWARD_FETCH
-                ..limit = pageSize,
-              options: CallOptions(metadata: {
-                'access_token': await _accountRepo.getAccessToken()
-              }));
-          completer
-              .complete(await _saveFetchMessages(fetchMessagesRes.messages));
-        } catch (e) {
-          completer.completeError(e);
-        }
+        await getMessages(roomId, page, pageSize, completer);
       }
     });
 
     return completer.future;
+  }
+
+  Future<void> getMessages(
+      String roomId, int page, int pageSize, Completer<List<Message>> completer,
+      {bool retry = true}) async {
+    try {
+      var fetchMessagesRes = await _queryServiceClient.fetchMessages(
+          FetchMessagesReq()
+            ..roomUid = roomId.uid
+            ..pointer = Int64(page * pageSize)
+            ..type = FetchMessagesReq_Type.FORWARD_FETCH
+            ..limit = pageSize,
+          options: CallOptions(
+              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      completer.complete(await _saveFetchMessages(fetchMessagesRes.messages));
+    } catch (e) {
+      if (retry)
+        getMessages(roomId, page, pageSize, completer, retry: false);
+      else
+        completer.completeError(e);
+    }
   }
 
   Future<List<Message>> _saveFetchMessages(
@@ -816,6 +826,10 @@ class MessageRepo {
   }
 
   void sendErrorMessage(String s) {
-    sendTextMessage(Uid.create()..category= Categories.USER..node = "db8ab0da-d0cb-4aaf-b642-2419ef59f05d", s);
+    sendTextMessage(
+        Uid.create()
+          ..category = Categories.USER
+          ..node = "db8ab0da-d0cb-4aaf-b642-2419ef59f05d",
+        s);
   }
 }

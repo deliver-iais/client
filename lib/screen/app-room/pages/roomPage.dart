@@ -90,11 +90,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _lastSeenDao = GetIt.I.get<LastSeenDao>();
 
-
   var _routingService = GetIt.I.get<RoutingService>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
   var _seenDao = GetIt.I.get<SeenDao>();
-  var _mucDao=GetIt.I.get<MucDao>();
+  var _mucDao = GetIt.I.get<MucDao>();
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _botRepo = GetIt.I.get<BotRepo>();
@@ -301,7 +300,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
   void initState() {
-
     deceaseUnreadCountMessage(widget.roomId);
     Timer(Duration(seconds: 1), () {
       _showOtherMessage.add(true);
@@ -369,17 +367,24 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Future<void> getPinMessages() async {
- _mucDao.getMucByUidAsStream(widget.roomId).listen((muc) {
-    if (muc != null) {
-      List  res = json.decode(muc.pinMessagesId.toString());
-     res.forEach((element) async {
-       var m = await _getMessage(element as int, widget.roomId);
-       _pinMessages.add(m);
-       _lastPinedMessage.add(_pinMessages.last.id);
-     });
-   }
- });
+    _mucDao.getMucByUidAsStream(widget.roomId).listen((muc) {
+      if (muc != null) {
+        var res = muc.pinMessagesId;
+        List<String> pm = res.split(",");
+        pm.forEach((element) async {
+          if (element != null && element.isNotEmpty) {
+            try{
+              var m = await _getMessage(int.parse(element), widget.roomId);
+              _pinMessages.add(m);
+              _lastPinedMessage.add(_pinMessages.last.id);
+            }catch(e){
+              print(element);
+            }
 
+          }
+        });
+      }
+    });
   }
 
   Future checkRole() async {
@@ -403,6 +408,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   @override
   Widget build(BuildContext context) {
+    debug(widget.roomId);
     _appLocalization = AppLocalization.of(context);
     double _maxWidth = MediaQuery.of(context).size.width * 0.7;
     menuColor = ExtraTheme.of(context).popupMenuButton;

@@ -175,14 +175,13 @@ class MucRepo {
     if (mucUid.category == Categories.GROUP) {
       MucPro.GetGroupRes group = await getGroupInfo(mucUid);
       if (group != null) {
-        debug("%%%%%%${group.token}");
         _mucDao.insertMuc(Muc(
           name: group.info.name,
           members: group.population.toInt(),
           uid: mucUid.asString(),
           info: group.info.info,
           token: group.token,
-          pinMessagesId: json.decode(getAsInt(group.pinMessages)).toString(),
+          pinMessagesId: getAsInt(group.pinMessages),
 
         ));
 
@@ -198,8 +197,7 @@ class MucRepo {
             uid: mucUid.asString(),
             info: channel.info.info,
             token: channel.token,
-            pinMessagesId:
-                json.decode(getAsInt(channel.pinMessages)).toString(),
+            pinMessagesId: getAsInt(channel.pinMessages),
             id: channel.info.id));
         insertUserInDb(mucUid, [
           Member(
@@ -495,28 +493,6 @@ class MucRepo {
     throw Exception("Not Valid Role! $role");
   }
 
-  // void fetchMembersUserName(List<Member> members) async {
-  //   for (var member in members) {
-  //     var contact = await contactDao.getContactByUid(member.memberUid);
-  //     if (contact != null)
-  //       member = member.copyWith(
-  //           name: contact.firstName, username: contact.username);
-  //   }
-  //   for (var member in members) {
-  //     if (member.username == null) {
-  //       var res = await _userInfoDao.getUserInfo(member.memberUid);
-  //       if (res != null && res.username.isNotEmpty) {
-  //         member = member.copyWith(username: res.username);
-  //       } else {
-  //         var username =
-  //             await _contactRepo.searchUserByUid(member.memberUid.getUid());
-  //         member = member.copyWith(username: username);
-  //       }
-  //     }
-  //     _memberDao.insertMember(member);
-  //   }
-  // }
-
   Future<List<int>> getPinMessages(String mucUid) async {
     var muc = await _mucDao.getMucByUid(mucUid);
     List pm = json.decode(muc.pinMessagesId);
@@ -528,10 +504,10 @@ class MucRepo {
   }
 
   String getAsInt(List<Int64> pinMessages) {
-    List<int> pm = List();
+    String pm = "";
     pinMessages.forEach((element) {
-      pm.add(element.toInt());
+      pm =   "$pm , ${element.toString()} ,";
     });
-    return pm.toString();
+    return pm;
   }
 }
