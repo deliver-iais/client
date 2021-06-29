@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:deliver_flutter/box/dao/seen_dao.dart';
+import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart' as Database;
 import 'package:deliver_flutter/models/account.dart';
@@ -25,7 +26,8 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart'
+    as ProtocolSeen;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -187,7 +189,7 @@ class CoreServices {
     }
   }
 
-  sendSeenMessage(SeenByClient seen) {
+  sendSeenMessage(ProtocolSeen.SeenByClient seen) {
     if (!_clientPacket.isClosed) {
       _clientPacket.add(ClientPacket()
         ..seen = seen
@@ -208,7 +210,7 @@ class CoreServices {
     }
   }
 
-  _saveSeenMessage(Seen seen) {
+  _saveSeenMessage(ProtocolSeen.Seen seen) {
     Uid roomId;
     switch (seen.to.category) {
       case Categories.USER:
@@ -230,10 +232,8 @@ class CoreServices {
             roomId: roomId.asString(), messageId: seen.id.toInt()),
       );
     }
-    _seenDao.insertSeen(Database.SeensCompanion.insert(
-        messageId: seen.id.toInt(),
-        user: seen.from.asString(),
-        roomId: roomId.asString()));
+    _seenDao.saveOthersSeen(
+        Seen(messageId: seen.id.toInt(), uid: roomId.asString()));
     updateLastActivityTime(_userInfoDAo, seen.from, DateTime.now());
   }
 
@@ -282,12 +282,12 @@ class CoreServices {
               {
                 var muc = await _mucDao.getMucByUid(roomUid.asString());
                 var pinMessages = muc.pinMessagesId;
-                pinMessages = "$pinMessages ,  ${message.persistEvent.mucSpecificPersistentEvent.messageId.toString()} ,";
+                pinMessages =
+                    "$pinMessages ,  ${message.persistEvent.mucSpecificPersistentEvent.messageId.toString()} ,";
                 _mucDao.upsertMucCompanion(Database.MucsCompanion.insert(
                     uid: muc.uid,
                     name: Value(muc.name),
-                    pinMessagesId:
-                        Value(pinMessages)));
+                    pinMessagesId: Value(pinMessages)));
                 break;
               }
 

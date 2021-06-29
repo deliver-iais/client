@@ -11,13 +11,8 @@ class LastSeenDao extends DatabaseAccessor<Database> with _$LastSeenDaoMixin {
 
   LastSeenDao(this.database) : super(database);
 
-  Stream watchAllLastSeens() => select(lastSeens).watch();
-
   Future<int> insertLastSeen(LastSeen newLastSeen) =>
       into(lastSeens).insertOnConflictUpdate(newLastSeen);
-
-  Future deleteLastSeen(LastSeen lastSeen) =>
-      delete(lastSeens).delete(lastSeen);
 
   Future<LastSeen> getByRoomId(String roomId) async {
     return (select(lastSeens)
@@ -25,7 +20,7 @@ class LastSeenDao extends DatabaseAccessor<Database> with _$LastSeenDaoMixin {
         .getSingleOrNull();
   }
 
-  Stream<LastSeen>getByRoomIdAsStream(String roomId) {
+  Stream<LastSeen> watchByRoomId(String roomId) {
     return (select(lastSeens)
       ..where((lastSeen) => lastSeen.roomId.equals(roomId)))
         .watchSingleOrNull();

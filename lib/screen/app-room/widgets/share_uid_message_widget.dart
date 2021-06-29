@@ -151,7 +151,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                                 SizedBox(height: 10),
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     MaterialButton(
                                         onPressed: () =>
@@ -162,7 +162,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                                         onPressed: () async {
                                           // Navigator.of(context).pop();
                                           if ((_shareUid.uid.category ==
-                                              Categories.GROUP ||
+                                                  Categories.GROUP ||
                                               _shareUid.uid.category ==
                                                   Categories.CHANNEL)) {
                                             var muc = await _mucDao.getMucByUid(
@@ -171,9 +171,9 @@ class ShareUidMessageWidget extends StatelessWidget {
                                               if (_shareUid.uid.category ==
                                                   Categories.GROUP) {
                                                 var res =
-                                                await _mucRepo.joinGroup(
-                                                    _shareUid.uid,
-                                                    _shareUid.joinToken);
+                                                    await _mucRepo.joinGroup(
+                                                        _shareUid.uid,
+                                                        _shareUid.joinToken);
                                                 if (res) {
                                                   _routingServices.openRoom(
                                                       _shareUid.uid.asString());
@@ -181,11 +181,12 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                 }
                                               } else {
                                                 var res =
-                                                await _mucRepo.joinChannel(
-                                                    _shareUid.uid,
-                                                    _shareUid.joinToken);
+                                                    await _mucRepo.joinChannel(
+                                                        _shareUid.uid,
+                                                        _shareUid.joinToken);
                                                 if (res) {
-                                                  _messageRepo.updateNewChannel(_shareUid.uid);
+                                                  _messageRepo.updateNewChannel(
+                                                      _shareUid.uid);
                                                   _routingServices.openRoom(
                                                       _shareUid.uid.asString());
                                                   Navigator.of(context).pop();
@@ -210,8 +211,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                         );
                       }
                     } else {
-                      _routingServices.openRoom(
-                          _shareUid.uid.asString());
+                      _routingServices.openRoom(_shareUid.uid.asString());
                     }
                   },
                 ),
@@ -223,13 +223,14 @@ class ShareUidMessageWidget extends StatelessWidget {
                         time: message.time,
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 3.0, top: 5),
-                      child: SeenStatus(
-                        message,
-                        isSeen: isSeen,
+                    if (isSender)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 3.0, top: 5),
+                        child: SeenStatus(
+                          message,
+                          isSeen: isSeen,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ],

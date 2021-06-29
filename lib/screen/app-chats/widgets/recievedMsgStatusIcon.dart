@@ -14,7 +14,7 @@ class UnreadMessageCounterWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final LastSeenDao lastSeenDao = GetIt.I.get<LastSeenDao>();
     return StreamBuilder<LastSeen>(
-      stream: lastSeenDao.getByRoomIdAsStream(lastMessage.roomId),
+      stream: lastSeenDao.watchByRoomId(lastMessage.roomId),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
           if(snapshot.data.messageId != null){

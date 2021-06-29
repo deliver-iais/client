@@ -1,4 +1,5 @@
-import 'package:deliver_flutter/db/dao/SeenDao.dart';
+import 'package:deliver_flutter/box/dao/seen_dao.dart';
+import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
@@ -15,8 +16,12 @@ class SeenStatus extends StatelessWidget {
     final SeenDao seenDao = GetIt.I.get<SeenDao>();
     Widget pendingMessage = Icon(Icons.access_alarm,
         color: ExtraTheme.of(context).seenStatus, size: 15);
-    if(message.sendingFailed != null && message.sendingFailed){
-      return Icon(Icons.warning_outlined,size: 15,color: Colors.red,);
+    if (message.sendingFailed != null && message.sendingFailed) {
+      return Icon(
+        Icons.warning_outlined,
+        size: 15,
+        color: Colors.red,
+      );
     }
     if (message.id == null)
       return pendingMessage;
@@ -28,11 +33,13 @@ class SeenStatus extends StatelessWidget {
       );
     } else
       return StreamBuilder<Seen>(
-        stream: seenDao.getRoomLastSeen(message.roomId),
+        stream: seenDao.watchOthersSeen(message.roomId),
         builder: (context, snapshot) {
           if (snapshot.hasData)
             return Icon(
-              snapshot.data.messageId>=message.id?Icons.done_all:Icons.done,
+              snapshot.data.messageId >= message.id
+                  ? Icons.done_all
+                  : Icons.done,
               color: ExtraTheme.of(context).seenStatus,
               size: 15,
             );

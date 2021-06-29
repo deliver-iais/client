@@ -4,6 +4,8 @@ import 'package:hive/hive.dart';
 abstract class LastActivityDao {
   Future<LastActivity> get(String uid);
 
+  Stream<LastActivity> watch(String uid);
+
   Future<void> save(LastActivity lastActivity);
 }
 
@@ -12,6 +14,14 @@ class LastActivityDaoImpl implements LastActivityDao {
     var box = await _open();
 
     return box.get(uid);
+  }
+
+  Stream<LastActivity> watch(String uid) async* {
+    var box = await _open();
+
+    yield box.get(uid);
+
+    yield* box.watch(key: uid).map((event) => box.get(uid));
   }
 
   Future<void> save(LastActivity lastActivity) async {

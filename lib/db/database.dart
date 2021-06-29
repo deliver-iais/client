@@ -9,7 +9,6 @@ import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
-import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
 import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
@@ -33,7 +32,6 @@ import 'Mucs.dart';
 import 'LastSeen.dart';
 import 'Member.dart';
 import 'Rooms.dart';
-import 'Seens.dart';
 import 'PendingMessages.dart';
 import 'UserInfos.dart';
 import 'dao/LastSeenDao.dart';
@@ -49,7 +47,6 @@ part 'database.g.dart';
   Rooms,
   Contacts,
   FileInfos,
-  Seens,
   PendingMessages,
   Medias,
   Members,
@@ -65,7 +62,6 @@ part 'database.g.dart';
   RoomDao,
   ContactDao,
   FileDao,
-  SeenDao,
   PendingMessageDao,
   MediaDao,
   MemberDao,

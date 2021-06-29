@@ -3,9 +3,10 @@ import 'dart:async';
 import 'dart:io' as DartFile;
 import 'dart:math';
 
+import 'package:deliver_flutter/box/dao/seen_dao.dart';
+import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
@@ -27,7 +28,8 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as MessageProto;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart'
+    as ProtocolSeen;
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
@@ -213,10 +215,9 @@ class MessageRepo {
               options: CallOptions(metadata: {
                 "access_token": await _accountRepo.getAccessToken()
               }));
-      _seenDao.insertSeen(SeensCompanion(
-          roomId: Value(room.roomUid.asString()),
-          messageId: Value(fetchLastOtherUserSeenData.seen.id.toInt()),
-          user: Value(fetchLastOtherUserSeenData.seen.from.asString())));
+      _seenDao.saveOthersSeen(Seen(
+          uid: room.roomUid.asString(),
+          messageId: fetchLastOtherUserSeenData.seen.id.toInt()));
     }
   }
 
@@ -562,7 +563,7 @@ class MessageRepo {
   }
 
   sendSeenMessage(int messageId, Uid to) {
-    _coreServices.sendSeenMessage(SeenByClient()
+    _coreServices.sendSeenMessage(ProtocolSeen.SeenByClient()
       ..to = to
       ..id = Int64.parseInt(messageId.toString()));
   }

@@ -5,11 +5,12 @@ import 'dart:math';
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/box/dao/seen_dao.dart';
+import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/dao/SeenDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/operation_on_message.dart';
@@ -284,7 +285,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   _getLastSeen() async {
-    Seen seen = await _seenDao.getRoomLastSeenId(widget.roomId);
+    Seen seen = await _seenDao.getOthersSeen(widget.roomId);
     if (seen != null) {
       lastSeenMessageId = seen.messageId;
     }
@@ -373,14 +374,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         List<String> pm = res.split(",");
         pm.forEach((element) async {
           if (element != null && element.isNotEmpty) {
-            try{
+            try {
               var m = await _getMessage(int.parse(element), widget.roomId);
               _pinMessages.add(m);
               _lastPinedMessage.add(_pinMessages.last.id);
-            }catch(e){
+            } catch (e) {
               print(element);
             }
-
           }
         });
       }
