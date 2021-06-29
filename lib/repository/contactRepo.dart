@@ -45,7 +45,7 @@ class ContactRepo {
   Map<PhoneNumber, String> _contactsDisplayName = Map();
 
   syncContacts() async {
-  //  _getPhoneNumber("+989124131853", "");
+    //  _getPhoneNumber("+989124131853", "");
 
     if (await _checkPermission.checkContactPermission() ||
         isDesktop() ||
@@ -60,39 +60,37 @@ class ContactRepo {
                 iOSLocalizedLabels: false);
 
         for (OsContact.Contact phoneContact in phoneContacts) {
-
-            for (var p in phoneContact.phones) {
-              try {
-                String contactPhoneNumber = p.value
-                    .toString()
-                    .replaceAll(new RegExp(r"\s+\b|\b\s"), '')
-                    .replaceAll('+', '')
-                    .replaceAll('(', '')
-                    .replaceAll(')', '')
-                    .replaceAll('-', '');
-                PhoneNumber phoneNumber = _getPhoneNumber(
-                    contactPhoneNumber, phoneContact.displayName);
-                _contactsDisplayName[phoneNumber] = phoneContact.displayName;
-                Contact contact = Contact()
-                  ..lastName = phoneContact.displayName
-                  ..phoneNumber = phoneNumber;
-                contacts.add(contact);
-                // debug("+++++++++++++++++++++++++++++++++++++");
-                // debug("${p.value} +++++ ${phoneContact.displayName}");
-              }catch(e){
-                // debug("______________________________");
-                // debug(e.toString());
-                // debug("${phoneContact.displayName} ______${p.value}");
-              }
+          for (var p in phoneContact.phones) {
+            try {
+              String contactPhoneNumber = p.value
+                  .toString()
+                  .replaceAll(new RegExp(r"\s+\b|\b\s"), '')
+                  .replaceAll('+', '')
+                  .replaceAll('(', '')
+                  .replaceAll(')', '')
+                  .replaceAll('-', '');
+              PhoneNumber phoneNumber =
+                  _getPhoneNumber(contactPhoneNumber, phoneContact.displayName);
+              _contactsDisplayName[phoneNumber] = phoneContact.displayName;
+              Contact contact = Contact()
+                ..lastName = phoneContact.displayName
+                ..phoneNumber = phoneNumber;
+              contacts.add(contact);
+              // debug("+++++++++++++++++++++++++++++++++++++");
+              // debug("${p.value} +++++ ${phoneContact.displayName}");
+            } catch (e) {
+              // debug("______________________________");
+              // debug(e.toString());
+              // debug("${phoneContact.displayName} ______${p.value}");
             }
+          }
         }
       }
       sendContacts(contacts);
     }
   }
 
-  PhoneNumber _getPhoneNumber(String phone,String name) {
-
+  PhoneNumber _getPhoneNumber(String phone, String name) {
     PhoneNumber phoneNumber = PhoneNumber();
     switch (phone.length) {
       case 11:
@@ -113,8 +111,8 @@ class ContactRepo {
   }
 
   Future sendContacts(List<Contact> contacts) async {
-     getContacts();
-    try{
+    getContacts();
+    try {
       int i = 0;
       while (i <= contacts.length) {
         _sendContacts(contacts.sublist(
@@ -123,19 +121,17 @@ class ContactRepo {
         i = i + 80;
       }
       getContacts();
-    }catch(e){
+    } catch (e) {
       print(e.toString());
     }
-
   }
 
   Future addContact(Contact contact) async {
     _sendContacts([contact]);
-
   }
 
   _sendContacts(List<Contact> contacts) async {
-    try{
+    try {
       var sendContacts = SaveContactsReq();
       contacts.forEach((element) {
         sendContacts.contactList.add(element);
@@ -143,14 +139,12 @@ class ContactRepo {
       await contactServices.saveContacts(sendContacts,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-    }catch(e){
+    } catch (e) {
       print(e.toString());
     }
-
   }
 
-  Future
-  getContacts() async {
+  Future getContacts() async {
     var result = await contactServices.getContactListUsers(
         GetContactListUsersReq(),
         options: CallOptions(

@@ -1,14 +1,24 @@
 import 'package:deliver_flutter/box/last_avatar.dart';
 import 'package:hive/hive.dart';
 
-class LastAvatarDao {
-  static Future<LastAvatar> get(String uid) async {
+abstract class LastAvatarDao {
+  Future<LastAvatar> get(String uid);
+
+  Stream<LastAvatar> getStream(String uid);
+
+  Future<void> save(LastAvatar la);
+
+  Future<void> remove(LastAvatar avatar);
+}
+
+class LastAvatarDaoImpl extends LastAvatarDao {
+  Future<LastAvatar> get(String uid) async {
     var box = await _open();
 
     return box.get(uid);
   }
 
-  static Stream<LastAvatar> getStream(String uid) async* {
+  Stream<LastAvatar> getStream(String uid) async* {
     var box = await _open();
 
     // TODO check if needed
@@ -17,13 +27,13 @@ class LastAvatarDao {
     yield* box.watch(key: uid).map((event) => box.get(uid));
   }
 
-  static Future<void> save(LastAvatar la) async {
+  Future<void> save(LastAvatar la) async {
     var box = await _open();
 
     box.put(la.uid, la);
   }
 
-  static Future<void> remove(LastAvatar avatar) async {
+  Future<void> remove(LastAvatar avatar) async {
     var box = await _open();
 
     box.delete(avatar.uid);

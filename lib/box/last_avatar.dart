@@ -1,14 +1,14 @@
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:hive/hive.dart';
 
 part 'last_avatar.g.dart';
 
-@HiveType(typeId: 2)
+@HiveType(typeId: LAST_AVATAR_TRACK_ID)
 class LastAvatar {
-  // Table ID
+  // DbId
   @HiveField(0)
   String uid;
 
-  // DbId
   @HiveField(1)
   int createdOn;
 

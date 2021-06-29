@@ -1,16 +1,18 @@
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:hive/hive.dart';
 
-class AvatarDao {
-  static Future<List<Avatar>> get(String uid) async {
-    var box = await _open(uid);
+abstract class AvatarDao {
+  Stream<List<Avatar>> watch(String uid);
 
-    var avatars = box.values.toList();
+  Future<void> save(String uid, List<Avatar> avatars);
 
-    return avatars;
-  }
+  Future<void> remove(Avatar avatar);
 
-  static Stream<List<Avatar>> getStream(String uid) async* {
+  Future<void> close(String uid);
+}
+
+class AvatarDaoImpl implements AvatarDao {
+  Stream<List<Avatar>> watch(String uid) async* {
     var box = await _open(uid);
 
     yield box.values.toList();
@@ -18,7 +20,7 @@ class AvatarDao {
     yield* box.watch().map((event) => box.values.toList());
   }
 
-  static Future<void> save(String uid, List<Avatar> avatars) async {
+  Future<void> save(String uid, List<Avatar> avatars) async {
     if (avatars.isEmpty) return;
 
     var box = await _open(uid);
@@ -28,7 +30,7 @@ class AvatarDao {
     }
   }
 
-  static Future<void> remove(Avatar avatar) async {
+  Future<void> remove(Avatar avatar) async {
     var box = await _open(avatar.uid);
 
     box.delete(avatar.createdOn.toInt().toString());
