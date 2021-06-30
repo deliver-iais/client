@@ -260,8 +260,6 @@ class CoreServices {
 
   _saveIncomingMessage(Message message) async {
     Uid roomUid = getRoomId(_accountRepo, message);
-    // TODO SEEN MIGRATION
-    _seenDao.saveMySeen(Seen(uid: roomUid.asString()));
     Database.Room room = await _roomDao.getByRoomIdFuture(roomUid.asString());
     if (room != null && room.isBlock) {
       return;

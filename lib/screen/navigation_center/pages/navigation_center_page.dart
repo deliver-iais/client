@@ -50,7 +50,7 @@ BehaviorSubject<int> unreadMessageCount = BehaviorSubject.seeded(0);
 Map<String, int> unReadMessagemap = Map();
 Map<String, int> unReandCounterMessage = Map();
 
-addUnreadMessageCount(String roomId, int lastId, int unread) {
+updateUnreadMessageCount(String roomId, int lastId, int unread) {
   unReandCounterMessage[roomId] = unread;
   if (unReadMessagemap[roomId] == null) {
     unReadMessagemap[roomId] = lastId;
@@ -61,7 +61,7 @@ addUnreadMessageCount(String roomId, int lastId, int unread) {
   }
 }
 
-deceaseUnreadCountMessage(String roomId) {
+eraseUnreadCountMessage(String roomId) {
   if (unReandCounterMessage[roomId] != null) {
     unreadMessageCount.add(
         unreadMessageCount.valueWrapper.value - unReandCounterMessage[roomId]);
