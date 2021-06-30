@@ -443,13 +443,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         builder: (context, currentRoomStream) {
                           if (currentRoomStream.hasData) {
                             _currentRoom.add(currentRoomStream.data);
-                            int i = 0;
-                            if (_currentRoom.value.lastMessageId == null) {
-                              i = pendingMessages.length;
-                            } else {
-                              i = _currentRoom.value.lastMessageId +
-                                  pendingMessages.length; //TODO chang
-                            }
+                            int i = _currentRoom.value.lastMessageId ?? 0 + pendingMessages.length;
                             if (_itemCount != 0 && i != _itemCount)
                               _itemCountSubject.add(_itemCount);
                             _itemCount = i;

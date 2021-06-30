@@ -19,9 +19,8 @@ class ReplyWidgetInMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
     MessageDao messageDao = GetIt.I.get<MessageDao>();
-    return FutureBuilder<Message>(
+    return FutureBuilder<List<Message>>(
         future: messageDao.getMessageById(replyToId, roomId),
         builder: (context, snapshot) {
           if (snapshot.hasData)
@@ -36,7 +35,7 @@ class ReplyWidgetInMessage extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
                   child: SenderAndContent(
-                    messages: List<Message>.filled(1, snapshot.data),
+                    messages: List<Message>.filled(1, snapshot.data[0]),
                     inBox: true,
                   ),
                 ),
