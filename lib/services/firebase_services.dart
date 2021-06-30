@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/db/database.dart' as db;
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -90,11 +91,15 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
   var _notificationServices = NotificationServices();
 
   GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
+  GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
 
   var database = db.Database();
   var contactDao = database.contactDao;
   var roomDao = database.roomDao;
   var messageDao = database.messageDao;
+
+  var lastActivityDao = GetIt.I.get<LastActivityDao>();
+
   var userInfoDao = database.userInfoDao;
   var accountRepo = AccountRepo();
 
@@ -132,8 +137,8 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
     }
 
     if (msg.from.category == Categories.USER)
-      updateLastActivityTime(userInfoDao, getRoomId(accountRepo, msg),
-          DateTime.fromMillisecondsSinceEpoch(msg.time.toInt()));
+      updateLastActivityTime(
+          lastActivityDao, getRoomId(accountRepo, msg), msg.time.toInt());
     if ((await accountRepo.notification).contains("true") &&
         (room != null && !room.mute))
       _notificationServices.showNotification(

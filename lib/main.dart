@@ -3,6 +3,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/dao/avatar_dao.dart';
+import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
@@ -76,6 +77,7 @@ void setupDI() async {
   getIt.registerSingleton<AvatarDao>(AvatarDaoImpl());
   getIt.registerSingleton<SharedDao>(SharedDaoImpl());
   getIt.registerSingleton<SeenDao>(SeenDaoImpl());
+  getIt.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
 
   Database db = Database();
 

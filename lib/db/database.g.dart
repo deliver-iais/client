@@ -3929,13 +3929,7 @@ class $MediasMetaDataTable extends MediasMetaData
 class UserInfo extends DataClass implements Insertable<UserInfo> {
   final String uid;
   final String username;
-  final DateTime lastActivity;
-  final DateTime lastTimeActivityUpdated;
-  UserInfo(
-      {@required this.uid,
-      this.username,
-      this.lastActivity,
-      this.lastTimeActivityUpdated});
+  UserInfo({@required this.uid, this.username});
   factory UserInfo.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -3944,10 +3938,6 @@ class UserInfo extends DataClass implements Insertable<UserInfo> {
           .mapFromDatabaseResponse(data['${effectivePrefix}uid']),
       username: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}username']),
-      lastActivity: const DateTimeType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}last_activity']),
-      lastTimeActivityUpdated: const DateTimeType().mapFromDatabaseResponse(
-          data['${effectivePrefix}last_time_activity_updated']),
     );
   }
   @override
@@ -3959,13 +3949,6 @@ class UserInfo extends DataClass implements Insertable<UserInfo> {
     if (!nullToAbsent || username != null) {
       map['username'] = Variable<String>(username);
     }
-    if (!nullToAbsent || lastActivity != null) {
-      map['last_activity'] = Variable<DateTime>(lastActivity);
-    }
-    if (!nullToAbsent || lastTimeActivityUpdated != null) {
-      map['last_time_activity_updated'] =
-          Variable<DateTime>(lastTimeActivityUpdated);
-    }
     return map;
   }
 
@@ -3975,12 +3958,6 @@ class UserInfo extends DataClass implements Insertable<UserInfo> {
       username: username == null && nullToAbsent
           ? const Value.absent()
           : Value(username),
-      lastActivity: lastActivity == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastActivity),
-      lastTimeActivityUpdated: lastTimeActivityUpdated == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastTimeActivityUpdated),
     );
   }
 
@@ -3990,9 +3967,6 @@ class UserInfo extends DataClass implements Insertable<UserInfo> {
     return UserInfo(
       uid: serializer.fromJson<String>(json['uid']),
       username: serializer.fromJson<String>(json['username']),
-      lastActivity: serializer.fromJson<DateTime>(json['lastActivity']),
-      lastTimeActivityUpdated:
-          serializer.fromJson<DateTime>(json['lastTimeActivityUpdated']),
     );
   }
   @override
@@ -4001,93 +3975,57 @@ class UserInfo extends DataClass implements Insertable<UserInfo> {
     return <String, dynamic>{
       'uid': serializer.toJson<String>(uid),
       'username': serializer.toJson<String>(username),
-      'lastActivity': serializer.toJson<DateTime>(lastActivity),
-      'lastTimeActivityUpdated':
-          serializer.toJson<DateTime>(lastTimeActivityUpdated),
     };
   }
 
-  UserInfo copyWith(
-          {String uid,
-          String username,
-          DateTime lastActivity,
-          DateTime lastTimeActivityUpdated}) =>
-      UserInfo(
+  UserInfo copyWith({String uid, String username}) => UserInfo(
         uid: uid ?? this.uid,
         username: username ?? this.username,
-        lastActivity: lastActivity ?? this.lastActivity,
-        lastTimeActivityUpdated:
-            lastTimeActivityUpdated ?? this.lastTimeActivityUpdated,
       );
   @override
   String toString() {
     return (StringBuffer('UserInfo(')
           ..write('uid: $uid, ')
-          ..write('username: $username, ')
-          ..write('lastActivity: $lastActivity, ')
-          ..write('lastTimeActivityUpdated: $lastTimeActivityUpdated')
+          ..write('username: $username')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(
-      uid.hashCode,
-      $mrjc(username.hashCode,
-          $mrjc(lastActivity.hashCode, lastTimeActivityUpdated.hashCode))));
+  int get hashCode => $mrjf($mrjc(uid.hashCode, username.hashCode));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is UserInfo &&
           other.uid == this.uid &&
-          other.username == this.username &&
-          other.lastActivity == this.lastActivity &&
-          other.lastTimeActivityUpdated == this.lastTimeActivityUpdated);
+          other.username == this.username);
 }
 
 class UserInfosCompanion extends UpdateCompanion<UserInfo> {
   final Value<String> uid;
   final Value<String> username;
-  final Value<DateTime> lastActivity;
-  final Value<DateTime> lastTimeActivityUpdated;
   const UserInfosCompanion({
     this.uid = const Value.absent(),
     this.username = const Value.absent(),
-    this.lastActivity = const Value.absent(),
-    this.lastTimeActivityUpdated = const Value.absent(),
   });
   UserInfosCompanion.insert({
     @required String uid,
     this.username = const Value.absent(),
-    this.lastActivity = const Value.absent(),
-    this.lastTimeActivityUpdated = const Value.absent(),
   }) : uid = Value(uid);
   static Insertable<UserInfo> custom({
     Expression<String> uid,
     Expression<String> username,
-    Expression<DateTime> lastActivity,
-    Expression<DateTime> lastTimeActivityUpdated,
   }) {
     return RawValuesInsertable({
       if (uid != null) 'uid': uid,
       if (username != null) 'username': username,
-      if (lastActivity != null) 'last_activity': lastActivity,
-      if (lastTimeActivityUpdated != null)
-        'last_time_activity_updated': lastTimeActivityUpdated,
     });
   }
 
-  UserInfosCompanion copyWith(
-      {Value<String> uid,
-      Value<String> username,
-      Value<DateTime> lastActivity,
-      Value<DateTime> lastTimeActivityUpdated}) {
+  UserInfosCompanion copyWith({Value<String> uid, Value<String> username}) {
     return UserInfosCompanion(
       uid: uid ?? this.uid,
       username: username ?? this.username,
-      lastActivity: lastActivity ?? this.lastActivity,
-      lastTimeActivityUpdated:
-          lastTimeActivityUpdated ?? this.lastTimeActivityUpdated,
     );
   }
 
@@ -4100,13 +4038,6 @@ class UserInfosCompanion extends UpdateCompanion<UserInfo> {
     if (username.present) {
       map['username'] = Variable<String>(username.value);
     }
-    if (lastActivity.present) {
-      map['last_activity'] = Variable<DateTime>(lastActivity.value);
-    }
-    if (lastTimeActivityUpdated.present) {
-      map['last_time_activity_updated'] =
-          Variable<DateTime>(lastTimeActivityUpdated.value);
-    }
     return map;
   }
 
@@ -4114,9 +4045,7 @@ class UserInfosCompanion extends UpdateCompanion<UserInfo> {
   String toString() {
     return (StringBuffer('UserInfosCompanion(')
           ..write('uid: $uid, ')
-          ..write('username: $username, ')
-          ..write('lastActivity: $lastActivity, ')
-          ..write('lastTimeActivityUpdated: $lastTimeActivityUpdated')
+          ..write('username: $username')
           ..write(')'))
         .toString();
   }
@@ -4151,37 +4080,8 @@ class $UserInfosTable extends UserInfos
     );
   }
 
-  final VerificationMeta _lastActivityMeta =
-      const VerificationMeta('lastActivity');
-  GeneratedDateTimeColumn _lastActivity;
   @override
-  GeneratedDateTimeColumn get lastActivity =>
-      _lastActivity ??= _constructLastActivity();
-  GeneratedDateTimeColumn _constructLastActivity() {
-    return GeneratedDateTimeColumn(
-      'last_activity',
-      $tableName,
-      true,
-    );
-  }
-
-  final VerificationMeta _lastTimeActivityUpdatedMeta =
-      const VerificationMeta('lastTimeActivityUpdated');
-  GeneratedDateTimeColumn _lastTimeActivityUpdated;
-  @override
-  GeneratedDateTimeColumn get lastTimeActivityUpdated =>
-      _lastTimeActivityUpdated ??= _constructLastTimeActivityUpdated();
-  GeneratedDateTimeColumn _constructLastTimeActivityUpdated() {
-    return GeneratedDateTimeColumn(
-      'last_time_activity_updated',
-      $tableName,
-      true,
-    );
-  }
-
-  @override
-  List<GeneratedColumn> get $columns =>
-      [uid, username, lastActivity, lastTimeActivityUpdated];
+  List<GeneratedColumn> get $columns => [uid, username];
   @override
   $UserInfosTable get asDslTable => this;
   @override
@@ -4202,19 +4102,6 @@ class $UserInfosTable extends UserInfos
     if (data.containsKey('username')) {
       context.handle(_usernameMeta,
           username.isAcceptableOrUnknown(data['username'], _usernameMeta));
-    }
-    if (data.containsKey('last_activity')) {
-      context.handle(
-          _lastActivityMeta,
-          lastActivity.isAcceptableOrUnknown(
-              data['last_activity'], _lastActivityMeta));
-    }
-    if (data.containsKey('last_time_activity_updated')) {
-      context.handle(
-          _lastTimeActivityUpdatedMeta,
-          lastTimeActivityUpdated.isAcceptableOrUnknown(
-              data['last_time_activity_updated'],
-              _lastTimeActivityUpdatedMeta));
     }
     return context;
   }

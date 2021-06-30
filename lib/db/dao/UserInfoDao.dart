@@ -19,11 +19,6 @@ class UserInfoDao extends DatabaseAccessor<Database> with _$UserInfoDaoMixin {
     return (select(userInfos)..where((tbl) => tbl.uid.equals(uid))).getSingleOrNull();
   }
 
-  Stream<UserInfo> getUserInfoAsStream(String uid) {
-    return (select(userInfos)..where((tbl) => tbl.uid.equals(uid)))
-        .watchSingleOrNull();
-}
-
   Future<UserInfo> getByUserName(String username) {
     return (select(userInfos)..where((tbl) => tbl.username.equals(username)))
         .getSingleOrNull();

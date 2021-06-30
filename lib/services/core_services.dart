@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
+import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
@@ -13,6 +15,7 @@ import 'package:deliver_flutter/db/database.dart' as Database;
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/lastActivityRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -68,7 +71,7 @@ class CoreServices {
   var _memberDao = GetIt.I.get<MemberDao>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
-  var _userInfoDAo = GetIt.I.get<UserInfoDao>();
+  var _lastActivityDao = GetIt.I.get<LastActivityDao>();
 
   Timer _connectionTimer;
   var _lastPongTime = 0;
@@ -231,13 +234,15 @@ class CoreServices {
       _seenDao.saveOthersSeen(
         Seen(uid: roomId.asString(), messageId: seen.id.toInt()),
       );
-      updateLastActivityTime(_userInfoDAo, seen.from, DateTime.now());
+      updateLastActivityTime(
+          _lastActivityDao, seen.from, DateTime.now().millisecondsSinceEpoch);
     }
   }
 
   _saveActivityMessage(Activity activity) {
     _roomRepo.updateActivity(activity);
-    updateLastActivityTime(_userInfoDAo, activity.from, DateTime.now());
+    updateLastActivityTime(
+        _lastActivityDao, activity.from, DateTime.now().millisecondsSinceEpoch);
   }
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
@@ -337,8 +342,8 @@ class CoreServices {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)
-      updateLastActivityTime(_userInfoDAo, message.from,
-          DateTime.fromMillisecondsSinceEpoch(message.time.toInt()));
+      updateLastActivityTime(
+          _lastActivityDao, message.from, message.time.toInt());
   }
 
   Future showNotification(Uid roomUid, Message message) async {
@@ -381,11 +386,11 @@ class CoreServices {
 }
 
 void updateLastActivityTime(
-    UserInfoDao userInfoDao, Uid userUid, DateTime lastActivityTime) {
-  userInfoDao.upsertUserInfo(Database.UserInfo(
+    LastActivityDao lastActivityDao, Uid userUid, int time) {
+  lastActivityDao.save(LastActivity(
       uid: userUid.asString(),
-      lastActivity: lastActivityTime,
-      lastTimeActivityUpdated: DateTime.now()));
+      time: time,
+      lastUpdate: DateTime.now().millisecondsSinceEpoch));
 }
 
 Future<bool> checkMention(String text, AccountRepo accountRepo) async {
