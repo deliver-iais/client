@@ -1,17 +1,15 @@
 import 'dart:convert';
 
+import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/role.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
-import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
@@ -36,7 +34,7 @@ class MucRepo {
   var messageDao = GetIt.I.get<MessageDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var contactDao = GetIt.I.get<ContactDao>();
-  var _userInfoDao = GetIt.I.get<UserInfoDao>();
+  var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   var _queryServices = GetIt.I.get<QueryServiceClient>();
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
@@ -91,15 +89,14 @@ class MucRepo {
         var result = await mucServices.getGroupMembers(groupUid, 15, i);
         if (len == 0) membersSize = membersSize + result.members.length;
         for (MucPro.Member member in result.members) {
-          try{
+          try {
             members.add(await fetchMemberNameAndUsername(Member(
                 mucUid: groupUid.asString(),
                 memberUid: member.uid.asString(),
                 role: getLocalRole(member.role))));
-          }catch(e){
+          } catch (e) {
             debug(e.toString());
           }
-
         }
         finish = result.finished;
         i = i + 15;
@@ -131,20 +128,19 @@ class MucRepo {
         var result = await mucServices.getChannelMembers(channelUid, 15, i);
         if (len == 0) membersSize = membersSize + result.members.length;
         for (MucPro.Member member in result.members) {
-          try{
+          try {
             members.add(await fetchMemberNameAndUsername(Member(
                 mucUid: channelUid.asString(),
                 memberUid: member.uid.asString(),
                 role: getLocalRole(member.role))));
-          }catch(e){
+          } catch (e) {
             debug(e.toString());
           }
-
         }
 
         finish = result.finished;
         i = i + 15;
-        if (len<=membersSize)
+        if (len <= membersSize)
           _mucDao.upsertMucCompanion(MucsCompanion(
               uid: Value(channelUid.asString()), members: Value(membersSize)));
       }
@@ -160,9 +156,9 @@ class MucRepo {
       return member.copyWith(
           name: contact.firstName, username: contact.username);
     } else {
-      var userInfo = await _userInfoDao.getUserInfo(member.memberUid);
-      if (userInfo != null && userInfo.username != null )
-        return member.copyWith(username: userInfo.username);
+      var userInfo = await _uidIdNameDao.getByUid(member.memberUid);
+      if (userInfo != null && userInfo.id != null)
+        return member.copyWith(username: userInfo.id);
       else {
         var username =
             await _contactRepo.searchUserByUid(member.memberUid.getUid());
@@ -182,7 +178,6 @@ class MucRepo {
           info: group.info.info,
           token: group.token,
           pinMessagesId: getAsInt(group.pinMessages),
-
         ));
 
         getGroupMembers(mucUid, group.population.toInt());
@@ -488,7 +483,6 @@ class MucRepo {
       case Role.NONE:
         return MucRole.NONE;
         break;
-
     }
     throw Exception("Not Valid Role! $role");
   }
@@ -506,7 +500,7 @@ class MucRepo {
   String getAsInt(List<Int64> pinMessages) {
     String pm = "";
     pinMessages.forEach((element) {
-      pm =   "$pm , ${element.toString()} ,";
+      pm = "$pm , ${element.toString()} ,";
     });
     return pm;
   }

@@ -6,6 +6,7 @@ import 'package:deliver_flutter/box/dao/avatar_dao.dart';
 import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
+import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
@@ -18,7 +19,6 @@ import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
 import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
-import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
@@ -78,6 +78,7 @@ void setupDI() async {
   getIt.registerSingleton<SharedDao>(SharedDaoImpl());
   getIt.registerSingleton<SeenDao>(SeenDaoImpl());
   getIt.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
+  getIt.registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
 
   Database db = Database();
 
@@ -91,7 +92,6 @@ void setupDI() async {
   getIt.registerSingleton<MucDao>(db.mucDao);
   getIt.registerSingleton<MemberDao>(db.memberDao);
   getIt.registerSingleton<MediaMetaDataDao>(db.mediaMetaDataDao);
-  getIt.registerSingleton<UserInfoDao>(db.userInfoDao);
   getIt.registerSingleton<StickerDao>(db.stickerDao);
   getIt.registerSingleton<StickerIdDao>(db.stickerIdDao);
   getIt.registerSingleton<BotInfoDao>(db.botInfoDao);

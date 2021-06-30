@@ -17,7 +17,7 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>  with WidgetsBindingObserver{
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _routingService = GetIt.I.get<RoutingService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
@@ -25,14 +25,15 @@ class _HomePageState extends State<HomePage>  with WidgetsBindingObserver{
 
   @override
   void initState() {
-    super.initState();
     _notificationServices.cancelAllNotification();
     checkIfUsernameIsSet();
     if (isAndroid()) {
       checkShareFile(context);
     }
     _coreServices.initStreamConnection();
+    super.initState();
   }
+
   checkShareFile(BuildContext context) {
     ReceiveSharingIntent.getMediaStream().listen((List<SharedMediaFile> value) {
       if (value != null) {
@@ -61,7 +62,6 @@ class _HomePageState extends State<HomePage>  with WidgetsBindingObserver{
 
   @override
   Widget build(BuildContext context) {
-
     return WillPopScope(
       onWillPop: () async {
         if (_routingService.canPerformBackButton()) return true;
@@ -79,7 +79,7 @@ class _HomePageState extends State<HomePage>  with WidgetsBindingObserver{
   void checkIfUsernameIsSet() async {
     if (!await _accountRepo.getProfile(retry: true)) {
       _routingService.openAccountSettings(forceToSetUsernameAndName: true);
-    }else{
+    } else {
       await _accountRepo.fetchProfile();
     }
   }

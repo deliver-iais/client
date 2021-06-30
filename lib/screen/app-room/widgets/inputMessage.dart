@@ -108,7 +108,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
-    super.initState();
     myFocusNode = FocusNode();
 
     isTypingActivitySubject
@@ -129,6 +128,7 @@ class _InputMessageWidget extends State<InputMessage> {
       else
         _showSendIcon.add(false);
     });
+    super.initState();
   }
 
   @override

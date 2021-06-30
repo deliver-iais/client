@@ -344,4 +344,10 @@ class AccountRepo {
   }
 
   bool isCurrentUser(String uid) => uid.isSameEntity(currentUserUid);
+
+  Future<String> getName() async {
+    final account = await getAccount();
+
+    return "${account.firstName} ${account.lastName}";
+  }
 }

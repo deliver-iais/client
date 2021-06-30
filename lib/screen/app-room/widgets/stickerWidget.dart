@@ -28,6 +28,7 @@ class _StickerWidgetState extends State<StickerWidget> {
   @override
   void initState() {
     _stickerRepo.addSticker();
+    super.initState();
   }
 
   String _currentPackId = "";

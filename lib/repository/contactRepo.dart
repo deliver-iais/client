@@ -1,6 +1,6 @@
+import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart' as Database;
 
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
@@ -37,7 +37,7 @@ class ContactRepo {
 
   var contactServices = ContactServiceClient(ProfileServicesClientChannel);
 
-  var _userInfoDao = GetIt.I.get<UserInfoDao>();
+  var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
 
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
@@ -175,8 +175,7 @@ class ContactRepo {
           GetIdByUidReq()..uid = uid,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      _userInfoDao.upsertUserInfo(
-          Database.UserInfo(uid: uid.asString(), username: result.id));
+      _uidIdNameDao.update(uid.asString(), id: result.id);
       return result.id;
     } catch (e) {
       return null;

@@ -1,8 +1,6 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/lastActivityRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
@@ -46,6 +44,7 @@ class _TitleStatusState extends State<TitleStatus> {
     if (widget.currentRoomUid.category == Categories.USER)
       _lastActivityRepo.updateLastActivity(widget.currentRoomUid);
     _roomRepo.initActivity(widget.currentRoomUid.node);
+    super.initState();
   }
 
   @override

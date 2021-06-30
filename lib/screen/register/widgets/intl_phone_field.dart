@@ -72,12 +72,12 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
 
   @override
   void initState() {
-    super.initState();
     if (widget.initialCountryCode != null) {
       _selectedCountry = countries
           .firstWhere((item) => item['code'] == widget.initialCountryCode);
     }
     validator = widget.validator;
+    super.initState();
   }
 
   Future<void> _changeCountry(BuildContext context) async {

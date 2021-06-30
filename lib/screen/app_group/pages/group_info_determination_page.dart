@@ -47,10 +47,10 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
 
   @override
   void initState() {
-    super.initState();
     controller = TextEditingController();
     idController = TextEditingController();
     infoController = TextEditingController();
+    super.initState();
   }
 
   Future<bool> checkChannelD(String id) async {

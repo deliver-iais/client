@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:dcache/dcache.dart';
+import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -32,7 +32,7 @@ class RoomRepo {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
-  var _userInfoDao = GetIt.I.get<UserInfoDao>();
+  var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   var _botInfoDao = GetIt.I.get<BotInfoDao>();
 
@@ -52,7 +52,7 @@ class RoomRepo {
       case Categories.USER:
         String name = await _roomNameCache.get(uid.asString());
         if (_accountRepo.isCurrentUser(uid.asString())) {
-          return (await _accountRepo.getAccount()).firstName;
+          return await _accountRepo.getName();
         } else if (name != null && !name.contains("null")) {
           return name;
         } else {
@@ -62,9 +62,9 @@ class RoomRepo {
             _roomNameCache.set(uid.asString(), contactName);
             return contactName;
           } else {
-            var username = await _userInfoDao.getUserInfo(uid.asString());
-            if (username != null && username.username != null) {
-              return username.username;
+            var username = await _uidIdNameDao.getByUid(uid.asString());
+            if (username != null && username.id != null) {
+              return username.id;
             }
             String s = await _contactRepo.searchUserByUid(uid);
             return s;
@@ -108,9 +108,9 @@ class RoomRepo {
     if (contact != null)
       return contact.username;
     else {
-      var userInfo = await _userInfoDao.getUserInfo(uid.asString());
-      if (userInfo != null && userInfo.username != null) {
-        return userInfo.username;
+      var userInfo = await _uidIdNameDao.getByUid(uid.asString());
+      if (userInfo != null && userInfo.id != null) {
+        return userInfo.id;
       } else {
         var res = await _contactRepo.searchUserByUid(uid);
         return res;
@@ -193,14 +193,12 @@ class RoomRepo {
     if (contact != null) {
       return contact.uid;
     } else {
-      var userInfo = await _userInfoDao.getByUserName(username);
+      var userInfo = await _uidIdNameDao.getUidById(username);
       if (userInfo != null) {
         return userInfo.uid;
       } else {
         var uid = await _contactRepo.searchUserByUsername(username);
-        if (uid != null)
-          _userInfoDao.upsertUserInfo(
-              UserInfo(uid: uid.asString(), username: username));
+        if (uid != null) _uidIdNameDao.update(uid.asString(), id: username);
         return uid.asString();
       }
     }

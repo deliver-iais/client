@@ -363,6 +363,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       getPinMessages();
       checkGroupRole();
     }
+
+    super.initState();
   }
 
   Future<void> getPinMessages() async {
@@ -861,8 +863,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         if (index == -1) index = 0;
         // TODO SEEN MIGRATION
         _seenDao.saveMySeen(Seen(
-            uid: widget.roomId,
-            messageId: _currentRoom.value.lastMessageId));
+            uid: widget.roomId, messageId: _currentRoom.value.lastMessageId));
         bool isPendingMessage = (currentRoom.lastMessageId == null)
             ? true
             : _itemCount > currentRoom.lastMessageId &&

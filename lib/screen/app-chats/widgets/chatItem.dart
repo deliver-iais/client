@@ -38,10 +38,10 @@ class _ChatItemState extends State<ChatItem> {
 
   @override
   void initState() {
-    super.initState();
     if (widget.roomWithMessage.room.roomId.getUid().category == Categories.USER)
       _lastActivityRepo
           .updateLastActivity(widget.roomWithMessage.room.roomId.getUid());
+    super.initState();
   }
 
   @override

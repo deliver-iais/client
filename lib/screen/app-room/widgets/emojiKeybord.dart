@@ -25,9 +25,9 @@ class _Emojikeybord extends State<EmojiKeybord> {
 
   @override
   void initState() {
-    super.initState();
     emojis = Emoji.byGroup(EmojiGroup.smileysEmotion);
     this.onTap = widget.onTap;
+    super.initState();
   }
 
   @override

@@ -28,12 +28,12 @@ class _IntroPageState extends State<IntroPage> {
 
   @override
   void initState() {
-    super.initState();
     subject.map((d) => d.round()).distinct().listen((d) {
       setState(() {
         introAnimationController.play(pauseTime: d - 0.05);
       });
     });
+    super.initState();
   }
 
   void navigateToLoginPage() {

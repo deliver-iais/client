@@ -435,8 +435,6 @@ class IntroSliderState extends State<IntroSlider>
 
   @override
   void initState() {
-    super.initState();
-
     tabController = new TabController(length: slides.length, vsync: this);
     tabController.addListener(() {
       if (tabController.indexIsChanging) {
@@ -522,6 +520,7 @@ class IntroSliderState extends State<IntroSlider>
     }
 
     setupButtonDefaultValues();
+    super.initState();
   }
 
   void setupButtonDefaultValues() {

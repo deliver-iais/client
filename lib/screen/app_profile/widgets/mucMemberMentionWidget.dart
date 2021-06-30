@@ -1,4 +1,5 @@
-import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
+import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
+import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,11 +8,11 @@ import 'package:get_it/get_it.dart';
 
 class MucMemberMentionWidget extends StatelessWidget {
   final Member member;
-  Function onSelected;
+  final Function onSelected;
+
+  final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
 
   MucMemberMentionWidget(this.member, this.onSelected);
-
-  var _userInfoDao = GetIt.I.get<UserInfoDao>();
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +24,13 @@ class MucMemberMentionWidget extends StatelessWidget {
               height: 10,
             ),
             member.username != null
-                ? buildGestureDetector(username: member.username,name: member.name)
-                : FutureBuilder<UserInfo>(
-                    future: _userInfoDao.getUserInfo(member.memberUid),
+                ? buildGestureDetector(
+                    username: member.username, name: member.name)
+                : FutureBuilder<UidIdName>(
+                    future: _uidIdNameDao.getByUid(member.memberUid),
                     builder: (c, u) {
-                      if (u.hasData &&
-                          u.data != null &&
-                          u.data.username != null) {
-                        return buildGestureDetector(username: u.data.username);
+                      if (u.hasData && u.data != null && u.data.id != null) {
+                        return buildGestureDetector(username: u.data.id);
                       }
                       return SizedBox.shrink();
                     })
@@ -61,7 +61,7 @@ class MucMemberMentionWidget extends StatelessWidget {
           ),
           if (name != null)
             Text(
-              "@${username}",
+              "@$username",
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 12,

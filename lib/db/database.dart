@@ -12,7 +12,6 @@ import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
 import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
-import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
 import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
@@ -32,7 +31,6 @@ import 'Mucs.dart';
 import 'Member.dart';
 import 'Rooms.dart';
 import 'PendingMessages.dart';
-import 'UserInfos.dart';
 import 'dao/MediaMetaDataDao.dart';
 import 'dao/MemberDao.dart';
 import 'dao/RoomDao.dart';
@@ -50,7 +48,6 @@ part 'database.g.dart';
   Members,
   Mucs,
   MediasMetaData,
-  UserInfos,
   Stickers,
   StickerIds,
   BotInfos
@@ -64,7 +61,6 @@ part 'database.g.dart';
   MemberDao,
   MucDao,
   MediaMetaDataDao,
-  UserInfoDao,
   StickerDao,
   StickerIdDao,
   BotInfoDao

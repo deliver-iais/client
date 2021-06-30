@@ -43,6 +43,7 @@ class _VideoUiState extends State<VideoUi> {
               .inSeconds
               .toDouble());
     });
+    super.initState();
   }
 
   @override

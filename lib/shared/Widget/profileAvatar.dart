@@ -68,7 +68,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 
   @override
   void initState() {
-    super.initState();
     if (widget.roomUid.category != Categories.USER &&
         widget.roomUid.category != Categories.BOT) {
       _mucType = widget.roomUid.category == Categories.GROUP
@@ -79,6 +78,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         widget.roomUid.category == Categories.GROUP) {
       _checkPermissions();
     }
+    super.initState();
   }
 
   _checkPermissions() async {

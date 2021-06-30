@@ -94,12 +94,12 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   void initState() {
-    super.initState();
     subject.stream.debounceTime(Duration(milliseconds: 250)).listen((text) {
       setState(() {
         query = text;
       });
     });
+    super.initState();
   }
 
   _NavigationCenterState(this.tapOnSelectChat, this.tapOnCurrentUserAvatar);

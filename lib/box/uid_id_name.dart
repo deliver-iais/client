@@ -19,4 +19,12 @@ class UidIdName {
   int lastUpdate;
 
   UidIdName({this.uid, this.id, this.name, this.lastUpdate});
+
+  UidIdName copyWith({String uid, String id, String name, int lastUpdate}) =>
+      UidIdName(
+        uid: uid ?? this.uid,
+        id: id ?? this.id,
+        name: name ?? this.name,
+        lastUpdate: lastUpdate ?? this.lastUpdate,
+      );
 }

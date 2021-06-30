@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
+import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/db/database.dart' as db;
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
@@ -92,6 +93,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
 
   GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
   GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
+  GetIt.I.registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
 
   var database = db.Database();
   var contactDao = database.contactDao;
@@ -99,8 +101,8 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
   var messageDao = database.messageDao;
 
   var lastActivityDao = GetIt.I.get<LastActivityDao>();
+  var uidIdNameDao = GetIt.I.get<UidIdNameDao>();
 
-  var userInfoDao = database.userInfoDao;
   var accountRepo = AccountRepo();
 
   if (message.data.containsKey('body')) {
@@ -127,8 +129,8 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
           roomName = "$roomName ${contact.lastName}";
         }
       } else {
-        var res = await userInfoDao.getUserInfo(msg.from.asString());
-        if (res != null) roomName = res.username;
+        var res = await uidIdNameDao.getByUid(msg.from.asString());
+        if (res != null) roomName = res.id;
       }
     } else if (msg.from.category == Categories.SYSTEM) {
       roomName = "Deliver";

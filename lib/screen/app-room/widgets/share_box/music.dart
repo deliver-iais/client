@@ -29,8 +29,8 @@ class _ShareBoxMusicState extends State<ShareBoxMusic> {
 
   @override
   void initState() {
-    super.initState();
     _future = AudioItem.getAudios();
+    super.initState();
   }
 
   @override

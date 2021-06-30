@@ -4,9 +4,9 @@ import 'package:hive/hive.dart';
 abstract class UidIdNameDao {
   Future<UidIdName> getByUid(String uid);
 
-  Future<UidIdName> getById(String id);
+  Future<String> getUidById(String id);
 
-  Future<void> save(UidIdName uidIdName);
+  Future<void> update(String uid, {String id, String name});
 }
 
 class UidIdNameDaoImpl implements UidIdNameDao {
@@ -16,18 +16,30 @@ class UidIdNameDaoImpl implements UidIdNameDao {
     return box.get(uid);
   }
 
-  Future<UidIdName> getById(String id) async {
+  Future<String> getUidById(String id) async {
     var box = await _open2();
 
     return box.get(id);
   }
 
-  Future<void> save(UidIdName uidIdName) async {
+  Future<void> update(String uid, {String id, String name}) async {
     var box = await _open();
     var box2 = await _open2();
 
-    box.put(uidIdName.uid, uidIdName);
-    box2.put(uidIdName.id, uidIdName);
+    var byUid = box.get(uid);
+    if (byUid == null) {
+      box.put(uid, UidIdName(uid: uid, id: id, name: name));
+    } else {
+      box.put(uid, byUid.copyWith(uid: uid, id: id, name: name));
+    }
+
+    if (byUid != null && byUid.id != null && byUid.id != id) {
+      box2.delete(byUid.id);
+    }
+
+    if (id != null) {
+      box2.put(id, uid);
+    }
   }
 
   static String _key() => "uid-id-name";
@@ -36,5 +48,5 @@ class UidIdNameDaoImpl implements UidIdNameDao {
 
   static Future<Box<UidIdName>> _open() => Hive.openBox<UidIdName>(_key());
 
-  static Future<Box<UidIdName>> _open2() => Hive.openBox<UidIdName>(_key2());
+  static Future<Box<String>> _open2() => Hive.openBox<String>(_key2());
 }

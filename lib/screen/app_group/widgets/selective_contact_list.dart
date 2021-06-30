@@ -57,11 +57,10 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   @override
   void initState() {
-    super.initState();
     editingController = TextEditingController();
     if (widget.mucUid != null) getMembers();
     _createMucService.reset();
-
+    super.initState();
   }
 
   getMembers() async {

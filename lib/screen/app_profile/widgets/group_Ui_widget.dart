@@ -36,8 +36,8 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
 
   @override
   void initState() {
-    super.initState();
     mucUid = widget.mucUid;
+    super.initState();
   }
 
   @override
