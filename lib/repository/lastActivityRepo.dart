@@ -36,7 +36,8 @@ class LastActivityRepo {
           ..uid = currentUserUid,
         options: CallOptions(
             metadata: {"access_token": await _accountRepo.getAccessToken()}));
-    print("last activity : " + lastActivityTime.toString());
+    print("last activity : " + DateTime.fromMillisecondsSinceEpoch(lastActivityTime.lastActivityTime.toInt()).toString());
+
 
     if (lastActivityTime != null) {
       _userInfoDao.upsertUserInfo(UserInfo(

@@ -33,6 +33,8 @@ dependencies:
 
   flutter_link_preview: 1.5.6
 
+  desktoasts: 0.0.2
+
   carousel_slider: 2.3.1
   dots_indicator: 1.2.0
 
@@ -177,6 +179,9 @@ flutter:
   assets:
     - assets/images/a.flr
     - assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png
+    - assets/ic_launcher/web_hi_res_512.png
+    - assets/ic_launcher/ic_launcher_big.jpg
+    - assets/ic_launcher/img100.jpg
     - assets/icons/stickerIcon.png
     - assets/icons/emojiIcon.png
     - assets/audios/r.mp3
@@ -185,7 +190,6 @@ flutter:
     - lib/lang/en.json
     - assets/icons/mention.png
     - assets/icons/channel_icon.png
-    - assets/bac/bdark.jpg
     - assets/bac/b2.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

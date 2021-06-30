@@ -1,11 +1,17 @@
+import 'dart:io';
+
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+import 'package:desktoasts/desktoasts.dart';
 import 'package:desktop_notifications/desktop_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/services.dart' show rootBundle;
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationServices {
@@ -13,9 +19,17 @@ class NotificationServices {
   NotificationDetails _notificationDetails;
 
   Map<String, List<int>> _notificationMessage = Map();
+  ToastService _windowsNotificationServices;
 
   NotificationServices() {
     if (!isDesktop()) Firebase.initializeApp();
+    if (isWindows()) {
+      _windowsNotificationServices = new ToastService(
+        appName: 'Deliver',
+        companyName: 'Pshk',
+        productName: '1',
+      );
+    }
     var androidNotificationSetting =
         new AndroidInitializationSettings('@mipmap/ic_launcher');
     var iosNotificationSetting = new IOSInitializationSettings(
@@ -54,10 +68,19 @@ class NotificationServices {
 
   showTextNotification(int notificationId, String roomId, String roomName,
       String messageBody) async {
-    if (isLinux()) {
+    if (isWindows()) {
+
+      Toast toast = new Toast(
+          type: ToastType.imageAndText04,
+          title: roomName,
+          subtitle: messageBody,
+           //image:  File('C:/Windows/deliver1.png'),
+      );
+      _windowsNotificationServices.show(toast);
+      // _windowsNotificationServices.dispose();
+     toast.dispose();
+    } else if (isLinux()) {
       try {
-        // var res = await rootBundle.load('@assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher');
-        // print(res.getUint8(byteOffset));
         var client = NotificationsClient();
         await client.notify('Deliver',
             body: "$roomName \n  $messageBody", appIcon: "mail-send");
@@ -74,8 +97,7 @@ class NotificationServices {
       var platformChannelSpecifics = NotificationDetails(
           android: androidPlatformChannelSpecifics,
           iOS: iOSPlatformChannelSpecifics,
-          macOS: macOSPlatformChannelSpecifics
-      );
+          macOS: macOSPlatformChannelSpecifics);
       await flutterLocalNotificationsPlugin.show(
         notificationId,
         roomName,
@@ -162,50 +184,49 @@ class NotificationServices {
           break;
         case pro.Message_Type.persistEvent:
           String s = "";
-          switch(message.persistEvent.whichType()){
+          switch (message.persistEvent.whichType()) {
             case PersistentEvent_Type.mucSpecificPersistentEvent:
-             switch(message.persistEvent.mucSpecificPersistentEvent.issue){
-               case MucSpecificPersistentEvent_Issue.ADD_USER:
-                 s=  " عضو اضافه شد.";
-                 break;
+              switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
+                case MucSpecificPersistentEvent_Issue.ADD_USER:
+                  s = " عضو اضافه شد.";
+                  break;
 
-               case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-                s = "عکس پروفایل عوض شد";
-                break;
-               case MucSpecificPersistentEvent_Issue.JOINED_USER:
-                 s = "به گروه پیوست.";
-                 break;
+                case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
+                  s = "عکس پروفایل عوض شد";
+                  break;
+                case MucSpecificPersistentEvent_Issue.JOINED_USER:
+                  s = "به گروه پیوست.";
+                  break;
 
-               case MucSpecificPersistentEvent_Issue.KICK_USER:
-                 s = "مخاطب از گروه حذف شد.";
-                 break;
-               case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-                 s = "مخاطب  گروه  را ترک کرد.";
-                 break;
-               case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-                 s = " گروه  ساخته شد.";
-                 break;
-               case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-                 s = " نام تغییر پیدا کرد.";
-                 break;
-               case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-                 s = "پیام پین شد.";
-                 break;
-             }
+                case MucSpecificPersistentEvent_Issue.KICK_USER:
+                  s = "مخاطب از گروه حذف شد.";
+                  break;
+                case MucSpecificPersistentEvent_Issue.LEAVE_USER:
+                  s = "مخاطب  گروه  را ترک کرد.";
+                  break;
+                case MucSpecificPersistentEvent_Issue.MUC_CREATED:
+                  s = " گروه  ساخته شد.";
+                  break;
+                case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
+                  s = " نام تغییر پیدا کرد.";
+                  break;
+                case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
+                  s = "پیام پین شد.";
+                  break;
+              }
               break;
             case PersistentEvent_Type.messageManipulationPersistentEvent:
-             //
+              //
               break;
             case PersistentEvent_Type.adminSpecificPersistentEvent:
-              s= "به دلیور پیوست";
+              s = "به دلیور پیوست";
 
               break;
             case PersistentEvent_Type.notSet:
               // TODO: Handle this case.
               break;
           }
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, s);
+          showTextNotification(message.id.toInt(), roomUid, roomName, s);
 
           break;
       }

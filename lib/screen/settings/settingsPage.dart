@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dbus/dbus.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/models/account.dart';
 
@@ -149,8 +150,27 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     IconButton(
                         icon: Icon(Icons.navigate_next),
-                        onPressed: () {
-                          _routingService.openAccountSettings();
+                        onPressed: () async{
+                          var client = DBusClient.session();
+                          var object = DBusRemoteObject(client, 'org.freedesktop.Notifications',
+                              DBusObjectPath('/org/freedesktop/Notifications'));
+                          var values = [
+                            DBusString(''), // App name
+                            DBusUint32(0), // Replaces
+                            DBusString(''), // Icon
+                            DBusString('Hello World!'), // Summary
+                            DBusString(''), // Body
+                            DBusArray(DBusSignature('s')), // Actions
+                            DBusDict(DBusSignature('s'), DBusSignature('v')), // Hints
+                            DBusInt32(-1), // Expire timeout
+                          ];
+                          var result = await object.callMethod(
+                              'org.freedesktop.Notifications', 'Notify', values,
+                              replySignature: DBusSignature('u'));
+                          var id = result.returnValues[0];
+                          print('notify ${id.toNative()}');
+                          await client.close();
+                          // _routingService.openAccountSettings();
                         }),
                   ],
                 )),
