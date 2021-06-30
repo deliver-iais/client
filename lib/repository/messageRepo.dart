@@ -5,7 +5,6 @@ import 'dart:math';
 
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
@@ -66,7 +65,6 @@ class MessageRepo {
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
   var _seenDao = GetIt.I.get<SeenDao>();
-  var _lastSeenDao = GetIt.I.get<LastSeenDao>();
   var mucServices = GetIt.I.get<MucServices>();
 
   var _coreServices = GetIt.I.get<CoreServices>();
@@ -193,15 +191,13 @@ class MessageRepo {
                 "access_token": await _accountRepo.getAccessToken()
               }));
 
-      var lastSeen = await _lastSeenDao.getByRoomId(room.roomUid.asString());
-      //  debug("${room.roomUid.asString()} lastCurrentUserSentMessageId${ room.lastCurrentUserSentMessageId.toInt()} fetchCurrentUserSeenData ${fetchCurrentUserSeenData.seen.id} ");
-      // db8ab0da-d0cb-4aaf-b642-2419ef59f05d 1686
+      var lastSeen = await _seenDao.getMySeen(room.roomUid.asString());
       if (lastSeen != null &&
           lastSeen.messageId >
               max(fetchCurrentUserSeenData.seen.id.toInt(),
                   room.lastCurrentUserSentMessageId.toInt())) return;
-      _lastSeenDao.insertLastSeen(LastSeen(
-          roomId: room.roomUid.asString(),
+      _seenDao.saveMySeen(Seen(
+          uid: room.roomUid.asString(),
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
               room.lastCurrentUserSentMessageId.toInt())));
     } catch (e) {

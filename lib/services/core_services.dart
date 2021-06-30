@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
@@ -67,7 +65,6 @@ class CoreServices {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _routingServices = GetIt.I.get<RoutingService>();
-  var _lastSeenDao = GetIt.I.get<LastSeenDao>();
   var _memberDao = GetIt.I.get<MemberDao>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
@@ -227,14 +224,15 @@ class CoreServices {
         break;
     }
     if (_accountRepo.isCurrentUser(seen.from.asString())) {
-      _lastSeenDao.insertLastSeen(
-        Database.LastSeen(
-            roomId: roomId.asString(), messageId: seen.id.toInt()),
+      _seenDao.saveMySeen(
+        Seen(uid: roomId.asString(), messageId: seen.id.toInt()),
       );
+    } else {
+      _seenDao.saveOthersSeen(
+        Seen(uid: roomId.asString(), messageId: seen.id.toInt()),
+      );
+      updateLastActivityTime(_userInfoDAo, seen.from, DateTime.now());
     }
-    _seenDao.saveOthersSeen(
-        Seen(messageId: seen.id.toInt(), uid: roomId.asString()));
-    updateLastActivityTime(_userInfoDAo, seen.from, DateTime.now());
   }
 
   _saveActivityMessage(Activity activity) {
@@ -262,7 +260,8 @@ class CoreServices {
 
   _saveIncomingMessage(Message message) async {
     Uid roomUid = getRoomId(_accountRepo, message);
-    _lastSeenDao.insertLastSeen(Database.LastSeen(roomId: roomUid.asString()));
+    // TODO SEEN MIGRATION
+    _seenDao.saveMySeen(Seen(uid: roomUid.asString()));
     Database.Room room = await _roomDao.getByRoomIdFuture(roomUid.asString());
     if (room != null && room.isBlock) {
       return;

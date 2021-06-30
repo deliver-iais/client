@@ -7,7 +7,6 @@ import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
@@ -89,7 +88,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _messageRepo = GetIt.I.get<MessageRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _lastSeenDao = GetIt.I.get<LastSeenDao>();
 
   var _routingService = GetIt.I.get<RoutingService>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
@@ -292,9 +290,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   _getLastShowMessageId() async {
-    LastSeen lastSeen = await _lastSeenDao.getByRoomId(widget.roomId);
-    if (lastSeen != null) {
-      _lastShowedMessageId = lastSeen.messageId ?? 0;
+    var seen = await _seenDao.getMySeen(widget.roomId);
+    if (seen != null) {
+      _lastShowedMessageId = seen.messageId ?? 0;
     }
   }
 
@@ -861,8 +859,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       itemScrollController: _itemScrollController,
       itemBuilder: (context, index) {
         if (index == -1) index = 0;
-        _lastSeenDao.insertLastSeen(LastSeen(
-            roomId: widget.roomId,
+        // TODO SEEN MIGRATION
+        _seenDao.saveMySeen(Seen(
+            uid: widget.roomId,
             messageId: _currentRoom.value.lastMessageId));
         bool isPendingMessage = (currentRoom.lastMessageId == null)
             ? true

@@ -29,12 +29,10 @@ import 'dart:io';
 import 'Contacts.dart';
 import 'FileInfo.dart';
 import 'Mucs.dart';
-import 'LastSeen.dart';
 import 'Member.dart';
 import 'Rooms.dart';
 import 'PendingMessages.dart';
 import 'UserInfos.dart';
-import 'dao/LastSeenDao.dart';
 import 'dao/MediaMetaDataDao.dart';
 import 'dao/MemberDao.dart';
 import 'dao/RoomDao.dart';
@@ -51,7 +49,6 @@ part 'database.g.dart';
   Medias,
   Members,
   Mucs,
-  LastSeens,
   MediasMetaData,
   UserInfos,
   Stickers,
@@ -66,7 +63,6 @@ part 'database.g.dart';
   MediaDao,
   MemberDao,
   MucDao,
-  LastSeenDao,
   MediaMetaDataDao,
   UserInfoDao,
   StickerDao,

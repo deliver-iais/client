@@ -4,7 +4,7 @@ import 'package:deliver_flutter/models/roomWithMessage.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/lastActivityRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/app-chats/widgets/recievedMsgStatusIcon.dart';
+import 'package:deliver_flutter/screen/app-chats/widgets/unread_message_counter.dart';
 import 'package:deliver_flutter/shared/activityStatuse.dart';
 import 'package:deliver_flutter/shared/methods/dateTimeFormat.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
@@ -60,8 +60,13 @@ class _ChatItemState extends State<ChatItem> {
           if (name.hasData && name.data != null && name.data.isNotEmpty) {
             return Container(
               padding: const EdgeInsets.all(5),
-              color: widget.isSelected ? Theme.of(context).focusColor : Colors.transparent,
-              height: widget.roomWithMessage.lastMessage.type == MessageType.PERSISTENT_EVENT?74:66,
+              color: widget.isSelected
+                  ? Theme.of(context).focusColor
+                  : Colors.transparent,
+              height: widget.roomWithMessage.lastMessage.type ==
+                      MessageType.PERSISTENT_EVENT
+                  ? 74
+                  : 66,
               child: Row(
                 children: <Widget>[
                   Padding(
@@ -146,7 +151,10 @@ class _ChatItemState extends State<ChatItem> {
               ),
             );
           } else
-            return SizedBox(height: 66,width: MediaQuery.of(context).size.width,);
+            return SizedBox(
+              height: 66,
+              width: MediaQuery.of(context).size.width,
+            );
         });
   }
 
@@ -154,13 +162,10 @@ class _ChatItemState extends State<ChatItem> {
     //  if(widget.roomWithMessage.lastMessage.roomId == '4:father_bot')
     return Row(
       children: <Widget>[
-        if (messageType == "send" )
-            SeenStatus(widget.roomWithMessage.lastMessage),
+        if (messageType == "send")
+          SeenStatus(widget.roomWithMessage.lastMessage),
         Padding(
-            padding: const EdgeInsets.only(
-              top: 2.0,
-              left: 4.0
-            ),
+            padding: const EdgeInsets.only(top: 2.0, left: 4.0),
             child: LastMessage(message: widget.roomWithMessage.lastMessage)),
         Expanded(
           flex: 10,
@@ -191,7 +196,8 @@ class _ChatItemState extends State<ChatItem> {
                       ),
                     )
                   : messageType == "receive"
-                      ? UnreadMessageCounterWidget(widget.roomWithMessage.lastMessage)
+                      ? UnreadMessageCounterWidget(
+                          widget.roomWithMessage.lastMessage)
                       : Container()
             ],
           ),
