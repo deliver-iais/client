@@ -6,7 +6,6 @@ import 'package:deliver_flutter/db/StickerId.dart';
 import 'package:deliver_flutter/db/Stickers.dart';
 import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
-import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
@@ -26,7 +25,6 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'dart:io';
 
 import 'Contacts.dart';
-import 'FileInfo.dart';
 import 'Mucs.dart';
 import 'Member.dart';
 import 'Rooms.dart';
@@ -42,7 +40,6 @@ part 'database.g.dart';
   Messages,
   Rooms,
   Contacts,
-  FileInfos,
   PendingMessages,
   Medias,
   Members,
@@ -55,7 +52,6 @@ part 'database.g.dart';
   MessageDao,
   RoomDao,
   ContactDao,
-  FileDao,
   PendingMessageDao,
   MediaDao,
   MemberDao,
