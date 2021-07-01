@@ -70,11 +70,11 @@ class NotificationServices {
       String messageBody) async {
     if (isWindows()) {
 
+
       Toast toast = new Toast(
           type: ToastType.imageAndText04,
           title: roomName,
           subtitle: messageBody,
-           //image:  File('C:/Windows/deliver1.png'),
       );
       _windowsNotificationServices.show(toast);
       // _windowsNotificationServices.dispose();
