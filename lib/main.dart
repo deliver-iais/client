@@ -3,6 +3,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/dao/avatar_dao.dart';
+import 'package:deliver_flutter/box/dao/file_dao.dart';
 import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
@@ -12,7 +13,6 @@ import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
-import 'package:deliver_flutter/db/dao/FileDao.dart';
 import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
@@ -79,6 +79,7 @@ void setupDI() async {
   getIt.registerSingleton<SeenDao>(SeenDaoImpl());
   getIt.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
   getIt.registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
+  getIt.registerSingleton<FileDao>(FileDaoImpl());
 
   Database db = Database();
 
@@ -86,7 +87,6 @@ void setupDI() async {
   getIt.registerSingleton<MessageDao>(db.messageDao);
   getIt.registerSingleton<RoomDao>(db.roomDao);
   getIt.registerSingleton<ContactDao>(db.contactDao);
-  getIt.registerSingleton<FileDao>(db.fileDao);
   getIt.registerSingleton<MediaDao>(db.mediaDao);
   getIt.registerSingleton<PendingMessageDao>(db.pendingMessageDao);
   getIt.registerSingleton<MucDao>(db.mucDao);
