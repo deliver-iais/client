@@ -8,6 +8,7 @@ import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
+import 'package:deliver_flutter/box/file_info.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
@@ -72,12 +73,13 @@ void setupDI() async {
   Hive.registerAdapter(ContactAdapter());
   Hive.registerAdapter(UidIdNameAdapter());
   Hive.registerAdapter(SeenAdapter());
+  Hive.registerAdapter(FileInfoAdapter());
 
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<AvatarDao>(AvatarDaoImpl());
+  getIt.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
   getIt.registerSingleton<SharedDao>(SharedDaoImpl());
   getIt.registerSingleton<SeenDao>(SeenDaoImpl());
-  getIt.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
   getIt.registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
   getIt.registerSingleton<FileDao>(FileDaoImpl());
 
