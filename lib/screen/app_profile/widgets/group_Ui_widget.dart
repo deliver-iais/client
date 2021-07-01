@@ -32,6 +32,7 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
 
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomDao = GetIt.I.get<RoomDao>();
+  var _roomRepo = GetIt.I.get<RoomRepo>();
   var _mucDao = GetIt.I.get<MucDao>();
 
   @override
@@ -64,20 +65,20 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
                     ],
                   ),
                 ),
-                StreamBuilder<Room>(
-                  stream: _roomDao.getByRoomId(widget.mucUid.asString()),
+                StreamBuilder<bool>(
+                  stream: _roomRepo.watchIsRoomMuted(widget.mucUid.asString()),
                   builder:
-                      (BuildContext context, AsyncSnapshot<Room> snapshot) {
+                      (BuildContext context, AsyncSnapshot<bool> snapshot) {
                     if (snapshot.data != null) {
                       return Switch(
                         activeColor: ExtraTheme.of(context).blueOfProfilePage,
-                        value: !snapshot.data.mute,
-                        onChanged: (newNotifState) {
-                          setState(() {
-                            _roomDao.insertRoom(Room(
-                                roomId: snapshot.data.roomId,
-                                mute: !newNotifState));
-                          });
+                        value: !snapshot.data,
+                        onChanged: (state) {
+                          if (state) {
+                            _roomRepo.unmute(widget.mucUid.asString());
+                          } else {
+                            _roomRepo.mute(widget.mucUid.asString());
+                          }
                         },
                       );
                     } else {
@@ -94,17 +95,13 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
           builder: (c, muc) {
             if (muc.hasData && muc.data != null && muc.data.info.isNotEmpty) {
               return Padding(
-                padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-                child:
-                    Container(
-                      child:Text(
-                        muc.data.info,
-                        style: TextStyle(fontSize: 15, color: Colors.blue),
-                      ),
-
-                )
-
-              );
+                  padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                  child: Container(
+                    child: Text(
+                      muc.data.info,
+                      style: TextStyle(fontSize: 15, color: Colors.blue),
+                    ),
+                  ));
             } else
               return SizedBox.shrink();
           }),
@@ -123,7 +120,8 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
               ),
               Text(
                 appLocalization.getTraslateValue("AddMember"),
-                style: TextStyle(color: ExtraTheme.of(context).textField,fontSize: 17),
+                style: TextStyle(
+                    color: ExtraTheme.of(context).textField, fontSize: 17),
               ),
             ],
           ),

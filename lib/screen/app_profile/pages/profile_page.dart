@@ -51,7 +51,6 @@ class _ProfilePageState extends State<ProfilePage>
   var mediasLength;
   Room currentRoomId;
   var _routingService = GetIt.I.get<RoutingService>();
-  var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _uxService = GetIt.I.get<UxService>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
@@ -193,9 +192,8 @@ class _ProfilePageState extends State<ProfilePage>
                                                         appLocalization,
                                                         context)
                                                     : FutureBuilder<String>(
-                                                        future: _roomRepo
-                                                            .getId(
-                                                                widget.userUid),
+                                                        future: _roomRepo.getId(
+                                                            widget.userUid),
                                                         builder: (BuildContext
                                                                 context,
                                                             AsyncSnapshot<
@@ -243,11 +241,8 @@ class _ProfilePageState extends State<ProfilePage>
                                               child: GestureDetector(
                                                 child: Row(children: <Widget>[
                                                   IconButton(
-                                                    icon: Icon(
-                                                        Icons
-                                                            .message,
-                                                        color: Colors
-                                                            .blue),
+                                                    icon: Icon(Icons.message,
+                                                        color: Colors.blue),
                                                     onPressed: () {},
                                                   ),
                                                   Text(
@@ -301,34 +296,37 @@ class _ProfilePageState extends State<ProfilePage>
                                                         ],
                                                       ),
                                                     ),
-                                                    StreamBuilder<Room>(
-                                                      stream:
-                                                          _roomDao.getByRoomId(
+                                                    StreamBuilder<bool>(
+                                                      stream: _roomRepo
+                                                          .watchIsRoomMuted(
                                                               widget.userUid
                                                                   .asString()),
                                                       builder: (BuildContext
                                                               context,
-                                                          AsyncSnapshot<Room>
+                                                          AsyncSnapshot<bool>
                                                               snapshot) {
-                                                        if (snapshot.data !=
-                                                            null) {
+                                                        if (snapshot.hasData &&
+                                                            snapshot.data !=
+                                                                null) {
                                                           return Switch(
                                                             activeColor:
                                                                 ExtraTheme.of(
                                                                         context)
                                                                     .activeSwitch,
-                                                            value: !snapshot
-                                                                .data.mute,
-                                                            onChanged:
-                                                                (newNotifState) {
-                                                              setState(() {
-                                                                _roomDao.insertRoom(Room(
-                                                                    roomId: widget
+                                                            value:
+                                                                !snapshot.data,
+                                                            onChanged: (state) {
+                                                              if (state) {
+                                                                _roomRepo.unmute(
+                                                                    widget
                                                                         .userUid
-                                                                        .asString(),
-                                                                    mute:
-                                                                        !newNotifState));
-                                                              });
+                                                                        .asString());
+                                                              } else {
+                                                                _roomRepo.mute(
+                                                                    widget
+                                                                        .userUid
+                                                                        .asString());
+                                                              }
                                                             },
                                                           );
                                                         } else {
@@ -551,13 +549,15 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
                 children: [
                   FlutterLinkPreview(
                     url: jsonDecode(snapshot.data[index].json)["url"],
-                    bodyStyle: TextStyle(fontSize: 12.0, height: 1.4,color: ExtraTheme.of(context).textField),
+                    bodyStyle: TextStyle(
+                        fontSize: 12.0,
+                        height: 1.4,
+                        color: ExtraTheme.of(context).textField),
                     useMultithread: true,
                     titleStyle: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                      color: ExtraTheme.of(context).textField
-                    ),
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: ExtraTheme.of(context).textField),
                   ),
                   Divider(),
                 ],

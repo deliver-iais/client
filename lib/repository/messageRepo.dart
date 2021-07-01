@@ -11,6 +11,7 @@ import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_flutter/utils/log.dart';
@@ -60,6 +61,7 @@ DateTime now() {
 class MessageRepo {
   var _messageDao = GetIt.I.get<MessageDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
+  var _roomRepo = GetIt.I.get<RoomRepo>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
@@ -145,7 +147,7 @@ class MessageRepo {
       debug(e);
     }
     updatingStatus.add(TitleStatusConditions.Normal);
-    getBlockedRoom();
+    _roomRepo.fetchBlockedRoom();
   }
 
   Future<void> fetchMessages(RoomMetadata roomMetadata, Room room,
@@ -235,16 +237,6 @@ class MessageRepo {
   }
 
   Future getPinMessage(Uid roomUid) async {}
-
-  getBlockedRoom() async {
-    var result = await _queryServiceClient.getBlockedList(GetBlockedListReq(),
-        options: CallOptions(
-            metadata: {"access_token": await _accountRepo.getAccessToken()}));
-    for (var blockRoomUid in result.uidList) {
-      _roomDao.insertRoomCompanion(RoomsCompanion(
-          roomId: Value(blockRoomUid.asString()), isBlock: Value(true)));
-    }
-  }
 
   sendTextMessage(Uid room, String text,
       {int replyId, String forwardedFromAsString}) async {

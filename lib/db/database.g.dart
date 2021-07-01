@@ -764,17 +764,13 @@ class Room extends DataClass implements Insertable<Room> {
   final String roomId;
   final bool mentioned;
   final int lastMessageId;
-  final bool mute;
   final bool deleted;
-  final bool isBlock;
   final int lastMessageDbId;
   Room(
       {@required this.roomId,
       this.mentioned,
       this.lastMessageId,
-      @required this.mute,
       @required this.deleted,
-      @required this.isBlock,
       this.lastMessageDbId});
   factory Room.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
@@ -786,12 +782,8 @@ class Room extends DataClass implements Insertable<Room> {
           .mapFromDatabaseResponse(data['${effectivePrefix}mentioned']),
       lastMessageId: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}last_message_id']),
-      mute: const BoolType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}mute']),
       deleted: const BoolType()
           .mapFromDatabaseResponse(data['${effectivePrefix}deleted']),
-      isBlock: const BoolType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}is_block']),
       lastMessageDbId: const IntType().mapFromDatabaseResponse(
           data['${effectivePrefix}last_message_db_id']),
     );
@@ -808,14 +800,8 @@ class Room extends DataClass implements Insertable<Room> {
     if (!nullToAbsent || lastMessageId != null) {
       map['last_message_id'] = Variable<int>(lastMessageId);
     }
-    if (!nullToAbsent || mute != null) {
-      map['mute'] = Variable<bool>(mute);
-    }
     if (!nullToAbsent || deleted != null) {
       map['deleted'] = Variable<bool>(deleted);
-    }
-    if (!nullToAbsent || isBlock != null) {
-      map['is_block'] = Variable<bool>(isBlock);
     }
     if (!nullToAbsent || lastMessageDbId != null) {
       map['last_message_db_id'] = Variable<int>(lastMessageDbId);
@@ -833,13 +819,9 @@ class Room extends DataClass implements Insertable<Room> {
       lastMessageId: lastMessageId == null && nullToAbsent
           ? const Value.absent()
           : Value(lastMessageId),
-      mute: mute == null && nullToAbsent ? const Value.absent() : Value(mute),
       deleted: deleted == null && nullToAbsent
           ? const Value.absent()
           : Value(deleted),
-      isBlock: isBlock == null && nullToAbsent
-          ? const Value.absent()
-          : Value(isBlock),
       lastMessageDbId: lastMessageDbId == null && nullToAbsent
           ? const Value.absent()
           : Value(lastMessageDbId),
@@ -853,9 +835,7 @@ class Room extends DataClass implements Insertable<Room> {
       roomId: serializer.fromJson<String>(json['roomId']),
       mentioned: serializer.fromJson<bool>(json['mentioned']),
       lastMessageId: serializer.fromJson<int>(json['lastMessageId']),
-      mute: serializer.fromJson<bool>(json['mute']),
       deleted: serializer.fromJson<bool>(json['deleted']),
-      isBlock: serializer.fromJson<bool>(json['isBlock']),
       lastMessageDbId: serializer.fromJson<int>(json['lastMessageDbId']),
     );
   }
@@ -866,9 +846,7 @@ class Room extends DataClass implements Insertable<Room> {
       'roomId': serializer.toJson<String>(roomId),
       'mentioned': serializer.toJson<bool>(mentioned),
       'lastMessageId': serializer.toJson<int>(lastMessageId),
-      'mute': serializer.toJson<bool>(mute),
       'deleted': serializer.toJson<bool>(deleted),
-      'isBlock': serializer.toJson<bool>(isBlock),
       'lastMessageDbId': serializer.toJson<int>(lastMessageDbId),
     };
   }
@@ -877,17 +855,13 @@ class Room extends DataClass implements Insertable<Room> {
           {String roomId,
           bool mentioned,
           int lastMessageId,
-          bool mute,
           bool deleted,
-          bool isBlock,
           int lastMessageDbId}) =>
       Room(
         roomId: roomId ?? this.roomId,
         mentioned: mentioned ?? this.mentioned,
         lastMessageId: lastMessageId ?? this.lastMessageId,
-        mute: mute ?? this.mute,
         deleted: deleted ?? this.deleted,
-        isBlock: isBlock ?? this.isBlock,
         lastMessageDbId: lastMessageDbId ?? this.lastMessageDbId,
       );
   @override
@@ -896,9 +870,7 @@ class Room extends DataClass implements Insertable<Room> {
           ..write('roomId: $roomId, ')
           ..write('mentioned: $mentioned, ')
           ..write('lastMessageId: $lastMessageId, ')
-          ..write('mute: $mute, ')
           ..write('deleted: $deleted, ')
-          ..write('isBlock: $isBlock, ')
           ..write('lastMessageDbId: $lastMessageDbId')
           ..write(')'))
         .toString();
@@ -909,12 +881,8 @@ class Room extends DataClass implements Insertable<Room> {
       roomId.hashCode,
       $mrjc(
           mentioned.hashCode,
-          $mrjc(
-              lastMessageId.hashCode,
-              $mrjc(
-                  mute.hashCode,
-                  $mrjc(deleted.hashCode,
-                      $mrjc(isBlock.hashCode, lastMessageDbId.hashCode)))))));
+          $mrjc(lastMessageId.hashCode,
+              $mrjc(deleted.hashCode, lastMessageDbId.hashCode)))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -922,9 +890,7 @@ class Room extends DataClass implements Insertable<Room> {
           other.roomId == this.roomId &&
           other.mentioned == this.mentioned &&
           other.lastMessageId == this.lastMessageId &&
-          other.mute == this.mute &&
           other.deleted == this.deleted &&
-          other.isBlock == this.isBlock &&
           other.lastMessageDbId == this.lastMessageDbId);
 }
 
@@ -932,44 +898,34 @@ class RoomsCompanion extends UpdateCompanion<Room> {
   final Value<String> roomId;
   final Value<bool> mentioned;
   final Value<int> lastMessageId;
-  final Value<bool> mute;
   final Value<bool> deleted;
-  final Value<bool> isBlock;
   final Value<int> lastMessageDbId;
   const RoomsCompanion({
     this.roomId = const Value.absent(),
     this.mentioned = const Value.absent(),
     this.lastMessageId = const Value.absent(),
-    this.mute = const Value.absent(),
     this.deleted = const Value.absent(),
-    this.isBlock = const Value.absent(),
     this.lastMessageDbId = const Value.absent(),
   });
   RoomsCompanion.insert({
     @required String roomId,
     this.mentioned = const Value.absent(),
     this.lastMessageId = const Value.absent(),
-    this.mute = const Value.absent(),
     this.deleted = const Value.absent(),
-    this.isBlock = const Value.absent(),
     this.lastMessageDbId = const Value.absent(),
   }) : roomId = Value(roomId);
   static Insertable<Room> custom({
     Expression<String> roomId,
     Expression<bool> mentioned,
     Expression<int> lastMessageId,
-    Expression<bool> mute,
     Expression<bool> deleted,
-    Expression<bool> isBlock,
     Expression<int> lastMessageDbId,
   }) {
     return RawValuesInsertable({
       if (roomId != null) 'room_id': roomId,
       if (mentioned != null) 'mentioned': mentioned,
       if (lastMessageId != null) 'last_message_id': lastMessageId,
-      if (mute != null) 'mute': mute,
       if (deleted != null) 'deleted': deleted,
-      if (isBlock != null) 'is_block': isBlock,
       if (lastMessageDbId != null) 'last_message_db_id': lastMessageDbId,
     });
   }
@@ -978,17 +934,13 @@ class RoomsCompanion extends UpdateCompanion<Room> {
       {Value<String> roomId,
       Value<bool> mentioned,
       Value<int> lastMessageId,
-      Value<bool> mute,
       Value<bool> deleted,
-      Value<bool> isBlock,
       Value<int> lastMessageDbId}) {
     return RoomsCompanion(
       roomId: roomId ?? this.roomId,
       mentioned: mentioned ?? this.mentioned,
       lastMessageId: lastMessageId ?? this.lastMessageId,
-      mute: mute ?? this.mute,
       deleted: deleted ?? this.deleted,
-      isBlock: isBlock ?? this.isBlock,
       lastMessageDbId: lastMessageDbId ?? this.lastMessageDbId,
     );
   }
@@ -1005,14 +957,8 @@ class RoomsCompanion extends UpdateCompanion<Room> {
     if (lastMessageId.present) {
       map['last_message_id'] = Variable<int>(lastMessageId.value);
     }
-    if (mute.present) {
-      map['mute'] = Variable<bool>(mute.value);
-    }
     if (deleted.present) {
       map['deleted'] = Variable<bool>(deleted.value);
-    }
-    if (isBlock.present) {
-      map['is_block'] = Variable<bool>(isBlock.value);
     }
     if (lastMessageDbId.present) {
       map['last_message_db_id'] = Variable<int>(lastMessageDbId.value);
@@ -1026,9 +972,7 @@ class RoomsCompanion extends UpdateCompanion<Room> {
           ..write('roomId: $roomId, ')
           ..write('mentioned: $mentioned, ')
           ..write('lastMessageId: $lastMessageId, ')
-          ..write('mute: $mute, ')
           ..write('deleted: $deleted, ')
-          ..write('isBlock: $isBlock, ')
           ..write('lastMessageDbId: $lastMessageDbId')
           ..write(')'))
         .toString();
@@ -1074,30 +1018,12 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
     );
   }
 
-  final VerificationMeta _muteMeta = const VerificationMeta('mute');
-  GeneratedBoolColumn _mute;
-  @override
-  GeneratedBoolColumn get mute => _mute ??= _constructMute();
-  GeneratedBoolColumn _constructMute() {
-    return GeneratedBoolColumn('mute', $tableName, false,
-        defaultValue: Constant(false));
-  }
-
   final VerificationMeta _deletedMeta = const VerificationMeta('deleted');
   GeneratedBoolColumn _deleted;
   @override
   GeneratedBoolColumn get deleted => _deleted ??= _constructDeleted();
   GeneratedBoolColumn _constructDeleted() {
     return GeneratedBoolColumn('deleted', $tableName, false,
-        defaultValue: Constant(false));
-  }
-
-  final VerificationMeta _isBlockMeta = const VerificationMeta('isBlock');
-  GeneratedBoolColumn _isBlock;
-  @override
-  GeneratedBoolColumn get isBlock => _isBlock ??= _constructIsBlock();
-  GeneratedBoolColumn _constructIsBlock() {
-    return GeneratedBoolColumn('is_block', $tableName, false,
         defaultValue: Constant(false));
   }
 
@@ -1113,15 +1039,8 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
   }
 
   @override
-  List<GeneratedColumn> get $columns => [
-        roomId,
-        mentioned,
-        lastMessageId,
-        mute,
-        deleted,
-        isBlock,
-        lastMessageDbId
-      ];
+  List<GeneratedColumn> get $columns =>
+      [roomId, mentioned, lastMessageId, deleted, lastMessageDbId];
   @override
   $RoomsTable get asDslTable => this;
   @override
@@ -1149,17 +1068,9 @@ class $RoomsTable extends Rooms with TableInfo<$RoomsTable, Room> {
           lastMessageId.isAcceptableOrUnknown(
               data['last_message_id'], _lastMessageIdMeta));
     }
-    if (data.containsKey('mute')) {
-      context.handle(
-          _muteMeta, mute.isAcceptableOrUnknown(data['mute'], _muteMeta));
-    }
     if (data.containsKey('deleted')) {
       context.handle(_deletedMeta,
           deleted.isAcceptableOrUnknown(data['deleted'], _deletedMeta));
-    }
-    if (data.containsKey('is_block')) {
-      context.handle(_isBlockMeta,
-          isBlock.isAcceptableOrUnknown(data['is_block'], _isBlockMeta));
     }
     if (data.containsKey('last_message_db_id')) {
       context.handle(
@@ -1190,16 +1101,12 @@ class Contact extends DataClass implements Insertable<Contact> {
   final String phoneNumber;
   final String firstName;
   final String lastName;
-  final bool isMute;
-  final bool isBlock;
   Contact(
       {this.username,
       this.uid,
       @required this.phoneNumber,
       this.firstName,
-      this.lastName,
-      @required this.isMute,
-      @required this.isBlock});
+      this.lastName});
   factory Contact.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -1214,10 +1121,6 @@ class Contact extends DataClass implements Insertable<Contact> {
           .mapFromDatabaseResponse(data['${effectivePrefix}first_name']),
       lastName: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}last_name']),
-      isMute: const BoolType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}is_mute']),
-      isBlock: const BoolType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}is_block']),
     );
   }
   @override
@@ -1238,12 +1141,6 @@ class Contact extends DataClass implements Insertable<Contact> {
     if (!nullToAbsent || lastName != null) {
       map['last_name'] = Variable<String>(lastName);
     }
-    if (!nullToAbsent || isMute != null) {
-      map['is_mute'] = Variable<bool>(isMute);
-    }
-    if (!nullToAbsent || isBlock != null) {
-      map['is_block'] = Variable<bool>(isBlock);
-    }
     return map;
   }
 
@@ -1262,11 +1159,6 @@ class Contact extends DataClass implements Insertable<Contact> {
       lastName: lastName == null && nullToAbsent
           ? const Value.absent()
           : Value(lastName),
-      isMute:
-          isMute == null && nullToAbsent ? const Value.absent() : Value(isMute),
-      isBlock: isBlock == null && nullToAbsent
-          ? const Value.absent()
-          : Value(isBlock),
     );
   }
 
@@ -1279,8 +1171,6 @@ class Contact extends DataClass implements Insertable<Contact> {
       phoneNumber: serializer.fromJson<String>(json['phoneNumber']),
       firstName: serializer.fromJson<String>(json['firstName']),
       lastName: serializer.fromJson<String>(json['lastName']),
-      isMute: serializer.fromJson<bool>(json['isMute']),
-      isBlock: serializer.fromJson<bool>(json['isBlock']),
     );
   }
   @override
@@ -1292,8 +1182,6 @@ class Contact extends DataClass implements Insertable<Contact> {
       'phoneNumber': serializer.toJson<String>(phoneNumber),
       'firstName': serializer.toJson<String>(firstName),
       'lastName': serializer.toJson<String>(lastName),
-      'isMute': serializer.toJson<bool>(isMute),
-      'isBlock': serializer.toJson<bool>(isBlock),
     };
   }
 
@@ -1302,17 +1190,13 @@ class Contact extends DataClass implements Insertable<Contact> {
           String uid,
           String phoneNumber,
           String firstName,
-          String lastName,
-          bool isMute,
-          bool isBlock}) =>
+          String lastName}) =>
       Contact(
         username: username ?? this.username,
         uid: uid ?? this.uid,
         phoneNumber: phoneNumber ?? this.phoneNumber,
         firstName: firstName ?? this.firstName,
         lastName: lastName ?? this.lastName,
-        isMute: isMute ?? this.isMute,
-        isBlock: isBlock ?? this.isBlock,
       );
   @override
   String toString() {
@@ -1321,9 +1205,7 @@ class Contact extends DataClass implements Insertable<Contact> {
           ..write('uid: $uid, ')
           ..write('phoneNumber: $phoneNumber, ')
           ..write('firstName: $firstName, ')
-          ..write('lastName: $lastName, ')
-          ..write('isMute: $isMute, ')
-          ..write('isBlock: $isBlock')
+          ..write('lastName: $lastName')
           ..write(')'))
         .toString();
   }
@@ -1333,12 +1215,8 @@ class Contact extends DataClass implements Insertable<Contact> {
       username.hashCode,
       $mrjc(
           uid.hashCode,
-          $mrjc(
-              phoneNumber.hashCode,
-              $mrjc(
-                  firstName.hashCode,
-                  $mrjc(lastName.hashCode,
-                      $mrjc(isMute.hashCode, isBlock.hashCode)))))));
+          $mrjc(phoneNumber.hashCode,
+              $mrjc(firstName.hashCode, lastName.hashCode)))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1347,9 +1225,7 @@ class Contact extends DataClass implements Insertable<Contact> {
           other.uid == this.uid &&
           other.phoneNumber == this.phoneNumber &&
           other.firstName == this.firstName &&
-          other.lastName == this.lastName &&
-          other.isMute == this.isMute &&
-          other.isBlock == this.isBlock);
+          other.lastName == this.lastName);
 }
 
 class ContactsCompanion extends UpdateCompanion<Contact> {
@@ -1358,16 +1234,12 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
   final Value<String> phoneNumber;
   final Value<String> firstName;
   final Value<String> lastName;
-  final Value<bool> isMute;
-  final Value<bool> isBlock;
   const ContactsCompanion({
     this.username = const Value.absent(),
     this.uid = const Value.absent(),
     this.phoneNumber = const Value.absent(),
     this.firstName = const Value.absent(),
     this.lastName = const Value.absent(),
-    this.isMute = const Value.absent(),
-    this.isBlock = const Value.absent(),
   });
   ContactsCompanion.insert({
     this.username = const Value.absent(),
@@ -1375,8 +1247,6 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
     @required String phoneNumber,
     this.firstName = const Value.absent(),
     this.lastName = const Value.absent(),
-    this.isMute = const Value.absent(),
-    this.isBlock = const Value.absent(),
   }) : phoneNumber = Value(phoneNumber);
   static Insertable<Contact> custom({
     Expression<String> username,
@@ -1384,8 +1254,6 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
     Expression<String> phoneNumber,
     Expression<String> firstName,
     Expression<String> lastName,
-    Expression<bool> isMute,
-    Expression<bool> isBlock,
   }) {
     return RawValuesInsertable({
       if (username != null) 'username': username,
@@ -1393,8 +1261,6 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
       if (phoneNumber != null) 'phone_number': phoneNumber,
       if (firstName != null) 'first_name': firstName,
       if (lastName != null) 'last_name': lastName,
-      if (isMute != null) 'is_mute': isMute,
-      if (isBlock != null) 'is_block': isBlock,
     });
   }
 
@@ -1403,17 +1269,13 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
       Value<String> uid,
       Value<String> phoneNumber,
       Value<String> firstName,
-      Value<String> lastName,
-      Value<bool> isMute,
-      Value<bool> isBlock}) {
+      Value<String> lastName}) {
     return ContactsCompanion(
       username: username ?? this.username,
       uid: uid ?? this.uid,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
-      isMute: isMute ?? this.isMute,
-      isBlock: isBlock ?? this.isBlock,
     );
   }
 
@@ -1435,12 +1297,6 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
     if (lastName.present) {
       map['last_name'] = Variable<String>(lastName.value);
     }
-    if (isMute.present) {
-      map['is_mute'] = Variable<bool>(isMute.value);
-    }
-    if (isBlock.present) {
-      map['is_block'] = Variable<bool>(isBlock.value);
-    }
     return map;
   }
 
@@ -1451,9 +1307,7 @@ class ContactsCompanion extends UpdateCompanion<Contact> {
           ..write('uid: $uid, ')
           ..write('phoneNumber: $phoneNumber, ')
           ..write('firstName: $firstName, ')
-          ..write('lastName: $lastName, ')
-          ..write('isMute: $isMute, ')
-          ..write('isBlock: $isBlock')
+          ..write('lastName: $lastName')
           ..write(')'))
         .toString();
   }
@@ -1525,27 +1379,9 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
     );
   }
 
-  final VerificationMeta _isMuteMeta = const VerificationMeta('isMute');
-  GeneratedBoolColumn _isMute;
-  @override
-  GeneratedBoolColumn get isMute => _isMute ??= _constructIsMute();
-  GeneratedBoolColumn _constructIsMute() {
-    return GeneratedBoolColumn('is_mute', $tableName, false,
-        defaultValue: Constant(false));
-  }
-
-  final VerificationMeta _isBlockMeta = const VerificationMeta('isBlock');
-  GeneratedBoolColumn _isBlock;
-  @override
-  GeneratedBoolColumn get isBlock => _isBlock ??= _constructIsBlock();
-  GeneratedBoolColumn _constructIsBlock() {
-    return GeneratedBoolColumn('is_block', $tableName, false,
-        defaultValue: Constant(false));
-  }
-
   @override
   List<GeneratedColumn> get $columns =>
-      [username, uid, phoneNumber, firstName, lastName, isMute, isBlock];
+      [username, uid, phoneNumber, firstName, lastName];
   @override
   $ContactsTable get asDslTable => this;
   @override
@@ -1580,14 +1416,6 @@ class $ContactsTable extends Contacts with TableInfo<$ContactsTable, Contact> {
     if (data.containsKey('last_name')) {
       context.handle(_lastNameMeta,
           lastName.isAcceptableOrUnknown(data['last_name'], _lastNameMeta));
-    }
-    if (data.containsKey('is_mute')) {
-      context.handle(_isMuteMeta,
-          isMute.isAcceptableOrUnknown(data['is_mute'], _isMuteMeta));
-    }
-    if (data.containsKey('is_block')) {
-      context.handle(_isBlockMeta,
-          isBlock.isAcceptableOrUnknown(data['is_block'], _isBlockMeta));
     }
     return context;
   }

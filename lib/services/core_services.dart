@@ -43,6 +43,7 @@ const MIN_BACKOFF_TIME = 2;
 const MAX_BACKOFF_TIME = 8;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
+// TODO Change to StreamRepo, it is not a service, it is repo now!!!
 class CoreServices {
   StreamController<ClientPacket> _clientPacket;
 
@@ -263,8 +264,7 @@ class CoreServices {
 
   _saveIncomingMessage(Message message) async {
     Uid roomUid = getRoomId(_accountRepo, message);
-    Database.Room room = await _roomDao.getByRoomIdFuture(roomUid.asString());
-    if (room != null && room.isBlock) {
+    if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
       return;
     }
     saveMessage(_accountRepo, _messageDao, _roomDao, message, roomUid);
@@ -336,7 +336,7 @@ class CoreServices {
     if (!_accountRepo.isCurrentUser(message.from.asString()) &&
         ((await _accountRepo.notification) == null ||
             (await _accountRepo.notification).contains("true") &&
-                (room != null && !room.mute))) {
+                (await _roomRepo.isRoomMuted(roomUid.asString())))) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)

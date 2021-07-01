@@ -168,10 +168,10 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         _showDeleteMucDialog();
         break;
       case "unBlockRoom":
-        _roomRepo.unBlockRoom(widget.roomUid);
+        _roomRepo.unblock(widget.roomUid.asString());
         break;
       case "blockRoom":
-        _roomRepo.blockRoom(widget.roomUid);
+        _roomRepo.block(widget.roomUid.asString());
         break;
       case "report":
         _roomRepo.reportRoom(widget.roomUid);
@@ -332,9 +332,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                 Text(
                                   _mucType == MucType.GROUP
                                       ? _appLocalization.getTraslateValue(
-                                      "create_invite_link")
+                                          "create_invite_link")
                                       : _appLocalization.getTraslateValue(
-                                      "create_invite_link"),
+                                          "create_invite_link"),
                                   style: style,
                                 )
                               ],
@@ -357,9 +357,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                 Text(
                                     widget.roomUid.category == Categories.GROUP
                                         ? _appLocalization
-                                        .getTraslateValue("manage_group")
+                                            .getTraslateValue("manage_group")
                                         : _appLocalization
-                                        .getTraslateValue("manage_channel"),
+                                            .getTraslateValue("manage_channel"),
                                     style: style),
                               ],
                             ),
@@ -388,9 +388,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                               ],
                             ),
                             value: "leftMuc"),
-
-
-
                       new PopupMenuItem<String>(
                           child: Row(
                             children: [
@@ -434,8 +431,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     ],
                     onSelected: onSelected,
                   )
-                : StreamBuilder<Room>(
-                    stream: _roomDao.getByRoomId(widget.roomUid.asString()),
+                : StreamBuilder<bool>(
+                    stream:
+                        _roomRepo.watchIsRoomBlocked(widget.roomUid.asString()),
                     builder: (c, room) {
                       if (room.hasData && room.data != null) {
                         return PopupMenuButton(
@@ -450,7 +448,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                       width: 15,
                                     ),
                                     Text(
-                                      room.data.isBlock
+                                      room.data
                                           ? _appLocalization
                                               .getTraslateValue("unBlockRoom")
                                           : _appLocalization
@@ -459,9 +457,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                     ),
                                   ],
                                 ),
-                                value: room.data.isBlock
-                                    ? "unBlockRoom"
-                                    : "blockRoom"),
+                                value: room.data ? "unBlockRoom" : "blockRoom"),
                             new PopupMenuItem<String>(
                                 child: Row(
                                   children: [
@@ -622,8 +618,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                   ),
                   if (widget.roomUid.category == Categories.CHANNEL)
                     StreamBuilder<Muc>(
-                        stream: _mucDao
-                            .watch(widget.roomUid.asString()),
+                        stream: _mucDao.watch(widget.roomUid.asString()),
                         builder: (c, muc) {
                           if (muc.hasData && muc.data != null) {
                             _currentId = muc.data.id;
@@ -672,8 +667,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     height: 10,
                   ),
                   StreamBuilder<Muc>(
-                    stream:
-                        _mucDao.watch(widget.roomUid.asString()),
+                    stream: _mucDao.watch(widget.roomUid.asString()),
                     builder: (c, muc) {
                       if (muc.hasData && muc.data != null) {
                         mucInfo = muc.data.info;

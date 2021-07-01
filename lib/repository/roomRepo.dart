@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:dcache/dcache.dart';
+import 'package:deliver_flutter/box/dao/block_dao.dart';
+import 'package:deliver_flutter/box/dao/mute_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
@@ -31,13 +33,16 @@ class RoomRepo {
   var _mucDao = GetIt.I.get<MucDao>();
   var _contactDao = GetIt.I.get<ContactDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
+  var _muteDao = GetIt.I.get<MuteDao>();
+  var _blockDao = GetIt.I.get<BlockDao>();
+
+  var _accountRepo = GetIt.I.get<AccountRepo>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
-  var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   var _botRepo = GetIt.I.get<BotRepo>();
 
-  var _accountRepo = GetIt.I.get<AccountRepo>();
+  var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
 
   Map<String, BehaviorSubject<Activity>> activityObject = Map();
 
@@ -87,6 +92,13 @@ class RoomRepo {
 
         return name;
       }
+    }
+
+    if (uidIdName != null && uidIdName.id != null && uidIdName.id.isNotEmpty) {
+      // Set in cache
+      _roomNameCache.set(uid.asString(), uidIdName.id);
+
+      return uidIdName.id;
     }
 
     // Is Group or Channel
@@ -162,13 +174,51 @@ class RoomRepo {
     _roomNameCache.set(uid.asString(), name);
   }
 
-  changeRoomMuteTye({String roomId, bool mute}) async {
-    _roomDao
-        .updateRoom(RoomsCompanion(roomId: Value(roomId), mute: Value(mute)));
+  Future<bool> isRoomMuted(String uid) {
+    return _muteDao.isMuted(uid);
   }
 
-  Stream<Room> roomIsMute(String roomId) {
-    return _roomDao.getByRoomId(roomId);
+  Stream<bool> watchIsRoomMuted(String uid) {
+    return _muteDao.watchIsMuted(uid);
+  }
+
+  void mute(String uid) {
+    _muteDao.mute(uid);
+  }
+
+  void unmute(String uid) {
+    _muteDao.unmute(uid);
+  }
+
+  Future<bool> isRoomBlocked(String uid) {
+    return _blockDao.isBlocked(uid);
+  }
+
+  Stream<bool> watchIsRoomBlocked(String uid) {
+    return _blockDao.watchIsBlocked(uid);
+  }
+
+  void block(String uid) async {
+    await _queryServiceClient.block(BlockReq()..uid = uid.getUid(),
+        options: CallOptions(
+            metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    _blockDao.block(uid);
+  }
+
+  void unblock(String uid) async {
+    await _queryServiceClient.unblock(UnblockReq()..uid = uid.getUid(),
+        options: CallOptions(
+            metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    _blockDao.unblock(uid);
+  }
+
+  fetchBlockedRoom() async {
+    var result = await _queryServiceClient.getBlockedList(GetBlockedListReq(),
+        options: CallOptions(
+            metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    for (var uid in result.uidList) {
+      _blockDao.block(uid.asString());
+    }
   }
 
   Future<List<Uid>> getAllRooms() async {
@@ -224,22 +274,6 @@ class RoomRepo {
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
 
     return result.uid;
-  }
-
-  void unBlockRoom(Uid roomUid) async {
-    await _queryServiceClient.unblock(UnblockReq()..uid = roomUid,
-        options: CallOptions(
-            metadata: {"access_token": await _accountRepo.getAccessToken()}));
-    _roomDao.insertRoomCompanion(RoomsCompanion(
-        roomId: Value(roomUid.asString()), isBlock: Value(false)));
-  }
-
-  void blockRoom(Uid roomUid) async {
-    await _queryServiceClient.block(BlockReq()..uid = roomUid,
-        options: CallOptions(
-            metadata: {"access_token": await _accountRepo.getAccessToken()}));
-    _roomDao.insertRoomCompanion(RoomsCompanion(
-        roomId: Value(roomUid.asString()), isBlock: Value(true)));
   }
 
   void reportRoom(Uid roomUid) async {

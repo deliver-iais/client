@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
+import 'package:deliver_flutter/box/dao/mute_dao.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/db/database.dart' as db;
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/shared/constants.dart';
@@ -94,6 +96,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
   GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
   GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
   GetIt.I.registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
+  GetIt.I.registerSingleton<MuteDao>(MuteDaoImpl());
 
   var database = db.Database();
   var contactDao = database.contactDao;
@@ -104,6 +107,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
   var uidIdNameDao = GetIt.I.get<UidIdNameDao>();
 
   var accountRepo = AccountRepo();
+  var roomRepo = RoomRepo();
 
   if (message.data.containsKey('body')) {
     M.Message msg = _decodeMessage(message.data["body"]);
@@ -111,8 +115,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
     Uid roomUid = getRoomId(accountRepo, msg);
     var currentUserUid = await accountRepo.getCurrentUserUid();
     db.Room room = await roomDao.getByRoomIdFuture(roomUid.asString());
-    if (room != null &&
-        room.isBlock &&
+    if (await roomRepo.isRoomMuted(roomUid.asString()) &&
         msg.from.isSameEntity(currentUserUid.asString())) {
       return;
     }
@@ -142,7 +145,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
       updateLastActivityTime(
           lastActivityDao, getRoomId(accountRepo, msg), msg.time.toInt());
     if ((await accountRepo.notification).contains("true") &&
-        (room != null && !room.mute))
+        (await roomRepo.isRoomMuted(roomUid.asString())))
       _notificationServices.showNotification(
           msg, getRoomId(accountRepo, msg).asString(), roomName);
   }

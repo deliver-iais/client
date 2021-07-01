@@ -154,8 +154,6 @@ class ContactRepo {
         firstName: Value(_contactsDisplayName[contact.phoneNumber] != null
             ? _contactsDisplayName[contact.phoneNumber]
             : "${contact.firstName} ${contact.lastName.isNotEmpty ? contact.lastName : " "}"),
-        isMute: Value(true),
-        isBlock: Value(false),
       ));
 
       if (contact.uid != null) {

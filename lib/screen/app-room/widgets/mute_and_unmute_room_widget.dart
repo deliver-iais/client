@@ -26,25 +26,24 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
         builder: (c, s) {
           if (s.hasData && s.data) {
             return this.inputMessage;
-          } else  {
+          } else {
             return Container(
               color: Theme.of(context).primaryColor,
               height: 45,
               child: Center(
                   child: GestureDetector(
-                child: StreamBuilder<Room>(
-                  stream: _roomRepo.roomIsMute(roomId),
-                  builder: (BuildContext context, AsyncSnapshot<Room> room) {
-                    if (room.data != null) {
-                      if (room.data.mute) {
+                child: StreamBuilder<bool>(
+                  stream: _roomRepo.watchIsRoomMuted(roomId),
+                  builder: (BuildContext context, AsyncSnapshot<bool> isMuted) {
+                    if (isMuted.data != null) {
+                      if (isMuted.data) {
                         return GestureDetector(
                           child: Text(
                             _appLocalization.getTraslateValue("un_mute"),
                             style: TextStyle(color: Colors.white),
                           ),
                           onTap: () {
-                            _roomRepo.changeRoomMuteTye(
-                                roomId: roomId, mute: false);
+                            _roomRepo.unmute(roomId);
                           },
                         );
                       } else {
@@ -54,8 +53,7 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
                             style: TextStyle(color: Colors.white),
                           ),
                           onTap: () {
-                            _roomRepo.changeRoomMuteTye(
-                                roomId: roomId, mute: true);
+                            _roomRepo.mute(roomId);
                           },
                         );
                       }
