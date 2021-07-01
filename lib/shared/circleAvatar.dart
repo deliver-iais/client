@@ -129,7 +129,7 @@ class CircleAvatarWidget extends StatelessWidget {
       return avatarAlt(this.forceText, textColor);
     }
     return FutureBuilder<String>(
-      future: _roomRepo.getRoomDisplayName(contactUid),
+      future: _roomRepo.getName(contactUid),
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
         if (snapshot.data != null) {
           String name = snapshot.data.replaceAll(' ', '');

@@ -348,6 +348,6 @@ class AccountRepo {
   Future<String> getName() async {
     final account = await getAccount();
 
-    return "${account.firstName} ${account.lastName}";
+    return "${account.firstName.trim()}${account.lastName != null && account.lastName.isNotEmpty ? " " + account.lastName.trim() : ""}";
   }
 }

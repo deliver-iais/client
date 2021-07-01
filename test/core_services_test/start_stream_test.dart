@@ -67,7 +67,7 @@ void main() {
       when(mockRoomDao.insertRoomCompanion(any))
           .thenAnswer((realInvocation) async => 5);
 
-      when(mockRoomRepo.getRoomDisplayName(userId))
+      when(mockRoomRepo.getName(userId))
           .thenAnswer((_) async => "name");
 
       when(mockNotificationServices.showNotification(any, any, any))
@@ -77,7 +77,7 @@ void main() {
       res.add(serverPacket);
       await Future.delayed(Duration(seconds: 2));
       verify(mockMessageDao.insertMessage(any)).called(1);
-      verify(mockRoomRepo.getRoomDisplayName(userId)).called(1);
+      verify(mockRoomRepo.getName(userId)).called(1);
       verify(mockNotificationServices.showNotification(any, any, any))
           .called(1);
     });
@@ -112,7 +112,7 @@ void main() {
       when(mockRoomDao.insertRoomCompanion(any))
           .thenAnswer((realInvocation) async => 5);
 
-      when(mockRoomRepo.getRoomDisplayName(userId))
+      when(mockRoomRepo.getName(userId))
           .thenAnswer((_) async => "name");
 
       when(mockNotificationServices.showNotification(any, any, any))
@@ -122,7 +122,7 @@ void main() {
       res.add(serverPacket);
       await Future.delayed(Duration(seconds: 2));
       verify(mockMessageDao.insertMessage(any)).called(1);
-      verify(mockRoomRepo.getRoomDisplayName(userId)).called(1);
+      verify(mockRoomRepo.getName(userId)).called(1);
       verify(mockNotificationServices.showNotification(any, any, any))
           .called(1);
     });
@@ -156,7 +156,7 @@ void main() {
       when(mockRoomDao.insertRoomCompanion(any))
           .thenAnswer((realInvocation) async => 5);
 
-      when(mockRoomRepo.getRoomDisplayName(groupId))
+      when(mockRoomRepo.getName(groupId))
           .thenAnswer((_) async => "name");
 
       when(mockNotificationServices.showNotification(any, any, any))
@@ -166,7 +166,7 @@ void main() {
       res.add(serverPacket);
       await Future.delayed(Duration(seconds: 2));
       verify(mockMessageDao.insertMessage(any)).called(1);
-      verify(mockRoomRepo.getRoomDisplayName(groupId)).called(1);
+      verify(mockRoomRepo.getName(groupId)).called(1);
       verify(mockNotificationServices.showNotification(any, any, any))
           .called(1);
     });
@@ -200,7 +200,7 @@ void main() {
       when(mockRoomDao.insertRoomCompanion(any))
           .thenAnswer((realInvocation) async => 5);
 
-      when(mockRoomRepo.getRoomDisplayName(groupId))
+      when(mockRoomRepo.getName(groupId))
           .thenAnswer((_) async => "name");
 
       when(mockNotificationServices.showNotification(any, any, any))
@@ -210,7 +210,7 @@ void main() {
       res.add(serverPacket);
       await Future.delayed(Duration(seconds: 2));
       verify(mockMessageDao.insertMessage(any)).called(1);
-      verify(mockRoomRepo.getRoomDisplayName(groupId)).called(1);
+      verify(mockRoomRepo.getName(groupId)).called(1);
       verify(mockNotificationServices.showNotification(any, any, any))
           .called(1);
     });
@@ -244,7 +244,7 @@ void main() {
       when(mockRoomDao.insertRoomCompanion(any))
           .thenAnswer((realInvocation) async => 5);
 
-      when(mockRoomRepo.getRoomDisplayName(groupId))
+      when(mockRoomRepo.getName(groupId))
           .thenAnswer((_) async => "name");
 
       when(mockNotificationServices.showNotification(any, any, any))
@@ -254,7 +254,7 @@ void main() {
       res.add(serverPacket);
       await Future.delayed(Duration(seconds: 2));
       verify(mockMessageDao.insertMessage(any)).called(1);
-      verify(mockRoomRepo.getRoomDisplayName(groupId)).called(1);
+      verify(mockRoomRepo.getName(groupId)).called(1);
       verify(mockNotificationServices.showNotification(any, any, any))
           .called(1);
     });

@@ -33,7 +33,7 @@ class BotAppbar extends StatelessWidget {
                 width: 15,
               ),
               FutureBuilder<String>(
-                  future: _roomRepo.getRoomDisplayName(botUid),
+                  future: _roomRepo.getName(botUid),
                   builder: (c, name) {
                     if (name.hasData && name.data != null)
                       return buildColumn(name.data, context);

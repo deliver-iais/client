@@ -37,7 +37,7 @@ class ChatItemToForward extends StatelessWidget {
             ),
             GestureDetector(
               child: FutureBuilder(
-                  future: _roomRepo.getRoomDisplayName(uid),
+                  future: _roomRepo.getName(uid),
                   builder: (BuildContext c, AsyncSnapshot<String> snaps) {
                     if (snaps.hasData && snaps.data != null) {
                       return Text(

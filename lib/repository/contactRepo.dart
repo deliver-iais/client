@@ -17,7 +17,6 @@ import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:fixnum/fixnum.dart';
@@ -27,26 +26,24 @@ import 'package:moor/moor.dart';
 import 'accountRepo.dart';
 
 class ContactRepo {
-  var _accountRepo = GetIt.I.get<AccountRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
 
-  var _contactDao = GetIt.I.get<ContactDao>();
+  final _contactDao = GetIt.I.get<ContactDao>();
 
-  var _roomDao = GetIt.I.get<RoomDao>();
+  final _roomDao = GetIt.I.get<RoomDao>();
 
-  var _checkPermission = GetIt.I.get<CheckPermissionsService>();
+  final _checkPermission = GetIt.I.get<CheckPermissionsService>();
 
-  var contactServices = ContactServiceClient(ProfileServicesClientChannel);
+  final _contactServices = ContactServiceClient(ProfileServicesClientChannel);
 
-  var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
+  final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
 
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
 
-  Map<PhoneNumber, String> _contactsDisplayName = Map();
+  final Map<PhoneNumber, String> _contactsDisplayName = Map();
 
   syncContacts() async {
-    //  _getPhoneNumber("+989124131853", "");
-
     if (await _checkPermission.checkContactPermission() ||
         isDesktop() ||
         isIOS()) {
@@ -136,7 +133,7 @@ class ContactRepo {
       contacts.forEach((element) {
         sendContacts.contactList.add(element);
       });
-      await contactServices.saveContacts(sendContacts,
+      await _contactServices.saveContacts(sendContacts,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
     } catch (e) {
@@ -145,7 +142,7 @@ class ContactRepo {
   }
 
   Future getContacts() async {
-    var result = await contactServices.getContactListUsers(
+    var result = await _contactServices.getContactListUsers(
         GetContactListUsersReq(),
         options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
@@ -169,7 +166,7 @@ class ContactRepo {
     }
   }
 
-  Future<String> searchUserByUid(Uid uid) async {
+  Future<String> getIdByUid(Uid uid) async {
     try {
       var result = await _queryServiceClient.getIdByUid(
           GetIdByUidReq()..uid = uid,
@@ -182,40 +179,32 @@ class ContactRepo {
     }
   }
 
-  Future<Uid> searchUserByUsername(String username) async {
-    var result = await _queryServiceClient.getUidById(
-        GetUidByIdReq()..id = username,
-        options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()}));
-
-    return result.uid;
-  }
-
   Future<List<Uid>> searchUser(String query) async {
     var result = await _queryServiceClient.searchUid(
         SearchUidReq()..text = query,
         options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
-    List<Uid> searchResult = List();
+    List<Uid> searchResult = [];
     for (var room in result.itemList) {
       searchResult.add(room.uid);
     }
     return searchResult;
   }
 
+  // TODO needs to be refactored!
   Future<Database.Contact> getContact(Uid userUid) async {
     Database.Contact contact =
         await _contactDao.getContactByUid(userUid.asString());
     return contact;
   }
 
-  Future<bool> ContactIsExist(String number) async {
+  Future<bool> contactIsExist(String number) async {
     var result = await _contactDao.getContact(number);
     return result != null;
   }
 
   void getUsername(UserAsContact contact) async {
-    var username = await searchUserByUid(contact.uid);
+    var username = await getIdByUid(contact.uid);
     if (username != null) {
       _contactDao.insertContact(Database.ContactsCompanion(
           phoneNumber: Value(contact.phoneNumber.nationalNumber.toString()),

@@ -465,7 +465,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       Uid mediaSender, DateTime createdOn, var name, var fileId) {
     if (name == null) {
       return FutureBuilder<String>(
-        future: _roomRepo.getRoomDisplayName(mediaSender),
+        future: _roomRepo.getName(mediaSender),
         builder: (BuildContext c, AsyncSnapshot s) {
           if (!s.hasData ||
               s.data == null ||

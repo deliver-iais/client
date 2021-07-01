@@ -45,7 +45,7 @@ class UserAppbar extends StatelessWidget {
                       style: Theme.of(context).textTheme.headline3,
                     )
                   : FutureBuilder<String>(
-                      future: _roomRepo.getRoomDisplayName(userUid),
+                      future: _roomRepo.getName(userUid),
                       builder: (BuildContext context,
                           AsyncSnapshot<String> snapshot) {
                         if (snapshot.data != null) {

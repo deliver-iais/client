@@ -63,7 +63,7 @@ class LastMessage extends StatelessWidget {
               ? _fromDisplayName(
                   _appLocalization.getTraslateValue("you"), context)
               : FutureBuilder<String>(
-                  future: _roomRepo.getRoomDisplayName(message.from.uid),
+                  future: _roomRepo.getName(message.from.uid),
                   builder:
                       (BuildContext context, AsyncSnapshot<String> snapshot) {
                     if (snapshot.data != null) {

@@ -127,7 +127,7 @@ class _NewContactState extends State<NewContact> {
   }
 
   void showResult() async {
-    var result = await _contactRepo.ContactIsExist(_phoneNumber.number);
+    var result = await _contactRepo.contactIsExist(_phoneNumber.number);
     if (result) {
       Fluttertoast.showToast(
           msg: _appLocalization.getTraslateValue("contactAdd"));

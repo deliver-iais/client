@@ -57,8 +57,7 @@ class SenderAndContent extends StatelessWidget {
               .getUid()
               .isSameEntity(_accountRepo.currentUserUid.asString()))
             FutureBuilder<String>(
-                future: _roomRepo.getRoomDisplayName(messages[0].from.uid,
-                    roomUid: messages[0].to),
+                future: _roomRepo.getName(messages[0].from.uid),
                 builder: (ctx, AsyncSnapshot<String> s) {
                   if (s.hasData && s.data != null) {
                     return showName(s.data, context);

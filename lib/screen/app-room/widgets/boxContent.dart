@@ -96,7 +96,7 @@ class _BoxContentState extends State<BoxContent> {
 
   Widget senderNameBox() {
     return FutureBuilder<String>(
-      future: _roomRepo.getRoomDisplayName(widget.message.from.uid),
+      future: _roomRepo.getName(widget.message.from.uid),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
           return showName(snapshot.data);
@@ -126,7 +126,7 @@ class _BoxContentState extends State<BoxContent> {
     return Container(
       padding: EdgeInsets.only(top: 8, left: 8, right: 8),
       child: FutureBuilder<String>(
-        future: _roomRepo.getRoomDisplayName(widget.message.forwardedFrom.uid),
+        future: _roomRepo.getName(widget.message.forwardedFrom.uid),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
             return GestureDetector(

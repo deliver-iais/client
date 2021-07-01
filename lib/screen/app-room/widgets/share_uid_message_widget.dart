@@ -131,7 +131,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                     if ((_shareUid.uid.category == Categories.GROUP ||
                         _shareUid.uid.category == Categories.CHANNEL)) {
                       var muc =
-                          await _mucDao.getMucByUid(_shareUid.uid.asString());
+                          await _mucDao.get(_shareUid.uid.asString());
                       if (muc != null) {
                         _routingServices.openRoom(_shareUid.uid.asString());
                       } else {
@@ -165,7 +165,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                   Categories.GROUP ||
                                               _shareUid.uid.category ==
                                                   Categories.CHANNEL)) {
-                                            var muc = await _mucDao.getMucByUid(
+                                            var muc = await _mucDao.get(
                                                 _shareUid.uid.asString());
                                             if (muc == null) {
                                               if (_shareUid.uid.category ==

@@ -194,7 +194,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                         context)
                                                     : FutureBuilder<String>(
                                                         future: _roomRepo
-                                                            .getUsername(
+                                                            .getId(
                                                                 widget.userUid),
                                                         builder: (BuildContext
                                                                 context,

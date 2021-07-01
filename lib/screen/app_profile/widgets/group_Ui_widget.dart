@@ -90,7 +90,7 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
         height: 10,
       ),
       StreamBuilder<Muc>(
-          stream: _mucDao.getMucByUidAsStream(widget.mucUid.asString()),
+          stream: _mucDao.watch(widget.mucUid.asString()),
           builder: (c, muc) {
             if (muc.hasData && muc.data != null && muc.data.info.isNotEmpty) {
               return Padding(

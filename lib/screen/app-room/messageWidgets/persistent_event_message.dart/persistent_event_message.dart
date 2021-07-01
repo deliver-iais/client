@@ -122,8 +122,7 @@ class PersistentEventMessage extends StatelessWidget {
       case PersistentEvent_Type.messageManipulationPersistentEvent:
         break;
       case PersistentEvent_Type.adminSpecificPersistentEvent:
-        var user = await _roomRepo.getRoomDisplayName(message.from.uid,
-            roomUid: message.to);
+        var user = await _roomRepo.getName(message.from.uid);
         return "${user} ${_appLocalization.getTraslateValue("new_contact_add")}";
         break;
       case PersistentEvent_Type.notSet:
@@ -138,7 +137,7 @@ class PersistentEventMessage extends StatelessWidget {
     if (uid.isSameEntity(_accountRepo.currentUserUid.asString()))
       return _appLocalization.getTraslateValue("you");
     else {
-      var name = _roomRepo.getRoomDisplayName(uid, roomUid: to.asString());
+      var name = _roomRepo.getName(uid);
       return name;
     }
   }

@@ -280,7 +280,7 @@ class CoreServices {
               break;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
               {
-                var muc = await _mucDao.getMucByUid(roomUid.asString());
+                var muc = await _mucDao.get(roomUid.asString());
                 var pinMessages = muc.pinMessagesId;
                 pinMessages =
                     "$pinMessages ,  ${message.persistEvent.mucSpecificPersistentEvent.messageId.toString()} ,";
@@ -345,7 +345,7 @@ class CoreServices {
   }
 
   Future showNotification(Uid roomUid, Message message) async {
-    String roomName = await _roomRepo.getRoomDisplayName(roomUid);
+    String roomName = await _roomRepo.getName(roomUid);
     if (_routingServices.isInRoom(roomUid.asString()) && !isDesktop()) {
       _notificationServices.playSoundNotification();
     } else {

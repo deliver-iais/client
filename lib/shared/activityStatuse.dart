@@ -31,7 +31,7 @@ class ActivityStatuse extends StatelessWidget {
     if (activity.typeOfActivity == ActivityType.TYPING) {
       if (roomUid.category == Categories.GROUP) {
         return FutureBuilder<String>(
-            future: _roomRepo.getRoomDisplayName(activity.from),
+            future: _roomRepo.getName(activity.from),
             builder: (c, s) {
               if (s.hasData && s.data != null) {
                 return Text(
@@ -53,7 +53,7 @@ class ActivityStatuse extends StatelessWidget {
     } else if (activity.typeOfActivity == ActivityType.RECORDING_VOICE) {
       if (roomUid.category == Categories.GROUP) {
         return FutureBuilder<String>(
-            future: _roomRepo.getRoomDisplayName(activity.from),
+            future: _roomRepo.getName(activity.from),
             builder: (c, s) {
               if (s.hasData && s.data != null) {
                 return Text(
@@ -75,7 +75,7 @@ class ActivityStatuse extends StatelessWidget {
     } else if (activity.typeOfActivity == ActivityType.SENDING_FILE) {
       if (roomUid.category == Categories.GROUP) {
         return FutureBuilder<String>(
-            future: _roomRepo.getRoomDisplayName(activity.from),
+            future: _roomRepo.getName(activity.from),
             builder: (c, s) {
               if (s.hasData && s.data != null) {
                 return Text(

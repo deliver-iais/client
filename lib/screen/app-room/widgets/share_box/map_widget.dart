@@ -42,7 +42,7 @@ class MapWidget extends StatelessWidget {
         appBar: AppBar(
           leading: _routingServices.backButtonLeading(),
           title: FutureBuilder<String>(
-            future: _roomRepo.getRoomDisplayName(roomUid),
+            future: _roomRepo.getName(roomUid),
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
               if (snapshot.data != null) {
                 return Text(

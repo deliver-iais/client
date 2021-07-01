@@ -353,7 +353,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         widget.roomId.getUid().category == Categories.GROUP)
       fetchMucInfo(widget.roomId.getUid());
     else if (widget.roomId.getUid().category == Categories.BOT) {
-      _botRepo.featchBotInfo(widget.roomId.getUid());
+      _botRepo.fetchBotInfo(widget.roomId.getUid());
     }
     if (widget.roomId.getUid().category == Categories.CHANNEL) {
       getPinMessages();
@@ -368,7 +368,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Future<void> getPinMessages() async {
-    _mucDao.getMucByUidAsStream(widget.roomId).listen((muc) {
+    _mucDao.watch(widget.roomId).listen((muc) {
       if (muc != null) {
         var res = muc.pinMessagesId;
         List<String> pm = res.split(",");
@@ -402,7 +402,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   fetchMucInfo(Uid uid) async {
     var name = await _mucRepo.fetchMucInfo(widget.roomId.getUid());
     if (name != null) {
-      _roomRepo.updateRoomName(uid, name);
+      _roomRepo.updateRoomName(uid, name.name);
     }
   }
 
@@ -443,7 +443,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         builder: (context, currentRoomStream) {
                           if (currentRoomStream.hasData) {
                             _currentRoom.add(currentRoomStream.data);
-                            int i = _currentRoom.value.lastMessageId ?? 0 + pendingMessages.length;
+                            int i = _currentRoom.value.lastMessageId ??
+                                0 + pendingMessages.length;
                             if (_itemCount != 0 && i != _itemCount)
                               _itemCountSubject.add(_itemCount);
                             _itemCount = i;
@@ -1245,7 +1246,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       String roomId = "4:${username.substring(1)}";
       _routingService.openRoom(roomId);
     } else {
-      String roomId = await _roomRepo.searchByUsername(username);
+      String roomId = await _roomRepo.searchById(username);
       if (roomId != null) {
         _routingService.openRoom(roomId);
       }

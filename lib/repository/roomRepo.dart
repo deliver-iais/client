@@ -9,6 +9,7 @@ import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
@@ -25,7 +26,7 @@ import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
 
 class RoomRepo {
-  Cache _roomNameCache =
+  Cache<String, String> _roomNameCache =
       LruCache<String, String>(storage: SimpleStorage(size: 40));
   var _mucDao = GetIt.I.get<MucDao>();
   var _contactDao = GetIt.I.get<ContactDao>();
@@ -34,7 +35,7 @@ class RoomRepo {
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
-  var _botInfoDao = GetIt.I.get<BotInfoDao>();
+  var _botRepo = GetIt.I.get<BotRepo>();
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
@@ -44,66 +45,78 @@ class RoomRepo {
     _roomDao.insertRoomCompanion(RoomsCompanion(roomId: Value(uid)));
   }
 
-  Future<String> getRoomDisplayName(Uid uid, {String roomUid}) async {
-    switch (uid.category) {
-      case Categories.SYSTEM:
-        return "Deliver";
-        break;
-      case Categories.USER:
-        String name = await _roomNameCache.get(uid.asString());
-        if (_accountRepo.isCurrentUser(uid.asString())) {
-          return await _accountRepo.getName();
-        } else if (name != null && !name.contains("null")) {
-          return name;
-        } else {
-          var contact = await _contactDao.getContactByUid(uid.asString());
-          if (contact != null) {
-            String contactName = contact.firstName;
-            _roomNameCache.set(uid.asString(), contactName);
-            return contactName;
-          } else {
-            var username = await _uidIdNameDao.getByUid(uid.asString());
-            if (username != null && username.id != null) {
-              return username.id;
-            }
-            String s = await _contactRepo.searchUserByUid(uid);
-            return s;
-          }
-        }
-        break;
-
-      case Categories.GROUP:
-      case Categories.CHANNEL:
-        String name = _roomNameCache.get(uid.asString());
-        if (name != null) {
-          return name;
-        } else {
-          var muc = await _mucDao.getMucByUid(uid.asString());
-          if (muc != null) {
-            _roomNameCache.set(uid.asString(), muc.name);
-            return muc.name;
-          } else {
-            String mucName = await _mucRepo.fetchMucInfo(uid);
-            if (mucName != null) {
-              _roomNameCache.set(uid.asString(), mucName);
-              return mucName;
-            } else {
-              return "UnKnown";
-            }
-          }
-        }
-        break;
-      case Categories.BOT:
-        var res = await _botInfoDao.getBotInfo(uid.node);
-        if (res != null && res.name.isNotEmpty) {
-          return res.name;
-        }
-        return uid.node;
+  Future<String> getName(Uid uid) async {
+    // Is System Id
+    if (uid.category == Categories.SYSTEM) {
+      return "Deliver";
     }
+
+    // Is Current User
+    if (_accountRepo.isCurrentUser(uid.asString())) {
+      return await _accountRepo.getName();
+    }
+
+    // Is in cache
+    String name = _roomNameCache.get(uid.asString());
+    if (name != null && name.isNotEmpty && !name.contains("null")) {
+      return name;
+    }
+
+    // Is in UidIdName Table
+    var uidIdName = await _uidIdNameDao.getByUid(uid.asString());
+    if (uidIdName != null &&
+        uidIdName.name != null &&
+        uidIdName.name.isNotEmpty) {
+      // Set in cache
+      _roomNameCache.set(uid.asString(), uidIdName.name);
+
+      return uidIdName.name;
+    }
+
+    // Is User
+    if (uid.category == Categories.USER) {
+      // TODO needs to be refactored!
+      var contact = await _contactRepo.getContact(uid);
+      if (contact != null &&
+          ((contact.firstName != null && contact.firstName.isNotEmpty) ||
+              (contact.lastName != null && contact.lastName.isNotEmpty))) {
+        var name =
+            "${contact.firstName.trim()}${contact.lastName != null && contact.lastName.isNotEmpty ? " " + contact.lastName.trim() : ""}";
+        _roomNameCache.set(uid.asString(), name);
+        _uidIdNameDao.update(uid.asString(), name: name);
+
+        return name;
+      }
+    }
+
+    // Is Group or Channel
+    if (uid.category == Categories.GROUP ||
+        uid.category == Categories.CHANNEL) {
+      var mucInfo = await _mucRepo.fetchMucInfo(uid);
+      if (mucInfo != null && mucInfo.name != null && mucInfo.name.isNotEmpty) {
+        _roomNameCache.set(uid.asString(), mucInfo.name);
+        _uidIdNameDao.update(uid.asString(), name: mucInfo.name);
+
+        return mucInfo.name;
+      }
+    }
+
+    // Is bot
+    if (uid.category == Categories.BOT) {
+      var botInfo = await _botRepo.getBotInfo(uid);
+      if (botInfo != null && botInfo.name.isNotEmpty) {
+        _roomNameCache.set(uid.asString(), botInfo.name);
+        _uidIdNameDao.update(uid.asString(), name: botInfo.name);
+
+        return botInfo.name;
+      }
+      return uid.node;
+    }
+
     return "Unknown";
   }
 
-  Future<String> getUsername(Uid uid) async {
+  Future<String> getId(Uid uid) async {
     var contact = await _contactDao.getContact(uid.asString());
     if (contact != null)
       return contact.username;
@@ -112,7 +125,7 @@ class RoomRepo {
       if (userInfo != null && userInfo.id != null) {
         return userInfo.id;
       } else {
-        var res = await _contactRepo.searchUserByUid(uid);
+        var res = await _contactRepo.getIdByUid(uid);
         return res;
       }
     }
@@ -170,38 +183,47 @@ class RoomRepo {
 
   Future<List<Uid>> searchInRoomAndContacts(
       String text, bool searchInRooms) async {
-    List<Uid> searchResult = List();
+    List<Uid> searchResult = [];
     List<Contact> searchInContact = await _contactDao.getContactByName(text);
 
     for (Contact contact in searchInContact) {
       searchResult.add(contact.uid.getUid());
     }
     if (searchInRooms) {
-      List<Muc> searchInMucs = await _mucDao.getMucByName(text);
-      for (Muc group in searchInMucs) {
+      List<Muc> searchInMucList = await _mucDao.getMucByName(text);
+      for (Muc group in searchInMucList) {
         searchResult.add(group.uid.getUid());
       }
     }
     return searchResult;
   }
 
-  Future<String> searchByUsername(String username) async {
-    if (username.contains('@')) {
-      username = username.substring(username.indexOf('@') + 1, username.length);
+  Future<String> searchById(String id) async {
+    if (id.contains('@')) {
+      id = id.substring(id.indexOf('@') + 1, id.length);
     }
-    var contact = await _contactDao.searchByUserName(username);
+    var contact = await _contactDao.searchByUserName(id);
     if (contact != null) {
       return contact.uid;
     } else {
-      var userInfo = await _uidIdNameDao.getUidById(username);
-      if (userInfo != null) {
-        return userInfo.uid;
+      var uid = await _uidIdNameDao.getUidById(id);
+      if (uid != null) {
+        return uid;
       } else {
-        var uid = await _contactRepo.searchUserByUsername(username);
-        if (uid != null) _uidIdNameDao.update(uid.asString(), id: username);
+        var uid = await getUidById(id);
+        if (uid != null) _uidIdNameDao.update(uid.asString(), id: id);
         return uid.asString();
       }
     }
+  }
+
+  Future<Uid> getUidById(String username) async {
+    var result = await _queryServiceClient.getUidById(
+        GetUidByIdReq()..id = username,
+        options: CallOptions(
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
+
+    return result.uid;
   }
 
   void unBlockRoom(Uid roomUid) async {

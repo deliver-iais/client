@@ -27,15 +27,11 @@ class MucDao extends DatabaseAccessor<Database> with _$MucDaoMixin {
         MucsCompanion(members: Value(members)),
       );
 
-  Stream<Muc> getByUid(String uid) {
-    return (select(mucs)..where((muc) => muc.uid.equals(uid))).watchSingleOrNull();
-  }
-
-  Future<Muc> getMucByUid(String uid) {
+  Future<Muc> get(String uid) {
     return (select(mucs)..where((muc) => muc.uid.equals(uid))).getSingleOrNull();
   }
 
-  Stream<Muc> getMucByUidAsStream(String uid) {
+  Stream<Muc> watch(String uid) {
     return (select(mucs)..where((muc) => muc.uid.equals(uid))).watchSingleOrNull();
   }
 

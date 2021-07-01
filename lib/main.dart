@@ -3,8 +3,10 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/dao/avatar_dao.dart';
+import 'package:deliver_flutter/box/dao/block_dao.dart';
 import 'package:deliver_flutter/box/dao/file_dao.dart';
 import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
+import 'package:deliver_flutter/box/dao/mute_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
@@ -79,9 +81,11 @@ void setupDI() async {
   getIt.registerSingleton<AvatarDao>(AvatarDaoImpl());
   getIt.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
   getIt.registerSingleton<SharedDao>(SharedDaoImpl());
-  getIt.registerSingleton<SeenDao>(SeenDaoImpl());
   getIt.registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
+  getIt.registerSingleton<SeenDao>(SeenDaoImpl());
   getIt.registerSingleton<FileDao>(FileDaoImpl());
+  getIt.registerSingleton<BlockDao>(BlockDaoImpl());
+  getIt.registerSingleton<MuteDao>(MuteDaoImpl());
 
   Database db = Database();
 

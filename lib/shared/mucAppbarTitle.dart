@@ -30,7 +30,7 @@ class MucAppbarTitle extends StatelessWidget {
                 width: 20,
               ),
               StreamBuilder<Muc>(
-                  stream: _mucDao.getByUid(mucUid),
+                  stream: _mucDao.watch(mucUid),
                   builder: (context, snapshot) {
                     if (snapshot.hasData)
                       return Column(
@@ -53,7 +53,7 @@ class MucAppbarTitle extends StatelessWidget {
                         ],
                       );
                     else
-                      return FutureBuilder<Muc>(future: _mucDao.getMucByUid(mucUid),builder:(c,s){
+                      return FutureBuilder<Muc>(future: _mucDao.get(mucUid),builder:(c,s){
                         if(s.hasData &&s.data != null){
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

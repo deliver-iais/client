@@ -187,7 +187,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   createInviteLink() async {
-    var muc = await _mucDao.getMucByUid(widget.roomUid.asString());
+    var muc = await _mucDao.get(widget.roomUid.asString());
     String token = muc.token;
     if (token == null || token.isEmpty || token.length == 0) {
       if (widget.roomUid.category == Categories.GROUP) {
@@ -496,7 +496,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           titlePadding: const EdgeInsets.all(10),
           title: Container(
             child: FutureBuilder<String>(
-              future: _roomRepo.getRoomDisplayName(widget.roomUid),
+              future: _roomRepo.getName(widget.roomUid),
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 if (snapshot.data != null) {
                   mucName = snapshot.data;
@@ -577,7 +577,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                   child: Column(
                 children: [
                   FutureBuilder<String>(
-                    future: _roomRepo.getRoomDisplayName(widget.roomUid),
+                    future: _roomRepo.getName(widget.roomUid),
                     builder: (c, name) {
                       if (name.hasData) {
                         _currentName = name.data;
@@ -623,7 +623,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                   if (widget.roomUid.category == Categories.CHANNEL)
                     StreamBuilder<Muc>(
                         stream: _mucDao
-                            .getMucByUidAsStream(widget.roomUid.asString()),
+                            .watch(widget.roomUid.asString()),
                         builder: (c, muc) {
                           if (muc.hasData && muc.data != null) {
                             _currentId = muc.data.id;
@@ -673,7 +673,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                   ),
                   StreamBuilder<Muc>(
                     stream:
-                        _mucDao.getMucByUidAsStream(widget.roomUid.asString()),
+                        _mucDao.watch(widget.roomUid.asString()),
                     builder: (c, muc) {
                       if (muc.hasData && muc.data != null) {
                         mucInfo = muc.data.info;

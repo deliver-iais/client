@@ -26,7 +26,7 @@ extension StringUidExtension on String {
     }
   }
 
-  get uid {
+  Uid get uid {
     var list = this.split(":");
     if (list.length != 2) {
       throw AssertionError("Uid is incorrect");

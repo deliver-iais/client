@@ -12,7 +12,7 @@ class ContactDaoImpl implements ContactDao {
     return box.get(uid);
   }
 
-  static String _key() => "last-activity";
+  static String _key() => "contact";
 
   static Future<Box<Contact>> _open() => Hive.openBox<Contact>(_key());
 }

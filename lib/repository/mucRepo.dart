@@ -161,39 +161,44 @@ class MucRepo {
         return member.copyWith(username: userInfo.id);
       else {
         var username =
-            await _contactRepo.searchUserByUid(member.memberUid.getUid());
+            await _contactRepo.getIdByUid(member.memberUid.getUid());
         if (username != null) return member.copyWith(username: username);
       }
     }
   }
 
-  Future<String> fetchMucInfo(Uid mucUid) async {
+  Future<Muc> fetchMucInfo(Uid mucUid) async {
     if (mucUid.category == Categories.GROUP) {
-      MucPro.GetGroupRes group = await getGroupInfo(mucUid);
+      MucPro.GetGroupRes group = await mucServices.getGroup(mucUid);
       if (group != null) {
-        _mucDao.insertMuc(Muc(
+        var muc = Muc(
           name: group.info.name,
           members: group.population.toInt(),
           uid: mucUid.asString(),
           info: group.info.info,
           token: group.token,
           pinMessagesId: getAsInt(group.pinMessages),
-        ));
+        );
+
+        _mucDao.insertMuc(muc);
 
         getGroupMembers(mucUid, group.population.toInt());
-        return group.info.name;
+        return muc;
       }
+      return null;
     } else {
       GetChannelRes channel = await getChannelInfo(mucUid);
       if (channel != null) {
-        _mucDao.insertMuc(Muc(
+        var muc = Muc(
             name: channel.info.name,
             members: channel.population.toInt(),
             uid: mucUid.asString(),
             info: channel.info.info,
             token: channel.token,
             pinMessagesId: getAsInt(channel.pinMessages),
-            id: channel.info.id));
+            id: channel.info.id);
+
+        _mucDao.insertMuc(muc);
         insertUserInDb(mucUid, [
           Member(
               memberUid: _accountRepo.currentUserUid.asString(),
@@ -202,9 +207,16 @@ class MucRepo {
         ]);
         if (channel.requesterRole != MucPro.Role.NONE)
           getChannelMembers(mucUid, channel.population.toInt());
-        return channel.info.name;
+        return muc;
       }
+      return null;
     }
+  }
+
+  Future<Muc> getMucInfo(Uid mucUid) async {
+    var muc = await _mucDao.get(mucUid.asString());
+
+    return null;
   }
 
   // TODO there is bugs in delete member, where is memberUid ?!?!?
@@ -231,10 +243,6 @@ class MucRepo {
       return true;
     }
     return false;
-  }
-
-  Future<MucPro.GetGroupRes> getGroupInfo(Uid groupUid) async {
-    return await mucServices.getGroup(groupUid);
   }
 
   Future<GetChannelRes> getChannelInfo(Uid channelUid) async {
@@ -409,7 +417,7 @@ class MucRepo {
         name: mucName,
         info: info,
         members: memberCount,
-        id: channelId ?? null));
+        id: channelId));
     await _roomDao
         .insertRoomCompanion(RoomsCompanion.insert(roomId: mucUid.asString()));
   }
@@ -488,7 +496,7 @@ class MucRepo {
   }
 
   Future<List<int>> getPinMessages(String mucUid) async {
-    var muc = await _mucDao.getMucByUid(mucUid);
+    var muc = await _mucDao.get(mucUid);
     List pm = json.decode(muc.pinMessagesId);
     List<int> pinMessages = List();
     pm.forEach((element) {

@@ -47,7 +47,7 @@ class _ImageWidget extends State<ShowImagePage> {
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         appBar: AppBar(
           title: FutureBuilder<String>(
-            future: _roomRepo.getRoomDisplayName(widget.contactUid),
+            future: _roomRepo.getName(widget.contactUid),
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
               if (snapshot.data != null) {
                 return Text(

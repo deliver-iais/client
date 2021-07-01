@@ -55,7 +55,7 @@ class _ChatItemState extends State<ChatItem> {
 
     return FutureBuilder<String>(
         future: _roomRepo
-            .getRoomDisplayName(widget.roomWithMessage.room.roomId.getUid()),
+            .getName(widget.roomWithMessage.room.roomId.getUid()),
         builder: (c, name) {
           if (name.hasData && name.data != null && name.data.isNotEmpty) {
             return Container(

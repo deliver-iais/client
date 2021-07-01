@@ -31,7 +31,7 @@ class MemberSelectionPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             mucUid != null? FutureBuilder<String>(
-              future:_roomRepo.getRoomDisplayName(mucUid),
+              future:_roomRepo.getName(mucUid),
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 if(snapshot.data!=null){
                   return    Text(
