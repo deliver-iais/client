@@ -1,10 +1,10 @@
 import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
+import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/box/muc.dart';
-import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/role.dart';
+import 'package:deliver_flutter/box/role.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
@@ -24,7 +24,6 @@ import 'package:moor/moor.dart';
 
 class MucRepo {
   final _mucDao = GetIt.I.get<MucDao>();
-  final _memberDao = GetIt.I.get<MemberDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _mucServices = GetIt.I.get<MucServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
@@ -50,7 +49,7 @@ class MucRepo {
 
     if (channelUid != null) {
       sendMembers(channelUid, memberUids);
-      _memberDao.insertMember(Member(
+      _mucDao.saveMember(Member(
           memberUid: _accountRepo.currentUserUid.asString(),
           mucUid: channelUid.asString(),
           role: MucRole.OWNER));
@@ -60,7 +59,7 @@ class MucRepo {
       return channelUid;
     }
 
-    getChannelMembers(channelUid, memberUids.length);
+    fetchChannelMembers(channelUid, memberUids.length);
     return null;
   }
 
@@ -71,7 +70,7 @@ class MucRepo {
     return result.isAvailable;
   }
 
-  getGroupMembers(Uid groupUid, int len) async {
+  fetchGroupMembers(Uid groupUid, int len) async {
     try {
       int i = 0;
       int membersSize = 0;
@@ -83,10 +82,10 @@ class MucRepo {
         if (len == 0) membersSize = membersSize + result.members.length;
         for (MucPro.Member member in result.members) {
           try {
-            members.add(await fetchMemberNameAndUsername(Member(
+            members.add(Member(
                 mucUid: groupUid.asString(),
                 memberUid: member.uid.asString(),
-                role: getLocalRole(member.role))));
+                role: getLocalRole(member.role)));
           } catch (e) {
             debug(e.toString());
           }
@@ -110,7 +109,7 @@ class MucRepo {
     return await _mucServices.getChannelJointToken(channelUid: channelUid);
   }
 
-  getChannelMembers(Uid channelUid, int len) async {
+  fetchChannelMembers(Uid channelUid, int len) async {
     try {
       int i = 0;
       int membersSize = 0;
@@ -121,10 +120,10 @@ class MucRepo {
         if (len == 0) membersSize = membersSize + result.members.length;
         for (MucPro.Member member in result.members) {
           try {
-            members.add(await fetchMemberNameAndUsername(Member(
+            members.add(Member(
                 mucUid: channelUid.asString(),
                 memberUid: member.uid.asString(),
-                role: getLocalRole(member.role))));
+                role: getLocalRole(member.role)));
           } catch (e) {
             debug(e.toString());
           }
@@ -139,22 +138,6 @@ class MucRepo {
       insertUserInDb(channelUid, members);
     } catch (e) {
       debug(e.toString());
-    }
-  }
-
-  Future<Member> fetchMemberNameAndUsername(Member member) async {
-    var contact = await _contactRepo.getContact(member.memberUid.getUid());
-    if (contact != null) {
-      return member.copyWith(
-          name: contact.firstName, username: contact.username);
-    } else {
-      var userInfo = await _uidIdNameDao.getByUid(member.memberUid);
-      if (userInfo != null && userInfo.id != null)
-        return member.copyWith(username: userInfo.id);
-      else {
-        var username = await _contactRepo.getIdByUid(member.memberUid.getUid());
-        if (username != null) return member.copyWith(username: username);
-      }
     }
   }
 
@@ -173,7 +156,7 @@ class MucRepo {
 
         _mucDao.save(muc);
 
-        getGroupMembers(mucUid, group.population.toInt());
+        fetchGroupMembers(mucUid, group.population.toInt());
         return muc;
       }
       return null;
@@ -197,12 +180,15 @@ class MucRepo {
               role: getLocalRole(channel.requesterRole))
         ]);
         if (channel.requesterRole != MucPro.Role.NONE)
-          getChannelMembers(mucUid, channel.population.toInt());
+          fetchChannelMembers(mucUid, channel.population.toInt());
         return muc;
       }
       return null;
     }
   }
+
+  Future<List<Member>> getAllMembers(String mucUid) =>
+      _mucDao.getAllMembers(mucUid);
 
   Stream<Muc> watchMuc(String mucUid) => _mucDao.watch(mucUid);
 
@@ -213,8 +199,7 @@ class MucRepo {
       _mucDao.delete(groupUid.asString());
       _roomDao.updateRoom(RoomsCompanion(
           roomId: Value(groupUid.asString()), deleted: Value(true)));
-      _memberDao.deleteAllMembers(groupUid.asString());
-      _memberDao.deleteCurrentMucMember(groupUid.asString());
+      _mucDao.deleteAllMembers(groupUid.asString());
       return true;
     }
     return false;
@@ -226,7 +211,7 @@ class MucRepo {
       _mucDao.delete(channelUid.asString());
       _roomDao.updateRoom(RoomsCompanion(
           roomId: Value(channelUid.asString()), deleted: Value(true)));
-      _memberDao.deleteCurrentMucMember(channelUid.asString());
+      _mucDao.deleteAllMembers(channelUid.asString());
       return true;
     }
     return false;
@@ -243,7 +228,7 @@ class MucRepo {
     bool result =
         await _mucServices.changeGroupRole(member, groupMember.mucUid.uid);
     if (result) {
-      _memberDao.insertMember(groupMember);
+      _mucDao.saveMember(groupMember);
     }
   }
 
@@ -254,7 +239,7 @@ class MucRepo {
     var result =
         await _mucServices.changeCahnnelRole(member, channelMember.mucUid.uid);
     if (result) {
-      _memberDao.insertMember(channelMember);
+      _mucDao.saveMember(channelMember);
     }
   }
 
@@ -292,7 +277,7 @@ class MucRepo {
         await _mucServices.kickGroupMembers(members, groupMember[0].mucUid.uid);
 
     if (result) {
-      for (Member member in groupMember) _memberDao.deleteMember(member);
+      for (Member member in groupMember) _mucDao.deleteMember(member);
     }
   }
 
@@ -306,7 +291,7 @@ class MucRepo {
     var result = await _mucServices.kickChannelMembers(
         members, channelMember[0].mucUid.uid);
     if (result) {
-      for (Member member in channelMember) _memberDao.deleteMember(member);
+      for (Member member in channelMember) _mucDao.deleteMember(member);
     }
   }
 
@@ -421,9 +406,9 @@ class MucRepo {
 
       if (usersAdd) {
         if (mucUid.category == Categories.GROUP) {
-          getGroupMembers(mucUid, members.length);
+          fetchGroupMembers(mucUid, members.length);
         } else {
-          getChannelMembers(mucUid, members.length);
+          fetchChannelMembers(mucUid, members.length);
         }
         return true;
       }
@@ -435,10 +420,10 @@ class MucRepo {
 
   insertUserInDb(Uid mucUid, List<Member> members) async {
     if (members.length > 0) {
-      await _memberDao.deleteAllMembers(mucUid.asString());
+      await _mucDao.deleteAllMembers(mucUid.asString());
     }
     for (Member member in members) {
-      _memberDao.insertMember(member);
+      _mucDao.saveMember(member);
     }
   }
 

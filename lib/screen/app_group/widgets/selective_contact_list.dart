@@ -1,6 +1,5 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
-import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 
@@ -14,7 +13,6 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:get_it/get_it.dart';
@@ -45,8 +43,6 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   var _mucRepo = GetIt.I.get<MucRepo>();
 
-  var _memberDao = GetIt.I.get<MemberDao>();
-
   var _createMucService = GetIt.I.get<CreateMucService>();
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
@@ -64,7 +60,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
   }
 
   getMembers() async {
-    var res = await _memberDao.getMembersFuture(widget.mucUid.asString());
+    var res = await _mucRepo.getAllMembers(widget.mucUid.asString());
     res.forEach((element) {
       members.add(element.memberUid);
     });
@@ -83,10 +79,11 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                 .replaceAll(new RegExp(r"\s\b|\b\s"), "")
                 .toLowerCase()
                 .contains(query) ||
-            (item.lastName!=null && item.lastName
-                .replaceAll(new RegExp(r"\s\b|\b\s"), "")
-                .toLowerCase()
-                .contains(query))) {
+            (item.lastName != null &&
+                item.lastName
+                    .replaceAll(new RegExp(r"\s\b|\b\s"), "")
+                    .toLowerCase()
+                    .contains(query))) {
           dummyListData.add(item);
         }
       });
@@ -111,7 +108,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
           children: [
             TextField(
                 decoration: InputDecoration(
-                    hintText: appLocalization.getTraslateValue("search"),
+                  hintText: appLocalization.getTraslateValue("search"),
                 ),
                 onChanged: (value) {
                   filterSearchResults(value);
@@ -199,7 +196,10 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               }
                             })
                         : IconButton(
-                            icon: Icon(Icons.arrow_forward, color: Colors.white,),
+                            icon: Icon(
+                              Icons.arrow_forward,
+                              color: Colors.white,
+                            ),
                             alignment: Alignment.center,
                             padding: EdgeInsets.all(0),
                             onPressed: () {

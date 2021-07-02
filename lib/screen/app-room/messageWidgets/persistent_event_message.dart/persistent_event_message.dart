@@ -1,11 +1,7 @@
-import 'dart:convert';
-
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
-import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -27,12 +23,9 @@ class PersistentEventMessage extends StatelessWidget {
   PersistentEventMessage({Key key, this.message, this.showLastMessage})
       : super(key: key);
 
-  AppLocalization _appLocalization;
-
   @override
   Widget build(BuildContext context) {
     PersistentEvent persistentEventMessage = message.json.toPersistentEvent();
-    _appLocalization = AppLocalization.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -43,7 +36,7 @@ class PersistentEventMessage extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
       child: FutureBuilder(
-        future: getPersistentMessage(persistentEventMessage),
+        future: getPersistentMessage(context, persistentEventMessage),
         builder: (c, s) {
           if (s.hasData) {
             return Directionality(
@@ -67,7 +60,9 @@ class PersistentEventMessage extends StatelessWidget {
   }
 
   Future<String> getPersistentMessage(
-      PersistentEvent persistentEventMessage) async {
+      BuildContext context, PersistentEvent persistentEventMessage) async {
+    var _appLocalization = AppLocalization.of(context);
+
     switch (persistentEventMessage.whichType()) {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
         String issuer =
@@ -76,12 +71,14 @@ class PersistentEventMessage extends StatelessWidget {
                     message.to.getUid().category == Categories.CHANNEL
                 ? ""
                 : await getName(
+                    context,
                     persistentEventMessage.mucSpecificPersistentEvent.issuer,
                     message.to.getUid());
         String assignee =
             persistentEventMessage.mucSpecificPersistentEvent.issue !=
                     MucSpecificPersistentEvent_Issue.PIN_MESSAGE
                 ? await getName(
+                    context,
                     persistentEventMessage.mucSpecificPersistentEvent.assignee,
                     message.to.getUid())
                 : "";
@@ -129,10 +126,10 @@ class PersistentEventMessage extends StatelessWidget {
         // TODO: Handle this case.
         break;
     }
-    ;
   }
 
-  Future<String> getName(Uid uid, Uid to) async {
+  Future<String> getName(BuildContext context, Uid uid, Uid to) async {
+    var _appLocalization = AppLocalization.of(context);
     if (uid == null) return "";
     if (uid.isSameEntity(_accountRepo.currentUserUid.asString()))
       return _appLocalization.getTraslateValue("you");

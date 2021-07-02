@@ -1,8 +1,7 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/dao/MemberDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/models/account.dart';
-import 'package:deliver_flutter/models/role.dart';
+import 'package:deliver_flutter/box/role.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
@@ -26,9 +25,9 @@ class MucMemberWidget extends StatefulWidget {
 }
 
 class _MucMemberWidgetState extends State<MucMemberWidget> {
-  var _memberRepo = GetIt.I.get<MemberRepo>();
+  final _memberRepo = GetIt.I.get<MemberRepo>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
   Uid _mucUid;
-  var _memberDao = GetIt.I.get<MemberDao>();
   AppLocalization _appLocalization;
   var _routingServices = GetIt.I.get<RoutingService>();
   var _mucRepo = GetIt.I.get<MucRepo>();
@@ -84,14 +83,20 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                   _accountRepo.currentUserUid.asString())
                                 Container(
                                   width: MediaQuery.of(context).size.width / 4,
-                                  child: Text(
-                                    member.name ?? member.username ?? "",
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: ExtraTheme.of(context).textField,
-                                      fontSize: 14,
-                                    ),
-                                  ),
+                                  child: FutureBuilder<String>(
+                                      future: _roomRepo
+                                          .getName(member.memberUid.getUid()),
+                                      builder: (context, snapshot) {
+                                        return Text(
+                                          snapshot.data ?? "Unknown",
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: ExtraTheme.of(context)
+                                                .textField,
+                                            fontSize: 14,
+                                          ),
+                                        );
+                                      }),
                                 )
                               else if (member.memberUid ==
                                   _accountRepo.currentUserUid.asString())
@@ -105,7 +110,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                             MediaQuery.of(context).size.width /
                                                 4,
                                         child: Text(
-                                          "${snapshot.data.firstName}  ${snapshot.data.lastName ?? ""} ",
+                                          "${snapshot.data.firstName}${snapshot.data.lastName != null ? " " + snapshot.data.lastName : ""}",
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
                                               fontSize: 14,

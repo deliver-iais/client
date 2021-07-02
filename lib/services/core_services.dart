@@ -5,8 +5,8 @@ import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
 import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
+import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
@@ -67,7 +67,6 @@ class CoreServices {
   var _roomDao = GetIt.I.get<RoomDao>();
   var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _routingServices = GetIt.I.get<RoutingService>();
-  var _memberDao = GetIt.I.get<MemberDao>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
   var _lastActivityDao = GetIt.I.get<LastActivityDao>();
@@ -76,7 +75,7 @@ class CoreServices {
   var _lastPongTime = 0;
   var _mucDao = GetIt.I.get<MucDao>();
 
-//TODO test
+  //TODO test
   initStreamConnection() async {
     if (_connectionTimer != null && _connectionTimer.isActive) {
       return;
@@ -310,7 +309,7 @@ class CoreServices {
 
             case MucSpecificPersistentEvent_Issue.LEAVE_USER:
               {
-                _memberDao.deleteMember(Database.Member(
+                _mucDao.deleteMember(Member(
                   memberUid: message
                       .persistEvent.mucSpecificPersistentEvent.issuer
                       .asString(),

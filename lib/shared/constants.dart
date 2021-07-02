@@ -23,3 +23,5 @@ const UID_ID_NAME_TRACK_ID = 4;
 const SEEN_TRACK_ID = 5;
 const FILE_INFO_TRACK_ID = 6;
 const MUC_TRACK_ID = 7;
+const MEMBER_TRACK_ID = 8;
+const ROLE_TRACK_ID = 9;

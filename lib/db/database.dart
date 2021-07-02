@@ -13,7 +13,6 @@ import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
 import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
-import 'package:deliver_flutter/models/role.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
@@ -24,11 +23,9 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'dart:io';
 
 import 'Contacts.dart';
-import 'Member.dart';
 import 'Rooms.dart';
 import 'PendingMessages.dart';
 import 'dao/MediaMetaDataDao.dart';
-import 'dao/MemberDao.dart';
 import 'dao/RoomDao.dart';
 import 'dao/MessageDao.dart';
 
@@ -40,7 +37,6 @@ part 'database.g.dart';
   Contacts,
   PendingMessages,
   Medias,
-  Members,
   MediasMetaData,
   Stickers,
   StickerIds,
@@ -51,7 +47,6 @@ part 'database.g.dart';
   ContactDao,
   PendingMessageDao,
   MediaDao,
-  MemberDao,
   MediaMetaDataDao,
   StickerDao,
   StickerIdDao,

@@ -125,17 +125,25 @@ class RoomRepo {
   }
 
   Future<String> getId(Uid uid) async {
-    var contact = await _contactDao.getContact(uid.asString());
-    if (contact != null)
-      return contact.username;
-    else {
-      var userInfo = await _uidIdNameDao.getByUid(uid.asString());
-      if (userInfo != null && userInfo.id != null) {
-        return userInfo.id;
-      } else {
-        var res = await _contactRepo.getIdByUid(uid);
-        return res;
-      }
+    var userInfo = await _uidIdNameDao.getByUid(uid.asString());
+    if (userInfo != null && userInfo.id != null) {
+      return userInfo.id;
+    } else {
+      var res = await getIdByUid(uid);
+      return res;
+    }
+  }
+
+  Future<String> getIdByUid(Uid uid) async {
+    try {
+      var result = await _queryServiceClient.getIdByUid(
+          GetIdByUidReq()..uid = uid,
+          options: CallOptions(
+              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      _uidIdNameDao.update(uid.asString(), id: result.id);
+      return result.id;
+    } catch (e) {
+      return null;
     }
   }
 

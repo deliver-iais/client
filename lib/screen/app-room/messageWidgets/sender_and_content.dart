@@ -1,13 +1,11 @@
 import 'dart:convert';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/messageType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
@@ -37,15 +35,14 @@ class SenderAndContent extends StatelessWidget {
     }
     return title;
   }
-  AppLocalization appLocalization;
 
   @override
   Widget build(BuildContext context) {
-    appLocalization = AppLocalization.of(context);
+    var appLocalization = AppLocalization.of(context);
     String content = messages.length > 1
         ? '${messages.length} ' +
             appLocalization.getTraslateValue("ForwardedMessages")
-        : getContent(messages[0]);
+        : getContent(context, messages[0]);
 
     return Container(
       width: 200,
@@ -73,7 +70,9 @@ class SenderAndContent extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       softWrap: false,
-            style: TextStyle(fontSize: 15,color: ExtraTheme.of(context).textMessage),
+                      style: TextStyle(
+                          fontSize: 15,
+                          color: ExtraTheme.of(context).textMessage),
                     )
                   : messages[0].type == MessageType.FILE
                       ? Text(
@@ -84,15 +83,18 @@ class SenderAndContent extends StatelessWidget {
                                   ? 'Video'
                                   : 'File',
                           maxLines: 1,
-                          style: TextStyle(fontSize: 15, color: ExtraTheme.of(context).messageDetails),
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: ExtraTheme.of(context).messageDetails),
                           overflow: TextOverflow.ellipsis,
                           softWrap: false,
                         )
                       : Container()
               : Text(
-                  getContent(messages[0]),
+                  getContent(context, messages[0]),
                   maxLines: 1,
-                  style: TextStyle(fontSize: 15, color: ExtraTheme.of(context).textMessage),
+                  style: TextStyle(
+                      fontSize: 15, color: ExtraTheme.of(context).textMessage),
                   overflow: TextOverflow.ellipsis,
                   softWrap: false,
                 ),
@@ -101,20 +103,21 @@ class SenderAndContent extends StatelessWidget {
     );
   }
 
-  getContent(Message message) {
-    switch(message.type){
+  getContent(BuildContext context, Message message) {
+    var appLocalization = AppLocalization.of(context);
 
+    switch (message.type) {
       case MessageType.TEXT:
-       return message.json.toText().text;
+        return message.json.toText().text;
         break;
       case MessageType.FILE:
-      return  appLocalization.getTraslateValue("file");
+        return appLocalization.getTraslateValue("file");
         break;
       case MessageType.STICKER:
-       return appLocalization.getTraslateValue("Sticker");
+        return appLocalization.getTraslateValue("Sticker");
         break;
       case MessageType.LOCATION:
-       return "Location";
+        return "Location";
         break;
       case MessageType.LIVE_LOCATION:
         return "Location";
@@ -126,7 +129,7 @@ class SenderAndContent extends StatelessWidget {
         return "Form";
         break;
       case MessageType.PERSISTENT_EVENT:
-       return "\t";
+        return "\t";
         break;
       case MessageType.NOT_SET:
         return "\t";
@@ -135,7 +138,7 @@ class SenderAndContent extends StatelessWidget {
         return "Form";
         break;
       case MessageType.SHARE_UID:
-       return message.json.toShareUid().name;
+        return message.json.toShareUid().name;
         break;
       case MessageType.FORM_RESULT:
         return "Form";
@@ -147,7 +150,6 @@ class SenderAndContent extends StatelessWidget {
         return "Request";
         break;
     }
-
   }
 
   Text showName(String s, BuildContext context) {
@@ -157,8 +159,8 @@ class SenderAndContent extends StatelessWidget {
         color: inBox == true
             ? Theme.of(context).primaryColor.withGreen(70)
             : Theme.of(context).primaryColor,
-          // ? ExtraTheme.of(context).messageDetails
-          //   : Theme.of(context).primaryColor,
+        // ? ExtraTheme.of(context).messageDetails
+        //   : Theme.of(context).primaryColor,
         fontWeight: FontWeight.bold, fontSize: 15,
       ),
       maxLines: 1,

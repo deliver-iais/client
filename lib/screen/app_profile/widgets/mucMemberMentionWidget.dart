@@ -1,6 +1,5 @@
-import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
-import 'package:deliver_flutter/box/uid_id_name.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/member.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -10,35 +9,36 @@ class MucMemberMentionWidget extends StatelessWidget {
   final Member member;
   final Function onSelected;
 
-  final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
 
   MucMemberMentionWidget(this.member, this.onSelected);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.only(left: 10),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 10,
-            ),
-            member.username != null
-                ? buildGestureDetector(
-                    username: member.username, name: member.name)
-                : FutureBuilder<UidIdName>(
-                    future: _uidIdNameDao.getByUid(member.memberUid),
-                    builder: (c, u) {
-                      if (u.hasData && u.data != null && u.data.id != null) {
-                        return buildGestureDetector(username: u.data.id);
-                      }
-                      return SizedBox.shrink();
-                    })
-          ],
-        ));
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      child: FutureBuilder<String>(
+          future: _roomRepo.getId(this.member.memberUid.getUid()),
+          builder: (context, id) {
+            if (id.hasData && id.data != null) {
+              return FutureBuilder<Object>(
+                  future: _roomRepo.getName(this.member.memberUid.getUid()),
+                  builder: (context, name) {
+                    if (name.hasData && name.data != null) {
+                      return buildGestureDetector(
+                          username: id.data, name: name.data);
+                    } else {
+                      return buildGestureDetector(username: id.data);
+                    }
+                  });
+            } else {
+              return SizedBox.shrink();
+            }
+          }),
+    );
   }
 
-  GestureDetector buildGestureDetector({String username, String name}) {
+  Widget buildGestureDetector({String username, String name}) {
     return GestureDetector(
       onTap: () {
         onSelected(username);
