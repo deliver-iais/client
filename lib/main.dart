@@ -31,7 +31,6 @@ import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/lastActivityRepo.dart';
-import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -139,8 +138,6 @@ void setupDI() async {
   getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());
 
   getIt.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
-
-  getIt.registerSingleton<MemberRepo>(MemberRepo());
 
   getIt.registerSingleton<FireBaseServices>(FireBaseServices());
   getIt.registerSingleton<LastActivityRepo>(LastActivityRepo());

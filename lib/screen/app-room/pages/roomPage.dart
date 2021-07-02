@@ -16,7 +16,6 @@ import 'package:deliver_flutter/models/operation_on_message.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -92,11 +91,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _routingService = GetIt.I.get<RoutingService>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
   var _seenDao = GetIt.I.get<SeenDao>();
-  var _mucDao = GetIt.I.get<MucDao>();
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _botRepo = GetIt.I.get<BotRepo>();
-  var _memberRepo = GetIt.I.get<MemberRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
   String pattern;
   Map<String, DateTime> _downTimeMap = Map();
@@ -387,13 +384,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Future checkRole() async {
-    var res = await _memberRepo.isMucAdminOrOwner(
+    var res = await _mucRepo.isMucAdminOrOwner(
         _accountRepo.currentUserUid.asString(), widget.roomId);
     _hasPermissionInChannel.add(res);
   }
 
   Future checkGroupRole() async {
-    var res = await _memberRepo.isMucAdminOrOwner(
+    var res = await _mucRepo.isMucAdminOrOwner(
         _accountRepo.currentUserUid.asString(), widget.roomId);
     _hasPermissionInGroup.add(res);
   }

@@ -3,7 +3,6 @@ import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/box/role.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -25,7 +24,6 @@ class MucMemberWidget extends StatefulWidget {
 }
 
 class _MucMemberWidgetState extends State<MucMemberWidget> {
-  final _memberRepo = GetIt.I.get<MemberRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   Uid _mucUid;
   AppLocalization _appLocalization;
@@ -54,7 +52,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
         TextStyle(fontSize: 14, color: ExtraTheme.of(context).textField);
 
     return StreamBuilder<List<Member>>(
-        stream: _memberRepo.getMembers(_mucUid.asString()),
+        stream: _mucRepo.watchAllMembers(_mucUid.asString()),
         builder: (BuildContext context, AsyncSnapshot<List<Member>> snapshot) {
           if (snapshot.hasData &&
               snapshot.data != null &&

@@ -1,8 +1,6 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/muc.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/repository/memberRepo.dart';
+import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -22,14 +20,13 @@ class GroupUiWidget extends StatefulWidget {
 }
 
 class _GroupUiWidgetState extends State<GroupUiWidget> {
-  var _memberRepo = GetIt.I.get<MemberRepo>();
   bool notification = true;
   Uid mucUid;
   AppLocalization appLocalization;
 
   var _routingService = GetIt.I.get<RoutingService>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _mucDao = GetIt.I.get<MucDao>();
+  var _mucRepo = GetIt.I.get<MucRepo>();
 
   @override
   void initState() {
@@ -87,7 +84,7 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
         height: 10,
       ),
       StreamBuilder<Muc>(
-          stream: _mucDao.watch(widget.mucUid.asString()),
+          stream: _mucRepo.watchMuc(widget.mucUid.asString()),
           builder: (c, muc) {
             if (muc.hasData && muc.data != null && muc.data.info.isNotEmpty) {
               return Padding(

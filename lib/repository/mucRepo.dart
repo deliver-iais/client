@@ -1,12 +1,10 @@
 import 'package:deliver_flutter/box/dao/muc_dao.dart';
-import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/box/role.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
@@ -26,8 +24,6 @@ class MucRepo {
   final _mucDao = GetIt.I.get<MucDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _mucServices = GetIt.I.get<MucServices>();
-  final _contactRepo = GetIt.I.get<ContactRepo>();
-  final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   final _queryServices = GetIt.I.get<QueryServiceClient>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
 
@@ -187,8 +183,38 @@ class MucRepo {
     }
   }
 
+  Future<bool> isMucAdminOrOwner(String memberUid, String mucUid) async {
+    var member = await _mucDao.getMember(memberUid, mucUid);
+    if (member.role == MucRole.OWNER || member.role == MucRole.ADMIN) {
+      return true;
+    } else if (mucUid.uid.category == Categories.CHANNEL) {
+      var res = await getChannelInfo(mucUid.uid);
+      return res.requesterRole == Role.ADMIN || res.requesterRole == Role.OWNER;
+    }
+    return false;
+  }
+
+  Future<bool> mucOwner(userUid, mucUid) async {
+    var member = await _mucDao.getMember(userUid, mucUid);
+    if (member != null) {
+      if (member.role == MucRole.OWNER) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Future<List<Member>> searchMemberByNameOrId(
+      String mucUid, String query) async {
+    // TODO not implemented!!!
+    return [];
+  }
+
   Future<List<Member>> getAllMembers(String mucUid) =>
       _mucDao.getAllMembers(mucUid);
+
+  Stream<List<Member>> watchAllMembers(String mucUid) =>
+      _mucDao.watchAllMembers(mucUid);
 
   Stream<Muc> watchMuc(String mucUid) => _mucDao.watch(mucUid);
 

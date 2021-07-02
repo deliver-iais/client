@@ -4,12 +4,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/muc.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/models/muc_type.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
@@ -45,25 +42,23 @@ class ProfileAvatar extends StatefulWidget {
 }
 
 class _ProfileAvatarState extends State<ProfileAvatar> {
+  final _selectedImages = Map<int, bool>();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
+  final _mucDao = GetIt.I.get<MucDao>();
+  final _routingServices = GetIt.I.get<RoutingService>();
   double currentAvatarIndex = 0;
   bool showProgressBar = false;
-  final _selectedImages = Map<int, bool>();
-  var avatarRepo = GetIt.I.get<AvatarRepo>();
-  var fileRepo = GetIt.I.get<FileRepo>();
-  var routingService = GetIt.I.get<RoutingService>();
-  var _roomRepo = GetIt.I.get<RoomRepo>();
   String _uploadAvatarPath;
   bool _setAvatarPermission = false;
   bool _modifyMUc = false;
-  var _memberRepo = GetIt.I.get<MemberRepo>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _mucRepo = GetIt.I.get<MucRepo>();
-  var _mucDao = GetIt.I.get<MucDao>();
   String mucName = "";
   AppLocalization _appLocalization;
   MucType _mucType;
   BehaviorSubject<bool> showChannelIdError = BehaviorSubject.seeded(false);
-  var _routingServices = GetIt.I.get<RoutingService>();
 
   @override
   void initState() {
@@ -81,12 +76,12 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   _checkPermissions() async {
-    bool setAvatarper = await _memberRepo.isMucAdminOrOwner(
+    bool settingAvatarPermission = await _mucRepo.isMucAdminOrOwner(
         _accountRepo.currentUserUid.asString(), widget.roomUid.asString());
-    bool mucOwner = await _memberRepo.mucOwner(
+    bool mucOwner = await _mucRepo.mucOwner(
         _accountRepo.currentUserUid.asString(), widget.roomUid.asString());
     setState(() {
-      _setAvatarPermission = setAvatarper;
+      _setAvatarPermission = settingAvatarPermission;
       _modifyMUc = mucOwner;
     });
   }
@@ -251,7 +246,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                   ),
                   onTap: () async {
                     var lastAvatar =
-                        await avatarRepo.getLastAvatar(widget.roomUid, false);
+                        await _avatarRepo.getLastAvatar(widget.roomUid, false);
                     if (lastAvatar.createdOn != null) {
                       _routingServices.openShowAllAvatars(
                           uid: widget.roomUid,
@@ -481,7 +476,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     }),
         ],
         forceElevated: widget.innerBoxIsScrolled,
-        leading: routingService.backButtonLeading(),
+        leading: _routingService.backButtonLeading(),
         expandedHeight: 350,
         floating: false,
         pinned: true,
@@ -511,7 +506,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       showProgressBar = true;
       _uploadAvatarPath = avatarPath;
     });
-    if (await avatarRepo.setMucAvatar(widget.roomUid, File(avatarPath)) !=
+    if (await _avatarRepo.setMucAvatar(widget.roomUid, File(avatarPath)) !=
         null) {
       setState(() {
         showProgressBar = false;
