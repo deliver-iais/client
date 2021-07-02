@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/fetchingDirectionType.dart';
-import 'package:deliver_flutter/models/mediaCount.dart';
 import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/utils/log.dart';
