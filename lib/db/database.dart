@@ -6,7 +6,6 @@ import 'package:deliver_flutter/db/StickerId.dart';
 import 'package:deliver_flutter/db/Stickers.dart';
 import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
-import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
@@ -25,7 +24,6 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'dart:io';
 
 import 'Contacts.dart';
-import 'Mucs.dart';
 import 'Member.dart';
 import 'Rooms.dart';
 import 'PendingMessages.dart';
@@ -43,7 +41,6 @@ part 'database.g.dart';
   PendingMessages,
   Medias,
   Members,
-  Mucs,
   MediasMetaData,
   Stickers,
   StickerIds,
@@ -55,7 +52,6 @@ part 'database.g.dart';
   PendingMessageDao,
   MediaDao,
   MemberDao,
-  MucDao,
   MediaMetaDataDao,
   StickerDao,
   StickerIdDao,

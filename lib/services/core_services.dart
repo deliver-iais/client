@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
+import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/db/dao/MemberDao.dart';
 import 'package:deliver_flutter/db/dao/MessageDao.dart';
-import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart' as Database;
@@ -281,13 +281,11 @@ class CoreServices {
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
               {
                 var muc = await _mucDao.get(roomUid.asString());
-                var pinMessages = muc.pinMessagesId;
-                pinMessages =
-                    "$pinMessages ,  ${message.persistEvent.mucSpecificPersistentEvent.messageId.toString()} ,";
-                _mucDao.upsertMucCompanion(Database.MucsCompanion.insert(
-                    uid: muc.uid,
-                    name: Value(muc.name),
-                    pinMessagesId: Value(pinMessages)));
+                var pinMessages = muc.pinMessagesIdList;
+                pinMessages.add(message
+                    .persistEvent.mucSpecificPersistentEvent.messageId
+                    .toInt());
+                _mucDao.update(muc.copyWith(pinMessagesIdList: pinMessages));
                 break;
               }
 

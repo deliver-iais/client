@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/dao/MucDao.dart';
+import 'package:deliver_flutter/box/dao/muc_dao.dart';
+import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/muc_type.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
@@ -58,7 +58,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   var _memberRepo = GetIt.I.get<MemberRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
-  var _roomDao = GetIt.I.get<RoomDao>();
   var _mucDao = GetIt.I.get<MucDao>();
   String mucName = "";
   AppLocalization _appLocalization;

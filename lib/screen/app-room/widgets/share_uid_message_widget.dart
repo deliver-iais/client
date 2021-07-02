@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/dao/MucDao.dart';
+import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
@@ -130,8 +130,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                   onPressed: () async {
                     if ((_shareUid.uid.category == Categories.GROUP ||
                         _shareUid.uid.category == Categories.CHANNEL)) {
-                      var muc =
-                          await _mucDao.get(_shareUid.uid.asString());
+                      var muc = await _mucDao.get(_shareUid.uid.asString());
                       if (muc != null) {
                         _routingServices.openRoom(_shareUid.uid.asString());
                       } else {
@@ -165,8 +164,8 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                   Categories.GROUP ||
                                               _shareUid.uid.category ==
                                                   Categories.CHANNEL)) {
-                                            var muc = await _mucDao.get(
-                                                _shareUid.uid.asString());
+                                            var muc = await _mucDao
+                                                .get(_shareUid.uid.asString());
                                             if (muc == null) {
                                               if (_shareUid.uid.category ==
                                                   Categories.GROUP) {

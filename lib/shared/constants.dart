@@ -22,3 +22,4 @@ const CONTACT_TRACK_ID = 3;
 const UID_ID_NAME_TRACK_ID = 4;
 const SEEN_TRACK_ID = 5;
 const FILE_INFO_TRACK_ID = 6;
+const MUC_TRACK_ID = 7;

@@ -12,6 +12,7 @@ import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/box/file_info.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
+import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
@@ -62,8 +63,8 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
+import 'box/dao/muc_dao.dart';
 import 'db/dao/MessageDao.dart';
-import 'db/dao/MucDao.dart';
 import 'db/dao/RoomDao.dart';
 import 'repository/mucRepo.dart';
 
@@ -76,6 +77,7 @@ void setupDI() async {
   Hive.registerAdapter(UidIdNameAdapter());
   Hive.registerAdapter(SeenAdapter());
   Hive.registerAdapter(FileInfoAdapter());
+  Hive.registerAdapter(MucAdapter());
 
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<AvatarDao>(AvatarDaoImpl());
@@ -86,6 +88,7 @@ void setupDI() async {
   getIt.registerSingleton<FileDao>(FileDaoImpl());
   getIt.registerSingleton<BlockDao>(BlockDaoImpl());
   getIt.registerSingleton<MuteDao>(MuteDaoImpl());
+  getIt.registerSingleton<MucDao>(MucDaoImpl());
 
   Database db = Database();
 
@@ -95,7 +98,6 @@ void setupDI() async {
   getIt.registerSingleton<ContactDao>(db.contactDao);
   getIt.registerSingleton<MediaDao>(db.mediaDao);
   getIt.registerSingleton<PendingMessageDao>(db.pendingMessageDao);
-  getIt.registerSingleton<MucDao>(db.mucDao);
   getIt.registerSingleton<MemberDao>(db.memberDao);
   getIt.registerSingleton<MediaMetaDataDao>(db.mediaMetaDataDao);
   getIt.registerSingleton<StickerDao>(db.stickerDao);

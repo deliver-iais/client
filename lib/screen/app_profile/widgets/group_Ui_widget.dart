@@ -1,16 +1,13 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/dao/MucDao.dart';
+import 'package:deliver_flutter/box/dao/muc_dao.dart';
+import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/role.dart';
 import 'package:deliver_flutter/repository/memberRepo.dart';
-import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -31,7 +28,6 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
   AppLocalization appLocalization;
 
   var _routingService = GetIt.I.get<RoutingService>();
-  var _roomDao = GetIt.I.get<RoomDao>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _mucDao = GetIt.I.get<MucDao>();
 

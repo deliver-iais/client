@@ -5,9 +5,9 @@ import 'dart:math';
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
@@ -356,26 +356,25 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       _botRepo.fetchBotInfo(widget.roomId.getUid());
     }
     if (widget.roomId.getUid().category == Categories.CHANNEL) {
-      getPinMessages();
+      watchPinMessages();
       checkRole();
     }
     if (widget.roomId.getUid().category == Categories.GROUP) {
-      getPinMessages();
+      watchPinMessages();
       checkGroupRole();
     }
 
     super.initState();
   }
 
-  Future<void> getPinMessages() async {
-    _mucDao.watch(widget.roomId).listen((muc) {
+  Future<void> watchPinMessages() async {
+    _mucRepo.watchMuc(widget.roomId).listen((muc) {
       if (muc != null) {
-        var res = muc.pinMessagesId;
-        List<String> pm = res.split(",");
+        List<int> pm = muc.pinMessagesIdList;
         pm.forEach((element) async {
-          if (element != null && element.isNotEmpty) {
+          if (element != null) {
             try {
-              var m = await _getMessage(int.parse(element), widget.roomId);
+              var m = await _getMessage(element, widget.roomId);
               _pinMessages.add(m);
               _lastPinedMessage.add(_pinMessages.last.id);
             } catch (e) {

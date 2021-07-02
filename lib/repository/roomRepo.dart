@@ -4,10 +4,8 @@ import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/box/dao/block_dao.dart';
 import 'package:deliver_flutter/box/dao/mute_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
-import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
+import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
-import 'package:deliver_flutter/db/dao/MemberDao.dart';
-import 'package:deliver_flutter/db/dao/MucDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -19,7 +17,6 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-import 'package:flutter/services.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -30,7 +27,6 @@ import 'package:rxdart/rxdart.dart';
 class RoomRepo {
   Cache<String, String> _roomNameCache =
       LruCache<String, String>(storage: SimpleStorage(size: 40));
-  var _mucDao = GetIt.I.get<MucDao>();
   var _contactDao = GetIt.I.get<ContactDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _muteDao = GetIt.I.get<MuteDao>();
@@ -233,6 +229,8 @@ class RoomRepo {
 
   Future<List<Uid>> searchInRoomAndContacts(
       String text, bool searchInRooms) async {
+    // TODO change in searching mechanism
+
     List<Uid> searchResult = [];
     List<Contact> searchInContact = await _contactDao.getContactByName(text);
 
@@ -240,7 +238,9 @@ class RoomRepo {
       searchResult.add(contact.uid.getUid());
     }
     if (searchInRooms) {
-      List<Muc> searchInMucList = await _mucDao.getMucByName(text);
+      // TODO not implemented yet
+      // List<Muc> searchInMucList = await _mucDao.getMucByName(text);
+      List<Muc> searchInMucList = [];
       for (Muc group in searchInMucList) {
         searchResult.add(group.uid.getUid());
       }
