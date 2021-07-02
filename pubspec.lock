@@ -304,6 +304,13 @@ packages:
       url: "https://gitlab.iais.co/deliver-public/pub-dart-artifactory"
     source: git
     version: "1.7.0-rc.85"
+  desktoasts:
+    dependency: "direct main"
+    description:
+      name: desktoasts
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.2"
   desktop_notifications:
     dependency: "direct main"
     description:
