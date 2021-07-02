@@ -1,9 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/avatar.dart';
+import 'package:deliver_flutter/box/bot_info.dart';
 import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/dao/avatar_dao.dart';
 import 'package:deliver_flutter/box/dao/block_dao.dart';
+import 'package:deliver_flutter/box/dao/bot_dao.dart';
 import 'package:deliver_flutter/box/dao/file_dao.dart';
 import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
 import 'package:deliver_flutter/box/dao/mute_dao.dart';
@@ -17,7 +19,6 @@ import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/box/role.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
-import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
 import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
@@ -80,6 +81,7 @@ void setupDI() async {
   Hive.registerAdapter(MucAdapter());
   Hive.registerAdapter(MucRoleAdapter());
   Hive.registerAdapter(MemberAdapter());
+  Hive.registerAdapter(BotInfoAdapter());
 
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<AvatarDao>(AvatarDaoImpl());
@@ -91,6 +93,7 @@ void setupDI() async {
   getIt.registerSingleton<BlockDao>(BlockDaoImpl());
   getIt.registerSingleton<MuteDao>(MuteDaoImpl());
   getIt.registerSingleton<MucDao>(MucDaoImpl());
+  getIt.registerSingleton<BotDao>(BotDaoImpl());
 
   Database db = Database();
 
@@ -103,7 +106,6 @@ void setupDI() async {
   getIt.registerSingleton<MediaMetaDataDao>(db.mediaMetaDataDao);
   getIt.registerSingleton<StickerDao>(db.stickerDao);
   getIt.registerSingleton<StickerIdDao>(db.stickerIdDao);
-  getIt.registerSingleton<BotInfoDao>(db.botInfoDao);
 
   // Order is important, don't change it!
   getIt.registerSingleton<UxService>(UxService());

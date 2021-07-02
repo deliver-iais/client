@@ -1,14 +1,14 @@
 import 'dart:convert';
 
-import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/bot_info.dart';
+import 'package:deliver_flutter/box/dao/bot_dao.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 
@@ -16,7 +16,7 @@ class BotRepo {
   BotServiceClient _botServiceClient = GetIt.I.get<BotServiceClient>();
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _botInfoDao = GetIt.I.get<BotInfoDao>();
+  var _botDao = GetIt.I.get<BotDao>();
 
   Future<BotInfo> fetchBotInfo(Uid botUid) async {
     var result = await _botServiceClient.getInfo(GetInfoReq()..bot = botUid,
@@ -25,17 +25,17 @@ class BotRepo {
 
     var botInfo = BotInfo(
         description: result.description,
-        username: botUid.node,
+        uid: botUid.asString(),
         name: result.name,
-        commands: jsonEncode(result.commands));
+        commands: result.commands);
 
-    _botInfoDao.saveBotInfo(botInfo);
+    _botDao.save(botInfo);
 
     return botInfo;
   }
 
   Future<BotInfo> getBotInfo(Uid botUid) async {
-    var botInfo = await _botInfoDao.getBotInfo(botUid.node);
+    var botInfo = await _botDao.get(botUid.asString());
     // TODO add lastUpdate field in model and check it later in here!
     if (botInfo != null) {
       return botInfo;

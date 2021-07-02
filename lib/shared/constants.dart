@@ -25,3 +25,4 @@ const FILE_INFO_TRACK_ID = 6;
 const MUC_TRACK_ID = 7;
 const MEMBER_TRACK_ID = 8;
 const ROLE_TRACK_ID = 9;
+const BOT_INFO_TRACK_ID = 9;
