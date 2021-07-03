@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
+import 'package:deliver_flutter/screen/home/pages/home_page.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -73,11 +74,11 @@ class TextUi extends StatelessWidget {
     }
     List<String> lines = LineSplitter().convert(content);
     List<Widget> texts = [];
-    texts.add(disjointThenJoin(preProcess(lines, color),context));
+    texts.add(disjointThenJoin(preProcess(lines, color), context));
     return texts;
   }
 
-  disjointThenJoin(List<TextBlock> blocks,BuildContext context) {
+  disjointThenJoin(List<TextBlock> blocks, BuildContext context) {
     var idx = 0;
     var m = 0;
     for (var i = 0; i < blocks.length; i++) {
@@ -101,7 +102,8 @@ class TextUi extends StatelessWidget {
         this.isSeen,
         this.onUsernameClick,
         this.pattern,
-        this.onBotCommandClick,context,
+        this.onBotCommandClick,
+        context,
         isBotMessage: isBotMessage);
 
     for (var i = 1; i <= idx; i++) {
@@ -122,7 +124,8 @@ class TextUi extends StatelessWidget {
               this.isSeen,
               this.onUsernameClick,
               this.pattern,
-              this.onBotCommandClick,context,
+              this.onBotCommandClick,
+              context,
               isBotMessage: isBotMessage),
           joint,
         ],
@@ -176,6 +179,7 @@ class TextBlock {
   List<String> texts = [];
   int ml = -1;
   Color color;
+
   TextBlock.withFirstText(String text, Color color) {
     isRtl = text.isPersian();
     texts.add(text);
@@ -198,7 +202,8 @@ class TextBlock {
       bool isSeen,
       Function onUsernameClick,
       String pattern,
-      Function onBotCommandClick,BuildContext context,
+      Function onBotCommandClick,
+      BuildContext context,
       {isBotMessage = false}) {
     return Column(
         crossAxisAlignment:
@@ -221,7 +226,8 @@ class TextBlock {
                         onUsernameClick,
                         pattern,
                         onBotCommandClick,
-                        this.color,context,
+                        this.color,
+                        context,
                         isBotMessage: isBotMessage)),
               ],
             )
@@ -254,25 +260,19 @@ Widget _textWidget(
         parse: <MatchText>[
           MatchText(
             type: ParsedType.CUSTOM,
-            pattern: r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)",
+            pattern:
+                r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)",
             style: TextStyle(
               color: ExtraTheme.of(context).username,
               fontSize: 16,
             ),
             onTap: (uri) async {
-              await launch(uri);
+              if (uri.toString().contains("deliver-co")) {
+                handleUri(uri, context);
+              } else
+                await launch(uri);
             },
           ),
-          // MatchText(
-          //   type: ParsedType.URL,
-          //   style: TextStyle(
-          //     color: ExtraTheme.of(context).username,
-          //     fontSize: 16,
-          //   ),
-          //   onTap: (uri) async {
-          //     await launch(uri);
-          //   },
-          // ),
           MatchText(
             type: ParsedType.CUSTOM,
             pattern:
@@ -298,7 +298,6 @@ Widget _textWidget(
                 onBotCommandClick(username);
               },
             ),
-
           MatchText(
             type: ParsedType.PHONE,
             style: TextStyle(
@@ -309,7 +308,6 @@ Widget _textWidget(
               await launch("tel:$phone");
             },
           ),
-
         ],
       ),
       if (i == lenght && isLastBlock)

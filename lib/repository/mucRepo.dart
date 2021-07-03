@@ -450,11 +450,18 @@ class MucRepo {
   }
 
   insertUserInDb(Uid mucUid, List<Member> members) async {
+
     if (members.length > 0) {
-      await _memberDao.deleteAllMembers(mucUid.asString());
+   //   await _memberDao.deleteAllMembers(mucUid.asString());
     }
     for (Member member in members) {
-      _memberDao.insertMember(member);
+     if(member != null){
+       _memberDao.insertMember(member);
+     }
+     else{
+       debug("%%%%%%%%%%%%%%%%%");
+    }
+
     }
   }
 

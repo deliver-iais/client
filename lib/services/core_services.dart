@@ -132,7 +132,7 @@ class CoreServices {
             metadata: {'access_token': await _accountRepo.getAccessToken()},
           ));
       _responseStream.listen((serverPacket) async {
-        debug(serverPacket.toString());
+       // debug(serverPacket.toString());
         gotResponse();
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:
