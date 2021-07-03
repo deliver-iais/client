@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Future<void> initUniLinks(BuildContext context) async {
     try {
       final initialLink = await getInitialLink();
-      await handleUri(initialLink, context);
+      if (initialLink.isNotEmpty) await handleUri(initialLink, context);
     } on PlatformException {
       debug("deep link exception");
     } catch (e) {
@@ -149,7 +149,7 @@ Future<void> handleUri(String initialLink, BuildContext context) async {
                       if (mucUid.category == Categories.GROUP) {
                         var res =
                             await _mucRepo.joinGroup(mucUid, m[6].toString());
-                           _messageRepo.updateNewChannel(mucUid);
+                        _messageRepo.updateNewChannel(mucUid);
                         if (res) {
                           _routingService.openRoom(mucUid.asString());
                           Navigator.of(context).pop();
@@ -166,7 +166,6 @@ Future<void> handleUri(String initialLink, BuildContext context) async {
                     child: Text(
                         AppLocalization.of(context).getTraslateValue("join")),
                   ),
-
                 ],
               ),
             ],

@@ -64,8 +64,15 @@ import 'repository/mucRepo.dart';
 
 void setupDI() {
   GetIt getIt = GetIt.instance;
-  Database db = Database();
-  getIt.registerSingleton<Database>(db);
+  // Database db = Database();
+  var db;
+  try {
+    db = GetIt.I.get<Database>();
+  } catch (e) {
+    getIt.registerSingleton<Database>(Database());
+    db = GetIt.I.get<Database>();
+  }
+
   getIt.registerSingleton<MessageDao>(db.messageDao);
   getIt.registerSingleton<RoomDao>(db.roomDao);
   getIt.registerSingleton<AvatarDao>(db.avatarDao);
