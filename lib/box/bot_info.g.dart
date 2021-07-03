@@ -8,7 +8,7 @@ part of 'bot_info.dart';
 
 class BotInfoAdapter extends TypeAdapter<BotInfo> {
   @override
-  final int typeId = 9;
+  final int typeId = 10;
 
   @override
   BotInfo read(BinaryReader reader) {
