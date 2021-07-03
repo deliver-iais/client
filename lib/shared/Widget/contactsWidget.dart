@@ -4,6 +4,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,7 +19,7 @@ class ContactWidget extends StatelessWidget {
   final IconData circleIcon;
   final bool isSelected;
   final bool currentMember;
-  final accountRepo = GetIt.I.get<AccountRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
 
   ContactWidget(
       {this.contact,
@@ -66,12 +67,9 @@ class ContactWidget extends StatelessWidget {
                 width: 20,
               ),
               Text(
-                contact.uid.contains(accountRepo.currentUserUid.asString())
+                _accountRepo.isCurrentUser(contact.uid)
                     ? _appLocalization.getTraslateValue("saved_message")
-                    : "${contact.firstName} ${contact.lastName}".length > 24
-                        ? "${contact.firstName} ${contact.lastName}"
-                            .substring(0, 24)
-                        : "${contact.firstName}",
+                    : buildName(contact.firstName, contact.lastName),
                 overflow: TextOverflow.clip,
                 style: TextStyle(
                   color: ExtraTheme.of(context).chatOrContactItemDetails,

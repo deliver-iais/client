@@ -5,6 +5,7 @@ import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/shared/constants.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -348,6 +349,6 @@ class AccountRepo {
   Future<String> getName() async {
     final account = await getAccount();
 
-    return "${account.firstName.trim()}${account.lastName != null && account.lastName.isNotEmpty ? " " + account.lastName.trim() : ""}";
+    return buildName(account.firstName, account.lastName);
   }
 }

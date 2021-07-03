@@ -147,7 +147,7 @@ class MucRepo {
           uid: mucUid.asString(),
           info: group.info.info,
           token: group.token,
-          pinMessagesIdList: group.pinMessages.map((e) => e.toInt()),
+          pinMessagesIdList: group.pinMessages.map((e) => e.toInt()).toList(),
         );
 
         _mucDao.save(muc);

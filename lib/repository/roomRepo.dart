@@ -10,6 +10,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -79,8 +80,7 @@ class RoomRepo {
       if (contact != null &&
           ((contact.firstName != null && contact.firstName.isNotEmpty) ||
               (contact.lastName != null && contact.lastName.isNotEmpty))) {
-        var name =
-            "${contact.firstName.trim()}${contact.lastName != null && contact.lastName.isNotEmpty ? " " + contact.lastName.trim() : ""}";
+        var name = buildName(contact.firstName, contact.lastName);
         _roomNameCache.set(uid.asString(), name);
         _uidIdNameDao.update(uid.asString(), name: name);
 
