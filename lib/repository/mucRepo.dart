@@ -165,7 +165,7 @@ class MucRepo {
             uid: mucUid.asString(),
             info: channel.info.info,
             token: channel.token,
-            pinMessagesIdList: channel.pinMessages.map((e) => e.toInt()),
+            pinMessagesIdList: channel.pinMessages.map((e) => e.toInt()).toList(),
             id: channel.info.id);
 
         _mucDao.save(muc);
