@@ -99,12 +99,10 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
   GetIt.I.registerSingleton<MuteDao>(MuteDaoImpl());
 
   var database = db.Database();
-  var contactDao = database.contactDao;
   var roomDao = database.roomDao;
   var messageDao = database.messageDao;
 
   var lastActivityDao = GetIt.I.get<LastActivityDao>();
-  var uidIdNameDao = GetIt.I.get<UidIdNameDao>();
 
   var accountRepo = AccountRepo();
   var roomRepo = RoomRepo();
@@ -113,40 +111,30 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
     M.Message msg = _decodeMessage(message.data["body"]);
     String roomName = message.data['title'];
     Uid roomUid = getRoomId(accountRepo, msg);
-    var currentUserUid = await accountRepo.getCurrentUserUid();
-    db.Room room = await roomDao.getByRoomIdFuture(roomUid.asString());
-    if (await roomRepo.isRoomMuted(roomUid.asString()) &&
-        msg.from.isSameEntity(currentUserUid.asString())) {
-      return;
-    }
+
     CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg, roomUid);
-    if (msg.to.category == Categories.USER &&
-        msg.from.category != Categories.SYSTEM &&
-        msg.from.category != Categories.BOT) {
-      db.Contact contact =
-          await contactDao.getContactByUid(msg.from.asString());
-      if (contact != null) {
-        roomName =
-            contact.firstName != null ? contact.firstName : contact.username;
-        if (contact.lastName != null) {
-          roomName = "$roomName ${contact.lastName}";
-        }
-      } else {
-        var res = await uidIdNameDao.getByUid(msg.from.asString());
-        if (res != null) roomName = res.id;
-      }
-    } else if (msg.from.category == Categories.SYSTEM) {
-      roomName = "Deliver";
-    } else if (msg.from.category == Categories.BOT) {
-      if (roomName.isEmpty) roomName = "Bot";
-    }
 
     if (msg.from.category == Categories.USER)
       updateLastActivityTime(
           lastActivityDao, getRoomId(accountRepo, msg), msg.time.toInt());
-    if ((await accountRepo.notification).contains("true") &&
-        (await roomRepo.isRoomMuted(roomUid.asString())))
-      _notificationServices.showNotification(
-          msg, getRoomId(accountRepo, msg).asString(), roomName);
+
+    if ((await accountRepo.notification).contains("false") ||
+        await roomRepo.isRoomMuted(roomUid.asString()) ||
+        accountRepo.isCurrentUser(msg.from.asString())) {
+      return;
+    }
+
+    if (msg.to.category == Categories.GROUP) {
+      var to = await roomRepo.getName(msg.to);
+      var from = await roomRepo.getName(msg.from);
+      roomName = "$to${from != null && from.isNotEmpty ? " - " : ""}$from";
+    } else if (msg.to.category == Categories.CHANNEL) {
+      roomName = await roomRepo.getName(msg.to);
+    } else {
+      roomName = await roomRepo.getName(msg.from);
+    }
+
+    _notificationServices.showNotification(
+        msg, getRoomId(accountRepo, msg).asString(), roomName);
   }
 }
