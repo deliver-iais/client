@@ -19,7 +19,6 @@ import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/box/role.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
-import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
@@ -64,6 +63,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
+import 'box/dao/contact_dao.dart';
 import 'box/dao/muc_dao.dart';
 import 'db/dao/MessageDao.dart';
 import 'db/dao/RoomDao.dart';
@@ -94,13 +94,13 @@ void setupDI() async {
   getIt.registerSingleton<MuteDao>(MuteDaoImpl());
   getIt.registerSingleton<MucDao>(MucDaoImpl());
   getIt.registerSingleton<BotDao>(BotDaoImpl());
+  getIt.registerSingleton<ContactDao>(ContactDaoImpl());
 
   Database db = Database();
 
   getIt.registerSingleton<Database>(db);
   getIt.registerSingleton<MessageDao>(db.messageDao);
   getIt.registerSingleton<RoomDao>(db.roomDao);
-  getIt.registerSingleton<ContactDao>(db.contactDao);
   getIt.registerSingleton<MediaDao>(db.mediaDao);
   getIt.registerSingleton<PendingMessageDao>(db.pendingMessageDao);
   getIt.registerSingleton<MediaMetaDataDao>(db.mediaMetaDataDao);

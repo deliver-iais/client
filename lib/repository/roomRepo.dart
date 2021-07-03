@@ -4,8 +4,6 @@ import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/box/dao/block_dao.dart';
 import 'package:deliver_flutter/box/dao/mute_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
-import 'package:deliver_flutter/box/muc.dart';
-import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -27,15 +25,14 @@ import 'package:rxdart/rxdart.dart';
 class RoomRepo {
   Cache<String, String> _roomNameCache =
       LruCache<String, String>(storage: SimpleStorage(size: 40));
-  var _contactDao = GetIt.I.get<ContactDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _muteDao = GetIt.I.get<MuteDao>();
   var _blockDao = GetIt.I.get<BlockDao>();
+  var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
-  var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   var _botRepo = GetIt.I.get<BotRepo>();
 
   var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
@@ -77,6 +74,7 @@ class RoomRepo {
     // Is User
     if (uid.category == Categories.USER) {
       // TODO needs to be refactored!
+      // TODO MIGRATION NEEDS
       var contact = await _contactRepo.getContact(uid);
       if (contact != null &&
           ((contact.firstName != null && contact.firstName.isNotEmpty) ||
@@ -238,44 +236,30 @@ class RoomRepo {
   Future<List<Uid>> searchInRoomAndContacts(
       String text, bool searchInRooms) async {
     // TODO change in searching mechanism
+    // TODO MIGRATION NEEDS
 
     List<Uid> searchResult = [];
-    List<Contact> searchInContact = await _contactDao.getContactByName(text);
-
-    for (Contact contact in searchInContact) {
-      searchResult.add(contact.uid.getUid());
-    }
-    if (searchInRooms) {
-      // TODO not implemented yet
-      // List<Muc> searchInMucList = await _mucDao.getMucByName(text);
-      List<Muc> searchInMucList = [];
-      for (Muc group in searchInMucList) {
-        searchResult.add(group.uid.getUid());
-      }
-    }
     return searchResult;
   }
 
-  Future<String> searchById(String id) async {
+  Future<String> getUidById(String id) async {
+    // TODO MIGRATION NEEDS
+    // TODO move string manipulation logic out of this function
     if (id.contains('@')) {
       id = id.substring(id.indexOf('@') + 1, id.length);
     }
-    var contact = await _contactDao.searchByUserName(id);
-    if (contact != null) {
-      return contact.uid;
+
+    var uid = await _uidIdNameDao.getUidById(id);
+    if (uid != null) {
+      return uid;
     } else {
-      var uid = await _uidIdNameDao.getUidById(id);
-      if (uid != null) {
-        return uid;
-      } else {
-        var uid = await getUidById(id);
-        if (uid != null) _uidIdNameDao.update(uid.asString(), id: id);
-        return uid.asString();
-      }
+      var uid = await fetchUidById(id);
+      if (uid != null) _uidIdNameDao.update(uid.asString(), id: id);
+      return uid.asString();
     }
   }
 
-  Future<Uid> getUidById(String username) async {
+  Future<Uid> fetchUidById(String username) async {
     var result = await _queryServiceClient.getUidById(
         GetUidByIdReq()..id = username,
         options: CallOptions(

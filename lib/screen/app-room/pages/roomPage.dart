@@ -1242,7 +1242,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       String roomId = "4:${username.substring(1)}";
       _routingService.openRoom(roomId);
     } else {
-      String roomId = await _roomRepo.searchById(username);
+      String roomId = await _roomRepo.getUidById(username);
       if (roomId != null) {
         _routingService.openRoom(roomId);
       }

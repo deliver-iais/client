@@ -1,7 +1,6 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
-import 'package:deliver_flutter/db/dao/ContactDao.dart';
-import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
@@ -11,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ContactsPage extends StatelessWidget {
-  final _contactDao = GetIt.I.get<ContactDao>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _rootingServices = GetIt.I.get<RoutingService>();
   final _sharedDao = GetIt.I.get<SharedDao>();
@@ -75,7 +73,7 @@ class ContactsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     _showSyncContactDialog(context);
     return StreamBuilder<List<Contact>>(
-        stream: _contactDao.getAllContacts(),
+        stream: _contactRepo.watchAll(),
         builder: (BuildContext context, AsyncSnapshot<List<Contact>> snapshot) {
           if (snapshot.hasData &&
               snapshot.data != null &&

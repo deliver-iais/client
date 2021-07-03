@@ -3,7 +3,6 @@ import 'package:deliver_flutter/db/MediaMetaData.dart';
 import 'package:deliver_flutter/db/Messages.dart';
 import 'package:deliver_flutter/db/StickerId.dart';
 import 'package:deliver_flutter/db/Stickers.dart';
-import 'package:deliver_flutter/db/dao/ContactDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
@@ -20,7 +19,6 @@ import 'package:path_provider_windows/path_provider_windows.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'dart:io';
 
-import 'Contacts.dart';
 import 'Rooms.dart';
 import 'PendingMessages.dart';
 import 'dao/MediaMetaDataDao.dart';
@@ -32,7 +30,6 @@ part 'database.g.dart';
 @UseMoor(tables: [
   Messages,
   Rooms,
-  Contacts,
   PendingMessages,
   Medias,
   MediasMetaData,
@@ -41,7 +38,6 @@ part 'database.g.dart';
 ], daos: [
   MessageDao,
   RoomDao,
-  ContactDao,
   PendingMessageDao,
   MediaDao,
   MediaMetaDataDao,

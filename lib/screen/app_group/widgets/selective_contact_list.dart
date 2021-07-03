@@ -1,6 +1,6 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/dao/ContactDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/contact.dart';
+import 'package:deliver_flutter/box/dao/contact_dao.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 
 import 'package:deliver_flutter/repository/mucRepo.dart';
@@ -117,7 +117,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                 controller: editingController),
             Expanded(
                 child: FutureBuilder(
-                    future: _contactDao.getAllUser(),
+                    future: _contactDao.getAll(),
                     builder: (BuildContext context,
                         AsyncSnapshot<List<Contact>> snapshot) {
                       if (snapshot.hasData &&
@@ -127,7 +127,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                             .contains(_accountRepo.currentUserUid.asString()));
                         contacts = snapshot.data;
                         if (items == null) {
-                          items = contacts.map((e) => e.copyWith()).toList();
+                          items = contacts;
                         }
 
                         return StreamBuilder<int>(

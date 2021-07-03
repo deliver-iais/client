@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:rxdart/rxdart.dart';
 
