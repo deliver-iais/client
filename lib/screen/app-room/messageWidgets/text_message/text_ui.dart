@@ -1,6 +1,7 @@
 import 'dart:convert';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -316,7 +317,7 @@ Widget _textWidget(
         Padding(
           padding: const EdgeInsets.only(left: 8.0, top: 5),
           child: MsgTime(
-            time: message.time,
+            time: date(message.time),
           ),
         ),
       if (i == lenght && isLastBlock & isSender)

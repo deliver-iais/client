@@ -1,10 +1,8 @@
 import 'dart:io' as da;
 
-import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_ui.dart';
-import 'package:deliver_flutter/screen/app_profile/widgets/thumbnail_video_ui.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';

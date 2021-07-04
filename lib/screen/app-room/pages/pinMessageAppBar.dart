@@ -1,6 +1,7 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,14 +10,14 @@ import 'package:rxdart/rxdart.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:sorted_list/sorted_list.dart';
 
-class PinMessageAppBar extends StatelessWidget{
-  final BehaviorSubject<int>  lastPinedMessage;
-  final  SortedList  pinMessages;
+class PinMessageAppBar extends StatelessWidget {
+  final BehaviorSubject<int> lastPinedMessage;
+  final SortedList pinMessages;
   final Function onTap;
 
-   PinMessageAppBar({Key key, this.lastPinedMessage, this.pinMessages, this.onTap}) : super(key: key);
-
-
+  PinMessageAppBar(
+      {Key key, this.lastPinedMessage, this.pinMessages, this.onTap})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,7 @@ class PinMessageAppBar extends StatelessWidget{
             var body = "";
             Message mes;
             pinMessages.forEach((m) {
-              if(m.id == id.data){
+              if (m.id == id.data) {
                 mes = m;
               }
             });
@@ -55,10 +56,10 @@ class PinMessageAppBar extends StatelessWidget{
                 body = "Form";
                 break;
               case MessageType.PERSISTENT_EVENT:
-              // TODO: Handle this case.
+                // TODO: Handle this case.
                 break;
               case MessageType.NOT_SET:
-              // TODO: Handle this case.
+                // TODO: Handle this case.
                 break;
               case MessageType.BUTTONS:
                 body = "From";
@@ -67,46 +68,53 @@ class PinMessageAppBar extends StatelessWidget{
                 body = "contact";
                 break;
               case MessageType.FORM_RESULT:
-              // TODO: Handle this case.
+                // TODO: Handle this case.
                 break;
               case MessageType.sharePrivateDataRequest:
                 body = "Private Data";
                 break;
               case MessageType.sharePrivateDataAcceptance:
-              // TODO: Handle this case.
+                // TODO: Handle this case.
                 break;
             }
             return GestureDetector(
               onTap: () {
-               onTap(id.data,mes);
-               },
+                onTap(id.data, mes);
+              },
               child: Container(
-                padding:const EdgeInsets.only(left: 8,right: 3,bottom: 8,top: 0) ,
+                padding:
+                    const EdgeInsets.only(left: 8, right: 3, bottom: 8, top: 0),
                 color: ExtraTheme.of(context).pinMessageTheme,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Divider(),
-                     Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            appLocalization.getTraslateValue("pinned_message"),
-                            style: TextStyle(color: Colors.blue,fontSize: 13),
-                          ),
-                          IconButton(onPressed: (){
-                            lastPinedMessage.add(0);
-                          }, icon: Icon(Icons.close,size: 14,color: Colors.blue,))
-                        ],
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          appLocalization.getTraslateValue("pinned_message"),
+                          style: TextStyle(color: Colors.blue, fontSize: 13),
+                        ),
+                        IconButton(
+                            onPressed: () {
+                              lastPinedMessage.add(0);
+                            },
+                            icon: Icon(
+                              Icons.close,
+                              size: 14,
+                              color: Colors.blue,
+                            ))
+                      ],
+                    ),
                     Container(
                         child: Text(
-                          body,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: ExtraTheme.of(context).textField,
-                          ),
-                        )),
+                      body,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: ExtraTheme.of(context).textField,
+                      ),
+                    )),
                   ],
                 ),
               ),
@@ -115,5 +123,4 @@ class PinMessageAppBar extends StatelessWidget{
             return SizedBox.shrink();
         });
   }
-
 }

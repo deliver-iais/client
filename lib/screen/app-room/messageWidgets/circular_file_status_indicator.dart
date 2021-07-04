@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/file_message.dart/open_file_status.dart';
@@ -10,7 +11,7 @@ class CircularFileStatusIndicator extends StatelessWidget {
   final bool isExist;
   final SendingStatus sendingStatus;
   final File file;
-  final int messageDbId;
+  final Message msg;
   final Function onPressed;
 
   const CircularFileStatusIndicator(
@@ -18,7 +19,7 @@ class CircularFileStatusIndicator extends StatelessWidget {
       this.isExist,
       this.sendingStatus,
       this.file,
-      this.messageDbId,
+      this.msg,
       this.onPressed})
       : super(key: key);
 
@@ -34,14 +35,13 @@ class CircularFileStatusIndicator extends StatelessWidget {
               )
             : OpenFileStatus(
                 file: file,
-                dbId: messageDbId,
               );
       } else {
         return new LoadFileStatus(
           //file: file,
           fileId: file.uuid,
           fileName: file.name,
-          dbId: messageDbId,
+          msg: msg,
           onPressed: onPressed,
         );
       }

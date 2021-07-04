@@ -1,0 +1,49 @@
+import 'package:deliver_flutter/shared/constants.dart';
+import 'package:hive/hive.dart';
+
+part 'message_type.g.dart';
+
+@HiveType(typeId: MESSAGE_TYPE_TRACK_ID)
+enum MessageType {
+  @HiveField(0)
+  TEXT,
+
+  @HiveField(1)
+  FILE,
+
+  @HiveField(2)
+  STICKER,
+
+  @HiveField(3)
+  LOCATION,
+
+  @HiveField(4)
+  LIVE_LOCATION,
+
+  @HiveField(5)
+  POLL,
+
+  @HiveField(6)
+  FORM,
+
+  @HiveField(7)
+  PERSISTENT_EVENT,
+
+  @HiveField(8)
+  NOT_SET,
+
+  @HiveField(9)
+  BUTTONS,
+
+  @HiveField(10)
+  SHARE_UID,
+
+  @HiveField(11)
+  FORM_RESULT,
+
+  @HiveField(12)
+  sharePrivateDataRequest,
+
+  @HiveField(13)
+  sharePrivateDataAcceptance
+}

@@ -1,14 +1,13 @@
 import 'package:deliver_flutter/box/dao/contact_dao.dart';
 import 'package:deliver_flutter/box/contact.dart' as DB;
+import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/room.dart';
 
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:contacts_service/contacts_service.dart' as OsContact;
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/utils/log.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -29,7 +28,7 @@ class ContactRepo {
 
   final _contactDao = GetIt.I.get<ContactDao>();
 
-  final _roomDao = GetIt.I.get<RoomDao>();
+  final _messageDao = GetIt.I.get<MessageDao>();
 
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
 
@@ -38,7 +37,7 @@ class ContactRepo {
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
 
   final QueryServiceClient _queryServiceClient =
-  GetIt.I.get<QueryServiceClient>();
+      GetIt.I.get<QueryServiceClient>();
 
   final Map<PhoneNumber, String> _contactsDisplayName = Map();
 
@@ -49,11 +48,11 @@ class ContactRepo {
       List<Contact> contacts = new List();
       if (!isDesktop()) {
         Iterable<OsContact.Contact> phoneContacts =
-        await OsContact.ContactsService.getContacts(
-            withThumbnails: false,
-            photoHighResolution: false,
-            orderByGivenName: false,
-            iOSLocalizedLabels: false);
+            await OsContact.ContactsService.getContacts(
+                withThumbnails: false,
+                photoHighResolution: false,
+                orderByGivenName: false,
+                iOSLocalizedLabels: false);
 
         for (OsContact.Contact phoneContact in phoneContacts) {
           for (var p in phoneContact.phones) {
@@ -66,7 +65,7 @@ class ContactRepo {
                   .replaceAll(')', '')
                   .replaceAll('-', '');
               PhoneNumber phoneNumber =
-              _getPhoneNumber(contactPhoneNumber, phoneContact.displayName);
+                  _getPhoneNumber(contactPhoneNumber, phoneContact.displayName);
               _contactsDisplayName[phoneNumber] = phoneContact.displayName;
               Contact contact = Contact()
                 ..lastName = phoneContact.displayName
@@ -158,8 +157,7 @@ class ContactRepo {
           lastName: contact.lastName));
 
       if (contact.uid != null) {
-        _roomDao.insertRoomCompanion(
-            RoomsCompanion.insert(roomId: contact.uid.asString()));
+        _messageDao.updateRoom(Room(uid: contact.uid.asString()));
       }
     }
   }
@@ -167,8 +165,7 @@ class ContactRepo {
   Future<String> getIdByUid(Uid uid) async {
     try {
       var result = await _queryServiceClient.getIdByUid(
-          GetIdByUidReq()
-            ..uid = uid,
+          GetIdByUidReq()..uid = uid,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       _uidIdNameDao.update(uid.asString(), id: result.id);
@@ -180,8 +177,7 @@ class ContactRepo {
 
   Future<List<Uid>> searchUser(String query) async {
     var result = await _queryServiceClient.searchUid(
-        SearchUidReq()
-          ..text = query,
+        SearchUidReq()..text = query,
         options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
     List<Uid> searchResult = [];

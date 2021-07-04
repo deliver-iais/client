@@ -15,12 +15,15 @@ import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/box/file_info.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/box/member.dart';
+import 'package:deliver_flutter/box/message.dart';
+import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/box/muc.dart';
+import 'package:deliver_flutter/box/pending_message.dart';
 import 'package:deliver_flutter/box/role.dart';
+import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
-import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
 import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
@@ -64,9 +67,8 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
 import 'box/dao/contact_dao.dart';
+import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
-import 'db/dao/MessageDao.dart';
-import 'db/dao/RoomDao.dart';
 import 'repository/mucRepo.dart';
 
 void setupDI() async {
@@ -82,6 +84,10 @@ void setupDI() async {
   Hive.registerAdapter(MucRoleAdapter());
   Hive.registerAdapter(MemberAdapter());
   Hive.registerAdapter(BotInfoAdapter());
+  Hive.registerAdapter(RoomAdapter());
+  Hive.registerAdapter(PendingMessageAdapter());
+  Hive.registerAdapter(MessageAdapter());
+  Hive.registerAdapter(MessageTypeAdapter());
 
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<AvatarDao>(AvatarDaoImpl());
@@ -95,14 +101,12 @@ void setupDI() async {
   getIt.registerSingleton<MucDao>(MucDaoImpl());
   getIt.registerSingleton<BotDao>(BotDaoImpl());
   getIt.registerSingleton<ContactDao>(ContactDaoImpl());
+  getIt.registerSingleton<MessageDao>(MessageDaoImpl());
 
   Database db = Database();
 
   getIt.registerSingleton<Database>(db);
-  getIt.registerSingleton<MessageDao>(db.messageDao);
-  getIt.registerSingleton<RoomDao>(db.roomDao);
   getIt.registerSingleton<MediaDao>(db.mediaDao);
-  getIt.registerSingleton<PendingMessageDao>(db.pendingMessageDao);
   getIt.registerSingleton<MediaMetaDataDao>(db.mediaMetaDataDao);
   getIt.registerSingleton<StickerDao>(db.stickerDao);
   getIt.registerSingleton<StickerIdDao>(db.stickerIdDao);

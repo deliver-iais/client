@@ -1,12 +1,12 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/models/messageType.dart';
-import 'package:deliver_flutter/models/roomWithMessage.dart';
+import 'package:deliver_flutter/box/message_type.dart';
+import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/lastActivityRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/unread_message_counter.dart';
 import 'package:deliver_flutter/shared/activityStatuse.dart';
-import 'package:deliver_flutter/shared/methods/dateTimeFormat.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -20,42 +20,39 @@ import 'contactPic.dart';
 import 'lastMessage.dart';
 
 class ChatItem extends StatefulWidget {
-  final RoomWithMessage roomWithMessage;
+  final Room room;
 
   final bool isSelected;
 
-  ChatItem({key: Key, this.roomWithMessage, this.isSelected}) : super(key: key);
+  ChatItem({key: Key, this.room, this.isSelected}) : super(key: key);
 
   @override
   _ChatItemState createState() => _ChatItemState();
 }
 
 class _ChatItemState extends State<ChatItem> {
-  var _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
-  final AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
-
+  final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
   @override
   void initState() {
-    if (widget.roomWithMessage.room.roomId.getUid().category == Categories.USER)
-      _lastActivityRepo
-          .updateLastActivity(widget.roomWithMessage.room.roomId.getUid());
+    if (widget.room.uid.getUid().category == Categories.USER)
+      _lastActivityRepo.updateLastActivity(widget.room.uid.getUid());
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    _roomRepo.initActivity(widget.roomWithMessage.room.roomId.uid.node);
+    _roomRepo.initActivity(widget.room.uid.getUid().node);
     AppLocalization _appLocalization = AppLocalization.of(context);
-    String messageType = widget.roomWithMessage.lastMessage.from
-            .isSameEntity(_accountRepo.currentUserUid)
-        ? "send"
-        : "receive";
+    String messageType =
+        widget.room.lastMessage.from.isSameEntity(_accountRepo.currentUserUid)
+            ? "send"
+            : "receive";
 
     return FutureBuilder<String>(
-        future: _roomRepo
-            .getName(widget.roomWithMessage.room.roomId.getUid()),
+        future: _roomRepo.getName(widget.room.uid.getUid()),
         builder: (c, name) {
           if (name.hasData && name.data != null && name.data.isNotEmpty) {
             return Container(
@@ -63,16 +60,15 @@ class _ChatItemState extends State<ChatItem> {
               color: widget.isSelected
                   ? Theme.of(context).focusColor
                   : Colors.transparent,
-              height: widget.roomWithMessage.lastMessage.type ==
-                      MessageType.PERSISTENT_EVENT
-                  ? 74
-                  : 66,
+              height:
+                  widget.room.lastMessage.type == MessageType.PERSISTENT_EVENT
+                      ? 74
+                      : 66,
               child: Row(
                 children: <Widget>[
                   Padding(
                     padding: EdgeInsets.only(bottom: 5),
-                    child:
-                        ContactPic(widget.roomWithMessage.room.roomId.getUid()),
+                    child: ContactPic(widget.room.uid.getUid()),
                   ),
                   SizedBox(
                     width: 10,
@@ -87,27 +83,24 @@ class _ChatItemState extends State<ChatItem> {
                           children: [
                             Container(
                                 width: 200,
-                                child: widget.roomWithMessage.room.roomId.uid
+                                child: widget.room.uid
+                                        .getUid()
                                         .toString()
                                         .contains(_accountRepo.currentUserUid
                                             .toString())
                                     ? _showDisplayName(
-                                        widget.roomWithMessage.room.roomId
-                                            .getUid(),
+                                        widget.room.uid.getUid(),
                                         _appLocalization
                                             .getTraslateValue("saved_message"),
                                         context)
-                                    : _showDisplayName(
-                                        widget.roomWithMessage.room.roomId
-                                            .getUid(),
-                                        name.data,
-                                        context)),
+                                    : _showDisplayName(widget.room.uid.getUid(),
+                                        name.data, context)),
                             Padding(
                               padding:
                                   const EdgeInsets.only(bottom: 4.0, right: 0),
                               child: Text(
-                                widget.roomWithMessage.lastMessage.time
-                                    .dateTimeFormat(),
+                                dateTimeFormat(
+                                    date(widget.room.lastMessage.time)),
                                 maxLines: 1,
                                 style: TextStyle(
                                   color:
@@ -122,7 +115,7 @@ class _ChatItemState extends State<ChatItem> {
                           flex: 90,
                           child: StreamBuilder<Activity>(
                               stream: _roomRepo.activityObject[
-                                  widget.roomWithMessage.room.roomId.uid.node],
+                                  widget.room.uid.getUid().node],
                               builder: (c, s) {
                                 if (s.hasData &&
                                     s.data != null &&
@@ -130,8 +123,7 @@ class _ChatItemState extends State<ChatItem> {
                                         ActivityType.NO_ACTIVITY) {
                                   return ActivityStatuse(
                                     activity: s.data,
-                                    roomUid:
-                                        widget.roomWithMessage.room.roomId.uid,
+                                    roomUid: widget.room.uid.getUid(),
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: ExtraTheme.of(context)
@@ -162,17 +154,16 @@ class _ChatItemState extends State<ChatItem> {
     //  if(widget.roomWithMessage.lastMessage.roomId == '4:father_bot')
     return Row(
       children: <Widget>[
-        if (messageType == "send")
-          SeenStatus(widget.roomWithMessage.lastMessage),
+        if (messageType == "send") SeenStatus(widget.room.lastMessage),
         Padding(
             padding: const EdgeInsets.only(top: 2.0, left: 4.0),
-            child: LastMessage(message: widget.roomWithMessage.lastMessage)),
+            child: LastMessage(message: widget.room.lastMessage)),
         Expanded(
           flex: 10,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
-              widget.roomWithMessage.room.mentioned == true
+              widget.room.mentioned == true
                   ? Padding(
                       padding: const EdgeInsets.only(
                         right: 8.0,
@@ -196,8 +187,7 @@ class _ChatItemState extends State<ChatItem> {
                       ),
                     )
                   : messageType == "receive"
-                      ? UnreadMessageCounterWidget(
-                          widget.roomWithMessage.lastMessage)
+                      ? UnreadMessageCounterWidget(widget.room.lastMessage)
                       : Container()
             ],
           ),

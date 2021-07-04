@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/box/dao/block_dao.dart';
+import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/mute_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -26,7 +26,7 @@ import 'package:rxdart/rxdart.dart';
 class RoomRepo {
   Cache<String, String> _roomNameCache =
       LruCache<String, String>(storage: SimpleStorage(size: 40));
-  var _roomDao = GetIt.I.get<RoomDao>();
+  var _messageDao = GetIt.I.get<MessageDao>();
   var _muteDao = GetIt.I.get<MuteDao>();
   var _blockDao = GetIt.I.get<BlockDao>();
   var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
@@ -40,9 +40,7 @@ class RoomRepo {
 
   Map<String, BehaviorSubject<Activity>> activityObject = Map();
 
-  insertRoom(String uid) {
-    _roomDao.insertRoomCompanion(RoomsCompanion(roomId: Value(uid)));
-  }
+  insertRoom(String uid) => _messageDao.updateRoom(Room(uid: uid));
 
   Future<String> getName(Uid uid) async {
     // Is System Id
@@ -225,9 +223,9 @@ class RoomRepo {
 
   Future<List<Uid>> getAllRooms() async {
     Map<Uid, Uid> finalList = Map();
-    var res = await _roomDao.getAllRooms();
+    var res = await _messageDao.getAllRooms();
     for (var room in res) {
-      Uid uid = room.roomId.getUid();
+      Uid uid = room.uid.getUid();
       finalList[uid] = uid;
     }
     return finalList.values.toList();

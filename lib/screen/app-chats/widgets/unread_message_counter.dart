@@ -1,4 +1,5 @@
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
@@ -14,16 +15,16 @@ class UnreadMessageCounterWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final lastSeenDao = GetIt.I.get<SeenDao>();
     return StreamBuilder<Seen>(
-      stream: lastSeenDao.watchMySeen(lastMessage.roomId),
+      stream: lastSeenDao.watchMySeen(lastMessage.roomUid),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           int lastSeen = snapshot.data?.messageId ?? 0;
           int unreadCount = lastMessage.id - lastSeen;
           if (unreadCount > 0) {
             updateUnreadMessageCount(
-                lastMessage.roomId, lastMessage.id, unreadCount);
+                lastMessage.roomUid, lastMessage.id, unreadCount);
           } else
-            eraseUnreadCountMessage(lastMessage.roomId);
+            eraseUnreadCountMessage(lastMessage.roomUid);
           return (unreadCount > 0)
               ? Padding(
                   padding: const EdgeInsets.only(

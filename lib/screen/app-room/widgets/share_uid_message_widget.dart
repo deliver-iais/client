@@ -7,6 +7,7 @@ import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -219,7 +220,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0, top: 5),
                       child: MsgTime(
-                        time: message.time,
+                        time: date(message.time),
                       ),
                     ),
                     if (isSender)

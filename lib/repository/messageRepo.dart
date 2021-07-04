@@ -3,11 +3,14 @@ import 'dart:async';
 import 'dart:io' as DartFile;
 import 'dart:math';
 
+import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
+import 'package:deliver_flutter/box/message.dart';
+import 'package:deliver_flutter/box/pending_message.dart';
+import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/models/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
@@ -37,8 +40,6 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/db/dao/MessageDao.dart';
-import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 import 'package:fixnum/fixnum.dart';
@@ -60,9 +61,7 @@ DateTime now() {
 
 class MessageRepo {
   var _messageDao = GetIt.I.get<MessageDao>();
-  var _roomDao = GetIt.I.get<RoomDao>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _fileRepo = GetIt.I.get<FileRepo>();
@@ -113,10 +112,10 @@ class MessageRepo {
 
       // TODO if there is Pending Message this line has a bug!!
       if (messages.isNotEmpty) {
-        _roomDao.insertRoomCompanion(RoomsCompanion.insert(
-            roomId: roomUid.asString(),
-            lastMessageId: Value(messages.last.id),
-            lastMessageDbId: Value(messages.last.dbId)));
+        _messageDao.updateRoom(Room(
+          uid: roomUid.asString(),
+          lastMessage: messages.last,
+        ));
       }
     } catch (e) {
       debug(e);
@@ -132,12 +131,12 @@ class MessageRepo {
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
-        var room =
-            await _roomDao.getByRoomIdFuture(roomMetadata.roomUid.asString());
+        var room = await _messageDao.getRoom(roomMetadata.roomUid.asString());
         if (room != null &&
-            room.lastMessageId != null &&
-            room.lastMessageId >= roomMetadata.lastMessageId.toInt() &&
-            room.lastMessageId != 0) {
+            room.lastMessage != null &&
+            room.lastMessage.id != null &&
+            room.lastMessage.id >= roomMetadata.lastMessageId.toInt() &&
+            room.lastMessage.id != 0) {
           continue;
         }
         updatingStatus.add(TitleStatusConditions.Updating);
@@ -167,15 +166,15 @@ class MessageRepo {
 
       // TODO if there is Pending Message this line has a bug!!
       if (messages.isNotEmpty) {
-        _roomDao.insertRoomCompanion(RoomsCompanion.insert(
-            roomId: roomMetadata.roomUid.asString(),
-            lastMessageId: Value(messages.last.id),
-            lastMessageDbId: Value(messages.last.dbId)));
+        _messageDao.updateRoom(Room(
+          uid: roomMetadata.roomUid.asString(),
+          lastMessage: messages.last,
+        ));
       }
 
       fetchLastSeen(roomMetadata);
 
-      if (room != null && room.roomId.getUid().category == Categories.GROUP) {
+      if (room != null && room.uid.getUid().category == Categories.GROUP) {
         getMentions(room);
       }
     } catch (e) {
@@ -223,46 +222,42 @@ class MessageRepo {
     try {
       var mentionResult = await _queryServiceClient.fetchMentionList(
           FetchMentionListReq()
-            ..group = room.roomId.getUid()
-            ..afterId = Int64.parseInt(room.lastMessageId.toString()),
+            ..group = room.uid.getUid()
+            ..afterId = Int64.parseInt(room.lastMessage.id.toString()),
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       if (mentionResult.idList != null && mentionResult.idList.length > 0) {
-        _roomDao.insertRoomCompanion(
-            RoomsCompanion(roomId: Value(room.roomId), mentioned: Value(true)));
+        _messageDao.updateRoom(Room(uid: room.uid, mentioned: true));
       }
     } catch (e) {
       e.toString();
     }
   }
 
-  Future getPinMessage(Uid roomUid) async {}
-
   sendTextMessage(Uid room, String text,
       {int replyId, String forwardedFromAsString}) async {
     String packetId = _getPacketId();
     String json = (MessageProto.Text()..text = text).writeToJson();
-    MessagesCompanion message = MessagesCompanion.insert(
-      roomId: room.asString(),
+    Message msg = Message(
+      roomUid: room.asString(),
       packetId: packetId,
-      time: now(),
+      time: now().millisecondsSinceEpoch,
       from: _accountRepo.currentUserUid.asString(),
       to: room.asString(),
-      replyToId: replyId != null ? Value(replyId) : Value.absent(),
-      forwardedFrom: Value(forwardedFromAsString),
+      replyToId: replyId,
+      forwardedFrom: forwardedFromAsString,
       type: MessageType.TEXT,
       json: json,
     );
 
-    int dbId = await _messageDao.insertMessageCompanion(message);
-    await _savePendingMessage(
-        room.asString(), dbId, packetId, SendingStatus.PENDING);
-    _updateRoomLastMessage(
-      room.asString(),
-      dbId,
-    );
-    // Send Message
-    await _sendMessageToServer(dbId);
+    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+    _saveAndSend(pm);
+  }
+
+  _saveAndSend(PendingMessage pm) {
+    _savePendingMessage(pm);
+    _updateRoomLastMessage(pm);
+    _sendMessageToServer(pm);
   }
 
   sendLocationMessage(Position locationData, Uid room,
@@ -272,26 +267,19 @@ class MessageRepo {
           ..longitude = locationData.longitude
           ..latitude = locationData.latitude)
         .writeToJson();
-    MessagesCompanion message = MessagesCompanion.insert(
-      roomId: room.asString(),
+    Message msg = Message(
+      roomUid: room.asString(),
       packetId: packetId,
-      time: now(),
+      time: now().millisecondsSinceEpoch,
       from: _accountRepo.currentUserUid.asString(),
       to: room.asString(),
-      forwardedFrom: Value(forwardedFromAsString),
+      forwardedFrom: forwardedFromAsString,
       type: MessageType.LOCATION,
       json: json,
     );
 
-    int dbId = await _messageDao.insertMessageCompanion(message);
-    await _savePendingMessage(
-        room.asString(), dbId, packetId, SendingStatus.PENDING);
-    _updateRoomLastMessage(
-      room.asString(),
-      dbId,
-    );
-    // Send Message
-    await _sendMessageToServer(dbId);
+    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+    _saveAndSend(pm);
   }
 
   sendFileMessage(Uid room, String path,
@@ -327,29 +315,25 @@ class MessageRepo {
     await _fileRepo.cloneFileInLocalDirectory(
         file, packetId, path.split('.').last);
 
-    MessagesCompanion message = MessagesCompanion.insert(
-        roomId: room.asString(),
+    Message msg = Message(
+        roomUid: room.asString(),
         packetId: packetId,
-        time: now(),
+        time: now().millisecondsSinceEpoch,
         from: _accountRepo.currentUserUid.asString(),
         to: room.asString(),
-        replyToId: Value(replyToId),
+        replyToId: replyToId,
         type: MessageType.FILE,
         json: sendingFakeFile.writeToJson());
 
-    // Insert in messages table
-    int dbId = await _messageDao.insertMessageCompanion(message);
+    var pm = _createPendingMessage(msg, SendingStatus.SENDING_FILE);
 
-    // Insert in pending messages table
-    await _savePendingMessage(
-        room.asString(), dbId, packetId, SendingStatus.SENDING_FILE);
+    await _savePendingMessage(pm);
 
-    // Send File
-    await _sendFileToServerOfPendingMessage(dbId);
+    await _sendFileToServerOfPendingMessage(pm);
 
-    // Send message
-    await _sendMessageToServer(dbId);
-    sendActivityMessage(message.to.value.getUid(), ActivityType.NO_ACTIVITY);
+    await _sendMessageToServer(pm);
+
+    _saveAndSend(pm);
   }
 
   sendStickerMessage(
@@ -363,118 +347,76 @@ class MessageRepo {
       ..name = sticker.name
       ..duration = 0;
     String packetId = _getPacketId();
-    MessagesCompanion message = MessagesCompanion.insert(
-      roomId: roomUid.asString(),
+    Message msg = Message(
+      roomUid: roomUid.asString(),
       packetId: packetId,
-      time: now(),
+      time: now().millisecondsSinceEpoch,
       from: _accountRepo.currentUserUid.asString(),
       to: roomUid.asString(),
-      replyToId: replyId != null ? Value(replyId) : Value.absent(),
-      forwardedFrom: Value(forwardedFromAsString),
+      replyToId: replyId,
+      forwardedFrom: forwardedFromAsString,
       type: MessageType.STICKER,
       json: sendingFakeFile.writeToJson(),
     );
 
-    int dbId = await _messageDao.insertMessageCompanion(message);
-    await _savePendingMessage(
-        roomUid.asString(), dbId, packetId, SendingStatus.PENDING);
-    _updateRoomLastMessage(
-      roomUid.asString(),
-      dbId,
-    );
-    // Send Message
-    await _sendMessageToServer(dbId);
+    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+    _saveAndSend(pm);
   }
 
-  _sendFileToServerOfPendingMessage(int dbId) async {
-    var message = await _messageDao.getPendingMessage(dbId);
-    var pendingMessage = await _pendingMessageDao.getByMessageDbId(dbId);
-
-    if (!_canPendingMessageResendAndDecreaseRemainingRetries(
-            pendingMessage, message) ||
-        pendingMessage.status != SendingStatus.SENDING_FILE) {
+  _sendFileToServerOfPendingMessage(PendingMessage pm) async {
+    if (!_canPendingMessageResendAndDecreaseRemainingRetries(pm) ||
+        pm.status != SendingStatus.SENDING_FILE) {
       return;
     }
 
-    var fakeFileInfo = FileProto.File.fromJson(message.json);
+    var fakeFileInfo = FileProto.File.fromJson(pm.msg.json);
 
-    var packetId = message.packetId;
-    var roomId = message.roomId;
+    var packetId = pm.msg.packetId;
+    var roomId = pm.msg.roomUid;
 
     // Upload to file server
     FileProto.File fileInfo = await _fileRepo
         .uploadClonedFile(packetId, fakeFileInfo.name, sendActivity: () {
-      sendActivityMessage(message.to.uid, ActivityType.SENDING_FILE);
+      sendActivityMessage(pm.msg.to.uid, ActivityType.SENDING_FILE);
     });
 
     fileInfo.caption = fakeFileInfo.caption;
 
     var newJson = fileInfo.writeToJson();
 
-    // Update in messages table
-    await _messageDao.updateMessageTimeAndJson(roomId, dbId, newJson);
+    var newPm = pm.copyWith(
+        msg: pm.msg.copyWith(json: newJson), status: SendingStatus.PENDING);
 
     // Update pending messages table
-    await _savePendingMessage(roomId, dbId, packetId, SendingStatus.PENDING);
+    await _savePendingMessage(newPm);
 
-    // Update last message id of room
-    _updateRoomLastMessage(
-      roomId,
-      dbId,
-    );
+    _updateRoomLastMessage(newPm);
   }
 
-  _sendMessageToServer(int dbId, {bool resend = false}) async {
-    var message = await _messageDao.getPendingMessage(dbId);
-    var pendingMessage = await _pendingMessageDao.getByMessageDbId(dbId);
-    if (!resend &&
-            !_canPendingMessageResendAndDecreaseRemainingRetries(
-                pendingMessage, message) ||
-        pendingMessage.status != SendingStatus.PENDING) {
+  _sendMessageToServer(PendingMessage pm, {bool resend = false}) async {
+    if (!resend && !_canPendingMessageResendAndDecreaseRemainingRetries(pm) ||
+        pm.status != SendingStatus.PENDING) {
       return;
     }
 
-    MessageProto.MessageByClient byClient = _createMessageByClient(message);
+    MessageProto.MessageByClient byClient = _createMessageByClient(pm.msg);
 
-    if (message.replyToId != null)
-      byClient.replyToId = Int64(message.replyToId);
-    else
-      byClient.replyToId = Int64(0);
-
-    if (message.forwardedFrom != null)
-      byClient.forwardFrom = message.forwardedFrom.getUid();
     _coreServices.sendMessage(byClient);
+    sendActivityMessage(byClient.to, ActivityType.NO_ACTIVITY);
   }
 
-  bool _canPendingMessageResendAndDecreaseRemainingRetries(
-      PendingMessage pendingMessage, Message message) {
-    if (pendingMessage == null) {
-      if (message != null) {
-        _messageDao.deleteMessage(message);
-      }
+  bool _canPendingMessageResendAndDecreaseRemainingRetries(PendingMessage pm) {
+    if (pm == null) {
       return false;
     }
-    if (message == null) {
-      _pendingMessageDao.deletePendingMessage(pendingMessage.messagePacketId);
-      return false;
-    }
-    if (pendingMessage.remainingRetries < 3) {
-      _messageDao.updateMessage(message.copyWith(sendingFailed: true));
-      return false;
-    }
-    if (pendingMessage.remainingRetries > 0) {
-      if (message.id == null) {
-        if (pendingMessage.remainingRetries < 3) {
-          _messageDao.updateMessage(message.copyWith(sendingFailed: true));
-        }
-        _pendingMessageDao.insertPendingMessage(pendingMessage.copyWith(
-            remainingRetries: pendingMessage.remainingRetries - 1));
+    if (pm.retries > 0) {
+      if (pm.msg.id == null) {
+        _messageDao.savePendingMessage(pm.copyWith(retries: pm.retries - 1));
         return true;
       } else
-        _pendingMessageDao.deletePendingMessage(message.packetId);
+        _messageDao.deletePendingMessage(pm.packetId);
     } else {
-      _messageDao.deleteMessage(message);
-      _pendingMessageDao.deletePendingMessage(message.packetId);
+      _messageDao.deletePendingMessage(pm.packetId);
     }
     return false;
   }
@@ -483,6 +425,14 @@ class MessageRepo {
     MessageProto.MessageByClient byClient = MessageProto.MessageByClient()
       ..packetId = message.packetId
       ..to = message.to.getUid();
+
+    if (message.replyToId != null)
+      byClient.replyToId = Int64(message.replyToId);
+    else
+      byClient.replyToId = Int64(0);
+
+    if (message.forwardedFrom != null)
+      byClient.forwardFrom = message.forwardedFrom.getUid();
 
     switch (message.type) {
       case MessageType.TEXT:
@@ -523,31 +473,32 @@ class MessageRepo {
   @visibleForTesting
   sendPendingMessages() async {
     List<PendingMessage> pendingMessages =
-        await _pendingMessageDao.getAllPendingMessages();
+        await _messageDao.getAllPendingMessages();
     for (var pendingMessage in pendingMessages) {
       switch (pendingMessage.status) {
         case SendingStatus.SENDING_FILE:
-          var dbId = pendingMessage.messageDbId;
-          await _sendFileToServerOfPendingMessage(dbId);
-          await _sendMessageToServer(dbId);
+          await _sendFileToServerOfPendingMessage(pendingMessage);
+          await _sendMessageToServer(pendingMessage);
           break;
         case SendingStatus.PENDING:
-          await _sendMessageToServer(pendingMessage.messageDbId);
+          await _sendMessageToServer(pendingMessage);
           break;
       }
     }
   }
 
-  _savePendingMessage(String roomId, int messageDbId, String messagePacketId,
-      SendingStatus status) async {
-    PendingMessage pendingMessage = PendingMessage(
-      messageDbId: messageDbId,
-      messagePacketId: messagePacketId,
-      roomId: roomId,
-      remainingRetries: MAX_REMAINING_RETRIES,
+  PendingMessage _createPendingMessage(Message msg, SendingStatus status) {
+    return PendingMessage(
+      roomUid: msg.roomUid,
+      packetId: msg.packetId,
+      msg: msg,
+      retries: MAX_REMAINING_RETRIES,
       status: status,
     );
-    _pendingMessageDao.insertPendingMessage(pendingMessage);
+  }
+
+  _savePendingMessage(PendingMessage pm) async {
+    _messageDao.savePendingMessage(pm);
   }
 
   sendSeenMessage(int messageId, Uid to) {
@@ -556,8 +507,8 @@ class MessageRepo {
       ..id = Int64.parseInt(messageId.toString()));
   }
 
-  _updateRoomLastMessage(String roomId, int dbId) async {
-    await _roomDao.updateRoomLastMessage(roomId, dbId);
+  _updateRoomLastMessage(PendingMessage pm) async {
+    await _messageDao.updateRoom(Room(uid: pm.roomUid, lastMessage: pm.msg));
   }
 
   sendForwardedMessage(Uid room, List<Message> forwardedMessage) async {
@@ -565,35 +516,22 @@ class MessageRepo {
       Timer(Duration(seconds: 2), () async {
         String packetId = _getPacketId() + forwardedMessage.packetId;
 
-        int dbId = await _messageDao.insertMessage(Message(
-            roomId: room.asString(),
+        var msg = Message(
+            roomUid: room.asString(),
             packetId: packetId,
-            time: now(),
+            time: now().millisecondsSinceEpoch,
             type: forwardedMessage.type,
             from: _accountRepo.currentUserUid.asString(),
             to: room.asString(),
             forwardedFrom: forwardedMessage.from,
-            json: forwardedMessage.json));
+            json: forwardedMessage.json);
 
-        _savePendingMessage(
-            room.asString(), dbId, packetId, SendingStatus.PENDING);
+        var pm = _createPendingMessage(msg, SendingStatus.PENDING);
 
-        _updateRoomLastMessage(
-          room.asString(),
-          dbId,
-        );
-
-        // Send Message
-        await _sendMessageToServer(dbId);
+        _saveAndSend(pm);
       });
     }
   }
-
-  getPendingMessage(int dbId) async {
-    return await _messageDao.getPendingMessage(dbId);
-  }
-
-  deleteMessage(List<Message> messages) {}
 
   String _getPacketId() {
     return now().microsecondsSinceEpoch.toString();
@@ -609,7 +547,7 @@ class MessageRepo {
     completer = new Completer();
     _completerMap["$roomId-$page"] = completer;
 
-    _messageDao.getPage(roomId, page).then((messages) async {
+    _messageDao.getMessagePage(roomId, page).then((messages) async {
       if (messages.any((element) => element.id == containsId)) {
         completer.complete(messages);
       } else {
@@ -645,24 +583,22 @@ class MessageRepo {
       List<MessageProto.Message> messages) async {
     List<Message> msgList = [];
     for (MessageProto.Message message in messages) {
-      _pendingMessageDao.deletePendingMessage(message.packetId);
+      _messageDao.deletePendingMessage(message.packetId);
       try {
         if (message.whichType() == MessageProto.Message_Type.persistEvent) {
           switch (message.persistEvent.whichType()) {
             case PersistentEvent_Type.mucSpecificPersistentEvent:
               switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
                 case MucSpecificPersistentEvent_Issue.DELETED:
-                  _roomDao.updateRoom(RoomsCompanion(
-                      roomId: Value(message.from.asString()),
-                      deleted: Value(true)));
+                  _messageDao.updateRoom(
+                      Room(uid: message.from.asString(), deleted: true));
                   continue;
                   break;
                 case MucSpecificPersistentEvent_Issue.KICK_USER:
                   if (message.persistEvent.mucSpecificPersistentEvent.assignee
                       .isSameEntity(_accountRepo.currentUserUid.asString())) {
-                    _roomDao.updateRoom(RoomsCompanion(
-                        roomId: Value(message.from.asString()),
-                        deleted: Value(true)));
+                    _messageDao.updateRoom(
+                        Room(uid: message.from.asString(), deleted: true));
                     continue;
                   }
                   break;
@@ -701,7 +637,7 @@ class MessageRepo {
     }
   }
 
-  void sendFormMessage(
+  void sendFormResultMessage(
       String botUid, Map<String, String> formResultMap, int formMessageId,
       {String forwardFromAsString}) async {
     String packetId = _getPacketId();
@@ -711,55 +647,44 @@ class MessageRepo {
     }
 
     String jsonString = (formResult).writeToJson();
-    MessagesCompanion message = MessagesCompanion.insert(
-      roomId: botUid,
+    Message msg = Message(
+      roomUid: botUid,
       packetId: packetId,
-      time: now(),
+      time: now().millisecondsSinceEpoch,
       from: _accountRepo.currentUserUid.asString(),
       to: botUid,
-      replyToId: Value(formMessageId),
-      forwardedFrom: Value(forwardFromAsString),
+      replyToId: formMessageId,
+      forwardedFrom: forwardFromAsString,
       type: MessageType.FORM_RESULT,
       json: jsonString,
     );
 
-    int dbId = await _messageDao.insertMessageCompanion(message);
-    await _savePendingMessage(botUid, dbId, packetId, SendingStatus.PENDING);
-    _updateRoomLastMessage(
-      botUid,
-      dbId,
-    );
-    // Send Message
-    await _sendMessageToServer(dbId);
+    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+
+    _saveAndSend(pm);
   }
 
   void sendShareUidMessage(Uid room, MessageProto.ShareUid shareUid) async {
     String packetId = _getPacketId();
     String json = shareUid.writeToJson();
-    MessagesCompanion message = MessagesCompanion.insert(
-      roomId: room.asString(),
+    Message msg = Message(
+      roomUid: room.asString(),
       packetId: packetId,
-      time: now(),
+      time: now().millisecondsSinceEpoch,
       from: _accountRepo.currentUserUid.asString(),
       to: room.asString(),
-      replyToId: Value.absent(),
+      replyToId: null,
       type: MessageType.SHARE_UID,
       json: json,
     );
 
-    int dbId = await _messageDao.insertMessageCompanion(message);
-    await _savePendingMessage(
-        room.asString(), dbId, packetId, SendingStatus.PENDING);
-    _updateRoomLastMessage(
-      room.asString(),
-      dbId,
-    );
-    // Send Message
-    await _sendMessageToServer(dbId);
+    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+    _saveAndSend(pm);
   }
 
   Future<List<Message>> searchMessage(String str, String roomId) async {
-    return _messageDao.searchMessage(str, roomId);
+    // TODO MIGRATION NEEDS
+    return [];
   }
 
   void sendPrivateMessageAccept(Uid to, PrivateDataType privateDataType) async {
@@ -767,35 +692,34 @@ class MessageRepo {
         SharePrivateDataAcceptance()..data = privateDataType;
     String json = sharePrivateDataAcceptance.writeToJson();
     String packetId = _getPacketId();
-    MessagesCompanion message = MessagesCompanion.insert(
-      roomId: to.asString(),
+    Message msg = Message(
+      roomUid: to.asString(),
       packetId: packetId,
-      time: now(),
+      time: now().millisecondsSinceEpoch,
       from: _accountRepo.currentUserUid.asString(),
       to: to.asString(),
-      replyToId: Value.absent(),
+      replyToId: null,
       type: MessageType.sharePrivateDataAcceptance,
       json: json,
     );
 
-    int dbId = await _messageDao.insertMessageCompanion(message);
-    await _savePendingMessage(
-        to.asString(), dbId, packetId, SendingStatus.PENDING);
-    _updateRoomLastMessage(
-      to.asString(),
-      dbId,
-    );
-    // Send Message
-    await _sendMessageToServer(dbId);
+    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+    _saveAndSend(pm);
   }
 
-  void ResendMessage(Message message) async {
-    await _sendMessageToServer(message.dbId, resend: true);
-    _updateRoomLastMessage(message.roomId, message.dbId);
+  Future<Message> getMessage(String roomUid, int id) =>
+      _messageDao.getMessage(roomUid, id);
+
+  Future<PendingMessage> getPendingMessage(String roomUid, String packetId) =>
+      _messageDao.getPendingMessage(roomUid, packetId);
+
+  void resendMessage(Message msg) async {
+    var pm = await _messageDao.getPendingMessage(msg.roomUid, msg.packetId);
+    _saveAndSend(pm);
   }
 
   void deletePendingMessage(Message message) {
-    _pendingMessageDao.deletePendingMessage(message.packetId);
+    _messageDao.deletePendingMessage(message.packetId);
   }
 
   Future<bool> pinMessage(Message message) async {

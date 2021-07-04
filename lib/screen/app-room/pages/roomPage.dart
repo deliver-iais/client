@@ -5,13 +5,13 @@ import 'dart:math';
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/box/dao/muc_dao.dart';
+import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
+import 'package:deliver_flutter/box/message.dart';
+import 'package:deliver_flutter/box/pending_message.dart';
+import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/models/operation_on_message.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
@@ -83,8 +83,7 @@ class RoomPage extends StatefulWidget {
 }
 
 class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
-  var _roomDao = GetIt.I.get<RoomDao>();
-  var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
+  var _messageDao = GetIt.I.get<MessageDao>();
   var _messageRepo = GetIt.I.get<MessageRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
@@ -140,10 +139,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   BehaviorSubject<int> unReadMessageScrollSubject = BehaviorSubject.seeded(0);
 
   Color menuColor;
-
-  Future<List<Message>> _getPendingMessage(dbId) async {
-    return [await _messageRepo.getPendingMessage(dbId)];
-  }
 
   // TODO check function
   Future<List<Message>> _getMessageAndPreviousMessage(int id) async {
@@ -247,7 +242,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           // TODO: Handle this case.
           break;
         case OperationOnMessage.RESEND:
-          _messageRepo.ResendMessage(message);
+          _messageRepo.resendMessage(message);
           break;
         case OperationOnMessage.DELETE_PENDING_MESSAGE:
           _messageRepo.deletePendingMessage(message);
@@ -321,7 +316,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       }
     });
 
-    _roomDao.updateRoom(RoomsCompanion(
+    _messageDao.updateRoom(RoomsCompanion(
         roomId: Moor.Value(widget.roomId), mentioned: Moor.Value(false)));
     _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.uid.category == Categories.GROUP ||
@@ -435,7 +430,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         ? pendingMessagesStream.data
                         : [];
                     return StreamBuilder<Room>(
-                        stream: _roomDao.getByRoomId(widget.roomId),
+                        stream: _messageDao.getByRoomId(widget.roomId),
                         builder: (context, currentRoomStream) {
                           if (currentRoomStream.hasData) {
                             _currentRoom.add(currentRoomStream.data);
@@ -880,12 +875,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     );
   }
 
-  buildMessage(bool isPendingMessage, List pendingMessages, int index,
-      Room currentRoom, double _maxWidth) {
+  buildMessage(bool isPendingMessage, List<PendingMessage> pendingMessages,
+      int index, Room currentRoom, double _maxWidth) {
     return FutureBuilder<List<Message>>(
       future: isPendingMessage
-          ? _getPendingMessage(
-              pendingMessages[_itemCount - index - 1].messageDbId)
+          ? pendingMessages[_itemCount - index - 1].msg
           : _getMessageAndPreviousMessage(index + 1),
       builder: (context, messagesFuture) {
         if (messagesFuture.hasData && messagesFuture.data[0] != null) {

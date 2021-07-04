@@ -1,5 +1,6 @@
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:flutter/material.dart';
 
@@ -23,7 +24,7 @@ class TimeAndSeenStatus extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(3),
                 child: MsgTime(
-                  time: message.time,
+                  time: date(message.time),
                 ),
               ),
               isSender
@@ -46,7 +47,7 @@ class TimeAndSeenStatus extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 5),
                 child: MsgTime(
-                  time: message.time,
+                  time: date(message.time),
                 ),
               ),
               isSender

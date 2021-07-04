@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/models/stickerPacket.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
@@ -9,13 +10,12 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as FileProto;
 import 'package:flutter/cupertino.dart';
-import 'package:deliver_flutter/db/database.dart' as db;
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:get_it/get_it.dart';
 
 class StickerMessageWidget extends StatefulWidget {
-  final db.Message message;
+  final Message message;
   final bool isSender;
   final bool isSeen;
 

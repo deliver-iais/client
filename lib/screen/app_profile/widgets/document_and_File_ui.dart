@@ -26,7 +26,7 @@ class DocumentAndFileUi extends StatefulWidget {
 class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
   var fileId;
   var fileName;
-  var messageId;
+  var message;
   var docType;
   var mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   var fileRepo = GetIt.I.get<FileRepo>();
@@ -56,7 +56,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                         itemBuilder: (BuildContext ctx, int index) {
                           fileId = jsonDecode(media.data[index].json)["uuid"];
                           fileName = jsonDecode(media.data[index].json)["name"];
-                          messageId = media.data[index].messageId;
+                          message = media.data[index].messageId;
                           docType = media.data[index].type;
                           return FutureBuilder<File>(
                               future: fileRepo.getFileIfExist(fileId, fileName),

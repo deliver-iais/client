@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/box/message.dart';
+import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -20,7 +20,7 @@ class SenderAndContent extends StatelessWidget {
   SenderAndContent({Key key, this.messages, this.inBox}) : super(key: key);
 
   String generateTitle() {
-    List<String> names = List<String>();
+    List<String> names = [];
     for (var i = 0; i < messages.length; i++) {
       if (!names.contains(messages[i].from.length > 3
           ? messages[i].from.substring(0, 3)

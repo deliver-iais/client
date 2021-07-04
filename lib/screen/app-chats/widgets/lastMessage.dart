@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
@@ -54,7 +55,7 @@ class LastMessage extends StatelessWidget {
     AppLocalization _appLocalization = AppLocalization.of(context);
     String oneLine = messageText(context);
     bool shouldHighlight = message.type != MessageType.TEXT;
-    if (message.roomId.uid.category == Categories.GROUP &&
+    if (message.roomUid.getUid().category == Categories.GROUP &&
         message.type != MessageType.PERSISTENT_EVENT) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,

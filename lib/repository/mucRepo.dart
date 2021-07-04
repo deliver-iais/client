@@ -1,9 +1,9 @@
+import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/box/muc.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/box/role.dart';
+import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_flutter/utils/log.dart';
@@ -22,7 +22,7 @@ import 'package:moor/moor.dart';
 
 class MucRepo {
   final _mucDao = GetIt.I.get<MucDao>();
-  final _roomDao = GetIt.I.get<RoomDao>();
+  final _messageDao = GetIt.I.get<MessageDao>();
   final _mucServices = GetIt.I.get<MucServices>();
   final _queryServices = GetIt.I.get<QueryServiceClient>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
@@ -165,7 +165,8 @@ class MucRepo {
             uid: mucUid.asString(),
             info: channel.info.info,
             token: channel.token,
-            pinMessagesIdList: channel.pinMessages.map((e) => e.toInt()).toList(),
+            pinMessagesIdList:
+                channel.pinMessages.map((e) => e.toInt()).toList(),
             id: channel.info.id);
 
         _mucDao.save(muc);
@@ -223,8 +224,7 @@ class MucRepo {
     var result = await _mucServices.removeGroup(groupUid);
     if (result) {
       _mucDao.delete(groupUid.asString());
-      _roomDao.updateRoom(RoomsCompanion(
-          roomId: Value(groupUid.asString()), deleted: Value(true)));
+      _messageDao.updateRoom(Room(uid: groupUid.asString(), deleted: true));
       _mucDao.deleteAllMembers(groupUid.asString());
       return true;
     }
@@ -235,8 +235,7 @@ class MucRepo {
     var result = await _mucServices.removeChannel(channelUid);
     if (result) {
       _mucDao.delete(channelUid.asString());
-      _roomDao.updateRoom(RoomsCompanion(
-          roomId: Value(channelUid.asString()), deleted: Value(true)));
+      _messageDao.updateRoom(Room(uid: channelUid.asString(), deleted: true));
       _mucDao.deleteAllMembers(channelUid.asString());
       return true;
     }
@@ -273,8 +272,7 @@ class MucRepo {
     var result = await _mucServices.leaveGroup(groupUid);
     if (result) {
       _mucDao.delete(groupUid.asString());
-      _roomDao.updateRoom(RoomsCompanion(
-          roomId: Value(groupUid.asString()), deleted: Value(true)));
+      _messageDao.updateRoom(Room(uid: groupUid.asString(), deleted: true));
       return true;
     }
     return false;
@@ -284,8 +282,7 @@ class MucRepo {
     var result = await _mucServices.leaveChannel(channelUid);
     if (result) {
       _mucDao.delete(channelUid.asString());
-      _roomDao.updateRoom(RoomsCompanion(
-          roomId: Value(channelUid.asString()), deleted: Value(true)));
+      _messageDao.updateRoom(Room(uid: channelUid.asString(), deleted: true));
       return true;
     }
     return false;
@@ -410,14 +407,13 @@ class MucRepo {
         info: info,
         population: memberCount,
         id: channelId));
-    await _roomDao
-        .insertRoomCompanion(RoomsCompanion.insert(roomId: mucUid.asString()));
+    await _messageDao.updateRoom(Room(uid: mucUid.asString()));
   }
 
   Future<bool> sendMembers(Uid mucUid, List<Uid> memberUids) async {
     try {
       bool usersAdd = false;
-      List<MucPro.Member> members = new List();
+      List<MucPro.Member> members = [];
       for (Uid uid in memberUids) {
         members.add(MucPro.Member()
           ..uid = uid

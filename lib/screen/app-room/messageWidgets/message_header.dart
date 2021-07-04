@@ -1,5 +1,4 @@
-import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/circular_file_status_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/header_details.dart';
@@ -7,7 +6,6 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:get_it/get_it.dart';
 
@@ -17,7 +15,8 @@ class UnknownFileUi extends StatefulWidget {
   final bool isSender;
   final bool isSeen;
 
-  UnknownFileUi({Key key, this.message, this.maxWidth, this.isSender,this.isSeen})
+  UnknownFileUi(
+      {Key key, this.message, this.maxWidth, this.isSender, this.isSeen})
       : super(key: key);
 
   @override
@@ -45,75 +44,72 @@ class _UnknownFileUiState extends State<UnknownFileUi> {
         return FutureBuilder<bool>(
             future: fileRepo.isExist(file.uuid, file.name),
             builder: (context, isExist) {
-                return Padding(
-                  padding: const EdgeInsets.only(left: 8.0, top: 6),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: file.name.isPersian()
-                        ? CrossAxisAlignment.end
-                        : CrossAxisAlignment.start,
-                    children: <Widget>[
-                      CircularFileStatusIndicator(
-                        isExist: isExist.data,
-                        sendingStatus: pendingMessage.data != null
-                            ? pendingMessage.data.status
-                            : null,
-                        file: file,
-                        messageDbId: widget.message.dbId,
-                        onPressed: download,
-                      ),
-
-                      Stack(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.only(left: 20.0),
-                            child: Container(
-                              width: 175,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width: 155,
-                                    child: Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 10.0),
-                                      child: Text(
-                                        file.name,
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: ExtraTheme.of(context).textMessage
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                        softWrap: false,
-                                        maxLines: 1,
-                                      ),
+              return Padding(
+                padding: const EdgeInsets.only(left: 8.0, top: 6),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: file.name.isPersian()
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
+                  children: <Widget>[
+                    CircularFileStatusIndicator(
+                      isExist: isExist.data,
+                      sendingStatus: pendingMessage.data != null
+                          ? pendingMessage.data.status
+                          : null,
+                      file: file,
+                      msg: widget.message,
+                      onPressed: download,
+                    ),
+                    Stack(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0),
+                          child: Container(
+                            width: 175,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: 155,
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.only(bottom: 10.0),
+                                    child: Text(
+                                      file.name,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: ExtraTheme.of(context)
+                                              .textMessage),
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: false,
+                                      maxLines: 1,
                                     ),
                                   ),
-                                  // Icon(
-                                  //   Icons.more_vert,
-                                  //   size: 18,
-                                  // ),
-                                ],
-                              ),
+                                ),
+                                // Icon(
+                                //   Icons.more_vert,
+                                //   size: 18,
+                                // ),
+                              ],
                             ),
                           ),
-                          HeaderDetails(
-                              loadStatus: 'loaded',
-                              loadProgress: loadProgress,
-                              file: file),
-                          file.caption.isEmpty
-                              ? TimeAndSeenStatus(
-                                  widget.message, widget.isSender, false,widget.isSeen)
-                              : Container(),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-
+                        ),
+                        HeaderDetails(
+                            loadStatus: 'loaded',
+                            loadProgress: loadProgress,
+                            file: file),
+                        file.caption.isEmpty
+                            ? TimeAndSeenStatus(widget.message, widget.isSender,
+                                false, widget.isSeen)
+                            : Container(),
+                      ],
+                    ),
+                  ],
+                ),
+              );
             });
       },
     );
