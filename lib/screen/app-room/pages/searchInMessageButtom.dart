@@ -29,12 +29,9 @@ class searchInMessageButtom extends StatefulWidget {
 }
 
 class _searchInMessageButtomState extends State<searchInMessageButtom> {
-  AppLocalization _appLocalization;
-  var _mucRepo = GetIt.I.get<MucRepo>();
-
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    var _appLocalization = AppLocalization.of(context);
     return StreamBuilder(
       stream: widget.searchMode.stream,
       builder: (c, s) {

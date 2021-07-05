@@ -9,6 +9,7 @@ import 'package:deliver_flutter/box/dao/bot_dao.dart';
 import 'package:deliver_flutter/box/dao/file_dao.dart';
 import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
 import 'package:deliver_flutter/box/dao/mute_dao.dart';
+import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
@@ -102,6 +103,7 @@ Future<void> setupDI() async {
   getIt.registerSingleton<BotDao>(BotDaoImpl());
   getIt.registerSingleton<ContactDao>(ContactDaoImpl());
   getIt.registerSingleton<MessageDao>(MessageDaoImpl());
+  getIt.registerSingleton<RoomDao>(RoomDaoImpl());
 
   Database db = Database();
 

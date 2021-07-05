@@ -4,6 +4,7 @@ import 'dart:io' as DartFile;
 import 'dart:math';
 
 import 'package:deliver_flutter/box/dao/message_dao.dart';
+import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/pending_message.dart';
@@ -54,6 +55,8 @@ enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
 class MessageRepo {
   final _messageDao = GetIt.I.get<MessageDao>();
+  // migrate to room repo
+  final _roomDao = GetIt.I.get<RoomDao>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
@@ -106,7 +109,7 @@ class MessageRepo {
 
       // TODO if there is Pending Message this line has a bug!!
       if (messages.isNotEmpty) {
-        _messageDao.updateRoom(Room(
+        _roomDao.updateRoom(Room(
           uid: roomUid.asString(),
           lastMessage: messages.last,
         ));
@@ -125,7 +128,7 @@ class MessageRepo {
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
-        var room = await _messageDao.getRoom(roomMetadata.roomUid.asString());
+        var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
         if (room != null &&
             room.lastMessage != null &&
             room.lastMessage.id != null &&
@@ -157,7 +160,7 @@ class MessageRepo {
 
       // TODO if there is Pending Message this line has a bug!!
       if (messages.isNotEmpty) {
-        _messageDao.updateRoom(Room(
+        _roomDao.updateRoom(Room(
           uid: roomMetadata.roomUid.asString(),
           lastMessage: messages.last,
         ));
@@ -218,7 +221,7 @@ class MessageRepo {
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       if (mentionResult.idList != null && mentionResult.idList.length > 0) {
-        _messageDao.updateRoom(Room(uid: room.uid, mentioned: true));
+        _roomDao.updateRoom(Room(uid: room.uid, mentioned: true));
       }
     } catch (e) {
       e.toString();
@@ -442,7 +445,7 @@ class MessageRepo {
   }
 
   _updateRoomLastMessage(PendingMessage pm) async {
-    await _messageDao.updateRoom(Room(uid: pm.roomUid, lastMessage: pm.msg));
+    await _roomDao.updateRoom(Room(uid: pm.roomUid, lastMessage: pm.msg));
   }
 
   sendForwardedMessage(Uid room, List<Message> forwardedMessage) async {
@@ -527,14 +530,14 @@ class MessageRepo {
             case PersistentEvent_Type.mucSpecificPersistentEvent:
               switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
                 case MucSpecificPersistentEvent_Issue.DELETED:
-                  _messageDao.updateRoom(
+                  _roomDao.updateRoom(
                       Room(uid: message.from.asString(), deleted: true));
                   continue;
                   break;
                 case MucSpecificPersistentEvent_Issue.KICK_USER:
                   if (message.persistEvent.mucSpecificPersistentEvent.assignee
                       .isSameEntity(_accountRepo.currentUserUid.asString())) {
-                    _messageDao.updateRoom(
+                    _roomDao.updateRoom(
                         Room(uid: message.from.asString(), deleted: true));
                     continue;
                   }

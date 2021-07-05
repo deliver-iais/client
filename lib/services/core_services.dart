@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
+import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/message.dart' as DB;
 import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/muc_dao.dart';
@@ -61,6 +62,7 @@ class CoreServices {
   var _grpcCoreService = GetIt.I.get<CoreServiceClient>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _messageDao = GetIt.I.get<MessageDao>();
+  var _roomDao = GetIt.I.get<RoomDao>();
   var _seenDao = GetIt.I.get<SeenDao>();
   var _routingServices = GetIt.I.get<RoutingService>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
@@ -264,13 +266,13 @@ class CoreServices {
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
       return;
     }
-    saveMessage(_accountRepo, _messageDao, message, roomUid);
+    saveMessage(_accountRepo, _messageDao, _roomDao, message, roomUid);
     if (message.whichType() == Message_Type.persistEvent) {
       switch (message.persistEvent.whichType()) {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
           switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
             case MucSpecificPersistentEvent_Issue.DELETED:
-              _messageDao.updateRoom(
+              _roomDao.updateRoom(
                   Room(uid: message.from.asString(), deleted: true));
               return;
               break;
@@ -288,7 +290,7 @@ class CoreServices {
             case MucSpecificPersistentEvent_Issue.KICK_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
                   .isSameEntity(_accountRepo.currentUserUid.asString())) {
-                _messageDao.updateRoom(
+                _roomDao.updateRoom(
                     Room(uid: message.from.asString(), deleted: true));
                 return;
               }
@@ -297,7 +299,7 @@ class CoreServices {
             case MucSpecificPersistentEvent_Issue.ADD_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
                   .isSameEntity(_accountRepo.currentUserUid.asString())) {
-                _messageDao.updateRoom(
+                _roomDao.updateRoom(
                     Room(uid: message.from.asString(), deleted: false));
               }
               break;
@@ -347,7 +349,7 @@ class CoreServices {
   }
 
   static Future<Uid> saveMessage(AccountRepo accountRepo, MessageDao messageDao,
-      Message message, Uid roomUid) async {
+      RoomDao roomDao, Message message, Uid roomUid) async {
     var msg = await saveMessageInMessagesDB(accountRepo, messageDao, message);
 
     bool isMention = false;
@@ -356,7 +358,7 @@ class CoreServices {
         isMention = await checkMention(message.text.text, accountRepo);
       }
     }
-    messageDao.updateRoom(
+    roomDao.updateRoom(
       Room(uid: roomUid.asString(), lastMessage: msg, mentioned: isMention),
     );
 

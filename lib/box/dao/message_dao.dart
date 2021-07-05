@@ -1,6 +1,5 @@
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/pending_message.dart';
-import 'package:deliver_flutter/box/room.dart';
 import 'package:hive/hive.dart';
 
 abstract class MessageDao {
@@ -16,6 +15,8 @@ abstract class MessageDao {
   // Pending Messages
   Future<List<PendingMessage>> getPendingMessages(String roomUid);
 
+  Stream<List<PendingMessage>> watchPendingMessages(String roomUid);
+
   Future<PendingMessage> getPendingMessage(String roomUid, String packetId);
 
   Stream<PendingMessage> watchPendingMessage(String roomUid, String packetId);
@@ -25,21 +26,6 @@ abstract class MessageDao {
   Future<void> deletePendingMessage(String packetId);
 
   Future<void> savePendingMessage(PendingMessage pm);
-
-  // Room Metadata
-  Future<void> saveRoom(Room room);
-
-  Future<void> updateRoom(Room room);
-
-  Future<void> deleteRoom(Room room);
-
-  Future<List<Room>> getAllRooms();
-
-  Stream<List<Room>> watchAllRooms();
-
-  Future<Room> getRoom(String roomUid);
-
-  Stream<Room> watchRoom(String roomUid);
 }
 
 class MessageDaoImpl implements MessageDao {
@@ -77,6 +63,11 @@ class MessageDaoImpl implements MessageDao {
     throw UnimplementedError();
   }
 
+  Stream<List<PendingMessage>> watchPendingMessages(String roomUid) async* {
+    // TODO: implement getPendingMessages
+    throw UnimplementedError();
+  }
+
   Future<PendingMessage> getPendingMessage(
       String roomUid, String packetId) async {
     // TODO: implement getPendingMessages
@@ -101,51 +92,7 @@ class MessageDaoImpl implements MessageDao {
     box.put(pm.packetId, pm);
   }
 
-  @override
-  Future<void> deleteRoom(Room room) {
-    // TODO: implement deleteRoom
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<List<Room>> getAllRooms() {
-    // TODO: implement getAllRooms
-    throw UnimplementedError();
-  }
-
-  @override
-  Stream<List<Room>> watchAllRooms() {
-    // TODO: implement getAllRooms
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<Room> getRoom(String roomUid) {
-    // TODO: implement getRoom
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> saveRoom(Room room) {
-    // TODO: implement saveRoom
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> updateRoom(Room room) {
-    // TODO: implement updateRoom
-    throw UnimplementedError();
-  }
-
-  @override
-  Stream<Room> watchRoom(String roomUid) {
-    // TODO: implement watchRoom
-    throw UnimplementedError();
-  }
-
   static String _keyMessages(String uid) => "message-$uid";
-
-  static String _keyRoom() => "room";
 
   static String _keyPending() => "pending";
 
@@ -154,6 +101,4 @@ class MessageDaoImpl implements MessageDao {
 
   static Future<Box<PendingMessage>> _openPending() =>
       Hive.openBox<PendingMessage>(_keyPending());
-
-  static Future<Box<Room>> _openRoom() => Hive.openBox<Room>(_keyRoom());
 }

@@ -5,6 +5,7 @@ import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/dao/message_dao.dart';
+import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/pending_message.dart';
@@ -84,6 +85,7 @@ class RoomPage extends StatefulWidget {
 
 class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _messageDao = GetIt.I.get<MessageDao>();
+  var _roomDao = GetIt.I.get<RoomDao>();
   var _messageRepo = GetIt.I.get<MessageRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
 
@@ -316,8 +318,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       }
     });
 
-    _messageDao.updateRoom(RoomsCompanion(
-        roomId: Moor.Value(widget.roomId), mentioned: Moor.Value(false)));
+    _roomDao.updateRoom(Room(uid: widget.roomId, mentioned: false));
     _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.asUid().category == Categories.GROUP ||
             widget.roomId.asUid().category == Categories.CHANNEL
@@ -423,14 +424,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             StreamBuilder<List<PendingMessage>>(
-                stream: _pendingMessageDao.getByRoomId(widget.roomId),
+                stream: _messageDao.watchPendingMessages(widget.roomId),
                 builder: (context, pendingMessagesStream) {
                   if (pendingMessagesStream.hasData) {
                     var pendingMessages = pendingMessagesStream.hasData
                         ? pendingMessagesStream.data
                         : [];
                     return StreamBuilder<Room>(
-                        stream: _messageDao.getByRoomId(widget.roomId),
+                        stream: _roomDao.watchRoom(widget.roomId),
                         builder: (context, currentRoomStream) {
                           if (currentRoomStream.hasData) {
                             _currentRoom.add(currentRoomStream.data);
