@@ -55,7 +55,6 @@ import 'package:flutter/services.dart';
 
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moor/moor.dart' as Moor;
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
@@ -84,19 +83,18 @@ class RoomPage extends StatefulWidget {
 }
 
 class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
-  var _messageDao = GetIt.I.get<MessageDao>();
-  var _roomDao = GetIt.I.get<RoomDao>();
-  var _messageRepo = GetIt.I.get<MessageRepo>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
-
-  var _routingService = GetIt.I.get<RoutingService>();
-  var _notificationServices = GetIt.I.get<NotificationServices>();
-  var _seenDao = GetIt.I.get<SeenDao>();
-  var _mucRepo = GetIt.I.get<MucRepo>();
-  var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _botRepo = GetIt.I.get<BotRepo>();
-  var _fileRepo = GetIt.I.get<FileRepo>();
-  String pattern;
+  final _messageDao = GetIt.I.get<MessageDao>();
+  final _roomDao = GetIt.I.get<RoomDao>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _notificationServices = GetIt.I.get<NotificationServices>();
+  final _seenDao = GetIt.I.get<SeenDao>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _botRepo = GetIt.I.get<BotRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+  String searchMessagePattern;
   Map<String, DateTime> _downTimeMap = Map();
   Map<String, DateTime> _upTimeMap = Map();
   int lastSeenMessageId = -1;
@@ -557,7 +555,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   }
                 }),
             searchInMessageButtom(
-                keybrodWidget: keybrodWidget,
+                keyboardWidget: keybrodWidget,
                 searchMode: _searchMode,
                 searchResult: searchResult,
                 currentSearchResultMessage: currentSearchResultMessage,
@@ -813,7 +811,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Future searchMessage(String str, BehaviorSubject subject) async {
     if (str != null && str.length > 0) {
       subject.add(false);
-      pattern = str;
+      searchMessagePattern = str;
       Map<int, Message> resultMessaeg = Map();
       var res = await _messageRepo.searchMessage(str, widget.roomId);
       res.forEach((element) {
@@ -1172,7 +1170,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       message: message,
       maxWidth: _maxWidth,
       isSeen: message.id != null && message.id <= lastSeenMessageId,
-      pattern: pattern,
+      pattern: searchMessagePattern,
       scrollToMessage: (int id) {
         _scrollToMessage(id: id, position: pendingMessagesLength + id);
       },
@@ -1197,7 +1195,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     var messageWidget = ReceivedMessageBox(
       message: message,
       maxWidth: _maxWidth,
-      pattern: pattern,
+      pattern: searchMessagePattern,
       onBotCommandClick: onBotCommandClick,
       isGroup: widget.roomId.asUid().category == Categories.GROUP,
       scrollToMessage: (int id) {

@@ -12,7 +12,7 @@ class searchInMessageButtom extends StatefulWidget {
   final String roomId;
   final Function scrollDown;
   final Function scrollUp;
-  final Function keybrodWidget;
+  final Function keyboardWidget;
 
   final BehaviorSubject<bool> searchMode;
   final List<Message> searchResult;
@@ -25,7 +25,7 @@ class searchInMessageButtom extends StatefulWidget {
       this.searchMode,
       this.searchResult,
       this.currentSearchResultMessage,
-      this.keybrodWidget});
+      this.keyboardWidget});
 }
 
 class _searchInMessageButtomState extends State<searchInMessageButtom> {
@@ -68,7 +68,7 @@ class _searchInMessageButtomState extends State<searchInMessageButtom> {
             ],
           );
         } else {
-          return widget.keybrodWidget();
+          return widget.keyboardWidget();
         }
       },
     );

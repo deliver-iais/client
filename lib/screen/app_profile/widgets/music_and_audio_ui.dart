@@ -107,7 +107,7 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                       LoadFileStatus(
                                         fileId: fileId,
                                         fileName: fileName,
-                                        dbId: messageId,
+                                        messageId: messageId,
                                         onPressed: download,
                                       ),
                                       Expanded(

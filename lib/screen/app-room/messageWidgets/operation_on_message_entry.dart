@@ -19,9 +19,8 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final bool hasPermissionInChannel;
   final bool hasPermissionInGroup;
   final bool isPined;
-  final bool isPending;
 
-  OperationOnMessageEntry(this.message, this.isPending,
+  OperationOnMessageEntry(this.message,
       {this.hasPermissionInChannel = true,
       this.hasPermissionInGroup = true,
       this.isPined = false});
@@ -196,7 +195,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   Text(appLocalization.getTraslateValue("Forward")),
                 ])),
           ),
-          if (widget.isPending != null && widget.isPending)
+          if (widget.message.id == null)
             FutureBuilder<PendingMessage>(
                 future: _messageRepo.getPendingMessage(
                     widget.message.roomUid, widget.message.packetId),
@@ -220,7 +219,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     return SizedBox.shrink();
                   }
                 }),
-          if (widget.isPending != null && widget.isPending)
+          if (widget.message.id == null)
             FutureBuilder<PendingMessage>(
                 future: _messageRepo.getPendingMessage(
                     widget.message.roomUid, widget.message.packetId),
