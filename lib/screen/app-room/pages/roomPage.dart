@@ -878,7 +878,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       int index, Room currentRoom, double _maxWidth) {
     return FutureBuilder<List<Message>>(
       future: isPendingMessage
-          ? pendingMessages[_itemCount - index - 1].msg
+          ? Future.value([pendingMessages[_itemCount - index - 1].msg])
           : _getMessageAndPreviousMessage(index + 1),
       builder: (context, messagesFuture) {
         if (messagesFuture.hasData && messagesFuture.data[0] != null) {
