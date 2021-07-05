@@ -9,14 +9,14 @@ class EmojiKeybord extends StatefulWidget {
   final Function onTap;
   final Function onStickerTap;
 
-  const EmojiKeybord({this.onTap,this.onStickerTap});
+  const EmojiKeybord({this.onTap, this.onStickerTap});
 
   @override
   _Emojikeybord createState() => _Emojikeybord();
 }
 
 class _Emojikeybord extends State<EmojiKeybord> {
-  Iterable<Emoji> emojis = List();
+  Iterable<Emoji> emojis = [];
   Function onTap;
 
   int selectedGroupIndex = 1;
@@ -176,7 +176,9 @@ class _Emojikeybord extends State<EmojiKeybord> {
                       ),
                     ],
                   )
-                : StickerWidget(onStickerTap: widget.onStickerTap,)),
+                : StickerWidget(
+                    onStickerTap: widget.onStickerTap,
+                  )),
         // Container(
         //     color: Theme.of(context).accentColor,
         //     height: 38,

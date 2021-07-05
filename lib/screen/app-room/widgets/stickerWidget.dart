@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 
@@ -166,7 +165,7 @@ class _StickerWidgetState extends State<StickerWidget> {
   }
 
   List<StickerId> _getDownlodedPackId(List<StickerId> stickersId) {
-    List<StickerId> downloadStickerPackId = List();
+    List<StickerId> downloadStickerPackId = [];
     for (var stickerid in stickersId) {
       if (stickerid.packISDownloaded) {
         downloadStickerPackId.add(stickerid);

@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/box/dao/message_dao.dart';
+import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/chatItem.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -7,14 +7,14 @@ import 'package:get_it/get_it.dart';
 
 class ChatsPage extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
-  final _messageDao = GetIt.I.get<MessageDao>();
+  final _roomDao = GetIt.I.get<RoomDao>();
 
   ChatsPage({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Room>>(
-        stream: _messageDao.watchAllRooms(),
+        stream: _roomDao.watchAllRooms(),
         builder: (context, snapshot) {
           return StreamBuilder(
             stream: _routingService.currentRouteStream,

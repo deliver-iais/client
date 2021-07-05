@@ -2,8 +2,6 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as formModel;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:rxdart/rxdart.dart';
 
 class FormInputTextFieldWidget extends StatelessWidget {
   formModel.Form_Field formField;
@@ -113,9 +111,9 @@ class FormInputTextFieldWidget extends StatelessWidget {
     if (value.isEmpty && !formField.isOptional) {
       return null;
     } else if (value != null && value.length > max) {
-      return "${_appLocalization.getTraslateValue("max_length")}  ${max}";
+      return "${_appLocalization.getTraslateValue("max_length")}  $max";
     } else if (value == null || value.length < min) {
-      return " ${_appLocalization.getTraslateValue("min_length")} ${min}";
+      return " ${_appLocalization.getTraslateValue("min_length")} $min";
     } else {
       return null;
     }

@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/dao/muc_dao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -69,19 +69,19 @@ class ShareUidMessageWidget extends StatelessWidget {
   final Message message;
   final bool isSender;
   final bool isSeen;
-  var _mucRepo = GetIt.I.get<MucRepo>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
+
+  final _routingServices = GetIt.I.get<RoutingService>();
+
+  final _mucDao = GetIt.I.get<MucDao>();
+
+  final _messageRepo = GetIt.I.get<MessageRepo>();
 
   ShareUidMessageWidget({this.message, this.isSender, this.isSeen});
 
-  var _routingServices = GetIt.I.get<RoutingService>();
-  var _mucDao = GetIt.I.get<MucDao>();
-  var _messageRepo = GetIt.I.get<MessageRepo>();
-
-  proto.ShareUid _shareUid;
-
   @override
   Widget build(BuildContext context) {
-    _shareUid = message.json.toShareUid();
+    var _shareUid = message.json.toShareUid();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2.0),
       child: StreamBuilder<Object>(

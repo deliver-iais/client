@@ -2,10 +2,8 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get_it/get_it.dart';
 
 class VideoThumbnail extends StatelessWidget {
@@ -17,7 +15,7 @@ class VideoThumbnail extends StatelessWidget {
   bool showPlayIcon;
   int mediaPosition;
   Function onClick;
-  var _routingService = GetIt.I.get<RoutingService>();
+  final _routingService = GetIt.I.get<RoutingService>();
 
   VideoThumbnail(
       {@required this.userUid,

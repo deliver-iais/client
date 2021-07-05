@@ -8,7 +8,6 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/s
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/addStickerPack.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
 import 'package:deliver_flutter/screen/app_group/pages/group_info_determination_page.dart';
 import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
@@ -19,7 +18,6 @@ import 'package:deliver_flutter/screen/settings/account_settings.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';

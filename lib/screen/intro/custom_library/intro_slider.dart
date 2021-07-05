@@ -1,7 +1,6 @@
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:flutter/material.dart';
 
-import 'list_rtl_language.dart';
 import 'slide_object.dart';
 
 class IntroSlider extends StatefulWidget {
@@ -420,10 +419,10 @@ class IntroSliderState extends State<IntroSlider>
 
   TabController tabController;
 
-  List<Widget> tabs = new List();
-  List<Widget> dots = new List();
-  List<double> sizeDots = new List();
-  List<double> opacityDots = new List();
+  List<Widget> tabs = [];
+  List<Widget> dots = [];
+  List<double> sizeDots = [];
+  List<double> opacityDots = [];
 
   // For DOT_MOVEMENT
   double marginLeftDotFocused = 0;

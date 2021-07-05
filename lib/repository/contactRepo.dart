@@ -1,6 +1,6 @@
 import 'package:deliver_flutter/box/dao/contact_dao.dart';
 import 'package:deliver_flutter/box/contact.dart' as DB;
-import 'package:deliver_flutter/box/dao/message_dao.dart';
+import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/box/room.dart';
 
@@ -28,7 +28,7 @@ class ContactRepo {
 
   final _contactDao = GetIt.I.get<ContactDao>();
 
-  final _messageDao = GetIt.I.get<MessageDao>();
+  final _roomDao = GetIt.I.get<RoomDao>();
 
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
 
@@ -45,7 +45,7 @@ class ContactRepo {
     if (await _checkPermission.checkContactPermission() ||
         isDesktop() ||
         isIOS()) {
-      List<Contact> contacts = new List();
+      List<Contact> contacts = [];
       if (!isDesktop()) {
         Iterable<OsContact.Contact> phoneContacts =
             await OsContact.ContactsService.getContacts(
@@ -157,7 +157,7 @@ class ContactRepo {
           lastName: contact.lastName));
 
       if (contact.uid != null) {
-        _messageDao.updateRoom(Room(uid: contact.uid.asString()));
+        _roomDao.updateRoom(Room(uid: contact.uid.asString()));
       }
     }
   }

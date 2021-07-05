@@ -87,7 +87,7 @@ class _BoxContentState extends State<BoxContent> {
         widget.scrollToMessage(widget.message.replyToId);
       },
       child: ReplyWidgetInMessage(
-        roomId: widget.message.roomId,
+        roomId: widget.message.roomUid,
         replyToId: widget.message.replyToId,
       ),
     );
@@ -198,7 +198,7 @@ class _BoxContentState extends State<BoxContent> {
         // TODO: Handle this case.
         break;
       case MessageType.FORM_RESULT:
-        return BotSendedFormWidget(
+        return BotSentFormWidget(
             message: widget.message, isSeen: widget.isSeen);
       case MessageType.FORM:
         return BotFormMessage(message: widget.message, isSeen: true);

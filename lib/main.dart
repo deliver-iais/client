@@ -9,6 +9,7 @@ import 'package:deliver_flutter/box/dao/bot_dao.dart';
 import 'package:deliver_flutter/box/dao/file_dao.dart';
 import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
 import 'package:deliver_flutter/box/dao/mute_dao.dart';
+import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
@@ -22,6 +23,7 @@ import 'package:deliver_flutter/box/pending_message.dart';
 import 'package:deliver_flutter/box/role.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
+import 'package:deliver_flutter/box/sending_status.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
@@ -71,7 +73,7 @@ import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
 import 'repository/mucRepo.dart';
 
-void setupDI() async {
+Future<void> setupDI() async {
   await Hive.initFlutter("db");
 
   Hive.registerAdapter(AvatarAdapter());
@@ -88,6 +90,7 @@ void setupDI() async {
   Hive.registerAdapter(PendingMessageAdapter());
   Hive.registerAdapter(MessageAdapter());
   Hive.registerAdapter(MessageTypeAdapter());
+  Hive.registerAdapter(SendingStatusAdapter());
 
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<AvatarDao>(AvatarDaoImpl());
@@ -102,6 +105,7 @@ void setupDI() async {
   getIt.registerSingleton<BotDao>(BotDaoImpl());
   getIt.registerSingleton<ContactDao>(ContactDaoImpl());
   getIt.registerSingleton<MessageDao>(MessageDaoImpl());
+  getIt.registerSingleton<RoomDao>(RoomDaoImpl());
 
   Database db = Database();
 

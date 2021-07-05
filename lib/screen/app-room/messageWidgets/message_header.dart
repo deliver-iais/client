@@ -4,7 +4,6 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/circular_file_sta
 import 'package:deliver_flutter/screen/app-room/messageWidgets/header_details.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';

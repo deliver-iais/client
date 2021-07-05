@@ -1,22 +1,19 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:ui';
 
-import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ImageTabUi extends StatefulWidget {
-  int imagesCount;
-  Uid userUid;
+  final int imagesCount;
+  final Uid userUid;
 
   ImageTabUi(this.imagesCount, this.userUid, {Key key}) : super(key: key);
 
@@ -25,9 +22,9 @@ class ImageTabUi extends StatefulWidget {
 }
 
 class _ImageTabUiState extends State<ImageTabUi> {
-  var _routingService = GetIt.I.get<RoutingService>();
-  var _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  var _fileRepo = GetIt.I.get<FileRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
 
   @override
   Widget build(BuildContext context) {

@@ -9,14 +9,13 @@ class JointToMucWidget extends StatelessWidget {
   final Uid mucUid;
   final String token;
 
-  JointToMucWidget(this.mucUid,this.token);
+  JointToMucWidget(this.mucUid, this.token);
 
-  var _mucRepo = GetIt.I.get<MucRepo>();
-  AppLocalization _appLocalization;
+  final _mucRepo = GetIt.I.get<MucRepo>();
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    var _appLocalization = AppLocalization.of(context);
     return Container(
         height: 45,
         color: Theme.of(context).primaryColor,
@@ -25,8 +24,8 @@ class JointToMucWidget extends StatelessWidget {
             child: Text(_appLocalization.getTraslateValue("join")),
             onTap: () {
               mucUid.category == Categories.GROUP
-                  ? _mucRepo.joinGroup(mucUid,token)
-                  : _mucRepo.joinChannel(mucUid,token);
+                  ? _mucRepo.joinGroup(mucUid, token)
+                  : _mucRepo.joinChannel(mucUid, token);
             },
           ),
         ));

@@ -31,7 +31,7 @@ class MediaQueryRepo {
 
   getMediaMetaDataReq(Uid uid) async {
     try {
-      var  mediaResponse = await _queryServiceClient.getMediaMetadata(
+      var mediaResponse = await _queryServiceClient.getMediaMetadata(
           GetMediaMetadataReq()..with_1 = uid,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
@@ -133,7 +133,8 @@ class MediaQueryRepo {
   Future<List<Media>> getMedia(
       Uid uid, FetchMediasReq_MediaType mediaType, int mediaCount) async {
     List<Media> mediasList = [];
-    mediasList = await _mediaDao.getByRoomIdAndType(uid.asString(), mediaType.value);
+    mediasList =
+        await _mediaDao.getByRoomIdAndType(uid.asString(), mediaType.value);
     if (mediasList.length == 0) {
       mediasList = await getLastMediasList(
           uid,
@@ -156,8 +157,8 @@ class MediaQueryRepo {
 
   Future<List<Media>> fetchMoreMedia(
       Uid roomId, FetchMediasReq_MediaType mediaType, int position) async {
-    List<Media> medias =
-        await _mediaDao.getMedia(roomId.asString(), mediaType.value, 30, position);
+    List<Media> medias = await _mediaDao.getMedia(
+        roomId.asString(), mediaType.value, 30, position);
     int pointer = medias.first.createdOn;
     var getMediaReq = FetchMediasReq();
     getMediaReq..roomUid = roomId;
@@ -198,7 +199,8 @@ class MediaQueryRepo {
       return medias;
     } catch (e) {
       debug("errrrrrrrrrroooooooorrrrr:$e");
-    }}
+    }
+  }
 
   Future<List<Media>> _saveFetchedMedias(List<MediaObject.Media> getMedias,
       Uid roomUid, FetchMediasReq_MediaType mediaType) async {
@@ -221,27 +223,27 @@ class MediaQueryRepo {
   }
 
   MediaType findFetchedMediaType(FetchMediasReq_MediaType mediaType) {
-    MediaType type;
     if (mediaType == FetchMediasReq_MediaType.IMAGES) {
-      return type = MediaType.IMAGE;
+      return MediaType.IMAGE;
     } else if (mediaType == FetchMediasReq_MediaType.VIDEOS) {
-      return type = MediaType.VIDEO;
+      return MediaType.VIDEO;
     } else if (mediaType == FetchMediasReq_MediaType.FILES) {
-      return type = MediaType.FILE;
+      return MediaType.FILE;
     } else if (mediaType == FetchMediasReq_MediaType.AUDIOS) {
-      return type = MediaType.AUDIO;
+      return MediaType.AUDIO;
     } else if (mediaType == FetchMediasReq_MediaType.MUSICS) {
-      return type = MediaType.MUSIC;
+      return MediaType.MUSIC;
     } else if (mediaType == FetchMediasReq_MediaType.DOCUMENTS) {
-      return type = MediaType.DOCUMENT;
+      return MediaType.DOCUMENT;
     } else if (mediaType == FetchMediasReq_MediaType.LINKS) {
-      return type = MediaType.LINK;
+      return MediaType.LINK;
     } else
-      return type = MediaType.NOT_SET;
+      return MediaType.NOT_SET;
   }
 
-  Future<List<Media>> getMediaAround(String roomId, int offset,int type) async {
-    mediaList = await _mediaQueriesDao.getMediaAround(roomId, offset,type);
+  Future<List<Media>> getMediaAround(
+      String roomId, int offset, int type) async {
+    mediaList = await _mediaQueriesDao.getMediaAround(roomId, offset, type);
     return mediaList;
   }
 

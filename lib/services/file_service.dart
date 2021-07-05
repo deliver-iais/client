@@ -1,7 +1,5 @@
 import 'dart:io';
-import 'dart:ui';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -10,7 +8,6 @@ import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-import 'package:image/image.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
