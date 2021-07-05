@@ -24,7 +24,7 @@ class MucAppbarTitle extends StatelessWidget {
         child: GestureDetector(
           child: Row(
             children: [
-              CircleAvatarWidget(mucUid.uid, 23),
+              CircleAvatarWidget(mucUid.asUid(), 23),
               SizedBox(
                 width: 20,
               ),
@@ -46,7 +46,7 @@ class MucAppbarTitle extends StatelessWidget {
                                   fontSize: 11,
                                   color: ExtraTheme.of(context).textDetails),
                             ),
-                            currentRoomUid: mucUid.uid,
+                            currentRoomUid: mucUid.asUid(),
                           )
                         ],
                       );
@@ -71,7 +71,7 @@ class MucAppbarTitle extends StatelessWidget {
                                           color: ExtraTheme.of(context)
                                               .textDetails),
                                     ),
-                                    currentRoomUid: mucUid.uid,
+                                    currentRoomUid: mucUid.asUid(),
                                   )
                                 ],
                               );

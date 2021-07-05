@@ -165,7 +165,7 @@ class MessageRepo {
 
       fetchLastSeen(roomMetadata);
 
-      if (room != null && room.uid.getUid().category == Categories.GROUP) {
+      if (room != null && room.uid.asUid().category == Categories.GROUP) {
         getMentions(room);
       }
     } catch (e) {
@@ -213,7 +213,7 @@ class MessageRepo {
     try {
       var mentionResult = await _queryServiceClient.fetchMentionList(
           FetchMentionListReq()
-            ..group = room.uid.getUid()
+            ..group = room.uid.asUid()
             ..afterId = Int64.parseInt(room.lastMessage.id.toString()),
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
@@ -339,7 +339,7 @@ class MessageRepo {
     // Upload to file server
     FileProto.File fileInfo = await _fileRepo
         .uploadClonedFile(packetId, fakeFileInfo.name, sendActivity: () {
-      sendActivity(pm.msg.to.uid, ActivityType.SENDING_FILE);
+      sendActivity(pm.msg.to.asUid(), ActivityType.SENDING_FILE);
     });
 
     fileInfo.caption = fakeFileInfo.caption;
@@ -366,7 +366,7 @@ class MessageRepo {
   MessageProto.MessageByClient _createMessageByClient(Message message) {
     MessageProto.MessageByClient byClient = MessageProto.MessageByClient()
       ..packetId = message.packetId
-      ..to = message.to.getUid();
+      ..to = message.to.asUid();
 
     if (message.replyToId != null)
       byClient.replyToId = Int64(message.replyToId);
@@ -374,7 +374,7 @@ class MessageRepo {
       byClient.replyToId = Int64(0);
 
     if (message.forwardedFrom != null)
-      byClient.forwardFrom = message.forwardedFrom.getUid();
+      byClient.forwardFrom = message.forwardedFrom.asUid();
 
     switch (message.type) {
       case MessageType.TEXT:
@@ -501,7 +501,7 @@ class MessageRepo {
     try {
       var fetchMessagesRes = await _queryServiceClient.fetchMessages(
           FetchMessagesReq()
-            ..roomUid = roomId.uid
+            ..roomUid = roomId.asUid()
             ..pointer = Int64(page * pageSize)
             ..type = FetchMessagesReq_Type.FORWARD_FETCH
             ..limit = pageSize,
@@ -580,7 +580,7 @@ class MessageRepo {
     }
     String jsonString = (formResult).writeToJson();
 
-    Message msg = _createMessage(botUid.getUid(),
+    Message msg = _createMessage(botUid.asUid(),
             replyId: formMessageId, forwardedFrom: forwardFromAsString)
         .copyWith(type: MessageType.FORM_RESULT, json: jsonString);
 

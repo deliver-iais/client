@@ -55,7 +55,7 @@ class LastMessage extends StatelessWidget {
     AppLocalization _appLocalization = AppLocalization.of(context);
     String oneLine = messageText(context);
     bool shouldHighlight = message.type != MessageType.TEXT;
-    if (message.roomUid.getUid().category == Categories.GROUP &&
+    if (message.roomUid.asUid().category == Categories.GROUP &&
         message.type != MessageType.PERSISTENT_EVENT) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,7 +64,7 @@ class LastMessage extends StatelessWidget {
               ? _fromDisplayName(
                   _appLocalization.getTraslateValue("you"), context)
               : FutureBuilder<String>(
-                  future: _roomRepo.getName(message.from.uid),
+                  future: _roomRepo.getName(message.from.asUid()),
                   builder:
                       (BuildContext context, AsyncSnapshot<String> snapshot) {
                     if (snapshot.data != null) {

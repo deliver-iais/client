@@ -330,7 +330,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   void buildMediaPropertise(Media media) {
     fileId = jsonDecode(media.json)["uuid"];
     fileName = jsonDecode(media.json)["name"];
-    mediaSender = media.createdBy.uid;
+    mediaSender = media.createdBy.asUid();
     createdOn = DateTime.fromMillisecondsSinceEpoch(media.createdOn);
     senderName = _mediaSenderCache.get(fileId);
     duration = jsonDecode(media.json)["duration"];

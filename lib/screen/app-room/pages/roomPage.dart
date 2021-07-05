@@ -168,10 +168,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   void _sendForwardMessage() async {
     if (widget.shareUid != null) {
-      _messageRepo.sendShareUidMessage(widget.roomId.getUid(), widget.shareUid);
+      _messageRepo.sendShareUidMessage(widget.roomId.asUid(), widget.shareUid);
     } else {
       await _messageRepo.sendForwardedMessage(
-          widget.roomId.uid, widget.forwardedMessages);
+          widget.roomId.asUid(), widget.forwardedMessages);
     }
 
     _waitingForForwardedMessage.add(false);
@@ -319,8 +319,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _messageDao.updateRoom(RoomsCompanion(
         roomId: Moor.Value(widget.roomId), mentioned: Moor.Value(false)));
     _notificationServices.reset(widget.roomId);
-    _isMuc = widget.roomId.uid.category == Categories.GROUP ||
-            widget.roomId.uid.category == Categories.CHANNEL
+    _isMuc = widget.roomId.asUid().category == Categories.GROUP ||
+            widget.roomId.asUid().category == Categories.CHANNEL
         ? true
         : false;
     _waitingForForwardedMessage.add(widget.forwardedMessages != null
@@ -338,20 +338,20 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         .distinct()
         .debounceTime(Duration(milliseconds: 100))
         .listen((event) {
-          _messageRepo.sendSeen(event, widget.roomId.uid);
+          _messageRepo.sendSeen(event, widget.roomId.asUid());
         });
 
-    if (widget.roomId.getUid().category == Categories.CHANNEL ||
-        widget.roomId.getUid().category == Categories.GROUP)
-      fetchMucInfo(widget.roomId.getUid());
-    else if (widget.roomId.getUid().category == Categories.BOT) {
-      _botRepo.fetchBotInfo(widget.roomId.getUid());
+    if (widget.roomId.asUid().category == Categories.CHANNEL ||
+        widget.roomId.asUid().category == Categories.GROUP)
+      fetchMucInfo(widget.roomId.asUid());
+    else if (widget.roomId.asUid().category == Categories.BOT) {
+      _botRepo.fetchBotInfo(widget.roomId.asUid());
     }
-    if (widget.roomId.getUid().category == Categories.CHANNEL) {
+    if (widget.roomId.asUid().category == Categories.CHANNEL) {
       watchPinMessages();
       checkRole();
     }
-    if (widget.roomId.getUid().category == Categories.GROUP) {
+    if (widget.roomId.asUid().category == Categories.GROUP) {
       watchPinMessages();
       checkGroupRole();
     }
@@ -391,7 +391,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   fetchMucInfo(Uid uid) async {
-    var name = await _mucRepo.fetchMucInfo(widget.roomId.getUid());
+    var name = await _mucRepo.fetchMucInfo(widget.roomId.asUid());
     if (name != null) {
       _roomRepo.updateRoomName(uid, name.name);
     }
@@ -488,7 +488,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                                                 position.data >
                                                             15 &&
                                                         widget.roomId
-                                                                .getUid()
+                                                                .asUid()
                                                                 .category !=
                                                             Categories.BOT) {
                                                       return scrollWidget(0);
@@ -597,7 +597,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Widget keybrodWidget() {
-    return widget.roomId.uid.category != Categories.CHANNEL
+    return widget.roomId.asUid().category != Categories.CHANNEL
         ? buildNewMessageInput()
         : MuteAndUnMuteRoomWidget(
             roomId: widget.roomId,
@@ -634,7 +634,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Widget buildNewMessageInput() {
-    if (widget.roomId.getUid().category == Categories.BOT) {
+    if (widget.roomId.asUid().category == Categories.BOT) {
       return StreamBuilder<Room>(
           stream: _currentRoom.stream,
           builder: (c, s) {
@@ -642,7 +642,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 s.data != null &&
                 s.data.roomId.getUid().category == Categories.BOT &&
                 s.data.lastMessageId == null) {
-              return BotStartWidget(botUid: widget.roomId.getUid());
+              return BotStartWidget(botUid: widget.roomId.asUid());
             } else {
               return NewMessageInput(
                 currentRoomId: widget.roomId,
@@ -760,11 +760,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                   } else {
                     if (_isMuc)
                       return MucAppbarTitle(mucUid: widget.roomId);
-                    else if (widget.roomId.uid.category == Categories.BOT)
-                      return BotAppbar(botUid: widget.roomId.uid);
+                    else if (widget.roomId.asUid().category == Categories.BOT)
+                      return BotAppbar(botUid: widget.roomId.asUid());
                     else
                       return UserAppbar(
-                        userUid: widget.roomId.uid,
+                        userUid: widget.roomId.asUid(),
                       );
                   }
                 },
@@ -1070,7 +1070,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         onSecondaryTapDown: storePosition,
         child: isDesktop()
             ? messageWidget
-            : widget.roomId.getUid().category != Categories.CHANNEL
+            : widget.roomId.asUid().category != Categories.CHANNEL
                 ? dismissibleWidget
                 : StreamBuilder(
                     stream: _hasPermissionInChannel.stream,
@@ -1099,7 +1099,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   sendInputSharedFile() async {
     if (widget.inputFilePath != null) {
       for (String path in widget.inputFilePath) {
-        _messageRepo.sendFileMessage(widget.roomId.uid, path);
+        _messageRepo.sendFileMessage(widget.roomId.asUid(), path);
       }
     }
   }
@@ -1188,7 +1188,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   onBotCommandClick(String command) {
-    _messageRepo.sendTextMessage(widget.roomId.getUid(), command);
+    _messageRepo.sendTextMessage(widget.roomId.asUid(), command);
   }
 
   Widget showReceivedMessage(Message message, double _maxWidth,
@@ -1198,7 +1198,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       maxWidth: _maxWidth,
       pattern: pattern,
       onBotCommandClick: onBotCommandClick,
-      isGroup: widget.roomId.uid.category == Categories.GROUP,
+      isGroup: widget.roomId.asUid().category == Categories.GROUP,
       scrollToMessage: (int id) {
         _scrollToMessage(id: id, position: pendingMessagesLength + id);
       },
@@ -1209,12 +1209,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>[
-          if (widget.roomId.getUid().category == Categories.GROUP)
+          if (widget.roomId.asUid().category == Categories.GROUP)
             GestureDetector(
               child: Padding(
                 padding:
                     const EdgeInsets.only(bottom: 8.0, left: 5.0, right: 3.0),
-                child: CircleAvatarWidget(message.from.uid, 18),
+                child: CircleAvatarWidget(message.from.asUid(), 18),
               ),
               onTap: () {
                 _routingService.openRoom(message.from);

@@ -36,7 +36,6 @@ class CircularFileStatusIndicator extends StatelessWidget {
               );
       } else {
         return new LoadFileStatus(
-          //file: file,
           fileId: file.uuid,
           fileName: file.name,
           msg: msg,

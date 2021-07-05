@@ -106,9 +106,9 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     Text(appLocalization.getTraslateValue("Reply")),
                   ])),
             ),
-          if ((widget.message.roomUid.getUid().category == Categories.GROUP &&
+          if ((widget.message.roomUid.asUid().category == Categories.GROUP &&
                   widget.hasPermissionInGroup) ||
-              (widget.message.roomUid.getUid().category == Categories.CHANNEL &&
+              (widget.message.roomUid.asUid().category == Categories.CHANNEL &&
                   widget.hasPermissionInChannel))
             if (!widget.isPined)
               Expanded(

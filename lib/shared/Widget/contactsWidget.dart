@@ -49,7 +49,7 @@ class ContactWidget extends StatelessWidget {
               Stack(
                 children: <Widget>[
                   contact.uid != null
-                      ? CircleAvatarWidget(contact.uid.uid, 23,
+                      ? CircleAvatarWidget(contact.uid.asUid(), 23,
                           showSavedMessageLogoIfNeeded: true)
                       : CircleAvatar(
                           backgroundColor: Colors.blue,

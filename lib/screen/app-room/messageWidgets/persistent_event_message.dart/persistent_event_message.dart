@@ -68,19 +68,19 @@ class PersistentEventMessage extends StatelessWidget {
         String issuer =
             (persistentEventMessage.mucSpecificPersistentEvent.issue ==
                         MucSpecificPersistentEvent_Issue.PIN_MESSAGE) &&
-                    message.to.getUid().category == Categories.CHANNEL
+                    message.to.asUid().category == Categories.CHANNEL
                 ? ""
                 : await getName(
                     context,
                     persistentEventMessage.mucSpecificPersistentEvent.issuer,
-                    message.to.getUid());
+                    message.to.asUid());
         String assignee =
             persistentEventMessage.mucSpecificPersistentEvent.issue !=
                     MucSpecificPersistentEvent_Issue.PIN_MESSAGE
                 ? await getName(
                     context,
                     persistentEventMessage.mucSpecificPersistentEvent.assignee,
-                    message.to.getUid())
+                    message.to.asUid())
                 : "";
         bool isMe = persistentEventMessage.mucSpecificPersistentEvent.issuer
             .isSameEntity(_accountRepo.currentUserUid.asString());
@@ -92,7 +92,7 @@ class PersistentEventMessage extends StatelessWidget {
             return " $issuer ${isMe ? _appLocalization.getTraslateValue("you_add_user_to_muc") : _appLocalization.getTraslateValue("add_user_to_muc")} $assignee";
 
           case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-            return message.from.uid.category == Categories.CHANNEL
+            return message.from.asUid().category == Categories.CHANNEL
                 ? "$issuer } ${_appLocalization.getTraslateValue("change_channel_avatar")}"
                 : "$issuer  ${_appLocalization.getTraslateValue("change_group_avatar")}";
           case MucSpecificPersistentEvent_Issue.JOINED_USER:
@@ -106,7 +106,7 @@ class PersistentEventMessage extends StatelessWidget {
             return "$issuer ${_appLocalization.getTraslateValue("left_the_group")}";
             break;
           case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-            return message.from.uid.category == Categories.CHANNEL
+            return message.from.asUid().category == Categories.CHANNEL
                 ? "$issuer  ${isMe ? _appLocalization.getTraslateValue("you_create_channel") : _appLocalization.getTraslateValue("create_channel")}"
                 : "$issuer  ${isMe ? _appLocalization.getTraslateValue("you_create_group") : _appLocalization.getTraslateValue("create_group")}";
             break;
@@ -119,7 +119,7 @@ class PersistentEventMessage extends StatelessWidget {
       case PersistentEvent_Type.messageManipulationPersistentEvent:
         break;
       case PersistentEvent_Type.adminSpecificPersistentEvent:
-        var user = await _roomRepo.getName(message.from.uid);
+        var user = await _roomRepo.getName(message.from.asUid());
         return "${user} ${_appLocalization.getTraslateValue("new_contact_add")}";
         break;
       case PersistentEvent_Type.notSet:

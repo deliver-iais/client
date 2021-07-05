@@ -188,8 +188,8 @@ class MucRepo {
     var member = await _mucDao.getMember(memberUid, mucUid);
     if (member.role == MucRole.OWNER || member.role == MucRole.ADMIN) {
       return true;
-    } else if (mucUid.uid.category == Categories.CHANNEL) {
-      var res = await getChannelInfo(mucUid.uid);
+    } else if (mucUid.asUid().category == Categories.CHANNEL) {
+      var res = await getChannelInfo(mucUid.asUid());
       return res.requesterRole == Role.ADMIN || res.requesterRole == Role.OWNER;
     }
     return false;
@@ -248,10 +248,10 @@ class MucRepo {
 
   changeGroupMemberRole(Member groupMember) async {
     MucPro.Member member = MucPro.Member()
-      ..uid = groupMember.memberUid.uid
+      ..uid = groupMember.memberUid.asUid()
       ..role = getRole(groupMember.role);
     bool result =
-        await _mucServices.changeGroupRole(member, groupMember.mucUid.uid);
+        await _mucServices.changeGroupRole(member, groupMember.mucUid.asUid());
     if (result) {
       _mucDao.saveMember(groupMember);
     }
@@ -259,10 +259,10 @@ class MucRepo {
 
   changeChannelMemberRole(Member channelMember) async {
     MucPro.Member member = MucPro.Member()
-      ..uid = channelMember.memberUid.uid
+      ..uid = channelMember.memberUid.asUid()
       ..role = getRole(channelMember.role);
     var result =
-        await _mucServices.changeCahnnelRole(member, channelMember.mucUid.uid);
+        await _mucServices.changeCahnnelRole(member, channelMember.mucUid.asUid());
     if (result) {
       _mucDao.saveMember(channelMember);
     }
@@ -292,12 +292,12 @@ class MucRepo {
     List<MucPro.Member> members = List();
     for (Member member in groupMember) {
       members.add(MucPro.Member()
-        ..uid = member.memberUid.uid
+        ..uid = member.memberUid.asUid()
         ..role = getRole(member.role));
     }
 
     bool result =
-        await _mucServices.kickGroupMembers(members, groupMember[0].mucUid.uid);
+        await _mucServices.kickGroupMembers(members, groupMember[0].mucUid.asUid());
 
     if (result) {
       for (Member member in groupMember) _mucDao.deleteMember(member);
@@ -305,14 +305,14 @@ class MucRepo {
   }
 
   kickChannelMembers(List<Member> channelMember) async {
-    List<MucPro.Member> members = List();
+    List<MucPro.Member> members = [];
     for (Member member in channelMember) {
       members.add(MucPro.Member()
-        ..uid = member.memberUid.uid
+        ..uid = member.memberUid.asUid()
         ..role = getRole(member.role));
     }
     var result = await _mucServices.kickChannelMembers(
-        members, channelMember[0].mucUid.uid);
+        members, channelMember[0].mucUid.asUid());
     if (result) {
       for (Member member in channelMember) _mucDao.deleteMember(member);
     }
@@ -320,33 +320,33 @@ class MucRepo {
 
   banGroupMember(Member groupMember) async {
     MucPro.Member member = MucPro.Member()
-      ..uid = groupMember.memberUid.uid
+      ..uid = groupMember.memberUid.asUid()
       ..role = getRole(groupMember.role);
-    await _mucServices.banGroupMember(member, groupMember.mucUid.uid);
+    await _mucServices.banGroupMember(member, groupMember.mucUid.asUid());
     //todo change database
   }
 
   banChannelMember(Member channelMember) async {
     MucPro.Member member = MucPro.Member()
-      ..uid = channelMember.memberUid.uid
+      ..uid = channelMember.memberUid.asUid()
       ..role = getRole(channelMember.role);
-    await _mucServices.unbanChannelMember(member, channelMember.mucUid.uid);
+    await _mucServices.unbanChannelMember(member, channelMember.mucUid.asUid());
     //todo change database
   }
 
   unBanGroupMember(Member groupMember) async {
     MucPro.Member member = MucPro.Member()
-      ..uid = groupMember.memberUid.uid
+      ..uid = groupMember.memberUid.asUid()
       ..role = getRole(groupMember.role);
-    await _mucServices.banGroupMember(member, groupMember.mucUid.uid);
+    await _mucServices.banGroupMember(member, groupMember.mucUid.asUid());
     //todo change databse
   }
 
   unBanChannelMember(Member channelMember) async {
     MucPro.Member member = MucPro.Member()
-      ..uid = channelMember.memberUid.uid
+      ..uid = channelMember.memberUid.asUid()
       ..role = getRole(channelMember.role);
-    await _mucServices.unbanChannelMember(member, channelMember.mucUid.uid);
+    await _mucServices.unbanChannelMember(member, channelMember.mucUid.asUid());
     //todo change database
   }
 
@@ -373,7 +373,7 @@ class MucRepo {
         MucPro.GroupInfo()
           ..name = name
           ..info = info,
-        mucId.getUid());
+        mucId.asUid());
     if (isSet) {
       _mucDao.update(Muc(uid: mucId, name: name, info: info));
     }
@@ -390,7 +390,7 @@ class MucRepo {
       ..id = id
       ..info = info;
 
-    if (await _mucServices.modifyChannel(channelInfo, mucUid.getUid())) {
+    if (await _mucServices.modifyChannel(channelInfo, mucUid.asUid())) {
       if (id.isEmpty) {
         _mucDao.update(Muc(uid: mucUid, name: name, info: info));
       } else {

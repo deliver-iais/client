@@ -37,14 +37,14 @@ class _ChatItemState extends State<ChatItem> {
 
   @override
   void initState() {
-    if (widget.room.uid.getUid().category == Categories.USER)
-      _lastActivityRepo.updateLastActivity(widget.room.uid.getUid());
+    if (widget.room.uid.asUid().category == Categories.USER)
+      _lastActivityRepo.updateLastActivity(widget.room.uid.asUid());
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    _roomRepo.initActivity(widget.room.uid.getUid().node);
+    _roomRepo.initActivity(widget.room.uid.asUid().node);
     AppLocalization _appLocalization = AppLocalization.of(context);
     String messageType =
         widget.room.lastMessage.from.isSameEntity(_accountRepo.currentUserUid)
@@ -52,7 +52,7 @@ class _ChatItemState extends State<ChatItem> {
             : "receive";
 
     return FutureBuilder<String>(
-        future: _roomRepo.getName(widget.room.uid.getUid()),
+        future: _roomRepo.getName(widget.room.uid.asUid()),
         builder: (c, name) {
           if (name.hasData && name.data != null && name.data.isNotEmpty) {
             return Container(
@@ -68,7 +68,7 @@ class _ChatItemState extends State<ChatItem> {
                 children: <Widget>[
                   Padding(
                     padding: EdgeInsets.only(bottom: 5),
-                    child: ContactPic(widget.room.uid.getUid()),
+                    child: ContactPic(widget.room.uid.asUid()),
                   ),
                   SizedBox(
                     width: 10,
@@ -84,16 +84,16 @@ class _ChatItemState extends State<ChatItem> {
                             Container(
                                 width: 200,
                                 child: widget.room.uid
-                                        .getUid()
+                                        .asUid()
                                         .toString()
                                         .contains(_accountRepo.currentUserUid
                                             .toString())
                                     ? _showDisplayName(
-                                        widget.room.uid.getUid(),
+                                        widget.room.uid.asUid(),
                                         _appLocalization
                                             .getTraslateValue("saved_message"),
                                         context)
-                                    : _showDisplayName(widget.room.uid.getUid(),
+                                    : _showDisplayName(widget.room.uid.asUid(),
                                         name.data, context)),
                             Padding(
                               padding:
@@ -115,7 +115,7 @@ class _ChatItemState extends State<ChatItem> {
                           flex: 90,
                           child: StreamBuilder<Activity>(
                               stream: _roomRepo.activityObject[
-                                  widget.room.uid.getUid().node],
+                                  widget.room.uid.asUid().node],
                               builder: (c, s) {
                                 if (s.hasData &&
                                     s.data != null &&
@@ -123,7 +123,7 @@ class _ChatItemState extends State<ChatItem> {
                                         ActivityType.NO_ACTIVITY) {
                                   return ActivityStatus(
                                     activity: s.data,
-                                    roomUid: widget.room.uid.getUid(),
+                                    roomUid: widget.room.uid.asUid(),
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: ExtraTheme.of(context)

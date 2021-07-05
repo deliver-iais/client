@@ -171,7 +171,7 @@ class RoutingService {
   }
 
   void openProfile(String roomId) {
-    var widget = ProfilePage(roomId.uid, key: ValueKey("/profile/$roomId"));
+    var widget = ProfilePage(roomId.asUid(), key: ValueKey("/profile/$roomId"));
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,

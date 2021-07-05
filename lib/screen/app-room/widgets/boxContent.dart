@@ -1,4 +1,5 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -65,10 +66,10 @@ class _BoxContentState extends State<BoxContent> {
     return Column(
       crossAxisAlignment: last,
       children: [
-        if (widget.message.roomId.uid.category == Categories.GROUP &&
+        if (widget.message.roomUid.asUid().category == Categories.GROUP &&
             !widget.isSender)
           SizedBox(height: 20, child: senderNameBox()),
-        if (widget.message.to.getUid().category != Categories.BOT &&
+        if (widget.message.to.asUid().category != Categories.BOT &&
             widget.message.replyToId != null &&
             widget.message.replyToId > 0)
           replyToIdBox(),
@@ -94,7 +95,7 @@ class _BoxContentState extends State<BoxContent> {
 
   Widget senderNameBox() {
     return FutureBuilder<String>(
-      future: _roomRepo.getName(widget.message.from.uid),
+      future: _roomRepo.getName(widget.message.from.asUid()),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
           return showName(snapshot.data);
@@ -124,13 +125,15 @@ class _BoxContentState extends State<BoxContent> {
     return Container(
       padding: EdgeInsets.only(top: 8, left: 8, right: 8),
       child: FutureBuilder<String>(
-        future: _roomRepo.getName(widget.message.forwardedFrom.uid),
+        future: _roomRepo.getName(widget.message.forwardedFrom.asUid()),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
             return GestureDetector(
               child: Text(
                   "${_appLocalization.getTraslateValue("Forwarded_From")} ${snapshot.data}",
-                  style: TextStyle(color: ExtraTheme.of(context).messageDetails, fontSize: 13)),
+                  style: TextStyle(
+                      color: ExtraTheme.of(context).messageDetails,
+                      fontSize: 13)),
               onTap: () {
                 _routingServices.openRoom(widget.message.forwardedFrom);
               },
@@ -138,7 +141,9 @@ class _BoxContentState extends State<BoxContent> {
           } else {
             return Text(
                 "${_appLocalization.getTraslateValue("Forwarded_From")} Unknown",
-                style: TextStyle(color: ExtraTheme.of(context).messageDetails, fontSize: 13));
+                style: TextStyle(
+                    color: ExtraTheme.of(context).messageDetails,
+                    fontSize: 13));
           }
         },
       ),
@@ -157,7 +162,7 @@ class _BoxContentState extends State<BoxContent> {
             isSender: widget.isSender,
             isCaption: false,
             isBotMessage:
-                widget.message.from.getUid().category == Categories.BOT,
+                widget.message.from.asUid().category == Categories.BOT,
             onBotCommandClick: widget.onBotCommandClick,
             onUsernameClick: widget.onUsernameClick,
             isSeen: widget.isSeen,

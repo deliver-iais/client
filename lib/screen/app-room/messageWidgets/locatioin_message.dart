@@ -44,7 +44,7 @@ class LocationMessageWidget extends StatelessWidget {
                       height: 30.0,
                       point: LatLng(location.latitude, location.longitude),
                       builder: (ctx) => Container(
-                          child: CircleAvatarWidget(message.from.getUid(), 20)),
+                          child: CircleAvatarWidget(message.from.asUid(), 20)),
                     ),
                   ],
                 ),

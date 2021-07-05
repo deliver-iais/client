@@ -251,7 +251,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                 i < _createMucService.members.length;
                                 i++) {
                               memberUidList
-                                  .add(_createMucService.members[i].uid.uid);
+                                  .add(_createMucService.members[i].uid.asUid());
                             }
                             if (widget.isChannel) {
                               bool result =

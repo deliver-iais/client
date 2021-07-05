@@ -39,7 +39,7 @@ class BotButtonsWidget extends StatelessWidget {
                           color: Colors.blueAccent,
                           onPressed: () {
                             _messageRepo.sendTextMessage(
-                                message.from.getUid(), buttons.buttons[index]);
+                                message.from.asUid(), buttons.buttons[index]);
                           },
                           child: Text(buttons.buttons[index])),
                       SizedBox(

@@ -199,14 +199,14 @@ class RoomRepo {
   }
 
   void block(String uid) async {
-    await _queryServiceClient.block(BlockReq()..uid = uid.getUid(),
+    await _queryServiceClient.block(BlockReq()..uid = uid.asUid(),
         options: CallOptions(
             metadata: {"access_token": await _accountRepo.getAccessToken()}));
     _blockDao.block(uid);
   }
 
   void unblock(String uid) async {
-    await _queryServiceClient.unblock(UnblockReq()..uid = uid.getUid(),
+    await _queryServiceClient.unblock(UnblockReq()..uid = uid.asUid(),
         options: CallOptions(
             metadata: {"access_token": await _accountRepo.getAccessToken()}));
     _blockDao.unblock(uid);
@@ -225,7 +225,7 @@ class RoomRepo {
     Map<Uid, Uid> finalList = Map();
     var res = await _messageDao.getAllRooms();
     for (var room in res) {
-      Uid uid = room.uid.getUid();
+      Uid uid = room.uid.asUid();
       finalList[uid] = uid;
     }
     return finalList.values.toList();

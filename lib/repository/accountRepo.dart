@@ -253,7 +253,7 @@ class AccountRepo {
   }
 
   Future<Uid> getCurrentUserUid() async {
-    return (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID)).getUid();
+    return (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID)).asUid();
   }
 
   Future<Account> getAccount() async {

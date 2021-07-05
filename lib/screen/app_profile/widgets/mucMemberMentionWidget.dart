@@ -18,11 +18,11 @@ class MucMemberMentionWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       child: FutureBuilder<String>(
-          future: _roomRepo.getId(this.member.memberUid.getUid()),
+          future: _roomRepo.getId(this.member.memberUid.asUid()),
           builder: (context, id) {
             if (id.hasData && id.data != null) {
               return FutureBuilder<Object>(
-                  future: _roomRepo.getName(this.member.memberUid.getUid()),
+                  future: _roomRepo.getName(this.member.memberUid.asUid()),
                   builder: (context, name) {
                     if (name.hasData && name.data != null) {
                       return buildGestureDetector(
@@ -45,7 +45,7 @@ class MucMemberMentionWidget extends StatelessWidget {
       },
       child: Row(
         children: [
-          CircleAvatarWidget(member.memberUid.uid, 18),
+          CircleAvatarWidget(member.memberUid.asUid(), 18),
           SizedBox(
             width: 10,
           ),

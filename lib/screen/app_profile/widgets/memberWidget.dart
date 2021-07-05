@@ -73,7 +73,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              CircleAvatarWidget(member.memberUid.uid, 18),
+                              CircleAvatarWidget(member.memberUid.asUid(), 18),
                               SizedBox(
                                 width: 10,
                               ),
@@ -83,7 +83,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                   width: MediaQuery.of(context).size.width / 4,
                                   child: FutureBuilder<String>(
                                       future: _roomRepo
-                                          .getName(member.memberUid.getUid()),
+                                          .getName(member.memberUid.asUid()),
                                       builder: (context, snapshot) {
                                         return Text(
                                           snapshot.data ?? "Unknown",
