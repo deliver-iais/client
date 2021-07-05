@@ -41,7 +41,6 @@ class Database extends _$Database {
           moorRuntimeOptions.dontWarnAboutMultipleDatabases = true;
           final dbFolder = await getApplicationDocumentsDirectory();
           final file = File(p.join(dbFolder.path, 'db.sqlite'));
-
           return VmDatabase(file, logStatements: false);
         }));
 

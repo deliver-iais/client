@@ -67,16 +67,16 @@ class NotificationServices {
   showTextNotification(int notificationId, String roomId, String roomName,
       String messageBody) async {
     if (isWindows()) {
-
       Toast toast = new Toast(
-          type: ToastType.imageAndText04,
+          type: ToastType.imageAndText02,
           title: roomName,
           subtitle: messageBody,
-           //image:  File('C:/Windows/deliver1.png'),
+          image:
+        File('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png')
       );
       _windowsNotificationServices.show(toast);
       // _windowsNotificationServices.dispose();
-     toast.dispose();
+    // toast.dispose();
     } else if (isLinux()) {
       try {
         var client = NotificationsClient();
