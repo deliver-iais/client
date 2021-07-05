@@ -21,7 +21,7 @@ class PendingMessageAdapter extends TypeAdapter<PendingMessage> {
       packetId: fields[1] as String,
       msg: fields[2] as Message,
       failed: fields[3] as int,
-      retries: fields[4] as int,
+      status: fields[5] as SendingStatus,
     );
   }
 
@@ -37,8 +37,8 @@ class PendingMessageAdapter extends TypeAdapter<PendingMessage> {
       ..write(obj.msg)
       ..writeByte(3)
       ..write(obj.failed)
-      ..writeByte(4)
-      ..write(obj.retries);
+      ..writeByte(5)
+      ..write(obj.status);
   }
 
   @override

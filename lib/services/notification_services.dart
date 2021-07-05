@@ -8,9 +8,7 @@ import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:desktoasts/desktoasts.dart';
 import 'package:desktop_notifications/desktop_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 

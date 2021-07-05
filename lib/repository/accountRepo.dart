@@ -152,7 +152,7 @@ class AccountRepo {
         15 * 60 * 1000) {
       var messageRepo = GetIt.I.get<MessageRepo>();
       if (kDebugMode)
-        messageRepo.sendErrorMessage(
+        messageRepo.sendErrorMessage_DEBUG_MODE_(
             "accessTonken = $token \n refrsh= $refreshToken \n oldRefreshToken $oldRefreshToken");
       return true;
     } else
@@ -168,7 +168,7 @@ class AccountRepo {
     if (((expTime.millisecondsSinceEpoch - iatTime.millisecondsSinceEpoch) <
         29 * 24 * 60 * 60 * 1000)) {
       var messageRepo = GetIt.I.get<MessageRepo>();
-      if (kDebugMode) messageRepo.sendErrorMessage("refreshTonken = $token");
+      if (kDebugMode) messageRepo.sendErrorMessage_DEBUG_MODE_("refreshTonken = $token");
       return true;
     }
     return false;

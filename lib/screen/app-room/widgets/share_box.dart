@@ -165,12 +165,12 @@ class _ShareBoxState extends State<ShareBox> {
                               Container(
                                 child: CircleButton(() {
                                   if (widget.replyMessageId != null) {
-                                    messageRepo.sendFileMessageDeprecated(
+                                    messageRepo.sendMultipleFilesMessages(
                                         widget.currentRoomId,
                                         finalSelected.values.toList(),
                                         replyToId: widget.replyMessageId);
                                   } else {
-                                    messageRepo.sendFileMessageDeprecated(
+                                    messageRepo.sendMultipleFilesMessages(
                                       widget.currentRoomId,
                                       finalSelected.values.toList(),
                                     );

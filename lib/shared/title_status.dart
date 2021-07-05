@@ -1,11 +1,9 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/lastActivityRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/shared/activityStatuse.dart';
+import 'package:deliver_flutter/shared/activity_status.dart';
 import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
@@ -34,7 +32,6 @@ class TitleStatus extends StatefulWidget {
 class _TitleStatusState extends State<TitleStatus> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _roomDao = GetIt.I.get<RoomDao>();
   final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
 
   AppLocalization appLocalization;
@@ -97,27 +94,7 @@ class _TitleStatusState extends State<TitleStatus> {
       case TitleStatusConditions.Normal:
         if (widget.currentRoomUid.category == Categories.BOT)
           return appLocalization.getTraslateValue("bot").inCaps;
-        if (_roomRepo.activityObject[widget.currentRoomUid] != null) {
-          _roomRepo.activityObject[widget.currentRoomUid].listen((activity) {
-            switch (activity.typeOfActivity) {
-              case ActivityType.NO_ACTIVITY:
-                return _showLastActivity();
-                break;
-            }
-          });
-        } else {
-          return appLocalization.getTraslateValue("connected");
-        }
-    }
-  }
-
-  Future<String> _showLastActivity() async {
-    Room room =
-        await _roomDao.getByRoomIdFuture(widget.currentRoomUid.asString());
-    if (room != null) {
-      return room.toString();
-    } else {
-      return appLocalization.getTraslateValue("connected");
+        return appLocalization.getTraslateValue("connected");
     }
   }
 
@@ -129,7 +106,7 @@ class _TitleStatusState extends State<TitleStatus> {
             if (activity.data.typeOfActivity == ActivityType.NO_ACTIVITY) {
               return normalActivity();
             } else
-              return ActivityStatuse(
+              return ActivityStatus(
                 activity: activity.data,
                 roomUid: widget.currentRoomUid,
                 style: widget.style,

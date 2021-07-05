@@ -210,14 +210,14 @@ class _BoxContentState extends State<BoxContent> {
           isSeen: widget.isSeen,
         );
         break;
-      case MessageType.sharePrivateDataRequest:
+      case MessageType.SHARE_PRIVATE_DATA_REQUEST:
         return SharePrivateDataRequestMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
         );
         break;
-      case MessageType.sharePrivateDataAcceptance:
+      case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
         return SharePrivateDataAcceptMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,

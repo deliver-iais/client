@@ -7,6 +7,7 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as filePb;
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
+import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:get_it/get_it.dart';
 
 class UnknownFileUi extends StatefulWidget {
@@ -24,10 +25,6 @@ class UnknownFileUi extends StatefulWidget {
 }
 
 class _UnknownFileUiState extends State<UnknownFileUi> {
-  filePb.File file;
-  bool isDownloaded = false;
-  double loadProgress = 0.0;
-  PendingMessageDao pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var fileRepo = GetIt.I.get<FileRepo>();
 
   download(String uuid, String name) async {
@@ -37,81 +34,65 @@ class _UnknownFileUiState extends State<UnknownFileUi> {
 
   @override
   Widget build(BuildContext context) {
-    file = widget.message.json.toFile();
-    return StreamBuilder<PendingMessage>(
-      stream: pendingMessageDao.watchByMessageDbId(widget.message.dbId),
-      builder: (context, pendingMessage) {
-        return FutureBuilder<bool>(
-            future: fileRepo.isExist(file.uuid, file.name),
-            builder: (context, isExist) {
-              return Padding(
-                padding: const EdgeInsets.only(left: 8.0, top: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: file.name.isPersian()
-                      ? CrossAxisAlignment.end
-                      : CrossAxisAlignment.start,
+    var file = widget.message.json.toFile();
+    return FutureBuilder<bool>(
+        future: fileRepo.isExist(file.uuid, file.name),
+        builder: (context, isExist) {
+          return Padding(
+            padding: const EdgeInsets.only(left: 8.0, top: 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: file.name.isPersian()
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
+              children: <Widget>[
+                CircularFileStatusIndicator(
+                  isExist: isExist.data,
+                  file: file,
+                  msg: widget.message,
+                  onPressed: download,
+                ),
+                Stack(
                   children: <Widget>[
-                    CircularFileStatusIndicator(
-                      isExist: isExist.data,
-                      sendingStatus: pendingMessage.data != null
-                          ? pendingMessage.data.status
-                          : null,
-                      file: file,
-                      msg: widget.message,
-                      onPressed: download,
-                    ),
-                    Stack(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 20.0),
-                          child: Container(
-                            width: 175,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  width: 155,
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.only(bottom: 10.0),
-                                    child: Text(
-                                      file.name,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: ExtraTheme.of(context)
-                                              .textMessage),
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: false,
-                                      maxLines: 1,
-                                    ),
-                                  ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20.0),
+                      child: Container(
+                        width: 175,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 155,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 10.0),
+                                child: Text(
+                                  file.name,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          ExtraTheme.of(context).textMessage),
+                                  overflow: TextOverflow.ellipsis,
+                                  softWrap: false,
+                                  maxLines: 1,
                                 ),
-                                // Icon(
-                                //   Icons.more_vert,
-                                //   size: 18,
-                                // ),
-                              ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                        HeaderDetails(
-                            loadStatus: 'loaded',
-                            loadProgress: loadProgress,
-                            file: file),
-                        file.caption.isEmpty
-                            ? TimeAndSeenStatus(widget.message, widget.isSender,
-                                false, widget.isSeen)
-                            : Container(),
-                      ],
+                      ),
                     ),
+                    HeaderDetails(file: file),
+                    file.caption.isEmpty
+                        ? TimeAndSeenStatus(widget.message, widget.isSender,
+                            false, widget.isSeen)
+                        : Container(),
                   ],
                 ),
-              );
-            });
-      },
-    );
+              ],
+            ),
+          );
+        });
   }
 }

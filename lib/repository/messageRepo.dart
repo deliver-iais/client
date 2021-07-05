@@ -47,42 +47,36 @@ import 'package:grpc/grpc.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:mime_type/mime_type.dart';
-import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/foundation.dart';
 
 enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
-const int MAX_REMAINING_RETRIES = 3;
-
-DateTime now() {
-  return DateTime.now();
-}
-
 class MessageRepo {
-  var _messageDao = GetIt.I.get<MessageDao>();
-  var _roomRepo = GetIt.I.get<RoomRepo>();
-
-  var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _fileRepo = GetIt.I.get<FileRepo>();
-  var _seenDao = GetIt.I.get<SeenDao>();
-  var mucServices = GetIt.I.get<MucServices>();
-
-  var _coreServices = GetIt.I.get<CoreServices>();
-
-  final QueryServiceClient _queryServiceClient =
-      GetIt.I.get<QueryServiceClient>();
-
-  BehaviorSubject<TitleStatusConditions> updatingStatus =
+  final _messageDao = GetIt.I.get<MessageDao>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+  final _seenDao = GetIt.I.get<SeenDao>();
+  final _mucServices = GetIt.I.get<MucServices>();
+  final _coreServices = GetIt.I.get<CoreServices>();
+  final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
+  final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
 
   MessageRepo() {
-    _coreServices.connectionStatus.listen((mode) {
+    _coreServices.connectionStatus.listen((mode) async {
       switch (mode) {
         case ConnectionStatus.Connected:
           debug('updating -----------------');
-          updating();
+
+          updatingStatus.add(TitleStatusConditions.Updating);
+          await updating();
+          updatingStatus.add(TitleStatusConditions.Normal);
+
           sendPendingMessages();
+
+          _roomRepo.fetchBlockedRoom();
           break;
         case ConnectionStatus.Disconnected:
           updatingStatus.add(TitleStatusConditions.Disconnected);
@@ -139,14 +133,11 @@ class MessageRepo {
             room.lastMessage.id != 0) {
           continue;
         }
-        updatingStatus.add(TitleStatusConditions.Updating);
         fetchMessages(roomMetadata, room);
       }
     } catch (e) {
       debug(e);
     }
-    updatingStatus.add(TitleStatusConditions.Normal);
-    _roomRepo.fetchBlockedRoom();
   }
 
   Future<void> fetchMessages(RoomMetadata roomMetadata, Room room,
@@ -235,20 +226,11 @@ class MessageRepo {
   }
 
   sendTextMessage(Uid room, String text,
-      {int replyId, String forwardedFromAsString}) async {
-    String packetId = _getPacketId();
+      {int replyId, String forwardedFrom}) async {
     String json = (MessageProto.Text()..text = text).writeToJson();
-    Message msg = Message(
-      roomUid: room.asString(),
-      packetId: packetId,
-      time: now().millisecondsSinceEpoch,
-      from: _accountRepo.currentUserUid.asString(),
-      to: room.asString(),
-      replyToId: replyId,
-      forwardedFrom: forwardedFromAsString,
-      type: MessageType.TEXT,
-      json: json,
-    );
+    Message msg =
+        _createMessage(room, replyId: replyId, forwardedFrom: forwardedFrom)
+            .copyWith(type: MessageType.TEXT, json: json);
 
     var pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);
@@ -261,25 +243,25 @@ class MessageRepo {
   }
 
   sendLocationMessage(Position locationData, Uid room,
-      {String forwardedFromAsString}) async {
-    String packetId = _getPacketId();
+      {String forwardedFrom, int replyId}) async {
     String json = (protoModel.Location()
           ..longitude = locationData.longitude
           ..latitude = locationData.latitude)
         .writeToJson();
-    Message msg = Message(
-      roomUid: room.asString(),
-      packetId: packetId,
-      time: now().millisecondsSinceEpoch,
-      from: _accountRepo.currentUserUid.asString(),
-      to: room.asString(),
-      forwardedFrom: forwardedFromAsString,
-      type: MessageType.LOCATION,
-      json: json,
-    );
+
+    Message msg =
+        _createMessage(room, replyId: replyId, forwardedFrom: forwardedFrom)
+            .copyWith(type: MessageType.LOCATION, json: json);
 
     var pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);
+  }
+
+  sendMultipleFilesMessages(Uid room, List<String> filesPath,
+      {String caption, int replyToId}) async {
+    for (var path in filesPath) {
+      await sendFileMessage(room, path, caption: caption, replyToId: replyToId);
+    }
   }
 
   sendFileMessage(Uid room, String path,
@@ -315,13 +297,8 @@ class MessageRepo {
     await _fileRepo.cloneFileInLocalDirectory(
         file, packetId, path.split('.').last);
 
-    Message msg = Message(
-        roomUid: room.asString(),
+    Message msg = _createMessage(room, replyId: replyToId).copyWith(
         packetId: packetId,
-        time: now().millisecondsSinceEpoch,
-        from: _accountRepo.currentUserUid.asString(),
-        to: room.asString(),
-        replyToId: replyToId,
         type: MessageType.FILE,
         json: sendingFakeFile.writeToJson());
 
@@ -332,12 +309,10 @@ class MessageRepo {
     await _sendFileToServerOfPendingMessage(pm);
 
     await _sendMessageToServer(pm);
-
-    _saveAndSend(pm);
   }
 
   sendStickerMessage(
-      {Uid roomUid,
+      {Uid room,
       Sticker sticker,
       int replyId,
       String forwardedFromAsString}) async {
@@ -346,38 +321,25 @@ class MessageRepo {
       ..type = "image"
       ..name = sticker.name
       ..duration = 0;
-    String packetId = _getPacketId();
-    Message msg = Message(
-      roomUid: roomUid.asString(),
-      packetId: packetId,
-      time: now().millisecondsSinceEpoch,
-      from: _accountRepo.currentUserUid.asString(),
-      to: roomUid.asString(),
-      replyToId: replyId,
-      forwardedFrom: forwardedFromAsString,
-      type: MessageType.STICKER,
-      json: sendingFakeFile.writeToJson(),
-    );
+
+    Message msg = _createMessage(room,
+            replyId: replyId, forwardedFrom: forwardedFromAsString)
+        .copyWith(
+            type: MessageType.STICKER, json: sendingFakeFile.writeToJson());
 
     var pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);
   }
 
   _sendFileToServerOfPendingMessage(PendingMessage pm) async {
-    if (!_canPendingMessageResendAndDecreaseRemainingRetries(pm) ||
-        pm.status != SendingStatus.SENDING_FILE) {
-      return;
-    }
-
     var fakeFileInfo = FileProto.File.fromJson(pm.msg.json);
 
     var packetId = pm.msg.packetId;
-    var roomId = pm.msg.roomUid;
 
     // Upload to file server
     FileProto.File fileInfo = await _fileRepo
         .uploadClonedFile(packetId, fakeFileInfo.name, sendActivity: () {
-      sendActivityMessage(pm.msg.to.uid, ActivityType.SENDING_FILE);
+      sendActivity(pm.msg.to.uid, ActivityType.SENDING_FILE);
     });
 
     fileInfo.caption = fakeFileInfo.caption;
@@ -393,32 +355,12 @@ class MessageRepo {
     _updateRoomLastMessage(newPm);
   }
 
-  _sendMessageToServer(PendingMessage pm, {bool resend = false}) async {
-    if (!resend && !_canPendingMessageResendAndDecreaseRemainingRetries(pm) ||
-        pm.status != SendingStatus.PENDING) {
-      return;
-    }
-
+  _sendMessageToServer(PendingMessage pm) async {
     MessageProto.MessageByClient byClient = _createMessageByClient(pm.msg);
 
     _coreServices.sendMessage(byClient);
-    sendActivityMessage(byClient.to, ActivityType.NO_ACTIVITY);
-  }
-
-  bool _canPendingMessageResendAndDecreaseRemainingRetries(PendingMessage pm) {
-    if (pm == null) {
-      return false;
-    }
-    if (pm.retries > 0) {
-      if (pm.msg.id == null) {
-        _messageDao.savePendingMessage(pm.copyWith(retries: pm.retries - 1));
-        return true;
-      } else
-        _messageDao.deletePendingMessage(pm.packetId);
-    } else {
-      _messageDao.deletePendingMessage(pm.packetId);
-    }
-    return false;
+    // TODO remove later, we don't need send no activity after sending messages, every time we received message we should set activity of room as no activity
+    sendActivity(byClient.to, ActivityType.NO_ACTIVITY);
   }
 
   MessageProto.MessageByClient _createMessageByClient(Message message) {
@@ -453,7 +395,7 @@ class MessageRepo {
       case MessageType.SHARE_UID:
         byClient.shareUid = MessageProto.ShareUid.fromJson(message.json);
         break;
-      case MessageType.sharePrivateDataAcceptance:
+      case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
         byClient.sharePrivateDataAcceptance =
             SharePrivateDataAcceptance.fromJson(message.json);
         break;
@@ -461,13 +403,6 @@ class MessageRepo {
         break;
     }
     return byClient;
-  }
-
-  sendFileMessageDeprecated(Uid room, List<String> filesPath,
-      {String caption, int replyToId}) async {
-    for (var path in filesPath) {
-      await sendFileMessage(room, path, caption: caption, replyToId: replyToId);
-    }
   }
 
   @visibleForTesting
@@ -492,7 +427,6 @@ class MessageRepo {
       roomUid: msg.roomUid,
       packetId: msg.packetId,
       msg: msg,
-      retries: MAX_REMAINING_RETRIES,
       status: status,
     );
   }
@@ -501,8 +435,8 @@ class MessageRepo {
     _messageDao.savePendingMessage(pm);
   }
 
-  sendSeenMessage(int messageId, Uid to) {
-    _coreServices.sendSeenMessage(ProtocolSeen.SeenByClient()
+  sendSeen(int messageId, Uid to) {
+    _coreServices.sendSeen(ProtocolSeen.SeenByClient()
       ..to = to
       ..id = Int64.parseInt(messageId.toString()));
   }
@@ -514,17 +448,8 @@ class MessageRepo {
   sendForwardedMessage(Uid room, List<Message> forwardedMessage) async {
     for (Message forwardedMessage in forwardedMessage) {
       Timer(Duration(seconds: 2), () async {
-        String packetId = _getPacketId() + forwardedMessage.packetId;
-
-        var msg = Message(
-            roomUid: room.asString(),
-            packetId: packetId,
-            time: now().millisecondsSinceEpoch,
-            type: forwardedMessage.type,
-            from: _accountRepo.currentUserUid.asString(),
-            to: room.asString(),
-            forwardedFrom: forwardedMessage.from,
-            json: forwardedMessage.json);
+        Message msg = _createMessage(room, forwardedFrom: forwardedMessage.from)
+            .copyWith(type: forwardedMessage.type, json: forwardedMessage.json);
 
         var pm = _createPendingMessage(msg, SendingStatus.PENDING);
 
@@ -533,8 +458,20 @@ class MessageRepo {
     }
   }
 
+  Message _createMessage(Uid room, {int replyId, String forwardedFrom}) {
+    return Message(
+      roomUid: room.asString(),
+      packetId: _getPacketId(),
+      time: DateTime.now().millisecondsSinceEpoch,
+      from: _accountRepo.currentUserUid.asString(),
+      to: room.asString(),
+      replyToId: replyId,
+      forwardedFrom: forwardedFrom,
+    );
+  }
+
   String _getPacketId() {
-    return now().microsecondsSinceEpoch.toString();
+    return DateTime.now().microsecondsSinceEpoch.toString();
   }
 
   Future<List<Message>> getPage(int page, String roomId, int containsId,
@@ -604,16 +541,13 @@ class MessageRepo {
                   break;
               }
               break;
+            default:
+              break;
           }
-        } else {
-          // continue;
-        }
+        } else {}
       } catch (e) {
         debug(e.toString());
-        // continue;
-
       }
-
       msgList.add(
           await saveMessageInMessagesDB(_accountRepo, _messageDao, message));
     }
@@ -628,36 +562,27 @@ class MessageRepo {
     _coreServices.sendPingMessage();
   }
 
-  void sendActivityMessage(Uid to, ActivityType activityType) {
+  void sendActivity(Uid to, ActivityType activityType) {
     if (to.category == Categories.GROUP || to.category == Categories.USER) {
       ActivityByClient activityByClient = ActivityByClient()
         ..typeOfActivity = activityType
         ..to = to;
-      _coreServices.sendActivityMessage(activityByClient, _getPacketId());
+      _coreServices.sendActivity(activityByClient, _getPacketId());
     }
   }
 
   void sendFormResultMessage(
       String botUid, Map<String, String> formResultMap, int formMessageId,
       {String forwardFromAsString}) async {
-    String packetId = _getPacketId();
     FormResult formResult = FormResult();
     for (var fileId in formResultMap.keys) {
       formResult.values[fileId] = formResultMap[fileId];
     }
-
     String jsonString = (formResult).writeToJson();
-    Message msg = Message(
-      roomUid: botUid,
-      packetId: packetId,
-      time: now().millisecondsSinceEpoch,
-      from: _accountRepo.currentUserUid.asString(),
-      to: botUid,
-      replyToId: formMessageId,
-      forwardedFrom: forwardFromAsString,
-      type: MessageType.FORM_RESULT,
-      json: jsonString,
-    );
+
+    Message msg = _createMessage(botUid.getUid(),
+            replyId: formMessageId, forwardedFrom: forwardFromAsString)
+        .copyWith(type: MessageType.FORM_RESULT, json: jsonString);
 
     var pm = _createPendingMessage(msg, SendingStatus.PENDING);
 
@@ -665,18 +590,22 @@ class MessageRepo {
   }
 
   void sendShareUidMessage(Uid room, MessageProto.ShareUid shareUid) async {
-    String packetId = _getPacketId();
     String json = shareUid.writeToJson();
-    Message msg = Message(
-      roomUid: room.asString(),
-      packetId: packetId,
-      time: now().millisecondsSinceEpoch,
-      from: _accountRepo.currentUserUid.asString(),
-      to: room.asString(),
-      replyToId: null,
-      type: MessageType.SHARE_UID,
-      json: json,
-    );
+
+    Message msg =
+        _createMessage(room).copyWith(type: MessageType.SHARE_UID, json: json);
+
+    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+    _saveAndSend(pm);
+  }
+
+  void sendPrivateMessageAccept(Uid to, PrivateDataType privateDataType) async {
+    SharePrivateDataAcceptance sharePrivateDataAcceptance =
+        SharePrivateDataAcceptance()..data = privateDataType;
+    String json = sharePrivateDataAcceptance.writeToJson();
+
+    Message msg = _createMessage(to)
+        .copyWith(type: MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE, json: json);
 
     var pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);
@@ -685,26 +614,6 @@ class MessageRepo {
   Future<List<Message>> searchMessage(String str, String roomId) async {
     // TODO MIGRATION NEEDS
     return [];
-  }
-
-  void sendPrivateMessageAccept(Uid to, PrivateDataType privateDataType) async {
-    SharePrivateDataAcceptance sharePrivateDataAcceptance =
-        SharePrivateDataAcceptance()..data = privateDataType;
-    String json = sharePrivateDataAcceptance.writeToJson();
-    String packetId = _getPacketId();
-    Message msg = Message(
-      roomUid: to.asString(),
-      packetId: packetId,
-      time: now().millisecondsSinceEpoch,
-      from: _accountRepo.currentUserUid.asString(),
-      to: to.asString(),
-      replyToId: null,
-      type: MessageType.sharePrivateDataAcceptance,
-      json: json,
-    );
-
-    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
   }
 
   Future<Message> getMessage(String roomUid, int id) =>
@@ -724,21 +633,21 @@ class MessageRepo {
 
   Future<bool> pinMessage(Message message) async {
     try {
-      return await mucServices.pinMessage(message);
+      return await _mucServices.pinMessage(message);
     } catch (e) {
       return false;
     }
   }
 
-  Future<bool> unPinMessage(Message message) async {
+  Future<bool> unpinMessage(Message message) async {
     try {
-      return await mucServices.unpinMessage(message);
+      return await _mucServices.unpinMessage(message);
     } catch (e) {
       return false;
     }
   }
 
-  void sendErrorMessage(String s) {
+  void sendErrorMessage_DEBUG_MODE_(String s) {
     sendTextMessage(
         Uid.create()
           ..category = Categories.USER

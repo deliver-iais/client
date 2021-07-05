@@ -38,9 +38,9 @@ class MessageTypeAdapter extends TypeAdapter<MessageType> {
       case 11:
         return MessageType.FORM_RESULT;
       case 12:
-        return MessageType.sharePrivateDataRequest;
+        return MessageType.SHARE_PRIVATE_DATA_REQUEST;
       case 13:
-        return MessageType.sharePrivateDataAcceptance;
+        return MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE;
       default:
         return MessageType.TEXT;
     }
@@ -85,10 +85,10 @@ class MessageTypeAdapter extends TypeAdapter<MessageType> {
       case MessageType.FORM_RESULT:
         writer.writeByte(11);
         break;
-      case MessageType.sharePrivateDataRequest:
+      case MessageType.SHARE_PRIVATE_DATA_REQUEST:
         writer.writeByte(12);
         break;
-      case MessageType.sharePrivateDataAcceptance:
+      case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
         writer.writeByte(13);
         break;
     }

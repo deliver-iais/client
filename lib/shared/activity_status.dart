@@ -7,12 +7,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class ActivityStatuse extends StatelessWidget {
+class ActivityStatus extends StatelessWidget {
   final Activity activity;
   final TextStyle style;
   final Uid roomUid;
 
-  ActivityStatuse({this.activity, this.style, this.roomUid});
+  ActivityStatus({this.activity, this.style, this.roomUid});
 
   var _roomRepo = GetIt.I.get<RoomRepo>();
 

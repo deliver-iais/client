@@ -5,7 +5,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/lastActivityRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/unread_message_counter.dart';
-import 'package:deliver_flutter/shared/activityStatuse.dart';
+import 'package:deliver_flutter/shared/activity_status.dart';
 import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -121,7 +121,7 @@ class _ChatItemState extends State<ChatItem> {
                                     s.data != null &&
                                     s.data.typeOfActivity !=
                                         ActivityType.NO_ACTIVITY) {
-                                  return ActivityStatuse(
+                                  return ActivityStatus(
                                     activity: s.data,
                                     roomUid: widget.room.uid.getUid(),
                                     style: TextStyle(

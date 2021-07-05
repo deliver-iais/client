@@ -143,10 +143,10 @@ class SenderAndContent extends StatelessWidget {
       case MessageType.FORM_RESULT:
         return "Form";
         break;
-      case MessageType.sharePrivateDataRequest:
+      case MessageType.SHARE_PRIVATE_DATA_REQUEST:
         return "Request";
         break;
-      case MessageType.sharePrivateDataAcceptance:
+      case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
         return "Request";
         break;
     }

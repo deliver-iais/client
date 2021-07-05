@@ -1,10 +1,8 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/joint_to_muc_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:rxdart/subjects.dart';
 
 class searchInMessageButtom extends StatefulWidget {

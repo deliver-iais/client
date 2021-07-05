@@ -258,7 +258,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           }
           break;
         case OperationOnMessage.UN_PIN_MESSAGE:
-          var res = await _messageRepo.unPinMessage(message);
+          var res = await _messageRepo.unpinMessage(message);
           if (res) {
             _pinMessages.remove(message);
             _lastPinedMessage
@@ -338,7 +338,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         .distinct()
         .debounceTime(Duration(milliseconds: 100))
         .listen((event) {
-          _messageRepo.sendSeenMessage(event, widget.roomId.uid);
+          _messageRepo.sendSeen(event, widget.roomId.uid);
         });
 
     if (widget.roomId.getUid().category == Categories.CHANNEL ||
@@ -1099,7 +1099,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   sendInputSharedFile() async {
     if (widget.inputFilePath != null) {
       for (String path in widget.inputFilePath) {
-        _messageRepo.sendFileMessageDeprecated(widget.roomId.uid, [path]);
+        _messageRepo.sendFileMessage(widget.roomId.uid, path);
       }
     }
   }

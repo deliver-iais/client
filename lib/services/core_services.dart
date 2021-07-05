@@ -2,14 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
+import 'package:deliver_flutter/box/message.dart' as DB;
+import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/box/member.dart';
+import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/db/dao/MessageDao.dart';
-import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart' as Database;
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/box/message_type.dart';
@@ -64,8 +64,6 @@ class CoreServices {
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _messageDao = GetIt.I.get<MessageDao>();
   var _seenDao = GetIt.I.get<SeenDao>();
-  var _roomDao = GetIt.I.get<RoomDao>();
-  var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   var _routingServices = GetIt.I.get<RoutingService>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
@@ -187,7 +185,7 @@ class CoreServices {
     }
   }
 
-  sendSeenMessage(ProtocolSeen.SeenByClient seen) {
+  sendSeen(ProtocolSeen.SeenByClient seen) {
     if (!_clientPacket.isClosed) {
       _clientPacket.add(ClientPacket()
         ..seen = seen
@@ -197,7 +195,7 @@ class CoreServices {
     }
   }
 
-  sendActivityMessage(ActivityByClient activity, String id) {
+  sendActivity(ActivityByClient activity, String id) {
     if (!_clientPacket.isClosed &&
         !_accountRepo.isCurrentUser(activity.to.asString()))
       _clientPacket.add(ClientPacket()
@@ -252,10 +250,12 @@ class CoreServices {
     var id = messageDeliveryAck.id.toInt();
     var time = messageDeliveryAck.time.toInt() ??
         DateTime.now().millisecondsSinceEpoch;
-    _messageDao.updateMessageId(roomId, packetId, id, time);
-    _roomDao.insertRoomCompanion(Database.RoomsCompanion.insert(
-        roomId: roomId, lastMessageId: Value(id)));
-    _pendingMessageDao.deletePendingMessage(packetId);
+
+    var pm = await _messageDao.getPendingMessage(roomId, packetId);
+
+    _messageDao.saveMessage(pm.msg.copyWith(id: id, time: time));
+    _messageDao.deletePendingMessage(packetId);
+
     if (_routingServices.isInRoom(messageDeliveryAck.to.asString())) {
       _notificationServices.playSoundNotification();
     }
@@ -266,15 +266,14 @@ class CoreServices {
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
       return;
     }
-    saveMessage(_accountRepo, _messageDao, _roomDao, message, roomUid);
+    saveMessage(_accountRepo, _messageDao, message, roomUid);
     if (message.whichType() == Message_Type.persistEvent) {
       switch (message.persistEvent.whichType()) {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
           switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
             case MucSpecificPersistentEvent_Issue.DELETED:
-              _roomDao.updateRoom(Database.RoomsCompanion(
-                  roomId: Value(message.from.asString()),
-                  deleted: Value(true)));
+              _messageDao.updateRoom(
+                  Room(uid: message.from.asString(), deleted: true));
               return;
               break;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
@@ -291,9 +290,8 @@ class CoreServices {
             case MucSpecificPersistentEvent_Issue.KICK_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
                   .isSameEntity(_accountRepo.currentUserUid.asString())) {
-                _roomDao.updateRoom(Database.RoomsCompanion(
-                    roomId: Value(message.from.asString()),
-                    deleted: Value(true)));
+                _messageDao.updateRoom(
+                    Room(uid: message.from.asString(), deleted: true));
                 return;
               }
               break;
@@ -301,9 +299,8 @@ class CoreServices {
             case MucSpecificPersistentEvent_Issue.ADD_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
                   .isSameEntity(_accountRepo.currentUserUid.asString())) {
-                _roomDao.updateRoom(Database.RoomsCompanion(
-                    roomId: Value(message.from.asString()),
-                    deleted: Value(false)));
+                _messageDao.updateRoom(
+                    Room(uid: message.from.asString(), deleted: false));
               }
               break;
 
@@ -352,7 +349,7 @@ class CoreServices {
   }
 
   static Future<Uid> saveMessage(AccountRepo accountRepo, MessageDao messageDao,
-      RoomDao roomDao, Message message, Uid roomUid) async {
+      Message message, Uid roomUid) async {
     var msg = await saveMessageInMessagesDB(accountRepo, messageDao, message);
 
     bool isMention = false;
@@ -361,20 +358,9 @@ class CoreServices {
         isMention = await checkMention(message.text.text, accountRepo);
       }
     }
-    if (isMention) {
-      roomDao.insertRoomCompanion(
-        Database.RoomsCompanion.insert(
-            roomId: roomUid.asString(),
-            lastMessageId: Value(message.id.toInt()),
-            mentioned: Value(isMention),
-            lastMessageDbId: Value(msg.dbId)),
-      );
-    } else {
-      roomDao.insertRoomCompanion(Database.RoomsCompanion.insert(
-          roomId: roomUid.asString(),
-          lastMessageId: Value(message.id.toInt()),
-          lastMessageDbId: Value(msg.dbId)));
-    }
+    messageDao.updateRoom(
+      Room(uid: roomUid.asString(), lastMessage: msg, mentioned: isMention),
+    );
 
     return roomUid;
   }
@@ -393,56 +379,39 @@ Future<bool> checkMention(String text, AccountRepo accountRepo) async {
   return text.contains(account.userName);
 }
 
-saveMessageInMessagesDB(
+Future<DB.Message> saveMessageInMessagesDB(
     AccountRepo accountRepo, MessageDao messageDao, Message message) async {
-  // ignore: missing_required_param
-  Database.Message msg;
+  var msg = extractMessage(accountRepo, message);
+  await messageDao.saveMessage(msg);
+  return msg;
+}
+
+DB.Message extractMessage(AccountRepo accountRepo, Message message) {
+  var json = "";
+
   try {
-    msg = Database.Message(
-        id: message.id.toInt(),
-        roomId: message.whichType() == Message_Type.persistEvent
-            ? message.from.asString()
-            : message.from.node.contains(accountRepo.currentUserUid.node)
-                ? message.to.asString()
-                : message.to.category == Categories.USER
-                    ? message.from.asString()
-                    : message.to.asString(),
-        packetId: message.packetId,
-        time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
-        to: message.to.asString(),
-        from: message.from.asString(),
-        replyToId: message.replyToId.toInt(),
-        forwardedFrom: message.forwardFrom.asString(),
-        json: messageToJson(message),
-        edited: message.edited,
-        encrypted: message.encrypted,
-        type: getMessageType(message.whichType()));
-  } catch (e) {
-    debug("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + e.toString());
-    msg = Database.Message(
-        id: message.id.toInt(),
-        roomId: message.whichType() == Message_Type.persistEvent
-            ? message.from.asString()
-            : message.from.node.contains(accountRepo.currentUserUid.node)
-                ? message.to.asString()
-                : message.to.category == Categories.USER
-                    ? message.from.asString()
-                    : message.to.asString(),
-        packetId: message.packetId,
-        time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
-        to: message.to.asString(),
-        from: message.from.asString(),
-        replyToId: message.replyToId.toInt(),
-        forwardedFrom: message.forwardFrom.asString(),
-        json: "",
-        edited: message.edited,
-        encrypted: message.encrypted,
-        type: getMessageType(message.whichType()));
-  }
+    json = messageToJson(message);
+  } catch (ignore) {}
 
-  int dbId = await messageDao.insertMessage(msg);
-
-  return msg.copyWith(dbId: dbId);
+  return DB.Message(
+      id: message.id.toInt(),
+      roomUid: message.whichType() == Message_Type.persistEvent
+          ? message.from.asString()
+          : message.from.node.contains(accountRepo.currentUserUid.node)
+              ? message.to.asString()
+              : message.to.category == Categories.USER
+                  ? message.from.asString()
+                  : message.to.asString(),
+      packetId: message.packetId,
+      time: message.time.toInt(),
+      to: message.to.asString(),
+      from: message.from.asString(),
+      replyToId: message.replyToId.toInt(),
+      forwardedFrom: message.forwardFrom.asString(),
+      json: json,
+      edited: message.edited,
+      encrypted: message.encrypted,
+      type: getMessageType(message.whichType()));
 }
 
 Uid getRoomId(AccountRepo accountRepo, Message message) {
@@ -491,10 +460,10 @@ String messageToJson(Message message) {
     case MessageType.FORM_RESULT:
       return message.formResult.writeToJson();
       break;
-    case MessageType.sharePrivateDataRequest:
+    case MessageType.SHARE_PRIVATE_DATA_REQUEST:
       return message.sharePrivateDataRequest.writeToJson();
       break;
-    case MessageType.sharePrivateDataAcceptance:
+    case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
       return message.sharePrivateDataAcceptance.writeToJson();
 
     case MessageType.NOT_SET:
@@ -529,9 +498,9 @@ MessageType getMessageType(Message_Type messageType) {
     case Message_Type.shareUid:
       return MessageType.SHARE_UID;
     case Message_Type.sharePrivateDataRequest:
-      return MessageType.sharePrivateDataRequest;
+      return MessageType.SHARE_PRIVATE_DATA_REQUEST;
     case Message_Type.sharePrivateDataAcceptance:
-      return MessageType.sharePrivateDataAcceptance;
+      return MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE;
     default:
       return MessageType.NOT_SET;
   }

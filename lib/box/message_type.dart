@@ -42,8 +42,8 @@ enum MessageType {
   FORM_RESULT,
 
   @HiveField(12)
-  sharePrivateDataRequest,
+  SHARE_PRIVATE_DATA_REQUEST,
 
   @HiveField(13)
-  sharePrivateDataAcceptance
+  SHARE_PRIVATE_DATA_ACCEPTANCE
 }

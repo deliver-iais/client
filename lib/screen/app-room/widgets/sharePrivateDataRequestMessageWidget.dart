@@ -1,10 +1,9 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

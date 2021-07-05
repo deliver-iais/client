@@ -312,8 +312,6 @@ class RoutingService {
 
   Future<void> deleteDb() async {
     Database db = GetIt.I.get<Database>();
-    await db.delete(db.rooms).go();
-    await db.delete(db.pendingMessages).go();
     await db.deleteAllData();
   }
 

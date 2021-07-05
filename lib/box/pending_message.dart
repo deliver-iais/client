@@ -19,9 +19,6 @@ class PendingMessage {
   @HiveField(3)
   int failed;
 
-  @HiveField(4)
-  int retries;
-
   @HiveField(5)
   SendingStatus status;
 
@@ -30,7 +27,6 @@ class PendingMessage {
       this.packetId,
       this.msg,
       this.failed,
-      this.retries,
       this.status});
 
   PendingMessage copy(PendingMessage pm) => PendingMessage(
@@ -38,7 +34,6 @@ class PendingMessage {
         packetId: pm.packetId ?? this.packetId,
         msg: pm.msg ?? this.msg,
         failed: pm.failed ?? this.failed,
-        retries: pm.retries ?? this.retries,
         status: pm.status ?? this.status,
       );
 
@@ -54,7 +49,6 @@ class PendingMessage {
         packetId: packetId ?? this.packetId,
         msg: msg ?? this.msg,
         failed: failed ?? this.failed,
-        retries: retries ?? this.retries,
         status: status ?? this.status,
       );
 }

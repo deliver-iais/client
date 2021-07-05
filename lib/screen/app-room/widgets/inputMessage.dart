@@ -113,11 +113,11 @@ class _InputMessageWidget extends State<InputMessage> {
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, Duration(seconds: 10)))
         .listen((activityType) {
-      messageRepo.sendActivityMessage(
+      messageRepo.sendActivity(
           widget.currentRoom.roomId.getUid(), activityType);
     });
     NoActivitySubject.listen((event) {
-      messageRepo.sendActivityMessage(
+      messageRepo.sendActivity(
           widget.currentRoom.roomId.getUid(), event);
     });
     controller = TextEditingController();
@@ -485,7 +485,7 @@ class _InputMessageWidget extends State<InputMessage> {
                       },
                       onStickerTap: (Sticker sticker) {
                         messageRepo.sendStickerMessage(
-                            roomUid: widget.currentRoom.roomId.getUid(),
+                            room: widget.currentRoom.roomId.getUid(),
                             sticker: sticker);
                         widget.scrollToLastSentMessage();
                       },
@@ -580,7 +580,7 @@ class _InputMessageWidget extends State<InputMessage> {
   _attachFileInWindowsMode() async {
     final typeGroup = XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
     final result = await openFiles(acceptedTypeGroups: [typeGroup]);
-    messageRepo.sendFileMessageDeprecated(
+    messageRepo.sendMultipleFilesMessages(
         currentRoom.roomId.uid, result.map((e) => e.path).toList());
   }
 
