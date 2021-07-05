@@ -1,5 +1,5 @@
 import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/models/sending_status.dart';
+import 'package:deliver_flutter/box/sending_status.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:hive/hive.dart';
 

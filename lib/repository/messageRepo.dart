@@ -12,7 +12,7 @@ import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/box/message_type.dart';
-import 'package:deliver_flutter/models/sending_status.dart';
+import 'package:deliver_flutter/box/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';

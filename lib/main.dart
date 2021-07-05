@@ -23,6 +23,7 @@ import 'package:deliver_flutter/box/pending_message.dart';
 import 'package:deliver_flutter/box/role.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
+import 'package:deliver_flutter/box/sending_status.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
@@ -89,6 +90,7 @@ Future<void> setupDI() async {
   Hive.registerAdapter(PendingMessageAdapter());
   Hive.registerAdapter(MessageAdapter());
   Hive.registerAdapter(MessageTypeAdapter());
+  Hive.registerAdapter(SendingStatusAdapter());
 
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<AvatarDao>(AvatarDaoImpl());

@@ -1,7 +1,7 @@
 import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/pending_message.dart';
-import 'package:deliver_flutter/models/sending_status.dart';
+import 'package:deliver_flutter/box/sending_status.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/sending_file_circular_indicator.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
