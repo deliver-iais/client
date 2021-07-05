@@ -54,7 +54,7 @@ class TextUi extends StatelessWidget {
       int D = (imageWidth.round() / 12).ceil();
       content = this.message.json.toFile().caption;
       if (imageWidth != null && content.length > D) {
-        List<String> d = List();
+        List<String> d = [];
         int u = (content.length / D).ceil();
         int i = 0;
         while (i < u) {

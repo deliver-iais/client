@@ -336,7 +336,7 @@ class AccountRepo {
 
   Future<String> get notification => _sharedDao.get(SHARED_DAO_NOTIFICATION);
 
-  void fetchProfile() async {
+  Future<void> fetchProfile() async {
     if (null == await _sharedDao.get(SHARED_DAO_USERNAME)) {
       await getUsername();
     } else if (null == await _sharedDao.get(SHARED_DAO_FIRST_NAME)) {

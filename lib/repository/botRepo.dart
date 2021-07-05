@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:deliver_flutter/box/bot_info.dart';
 import 'package:deliver_flutter/box/dao/bot_dao.dart';
 
@@ -49,7 +47,7 @@ class BotRepo {
     // var result = await _botServiceClient.searchByName(SearchByNameReq()..name = name,options: CallOptions(
     //  metadata: {"access_token" : await _accountRepo.getAccessToken()},timeout: Duration(seconds: 2)
     // ));
-    List<Uid> searchInBots = List();
+    List<Uid> searchInBots = [];
     if (name.contains("father")) {
       Uid uid = Uid();
       uid.category = Categories.BOT;

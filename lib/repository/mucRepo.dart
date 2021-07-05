@@ -18,7 +18,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:grpc/grpc.dart';
-import 'package:moor/moor.dart';
 
 class MucRepo {
   final _mucDao = GetIt.I.get<MucDao>();
@@ -289,7 +288,7 @@ class MucRepo {
   }
 
   kickGroupMembers(List<Member> groupMember) async {
-    List<MucPro.Member> members = List();
+    List<MucPro.Member> members = [];
     for (Member member in groupMember) {
       members.add(MucPro.Member()
         ..uid = member.memberUid.asUid()

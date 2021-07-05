@@ -4,14 +4,12 @@ import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver_flutter/services/file_service.dart';
-import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 import '../size_formater.dart';
 import '../timeAndSeenStatus.dart';
@@ -36,8 +34,7 @@ class _VideoMessageState extends State<VideoMessage> {
   var _fileRepo = GetIt.I.get<FileRepo>();
   bool startDownload = false;
   var fileServices = GetIt.I.get<FileService>();
-  var _routingService = GetIt.I.get<RoutingService>();
-  PendingMessageDao pendingMessageDao = GetIt.I.get<PendingMessageDao>();
+  final pendingMessageDao = GetIt.I.get<PendingMessageDao>();
 
   @override
   Widget build(BuildContext context) {

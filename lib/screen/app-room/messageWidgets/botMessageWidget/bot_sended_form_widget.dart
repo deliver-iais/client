@@ -9,18 +9,17 @@ import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
 import '../timeAndSeenStatus.dart';
 
-class BotSendedFormWidget extends StatelessWidget {
+class BotSentFormWidget extends StatelessWidget {
   final Message message;
   final bool isSeen;
 
-  BotSendedFormWidget({this.message, this.isSeen});
+  BotSentFormWidget({this.message, this.isSeen});
 
   final _messageDao = GetIt.I.get<MessageRepo>();
-  formModel.FormResult formResult;
 
   @override
   Widget build(BuildContext context) {
-    formResult = message.json.toFormResult();
+    var formResult = message.json.toFormResult();
 
     return FutureBuilder<Message>(
         future: _messageDao.getMessage(message.to, message.replyToId),
@@ -56,7 +55,7 @@ class BotSendedFormWidget extends StatelessWidget {
                                             fontSize: 13, color: Colors.black),
                                       ),
                                       Text(
-                                        getText(form, index),
+                                        getText(form, index, formResult),
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                             fontSize: 14, color: Colors.white),
@@ -77,7 +76,8 @@ class BotSendedFormWidget extends StatelessWidget {
         });
   }
 
-  String getText(formModel.Form form, int index) {
+  String getText(
+      formModel.Form form, int index, formModel.FormResult formResult) {
     var body = formResult.values[form.fields[index].id];
     String text = "";
     if (body == null) {

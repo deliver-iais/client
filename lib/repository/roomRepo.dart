@@ -20,7 +20,6 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:grpc/grpc.dart';
-import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
 
 class RoomRepo {

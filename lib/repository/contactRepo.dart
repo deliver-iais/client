@@ -45,7 +45,7 @@ class ContactRepo {
     if (await _checkPermission.checkContactPermission() ||
         isDesktop() ||
         isIOS()) {
-      List<Contact> contacts = new List();
+      List<Contact> contacts = [];
       if (!isDesktop()) {
         Iterable<OsContact.Contact> phoneContacts =
             await OsContact.ContactsService.getContacts(

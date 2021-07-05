@@ -1,11 +1,8 @@
 import 'dart:io';
 
-import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_flutter/services/video_player_service.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:video_player/video_player.dart';
 

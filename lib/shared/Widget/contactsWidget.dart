@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/contact.dart';
-import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/theme/constants.dart';
@@ -27,11 +26,10 @@ class ContactWidget extends StatelessWidget {
       this.isSelected = false,
       this.currentMember = false});
 
-  AppLocalization _appLocalization;
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    var _appLocalization = AppLocalization.of(context);
     return Container(
       decoration: BoxDecoration(
           color: currentMember

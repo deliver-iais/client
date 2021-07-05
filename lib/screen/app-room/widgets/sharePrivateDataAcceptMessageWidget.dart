@@ -14,16 +14,14 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
 
   SharePrivateDataAcceptMessageWidget({this.message, this.isSender, this.isSeen});
 
-  SharePrivateDataAcceptance _sharePrivateDataAcceptance;
-
   @override
   Widget build(BuildContext context) {
-    _sharePrivateDataAcceptance = message.json.toSharePrivateDataAcceptance();
+    var spda = message.json.toSharePrivateDataAcceptance();
 
     return Stack(
       children: [
         Column(children: [
-          Text(_sharePrivateDataAcceptance.data == PrivateDataType.PHONE_NUMBER
+          Text(spda.data == PrivateDataType.PHONE_NUMBER
               ? "اجازه دسترسی به شماره تلفن شما داده شد."
               : "اجازه دسترسی به نام کاربری شما داده شده است."),
         ]),

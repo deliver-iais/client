@@ -4,23 +4,15 @@ import 'dart:isolate';
 import 'package:deliver_flutter/box/dao/file_dao.dart';
 import 'package:deliver_flutter/box/file_info.dart';
 import 'package:deliver_flutter/utils/log.dart';
-import 'package:mime_type/mime_type.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
-import 'package:deliver_flutter/db/dao/StickerDao.dart';
-import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
-import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as FileProto;
 
 import 'package:fixnum/fixnum.dart';
-import 'package:flutter/foundation.dart';
 import 'package:image/image.dart';
 import 'package:get_it/get_it.dart';
-import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 
 class FileRepo {
@@ -208,7 +200,7 @@ void decodeIsolate(Map<dynamic, dynamic> param) async {
 
   final largeLocalFile = File(
       '${directory.path + "/Deliver"}/${param['uploadKey'] + "-large"}.${param['name']}');
-  ;
+
 
   final mediumLocalFile = File(
       '${directory.path + "/Deliver"}/${param['uploadKey'] + "-medium"}.${param['name']}');

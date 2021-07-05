@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
+import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/mute_dao.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
@@ -98,21 +99,18 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
   GetIt.I.registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
   GetIt.I.registerSingleton<MuteDao>(MuteDaoImpl());
 
-  var database = db.Database();
-  var roomDao = database.roomDao;
-  var messageDao = database.messageDao;
-
   var lastActivityDao = GetIt.I.get<LastActivityDao>();
 
   var accountRepo = AccountRepo();
   var roomRepo = RoomRepo();
+  var messageDao = MessageDaoImpl();
 
   if (message.data.containsKey('body')) {
     M.Message msg = _decodeMessage(message.data["body"]);
     String roomName = message.data['title'];
     Uid roomUid = getRoomId(accountRepo, msg);
 
-    CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg, roomUid);
+    CoreServices.saveMessage(accountRepo, messageDao, msg, roomUid);
 
     if (msg.from.category == Categories.USER)
       updateLastActivityTime(

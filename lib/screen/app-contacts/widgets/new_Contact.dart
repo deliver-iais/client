@@ -1,11 +1,6 @@
-
-
-
-
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 
@@ -39,12 +34,14 @@ class _NewContactState extends State<NewContact> {
 
   @override
   Widget build(BuildContext context) {
-
     _appLocalization = AppLocalization.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: _routingServices.backButtonLeading(),
-        title: Text(_appLocalization.getTraslateValue("newContact"),style: TextStyle(fontSize: 20),) ,
+        title: Text(
+          _appLocalization.getTraslateValue("newContact"),
+          style: TextStyle(fontSize: 20),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20),
@@ -58,12 +55,10 @@ class _NewContactState extends State<NewContact> {
                   PhoneNumber phoneNumber = PhoneNumber()
                     ..nationalNumber = Int64.parseInt(_phoneNumber.number)
                     ..countryCode = int.parse(_phoneNumber.countryCode);
-                  await _contactRepo.addContact(
-                    Contact()
-                      ..phoneNumber = phoneNumber
-                      ..firstName = _firstName
-                      ..lastName = _lastName
-                  );
+                  await _contactRepo.addContact(Contact()
+                    ..phoneNumber = phoneNumber
+                    ..firstName = _firstName
+                    ..lastName = _lastName);
                   await showResult();
                   _routingServices.pop();
                 }),
@@ -126,7 +121,7 @@ class _NewContactState extends State<NewContact> {
     );
   }
 
-  void showResult() async {
+  Future<void> showResult() async {
     var result = await _contactRepo.contactIsExist(_phoneNumber.number);
     if (result) {
       Fluttertoast.showToast(

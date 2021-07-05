@@ -1,10 +1,10 @@
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/boxContent.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
-class RecievedMessageBox extends StatelessWidget {
+class ReceivedMessageBox extends StatelessWidget {
   final Message message;
   final double maxWidth;
   final bool isGroup;
@@ -13,7 +13,7 @@ class RecievedMessageBox extends StatelessWidget {
   final String pattern;
   final Function onBotCommandClick;
 
-  RecievedMessageBox(
+  ReceivedMessageBox(
       {Key key,
       this.message,
       this.maxWidth,

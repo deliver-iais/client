@@ -10,7 +10,6 @@ import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/db/database.dart' as Database;
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -33,7 +32,6 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
-import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:fixnum/fixnum.dart';
 

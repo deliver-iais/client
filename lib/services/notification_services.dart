@@ -132,7 +132,7 @@ class NotificationServices {
       pro.Message message, String roomUid, String roomName) async {
     try {
       if (_notificationMessage[roomUid] == null) {
-        _notificationMessage[roomUid] = List();
+        _notificationMessage[roomUid] = [];
       }
       _notificationMessage[roomUid].add(message.id.toInt());
       switch (message.whichType()) {

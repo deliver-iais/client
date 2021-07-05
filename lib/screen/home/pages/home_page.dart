@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     ReceiveSharingIntent.getMediaStream().listen((List<SharedMediaFile> value) {
       if (value != null) {
         Fluttertoast.showToast(msg: value.length.toString());
-        List<String> paths = List();
+        List<String> paths = [];
         for (var path in value) {
           paths.add(path.path);
         }

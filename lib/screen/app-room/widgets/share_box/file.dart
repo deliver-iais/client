@@ -2,8 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import 'helper_classes.dart';
-
 class ShareBoxFile extends StatefulWidget {
   final ScrollController scrollController;
   final Function onClick;

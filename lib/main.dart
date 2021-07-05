@@ -71,7 +71,7 @@ import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
 import 'repository/mucRepo.dart';
 
-void setupDI() async {
+Future<void> setupDI() async {
   await Hive.initFlutter("db");
 
   Hive.registerAdapter(AvatarAdapter());

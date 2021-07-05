@@ -1,4 +1,3 @@
-import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:moor/moor.dart';
 
 class MediasMetaData extends Table {

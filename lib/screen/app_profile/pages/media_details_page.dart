@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dcache/dcache.dart';
-import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
@@ -20,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MediaDetailsPage extends StatefulWidget {
@@ -511,7 +509,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             builder: (c, position) {
               if (position.hasData && position.data != null)
                 return Text(
-                  "${position.data + 1} of ${totalLength}",
+                  "${position.data + 1} of $totalLength",
                   style: TextStyle(color: ExtraTheme.of(context).textField),
                 );
               else {

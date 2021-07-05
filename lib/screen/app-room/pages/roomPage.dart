@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:badges/badges.dart';
@@ -40,6 +39,7 @@ import 'package:deliver_flutter/shared/botAppBar.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/custom_context_menu.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/shared/mucAppbarTitle.dart';
 import 'package:deliver_flutter/shared/userAppBar.dart';
 import 'package:deliver_flutter/theme/constants.dart';
@@ -131,9 +131,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   Cache<int, Message> _cache =
       LruCache<int, Message>(storage: SimpleStorage(size: 50));
 
-  List<Message> searchResult = List();
+  List<Message> searchResult = [];
   Message currentSearchResultMessage;
-  Message _currentMessageForCheckTime = null;
+  Message _currentMessageForCheckTime;
   BehaviorSubject<bool> _hasPermissionInChannel = BehaviorSubject.seeded(true);
   BehaviorSubject<bool> _hasPermissionInGroup = BehaviorSubject.seeded(false);
   BehaviorSubject<int> unReadMessageScrollSubject = BehaviorSubject.seeded(0);
@@ -434,7 +434,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         builder: (context, currentRoomStream) {
                           if (currentRoomStream.hasData) {
                             _currentRoom.add(currentRoomStream.data);
-                            int i = _currentRoom.value.lastMessageId ??
+                            int i = _currentRoom.value.lastMessage.id ??
                                 0 + pendingMessages.length;
                             if (_itemCount != 0 && i != _itemCount)
                               _itemCountSubject.add(_itemCount);
@@ -640,8 +640,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           builder: (c, s) {
             if (s.hasData &&
                 s.data != null &&
-                s.data.roomId.getUid().category == Categories.BOT &&
-                s.data.lastMessageId == null) {
+                s.data.uid.asUid().category == Categories.BOT &&
+                s.data.lastMessage.id == null) {
               return BotStartWidget(botUid: widget.roomId.asUid());
             } else {
               return NewMessageInput(
@@ -849,10 +849,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         if (index == -1) index = 0;
         // TODO SEEN MIGRATION
         _seenDao.saveMySeen(Seen(
-            uid: widget.roomId, messageId: _currentRoom.value.lastMessageId));
-        bool isPendingMessage = (currentRoom.lastMessageId == null)
+            uid: widget.roomId, messageId: _currentRoom.value.lastMessage.id));
+        bool isPendingMessage = (currentRoom.lastMessage.id == null)
             ? true
-            : _itemCount > currentRoom.lastMessageId &&
+            : _itemCount > currentRoom.lastMessage.id &&
                 _itemCount - index <= pendingMessages.length;
         if (_itemCount - index > 14) {
           return StreamBuilder<bool>(
@@ -905,7 +905,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
           return Column(
             children: <Widget>[
-              if (currentRoom.lastMessageId != null &&
+              if (currentRoom.lastMessage.id != null &&
                   _lastShowedMessageId != -1 &&
                   _lastShowedMessageId == index &&
                   !(messages[0].from.isSameEntity(_accountRepo.currentUserUid)))
@@ -993,15 +993,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           messages[0].id != null &&
           messages[0].id > 1 &&
           (_currentMessageForCheckTime.id - messages[0].id).abs() <= 1 &&
-          (_currentMessageForCheckTime.time.day != messages[0].time.day ||
-              _currentMessageForCheckTime.time.month !=
-                  messages[0].time.month)) {
+          (date(_currentMessageForCheckTime.time).day !=
+                  date(messages[0].time).day ||
+              date(_currentMessageForCheckTime.time).month !=
+                  date(messages[0].time).month)) {
         newTime = true;
       }
 
-      bool showTimeDown =
-          _currentMessageForCheckTime.time.millisecondsSinceEpoch >=
-              messages[0].time.millisecondsSinceEpoch;
+      bool showTimeDown = _currentMessageForCheckTime.time >= messages[0].time;
       if (messages[0].id != null && messages[0].id == 1) {
         showTimeDown = false;
       }
@@ -1010,12 +1009,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           showTimeDown &&
           _currentMessageForCheckTime != null &&
           !_upTimeMap.containsValue(_currentMessageForCheckTime.time)) {
-        _downTimeMap[messages[0].packetId] = _currentMessageForCheckTime.time;
+        _downTimeMap[messages[0].packetId] =
+            date(_currentMessageForCheckTime.time);
       }
       if (newTime &&
           !showTimeDown &&
           !_downTimeMap.containsValue(messages[0].time)) {
-        _upTimeMap[messages[0].packetId] = messages[0].time;
+        _upTimeMap[messages[0].packetId] = date(messages[0].time);
       }
     } catch (e) {
       debug(e.toString());
@@ -1034,11 +1034,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       List pendingMessages) {
     var messageWidget;
     if (message.from.isSameEntity(_accountRepo.currentUserUid))
-      messageWidget = showSentMessage(
-          message, maxWidth, currentRoom.lastMessageId, pendingMessages.length);
+      messageWidget = showSentMessage(message, maxWidth,
+          currentRoom.lastMessage.id, pendingMessages.length);
     else
-      messageWidget = showReceivedMessage(
-          message, maxWidth, currentRoom.lastMessageId, pendingMessages.length);
+      messageWidget = showReceivedMessage(message, maxWidth,
+          currentRoom.lastMessage.id, pendingMessages.length);
     var dismissibleWidget = Dismissible(
         movementDuration: Duration(microseconds: 10),
         confirmDismiss: (direction) async {
@@ -1193,7 +1193,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget showReceivedMessage(Message message, double _maxWidth,
       int lastMessageId, int pendingMessagesLength) {
-    var messageWidget = RecievedMessageBox(
+    var messageWidget = ReceivedMessageBox(
       message: message,
       maxWidth: _maxWidth,
       pattern: pattern,
