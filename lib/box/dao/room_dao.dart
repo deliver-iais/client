@@ -56,9 +56,12 @@ class RoomDaoImpl implements RoomDao {
   }
 
   @override
-  Future<void> updateRoom(Room room) {
-    // TODO: implement updateRoom
-    throw UnimplementedError();
+  Future<void> updateRoom(Room room) async {
+    var box = await _openRoom();
+
+    var r = box.get(room.uid) ?? room;
+
+    return box.put(room.uid, r.copy(room));
   }
 
   @override
