@@ -22,8 +22,7 @@ class ContactDaoImpl implements ContactDao {
 
   Future<Contact> getByUid(String uid) async {
     var box = await _open();
-
-    return box.values.firstWhere((element) => element.uid == uid);
+    return box.get(uid);
   }
 
   Future<List<Contact>> getAll() async {
@@ -43,7 +42,7 @@ class ContactDaoImpl implements ContactDao {
   Future<void> save(Contact contact) async {
     var box = await _open();
 
-    return box.put(contact.phoneNumber, contact);
+    return box.put(contact.uid, contact);
   }
 
   static String _key() => "contact";

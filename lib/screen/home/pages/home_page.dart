@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/dao/muc_dao.dart';
-import 'package:deliver_flutter/db/dao/MucDao.dart';
+
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
@@ -127,7 +127,7 @@ Future<void> handleUri(String initialLink, BuildContext context) async {
       ..category = Categories.CHANNEL;
   }
   if (mucUid != null) {
-    var muc = await _mucDao.getMucByUid(mucUid.asString());
+    var muc = await _mucDao.get(mucUid.asString());
     if (muc != null) {
       _routingService.openRoom(mucUid.asString());
     } else {

@@ -3,6 +3,7 @@ import 'package:deliver_flutter/box/contact.dart' as DB;
 import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/box/room.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:contacts_service/contacts_service.dart' as OsContact;
@@ -157,6 +158,7 @@ class ContactRepo {
           lastName: contact.lastName));
 
       if (contact.uid != null) {
+        roomNameCache.set(contact.uid.asString(), contact.firstName);
         _roomDao.updateRoom(Room(uid: contact.uid.asString()));
       }
     }
