@@ -19,33 +19,40 @@ abstract class RoomDao {
 
 class RoomDaoImpl implements RoomDao {
   @override
-  Future<void> deleteRoom(Room room) {
-    // TODO: implement deleteRoom
-    throw UnimplementedError();
+  Future<void> deleteRoom(Room room) async {
+    var box = await _openRoom();
+
+    box.delete(room.uid);
   }
 
   @override
-  Future<List<Room>> getAllRooms() {
-    // TODO: implement getAllRooms
-    throw UnimplementedError();
+  Future<List<Room>> getAllRooms() async {
+    var box = await _openRoom();
+
+    return box.values.toList();
   }
 
   @override
-  Stream<List<Room>> watchAllRooms() {
-    // TODO: implement getAllRooms
-    throw UnimplementedError();
+  Stream<List<Room>> watchAllRooms() async* {
+    var box = await _openRoom();
+
+    yield box.values.toList();
+
+    yield* box.watch().map((event) => box.values.toList());
   }
 
   @override
-  Future<Room> getRoom(String roomUid) {
-    // TODO: implement getRoom
-    throw UnimplementedError();
+  Future<Room> getRoom(String roomUid) async {
+    var box = await _openRoom();
+
+    return box.get(roomUid);
   }
 
   @override
-  Future<void> saveRoom(Room room) {
-    // TODO: implement saveRoom
-    throw UnimplementedError();
+  Future<void> saveRoom(Room room) async {
+    var box = await _openRoom();
+
+    return box.put(room.uid, room);
   }
 
   @override
@@ -55,11 +62,13 @@ class RoomDaoImpl implements RoomDao {
   }
 
   @override
-  Stream<Room> watchRoom(String roomUid) {
-    // TODO: implement watchRoom
-    throw UnimplementedError();
-  }
+  Stream<Room> watchRoom(String roomUid) async* {
+    var box = await _openRoom();
 
+    yield box.get(roomUid);
+
+    yield* box.watch(key: roomUid).map((event) => box.get(roomUid));
+  }
 
   static String _keyRoom() => "room";
 

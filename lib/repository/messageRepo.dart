@@ -622,11 +622,11 @@ class MessageRepo {
   Future<Message> getMessage(String roomUid, int id) =>
       _messageDao.getMessage(roomUid, id);
 
-  Future<PendingMessage> getPendingMessage(String roomUid, String packetId) =>
-      _messageDao.getPendingMessage(roomUid, packetId);
+  Future<PendingMessage> getPendingMessage(String packetId) =>
+      _messageDao.getPendingMessage(packetId);
 
   void resendMessage(Message msg) async {
-    var pm = await _messageDao.getPendingMessage(msg.roomUid, msg.packetId);
+    var pm = await _messageDao.getPendingMessage(msg.packetId);
     _saveAndSend(pm);
   }
 

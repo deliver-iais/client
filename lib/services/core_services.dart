@@ -251,7 +251,7 @@ class CoreServices {
     var time = messageDeliveryAck.time.toInt() ??
         DateTime.now().millisecondsSinceEpoch;
 
-    var pm = await _messageDao.getPendingMessage(roomId, packetId);
+    var pm = await _messageDao.getPendingMessage(packetId);
 
     _messageDao.saveMessage(pm.msg.copyWith(id: id, time: time));
     _messageDao.deletePendingMessage(packetId);

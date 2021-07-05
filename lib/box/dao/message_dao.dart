@@ -17,7 +17,7 @@ abstract class MessageDao {
 
   Stream<List<PendingMessage>> watchPendingMessages(String roomUid);
 
-  Future<PendingMessage> getPendingMessage(String roomUid, String packetId);
+  Future<PendingMessage> getPendingMessage(String packetId);
 
   Stream<PendingMessage> watchPendingMessage(String roomUid, String packetId);
 
@@ -48,36 +48,52 @@ class MessageDaoImpl implements MessageDao {
   }
 
   Future<List<PendingMessage>> getAllPendingMessages() async {
-    // TODO: implement getAllPendingMessages
-    throw UnimplementedError();
+    var box = await _openPending();
+
+    return box.values.toList();
   }
 
   Future<List<Message>> getMessagePage(String roomUid, int page,
       {int pageSize = 40}) async {
-    // TODO: implement getPage
-    throw UnimplementedError();
+    var box = await _openMessages(roomUid);
+
+    return Iterable<int>.generate(pageSize)
+        .map((e) => page * pageSize + pageSize)
+        .map((e) => box.get(box))
+        .toList();
   }
 
   Future<List<PendingMessage>> getPendingMessages(String roomUid) async {
-    // TODO: implement getPendingMessages
-    throw UnimplementedError();
+    var box = await _openPending();
+
+    return box.values.where((element) => element.roomUid == roomUid).toList();
   }
 
   Stream<List<PendingMessage>> watchPendingMessages(String roomUid) async* {
-    // TODO: implement getPendingMessages
-    throw UnimplementedError();
+    var box = await _openPending();
+
+    yield box.values.where((element) => element.roomUid == roomUid).toList();
+
+    yield* box
+        .watch()
+        .where((event) => (event.value as PendingMessage).roomUid == roomUid)
+        .map((event) =>
+            box.values.where((element) => element.roomUid == roomUid).toList());
   }
 
-  Future<PendingMessage> getPendingMessage(
-      String roomUid, String packetId) async {
-    // TODO: implement getPendingMessages
-    throw UnimplementedError();
+  Future<PendingMessage> getPendingMessage(String packetId) async {
+    var box = await _openPending();
+
+    return box.get(packetId);
   }
 
   Stream<PendingMessage> watchPendingMessage(
       String roomUid, String packetId) async* {
-    // TODO: implement getPendingMessages
-    throw UnimplementedError();
+    var box = await _openPending();
+
+    yield box.get(packetId);
+
+    yield* box.watch().map((event) => box.get(packetId));
   }
 
   Future<void> saveMessage(Message message) async {

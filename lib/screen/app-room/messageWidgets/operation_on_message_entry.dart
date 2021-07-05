@@ -197,8 +197,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
           ),
           if (widget.message.id == null)
             FutureBuilder<PendingMessage>(
-                future: _messageRepo.getPendingMessage(
-                    widget.message.roomUid, widget.message.packetId),
+                future: _messageRepo.getPendingMessage(widget.message.packetId),
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data != null) {
                     return Expanded(
@@ -221,8 +220,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 }),
           if (widget.message.id == null)
             FutureBuilder<PendingMessage>(
-                future: _messageRepo.getPendingMessage(
-                    widget.message.roomUid, widget.message.packetId),
+                future: _messageRepo.getPendingMessage(widget.message.packetId),
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data != null) {
                     return Expanded(
