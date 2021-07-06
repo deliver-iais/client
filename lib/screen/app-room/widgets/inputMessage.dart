@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:deliver_flutter/box/room.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 
@@ -98,7 +99,7 @@ class _InputMessageWidget extends State<InputMessage> {
           backgroundColor: Colors.transparent,
           builder: (context) {
             return ShareBox(
-                currentRoomId: currentRoom.roomId.uid,
+                currentRoomId: currentRoom.uid.asUid(),
                 replyMessageId: widget.replyMessageId,
                 resetRoomPageDetails: widget.resetRoomPageDetails,
                 scrollToLastSentMessage: widget.scrollToLastSentMessage);
@@ -113,12 +114,10 @@ class _InputMessageWidget extends State<InputMessage> {
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, Duration(seconds: 10)))
         .listen((activityType) {
-      messageRepo.sendActivity(
-          widget.currentRoom.roomId.getUid(), activityType);
+      messageRepo.sendActivity(widget.currentRoom.uid.asUid(), activityType);
     });
     NoActivitySubject.listen((event) {
-      messageRepo.sendActivity(
-          widget.currentRoom.roomId.getUid(), event);
+      messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
     controller = TextEditingController();
     currentRoom = widget.currentRoom;
@@ -149,7 +148,7 @@ class _InputMessageWidget extends State<InputMessage> {
                         TextPosition(offset: controller.text.length));
                     _showMentionList.add(false);
                   },
-                  roomUid: widget.currentRoom.roomId,
+                  roomUid: widget.currentRoom.uid,
                 );
               else
                 return SizedBox.shrink();
@@ -159,7 +158,7 @@ class _InputMessageWidget extends State<InputMessage> {
             builder: (c, show) {
               if (show.hasData && show.data) {
                 return BotCommandsWidget(
-                  botUid: widget.currentRoom.roomId.getUid(),
+                  botUid: widget.currentRoom.uid.asUid(),
                   onCommandClick: (String command) {
                     controller.text = "/" + command;
                     controller.selection = TextSelection.fromPosition(
@@ -268,7 +267,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   ),
                                 ),
                               ),
-                              if (currentRoom.roomId.getUid().category ==
+                              if (currentRoom.uid.asUid().category ==
                                   Categories.BOT)
                                 StreamBuilder<bool>(
                                     stream: _showSendIcon.stream,
@@ -398,7 +397,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                     setState(() {
                                       startAudioRecorder = false;
                                       _soundRecorder.closeAudioSession();
-                                      ;
                                       _soundRecorder.stopRecorder();
                                       x = 0;
                                       size = 1;
@@ -448,7 +446,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (started) {
                                   try {
                                     messageRepo.sendFileMessage(
-                                        widget.currentRoom.roomId.uid, path);
+                                        widget.currentRoom.uid.asUid(), path);
                                   } catch (e) {}
                                 }
                               },
@@ -485,7 +483,7 @@ class _InputMessageWidget extends State<InputMessage> {
                       },
                       onStickerTap: (Sticker sticker) {
                         messageRepo.sendStickerMessage(
-                            room: widget.currentRoom.roomId.getUid(),
+                            room: widget.currentRoom.uid.asUid(),
                             sticker: sticker);
                         widget.scrollToLastSentMessage();
                       },
@@ -506,13 +504,13 @@ class _InputMessageWidget extends State<InputMessage> {
     if (controller.text.isNotEmpty) {
       if (controller.text.isNotEmpty) if (widget.replyMessageId != null) {
         messageRepo.sendTextMessage(
-          currentRoom.roomId.uid,
+          currentRoom.uid.asUid(),
           controller.text,
           replyId: widget.replyMessageId,
         );
         if (widget.replyMessageId != -1) widget.resetRoomPageDetails();
       } else {
-        messageRepo.sendTextMessage(currentRoom.roomId.uid, controller.text);
+        messageRepo.sendTextMessage(currentRoom.uid.asUid(), controller.text);
       }
 
       controller.clear();
@@ -537,14 +535,14 @@ class _InputMessageWidget extends State<InputMessage> {
       sendMessage();
       return;
     }
-    if (currentRoom.roomId.getUid().category == Categories.BOT) {
+    if (currentRoom.uid.asUid().category == Categories.BOT) {
       if (str.isNotEmpty && str.length == 1 && str.contains("/")) {
         _showBotCommands.add(true);
         return;
       }
     }
     messageText = str;
-    if (currentRoom.roomId.getUid().category == Categories.GROUP) {
+    if (currentRoom.uid.asUid().category == Categories.GROUP) {
       if (str.isEmpty) {
         _showMentionList.add(false);
         return;
@@ -566,7 +564,7 @@ class _InputMessageWidget extends State<InputMessage> {
         }
       } catch (e) {}
     }
-    if (currentRoom.roomId.getUid().category == Categories.BOT) {
+    if (currentRoom.uid.asUid().category == Categories.BOT) {
       if (str.isNotEmpty && str.length == 1 && str.contains(" \ ")) {
         _showBotCommands.add(true);
       } else {
@@ -581,7 +579,7 @@ class _InputMessageWidget extends State<InputMessage> {
     final typeGroup = XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
     final result = await openFiles(acceptedTypeGroups: [typeGroup]);
     messageRepo.sendMultipleFilesMessages(
-        currentRoom.roomId.uid, result.map((e) => e.path).toList());
+        currentRoom.uid.asUid(), result.map((e) => e.path).toList());
   }
 
   void scrollTolast(int count) {

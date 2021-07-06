@@ -6,7 +6,6 @@ import 'package:deliver_flutter/screen/register/pages/testing_environment_tokens
 import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver_flutter/screen/register/widgets/phone_number.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/foundation.dart';

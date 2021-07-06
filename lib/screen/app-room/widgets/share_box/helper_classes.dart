@@ -41,7 +41,7 @@ class FileItem extends FileBasic {
     var _checkPermission = GetIt.I.get<CheckPermissionsService>();
     if (await _checkPermission.checkStoragePermission()) {
       List<StorageInfo> storageInfo = await PathProviderEx.getStorageInfo();
-      List<File> files = List();
+      List<File> files = [];
       for (var s in storageInfo) {
         try {
           var root =
@@ -66,7 +66,7 @@ class AudioItem extends FileBasic {
 
   static Future<List<File>> getAudios() async {
     List<StorageInfo> storageInfo = await PathProviderEx.getStorageInfo();
-    List<File> files = List();
+    List<File> files = [];
     for (var s in storageInfo) {
       var root =
           s.rootDir; //storageInfo[1] for SD card, geting the root directory

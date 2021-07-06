@@ -69,7 +69,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
   void filterSearchResults(String query) {
     query = query.replaceAll(new RegExp(r"\s\b|\b\s"), "").toLowerCase();
     if (query.isNotEmpty) {
-      List<Contact> dummyListData = List<Contact>();
+      List<Contact> dummyListData = [];
       contacts.forEach((item) {
         var searchTerm = '${item.firstName}${item.lastName}'
             .replaceAll(new RegExp(r"\s\b|\b\s"), "")
@@ -175,7 +175,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                             alignment: Alignment.center,
                             padding: EdgeInsets.all(0),
                             onPressed: () async {
-                              List<Uid> users = List();
+                              List<Uid> users = [];
                               for (Contact contact
                                   in _createMucService.members) {
                                 users.add(contact.uid.asUid());

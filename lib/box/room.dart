@@ -26,4 +26,11 @@ class Room {
     this.deleted,
     this.mentioned,
   });
+
+  Room copy(Room r) => Room(
+        uid: r.uid ?? this.uid,
+        lastMessage: r.lastMessage ?? this.lastMessage,
+        deleted: r.deleted ?? this.deleted,
+        mentioned: r.mentioned ?? this.mentioned,
+      );
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
+import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/load-file-status.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -12,11 +13,11 @@ import 'package:get_it/get_it.dart';
 import 'package:open_file/open_file.dart';
 
 class DocumentAndFileUi extends StatefulWidget {
-  final Uid userUid;
+  final Uid roomUid;
   final int documentCount;
   final FetchMediasReq_MediaType type;
 
-  DocumentAndFileUi({Key key, this.userUid, this.documentCount, this.type})
+  DocumentAndFileUi({Key key, this.roomUid, this.documentCount, this.type})
       : super(key: key);
 
   @override
@@ -24,11 +25,8 @@ class DocumentAndFileUi extends StatefulWidget {
 }
 
 class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
-  var fileId;
-  var fileName;
-  var message;
-  var docType;
   var mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  var messageRepo = GetIt.I.get<MessageRepo>();
   var fileRepo = GetIt.I.get<FileRepo>();
 
   download(String uuid, String name) async {
@@ -40,7 +38,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
   Widget build(BuildContext context) {
     return FutureBuilder<List<Media>>(
         future: mediaQueryRepo.getMedia(
-            widget.userUid, widget.type, widget.documentCount),
+            widget.roomUid, widget.type, widget.documentCount),
         builder: (BuildContext context, AsyncSnapshot<List<Media>> media) {
           if (!media.hasData ||
               media.data == null ||
@@ -54,10 +52,11 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                     child: ListView.builder(
                         itemCount: widget.documentCount,
                         itemBuilder: (BuildContext ctx, int index) {
-                          fileId = jsonDecode(media.data[index].json)["uuid"];
-                          fileName = jsonDecode(media.data[index].json)["name"];
-                          message = media.data[index].messageId;
-                          docType = media.data[index].type;
+                          var fileId =
+                              jsonDecode(media.data[index].json)["uuid"];
+                          var fileName =
+                              jsonDecode(media.data[index].json)["name"];
+                          var messageId = media.data[index].messageId;
                           return FutureBuilder<File>(
                               future: fileRepo.getFileIfExist(fileId, fileName),
                               builder: (context, file) {
@@ -107,8 +106,10 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             fontWeight:
-                                                                FontWeight
-                                                                    .bold, color: ExtraTheme.of(context).textMessage)),
+                                                                FontWeight.bold,
+                                                            color: ExtraTheme
+                                                                    .of(context)
+                                                                .textMessage)),
                                                   ),
                                                 ],
                                               ),
@@ -129,7 +130,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                           LoadFileStatus(
                                             fileId: fileId,
                                             fileName: fileName,
-                                            dbId: messageId,
+                                            messageId: messageId,
                                             onPressed: download,
                                           ),
                                           Expanded(
@@ -143,7 +144,10 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                       style: TextStyle(
                                                           fontSize: 14,
                                                           fontWeight:
-                                                              FontWeight.bold, color: ExtraTheme.of(context).textMessage)),
+                                                              FontWeight.bold,
+                                                          color: ExtraTheme.of(
+                                                                  context)
+                                                              .textMessage)),
                                                 ),
                                               ],
                                             ),

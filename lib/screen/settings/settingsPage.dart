@@ -27,8 +27,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
 class SettingsPage extends StatefulWidget {
-  bool isDeveloperMode = false;
-
   SettingsPage({Key key}) : super(key: key);
 
   @override
@@ -43,6 +41,8 @@ class _SettingsPageState extends State<SettingsPage> {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
 
   final _routingService = GetIt.I.get<RoutingService>();
+
+  bool isDeveloperMode = false;
 
   bool _uploadNewAvatar = false;
   String _newAvatarPath;
@@ -348,7 +348,7 @@ class _SettingsPageState extends State<SettingsPage> {
               title: appLocalization.getTraslateValue("version"),
               child: Row(
                 children: <Widget>[
-                  if (widget.isDeveloperMode)
+                  if (isDeveloperMode)
                     FutureBuilder(
                       future: SmsAutoFill().getAppSignature,
                       builder: (context, snapshot) {
@@ -383,7 +383,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       developerModeCounterCountDown--;
                       if (developerModeCounterCountDown < 1) {
                         setState(() {
-                          widget.isDeveloperMode = true;
+                          isDeveloperMode = true;
                         });
                       }
                     },

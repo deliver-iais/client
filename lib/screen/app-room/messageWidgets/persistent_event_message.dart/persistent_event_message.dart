@@ -120,7 +120,7 @@ class PersistentEventMessage extends StatelessWidget {
         break;
       case PersistentEvent_Type.adminSpecificPersistentEvent:
         var user = await _roomRepo.getName(message.from.asUid());
-        return "${user} ${_appLocalization.getTraslateValue("new_contact_add")}";
+        return "$user ${_appLocalization.getTraslateValue("new_contact_add")}";
         break;
       case PersistentEvent_Type.notSet:
         // TODO: Handle this case.

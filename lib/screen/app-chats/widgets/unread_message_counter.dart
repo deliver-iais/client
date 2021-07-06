@@ -1,21 +1,22 @@
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class UnreadMessageCounterWidget extends StatelessWidget {
   final Message lastMessage;
+  final _roomRepo = GetIt.I.get<RoomRepo>();
 
   UnreadMessageCounterWidget(this.lastMessage);
 
   @override
   Widget build(BuildContext context) {
-    final lastSeenDao = GetIt.I.get<SeenDao>();
+
     return StreamBuilder<Seen>(
-      stream: lastSeenDao.watchMySeen(lastMessage.roomUid),
+      stream: _roomRepo.watchMySeen(lastMessage.roomUid),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           int lastSeen = snapshot.data?.messageId ?? 0;

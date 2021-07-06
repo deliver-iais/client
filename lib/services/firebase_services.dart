@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
+import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/mute_dao.dart';
+import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/db/database.dart' as db;
@@ -98,14 +100,13 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
   GetIt.I.registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
   GetIt.I.registerSingleton<MuteDao>(MuteDaoImpl());
 
-  var database = db.Database();
-  var roomDao = database.roomDao;
-  var messageDao = database.messageDao;
-
   var lastActivityDao = GetIt.I.get<LastActivityDao>();
 
+  // TODO needs to be refactored!!!
   var accountRepo = AccountRepo();
   var roomRepo = RoomRepo();
+  var messageDao = MessageDaoImpl();
+  var roomDao = RoomDaoImpl();
 
   if (message.data.containsKey('body')) {
     M.Message msg = _decodeMessage(message.data["body"]);

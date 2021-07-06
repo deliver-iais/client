@@ -1,6 +1,5 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';

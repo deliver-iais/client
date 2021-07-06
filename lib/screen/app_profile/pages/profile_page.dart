@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:deliver_flutter/box/contact.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
@@ -23,14 +21,12 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_link_preview/flutter_link_preview.dart';
-import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -38,9 +34,9 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
-  final Uid userUid;
+  final Uid roomUid;
 
-  ProfilePage(this.userUid, {Key key}) : super(key: key);
+  ProfilePage(this.roomUid, {Key key}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -49,8 +45,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
   final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  var mediasLength;
-  Room currentRoomId;
   var _routingService = GetIt.I.get<RoutingService>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _uxService = GetIt.I.get<UxService>();
@@ -60,9 +54,9 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   void initState() {
-    _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
-    if (_uxService.getTabIndex(widget.userUid.asString()) == null) {
-      _uxService.setTabIndex(widget.userUid.asString(), 0);
+    _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
+    if (_uxService.getTabIndex(widget.roomUid.asString()) == null) {
+      _uxService.setTabIndex(widget.roomUid.asString(), 0);
     }
     super.initState();
   }
@@ -70,7 +64,7 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void dispose() {
     _tabController.dispose();
-    _uxService.setTabIndex(widget.userUid.asString(), 0);
+    _uxService.setTabIndex(widget.roomUid.asString(), 0);
     super.dispose();
   }
 
@@ -87,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage>
       body: FluidContainerWidget(
         child: StreamBuilder<MediasMetaDataData>(
             stream:
-                _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
+                _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
             builder: (context, AsyncSnapshot<MediasMetaDataData> snapshot) {
               tabsCount = 0;
               if (snapshot.hasData && snapshot.data != null) {
@@ -115,22 +109,22 @@ class _ProfilePageState extends State<ProfilePage>
               }
 
               _tabController = TabController(
-                  length: (widget.userUid.category == Categories.GROUP ||
-                          widget.userUid.category == Categories.CHANNEL)
+                  length: (widget.roomUid.category == Categories.GROUP ||
+                          widget.roomUid.category == Categories.CHANNEL)
                       ? tabsCount + 1
                       : tabsCount,
                   vsync: this,
                   initialIndex:
-                      _uxService.getTabIndex(widget.userUid.asString()));
+                      _uxService.getTabIndex(widget.roomUid.asString()));
               _tabController.addListener(() {
                 _uxService.setTabIndex(
-                    widget.userUid.asString(), _tabController.index);
+                    widget.roomUid.asString(), _tabController.index);
               });
 
               return DefaultTabController(
-                  length: (widget.userUid.category == Categories.USER ||
-                          widget.userUid.category == Categories.SYSTEM ||
-                          widget.userUid.category == Categories.BOT)
+                  length: (widget.roomUid.category == Categories.USER ||
+                          widget.roomUid.category == Categories.SYSTEM ||
+                          widget.roomUid.category == Categories.BOT)
                       ? tabsCount
                       : tabsCount + 1,
                   child: NestedScrollView(
@@ -139,12 +133,12 @@ class _ProfilePageState extends State<ProfilePage>
                         return <Widget>[
                           ProfileAvatar(
                             innerBoxIsScrolled: innerBoxIsScrolled,
-                            roomUid: widget.userUid,
+                            roomUid: widget.roomUid,
                           ),
-                          widget.userUid.category == Categories.USER ||
-                                  widget.userUid.category ==
+                          widget.roomUid.category == Categories.USER ||
+                                  widget.roomUid.category ==
                                       Categories.SYSTEM ||
-                                  widget.userUid.category == Categories.BOT
+                                  widget.roomUid.category == Categories.BOT
                               ? SliverList(
                                   delegate: SliverChildListDelegate([
                                   Container(
@@ -175,7 +169,7 @@ class _ProfilePageState extends State<ProfilePage>
                                               ),
                                             ),
                                             SizedBox(height: 5),
-                                            widget.userUid.category ==
+                                            widget.roomUid.category ==
                                                     Categories.SYSTEM
                                                 ? Padding(
                                                     padding: EdgeInsets.only(
@@ -185,16 +179,16 @@ class _ProfilePageState extends State<ProfilePage>
                                                       style: TextStyle(
                                                           color: Colors.blue),
                                                     ))
-                                                : widget.userUid.category ==
+                                                : widget.roomUid.category ==
                                                         Categories.BOT
                                                     ? _showUsername(
-                                                        widget.userUid.node,
-                                                        widget.userUid,
+                                                        widget.roomUid.node,
+                                                        widget.roomUid,
                                                         appLocalization,
                                                         context)
                                                     : FutureBuilder<String>(
                                                         future: _roomRepo.getId(
-                                                            widget.userUid),
+                                                            widget.roomUid),
                                                         builder: (BuildContext
                                                                 context,
                                                             AsyncSnapshot<
@@ -204,7 +198,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                               null) {
                                                             return _showUsername(
                                                                 snapshot.data,
-                                                                widget.userUid,
+                                                                widget.roomUid,
                                                                 appLocalization,
                                                                 context);
                                                           } else {
@@ -217,7 +211,7 @@ class _ProfilePageState extends State<ProfilePage>
                                     ),
                                   ),
                                   SizedBox(height: 20),
-                                  if (widget.userUid.category !=
+                                  if (widget.roomUid.category !=
                                       Categories.SYSTEM)
                                     Container(
                                       decoration: BoxDecoration(
@@ -259,7 +253,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                 ]),
                                                 onTap: () {
                                                   _routingService.openRoom(
-                                                      widget.userUid
+                                                      widget.roomUid
                                                           .asString());
                                                 },
                                               )),
@@ -300,7 +294,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                     StreamBuilder<bool>(
                                                       stream: _roomRepo
                                                           .watchIsRoomMuted(
-                                                              widget.userUid
+                                                              widget.roomUid
                                                                   .asString()),
                                                       builder: (BuildContext
                                                               context,
@@ -320,12 +314,12 @@ class _ProfilePageState extends State<ProfilePage>
                                                               if (state) {
                                                                 _roomRepo.unmute(
                                                                     widget
-                                                                        .userUid
+                                                                        .roomUid
                                                                         .asString());
                                                               } else {
                                                                 _roomRepo.mute(
                                                                     widget
-                                                                        .userUid
+                                                                        .roomUid
                                                                         .asString());
                                                               }
                                                             },
@@ -337,13 +331,13 @@ class _ProfilePageState extends State<ProfilePage>
                                                       },
                                                     )
                                                   ])),
-                                          if (widget.userUid.category !=
+                                          if (widget.roomUid.category !=
                                                   Categories.SYSTEM &&
-                                              widget.userUid.category !=
+                                              widget.roomUid.category !=
                                                   Categories.BOT)
                                             FutureBuilder<Contact>(
                                               future: _contactRepo
-                                                  .getContact(widget.userUid),
+                                                  .getContact(widget.roomUid),
                                               builder: (BuildContext context,
                                                   AsyncSnapshot<Contact>
                                                       snapshot) {
@@ -405,7 +399,7 @@ class _ProfilePageState extends State<ProfilePage>
                                   )
                                 ]))
                               : GroupUiWidget(
-                                  mucUid: widget.userUid,
+                                  mucUid: widget.roomUid,
                                 ),
                           SliverPersistentHeader(
                             pinned: true,
@@ -417,12 +411,12 @@ class _ProfilePageState extends State<ProfilePage>
                                   child: TabBar(
                                     onTap: (index) {
                                       _uxService.setTabIndex(
-                                          widget.userUid.asString(), index);
+                                          widget.roomUid.asString(), index);
                                     },
                                     tabs: [
-                                      if (widget.userUid.category ==
+                                      if (widget.roomUid.category ==
                                               Categories.GROUP ||
-                                          widget.userUid.category ==
+                                          widget.roomUid.category ==
                                               Categories.CHANNEL)
                                         Tab(
                                           text: appLocalization
@@ -476,51 +470,51 @@ class _ProfilePageState extends State<ProfilePage>
                       body: Container(
                           child: TabBarView(
                         children: [
-                          if (widget.userUid.category != Categories.USER &&
-                              widget.userUid.category != Categories.SYSTEM &&
-                              widget.userUid.category != Categories.BOT)
+                          if (widget.roomUid.category != Categories.USER &&
+                              widget.roomUid.category != Categories.SYSTEM &&
+                              widget.roomUid.category != Categories.BOT)
                             SingleChildScrollView(
                               child: Column(children: [
                                 MucMemberWidget(
-                                  mucUid: widget.userUid,
+                                  mucUid: widget.roomUid,
                                 ),
                               ]),
                             ),
                           if (snapshot.hasData &&
                               snapshot.data.imagesCount != 0)
                             ImageTabUi(
-                                snapshot.data.imagesCount, widget.userUid),
+                                snapshot.data.imagesCount, widget.roomUid),
                           if (snapshot.hasData &&
                               snapshot.data.videosCount != 0)
                             VideoTabUi(
-                                userUid: widget.userUid,
+                                userUid: widget.roomUid,
                                 videoCount: snapshot.data.videosCount),
                           if (snapshot.hasData && snapshot.data.filesCount != 0)
                             DocumentAndFileUi(
-                              userUid: widget.userUid,
+                              roomUid: widget.roomUid,
                               documentCount: snapshot.data.filesCount,
                               type: FetchMediasReq_MediaType.FILES,
                             ),
                           if (snapshot.hasData && snapshot.data.linkCount != 0)
-                            linkWidget(widget.userUid, _mediaQueryRepo,
+                            linkWidget(widget.roomUid, _mediaQueryRepo,
                                 snapshot.data.linkCount),
                           if (snapshot.hasData &&
                               snapshot.data.documentsCount != 0)
                             DocumentAndFileUi(
-                              userUid: widget.userUid,
+                              roomUid: widget.roomUid,
                               documentCount: snapshot.data.documentsCount,
                               type: FetchMediasReq_MediaType.DOCUMENTS,
                             ),
                           if (snapshot.hasData &&
                               snapshot.data.musicsCount != 0)
                             MusicAndAudioUi(
-                                userUid: widget.userUid,
+                                userUid: widget.roomUid,
                                 type: FetchMediasReq_MediaType.MUSICS,
                                 mediaCount: snapshot.data.musicsCount),
                           if (snapshot.hasData &&
                               snapshot.data.audiosCount != 0)
                             MusicAndAudioUi(
-                                userUid: widget.userUid,
+                                userUid: widget.roomUid,
                                 type: FetchMediasReq_MediaType.AUDIOS,
                                 mediaCount: snapshot.data.audiosCount),
                         ],

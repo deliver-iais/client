@@ -1,14 +1,12 @@
 import 'package:audioplayer/audioplayer.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
 
 import 'audio_player_service.dart';
 
 class AudioPlayerAppBar extends StatelessWidget {
-  AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
+  final audioPlayerService = GetIt.I.get<AudioPlayerService>();
 
   @override
   Widget build(BuildContext context) {

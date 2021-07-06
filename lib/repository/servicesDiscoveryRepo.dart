@@ -58,7 +58,6 @@
 //     options: ChannelOptions(
 //         credentials: ChannelCredentials.insecure(),
 //         connectionTimeout: Duration(seconds: 2)));
-import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:grpc/grpc.dart';
 
 // String IP = "89.37.13.110";

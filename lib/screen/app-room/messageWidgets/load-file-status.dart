@@ -1,7 +1,7 @@
 import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/pending_message.dart';
-import 'package:deliver_flutter/models/sending_status.dart';
+import 'package:deliver_flutter/box/sending_status.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/sending_file_circular_indicator.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -9,14 +9,23 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
+// TODO Needs to be refactored. WTF WTF WTF!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 class LoadFileStatus extends StatefulWidget {
   final String fileId;
   final String fileName;
-  final Message msg;
+  final int messageId;
+  final String messagePacketId; // TODO Needs to be refactored
+  final String roomUid;
   final Function onPressed;
 
   const LoadFileStatus(
-      {Key key, this.fileId, this.fileName, this.msg, this.onPressed})
+      {Key key,
+      this.fileId,
+      this.fileName,
+      this.messageId,
+      this.messagePacketId,
+      this.roomUid,
+      this.onPressed})
       : super(key: key);
 
   @override
@@ -32,7 +41,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
   Widget build(BuildContext context) {
     return StreamBuilder<PendingMessage>(
         stream: _messageDao.watchPendingMessage(
-            widget.msg.roomUid, widget.msg.packetId),
+            widget.roomUid, widget.messagePacketId),
         builder: (context, pendingMessage) {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.end,

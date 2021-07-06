@@ -78,8 +78,8 @@ class ContactsPage extends StatelessWidget {
           if (snapshot.hasData &&
               snapshot.data != null &&
               snapshot.data.length > 0) {
-            List<Contact> contacts = List();
-            List<Contact> contactUsers = List();
+            List<Contact> contacts = [];
+            List<Contact> contactUsers = [];
             snapshot.data.forEach((element) {
               element.uid != null
                   ? contacts.add(element)

@@ -1,6 +1,6 @@
 import 'package:fixnum/fixnum.dart';
 
-import 'package:deliver_flutter/db/database.dart' as db;
+import 'package:deliver_flutter/box/message.dart' as db;
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/utils/log.dart';
@@ -417,10 +417,10 @@ class MucServices {
 
   Future<bool> pinMessage(db.Message message) async {
     try {
-      if (message.roomId.getUid().category == Categories.GROUP) {
+      if (message.roomUid.asUid().category == Categories.GROUP) {
         groupServices.pinMessage(
             GroupServices.PinMessageReq()
-              ..uid = message.roomId.getUid()
+              ..uid = message.roomUid.asUid()
               ..messageId = Int64(message.id),
             options: CallOptions(
                 metadata: {'access_token': await _accountRepo.getAccessToken()},
@@ -428,7 +428,7 @@ class MucServices {
       } else {
         channelServices.pinMessage(
             ChannelServices.PinMessageReq()
-              ..uid = message.roomId.getUid()
+              ..uid = message.roomUid.asUid()
               ..messageId = Int64(message.id),
             options: CallOptions(
                 metadata: {'access_token': await _accountRepo.getAccessToken()},
@@ -473,10 +473,10 @@ class MucServices {
 
   Future<bool> unpinMessage(db.Message message) async {
     try {
-      if (message.roomId.getUid().category == Categories.GROUP) {
+      if (message.roomUid.asUid().category == Categories.GROUP) {
         groupServices.unpinMessage(
             GroupServices.UnpinMessageReq()
-              ..uid = message.roomId.getUid()
+              ..uid = message.roomUid.asUid()
               ..messageId = Int64(message.id),
             options: CallOptions(
                 metadata: {'access_token': await _accountRepo.getAccessToken()},
@@ -484,7 +484,7 @@ class MucServices {
       } else {
         channelServices.unpinMessage(
             ChannelServices.UnpinMessageReq()
-              ..uid = message.roomId.getUid()
+              ..uid = message.roomUid.asUid()
               ..messageId = Int64(message.id),
             options: CallOptions(
                 metadata: {'access_token': await _accountRepo.getAccessToken()},

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
 import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
 import 'package:deliver_flutter/db/database.dart';
@@ -114,7 +112,7 @@ class StickerRepo {
   }
 
   void addSticker() {
-    List<Sticker> stickers = List();
+    List<Sticker> stickers = [];
     stickers.add(Sticker(
         uuid: '001f3ea9-a29e-4033-bf29-b5322a3036bf',
         name:

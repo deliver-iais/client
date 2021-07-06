@@ -1,5 +1,5 @@
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/room.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/inputMessage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +12,7 @@ class NewMessageInput extends StatelessWidget {
   final Function resetRoomPageDetails;
   final bool waitingForForward;
   final Function sendForwardMessage;
-  final _roomDao = GetIt.I.get<RoomDao>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
   final Function scrollToLastSentMessage;
 
   NewMessageInput(
@@ -27,9 +27,8 @@ class NewMessageInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var roomDao = GetIt.I.get<RoomDao>();
     return StreamBuilder<Room>(
-        stream: roomDao.getByRoomId(currentRoomId),
+        stream: _roomRepo.watchRoom(currentRoomId),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             Room currentRoom = snapshot.data;
@@ -41,9 +40,7 @@ class NewMessageInput extends StatelessWidget {
                 sendForwardMessage: sendForwardMessage,
                 scrollToLastSentMessage: scrollToLastSentMessage);
           } else {
-              _roomDao.insertRoom(Room(
-                roomId: currentRoomId,
-              ));
+            _roomRepo.createRoomIfNotExist(currentRoomId);
             return SizedBox.shrink();
           }
         });
