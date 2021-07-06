@@ -88,7 +88,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
-  final _seenDao = GetIt.I.get<SeenDao>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
@@ -274,14 +273,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   _getLastSeen() async {
-    Seen seen = await _seenDao.getOthersSeen(widget.roomId);
+    Seen seen = await _roomRepo.getOthersSeen(widget.roomId);
     if (seen != null) {
       lastSeenMessageId = seen.messageId;
     }
   }
 
   _getLastShowMessageId() async {
-    var seen = await _seenDao.getMySeen(widget.roomId);
+    var seen = await _roomRepo.getMySeen(widget.roomId);
     if (seen != null) {
       _lastShowedMessageId = seen.messageId ?? 0;
     }
@@ -846,7 +845,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       itemBuilder: (context, index) {
         if (index == -1) index = 0;
         // TODO SEEN MIGRATION
-        _seenDao.saveMySeen(Seen(
+        _roomRepo.saveMySeen(Seen(
             uid: widget.roomId, messageId: _currentRoom.value.lastMessage.id));
         bool isPendingMessage = (currentRoom.lastMessage.id == null)
             ? true

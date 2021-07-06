@@ -5,8 +5,10 @@ import 'package:deliver_flutter/box/dao/block_dao.dart';
 import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/mute_dao.dart';
 import 'package:deliver_flutter/box/dao/room_dao.dart';
+import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/box/room.dart';
+import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -27,6 +29,7 @@ class RoomRepo {
   Cache<String, String> _roomNameCache =
       LruCache<String, String>(storage: SimpleStorage(size: 40));
   var _roomDao = GetIt.I.get<RoomDao>();
+  var _seenDao = GetIt.I.get<SeenDao>();
   var _muteDao = GetIt.I.get<MuteDao>();
   var _blockDao = GetIt.I.get<BlockDao>();
   var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
@@ -194,6 +197,13 @@ class RoomRepo {
 
   Future<void> createRoomIfNotExist(String roomUid) =>
       _roomDao.updateRoom(Room(uid: roomUid));
+
+  Stream<Seen> watchMySeen(String roomUid) => _seenDao.watchMySeen(roomUid);
+
+  Future<Seen> getMySeen(String roomUid) => _seenDao.getMySeen(roomUid);
+  Future<Seen> getOthersSeen(String roomUid) => _seenDao.getOthersSeen(roomUid);
+
+  Future<Seen> saveMySeen(Seen seen) => _seenDao.saveMySeen(seen);
 
   void block(String uid) async {
     await _queryServiceClient.block(BlockReq()..uid = uid.asUid(),
