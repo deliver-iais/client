@@ -26,7 +26,6 @@ import 'package:rxdart/rxdart.dart';
 class RoomRepo {
   Cache<String, String> _roomNameCache =
       LruCache<String, String>(storage: SimpleStorage(size: 40));
-  var _messageDao = GetIt.I.get<MessageDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _muteDao = GetIt.I.get<MuteDao>();
   var _blockDao = GetIt.I.get<BlockDao>();
@@ -171,33 +170,30 @@ class RoomRepo {
     }
   }
 
-  updateRoomName(Uid uid, String name) {
-    _roomNameCache.set(uid.asString(), name);
-  }
+  updateRoomName(Uid uid, String name) =>
+      _roomNameCache.set(uid.asString(), name);
 
-  Future<bool> isRoomMuted(String uid) {
-    return _muteDao.isMuted(uid);
-  }
+  Future<bool> isRoomMuted(String uid) => _muteDao.isMuted(uid);
 
-  Stream<bool> watchIsRoomMuted(String uid) {
-    return _muteDao.watchIsMuted(uid);
-  }
+  Stream<bool> watchIsRoomMuted(String uid) => _muteDao.watchIsMuted(uid);
 
-  void mute(String uid) {
-    _muteDao.mute(uid);
-  }
+  void mute(String uid) => _muteDao.mute(uid);
 
-  void unmute(String uid) {
-    _muteDao.unmute(uid);
-  }
+  void unmute(String uid) => _muteDao.unmute(uid);
 
-  Future<bool> isRoomBlocked(String uid) {
-    return _blockDao.isBlocked(uid);
-  }
+  Future<bool> isRoomBlocked(String uid) => _blockDao.isBlocked(uid);
 
-  Stream<bool> watchIsRoomBlocked(String uid) {
-    return _blockDao.watchIsBlocked(uid);
-  }
+  Stream<bool> watchIsRoomBlocked(String uid) => _blockDao.watchIsBlocked(uid);
+
+  Stream<List<Room>> watchAllRooms() => _roomDao.watchAllRooms();
+
+  Stream<Room> watchRoom(String roomUid) => _roomDao.watchRoom(roomUid);
+
+  Future<void> resetMention(String roomUid) =>
+      _roomDao.updateRoom(Room(uid: roomUid, mentioned: false));
+
+  Future<void> createRoomIfNotExist(String roomUid) =>
+      _roomDao.updateRoom(Room(uid: roomUid));
 
   void block(String uid) async {
     await _queryServiceClient.block(BlockReq()..uid = uid.asUid(),

@@ -84,7 +84,6 @@ class RoomPage extends StatefulWidget {
 
 class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _messageDao = GetIt.I.get<MessageDao>();
-  final _roomDao = GetIt.I.get<RoomDao>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -316,7 +315,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       }
     });
 
-    _roomDao.updateRoom(Room(uid: widget.roomId, mentioned: false));
+    _roomRepo.resetMention(widget.roomId);
     _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.asUid().category == Categories.GROUP ||
             widget.roomId.asUid().category == Categories.CHANNEL
@@ -429,7 +428,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         ? pendingMessagesStream.data
                         : [];
                     return StreamBuilder<Room>(
-                        stream: _roomDao.watchRoom(widget.roomId),
+                        stream: _roomRepo.watchRoom(widget.roomId),
                         builder: (context, currentRoomStream) {
                           if (currentRoomStream.hasData) {
                             _currentRoom.add(currentRoomStream.data);
