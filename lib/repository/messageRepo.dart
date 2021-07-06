@@ -123,24 +123,38 @@ class MessageRepo {
   // TODO: Refactor Needed
   @visibleForTesting
   updating() async {
-    try {
-      var getAllUserRoomMetaRes = await _queryServiceClient.getAllUserRoomMeta(
-          GetAllUserRoomMetaReq(),
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
-        var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
-        if (room != null &&
-            room.lastMessage != null &&
-            room.lastMessage.id != null &&
-            room.lastMessage.id >= roomMetadata.lastMessageId.toInt() &&
-            room.lastMessage.id != 0) {
-          continue;
+    bool finished = false;
+    int pointer = 0;
+
+    while (!finished && pointer < 10000) {
+      try {
+        var getAllUserRoomMetaRes =
+            await _queryServiceClient.getAllUserRoomMeta(
+                GetAllUserRoomMetaReq()
+                  ..pointer = pointer
+                  ..limit = 10,
+                options: CallOptions(metadata: {
+                  'access_token': await _accountRepo.getAccessToken()
+                }));
+
+        finished = getAllUserRoomMetaRes.finished;
+
+        for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
+          var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
+          if (room != null &&
+              room.lastMessage != null &&
+              room.lastMessage.id != null &&
+              room.lastMessage.id >= roomMetadata.lastMessageId.toInt() &&
+              room.lastMessage.id != 0) {
+            finished = true; // no more updating needed after this room
+            break;
+          }
+          fetchMessages(roomMetadata, room);
         }
-        fetchMessages(roomMetadata, room);
+      } catch (e) {
+        debug(e);
       }
-    } catch (e) {
-      debug(e);
+      pointer += 10;
     }
   }
 
