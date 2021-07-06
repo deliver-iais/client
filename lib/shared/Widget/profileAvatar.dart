@@ -973,23 +973,25 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                             msg: _appLocalization.getTraslateValue("Copied"));
                         Navigator.pop(context);
                       },
-                      child:  Text(
-                          _appLocalization.getTraslateValue("Copy"),style: TextStyle(fontSize: 16),)),
+                      child: Text(
+                        _appLocalization.getTraslateValue("Copy"),
+                        style: TextStyle(fontSize: 16),
+                      )),
                   ElevatedButton(
-                      onPressed: () {
-                        _routingServices.openSelectForwardMessage(
-                            sharedUid: proto.ShareUid()
-                              ..name = mucName
-                              ..joinToken = token
-                              ..uid = widget.roomUid);
+                    onPressed: () {
+                      _routingServices.openSelectForwardMessage(
+                          sharedUid: proto.ShareUid()
+                            ..name = mucName
+                            ..joinToken = token
+                            ..uid = widget.roomUid);
 
-                        Navigator.pop(context);
-                      },
-                      child:   Text(
-                        _appLocalization.getTraslateValue("share"),
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),),
-
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      _appLocalization.getTraslateValue("share"),
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ),
                 ],
               ),
             ],
