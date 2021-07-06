@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
 import 'package:deliver_flutter/shared/functions.dart';
-import 'package:deliver_flutter/screen/home/pages/home_page.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
