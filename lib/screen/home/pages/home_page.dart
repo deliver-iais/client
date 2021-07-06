@@ -1,14 +1,27 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/box/dao/muc_dao.dart';
+
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/messageRepo.dart';
+import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/share_uid_message_widget.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/utils/log.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:uni_links/uni_links.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -23,10 +36,22 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _coreServices = GetIt.I.get<CoreServices>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
 
+  Future<void> initUniLinks(BuildContext context) async {
+    try {
+      final initialLink = await getInitialLink();
+      if (initialLink.isNotEmpty) await handleUri(initialLink, context);
+    } on PlatformException {
+      debug("deep link exception");
+    } catch (e) {
+      debug("%%%%%%%%%%%%%%%%+${e.toString()}");
+    }
+  }
+
   @override
   void initState() {
     _notificationServices.cancelAllNotification();
     checkIfUsernameIsSet();
+    initUniLinks(context);
     if (isAndroid()) {
       checkShareFile(context);
     }

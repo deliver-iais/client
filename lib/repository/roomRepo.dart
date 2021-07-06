@@ -25,9 +25,11 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:grpc/grpc.dart';
 import 'package:rxdart/rxdart.dart';
 
+Cache<String, String> roomNameCache =
+    LruCache<String, String>(storage: SimpleStorage(size: 40));
+
 class RoomRepo {
-  Cache<String, String> _roomNameCache =
-      LruCache<String, String>(storage: SimpleStorage(size: 40));
+  var _messageDao = GetIt.I.get<MessageDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _seenDao = GetIt.I.get<SeenDao>();
   var _muteDao = GetIt.I.get<MuteDao>();
@@ -57,7 +59,7 @@ class RoomRepo {
     }
 
     // Is in cache
-    String name = _roomNameCache.get(uid.asString());
+    String name = roomNameCache.get(uid.asString());
     if (name != null && name.isNotEmpty && !name.contains("null")) {
       return name;
     }
@@ -65,12 +67,12 @@ class RoomRepo {
     // Is in UidIdName Table
     var uidIdName = await _uidIdNameDao.getByUid(uid.asString());
     if (uidIdName != null &&
-        uidIdName.name != null &&
-        uidIdName.name.isNotEmpty) {
+        ((uidIdName.id != null && uidIdName.id.isNotEmpty) ||
+            uidIdName.name != null && uidIdName.name.isNotEmpty)) {
       // Set in cache
-      _roomNameCache.set(uid.asString(), uidIdName.name);
+      roomNameCache.set(uid.asString(), uidIdName.name ?? uidIdName.id);
 
-      return uidIdName.name;
+      return uidIdName.name ?? uidIdName.id;
     }
 
     // Is User
@@ -82,7 +84,7 @@ class RoomRepo {
           ((contact.firstName != null && contact.firstName.isNotEmpty) ||
               (contact.lastName != null && contact.lastName.isNotEmpty))) {
         var name = buildName(contact.firstName, contact.lastName);
-        _roomNameCache.set(uid.asString(), name);
+        roomNameCache.set(uid.asString(), name);
         _uidIdNameDao.update(uid.asString(), name: name);
 
         return name;
@@ -91,7 +93,7 @@ class RoomRepo {
 
     if (uidIdName != null && uidIdName.id != null && uidIdName.id.isNotEmpty) {
       // Set in cache
-      _roomNameCache.set(uid.asString(), uidIdName.id);
+      roomNameCache.set(uid.asString(), uidIdName.id);
 
       return uidIdName.id;
     }
@@ -101,7 +103,7 @@ class RoomRepo {
         uid.category == Categories.CHANNEL) {
       var mucInfo = await _mucRepo.fetchMucInfo(uid);
       if (mucInfo != null && mucInfo.name != null && mucInfo.name.isNotEmpty) {
-        _roomNameCache.set(uid.asString(), mucInfo.name);
+        roomNameCache.set(uid.asString(), mucInfo.name);
         _uidIdNameDao.update(uid.asString(), name: mucInfo.name);
 
         return mucInfo.name;
@@ -112,7 +114,7 @@ class RoomRepo {
     if (uid.category == Categories.BOT) {
       var botInfo = await _botRepo.getBotInfo(uid);
       if (botInfo != null && botInfo.name.isNotEmpty) {
-        _roomNameCache.set(uid.asString(), botInfo.name);
+        roomNameCache.set(uid.asString(), botInfo.name);
         _uidIdNameDao.update(uid.asString(), name: botInfo.name);
 
         return botInfo.name;
@@ -120,7 +122,10 @@ class RoomRepo {
       return uid.node;
     }
 
-    return "Unknown";
+    var username = await getIdByUid(uid);
+    roomNameCache.set(uid.asString(), username);
+    _uidIdNameDao.update(uid.asString(), id: username);
+    return username ?? "Unknown";
   }
 
   Future<String> getId(Uid uid) async {
@@ -174,7 +179,7 @@ class RoomRepo {
   }
 
   updateRoomName(Uid uid, String name) =>
-      _roomNameCache.set(uid.asString(), name);
+      roomNameCache.set(uid.asString(), name);
 
   Future<bool> isRoomMuted(String uid) => _muteDao.isMuted(uid);
 
@@ -201,6 +206,7 @@ class RoomRepo {
   Stream<Seen> watchMySeen(String roomUid) => _seenDao.watchMySeen(roomUid);
 
   Future<Seen> getMySeen(String roomUid) => _seenDao.getMySeen(roomUid);
+
   Future<Seen> getOthersSeen(String roomUid) => _seenDao.getOthersSeen(roomUid);
 
   Future<Seen> saveMySeen(Seen seen) => _seenDao.saveMySeen(seen);

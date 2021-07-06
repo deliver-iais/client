@@ -965,18 +965,20 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  GestureDetector(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.all(Radius.circular(5)),
-                      ),
+                  ElevatedButton(
+                      onPressed: () {
+                        Clipboard.setData(
+                            ClipboardData(text: generateInviteLink(token)));
+                        Fluttertoast.showToast(
+                            msg: _appLocalization.getTraslateValue("Copied"));
+                        Navigator.pop(context);
+                      },
                       child: Text(
-                        _appLocalization.getTraslateValue("share"),
-                        style: TextStyle(fontSize: 21, color: Colors.white),
-                      ),
-                    ),
-                    onTap: () {
+                        _appLocalization.getTraslateValue("Copy"),
+                        style: TextStyle(fontSize: 16),
+                      )),
+                  ElevatedButton(
+                    onPressed: () {
                       _routingServices.openSelectForwardMessage(
                           sharedUid: proto.ShareUid()
                             ..name = mucName
@@ -985,6 +987,10 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 
                       Navigator.pop(context);
                     },
+                    child: Text(
+                      _appLocalization.getTraslateValue("share"),
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
                   ),
                 ],
               ),
@@ -994,6 +1000,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   generateInviteLink(String token) {
-    return "http://deliver-co.ir/${widget.roomUid.category}/${widget.roomUid.node}/$token";
+    return "https://deliver-co.ir/join/${widget.roomUid.category}/${widget.roomUid.node}/$token";
   }
 }
