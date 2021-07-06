@@ -1,7 +1,7 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/contact.dart';
-import 'package:deliver_flutter/box/dao/contact_dao.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 
 import 'package:deliver_flutter/repository/mucRepo.dart';
 
@@ -37,7 +37,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   List<Contact> items;
 
-  var _contactDao = GetIt.I.get<ContactDao>();
+  var _contactRepo = GetIt.I.get<ContactRepo>();
 
   var _routingService = GetIt.I.get<RoutingService>();
 
@@ -117,7 +117,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                 controller: editingController),
             Expanded(
                 child: FutureBuilder(
-                    future: _contactDao.getAll(),
+                    future: _contactRepo.getAll(),
                     builder: (BuildContext context,
                         AsyncSnapshot<List<Contact>> snapshot) {
                       if (snapshot.hasData &&
