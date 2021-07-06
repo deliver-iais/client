@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/box/meida.dart';
+import 'package:deliver_flutter/box/media.dart';
 import 'package:deliver_flutter/models/mediaType.dart';
 
 import 'package:hive/hive.dart';
@@ -15,7 +15,7 @@ abstract class MediaDao {
 
 }
 
-class MediaDoaImpl implements MediaDao {
+class MediaDaoImpl implements MediaDao {
      get(String roomId, MediaType type, int limit, int offset) async {
     var box = await _open(roomId);
     var res = SortedList<Media>((a, b) => a.createdOn.compareTo(b.createdOn));

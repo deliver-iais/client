@@ -4,6 +4,8 @@ import 'package:deliver_flutter/shared/constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 
+part 'media.g.dart';
+
 @HiveType(typeId: MEDIA_TRACK_ID)
 class Media {
 
@@ -27,10 +29,6 @@ class Media {
 
   @HiveField(5)
    MediaType type;
-
-
-
-
 
 
   Media(

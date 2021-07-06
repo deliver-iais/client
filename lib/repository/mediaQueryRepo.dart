@@ -1,9 +1,10 @@
 import 'dart:convert';
 
 import 'package:deliver_flutter/box/dao/media_dao.dart';
+import 'package:deliver_flutter/box/dao/media_meta_data_dao.dart';
 import 'package:deliver_flutter/box/media_meta_data.dart';
-import 'package:deliver_flutter/box/meida.dart';
-import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
+import 'package:deliver_flutter/box/media.dart';
+
 
 import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -74,7 +75,7 @@ class MediaQueryRepo {
 
   Future insertMediaMetaData(
       Uid uid, queryObject.GetMediaMetadataRes mediaResponse) async {
-    _mediaMetaDataDao.upsertMetaData( MediaMetaData(
+    _mediaMetaDataDao.save( MediaMetaData(
       roomId: uid.asString(),
       imagesCount: mediaResponse.allImagesCount.toInt(),
       videosCount: mediaResponse.allVideosCount.toInt(),
@@ -87,7 +88,7 @@ class MediaQueryRepo {
   }
 
   Stream< MediaMetaData> getMediasMetaDataCountFromDB(Uid roomId) {
-    return _mediaMetaDataDao.getStreamMediasCountByRoomId(roomId.asString());
+    return _mediaMetaDataDao.get(roomId.asString());
   }
 
   // Stream<int> allMediasTypeInDBCount(Uid uid , FetchMediasReq_MediaType mediaType) {

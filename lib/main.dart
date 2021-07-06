@@ -25,9 +25,6 @@ import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/box/sending_status.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
-import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
-import 'package:deliver_flutter/db/dao/MediaDao.dart';
-import 'package:deliver_flutter/db/dao/StickerDao.dart';
 
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -69,8 +66,11 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
 import 'box/dao/contact_dao.dart';
+import 'box/dao/media_dao.dart';
+import 'box/dao/media_meta_data_dao.dart';
 import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
+import 'box/media.dart';
 import 'repository/mucRepo.dart';
 
 Future<void> setupDI() async {
@@ -91,6 +91,8 @@ Future<void> setupDI() async {
   Hive.registerAdapter(MessageAdapter());
   Hive.registerAdapter(MessageTypeAdapter());
   Hive.registerAdapter(SendingStatusAdapter());
+  Hive.registerAdapter(MediaAdapter());
+
 
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<AvatarDao>(AvatarDaoImpl());
@@ -106,12 +108,13 @@ Future<void> setupDI() async {
   getIt.registerSingleton<ContactDao>(ContactDaoImpl());
   getIt.registerSingleton<MessageDao>(MessageDaoImpl());
   getIt.registerSingleton<RoomDao>(RoomDaoImpl());
+  getIt.registerSingleton<MediaDao>(MediaDaoImpl());
+  getIt.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
 
   Database db = Database();
 
   getIt.registerSingleton<Database>(db);
-  getIt.registerSingleton<MediaDao>(db.mediaDao);
-  getIt.registerSingleton<MediaMetaDataDao>(db.mediaMetaDataDao);
+
 
 
   // Order is important, don't change it!

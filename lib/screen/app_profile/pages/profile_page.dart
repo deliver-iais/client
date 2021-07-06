@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/box/contact.dart';
-import 'package:deliver_flutter/box/meida.dart';
+import 'package:deliver_flutter/box/media_meta_data.dart';
+import 'package:deliver_flutter/box/media.dart';
 import 'package:deliver_flutter/models/mediaType.dart';
 
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -81,10 +82,10 @@ class _ProfilePageState extends State<ProfilePage>
 
     return Scaffold(
       body: FluidContainerWidget(
-        child: StreamBuilder<MediasMetaDataData>(
+        child: StreamBuilder<MediaMetaData>(
             stream:
                 _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
-            builder: (context, AsyncSnapshot<MediasMetaDataData> snapshot) {
+            builder: (context, AsyncSnapshot<MediaMetaData> snapshot) {
               tabsCount = 0;
               if (snapshot.hasData && snapshot.data != null) {
                 if (snapshot.data.imagesCount != 0) {
