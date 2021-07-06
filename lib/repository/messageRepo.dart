@@ -120,7 +120,6 @@ class MessageRepo {
     }
   }
 
-  // TODO: Refactor Needed
   @visibleForTesting
   updating() async {
     bool finished = false;
