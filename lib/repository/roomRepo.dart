@@ -69,7 +69,7 @@ class RoomRepo {
     var uidIdName = await _uidIdNameDao.getByUid(uid.asString());
     if (uidIdName != null && ((uidIdName.id != null && uidIdName.id.isNotEmpty )|| uidIdName.name!= null && uidIdName.name.isNotEmpty)) {
       // Set in cache
-      _roomNameCache.set(uid.asString(), uidIdName.name??uidIdName.id);
+      roomNameCache.set(uid.asString(), uidIdName.name??uidIdName.id);
 
       return uidIdName.name??uidIdName.id;
     }
@@ -180,9 +180,14 @@ class RoomRepo {
     }
   }
 
-  updateRoomName(Uid uid, String name) {
-    roomNameCache.set(uid.asString(), name);
-  }
+  updateRoomName(Uid uid, String name) =>
+      roomNameCache.set(uid.asString(), name);
+
+  Future<bool> isRoomMuted(String uid) => _muteDao.isMuted(uid);
+
+  Stream<bool> watchIsRoomMuted(String uid) => _muteDao.watchIsMuted(uid);
+
+  void mute(String uid) => _muteDao.mute(uid);
 
   void unmute(String uid) => _muteDao.unmute(uid);
 
