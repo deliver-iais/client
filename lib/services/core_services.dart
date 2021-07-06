@@ -380,6 +380,44 @@ Future<bool> checkMention(String text, AccountRepo accountRepo) async {
   return text.contains(account.userName);
 }
 
+Future<List<DB.Message>> saveFetchMessages(MessageDao _messageDao,
+    RoomDao _roomDao, AccountRepo _accountRepo, List<Message> messages) async {
+  List<DB.Message> msgList = [];
+  for (Message message in messages) {
+    _messageDao.deletePendingMessage(message.packetId);
+    try {
+      if (message.whichType() == Message_Type.persistEvent) {
+        switch (message.persistEvent.whichType()) {
+          case PersistentEvent_Type.mucSpecificPersistentEvent:
+            switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
+              case MucSpecificPersistentEvent_Issue.DELETED:
+                _roomDao.updateRoom(
+                    Room(uid: message.from.asString(), deleted: true));
+                continue;
+                break;
+              case MucSpecificPersistentEvent_Issue.KICK_USER:
+                if (message.persistEvent.mucSpecificPersistentEvent.assignee
+                    .isSameEntity(_accountRepo.currentUserUid.asString())) {
+                  _roomDao.updateRoom(
+                      Room(uid: message.from.asString(), deleted: true));
+                  continue;
+                }
+                break;
+            }
+            break;
+          default:
+            break;
+        }
+      } else {}
+    } catch (e) {
+      debug(e.toString());
+    }
+    msgList
+        .add(await saveMessageInMessagesDB(_accountRepo, _messageDao, message));
+  }
+  return msgList;
+}
+
 Future<DB.Message> saveMessageInMessagesDB(
     AccountRepo accountRepo, MessageDao messageDao, Message message) async {
   var msg = extractMessage(accountRepo, message);

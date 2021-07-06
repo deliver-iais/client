@@ -105,8 +105,8 @@ class MessageRepo {
           options: CallOptions(
               timeout: Duration(seconds: 3),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      List<Message> messages =
-          await _saveFetchMessages(fetchMessagesRes.messages);
+      List<Message> messages = await saveFetchMessages(
+          _messageDao, _roomDao, _accountRepo, fetchMessagesRes.messages);
 
       // TODO if there is Pending Message this line has a bug!!
       if (messages.isNotEmpty) {
@@ -148,7 +148,7 @@ class MessageRepo {
             finished = true; // no more updating needed after this room
             break;
           }
-          fetchMessages(roomMetadata, room);
+          fetchLastMessages(roomMetadata, room);
         }
       } catch (e) {
         debug(e);
@@ -157,7 +157,7 @@ class MessageRepo {
     }
   }
 
-  Future<void> fetchMessages(RoomMetadata roomMetadata, Room room,
+  Future<void> fetchLastMessages(RoomMetadata roomMetadata, Room room,
       {bool retry = true}) async {
     try {
       var fetchMessagesRes = await _queryServiceClient.fetchMessages(
@@ -169,10 +169,9 @@ class MessageRepo {
           options: CallOptions(
               timeout: Duration(seconds: 3),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      List<Message> messages =
-          await _saveFetchMessages(fetchMessagesRes.messages);
+      List<Message> messages = await saveFetchMessages(
+          _messageDao, _roomDao, _accountRepo, fetchMessagesRes.messages);
 
-      // TODO if there is Pending Message this line has a bug!!
       if (messages.isNotEmpty) {
         _roomDao.updateRoom(Room(
           uid: roomMetadata.roomUid.asString(),
@@ -186,7 +185,7 @@ class MessageRepo {
         getMentions(room);
       }
     } catch (e) {
-      if (retry) fetchMessages(roomMetadata, room, retry: false);
+      if (retry) fetchLastMessages(roomMetadata, room, retry: false);
       debug(e);
     }
   }
@@ -524,51 +523,14 @@ class MessageRepo {
             ..limit = pageSize,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      completer.complete(await _saveFetchMessages(fetchMessagesRes.messages));
+      completer.complete(await saveFetchMessages(
+          _messageDao, _roomDao, _accountRepo, fetchMessagesRes.messages));
     } catch (e) {
       if (retry)
         getMessages(roomId, page, pageSize, completer, retry: false);
       else
         completer.completeError(e);
     }
-  }
-
-  Future<List<Message>> _saveFetchMessages(
-      List<MessageProto.Message> messages) async {
-    List<Message> msgList = [];
-    for (MessageProto.Message message in messages) {
-      _messageDao.deletePendingMessage(message.packetId);
-      try {
-        if (message.whichType() == MessageProto.Message_Type.persistEvent) {
-          switch (message.persistEvent.whichType()) {
-            case PersistentEvent_Type.mucSpecificPersistentEvent:
-              switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
-                case MucSpecificPersistentEvent_Issue.DELETED:
-                  _roomDao.updateRoom(
-                      Room(uid: message.from.asString(), deleted: true));
-                  continue;
-                  break;
-                case MucSpecificPersistentEvent_Issue.KICK_USER:
-                  if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                      .isSameEntity(_accountRepo.currentUserUid.asString())) {
-                    _roomDao.updateRoom(
-                        Room(uid: message.from.asString(), deleted: true));
-                    continue;
-                  }
-                  break;
-              }
-              break;
-            default:
-              break;
-          }
-        } else {}
-      } catch (e) {
-        debug(e.toString());
-      }
-      msgList.add(
-          await saveMessageInMessagesDB(_accountRepo, _messageDao, message));
-    }
-    return msgList;
   }
 
   String _findType(String path) {
