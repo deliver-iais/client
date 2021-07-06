@@ -576,7 +576,7 @@ class MessageRepo {
   }
 
   void setCoreSetting() {
-    _coreServices.sendPingMessage();
+    _coreServices.sendPing();
   }
 
   void sendActivity(Uid to, ActivityType activityType) {

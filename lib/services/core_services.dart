@@ -99,7 +99,7 @@ class CoreServices {
     if (_clientPacket.isClosed || _clientPacket.isPaused) {
       await startStream();
     }
-    sendPingMessage();
+    sendPing();
     responseChecked = false;
     _connectionTimer = Timer(new Duration(seconds: backoffTime), () {
       if (!responseChecked) {
@@ -142,10 +142,10 @@ class CoreServices {
           case ServerPacket_Type.error:
             break;
           case ServerPacket_Type.seen:
-            _saveSeenMessage(serverPacket.seen);
+            _saveSeen(serverPacket.seen);
             break;
           case ServerPacket_Type.activity:
-            _saveActivityMessage(serverPacket.activity);
+            _saveActivity(serverPacket.activity);
             break;
           case ServerPacket_Type.liveLocationStatusChanged:
             break;
@@ -169,12 +169,13 @@ class CoreServices {
       _clientPacket.add(ClientPacket()
         ..message = message
         ..id = message.packetId);
+      new Timer(Duration(seconds: MIN_BACKOFF_TIME ~/ 2), () {});
     } else {
       startStream();
     }
   }
 
-  sendPingMessage() {
+  sendPing() {
     if (_clientPacket != null && !_clientPacket.isClosed) {
       var ping = Ping()..lastPongTime = Int64(_lastPongTime);
       _clientPacket.add(ClientPacket()
@@ -206,7 +207,7 @@ class CoreServices {
     }
   }
 
-  _saveSeenMessage(ProtocolSeen.Seen seen) {
+  _saveSeen(ProtocolSeen.Seen seen) {
     Uid roomId;
     switch (seen.to.category) {
       case Categories.USER:
@@ -235,7 +236,7 @@ class CoreServices {
     }
   }
 
-  _saveActivityMessage(Activity activity) {
+  _saveActivity(Activity activity) {
     _roomRepo.updateActivity(activity);
     updateLastActivityTime(
         _lastActivityDao, activity.from, DateTime.now().millisecondsSinceEpoch);
