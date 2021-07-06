@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/models/muc_type.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -48,7 +47,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _mucRepo = GetIt.I.get<MucRepo>();
-  final _mucDao = GetIt.I.get<MucDao>();
   final _routingServices = GetIt.I.get<RoutingService>();
   double currentAvatarIndex = 0;
   bool showProgressBar = false;
@@ -181,7 +179,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   createInviteLink() async {
-    var muc = await _mucDao.get(widget.roomUid.asString());
+    var muc = await _mucRepo.getMuc(widget.roomUid.asString());
     String token = muc.token;
     if (token == null || token.isEmpty || token.length == 0) {
       if (widget.roomUid.category == Categories.GROUP) {
@@ -612,7 +610,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                   ),
                   if (widget.roomUid.category == Categories.CHANNEL)
                     StreamBuilder<Muc>(
-                        stream: _mucDao.watch(widget.roomUid.asString()),
+                        stream: _mucRepo.watchMuc(widget.roomUid.asString()),
                         builder: (c, muc) {
                           if (muc.hasData && muc.data != null) {
                             _currentId = muc.data.id;
@@ -661,7 +659,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     height: 10,
                   ),
                   StreamBuilder<Muc>(
-                    stream: _mucDao.watch(widget.roomUid.asString()),
+                    stream: _mucRepo.watchMuc(widget.roomUid.asString()),
                     builder: (c, muc) {
                       if (muc.hasData && muc.data != null) {
                         mucInfo = muc.data.info;

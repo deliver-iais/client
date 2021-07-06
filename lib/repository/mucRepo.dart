@@ -23,7 +23,6 @@ import 'package:grpc/grpc.dart';
 class MucRepo {
   final _mucDao = GetIt.I.get<MucDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
-  final _messageDao = GetIt.I.get<MessageDao>();
   final _mucServices = GetIt.I.get<MucServices>();
   final _queryServices = GetIt.I.get<QueryServiceClient>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
@@ -217,6 +216,8 @@ class MucRepo {
 
   Stream<List<Member>> watchAllMembers(String mucUid) =>
       _mucDao.watchAllMembers(mucUid);
+
+  Future<Muc> getMuc(String mucUid) => _mucDao.get(mucUid);
 
   Stream<Muc> watchMuc(String mucUid) => _mucDao.watch(mucUid);
 
@@ -482,10 +483,6 @@ class MucRepo {
         break;
     }
     throw Exception("Not Valid Role! $role");
-  }
-
-  Future<List<int>> getPinMessages(String mucUid) async {
-    return (await _mucDao.get(mucUid)).pinMessagesIdList;
   }
 
   String getAsInt(List<Int64> pinMessages) {
