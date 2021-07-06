@@ -187,7 +187,7 @@ class _ChatItemState extends State<ChatItem> {
                       ),
                     )
                   : messageType == "receive"
-                      ? UnreadMessageCounterWidget(widget.room.lastMessage)
+                      ? UnreadMessageCounterWidget(widget.room.uid, widget.room.lastMessageId)
                       : Container()
             ],
           ),

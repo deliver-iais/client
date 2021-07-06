@@ -2,8 +2,6 @@ import 'package:deliver_flutter/box/room.dart';
 import 'package:hive/hive.dart';
 
 abstract class RoomDao {
-  Future<void> saveRoom(Room room);
-
   Future<void> updateRoom(Room room);
 
   Future<void> deleteRoom(Room room);
@@ -49,15 +47,12 @@ class RoomDaoImpl implements RoomDao {
   }
 
   @override
-  Future<void> saveRoom(Room room) async {
-    var box = await _openRoom();
-
-    return box.put(room.uid, room);
-  }
-
-  @override
   Future<void> updateRoom(Room room) async {
     var box = await _openRoom();
+
+    if (room != null && room.lastMessage != null) {
+      room = room.copyWith(lastMessageId: room.lastMessage.id);
+    }
 
     var r = box.get(room.uid) ?? room;
 

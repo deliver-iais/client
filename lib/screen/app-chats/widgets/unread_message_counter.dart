@@ -7,25 +7,26 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class UnreadMessageCounterWidget extends StatelessWidget {
-  final Message lastMessage;
+  final String roomUid;
+  final int lastMessageId;
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  UnreadMessageCounterWidget(this.lastMessage);
+  UnreadMessageCounterWidget(this.roomUid, this.lastMessageId);
 
   @override
   Widget build(BuildContext context) {
 
     return StreamBuilder<Seen>(
-      stream: _roomRepo.watchMySeen(lastMessage.roomUid),
+      stream: _roomRepo.watchMySeen(roomUid),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           int lastSeen = snapshot.data?.messageId ?? 0;
-          int unreadCount = lastMessage.id - lastSeen;
+          int unreadCount = lastMessageId - lastSeen;
           if (unreadCount > 0) {
             updateUnreadMessageCount(
-                lastMessage.roomUid, lastMessage.id, unreadCount);
+                roomUid, lastMessageId, unreadCount);
           } else
-            eraseUnreadCountMessage(lastMessage.roomUid);
+            eraseUnreadCountMessage(roomUid);
           return (unreadCount > 0)
               ? Padding(
                   padding: const EdgeInsets.only(

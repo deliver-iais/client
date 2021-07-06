@@ -9,6 +9,7 @@ import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/box/member.dart';
+import 'package:deliver_flutter/box/pending_message.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/models/account.dart';
@@ -160,7 +161,7 @@ class CoreServices {
     } catch (e) {
       startStream();
       debug(e.toString());
-      debug("correservice error");
+      debug("core service error");
     }
   }
 
@@ -169,9 +170,18 @@ class CoreServices {
       _clientPacket.add(ClientPacket()
         ..message = message
         ..id = message.packetId);
-      new Timer(Duration(seconds: MIN_BACKOFF_TIME ~/ 2), () {});
+      new Timer(Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
+          () => checkPendingStatus(message.packetId));
     } else {
       startStream();
+    }
+  }
+
+  Future<void> checkPendingStatus(String packetId) async {
+    var pm = await _messageDao.getPendingMessage(packetId);
+    if (pm != null) {
+      await _messageDao.savePendingMessage(pm.copyWith(failed: true));
+      // connectionStatus.add(ConnectionStatus.Connected);
     }
   }
 
@@ -246,7 +256,6 @@ class CoreServices {
     if (messageDeliveryAck.id.toInt() == 0) {
       return;
     }
-    var roomId = messageDeliveryAck.to.asString();
     var packetId = messageDeliveryAck.packetId;
     var id = messageDeliveryAck.id.toInt();
     var time = messageDeliveryAck.time.toInt() ??
@@ -254,8 +263,11 @@ class CoreServices {
 
     var pm = await _messageDao.getPendingMessage(packetId);
 
-    _messageDao.saveMessage(pm.msg.copyWith(id: id, time: time));
+    var msg = pm.msg.copyWith(id: id, time: time);
+
     _messageDao.deletePendingMessage(packetId);
+    _messageDao.saveMessage(msg);
+    _roomDao.updateRoom(Room(uid: msg.roomUid, lastMessage: msg));
 
     if (_routingServices.isInRoom(messageDeliveryAck.to.asString())) {
       _notificationServices.playSoundNotification();
@@ -378,44 +390,6 @@ void updateLastActivityTime(
 Future<bool> checkMention(String text, AccountRepo accountRepo) async {
   Account account = await accountRepo.getAccount();
   return text.contains(account.userName);
-}
-
-Future<List<DB.Message>> saveFetchMessages(MessageDao _messageDao,
-    RoomDao _roomDao, AccountRepo _accountRepo, List<Message> messages) async {
-  List<DB.Message> msgList = [];
-  for (Message message in messages) {
-    _messageDao.deletePendingMessage(message.packetId);
-    try {
-      if (message.whichType() == Message_Type.persistEvent) {
-        switch (message.persistEvent.whichType()) {
-          case PersistentEvent_Type.mucSpecificPersistentEvent:
-            switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
-              case MucSpecificPersistentEvent_Issue.DELETED:
-                _roomDao.updateRoom(
-                    Room(uid: message.from.asString(), deleted: true));
-                continue;
-                break;
-              case MucSpecificPersistentEvent_Issue.KICK_USER:
-                if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                    .isSameEntity(_accountRepo.currentUserUid.asString())) {
-                  _roomDao.updateRoom(
-                      Room(uid: message.from.asString(), deleted: true));
-                  continue;
-                }
-                break;
-            }
-            break;
-          default:
-            break;
-        }
-      } else {}
-    } catch (e) {
-      debug(e.toString());
-    }
-    msgList
-        .add(await saveMessageInMessagesDB(_accountRepo, _messageDao, message));
-  }
-  return msgList;
 }
 
 Future<DB.Message> saveMessageInMessagesDB(

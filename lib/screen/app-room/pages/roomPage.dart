@@ -430,11 +430,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         builder: (context, currentRoomStream) {
                           if (currentRoomStream.hasData) {
                             _currentRoom.add(currentRoomStream.data);
-                            int i = _currentRoom.value.lastMessage.id ??
-                                0 + pendingMessages.length;
+                            int i = (_currentRoom.value.lastMessageId ?? 0) +
+                                pendingMessages.length;
                             if (_itemCount != 0 && i != _itemCount)
                               _itemCountSubject.add(_itemCount);
                             _itemCount = i;
+                            debug("HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK $i");
                             return Expanded(
                               child: Stack(
                                 alignment: AlignmentDirectional.bottomStart,
@@ -637,7 +638,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             if (s.hasData &&
                 s.data != null &&
                 s.data.uid.asUid().category == Categories.BOT &&
-                s.data.lastMessage.id == null) {
+                s.data.lastMessageId == null) {
               return BotStartWidget(botUid: widget.roomId.asUid());
             } else {
               return NewMessageInput(
@@ -845,10 +846,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         if (index == -1) index = 0;
         // TODO SEEN MIGRATION
         _roomRepo.saveMySeen(Seen(
-            uid: widget.roomId, messageId: _currentRoom.value.lastMessage.id));
-        bool isPendingMessage = (currentRoom.lastMessage.id == null)
+            uid: widget.roomId, messageId: _currentRoom.value.lastMessageId));
+        bool isPendingMessage = (currentRoom.lastMessageId == null)
             ? true
-            : _itemCount > currentRoom.lastMessage.id &&
+            : _itemCount > currentRoom.lastMessageId &&
                 _itemCount - index <= pendingMessages.length;
         if (_itemCount - index > 14) {
           return StreamBuilder<bool>(
@@ -901,7 +902,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
           return Column(
             children: <Widget>[
-              if (currentRoom.lastMessage.id != null &&
+              if (currentRoom.lastMessageId != null &&
                   _lastShowedMessageId != -1 &&
                   _lastShowedMessageId == index &&
                   !(messages[0].from.isSameEntity(_accountRepo.currentUserUid)))
@@ -1031,10 +1032,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     var messageWidget;
     if (message.from.isSameEntity(_accountRepo.currentUserUid))
       messageWidget = showSentMessage(message, maxWidth,
-          currentRoom.lastMessage.id, pendingMessages.length);
+          currentRoom.lastMessageId, pendingMessages.length);
     else
       messageWidget = showReceivedMessage(message, maxWidth,
-          currentRoom.lastMessage.id, pendingMessages.length);
+          currentRoom.lastMessageId, pendingMessages.length);
     var dismissibleWidget = Dismissible(
         movementDuration: Duration(microseconds: 10),
         confirmDismiss: (direction) async {
