@@ -22,13 +22,11 @@ part 'database.g.dart';
 @UseMoor(tables: [
   Medias,
   MediasMetaData,
-  Stickers,
-  StickerIds,
+
 ], daos: [
   MediaDao,
-  MediaMetaDataDao,
-  StickerDao,
-  StickerIdDao,
+  MediaMetaDataDao
+
 ])
 class Database extends _$Database {
   final PathProviderWindows provider = PathProviderWindows();
