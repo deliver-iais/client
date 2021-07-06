@@ -2,8 +2,6 @@ import 'package:deliver_flutter/box/room.dart';
 import 'package:hive/hive.dart';
 
 abstract class RoomDao {
-  Future<void> saveRoom(Room room);
-
   Future<void> updateRoom(Room room);
 
   Future<void> deleteRoom(Room room);
@@ -29,16 +27,24 @@ class RoomDaoImpl implements RoomDao {
   Future<List<Room>> getAllRooms() async {
     var box = await _openRoom();
 
-    return box.values.toList();
+    return sorted(box.values.where((element) => element.lastMessage != null).toList());
   }
 
   @override
   Stream<List<Room>> watchAllRooms() async* {
     var box = await _openRoom();
 
-    yield box.values.toList();
+    yield sorted(box.values.where((element) => element.lastMessage != null).toList());
 
-    yield* box.watch().map((event) => box.values.toList());
+    yield* box.watch().map((event) => sorted(box.values.where((element) => element.lastMessage != null).toList()));
+  }
+
+  List<Room> sorted(List<Room> list) {
+    var l = list;
+
+    l.sort((a, b) => (b.lastMessage?.time ?? 0) - (a.lastMessage?.time ?? 0));
+
+    return l;
   }
 
   @override
@@ -49,15 +55,12 @@ class RoomDaoImpl implements RoomDao {
   }
 
   @override
-  Future<void> saveRoom(Room room) async {
-    var box = await _openRoom();
-
-    return box.put(room.uid, room);
-  }
-
-  @override
   Future<void> updateRoom(Room room) async {
     var box = await _openRoom();
+
+    if (room != null && room.lastMessage != null) {
+      room = room.copyWith(lastMessageId: room.lastMessage.id);
+    }
 
     var r = box.get(room.uid) ?? room;
 

@@ -239,8 +239,8 @@ class NotificationServices {
   }
 
   void playSoundNotification() async {
-    AssetsAudioPlayer.newPlayer().open(
-      Audio("assets/audios/ack.mp3"),
-    );
+    // AssetsAudioPlayer.newPlayer().open(
+    //   Audio("assets/audios/ack.mp3"),
+    // );
   }
 }

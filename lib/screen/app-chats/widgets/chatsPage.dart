@@ -24,26 +24,22 @@ class ChatsPage extends StatelessWidget {
                 child: ListView.separated(
                   itemCount: room.length,
                   itemBuilder: (BuildContext ctx, int index) {
-                    if (room[index].lastMessage != null) {
-                      return MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          child: ChatItem(
-                            key: ValueKey("chatItem/${room[index].uid}"),
-                            room: room[index],
-                            isSelected:
-                                _routingService.isInRoom(room[index].uid),
-                          ),
-                          onTap: () {
-                            _routingService.openRoom(
-                              room[index].uid,
-                            );
-                          },
+                    return MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        child: ChatItem(
+                          key: ValueKey("chatItem/${room[index].uid}"),
+                          room: room[index],
+                          isSelected: _routingService.isInRoom(room[index].uid),
                         ),
-                      );
-                    }
-                    return SizedBox.shrink();
+                        onTap: () {
+                          _routingService.openRoom(
+                            room[index].uid,
+                          );
+                        },
+                      ),
+                    );
                   },
                   separatorBuilder: (BuildContext context, int index) {
                     return Divider();

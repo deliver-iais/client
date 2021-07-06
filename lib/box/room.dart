@@ -20,17 +20,33 @@ class Room {
   @HiveField(3)
   bool mentioned;
 
-  Room({
-    this.uid,
-    this.lastMessage,
-    this.deleted,
-    this.mentioned,
-  });
+  @HiveField(4)
+  int lastMessageId;
+
+  Room(
+      {this.uid,
+      this.lastMessage,
+      this.deleted,
+      this.mentioned,
+      this.lastMessageId});
 
   Room copy(Room r) => Room(
-        uid: r.uid ?? this.uid,
-        lastMessage: r.lastMessage ?? this.lastMessage,
-        deleted: r.deleted ?? this.deleted,
-        mentioned: r.mentioned ?? this.mentioned,
-      );
+      uid: r.uid ?? this.uid,
+      lastMessage: r.lastMessage ?? this.lastMessage,
+      deleted: r.deleted ?? this.deleted,
+      mentioned: r.mentioned ?? this.mentioned,
+      lastMessageId: r.lastMessageId ?? this.lastMessageId);
+
+  Room copyWith(
+          {String uid,
+          Message lastMessage,
+          int lastMessageId,
+          bool deleted,
+          bool mentioned}) =>
+      Room(
+          uid: uid ?? this.uid,
+          lastMessage: lastMessage ?? this.lastMessage,
+          deleted: deleted ?? this.deleted,
+          mentioned: mentioned ?? this.mentioned,
+          lastMessageId: lastMessageId ?? this.lastMessageId);
 }

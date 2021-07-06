@@ -17,7 +17,7 @@ class PendingMessage {
   Message msg;
 
   @HiveField(3)
-  int failed;
+  bool failed;
 
   @HiveField(5)
   SendingStatus status;

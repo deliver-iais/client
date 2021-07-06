@@ -121,27 +121,40 @@ class MessageRepo {
     }
   }
 
-  // TODO: Refactor Needed
   @visibleForTesting
   updating() async {
-    try {
-      var getAllUserRoomMetaRes = await _queryServiceClient.getAllUserRoomMeta(
-          GetAllUserRoomMetaReq(),
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
-        var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
-        if (room != null &&
-            room.lastMessage != null &&
-            room.lastMessage.id != null &&
-            room.lastMessage.id >= roomMetadata.lastMessageId.toInt() &&
-            room.lastMessage.id != 0) {
-          continue;
+    bool finished = false;
+    int pointer = 0;
+
+    while (!finished && pointer < 10000) {
+      try {
+        var getAllUserRoomMetaRes =
+            await _queryServiceClient.getAllUserRoomMeta(
+                GetAllUserRoomMetaReq()
+                  ..pointer = pointer
+                  ..limit = 10,
+                options: CallOptions(metadata: {
+                  'access_token': await _accountRepo.getAccessToken()
+                }));
+
+        finished = getAllUserRoomMetaRes.finished;
+
+        for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
+          var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
+          if (room != null &&
+              room.lastMessage != null &&
+              room.lastMessage.id != null &&
+              room.lastMessage.id >= roomMetadata.lastMessageId.toInt() &&
+              room.lastMessage.id != 0) {
+            finished = true; // no more updating needed after this room
+            break;
+          }
+          fetchMessages(roomMetadata, room);
         }
-        fetchMessages(roomMetadata, room);
+      } catch (e) {
+        debug(e);
       }
-    } catch (e) {
-      debug(e);
+      pointer += 10;
     }
   }
 
@@ -155,19 +168,18 @@ class MessageRepo {
             ..type = FetchMessagesReq_Type.FORWARD_FETCH
             ..limit = 2,
           options: CallOptions(
-              timeout: Duration(seconds: 1),
+              timeout: Duration(seconds: 3),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       List<Message> messages =
           await _saveFetchMessages(fetchMessagesRes.messages);
 
-      // TODO if there is Pending Message this line has a bug!!
       if (messages.isNotEmpty) {
         _roomDao.updateRoom(Room(
           uid: roomMetadata.roomUid.asString(),
           lastMessage: messages.last,
         ));
       }
-
+      // TODO remove later on, we need update this in larger group of rooms
       fetchLastSeen(roomMetadata);
 
       if (room != null && room.uid.asUid().category == Categories.GROUP) {
@@ -200,17 +212,22 @@ class MessageRepo {
     } catch (e) {
       debug(e.toString());
     }
-    if (room.roomUid.category == Categories.USER ||
-        room.roomUid.category == Categories.GROUP) {
-      var fetchLastOtherUserSeenData =
-          await _queryServiceClient.fetchLastOtherUserSeenData(
-              FetchLastOtherUserSeenDataReq()..roomUid = room.roomUid,
-              options: CallOptions(metadata: {
-                "access_token": await _accountRepo.getAccessToken()
-              }));
-      _seenDao.saveOthersSeen(Seen(
-          uid: room.roomUid.asString(),
-          messageId: fetchLastOtherUserSeenData.seen.id.toInt()));
+
+    try {
+      if (room.roomUid.category == Categories.USER ||
+          room.roomUid.category == Categories.GROUP) {
+        var fetchLastOtherUserSeenData =
+            await _queryServiceClient.fetchLastOtherUserSeenData(
+                FetchLastOtherUserSeenDataReq()..roomUid = room.roomUid,
+                options: CallOptions(metadata: {
+                  "access_token": await _accountRepo.getAccessToken()
+                }));
+        _seenDao.saveOthersSeen(Seen(
+            uid: room.roomUid.asString(),
+            messageId: fetchLastOtherUserSeenData.seen.id.toInt()));
+      }
+    } catch (e) {
+      debug(e.toString());
     }
   }
 
@@ -564,7 +581,7 @@ class MessageRepo {
   }
 
   void setCoreSetting() {
-    _coreServices.sendPingMessage();
+    _coreServices.sendPing();
   }
 
   void sendActivity(Uid to, ActivityType activityType) {

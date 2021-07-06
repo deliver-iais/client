@@ -20,7 +20,7 @@ class PendingMessageAdapter extends TypeAdapter<PendingMessage> {
       roomUid: fields[0] as String,
       packetId: fields[1] as String,
       msg: fields[2] as Message,
-      failed: fields[3] as int,
+      failed: fields[3] as bool,
       status: fields[5] as SendingStatus,
     );
   }

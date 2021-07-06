@@ -9,6 +9,7 @@ import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/box/member.dart';
+import 'package:deliver_flutter/box/pending_message.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/models/account.dart';
@@ -44,7 +45,7 @@ const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 // TODO Change to StreamRepo, it is not a service, it is repo now!!!
 class CoreServices {
-  StreamController<ClientPacket> _clientPacket;
+  StreamController<ClientPacket> _clientPacketStream;
 
   ResponseStream<ServerPacket> _responseStream;
   @visibleForTesting
@@ -87,7 +88,7 @@ class CoreServices {
 
   void closeConnection() {
     _connectionStatus.add(ConnectionStatus.Disconnected);
-    _clientPacket.close();
+    _clientPacketStream.close();
     if (_connectionTimer != null) _connectionTimer.cancel();
   }
 
@@ -96,10 +97,10 @@ class CoreServices {
     if (_connectionTimer != null && _connectionTimer.isActive) {
       return;
     }
-    if (_clientPacket.isClosed || _clientPacket.isPaused) {
+    if (_clientPacketStream.isClosed || _clientPacketStream.isPaused) {
       await startStream();
     }
-    sendPingMessage();
+    sendPing();
     responseChecked = false;
     _connectionTimer = Timer(new Duration(seconds: backoffTime), () {
       if (!responseChecked) {
@@ -108,7 +109,7 @@ class CoreServices {
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-        _clientPacket.close();
+        _clientPacketStream.close();
         _connectionStatus.add(ConnectionStatus.Disconnected);
       }
       startCheckerTimer();
@@ -124,11 +125,12 @@ class CoreServices {
   @visibleForTesting
   startStream() async {
     try {
-      _clientPacket = StreamController<ClientPacket>();
-      _responseStream = _grpcCoreService.establishStream(_clientPacket.stream,
-          options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()},
-          ));
+      _clientPacketStream = StreamController<ClientPacket>();
+      _responseStream =
+          _grpcCoreService.establishStream(_clientPacketStream.stream,
+              options: CallOptions(
+                metadata: {'access_token': await _accountRepo.getAccessToken()},
+              ));
       _responseStream.listen((serverPacket) async {
         debug(serverPacket.toString());
         gotResponse();
@@ -142,10 +144,10 @@ class CoreServices {
           case ServerPacket_Type.error:
             break;
           case ServerPacket_Type.seen:
-            _saveSeenMessage(serverPacket.seen);
+            _saveSeen(serverPacket.seen);
             break;
           case ServerPacket_Type.activity:
-            _saveActivityMessage(serverPacket.activity);
+            _saveActivity(serverPacket.activity);
             break;
           case ServerPacket_Type.liveLocationStatusChanged:
             break;
@@ -160,24 +162,37 @@ class CoreServices {
     } catch (e) {
       startStream();
       debug(e.toString());
-      debug("correservice error");
+      debug("core service error");
     }
   }
 
   sendMessage(MessageByClient message) async {
-    if (_clientPacket != null && !_clientPacket.isClosed) {
-      _clientPacket.add(ClientPacket()
+    if (_clientPacketStream != null &&
+        !_clientPacketStream.isClosed &&
+        _connectionStatus.value == ConnectionStatus.Connected) {
+      _clientPacketStream.add(ClientPacket()
         ..message = message
         ..id = message.packetId);
+      new Timer(Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
+          () => checkPendingStatus(message.packetId));
     } else {
       startStream();
     }
   }
 
-  sendPingMessage() {
-    if (_clientPacket != null && !_clientPacket.isClosed) {
+  Future<void> checkPendingStatus(String packetId) async {
+    var pm = await _messageDao.getPendingMessage(packetId);
+    if (pm != null) {
+      await _messageDao.savePendingMessage(pm.copyWith(failed: true));
+      if (_connectionStatus.value == ConnectionStatus.Connected)
+        connectionStatus.add(ConnectionStatus.Connected);
+    }
+  }
+
+  sendPing() {
+    if (_clientPacketStream != null && !_clientPacketStream.isClosed) {
       var ping = Ping()..lastPongTime = Int64(_lastPongTime);
-      _clientPacket.add(ClientPacket()
+      _clientPacketStream.add(ClientPacket()
         ..ping = ping
         ..id = DateTime.now().microsecondsSinceEpoch.toString());
     } else {
@@ -186,8 +201,8 @@ class CoreServices {
   }
 
   sendSeen(ProtocolSeen.SeenByClient seen) {
-    if (!_clientPacket.isClosed) {
-      _clientPacket.add(ClientPacket()
+    if (!_clientPacketStream.isClosed) {
+      _clientPacketStream.add(ClientPacket()
         ..seen = seen
         ..id = seen.id.toString());
     } else {
@@ -196,9 +211,9 @@ class CoreServices {
   }
 
   sendActivity(ActivityByClient activity, String id) {
-    if (!_clientPacket.isClosed &&
+    if (!_clientPacketStream.isClosed &&
         !_accountRepo.isCurrentUser(activity.to.asString()))
-      _clientPacket.add(ClientPacket()
+      _clientPacketStream.add(ClientPacket()
         ..activity = activity
         ..id = id);
     else {
@@ -206,7 +221,7 @@ class CoreServices {
     }
   }
 
-  _saveSeenMessage(ProtocolSeen.Seen seen) {
+  _saveSeen(ProtocolSeen.Seen seen) {
     Uid roomId;
     switch (seen.to.category) {
       case Categories.USER:
@@ -235,7 +250,7 @@ class CoreServices {
     }
   }
 
-  _saveActivityMessage(Activity activity) {
+  _saveActivity(Activity activity) {
     _roomRepo.updateActivity(activity);
     updateLastActivityTime(
         _lastActivityDao, activity.from, DateTime.now().millisecondsSinceEpoch);
@@ -245,7 +260,6 @@ class CoreServices {
     if (messageDeliveryAck.id.toInt() == 0) {
       return;
     }
-    var roomId = messageDeliveryAck.to.asString();
     var packetId = messageDeliveryAck.packetId;
     var id = messageDeliveryAck.id.toInt();
     var time = messageDeliveryAck.time.toInt() ??
@@ -253,8 +267,11 @@ class CoreServices {
 
     var pm = await _messageDao.getPendingMessage(packetId);
 
-    _messageDao.saveMessage(pm.msg.copyWith(id: id, time: time));
+    var msg = pm.msg.copyWith(id: id, time: time);
+
     _messageDao.deletePendingMessage(packetId);
+    _messageDao.saveMessage(msg);
+    _roomDao.updateRoom(Room(uid: msg.roomUid, lastMessage: msg));
 
     if (_routingServices.isInRoom(messageDeliveryAck.to.asString())) {
       _notificationServices.playSoundNotification();
