@@ -55,6 +55,7 @@ enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
 class MessageRepo {
   final _messageDao = GetIt.I.get<MessageDao>();
+
   // migrate to room repo
   final _roomDao = GetIt.I.get<RoomDao>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
@@ -624,6 +625,12 @@ class MessageRepo {
 
   Future<PendingMessage> getPendingMessage(String packetId) =>
       _messageDao.getPendingMessage(packetId);
+
+  Stream<PendingMessage> watchPendingMessage(String packetId) =>
+      _messageDao.watchPendingMessage(packetId);
+
+  Stream<List<PendingMessage>> watchPendingMessages(String packetId) =>
+      _messageDao.watchPendingMessages(packetId);
 
   void resendMessage(Message msg) async {
     var pm = await _messageDao.getPendingMessage(msg.packetId);

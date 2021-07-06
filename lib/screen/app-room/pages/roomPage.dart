@@ -83,7 +83,6 @@ class RoomPage extends StatefulWidget {
 }
 
 class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
-  final _messageDao = GetIt.I.get<MessageDao>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -420,7 +419,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             StreamBuilder<List<PendingMessage>>(
-                stream: _messageDao.watchPendingMessages(widget.roomId),
+                stream: _messageRepo.watchPendingMessages(widget.roomId),
                 builder: (context, pendingMessagesStream) {
                   if (pendingMessagesStream.hasData) {
                     var pendingMessages = pendingMessagesStream.hasData

@@ -19,7 +19,7 @@ abstract class MessageDao {
 
   Future<PendingMessage> getPendingMessage(String packetId);
 
-  Stream<PendingMessage> watchPendingMessage(String roomUid, String packetId);
+  Stream<PendingMessage> watchPendingMessage(String packetId);
 
   Future<List<PendingMessage>> getAllPendingMessages();
 
@@ -88,8 +88,7 @@ class MessageDaoImpl implements MessageDao {
     return box.get(packetId);
   }
 
-  Stream<PendingMessage> watchPendingMessage(
-      String roomUid, String packetId) async* {
+  Stream<PendingMessage> watchPendingMessage(String packetId) async* {
     var box = await _openPending();
 
     yield box.get(packetId);

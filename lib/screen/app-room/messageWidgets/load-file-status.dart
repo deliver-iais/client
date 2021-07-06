@@ -1,7 +1,6 @@
-import 'package:deliver_flutter/box/dao/message_dao.dart';
-import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/pending_message.dart';
 import 'package:deliver_flutter/box/sending_status.dart';
+import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/sending_file_circular_indicator.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -34,14 +33,13 @@ class LoadFileStatus extends StatefulWidget {
 
 class _LoadFileStatusState extends State<LoadFileStatus> {
   bool _startDownload = false;
-  final _messageDao = GetIt.I.get<MessageDao>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
   final _fileService = GetIt.I.get<FileService>();
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<PendingMessage>(
-        stream: _messageDao.watchPendingMessage(
-            widget.roomUid, widget.messagePacketId),
+        stream: _messageRepo.watchPendingMessage(widget.messagePacketId),
         builder: (context, pendingMessage) {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.end,

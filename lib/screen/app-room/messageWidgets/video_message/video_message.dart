@@ -1,8 +1,8 @@
 import 'dart:io' as da;
 
-import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
@@ -35,7 +35,7 @@ class _VideoMessageState extends State<VideoMessage> {
   var _fileRepo = GetIt.I.get<FileRepo>();
   bool startDownload = false;
   var fileServices = GetIt.I.get<FileService>();
-  final messageDao = GetIt.I.get<MessageDao>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -70,8 +70,7 @@ class _VideoMessageState extends State<VideoMessage> {
         },
         child: Stack(alignment: Alignment.center, children: <Widget>[
           StreamBuilder(
-              stream: messageDao.watchPendingMessage(
-                  widget.message.roomUid, widget.message.packetId),
+              stream: _messageRepo.watchPendingMessage(widget.message.packetId),
               builder: (c, p) {
                 if (p.hasData && p.data != null) {
                   return Stack(
