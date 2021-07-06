@@ -176,9 +176,10 @@ class _Emojikeybord extends State<EmojiKeybord> {
                       ),
                     ],
                   )
-                : StickerWidget(
-                    onStickerTap: widget.onStickerTap,
-                  )),
+                : SizedBox.shrink())
+            // StickerWidget(
+            //         onStickerTap: widget.onStickerTap,
+            //       )),
         // Container(
         //     color: Theme.of(context).accentColor,
         //     height: 38,

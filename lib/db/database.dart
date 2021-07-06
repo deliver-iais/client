@@ -4,7 +4,7 @@ import 'package:deliver_flutter/db/StickerId.dart';
 import 'package:deliver_flutter/db/Stickers.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
-import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
+
 import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:moor/ffi.dart';

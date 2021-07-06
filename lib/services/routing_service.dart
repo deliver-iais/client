@@ -244,14 +244,14 @@ class RoutingService {
   }
 
   void openAddStickerPcakPage() {
-    var widget = AddStickerPack(
-      key: ValueKey("/add-sticker-pack-page"),
-    );
-    _push(Page(
-        largePageNavigator: _navigationCenter,
-        largePageMain: widget,
-        smallPageMain: widget,
-        path: "/add-sticker-pack-page"));
+    // var widget = AddStickerPack(
+    //   key: ValueKey("/add-sticker-pack-page"),
+    // );
+    // _push(Page(
+    //     largePageNavigator: _navigationCenter,
+    //     largePageMain: widget,
+    //     smallPageMain: widget,
+    //     path: "/add-sticker-pack-page"));
   }
 
   _push(Page p) {

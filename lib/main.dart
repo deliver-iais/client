@@ -28,7 +28,7 @@ import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
 import 'package:deliver_flutter/db/dao/MediaDao.dart';
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
-import 'package:deliver_flutter/db/dao/StickerIdDao.dart';
+
 import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
@@ -112,8 +112,7 @@ Future<void> setupDI() async {
   getIt.registerSingleton<Database>(db);
   getIt.registerSingleton<MediaDao>(db.mediaDao);
   getIt.registerSingleton<MediaMetaDataDao>(db.mediaMetaDataDao);
-  getIt.registerSingleton<StickerDao>(db.stickerDao);
-  getIt.registerSingleton<StickerIdDao>(db.stickerIdDao);
+
 
   // Order is important, don't change it!
   getIt.registerSingleton<UxService>(UxService());

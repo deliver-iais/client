@@ -481,12 +481,12 @@ class _InputMessageWidget extends State<InputMessage> {
                       onTap: (emoji) {
                         controller.text = controller.text + emoji.toString();
                       },
-                      onStickerTap: (Sticker sticker) {
-                        messageRepo.sendStickerMessage(
-                            room: widget.currentRoom.uid.asUid(),
-                            sticker: sticker);
-                        widget.scrollToLastSentMessage();
-                      },
+                      // onStickerTap: (Sticker sticker) {
+                      //   messageRepo.sendStickerMessage(
+                      //       room: widget.currentRoom.uid.asUid(),
+                      //       sticker: sticker);
+                      //   widget.scrollToLastSentMessage();
+                      // },
                     ));
               } else {
                 return SizedBox.shrink();

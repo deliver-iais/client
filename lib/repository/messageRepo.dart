@@ -38,6 +38,7 @@ import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/sticker.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
@@ -320,19 +321,19 @@ class MessageRepo {
       Sticker sticker,
       int replyId,
       String forwardedFromAsString}) async {
-    FileProto.File sendingFakeFile = FileProto.File()
-      ..uuid = sticker.uuid
-      ..type = "image"
-      ..name = sticker.name
-      ..duration = 0;
-
-    Message msg = _createMessage(room,
-            replyId: replyId, forwardedFrom: forwardedFromAsString)
-        .copyWith(
-            type: MessageType.STICKER, json: sendingFakeFile.writeToJson());
-
-    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
+    // FileProto.File sendingFakeFile = FileProto.File()
+    //   ..uuid = sticker.uuid
+    //   ..type = "image"
+    //   ..name = sticker.name
+    //   ..duration = 0;
+    //
+    // Message msg = _createMessage(room,
+    //         replyId: replyId, forwardedFrom: forwardedFromAsString)
+    //     .copyWith(
+    //         type: MessageType.STICKER, json: sendingFakeFile.writeToJson());
+    //
+    // var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+    // _saveAndSend(pm);
   }
 
   _sendFileToServerOfPendingMessage(PendingMessage pm) async {
