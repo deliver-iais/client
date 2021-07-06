@@ -209,7 +209,7 @@ class RoomRepo {
 
   Future<Seen> getOthersSeen(String roomUid) => _seenDao.getOthersSeen(roomUid);
 
-  Future<Seen> saveMySeen(Seen seen) => _seenDao.saveMySeen(seen);
+  Future<void> saveMySeen(Seen seen) => _seenDao.saveMySeen(seen);
 
   void block(String uid) async {
     await _queryServiceClient.block(BlockReq()..uid = uid.asUid(),
