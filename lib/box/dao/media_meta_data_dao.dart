@@ -6,13 +6,13 @@ import 'package:hive/hive.dart';
 abstract class MediaMetaDataDao{
   Future save(MediaMetaData mediaMetaData);
 
-  Stream get (String roomUid);
+  Stream<MediaMetaData> get (String roomUid);
 
 }
 class MediaMetaDataDaoImpl implements MediaMetaDataDao {
-  get(String roomUid) async* {
+  Stream<MediaMetaData>get(String roomUid) async* {
     var box = await _open();
-    yield box.values.where((element) => element.roomId.contains(roomUid));
+    yield box.values.where((element) => element.roomId.contains(roomUid)).first;
 
   }
 

@@ -15,6 +15,7 @@ import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/box/file_info.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
+import 'package:deliver_flutter/box/media_meta_data.dart';
 import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/message_type.dart';
@@ -92,6 +93,7 @@ Future<void> setupDI() async {
   Hive.registerAdapter(MessageTypeAdapter());
   Hive.registerAdapter(SendingStatusAdapter());
   Hive.registerAdapter(MediaAdapter());
+  Hive.registerAdapter(MediaMetaDataAdapter());
 
 
   GetIt getIt = GetIt.instance;
