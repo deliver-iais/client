@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/box/avatar.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/meida.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';

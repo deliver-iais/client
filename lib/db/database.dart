@@ -2,7 +2,7 @@ import 'package:deliver_flutter/db/Media.dart';
 import 'package:deliver_flutter/db/MediaMetaData.dart';
 import 'package:deliver_flutter/db/StickerId.dart';
 import 'package:deliver_flutter/db/Stickers.dart';
-import 'package:deliver_flutter/db/dao/MediaDao.dart';
+
 import 'package:deliver_flutter/db/dao/StickerDao.dart';
 
 import 'package:deliver_flutter/models/mediaType.dart';
@@ -24,7 +24,6 @@ part 'database.g.dart';
   MediasMetaData,
 
 ], daos: [
-  MediaDao,
   MediaMetaDataDao
 
 ])

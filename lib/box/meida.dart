@@ -31,8 +31,10 @@ class Media {
 
 
 
+
+
   Media(
-      { this.createdOn, this.json, this.roomId, this.messageId,this.type});
+      { this.createdOn, this.json, this.roomId, this.messageId,this.type,this.createdBy});
 
 
 }

@@ -1,8 +1,10 @@
 import 'dart:convert';
 
-import 'package:deliver_flutter/db/dao/MediaDao.dart';
+import 'package:deliver_flutter/box/dao/media_dao.dart';
+import 'package:deliver_flutter/box/media_meta_data.dart';
+import 'package:deliver_flutter/box/meida.dart';
 import 'package:deliver_flutter/db/dao/MediaMetaDataDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+
 import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/utils/log.dart';
@@ -72,7 +74,7 @@ class MediaQueryRepo {
 
   Future insertMediaMetaData(
       Uid uid, queryObject.GetMediaMetadataRes mediaResponse) async {
-    _mediaMetaDataDao.upsertMetaData(MediasMetaDataData(
+    _mediaMetaDataDao.upsertMetaData( MediaMetaData(
       roomId: uid.asString(),
       imagesCount: mediaResponse.allImagesCount.toInt(),
       videosCount: mediaResponse.allVideosCount.toInt(),
@@ -84,7 +86,7 @@ class MediaQueryRepo {
     ));
   }
 
-  Stream<MediasMetaDataData> getMediasMetaDataCountFromDB(Uid roomId) {
+  Stream< MediaMetaData> getMediasMetaDataCountFromDB(Uid roomId) {
     return _mediaMetaDataDao.getStreamMediasCountByRoomId(roomId.asString());
   }
 
@@ -131,21 +133,21 @@ class MediaQueryRepo {
   // }
 //TODO correction of performance
   Future<List<Media>> getMedia(
-      Uid uid, FetchMediasReq_MediaType mediaType, int mediaCount) async {
+      Uid uid, MediaType mediaType, int mediaCount) async {
     List<Media> mediasList = [];
     mediasList =
-        await _mediaDao.getByRoomIdAndType(uid.asString(), mediaType.value);
+        await _mediaDao.getByRoomIdAndType(uid.asString(), mediaType);
     if (mediasList.length == 0) {
       mediasList = await getLastMediasList(
           uid,
-          mediaType,
+          convertType(mediaType),
           DateTime.now().millisecondsSinceEpoch,
           FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
 
       return mediasList;
     } else if (mediasList.length < mediaCount) {
       int pointer = mediasList.first.createdOn;
-      var newMediasServerList = await getLastMediasList(uid, mediaType, pointer,
+      var newMediasServerList = await getLastMediasList(uid, convertType(mediaType), pointer,
           FetchMediasReq_FetchingDirectionType.FORWARD_FETCH);
       mediasList.removeAt(0);
       var combinedList = [...newMediasServerList.reversed, ...mediasList];
@@ -155,27 +157,27 @@ class MediaQueryRepo {
     }
   }
 
-  Future<List<Media>> fetchMoreMedia(
-      Uid roomId, FetchMediasReq_MediaType mediaType, int position) async {
-    List<Media> medias = await _mediaDao.getMedia(
-        roomId.asString(), mediaType.value, 30, position);
-    int pointer = medias.first.createdOn;
-    var getMediaReq = FetchMediasReq();
-    getMediaReq..roomUid = roomId;
-    getMediaReq..pointer = Int64(pointer);
-    getMediaReq..year = DateTime.now().year;
-    getMediaReq..mediaType = mediaType;
-    getMediaReq
-      ..fetchingDirectionType =
-          FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH;
-    getMediaReq..limit = 30;
-    var getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq,
-        options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()}));
-    List<Media> mediasList =
-        await _saveFetchedMedias(getMediasRes.medias, roomId, mediaType);
-    return mediasList;
-  }
+  // Future<List<Media>> fetchMoreMedia(
+  //     Uid roomId, FetchMediasReq_MediaType mediaType, int position) async {
+  //   List<Media> medias = await _mediaDao.get(
+  //       roomId.asString(), mediaType.value, 30, position);
+  //   int pointer = medias.first.createdOn;
+  //   var getMediaReq = FetchMediasReq();
+  //   getMediaReq..roomUid = roomId;
+  //   getMediaReq..pointer = Int64(pointer);
+  //   getMediaReq..year = DateTime.now().year;
+  //   getMediaReq..mediaType = mediaType;
+  //   getMediaReq
+  //     ..fetchingDirectionType =
+  //         FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH;
+  //   getMediaReq..limit = 30;
+  //   var getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq,
+  //       options: CallOptions(
+  //           metadata: {'access_token': await _accountRepo.getAccessToken()}));
+  //   List<Media> mediasList =
+  //       await _saveFetchedMedias(getMediasRes.medias, roomId, mediaType);
+  //   return mediasList;
+  // }
 
   Future<List<Media>> getLastMediasList(
       Uid roomId,
@@ -217,7 +219,7 @@ class MediaQueryRepo {
           roomId: roomUid.asString(),
           json: json);
       mediaList.add(insertedMedia);
-      await _mediaDao.insertQueryMedia(insertedMedia);
+       _mediaDao.save(insertedMedia);
     }
     return mediaList;
   }
@@ -240,6 +242,36 @@ class MediaQueryRepo {
     } else
       return MediaType.NOT_SET;
   }
+  FetchMediasReq_MediaType convertType(MediaType mediaType){
+    switch(mediaType){
+
+      case MediaType.IMAGE:
+       return  FetchMediasReq_MediaType.IMAGES;
+        break;
+      case MediaType.VIDEO:
+        return  FetchMediasReq_MediaType.VIDEOS;
+        break;
+      case MediaType.FILE:
+        return  FetchMediasReq_MediaType.FILES;
+        break;
+      case MediaType.AUDIO:
+        return  FetchMediasReq_MediaType.AUDIOS;
+        break;
+      case MediaType.MUSIC:
+        return  FetchMediasReq_MediaType.MUSICS;
+        break;
+      case MediaType.DOCUMENT:
+        return  FetchMediasReq_MediaType.DOCUMENTS;
+        break;
+      case MediaType.LINK:
+        return  FetchMediasReq_MediaType.LINKS;
+        break;
+      case MediaType.NOT_SET:
+        return  FetchMediasReq_MediaType.FILES;
+        break;
+    }
+
+  }
 
   Future<List<Media>> getMediaAround(
       String roomId, int offset, int type) async {
@@ -247,10 +279,6 @@ class MediaQueryRepo {
     return mediaList;
   }
 
-  Future<List<Media>> getAllMedia() async {
-    allMedia = await _mediaQueriesDao.getAll();
-    return allMedia;
-  }
 
   String findFetchedMediaJson(MediaObject.Media media) {
     var json = Object();

@@ -59,7 +59,7 @@ class MessageDaoImpl implements MessageDao {
 
     return Iterable<int>.generate(pageSize)
         .map((e) => page * pageSize + pageSize)
-        .map((e) => box.get(box))
+        .map((e) => box.get(e))
         .where((element) => element != null)
         .toList();
   }

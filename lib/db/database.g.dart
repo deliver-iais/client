@@ -928,8 +928,7 @@ abstract class _$Database extends GeneratedDatabase {
   $MediasMetaDataTable _mediasMetaData;
   $MediasMetaDataTable get mediasMetaData =>
       _mediasMetaData ??= $MediasMetaDataTable(this);
-  MediaDao _mediaDao;
-  MediaDao get mediaDao => _mediaDao ??= MediaDao(this as Database);
+
   MediaMetaDataDao _mediaMetaDataDao;
   MediaMetaDataDao get mediaMetaDataDao =>
       _mediaMetaDataDao ??= MediaMetaDataDao(this as Database);

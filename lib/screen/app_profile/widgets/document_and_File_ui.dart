@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:deliver_flutter/db/database.dart';
+
+import 'package:deliver_flutter/box/meida.dart';
+import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
@@ -15,7 +17,7 @@ import 'package:open_file/open_file.dart';
 class DocumentAndFileUi extends StatefulWidget {
   final Uid roomUid;
   final int documentCount;
-  final FetchMediasReq_MediaType type;
+  final MediaType type;
 
   DocumentAndFileUi({Key key, this.roomUid, this.documentCount, this.type})
       : super(key: key);

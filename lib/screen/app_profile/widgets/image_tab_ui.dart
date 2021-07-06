@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:ui';
 
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/meida.dart';
+import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/services/file_service.dart';
@@ -30,7 +31,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
   Widget build(BuildContext context) {
     return FutureBuilder<List<Media>>(
         future: _mediaQueryRepo.getMedia(widget.userUid,
-            FetchMediasReq_MediaType.IMAGES, widget.imagesCount),
+            MediaType.IMAGE, widget.imagesCount),
         builder: (BuildContext c, AsyncSnapshot snaps) {
           if (!snaps.hasData &&
               snaps.data == null &&

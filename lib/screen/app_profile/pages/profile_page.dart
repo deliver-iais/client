@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/box/contact.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/meida.dart';
+import 'package:deliver_flutter/models/mediaType.dart';
+
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
@@ -493,7 +495,7 @@ class _ProfilePageState extends State<ProfilePage>
                             DocumentAndFileUi(
                               roomUid: widget.roomUid,
                               documentCount: snapshot.data.filesCount,
-                              type: FetchMediasReq_MediaType.FILES,
+                              type:MediaType.FILE,
                             ),
                           if (snapshot.hasData && snapshot.data.linkCount != 0)
                             linkWidget(widget.roomUid, _mediaQueryRepo,
@@ -503,7 +505,7 @@ class _ProfilePageState extends State<ProfilePage>
                             DocumentAndFileUi(
                               roomUid: widget.roomUid,
                               documentCount: snapshot.data.documentsCount,
-                              type: FetchMediasReq_MediaType.DOCUMENTS,
+                              type: MediaType.DOCUMENT,
                             ),
                           if (snapshot.hasData &&
                               snapshot.data.musicsCount != 0)
@@ -530,7 +532,7 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
   //TODO i just implemented and not tested because server problem
   return FutureBuilder<List<Media>>(
       future: mediaQueryRepo.getMedia(
-          userUid, FetchMediasReq_MediaType.LINKS, linksCount),
+          userUid, MediaType.LINK, linksCount),
       builder: (BuildContext context, AsyncSnapshot<List<Media>> snapshot) {
         if (!snapshot.hasData ||
             snapshot.data == null ||
