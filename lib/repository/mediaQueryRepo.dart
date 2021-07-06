@@ -193,12 +193,12 @@ class MediaQueryRepo {
       var getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      debug("testtttttttttttttttt${getMediasRes.medias.length}");
       List<Media> medias =
           await _saveFetchedMedias(getMediasRes.medias, roomId, mediaType);
       return medias;
     } catch (e) {
-      debug("errrrrrrrrrroooooooorrrrr:$e");
+      debug("error on get lastMediaList:$e");
+      return [];
     }
   }
 

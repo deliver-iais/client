@@ -84,12 +84,10 @@ class RoomPage extends StatefulWidget {
 
 class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final _messageDao = GetIt.I.get<MessageDao>();
-  final _roomDao = GetIt.I.get<RoomDao>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
-  final _seenDao = GetIt.I.get<SeenDao>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
@@ -275,14 +273,14 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   _getLastSeen() async {
-    Seen seen = await _seenDao.getOthersSeen(widget.roomId);
+    Seen seen = await _roomRepo.getOthersSeen(widget.roomId);
     if (seen != null) {
       lastSeenMessageId = seen.messageId;
     }
   }
 
   _getLastShowMessageId() async {
-    var seen = await _seenDao.getMySeen(widget.roomId);
+    var seen = await _roomRepo.getMySeen(widget.roomId);
     if (seen != null) {
       _lastShowedMessageId = seen.messageId ?? 0;
     }
@@ -316,7 +314,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       }
     });
 
-    _roomDao.updateRoom(Room(uid: widget.roomId, mentioned: false));
+    _roomRepo.resetMention(widget.roomId);
     _notificationServices.reset(widget.roomId);
     _isMuc = widget.roomId.asUid().category == Categories.GROUP ||
             widget.roomId.asUid().category == Categories.CHANNEL
@@ -429,7 +427,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         ? pendingMessagesStream.data
                         : [];
                     return StreamBuilder<Room>(
-                        stream: _roomDao.watchRoom(widget.roomId),
+                        stream: _roomRepo.watchRoom(widget.roomId),
                         builder: (context, currentRoomStream) {
                           if (currentRoomStream.hasData) {
                             _currentRoom.add(currentRoomStream.data);
@@ -847,7 +845,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       itemBuilder: (context, index) {
         if (index == -1) index = 0;
         // TODO SEEN MIGRATION
-        _seenDao.saveMySeen(Seen(
+        _roomRepo.saveMySeen(Seen(
             uid: widget.roomId, messageId: _currentRoom.value.lastMessage.id));
         bool isPendingMessage = (currentRoom.lastMessage.id == null)
             ? true

@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
@@ -12,7 +11,6 @@ import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:flutter/material.dart';
@@ -73,8 +71,6 @@ class ShareUidMessageWidget extends StatelessWidget {
 
   final _routingServices = GetIt.I.get<RoutingService>();
 
-  final _mucDao = GetIt.I.get<MucDao>();
-
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
   ShareUidMessageWidget({this.message, this.isSender, this.isSeen});
@@ -132,7 +128,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                   onPressed: () async {
                     if ((_shareUid.uid.category == Categories.GROUP ||
                         _shareUid.uid.category == Categories.CHANNEL)) {
-                      var muc = await _mucDao.get(_shareUid.uid.asString());
+                      var muc = await _mucRepo.getMuc(_shareUid.uid.asString());
                       if (muc != null) {
                         _routingServices.openRoom(_shareUid.uid.asString());
                       } else {
@@ -166,8 +162,8 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                   Categories.GROUP ||
                                               _shareUid.uid.category ==
                                                   Categories.CHANNEL)) {
-                                            var muc = await _mucDao
-                                                .get(_shareUid.uid.asString());
+                                            var muc = await _mucRepo.getMuc(
+                                                _shareUid.uid.asString());
                                             if (muc == null) {
                                               if (_shareUid.uid.category ==
                                                   Categories.GROUP) {

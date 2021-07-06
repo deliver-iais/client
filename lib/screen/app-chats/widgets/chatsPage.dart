@@ -1,5 +1,5 @@
-import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/room.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/chatItem.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:flutter/material.dart';
@@ -7,14 +7,14 @@ import 'package:get_it/get_it.dart';
 
 class ChatsPage extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
-  final _roomDao = GetIt.I.get<RoomDao>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
 
   ChatsPage({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Room>>(
-        stream: _roomDao.watchAllRooms(),
+        stream: _roomRepo.watchAllRooms(),
         builder: (context, snapshot) {
           return StreamBuilder(
             stream: _routingService.currentRouteStream,
@@ -30,11 +30,10 @@ class ChatsPage extends StatelessWidget {
                         child: GestureDetector(
                           behavior: HitTestBehavior.translucent,
                           child: ChatItem(
-                            key: ValueKey(
-                                "chatItem/${room[index].uid}"),
+                            key: ValueKey("chatItem/${room[index].uid}"),
                             room: room[index],
-                            isSelected: _routingService
-                                .isInRoom(room[index].uid),
+                            isSelected:
+                                _routingService.isInRoom(room[index].uid),
                           ),
                           onTap: () {
                             _routingService.openRoom(

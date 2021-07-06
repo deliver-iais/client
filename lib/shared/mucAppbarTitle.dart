@@ -1,6 +1,6 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/muc.dart';
+import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/title_status.dart';
@@ -11,7 +11,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class MucAppbarTitle extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
-  final _mucDao = GetIt.I.get<MucDao>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
   final String mucUid;
 
   MucAppbarTitle({Key key, this.mucUid}) : super(key: key);
@@ -29,7 +29,7 @@ class MucAppbarTitle extends StatelessWidget {
                 width: 20,
               ),
               StreamBuilder<Muc>(
-                  stream: _mucDao.watch(mucUid),
+                  stream: _mucRepo.watchMuc(mucUid),
                   builder: (context, snapshot) {
                     if (snapshot.hasData)
                       return Column(
@@ -52,7 +52,7 @@ class MucAppbarTitle extends StatelessWidget {
                       );
                     else
                       return FutureBuilder<Muc>(
-                          future: _mucDao.get(mucUid),
+                          future: _mucRepo.getMuc(mucUid),
                           builder: (c, s) {
                             if (s.hasData && s.data != null) {
                               return Column(

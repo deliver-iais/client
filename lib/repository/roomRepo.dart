@@ -5,8 +5,10 @@ import 'package:deliver_flutter/box/dao/block_dao.dart';
 import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/mute_dao.dart';
 import 'package:deliver_flutter/box/dao/room_dao.dart';
+import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/box/room.dart';
+import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -30,6 +32,7 @@ class RoomRepo {
 
   var _messageDao = GetIt.I.get<MessageDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
+  var _seenDao = GetIt.I.get<SeenDao>();
   var _muteDao = GetIt.I.get<MuteDao>();
   var _blockDao = GetIt.I.get<BlockDao>();
   var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
@@ -64,12 +67,12 @@ class RoomRepo {
 
     // Is in UidIdName Table
     var uidIdName = await _uidIdNameDao.getByUid(uid.asString());
-    // if (uidIdName != null && ((uidIdName.id != null && uidIdName.id.isNotEmpty )|| uidIdName.name!= null && uidIdName.name.isNotEmpty)) {
-    //   // Set in cache
-    //   _roomNameCache.set(uid.asString(), uidIdName.name??uidIdName.id);
-    //
-    //   return uidIdName.name??uidIdName.id;
-    // }
+    if (uidIdName != null && ((uidIdName.id != null && uidIdName.id.isNotEmpty )|| uidIdName.name!= null && uidIdName.name.isNotEmpty)) {
+      // Set in cache
+      _roomNameCache.set(uid.asString(), uidIdName.name??uidIdName.id);
+
+      return uidIdName.name??uidIdName.id;
+    }
 
     // Is User
     if (uid.category == Categories.USER) {
@@ -181,29 +184,28 @@ class RoomRepo {
     roomNameCache.set(uid.asString(), name);
   }
 
-  Future<bool> isRoomMuted(String uid) {
-    return _muteDao.isMuted(uid);
-  }
+  void unmute(String uid) => _muteDao.unmute(uid);
 
-  Stream<bool> watchIsRoomMuted(String uid) {
-    return _muteDao.watchIsMuted(uid);
-  }
+  Future<bool> isRoomBlocked(String uid) => _blockDao.isBlocked(uid);
 
-  void mute(String uid) {
-    _muteDao.mute(uid);
-  }
+  Stream<bool> watchIsRoomBlocked(String uid) => _blockDao.watchIsBlocked(uid);
 
-  void unmute(String uid) {
-    _muteDao.unmute(uid);
-  }
+  Stream<List<Room>> watchAllRooms() => _roomDao.watchAllRooms();
 
-  Future<bool> isRoomBlocked(String uid) {
-    return _blockDao.isBlocked(uid);
-  }
+  Stream<Room> watchRoom(String roomUid) => _roomDao.watchRoom(roomUid);
 
-  Stream<bool> watchIsRoomBlocked(String uid) {
-    return _blockDao.watchIsBlocked(uid);
-  }
+  Future<void> resetMention(String roomUid) =>
+      _roomDao.updateRoom(Room(uid: roomUid, mentioned: false));
+
+  Future<void> createRoomIfNotExist(String roomUid) =>
+      _roomDao.updateRoom(Room(uid: roomUid));
+
+  Stream<Seen> watchMySeen(String roomUid) => _seenDao.watchMySeen(roomUid);
+
+  Future<Seen> getMySeen(String roomUid) => _seenDao.getMySeen(roomUid);
+  Future<Seen> getOthersSeen(String roomUid) => _seenDao.getOthersSeen(roomUid);
+
+  Future<Seen> saveMySeen(Seen seen) => _seenDao.saveMySeen(seen);
 
   void block(String uid) async {
     await _queryServiceClient.block(BlockReq()..uid = uid.asUid(),
