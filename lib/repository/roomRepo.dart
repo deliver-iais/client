@@ -25,11 +25,10 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:grpc/grpc.dart';
 import 'package:rxdart/rxdart.dart';
 
-
 Cache<String, String> roomNameCache =
-LruCache<String, String>(storage: SimpleStorage(size: 40));
-class RoomRepo {
+    LruCache<String, String>(storage: SimpleStorage(size: 40));
 
+class RoomRepo {
   var _messageDao = GetIt.I.get<MessageDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _seenDao = GetIt.I.get<SeenDao>();
@@ -67,11 +66,13 @@ class RoomRepo {
 
     // Is in UidIdName Table
     var uidIdName = await _uidIdNameDao.getByUid(uid.asString());
-    if (uidIdName != null && ((uidIdName.id != null && uidIdName.id.isNotEmpty )|| uidIdName.name!= null && uidIdName.name.isNotEmpty)) {
+    if (uidIdName != null &&
+        ((uidIdName.id != null && uidIdName.id.isNotEmpty) ||
+            uidIdName.name != null && uidIdName.name.isNotEmpty)) {
       // Set in cache
-      roomNameCache.set(uid.asString(), uidIdName.name??uidIdName.id);
+      roomNameCache.set(uid.asString(), uidIdName.name ?? uidIdName.id);
 
-      return uidIdName.name??uidIdName.id;
+      return uidIdName.name ?? uidIdName.id;
     }
 
     // Is User
@@ -87,12 +88,6 @@ class RoomRepo {
         _uidIdNameDao.update(uid.asString(), name: name);
 
         return name;
-      }else{
-        var username = await  _contactRepo.getIdByUid(uid);
-        roomNameCache.set(uid.asString(), username);
-        _uidIdNameDao.update(uid.asString(), id: username);
-        return username;
-
       }
     }
 
@@ -127,7 +122,10 @@ class RoomRepo {
       return uid.node;
     }
 
-    return "Unknown";
+    var username = await getIdByUid(uid);
+    roomNameCache.set(uid.asString(), username);
+    _uidIdNameDao.update(uid.asString(), id: username);
+    return username ?? "Unknown";
   }
 
   Future<String> getId(Uid uid) async {
@@ -208,6 +206,7 @@ class RoomRepo {
   Stream<Seen> watchMySeen(String roomUid) => _seenDao.watchMySeen(roomUid);
 
   Future<Seen> getMySeen(String roomUid) => _seenDao.getMySeen(roomUid);
+
   Future<Seen> getOthersSeen(String roomUid) => _seenDao.getOthersSeen(roomUid);
 
   Future<Seen> saveMySeen(Seen seen) => _seenDao.saveMySeen(seen);
