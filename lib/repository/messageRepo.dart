@@ -167,7 +167,7 @@ class MessageRepo {
             ..type = FetchMessagesReq_Type.FORWARD_FETCH
             ..limit = 2,
           options: CallOptions(
-              timeout: Duration(seconds: 1),
+              timeout: Duration(seconds: 3),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       List<Message> messages =
           await _saveFetchMessages(fetchMessagesRes.messages);
