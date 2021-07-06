@@ -421,110 +421,99 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             StreamBuilder<List<PendingMessage>>(
                 stream: _messageRepo.watchPendingMessages(widget.roomId),
                 builder: (context, pendingMessagesStream) {
-                  if (pendingMessagesStream.hasData) {
-                    var pendingMessages = pendingMessagesStream.hasData
-                        ? pendingMessagesStream.data
-                        : [];
-                    return StreamBuilder<Room>(
-                        stream: _roomRepo.watchRoom(widget.roomId),
-                        builder: (context, currentRoomStream) {
-                          if (currentRoomStream.hasData) {
-                            _currentRoom.add(currentRoomStream.data);
-                            int i = (_currentRoom.value.lastMessageId ?? 0) +
-                                pendingMessages.length;
-                            if (_itemCount != 0 && i != _itemCount)
-                              _itemCountSubject.add(_itemCount);
-                            _itemCount = i;
-                            debug("HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK $i");
-                            return Expanded(
-                              child: Stack(
-                                alignment: AlignmentDirectional.bottomStart,
-                                children: [
-                                  StreamBuilder<int>(
-                                    stream: _showP.stream,
-                                    builder: (c, s) {
-                                      if (s.hasData && s.data > 0)
-                                        return Center(
-                                          child: CircularProgressIndicator(
-                                            color: Colors.blue,
-                                          ),
-                                        );
-                                      else
-                                        return SizedBox.shrink();
-                                    },
-                                  ),
-                                  buildMessagesListView(_currentRoom.value,
-                                      pendingMessages, _maxWidth),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      PinMessageWidget(),
-                                      AudioPlayerAppBar(),
-                                    ],
-                                  ),
-                                  StreamBuilder(
-                                      stream: _positionSubject.stream,
-                                      builder: (c, position) {
-                                        if ((position.hasData &&
-                                            position.data != null)) {
-                                          if (_itemCount - position.data > 4) {
-                                            _scrollToNewMessage = false;
-                                            return StreamBuilder<int>(
-                                                stream:
-                                                    unReadMessageScrollSubject
-                                                        .stream,
-                                                builder: (c, count) {
-                                                  if (count.hasData &&
-                                                      count.data != null &&
-                                                      count.data > 0) {
-                                                    return scrollWidget(
-                                                        count.data);
+                  List<PendingMessage> pendingMessages = pendingMessagesStream.hasData
+                      ? pendingMessagesStream.data ?? []
+                      : [];
+                  return StreamBuilder<Room>(
+                      stream: _roomRepo.watchRoom(widget.roomId),
+                      builder: (context, currentRoomStream) {
+                        if (currentRoomStream.hasData) {
+                          _currentRoom.add(currentRoomStream.data);
+                          int i = (_currentRoom.value.lastMessageId ?? 0) +
+                              pendingMessages.length;
+                          if (_itemCount != 0 && i != _itemCount)
+                            _itemCountSubject.add(_itemCount);
+                          _itemCount = i;
+                          return Expanded(
+                            child: Stack(
+                              alignment: AlignmentDirectional.bottomStart,
+                              children: [
+                                StreamBuilder<int>(
+                                  stream: _showP.stream,
+                                  builder: (c, s) {
+                                    if (s.hasData && s.data > 0)
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          color: Colors.blue,
+                                        ),
+                                      );
+                                    else
+                                      return SizedBox.shrink();
+                                  },
+                                ),
+                                buildMessagesListView(_currentRoom.value,
+                                    pendingMessages, _maxWidth),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    PinMessageWidget(),
+                                    AudioPlayerAppBar(),
+                                  ],
+                                ),
+                                StreamBuilder(
+                                    stream: _positionSubject.stream,
+                                    builder: (c, position) {
+                                      if ((position.hasData &&
+                                          position.data != null)) {
+                                        if (_itemCount - position.data > 4) {
+                                          _scrollToNewMessage = false;
+                                          return StreamBuilder<int>(
+                                              stream: unReadMessageScrollSubject
+                                                  .stream,
+                                              builder: (c, count) {
+                                                if (count.hasData &&
+                                                    count.data != null &&
+                                                    count.data > 0) {
+                                                  return scrollWidget(
+                                                      count.data);
+                                                } else {
+                                                  if (position.hasData &&
+                                                      _itemCount -
+                                                              position.data >
+                                                          15 &&
+                                                      widget.roomId
+                                                              .asUid()
+                                                              .category !=
+                                                          Categories.BOT) {
+                                                    return scrollWidget(0);
                                                   } else {
-                                                    if (position.hasData &&
-                                                        _itemCount -
-                                                                position.data >
-                                                            15 &&
-                                                        widget.roomId
-                                                                .asUid()
-                                                                .category !=
-                                                            Categories.BOT) {
-                                                      return scrollWidget(0);
-                                                    } else {
-                                                      return SizedBox.shrink();
-                                                    }
+                                                    return SizedBox.shrink();
                                                   }
-                                                });
-                                          } else {
-                                            unReadMessageScrollSubject.add(0);
-                                            _scrollToNewMessage = true;
-                                            return SizedBox.shrink();
-                                          }
+                                                }
+                                              });
                                         } else {
                                           unReadMessageScrollSubject.add(0);
                                           _scrollToNewMessage = true;
                                           return SizedBox.shrink();
                                         }
-                                      }),
-                                ],
-                              ),
-                            );
-                          } else {
-                            return Container(
+                                      } else {
+                                        unReadMessageScrollSubject.add(0);
+                                        _scrollToNewMessage = true;
+                                        return SizedBox.shrink();
+                                      }
+                                    }),
+                              ],
+                            ),
+                          );
+                        } else {
+                          return Container(
+                            height: 50,
+                            child: SizedBox(
                               height: 50,
-                              child: SizedBox(
-                                height: 50,
-                              ),
-                            );
-                          }
-                        });
-                  } else {
-                    return Container(
-                      height: 50,
-                      child: SizedBox(
-                        height: 50,
-                      ),
-                    );
-                  }
+                            ),
+                          );
+                        }
+                      });
                 }),
             StreamBuilder(
                 stream: _repliedMessage.stream,
@@ -1031,11 +1020,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       List pendingMessages) {
     var messageWidget;
     if (message.from.isSameEntity(_accountRepo.currentUserUid))
-      messageWidget = showSentMessage(message, maxWidth,
-          currentRoom.lastMessageId, pendingMessages.length);
+      messageWidget = showSentMessage(
+          message, maxWidth, currentRoom.lastMessageId, pendingMessages.length);
     else
-      messageWidget = showReceivedMessage(message, maxWidth,
-          currentRoom.lastMessageId, pendingMessages.length);
+      messageWidget = showReceivedMessage(
+          message, maxWidth, currentRoom.lastMessageId, pendingMessages.length);
     var dismissibleWidget = Dismissible(
         movementDuration: Duration(microseconds: 10),
         confirmDismiss: (direction) async {

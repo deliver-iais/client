@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/pending_message.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:hive/hive.dart';
 
 abstract class MessageDao {
@@ -58,8 +59,8 @@ class MessageDaoImpl implements MessageDao {
     var box = await _openMessages(roomUid);
 
     return Iterable<int>.generate(pageSize)
-        .map((e) => page * pageSize + pageSize)
-        .map((e) => box.get(box))
+        .map((e) => page * pageSize + e)
+        .map((e) => box.get(e))
         .where((element) => element != null)
         .toList();
   }
@@ -77,7 +78,7 @@ class MessageDaoImpl implements MessageDao {
 
     yield* box
         .watch()
-        .where((event) => (event.value as PendingMessage).roomUid == roomUid)
+        .where((event) => (event.value as PendingMessage).roomUid == roomUid || event.deleted)
         .map((event) =>
             box.values.where((element) => element.roomUid == roomUid).toList());
   }
