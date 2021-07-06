@@ -45,7 +45,7 @@ const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 // TODO Change to StreamRepo, it is not a service, it is repo now!!!
 class CoreServices {
-  StreamController<ClientPacket> _clientPacket;
+  StreamController<ClientPacket> _clientPacketStream;
 
   ResponseStream<ServerPacket> _responseStream;
   @visibleForTesting
@@ -88,7 +88,7 @@ class CoreServices {
 
   void closeConnection() {
     _connectionStatus.add(ConnectionStatus.Disconnected);
-    _clientPacket.close();
+    _clientPacketStream.close();
     if (_connectionTimer != null) _connectionTimer.cancel();
   }
 
@@ -97,7 +97,7 @@ class CoreServices {
     if (_connectionTimer != null && _connectionTimer.isActive) {
       return;
     }
-    if (_clientPacket.isClosed || _clientPacket.isPaused) {
+    if (_clientPacketStream.isClosed || _clientPacketStream.isPaused) {
       await startStream();
     }
     sendPing();
@@ -109,7 +109,7 @@ class CoreServices {
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-        _clientPacket.close();
+        _clientPacketStream.close();
         _connectionStatus.add(ConnectionStatus.Disconnected);
       }
       startCheckerTimer();
@@ -125,11 +125,12 @@ class CoreServices {
   @visibleForTesting
   startStream() async {
     try {
-      _clientPacket = StreamController<ClientPacket>();
-      _responseStream = _grpcCoreService.establishStream(_clientPacket.stream,
-          options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()},
-          ));
+      _clientPacketStream = StreamController<ClientPacket>();
+      _responseStream =
+          _grpcCoreService.establishStream(_clientPacketStream.stream,
+              options: CallOptions(
+                metadata: {'access_token': await _accountRepo.getAccessToken()},
+              ));
       _responseStream.listen((serverPacket) async {
         debug(serverPacket.toString());
         gotResponse();
@@ -166,8 +167,10 @@ class CoreServices {
   }
 
   sendMessage(MessageByClient message) async {
-    if (_clientPacket != null && !_clientPacket.isClosed) {
-      _clientPacket.add(ClientPacket()
+    if (_clientPacketStream != null &&
+        !_clientPacketStream.isClosed &&
+        _connectionStatus.value == ConnectionStatus.Connected) {
+      _clientPacketStream.add(ClientPacket()
         ..message = message
         ..id = message.packetId);
       new Timer(Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
@@ -181,14 +184,15 @@ class CoreServices {
     var pm = await _messageDao.getPendingMessage(packetId);
     if (pm != null) {
       await _messageDao.savePendingMessage(pm.copyWith(failed: true));
-      // connectionStatus.add(ConnectionStatus.Connected);
+      if (_connectionStatus.value == ConnectionStatus.Connected)
+        connectionStatus.add(ConnectionStatus.Connected);
     }
   }
 
   sendPing() {
-    if (_clientPacket != null && !_clientPacket.isClosed) {
+    if (_clientPacketStream != null && !_clientPacketStream.isClosed) {
       var ping = Ping()..lastPongTime = Int64(_lastPongTime);
-      _clientPacket.add(ClientPacket()
+      _clientPacketStream.add(ClientPacket()
         ..ping = ping
         ..id = DateTime.now().microsecondsSinceEpoch.toString());
     } else {
@@ -197,8 +201,8 @@ class CoreServices {
   }
 
   sendSeen(ProtocolSeen.SeenByClient seen) {
-    if (!_clientPacket.isClosed) {
-      _clientPacket.add(ClientPacket()
+    if (!_clientPacketStream.isClosed) {
+      _clientPacketStream.add(ClientPacket()
         ..seen = seen
         ..id = seen.id.toString());
     } else {
@@ -207,9 +211,9 @@ class CoreServices {
   }
 
   sendActivity(ActivityByClient activity, String id) {
-    if (!_clientPacket.isClosed &&
+    if (!_clientPacketStream.isClosed &&
         !_accountRepo.isCurrentUser(activity.to.asString()))
-      _clientPacket.add(ClientPacket()
+      _clientPacketStream.add(ClientPacket()
         ..activity = activity
         ..id = id);
     else {
