@@ -16,7 +16,7 @@ class CircularFileStatusIndicator extends StatelessWidget {
   const CircularFileStatusIndicator(
       {Key key,
       this.isExist,
-      this.isPending,
+      this.isPending = false,
       this.file,
       this.msg,
       this.onPressed})

@@ -10,7 +10,7 @@ class MusicPlayProgress extends StatelessWidget {
   final double duration;
   final _audioPlayerService = GetIt.I.get<AudioPlayerService>();
 
-  MusicPlayProgress({Key key, this.audioUuid,this.duration}) : super(key: key);
+  MusicPlayProgress({Key key, this.audioUuid, this.duration}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +22,21 @@ class MusicPlayProgress extends StatelessWidget {
               stream: _audioPlayerService.audioPlayerState(audioUuid),
               builder: (c, state) {
                 if (state.data != null &&
-                        state.data == AudioPlayerState.PLAYING ||
-                    _audioPlayerService.CURRENT_AUDIO_ID.contains(audioUuid)) {
-                  return AudioProgressIndicator(
-                    audioUuid: audioUuid,
-                    duration: duration,
-                  );
+                    state.data == AudioPlayerState.PLAYING) {
+                  return StreamBuilder(
+                      stream: _audioPlayerService.CURRENT_AUDIO_ID.stream,
+                      builder: (c, uuid) {
+                        if (uuid.hasData && uuid.data.contains(audioUuid))
+                          return AudioProgressIndicator(
+                            audioUuid: audioUuid,
+                            duration: duration,
+                          );
+                        else
+                          return Container(
+                            width: 0,
+                            height: 0,
+                          );
+                      });
                 } else {
                   return Container(
                     width: 0,
@@ -40,7 +49,7 @@ class MusicPlayProgress extends StatelessWidget {
           padding: const EdgeInsets.only(left: 20.0, top: 44),
           child: TimeProgressIndicator(
             audioUuid: audioUuid,
-            duration:duration ,
+            duration: duration,
           ),
         ),
       ],

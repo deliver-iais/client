@@ -29,26 +29,22 @@ class AudioPlayProgress extends StatelessWidget {
                     stream: _audioPlayerService.audioPlayerState(audioUuid),
                     builder: (c, state) {
                       if (state.data != null &&
-                          state.data == AudioPlayerState.PLAYING &&
-                          _audioPlayerService.CURRENT_AUDIO_ID.isNotEmpty &&
-                          _audioPlayerService.CURRENT_AUDIO_ID
-                              .contains(audioUuid)) {
-                        return AudioProgressIndicator(
-                          duration: audio.duration,
-                          audioUuid: audioUuid,
-                        );
+                          state.data == AudioPlayerState.PLAYING) {
+                        return StreamBuilder(
+                            stream: _audioPlayerService.CURRENT_AUDIO_ID.stream,
+                            builder: (c, uuid) {
+                              if (uuid.hasData && uuid.data.toString().isNotEmpty && uuid.data.toString().contains(audioUuid))
+                                return AudioProgressIndicator(
+                                  duration: audio.duration,
+                                  audioUuid: audioUuid,
+                                );
+                              else
+                                return buildPadding(context);
+                            });
+
+
                       } else {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 26.0, left: 20),
-                          child: Text(
-                            sizeFormater(audio.size.toInt()) +
-                                " " +
-                                findFileType(audio.name),
-                            style: TextStyle(
-                                fontSize: 10,
-                                color: ExtraTheme.of(context).textField),
-                          ),
-                        );
+                        return buildPadding(context);
                       }
                     }),
               ),
@@ -62,5 +58,19 @@ class AudioPlayProgress extends StatelessWidget {
             ],
           );
         });
+  }
+
+  Padding buildPadding(BuildContext context) {
+    return Padding(
+                        padding: const EdgeInsets.only(top: 26.0, left: 20),
+                        child: Text(
+                          sizeFormater(audio.size.toInt()) +
+                              " " +
+                              findFileType(audio.name),
+                          style: TextStyle(
+                              fontSize: 10,
+                              color: ExtraTheme.of(context).textField),
+                        ),
+                      );
   }
 }
