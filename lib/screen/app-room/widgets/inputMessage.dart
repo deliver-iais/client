@@ -21,7 +21,6 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/db/database.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 
 import 'package:get_it/get_it.dart';

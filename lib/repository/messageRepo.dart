@@ -10,7 +10,6 @@ import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/pending_message.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/box/sending_status.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';

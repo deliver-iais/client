@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'dart:io';
 
 import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/db/database.dart';
+
 import 'package:deliver_flutter/screen/app-contacts/widgets/new_Contact.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
@@ -309,8 +309,8 @@ class RoutingService {
   }
 
   Future<void> deleteDb() async {
-    Database db = GetIt.I.get<Database>();
-    await db.deleteAllData();
+    // Database db = GetIt.I.get<Database>();
+    // await db.deleteAllData();
   }
 
   Stream<String> get currentRouteStream => _route.stream;

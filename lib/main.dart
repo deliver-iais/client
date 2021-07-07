@@ -28,7 +28,6 @@ import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/box/sending_status.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
 
-import 'package:deliver_flutter/db/database.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
