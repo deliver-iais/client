@@ -4,9 +4,6 @@ import 'dart:math';
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/box/dao/message_dao.dart';
-import 'package:deliver_flutter/box/dao/room_dao.dart';
-import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/pending_message.dart';
 import 'package:deliver_flutter/box/room.dart';
@@ -911,7 +908,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     ],
                   ),
                 ),
-              if (_upTimeMap.containsKey(messages[0].packetId))
+              if (_upTimeMap.containsKey(messages[0].packetId) &&! _downTimeMap.containsKey(messages[0].packetId))
                 ChatTime(currentMessageTime: _upTimeMap[messages[0].packetId]),
               messages[0].packetId == null
                   ? SizedBox.shrink()
@@ -939,7 +936,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                             ),
                           ],
                         ),
-              if (_downTimeMap.containsKey(messages[0].packetId))
+              if (_downTimeMap.containsKey(messages[0].packetId) && ! _upTimeMap.containsKey(messages[0].packetId))
                 ChatTime(
                     currentMessageTime: _downTimeMap[messages[0].packetId]),
             ],

@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:deliver_flutter/services/video_player_service.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 
 import 'package:flutter/material.dart';
+import 'package:open_file/open_file.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:video_player/video_player.dart';
 
@@ -111,11 +113,16 @@ class _VideoUiState extends State<VideoUi> {
                       : IconButton(
                           icon: Icon(Icons.play_arrow),
                           onPressed: () async {
-                            setState(() {
-                              isPlaying = true;
-                            });
-                            isPlaySubject.add(true);
-                            videoPlayerService.videoPlayerController.play();
+                            if(isDesktop()){
+                              OpenFile.open(widget.video.path);
+                            }else{
+                              setState(() {
+                                isPlaying = true;
+                              });
+                              isPlaySubject.add(true);
+                              videoPlayerService.videoPlayerController.play();
+                            }
+
                           }),
                 );
               } else {

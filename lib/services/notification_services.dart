@@ -24,8 +24,8 @@ class NotificationServices {
     if (isWindows()) {
       _windowsNotificationServices = new ToastService(
         appName: 'Deliver',
-        companyName: 'Pshk',
-        productName: '1',
+        companyName: "112",
+        productName: "fdsd",
       );
     }
     var androidNotificationSetting =
