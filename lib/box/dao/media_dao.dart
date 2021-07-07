@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/box/media.dart';
-import 'package:deliver_flutter/models/mediaType.dart';
+import 'package:deliver_flutter/box/media_type.dart';
+
 
 import 'package:hive/hive.dart';
 import 'package:sorted_list/sorted_list.dart';

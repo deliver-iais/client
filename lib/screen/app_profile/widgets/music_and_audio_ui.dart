@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:deliver_flutter/box/media.dart';
-import 'package:deliver_flutter/models/mediaType.dart';
+import 'package:deliver_flutter/box/media_type.dart';
+
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/play_audio_status.dart';

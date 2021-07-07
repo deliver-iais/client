@@ -3,7 +3,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/media_meta_data.dart';
 import 'package:deliver_flutter/box/media.dart';
-import 'package:deliver_flutter/models/mediaType.dart';
+import 'package:deliver_flutter/box/media_type.dart';
+
 
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';

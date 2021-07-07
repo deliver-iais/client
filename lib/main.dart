@@ -16,6 +16,7 @@ import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/box/file_info.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/box/media_meta_data.dart';
+import 'package:deliver_flutter/box/media_type.dart';
 import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/message_type.dart';
@@ -94,6 +95,7 @@ Future<void> setupDI() async {
   Hive.registerAdapter(SendingStatusAdapter());
   Hive.registerAdapter(MediaAdapter());
   Hive.registerAdapter(MediaMetaDataAdapter());
+  Hive.registerAdapter(MediaTypeAdapter());
 
 
   GetIt getIt = GetIt.instance;
@@ -113,9 +115,6 @@ Future<void> setupDI() async {
   getIt.registerSingleton<MediaDao>(MediaDaoImpl());
   getIt.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
 
-  Database db = Database();
-
-  getIt.registerSingleton<Database>(db);
 
 
 

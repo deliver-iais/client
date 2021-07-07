@@ -4,9 +4,9 @@ import 'package:deliver_flutter/box/dao/media_dao.dart';
 import 'package:deliver_flutter/box/dao/media_meta_data_dao.dart';
 import 'package:deliver_flutter/box/media_meta_data.dart';
 import 'package:deliver_flutter/box/media.dart';
+import 'package:deliver_flutter/box/media_type.dart';
 
 
-import 'package:deliver_flutter/models/mediaType.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/utils/log.dart';
 
@@ -91,47 +91,7 @@ class MediaQueryRepo {
     return _mediaMetaDataDao.get(roomId.asString());
   }
 
-  // Stream<int> allMediasTypeInDBCount(Uid uid , FetchMediasReq_MediaType mediaType) {
-  //
-  //   _mediaDao.getByRoomIdAndType(uid.string,mediaType.value).listen((event) async{
-  //     if(event.length==0){
-  //      await getLastMediasList(uid,mediaType);
-  //       //medias =  _mediaDao.getByRoomIdAndType(uid.string,mediaType.value);
-  //     }
-  //     else{
-  //       return event.length;
-  //     }
-  //   });
-  //
-  // }
 
-  // Stream<bool> hasMedia(Uid uid, FetchMediasReq_MediaType mediaType) async* {
-  //   await allMediasCountReq(uid,mediaType);
-  //   getMediasMetaDataCountFromDB(uid, mediaType).listen((event) async {
-  //     if (event != 0) {
-  //       return true;
-  //     } else {
-  //       return false;
-  //     }
-  //   });
-  // }
-
-  // Future<bool> hasMedia(Uid uid , FetchMediasReq_MediaType mediaType) async{
-  //   MediaCount dbCount= await allMediasTypeCountInServer(uid.string);
-  //   if(mediaType==queryObject.FetchMediasReq_MediaType.IMAGES&& dbCount.imageCount ==0){
-  //     return false;
-  //   }else if(dbCount==null){
-  //     allMediasTypeInDBCount(uid.string,mediaType).listen((event) {
-  //       if( event!=0){
-  //         return true;
-  //       }else{
-  //         return false;
-  //       }
-  //     });
-  //   }
-  //
-  //
-  // }
 //TODO correction of performance
   Future<List<Media>> getMedia(
       Uid uid, MediaType mediaType, int mediaCount) async {
@@ -149,36 +109,14 @@ class MediaQueryRepo {
     } else if (mediasList.length < mediaCount) {
       int pointer = mediasList.first.createdOn;
       var newMediasServerList = await getLastMediasList(uid, convertType(mediaType), pointer,
-          FetchMediasReq_FetchingDirectionType.FORWARD_FETCH);
-      mediasList.removeAt(0);
+          FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
+     mediasList.removeAt(0);
       var combinedList = [...newMediasServerList.reversed, ...mediasList];
-      return combinedList;
+      return combinedList.reversed.toList();
     } else {
-      return mediasList;
+      return mediasList.reversed.toList();
     }
   }
-
-  // Future<List<Media>> fetchMoreMedia(
-  //     Uid roomId, FetchMediasReq_MediaType mediaType, int position) async {
-  //   List<Media> medias = await _mediaDao.get(
-  //       roomId.asString(), mediaType.value, 30, position);
-  //   int pointer = medias.first.createdOn;
-  //   var getMediaReq = FetchMediasReq();
-  //   getMediaReq..roomUid = roomId;
-  //   getMediaReq..pointer = Int64(pointer);
-  //   getMediaReq..year = DateTime.now().year;
-  //   getMediaReq..mediaType = mediaType;
-  //   getMediaReq
-  //     ..fetchingDirectionType =
-  //         FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH;
-  //   getMediaReq..limit = 30;
-  //   var getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq,
-  //       options: CallOptions(
-  //           metadata: {'access_token': await _accountRepo.getAccessToken()}));
-  //   List<Media> mediasList =
-  //       await _saveFetchedMedias(getMediasRes.medias, roomId, mediaType);
-  //   return mediasList;
-  // }
 
   Future<List<Media>> getLastMediasList(
       Uid roomId,
@@ -208,7 +146,6 @@ class MediaQueryRepo {
   Future<List<Media>> _saveFetchedMedias(List<MediaObject.Media> getMedias,
       Uid roomUid, FetchMediasReq_MediaType mediaType) async {
     List<Media> mediaList = [];
-    debug(getMedias.length.toString());
     for (MediaObject.Media media in getMedias) {
       MediaType type = findFetchedMediaType(mediaType);
       String json = findFetchedMediaJson(media);

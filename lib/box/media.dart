@@ -1,5 +1,5 @@
 
-import 'package:deliver_flutter/models/mediaType.dart';
+import 'package:deliver_flutter/box/media_type.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
