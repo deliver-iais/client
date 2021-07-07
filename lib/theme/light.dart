@@ -87,6 +87,7 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
 
   profileAvatarCard: Color(0xFFEEEEEE),
   inputBoxBackground: Colors.white,
+  mentionWidget: Colors.white,
   //group
   border: Color(0xff174b45),
   // text1 : white black

@@ -73,6 +73,7 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     textMessage: Colors.white,
     messageDetails: Color(0xFF001D39),
     titleStatus: Colors.blue,
+
     persistentEventMessage: DarkTheme.accentColor.withAlpha(50),
     circularFileStatus: Color(0xFFBCE0FD),
     fileMessageDetails: DarkTheme.primaryColor,
@@ -82,4 +83,6 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     profileAvatarCard: DarkTheme.accentColor.withAlpha(50),
     inputBoxBackground: DarkTheme.accentColor.withAlpha(50),
     pinMessageTheme: Color(0xFF263238),
+    mentionWidget:Color(0xFF263238),
     border: DarkTheme.primaryColor);
+

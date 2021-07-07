@@ -35,6 +35,7 @@ class ExtraThemeData {
   Color inputBoxBackground;
   Color border;
   Color  pinMessageTheme;
+  Color mentionWidget;
 
 
   ExtraThemeData(
@@ -68,7 +69,8 @@ class ExtraThemeData {
         this.textField,
         this.pinMessageTheme,
         this.inputBoxBackground,
-        this.border
+        this.border,
+        this.mentionWidget,
       });
 
 

@@ -4,6 +4,7 @@ import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/mucMemberMentionWidget.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -33,7 +34,7 @@ class ShowMentionList extends StatelessWidget {
                         ? 180
                         : double.parse((members.data.length * 50).toString()),
                     child: Container(
-                        color: Theme.of(context).accentColor,
+                        color: ExtraTheme.of(context).mentionWidget,
                         child: ListView.builder(
                           itemCount: members.data.length,
                           shrinkWrap: true,
