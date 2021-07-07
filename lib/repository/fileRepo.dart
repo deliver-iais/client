@@ -22,32 +22,8 @@ class FileRepo {
 
   Future<void> cloneFileInLocalDirectory(
       File file, String uploadKey, String name) async {
-    if (false) {
-      ReceivePort receivePort = ReceivePort();
-      Map myMap = Map<String, dynamic>();
-      myMap['file'] = file.path;
-      myMap['sendPort'] = receivePort.sendPort;
-      myMap['uploadKey'] = uploadKey;
-      myMap['name'] = name;
-      var isolate;
-      try {
-        isolate = await FlutterIsolate.spawn(decodeIsolate, myMap);
-        debug("isolate spawn finished successfulllyyyyyyyyyyyy");
-      } catch (e) {
-        debug("isolate errrrrrrrrrrrrrrrorrrrrrrrr" + e.toString());
-      }
-      Map allLocalFiles = await receivePort.first as Map;
-      isolate.kill();
-      await _saveFileInfo(uploadKey, File(allLocalFiles['real']), name, "real");
-      await _saveFileInfo(
-          uploadKey, File(allLocalFiles['large']), name, "large");
-      await _saveFileInfo(
-          uploadKey, File(allLocalFiles['medium']), name, "medium");
-      await _saveFileInfo(
-          uploadKey, File(allLocalFiles['small']), name, "small");
-    } else {
       await _saveFileInfo(uploadKey, file, name, "real");
-    }
+
   }
 
   Future<FileProto.File> uploadClonedFile(String uploadKey, String name,
@@ -66,7 +42,7 @@ class FileRepo {
       ..height = json["height"] ?? 0
       ..duration = json["duration"] ?? 0;
 
-    debug(uploadedFile.toString());
+    debug("^^^^^^^^^^^^^^^^${uploadedFile.toString()}");
 
     await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
     return uploadedFile;

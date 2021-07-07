@@ -347,7 +347,7 @@ class CoreServices {
     if (!_accountRepo.isCurrentUser(message.from.asString()) &&
         ((await _accountRepo.notification) == null ||
             (await _accountRepo.notification).contains("true") &&
-                (await _roomRepo.isRoomMuted(roomUid.asString())))) {
+                ( ! await _roomRepo.isRoomMuted(roomUid.asString())))) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)

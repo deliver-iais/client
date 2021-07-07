@@ -24,7 +24,7 @@ class NotificationServices {
     if (isWindows()) {
       _windowsNotificationServices = new ToastService(
         appName: 'Deliver',
-        companyName: "112",
+        companyName: "tyty",
         productName: "fdsd",
       );
     }
@@ -76,7 +76,7 @@ class NotificationServices {
       );
       _windowsNotificationServices.show(toast);
       // _windowsNotificationServices.dispose();
-    // toast.dispose();
+       toast.dispose();
     } else if (isLinux()) {
       try {
         var client = NotificationsClient();

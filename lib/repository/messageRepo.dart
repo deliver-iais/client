@@ -328,9 +328,9 @@ class MessageRepo {
 
     await _savePendingMessage(pm);
 
-    await _sendFileToServerOfPendingMessage(pm);
+   var m = await _sendFileToServerOfPendingMessage(pm);
 
-    await _sendMessageToServer(pm);
+    await _sendMessageToServer(m);
   }
 
   sendStickerMessage(
@@ -353,7 +353,7 @@ class MessageRepo {
     // _saveAndSend(pm);
   }
 
-  _sendFileToServerOfPendingMessage(PendingMessage pm) async {
+ Future< PendingMessage> _sendFileToServerOfPendingMessage(PendingMessage pm) async {
     var fakeFileInfo = FileProto.File.fromJson(pm.msg.json);
 
     var packetId = pm.msg.packetId;
@@ -375,6 +375,7 @@ class MessageRepo {
     await _savePendingMessage(newPm);
 
     _updateRoomLastMessage(newPm);
+    return newPm;
   }
 
   _sendMessageToServer(PendingMessage pm) async {
