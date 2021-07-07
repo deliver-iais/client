@@ -11,6 +11,7 @@ import 'package:deliver_flutter/services/routing_service.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profile_avatar_card.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_flutter/shared/language.dart';
 import 'package:deliver_flutter/theme/constants.dart';
@@ -25,6 +26,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sms_autofill/sms_autofill.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key}) : super(key: key);
@@ -378,7 +380,23 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                     ),
                   GestureDetector(
-                    onTap: () {
+                    onTap: () async {
+                      var version = (await PackageInfo.fromPlatform()).version;
+                      showAboutDialog(
+                          context: context,
+                          applicationIcon: Image(
+                            width: 50,
+                            height: 50,
+                            image: AssetImage(
+                                'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
+                          ),
+                          applicationName: APPLICATION_NAME,
+                          applicationVersion: version,
+                          children: [
+                            TextButton(
+                                onPressed: () => launch("https://doc.deliver-co.ir/blogs/updates/"),
+                                child: Text("What's new"))
+                          ]);
                       print(developerModeCounterCountDown);
                       developerModeCounterCountDown--;
                       if (developerModeCounterCountDown < 1) {

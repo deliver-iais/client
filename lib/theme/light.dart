@@ -24,6 +24,8 @@ ThemeData LightTheme =
               color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold),
           headline3: TextStyle(color: Colors.black, fontSize: 20),
           headline4: TextStyle(color: Colors.white, fontSize: 14),
+          headline5: TextStyle(color: Colors.black, fontSize: 24),
+          bodyText2: TextStyle(color: Colors.black, fontSize: 15),
         ),
         appBarTheme: AppBarTheme(
             color: Colors.white,
