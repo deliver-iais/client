@@ -1,10 +1,12 @@
 import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/dao/room_dao.dart';
+import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/box/role.dart';
 import 'package:deliver_flutter/box/room.dart';
+import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_flutter/utils/log.dart';
@@ -26,6 +28,7 @@ class MucRepo {
   final _mucServices = GetIt.I.get<MucServices>();
   final _queryServices = GetIt.I.get<QueryServiceClient>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
 
   Future<Uid> createNewGroup(
       List<Uid> memberUids, String groupName, String info) async {
@@ -205,9 +208,7 @@ class MucRepo {
     return false;
   }
 
-  Future<List<Member>> searchMemberByNameOrId(
-      String mucUid, String query) async {
-    // TODO not implemented!!!
+  Future<List<Member>> searchMemberByNameOrId(String mucUid) async {
     return [];
   }
 
@@ -491,5 +492,33 @@ class MucRepo {
       pm = "$pm , ${element.toString()} ,";
     });
     return pm;
+  }
+
+  Future<List<UidIdName>> getFilteredMember(String roomUid,
+      {String query}) async {
+    List<UidIdName> _mucMembers = [];
+    List<UidIdName> _filteredMember = [];
+
+    var res = await getAllMembers(roomUid);
+   await res.forEach((member) async {
+      if (_accountRepo.isCurrentUser(member.memberUid)) {
+        var a = await _accountRepo.getAccount();
+        _mucMembers.add(UidIdName(
+            uid: member.memberUid, id: a.userName, name: a.firstName));
+      } else {
+        var s = await _uidIdNameDao.getByUid(member.memberUid);
+        _mucMembers.add(s);
+      }
+    });
+    if (query.isNotEmpty) {
+      _mucMembers.forEach((element) {
+        if (element.id.contains(query) ||
+            (element.name != null && element.name.contains(query))) {
+          _filteredMember.add(element);
+        }
+      });
+      return _filteredMember;
+    } else
+      return _mucMembers;
   }
 }

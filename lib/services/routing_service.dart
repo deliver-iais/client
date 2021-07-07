@@ -26,6 +26,7 @@ import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
 import 'package:rxdart/subjects.dart';
 
 class Page {
@@ -309,8 +310,7 @@ class RoutingService {
   }
 
   Future<void> deleteDb() async {
-    // Database db = GetIt.I.get<Database>();
-    // await db.deleteAllData();
+    Hive.deleteFromDisk();
   }
 
   Stream<String> get currentRouteStream => _route.stream;

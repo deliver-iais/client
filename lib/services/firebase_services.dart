@@ -11,6 +11,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/shared/constants.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -41,10 +42,13 @@ class FireBaseServices {
   FirebaseMessaging _firebaseMessaging;
 
   sendFireBaseToken() async {
-    _firebaseMessaging = FirebaseMessaging.instance;
-    _firebaseMessaging.requestPermission();
-    await _setFirebaseSetting();
-    _sendFireBaseToken(await _firebaseMessaging.getToken());
+    if(!isDesktop()){
+      _firebaseMessaging = FirebaseMessaging.instance;
+      _firebaseMessaging.requestPermission();
+      await _setFirebaseSetting();
+      _sendFireBaseToken(await _firebaseMessaging.getToken());
+    }
+
   }
 
   deleteToken() {
