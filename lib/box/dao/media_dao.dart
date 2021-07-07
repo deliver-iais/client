@@ -12,7 +12,7 @@ abstract class MediaDao {
 
   Future save(Media media);
 
-  Future <List<Media>> getMediaAround(String roomId, int offset, int type);
+  Future <List<Media>> getMediaAround(String roomId, int offset, MediaType type);
 
 }
 
@@ -46,7 +46,7 @@ class MediaDaoImpl implements MediaDao {
   }
 
   @override
-  Future<List<Media>> getMediaAround(String roomId, int offset, int type) async{
+  Future<List<Media>> getMediaAround(String roomId, int offset, MediaType type) async{
     var box = await _open(roomId);
     if(offset-1<0){
       var  medias = box.values.where((element) => element.roomId.contains(roomId)&& element.type  == type).toList().sublist(offset,offset+1);

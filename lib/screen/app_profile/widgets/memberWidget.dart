@@ -80,7 +80,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                               if (member.memberUid !=
                                   _accountRepo.currentUserUid.asString())
                                 Container(
-                                  width: MediaQuery.of(context).size.width / 4,
+                                  width: 150,
                                   child: FutureBuilder<String>(
                                       future: _roomRepo
                                           .getName(member.memberUid.asUid()),
@@ -104,9 +104,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                       AsyncSnapshot<Account> snapshot) {
                                     if (snapshot.data != null) {
                                       return Container(
-                                        width:
-                                            MediaQuery.of(context).size.width /
-                                                4,
+                                        width:150,
                                         child: Text(
                                           "${snapshot.data.firstName}${snapshot.data.lastName != null ? " " + snapshot.data.lastName : ""}",
                                           overflow: TextOverflow.ellipsis,

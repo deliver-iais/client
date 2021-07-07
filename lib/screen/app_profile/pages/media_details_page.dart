@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/media.dart';
+import 'package:deliver_flutter/box/media_type.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
@@ -120,7 +121,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               ),
             );
           } else {
-            _allAvatars = snapshot.data;
+            _allAvatars = snapshot.data.reversed.toList();
             if (_allAvatars.length <= 0) {
               _routingService.pop();
               return Center(
@@ -180,18 +181,14 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     if (media == null) {
       widget.heroTag = "btn$i";
       return FutureBuilder<List<Media>>(
-          future: _mediaQueryRepo.getMediaAround(widget.userUid.asString(), i,
-              FetchMediasReq_MediaType.IMAGES.value),
+          future: _mediaQueryRepo.getMedia(widget.userUid,
+              MediaType.IMAGE,widget.mediasLength,),
           builder: (context, snapshot) {
             if (!snapshot.hasData || snapshot.data == null) {
-              return Center();
+              return Center(child: CircularProgressIndicator(color: Colors.blueAccent,),);
             } else {
               setMediaUrlCache(i, snapshot.data);
-              if (i == widget.mediasLength - 1) {
-                buildMediaPropertise(snapshot.data[snapshot.data.length - 1]);
-              } else {
-                buildMediaPropertise(snapshot.data[snapshot.data.length - 2]);
-              }
+              buildMediaPropertise(snapshot.data[i]);
               return buildFutureMediaBuilder(fileId, fileName, context, i);
             }
           });
@@ -237,28 +234,14 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: Stack(
-          alignment: Alignment.centerLeft,
+          alignment: Alignment.center,
           children: <Widget>[
-            //     buildAppBar(i, widget.mediasLength),
-            Positioned(
-              top: 80,
-              left: 0.0,
-              bottom: 0.0,
-              right: 0.0,
-              child: Hero(
-                tag: tag,
-                child: Container(
-                  decoration: new BoxDecoration(
-                    image: new DecorationImage(
-                      image: Image.file(
-                        mediaFile,
-                      ).image,
-                      fit: BoxFit.fitWidth,
-                    ),
-                  ),
-                ),
-                transitionOnUserGestures: true,
+           Hero(
+              tag: tag,
+              child: Image.file(
+                mediaFile,
               ),
+              transitionOnUserGestures: true,
             ),
             buildBottomAppBar(mediaSender, createdOn, senderName, fileId),
           ],
@@ -272,7 +255,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     if (media == null) {
       return FutureBuilder<List<Media>>(
           future: _mediaQueryRepo.getMediaAround(widget.userUid.asString(), i,
-              FetchMediasReq_MediaType.VIDEOS.value),
+              MediaType.VIDEO),
           builder: (context, snapshot) {
             if (!snapshot.hasData || snapshot.data == null) {
               return Center();

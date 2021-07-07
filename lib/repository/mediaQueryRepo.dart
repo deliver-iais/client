@@ -42,35 +42,7 @@ class MediaQueryRepo {
     } catch (e) {
       debug(e);
     }
-    // return MediaCount()
-    // ..imageCount = mediaResponse.allImagesCount.toInt()
-    // ..linkCount = mediaResponse.allLinksCount.toInt()
-    // ..audioCount = mediaResponse.allAudiosCount.toInt()
-    // ..fileCount = mediaResponse.allFilesCount.toInt()
-    // ..documentCount = mediaResponse.allDocumentsCount.toInt()
-    // ..videoCount = mediaResponse.allVideosCount.toInt()
-    // ..musicCount = mediaResponse.allMusicsCount.toInt();
-    // if(mediaType==MediaType.IMAGE){
-    //
-    //   return mediaResponse.allImagesCount.toInt();
-    //
-    // }else if(mediaType==MediaType.LINK){
-    //   return mediaResponse.allLinksCount.toInt();
-    // }else if(mediaType==MediaType.FILE){
-    //   return mediaResponse.allFilesCount.toInt();
-    // }else if(mediaType==MediaType.MUSIC){
-    //   return mediaResponse.allMusicsCount.toInt();
-    // }else if(mediaType==MediaType.VIDEO){
-    //   return mediaResponse.allVideosCount.toInt();
-    // }else if(mediaType==MediaType.DOCUMENT){
-    //   return mediaResponse.allDocumentsCount.toInt();
-    // }else if(mediaType==MediaType.AUDIO){
-    //   return mediaResponse.allAudiosCount.toInt();
-    // } else {
-    //   //todo if type not be set what should do?
-    // }
-    // return mediaResponse;
-    //insertMediaMetaData(uid, mediaResponse);
+
   }
 
   Future insertMediaMetaData(
@@ -212,7 +184,7 @@ class MediaQueryRepo {
   }
 
   Future<List<Media>> getMediaAround(
-      String roomId, int offset, int type) async {
+      String roomId, int offset, MediaType type) async {
     mediaList = await _mediaQueriesDao.getMediaAround(roomId, offset, type);
     return mediaList;
   }
