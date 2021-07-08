@@ -107,7 +107,6 @@ class ContactRepo {
   }
 
   Future sendContacts(List<Contact> contacts) async {
-    getContacts();
     try {
       int i = 0;
       while (i <= contacts.length) {

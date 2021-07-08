@@ -38,7 +38,7 @@ class MediaQueryRepo {
           GetMediaMetadataReq()..with_1 = uid,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      await insertMediaMetaData(uid, mediaResponse);
+      insertMediaMetaData(uid, mediaResponse);
     } catch (e) {
       debug(e);
     }

@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
@@ -25,6 +26,7 @@ class _VerificationPageState extends State<VerificationPage> {
   final FocusNode focusNode = FocusNode();
 
   AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
+  ContactRepo _contactRepo = GetIt.I.get<ContactRepo>();
 
   var _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
@@ -63,6 +65,7 @@ class _VerificationPageState extends State<VerificationPage> {
   }
 
   _navigationToHome() async {
+    _contactRepo.getContacts();
     ExtendedNavigator.of(context).pushAndRemoveUntil(
       Routes.homePage,
       (_) => false,

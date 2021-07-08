@@ -58,11 +58,21 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   void initState() {
-    _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
+    featchMedia();
     if (_uxService.getTabIndex(widget.roomUid.asString()) == null) {
       _uxService.setTabIndex(widget.roomUid.asString(), 0);
     }
+    setState(() {
+
+    });
     super.initState();
+  }
+
+  void featchMedia()async {
+    await  _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
+    setState(() {
+
+    });
   }
 
   @override

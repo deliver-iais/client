@@ -1,6 +1,7 @@
-import 'dart:io';
 
-import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
@@ -9,8 +10,10 @@ import 'package:desktoasts/desktoasts.dart';
 import 'package:desktop_notifications/desktop_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get_it/get_it.dart';
 
 class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
@@ -67,16 +70,7 @@ class NotificationServices {
   showTextNotification(int notificationId, String roomId, String roomName,
       String messageBody) async {
     if (isWindows()) {
-      Toast toast = new Toast(
-          type: ToastType.imageAndText02,
-          title: roomName,
-          subtitle: messageBody,
-          image:
-        File('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png')
-      );
-      _windowsNotificationServices.show(toast);
-      // _windowsNotificationServices.dispose();
-       toast.dispose();
+      showWindowsNotify(roomId,roomName, messageBody);
     } else if (isLinux()) {
       try {
         var client = NotificationsClient();
@@ -104,6 +98,35 @@ class NotificationServices {
         payload: 'Default_Sound',
       );
     }
+  }
+
+  void showWindowsNotify(String roomUid,String roomName, String messageBody) async{
+    var _avatarRepo = GetIt.I.get<AvatarRepo>();
+    var fileRepo = GetIt.I.get<FileRepo>();
+    var lastAvatar = await _avatarRepo.getLastAvatar(roomUid.asUid(), false);
+    if(lastAvatar != null){
+      var file  = await fileRepo.getFile(lastAvatar.fileId,lastAvatar.fileName,thumbnailSize:  ThumbnailSize.medium);
+      Toast toast = new Toast(
+          type: ToastType.imageAndText02,
+          title: roomName,
+          subtitle: messageBody,
+          image: file
+      );
+      _windowsNotificationServices.show(toast);
+
+      toast.dispose();
+
+    } else{
+      Toast toast = new Toast(
+          type: ToastType.text04,
+          title: roomName,
+          subtitle: messageBody,
+      );
+      _windowsNotificationServices.show(toast);
+      // _windowsNotificationServices.dispose();
+      toast.dispose();
+    }
+
   }
 
   showImageNotification(int notificationId, String roomId, String roomName,
