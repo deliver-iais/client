@@ -100,13 +100,13 @@ dependencies:
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
   image_picker: 0.8.0+3 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
   image_cropper: 1.3.1 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
- # image: ^2.1.19
+
   vibration: 1.7.2 # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
   dcache: 0.3.0
 
   image_size_getter: 0.2.1
 
-#  sqflite_common_ffi: 2.0.0+1
+
 
   audioplayer: 0.8.1
   audioplayers: 0.19.0
@@ -119,7 +119,7 @@ dependencies:
   random_string: 2.1.0
   flutter_local_notifications: 6.0.0
 
-#  flutter_timer: 0.0.6
+
   uuid: 3.0.4
   flutter_sound: 8.1.4
 
@@ -128,8 +128,7 @@ dependencies:
   package_info: 2.0.2
   cached_network_image: 3.0.0
 
-#  moor: 4.3.2 # Multi-Platform ORM
-#  sqlite3_flutter_libs: 0.2.0 # Moor Needed Library
+
   sms_autofill: 1.2.6
   sorted_list: 1.0.0
   scrollable_positioned_list: 0.1.10
@@ -153,6 +152,7 @@ dependencies:
   assets_audio_player: 3.0.3+3
 
   flutter_parsed_text: 1.2.5
+  msix: 2.1.3
 
   device_info: 2.0.2
 
@@ -163,11 +163,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-#  moor_generator: 4.3.1
+
   marquee: 2.1.0
   build_runner:
   hive_generator: ^1.1.0
-#  auto_route_generator:
+
 
 
 # For information on the generic Dart part of this file, see the
@@ -214,6 +214,7 @@ flutter:
         - asset: assets/fonts/vazir/Vazir-Medium.ttf
         - asset: assets/fonts/vazir/Vazir-Thin.ttf
           weight: 700
+
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
 #analyzer:

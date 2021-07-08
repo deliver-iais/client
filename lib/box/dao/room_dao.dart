@@ -36,7 +36,7 @@ class RoomDaoImpl implements RoomDao {
 
     yield sorted(box.values.where((element) => element.lastMessage != null).toList());
 
-    yield* box.watch().map((event) => sorted(box.values.where((element) => element.lastMessage != null).toList()));
+    yield* box.watch().map((event) => sorted(box.values.where((element) => element.lastMessage != null && (element.deleted == null || element.deleted == false )).toList()));
   }
 
   List<Room> sorted(List<Room> list) {
@@ -66,6 +66,7 @@ class RoomDaoImpl implements RoomDao {
 
     return box.put(room.uid, r.copy(room));
   }
+
 
   @override
   Stream<Room> watchRoom(String roomUid) async* {

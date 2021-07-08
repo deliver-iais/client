@@ -70,7 +70,7 @@ class MucDaoImpl implements MucDao {
   Future<void> deleteMember(Member member) async {
     var box = await _openMembers(member.mucUid);
 
-    return box.get(member.memberUid);
+    return box.delete(member.memberUid);
   }
 
   Future<List<Member>> getAllMembers(String mucUid) async {

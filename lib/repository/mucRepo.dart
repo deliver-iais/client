@@ -227,7 +227,7 @@ class MucRepo {
     var result = await _mucServices.removeGroup(groupUid);
     if (result) {
       _mucDao.delete(groupUid.asString());
-      _roomDao.updateRoom(Room(uid: groupUid.asString(), deleted: true));
+      _roomDao.deleteRoom(Room(uid: groupUid.asString()));
       _mucDao.deleteAllMembers(groupUid.asString());
       return true;
     }
@@ -238,7 +238,7 @@ class MucRepo {
     var result = await _mucServices.removeChannel(channelUid);
     if (result) {
       _mucDao.delete(channelUid.asString());
-      _roomDao.updateRoom(Room(uid: channelUid.asString(), deleted: true));
+      _roomDao.deleteRoom(Room(uid: channelUid.asString()));
       _mucDao.deleteAllMembers(channelUid.asString());
       return true;
     }
@@ -275,7 +275,7 @@ class MucRepo {
     var result = await _mucServices.leaveGroup(groupUid);
     if (result) {
       _mucDao.delete(groupUid.asString());
-      _roomDao.updateRoom(Room(uid: groupUid.asString(), deleted: true));
+      _roomDao.deleteRoom(Room(uid: groupUid.asString()));
       return true;
     }
     return false;
@@ -285,7 +285,7 @@ class MucRepo {
     var result = await _mucServices.leaveChannel(channelUid);
     if (result) {
       _mucDao.delete(channelUid.asString());
-      _roomDao.updateRoom(Room(uid: channelUid.asString(), deleted: true));
+      _roomDao.deleteRoom(Room(uid: channelUid.asString()));
       return true;
     }
     return false;
@@ -325,16 +325,22 @@ class MucRepo {
     MucPro.Member member = MucPro.Member()
       ..uid = groupMember.memberUid.asUid()
       ..role = getRole(groupMember.role);
-    await _mucServices.banGroupMember(member, groupMember.mucUid.asUid());
-    //todo change database
+   if( await _mucServices.banGroupMember(member, groupMember.mucUid.asUid())){
+     _mucDao.deleteMember(groupMember);
+     return true;
+   }
+
   }
 
   banChannelMember(Member channelMember) async {
     MucPro.Member member = MucPro.Member()
       ..uid = channelMember.memberUid.asUid()
       ..role = getRole(channelMember.role);
-    await _mucServices.unbanChannelMember(member, channelMember.mucUid.asUid());
-    //todo change database
+    if(await _mucServices.unbanChannelMember(member, channelMember.mucUid.asUid())){
+      _mucDao.deleteMember(channelMember);
+      return true;
+    }
+
   }
 
   unBanGroupMember(Member groupMember) async {

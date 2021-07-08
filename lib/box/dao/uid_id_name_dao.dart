@@ -1,4 +1,5 @@
 import 'package:deliver_flutter/box/uid_id_name.dart';
+import 'package:deliver_flutter/utils/log.dart';
 import 'package:hive/hive.dart';
 
 abstract class UidIdNameDao {
@@ -7,6 +8,8 @@ abstract class UidIdNameDao {
   Future<String> getUidById(String id);
 
   Future<void> update(String uid, {String id, String name});
+
+  Future<List<UidIdName>> search(String text);
 }
 
 class UidIdNameDaoImpl implements UidIdNameDao {
@@ -49,4 +52,15 @@ class UidIdNameDaoImpl implements UidIdNameDao {
   static Future<Box<UidIdName>> _open() => Hive.openBox<UidIdName>(_key());
 
   static Future<Box<String>> _open2() => Hive.openBox<String>(_key2());
+
+  @override
+  Future<List<UidIdName>> search(String text) async {
+    var box = await _open();
+    var res = box.values
+        .where((element) =>
+            (element.id != null && element.id.contains(text)) ||
+            (element.name != null && element.name.contains(text)))
+        .toList();
+    return res;
+  }
 }

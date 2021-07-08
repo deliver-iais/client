@@ -246,10 +246,13 @@ class RoomRepo {
 
   Future<List<Uid>> searchInRoomAndContacts(
       String text, bool searchInRooms) async {
-    // TODO change in searching mechanism
-    // TODO MIGRATION NEEDS
 
     List<Uid> searchResult = [];
+    var res = await _uidIdNameDao.search(text);
+    res.forEach((element) {
+      searchResult.add(element.uid.asUid());
+    });
+
     return searchResult;
   }
 
