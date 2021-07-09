@@ -7,6 +7,7 @@ import 'package:deliver_flutter/box/dao/mute_dao.dart';
 import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
+import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -101,12 +102,12 @@ class RoomRepo {
     // Is Group or Channel
     if (uid.category == Categories.GROUP ||
         uid.category == Categories.CHANNEL) {
-      var mucInfo = await _mucRepo.fetchMucInfo(uid);
-      if (mucInfo != null && mucInfo.name != null && mucInfo.name.isNotEmpty) {
-        roomNameCache.set(uid.asString(), mucInfo.name);
-        _uidIdNameDao.update(uid.asString(), name: mucInfo.name);
+      Muc  muc = await _mucRepo.fetchMucInfo(uid);
+      if (muc != null && muc.name != null && muc.name.isNotEmpty) {
+        roomNameCache.set(uid.asString(), muc.name);
+        _uidIdNameDao.update(uid.asString(), name: muc.name);
 
-        return mucInfo.name;
+        return muc.name;
       }
     }
 

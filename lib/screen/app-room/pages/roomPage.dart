@@ -384,9 +384,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   fetchMucInfo(Uid uid) async {
-    var name = await _mucRepo.fetchMucInfo(widget.roomId.asUid());
-    if (name != null) {
-      _roomRepo.updateRoomName(uid, name.name);
+    var muc
+    = await _mucRepo.fetchMucInfo(widget.roomId.asUid());
+    if ( muc != null) {
+      _roomRepo.updateRoomName(uid,muc.name);
     }
   }
 

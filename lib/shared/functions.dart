@@ -1,6 +1,7 @@
 import 'package:date_time_format/date_time_format.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/dao/muc_dao.dart';
+import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_uid_message_widget.dart';
@@ -80,17 +81,17 @@ Future<void> handleUri(String initialLink, BuildContext context) async {
                   ElevatedButton(
                     onPressed: () async {
                       if (mucUid.category == Categories.GROUP) {
-                        var res =
+                        Muc  muc =
                             await _mucRepo.joinGroup(mucUid, m[6].toString());
-                        _messageRepo.updateNewChannel(mucUid);
-                        if (res) {
+                        if (muc != null) {
+                          _messageRepo.updateNewMuc(mucUid,muc.lastMessageId);
                           _routingService.openRoom(mucUid.asString());
                           Navigator.of(context).pop();
                         }
                       } else {
-                        var res = await _mucRepo.joinChannel(mucUid, m[6]);
-                        if (res) {
-                          _messageRepo.updateNewChannel(mucUid);
+                        Muc muc = await _mucRepo.joinChannel(mucUid, m[6]);
+                        if (muc != null) {
+                          _messageRepo.updateNewMuc(mucUid,muc.lastMessageId);
                           _routingService.openRoom(mucUid.asString());
                           Navigator.of(context).pop();
                         }

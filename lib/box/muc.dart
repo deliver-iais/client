@@ -27,6 +27,9 @@ class Muc {
   @HiveField(6)
   int population;
 
+  @HiveField(7)
+  int lastMessageId;
+
   Muc({
     this.uid,
     this.name,
@@ -35,6 +38,7 @@ class Muc {
     this.info,
     this.pinMessagesIdList,
     this.population,
+    this.lastMessageId
   });
 
   Muc copy(Muc muc) => Muc(
@@ -43,6 +47,7 @@ class Muc {
         token: muc.token ?? this.token,
         id: muc.id ?? this.id,
         info: muc.info ?? this.info,
+        lastMessageId: muc.lastMessageId??this.lastMessageId,
         pinMessagesIdList: muc.pinMessagesIdList ?? this.pinMessagesIdList,
         population: muc.population ?? this.population,
       );
@@ -53,6 +58,7 @@ class Muc {
     String token,
     String id,
     String info,
+    int lastMessageId,
     List<int> pinMessagesIdList,
     int population,
   }) =>
@@ -62,6 +68,7 @@ class Muc {
         token: token ?? this.token,
         id: id ?? this.id,
         info: info ?? this.info,
+        lastMessageId: lastMessageId??this.lastMessageId,
         pinMessagesIdList: pinMessagesIdList ?? this.pinMessagesIdList,
         population: population ?? this.population,
       );

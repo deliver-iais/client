@@ -78,7 +78,7 @@ class MucRepo {
       List<Member> members = [];
       while (i <= len || !finish) {
         var result = await _mucServices.getGroupMembers(groupUid, 15, i);
-        if (len == 0) membersSize = membersSize + result.members.length;
+        membersSize = membersSize + result.members.length;
         for (MucPro.Member member in result.members) {
           try {
             members.add(Member(
@@ -116,7 +116,7 @@ class MucRepo {
       List<Member> members = [];
       while (i <= len || !finish) {
         var result = await _mucServices.getChannelMembers(channelUid, 15, i);
-        if (len == 0) membersSize = membersSize + result.members.length;
+        membersSize = membersSize + result.members.length;
         for (MucPro.Member member in result.members) {
           try {
             members.add(Member(
@@ -359,22 +359,20 @@ class MucRepo {
     //todo change database
   }
 
-  joinGroup(Uid groupUid, String token) async {
+  Future<Muc>joinGroup(Uid groupUid, String token) async {
     var result = await _mucServices.joinGroup(groupUid, token);
     if (result) {
-      fetchMucInfo(groupUid);
-      return true;
+      return await fetchMucInfo(groupUid);
     }
-    return false;
+    return null;
   }
 
-  joinChannel(Uid channelUid, String token) async {
+ Future<Muc> joinChannel(Uid channelUid, String token) async {
     var result = await _mucServices.joinChannel(channelUid, token);
     if (result) {
-      fetchMucInfo(channelUid);
-      return true;
+      return await fetchMucInfo(channelUid);
     }
-    return false;
+    return null;
   }
 
   modifyGroup(String mucId, String name, String info) async {

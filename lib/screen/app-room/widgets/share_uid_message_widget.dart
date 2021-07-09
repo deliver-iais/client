@@ -171,7 +171,9 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                     await _mucRepo.joinGroup(
                                                         _shareUid.uid,
                                                         _shareUid.joinToken);
-                                                if (res) {
+                                                if (res != null) {
+                                                  _messageRepo.updateNewMuc(
+                                                      _shareUid.uid,res.lastMessageId);
                                                   _routingServices.openRoom(
                                                       _shareUid.uid.asString());
                                                   Navigator.of(context).pop();
@@ -181,9 +183,9 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                     await _mucRepo.joinChannel(
                                                         _shareUid.uid,
                                                         _shareUid.joinToken);
-                                                if (res) {
-                                                  _messageRepo.updateNewChannel(
-                                                      _shareUid.uid);
+                                                if (res!= null) {
+                                                  _messageRepo.updateNewMuc(
+                                                      _shareUid.uid,res.lastMessageId);
                                                   _routingServices.openRoom(
                                                       _shareUid.uid.asString());
                                                   Navigator.of(context).pop();

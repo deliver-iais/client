@@ -94,12 +94,12 @@ class MessageRepo {
 
   var _completerMap = Map<String, Completer<List<Message>>>();
 
-  updateNewChannel(Uid roomUid) async {
+  updateNewMuc(Uid roomUid,int lastMessageId) async {
     try {
       var fetchMessagesRes = await _queryServiceClient.fetchMessages(
           FetchMessagesReq()
             ..roomUid = roomUid
-            ..pointer = Int64(1)
+            ..pointer = Int64(lastMessageId)
             ..type = FetchMessagesReq_Type.FORWARD_FETCH
             ..limit = 2,
           options: CallOptions(
@@ -139,6 +139,7 @@ class MessageRepo {
         finished = getAllUserRoomMetaRes.finished;
 
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
+          fetchLastSeen(roomMetadata);
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
           if (room != null &&
               room.lastMessage != null &&
@@ -178,8 +179,8 @@ class MessageRepo {
           lastMessage: messages.last,
         ));
       }
-      // TODO remove later on, we need update this in larger group of rooms
-      fetchLastSeen(roomMetadata);
+
+
 
       if (room != null && room.uid.asUid().category == Categories.GROUP) {
         getMentions(room);

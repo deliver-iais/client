@@ -79,10 +79,9 @@ class MucDaoImpl implements MucDao {
     return box.values.toList();
   }
 
-  Future<Member> getMember(String mucUid, String memberUid) async {
+  Future<Member> getMember(String memberUid, String mucUid ) async {
     var box = await _openMembers(mucUid);
-
-    return box.get(memberUid);
+     return  box.get(memberUid);
   }
 
   Future<void> saveMember(Member member) async {
