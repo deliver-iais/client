@@ -1,8 +1,7 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/dao/ContactDao.dart';
-import 'package:deliver_flutter/db/dao/MemberDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 
 import 'package:deliver_flutter/repository/mucRepo.dart';
 
@@ -14,7 +13,6 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:get_it/get_it.dart';
@@ -39,13 +37,11 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   List<Contact> items;
 
-  var _contactDao = GetIt.I.get<ContactDao>();
+  var _contactRepo = GetIt.I.get<ContactRepo>();
 
   var _routingService = GetIt.I.get<RoutingService>();
 
   var _mucRepo = GetIt.I.get<MucRepo>();
-
-  var _memberDao = GetIt.I.get<MemberDao>();
 
   var _createMucService = GetIt.I.get<CreateMucService>();
 
@@ -57,15 +53,14 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   @override
   void initState() {
-    super.initState();
     editingController = TextEditingController();
     if (widget.mucUid != null) getMembers();
     _createMucService.reset();
-
+    super.initState();
   }
 
   getMembers() async {
-    var res = await _memberDao.getMembersFuture(widget.mucUid.asString());
+    var res = await _mucRepo.getAllMembers(widget.mucUid.asString());
     res.forEach((element) {
       members.add(element.memberUid);
     });
@@ -74,7 +69,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
   void filterSearchResults(String query) {
     query = query.replaceAll(new RegExp(r"\s\b|\b\s"), "").toLowerCase();
     if (query.isNotEmpty) {
-      List<Contact> dummyListData = List<Contact>();
+      List<Contact> dummyListData = [];
       contacts.forEach((item) {
         var searchTerm = '${item.firstName}${item.lastName}'
             .replaceAll(new RegExp(r"\s\b|\b\s"), "")
@@ -84,10 +79,11 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                 .replaceAll(new RegExp(r"\s\b|\b\s"), "")
                 .toLowerCase()
                 .contains(query) ||
-            (item.lastName!=null && item.lastName
-                .replaceAll(new RegExp(r"\s\b|\b\s"), "")
-                .toLowerCase()
-                .contains(query))) {
+            (item.lastName != null &&
+                item.lastName
+                    .replaceAll(new RegExp(r"\s\b|\b\s"), "")
+                    .toLowerCase()
+                    .contains(query))) {
           dummyListData.add(item);
         }
       });
@@ -112,7 +108,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
           children: [
             TextField(
                 decoration: InputDecoration(
-                    hintText: appLocalization.getTraslateValue("search"),
+                  hintText: appLocalization.getTraslateValue("search"),
                 ),
                 onChanged: (value) {
                   filterSearchResults(value);
@@ -121,7 +117,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                 controller: editingController),
             Expanded(
                 child: FutureBuilder(
-                    future: _contactDao.getAllUser(),
+                    future: _contactRepo.getAll(),
                     builder: (BuildContext context,
                         AsyncSnapshot<List<Contact>> snapshot) {
                       if (snapshot.hasData &&
@@ -131,7 +127,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                             .contains(_accountRepo.currentUserUid.asString()));
                         contacts = snapshot.data;
                         if (items == null) {
-                          items = contacts.map((e) => e.copyWith()).toList();
+                          items = contacts;
                         }
 
                         return StreamBuilder<int>(
@@ -179,10 +175,10 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                             alignment: Alignment.center,
                             padding: EdgeInsets.all(0),
                             onPressed: () async {
-                              List<Uid> users = List();
+                              List<Uid> users = [];
                               for (Contact contact
                                   in _createMucService.members) {
-                                users.add(contact.uid.uid);
+                                users.add(contact.uid.asUid());
                               }
                               bool usersAdd = await _mucRepo.sendMembers(
                                   widget.mucUid, users);
@@ -200,7 +196,10 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               }
                             })
                         : IconButton(
-                            icon: Icon(Icons.arrow_forward, color: Colors.white,),
+                            icon: Icon(
+                              Icons.arrow_forward,
+                              color: Colors.white,
+                            ),
                             alignment: Alignment.center,
                             padding: EdgeInsets.all(0),
                             onPressed: () {

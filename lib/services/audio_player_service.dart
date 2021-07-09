@@ -20,7 +20,7 @@ class AudioPlayerService {
   BehaviorSubject<bool> isOn = BehaviorSubject.seeded(false);
 
 
-  String CURRENT_AUDIO_ID = "";
+  BehaviorSubject CURRENT_AUDIO_ID = BehaviorSubject.seeded("");
 
   Stream<AudioPlayerState> audioPlayerState(String audioId) {
       return currentState.stream;
@@ -46,12 +46,15 @@ class AudioPlayerService {
     setAudioDetails(path, name, uuid);
     currentState.add(AudioPlayerState.PLAYING);
      isOn.add(true);
-    if(!uuid.contains(CURRENT_AUDIO_ID))
-    await audioPlayer.stop();
+    if(!uuid.contains(CURRENT_AUDIO_ID.valueWrapper.value)){
+      await audioPlayer.stop();
+      CURRENT_AUDIO_ID.add(uuid);
+    }
+
     if (isDesktop()) {
       OpenFile.open(path);
     } else {
-      CURRENT_AUDIO_ID = uuid;
+      CURRENT_AUDIO_ID.add(uuid);
       audioPlayer.onAudioPositionChanged.listen((event) {
         audioCurrentPosition.add(event);
       });
@@ -64,14 +67,14 @@ class AudioPlayerService {
     if(hideAppBar)
       isOn.add(false);
     currentState.add(AudioPlayerState.PAUSED);
-    CURRENT_AUDIO_ID = audioId;
+    CURRENT_AUDIO_ID.add(audioId);
     this.audioPlayer.pause();
   }
 
   onStop(String audioId) {
     isOn.add(false);
     currentState.add(AudioPlayerState.STOPPED);
-    CURRENT_AUDIO_ID = audioId;
+    CURRENT_AUDIO_ID.add(audioId);
     this.audioPlayer.stop();
   }
 }

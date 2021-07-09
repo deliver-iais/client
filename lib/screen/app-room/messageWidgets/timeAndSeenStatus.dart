@@ -1,17 +1,20 @@
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:flutter/material.dart';
 
 class TimeAndSeenStatus extends StatelessWidget {
   final Message message;
   final bool isSender;
-  final bool isRounded;
+  final bool needsMorePadding;
   final bool isSeen;
-  TimeAndSeenStatus(this.message, this.isSender, this.isRounded,this.isSeen);
+
+  TimeAndSeenStatus(this.message, this.isSender, this.needsMorePadding, this.isSeen);
+
   @override
   Widget build(BuildContext context) {
-    if (isRounded) {
+    if (needsMorePadding) {
       return Positioned(
         child: Container(
           decoration: BoxDecoration(
@@ -23,13 +26,13 @@ class TimeAndSeenStatus extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(3),
                 child: MsgTime(
-                  time: message.time,
+                  time: date(message.time),
                 ),
               ),
               isSender
                   ? Padding(
                       padding: const EdgeInsets.only(right: 3.0),
-                      child: SeenStatus(message,isSeen: isSeen,),
+                      child: SeenStatus(message, isSeen: isSeen),
                     )
                   : Container(),
             ],
@@ -46,14 +49,14 @@ class TimeAndSeenStatus extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 5),
                 child: MsgTime(
-                  time: message.time,
+                  time: date(message.time),
                 ),
               ),
               isSender
                   ? Padding(
                       padding:
                           const EdgeInsets.only(left: 3, right: 3.0, top: 5),
-                      child: SeenStatus(message,isSeen: isSeen,),
+                      child: SeenStatus(message, isSeen: isSeen),
                     )
                   : Container(),
             ],

@@ -1,119 +1,154 @@
 import 'dart:async';
 
 import 'package:dcache/dcache.dart';
-import 'package:deliver_flutter/db/dao/BotInfoDao.dart';
-import 'package:deliver_flutter/db/dao/ContactDao.dart';
-import 'package:deliver_flutter/db/dao/MemberDao.dart';
-import 'package:deliver_flutter/db/dao/MucDao.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/dao/block_dao.dart';
+import 'package:deliver_flutter/box/dao/message_dao.dart';
+import 'package:deliver_flutter/box/dao/mute_dao.dart';
+import 'package:deliver_flutter/box/dao/room_dao.dart';
+import 'package:deliver_flutter/box/dao/seen_dao.dart';
+import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
+import 'package:deliver_flutter/box/muc.dart';
+import 'package:deliver_flutter/box/room.dart';
+import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-import 'package:flutter/services.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:grpc/grpc.dart';
-import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
 
-class RoomRepo {
-  Cache _roomNameCache =
-      LruCache<String, String>(storage: SimpleStorage(size: 40));
-  var _mucDao = GetIt.I.get<MucDao>();
-  var _contactDao = GetIt.I.get<ContactDao>();
-  var _roomDao = GetIt.I.get<RoomDao>();
-  var _contactRepo = GetIt.I.get<ContactRepo>();
-  var _mucRepo = GetIt.I.get<MucRepo>();
-  var _userInfoDao = GetIt.I.get<UserInfoDao>();
-  var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
-  var _botInfoDao = GetIt.I.get<BotInfoDao>();
+Cache<String, String> roomNameCache =
+    LruCache<String, String>(storage: SimpleStorage(size: 40));
 
+class RoomRepo {
+  var _messageDao = GetIt.I.get<MessageDao>();
+  var _roomDao = GetIt.I.get<RoomDao>();
+  var _seenDao = GetIt.I.get<SeenDao>();
+  var _muteDao = GetIt.I.get<MuteDao>();
+  var _blockDao = GetIt.I.get<BlockDao>();
+  var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
+  var _contactRepo = GetIt.I.get<ContactRepo>();
+  var _mucRepo = GetIt.I.get<MucRepo>();
+  var _botRepo = GetIt.I.get<BotRepo>();
+
+  var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
 
   Map<String, BehaviorSubject<Activity>> activityObject = Map();
 
-  insertRoom(String uid){
-    _roomDao.insertRoomCompanion(RoomsCompanion(roomId: Value(uid)));
-  }
+  insertRoom(String uid) => _roomDao.updateRoom(Room(uid: uid));
 
-  Future<String> getRoomDisplayName(Uid uid, {String roomUid}) async {
-    switch (uid.category) {
-      case Categories.SYSTEM:
-        return "Deliver";
-        break;
-      case Categories.USER:
-        String name = await _roomNameCache.get(uid.asString());
-        if (name != null && !name.contains("null")) {
-          return name;
-        } else {
-          var contact = await _contactDao.getContactByUid(uid.asString());
-          if (contact != null) {
-            String contactName = "${contact.firstName}";
-            _roomNameCache.set(uid.asString(), contactName);
-            return contactName;
-          } else {
-            var username = await _userInfoDao.getUserInfo(uid.asString());
-            if (username != null && username.username != null) {
-              return username.username;
-            }
-            String s = await _contactRepo.searchUserByUid(uid);
-            return s;
-          }
-        }
-        break;
-
-      case Categories.GROUP:
-      case Categories.CHANNEL:
-        String name = _roomNameCache.get(uid.asString());
-        if (name != null) {
-          return name;
-        } else {
-          var muc = await _mucDao.getMucByUid(uid.asString());
-          if (muc != null) {
-            _roomNameCache.set(uid.asString(), muc.name);
-            return muc.name;
-          } else {
-            String mucName = await _mucRepo.fetchMucInfo(uid);
-            if (mucName != null) {
-              _roomNameCache.set(uid.asString(), mucName);
-              return mucName;
-            } else {
-              return "UnKnown";
-            }
-          }
-        }
-        break;
-      case Categories.BOT:
-        var res  = await _botInfoDao.getBotInfo(uid.node);
-        if(res!= null && res.name.isNotEmpty){
-          return res.name;
-        }
-        return uid.node;
+  Future<String> getName(Uid uid) async {
+    // Is System Id
+    if (uid.category == Categories.SYSTEM) {
+      return "Deliver";
     }
-    return "Unknown";
+
+    // Is Current User
+    if (_accountRepo.isCurrentUser(uid.asString())) {
+      return await _accountRepo.getName();
+    }
+
+    // Is in cache
+    String name = roomNameCache.get(uid.asString());
+    if (name != null && name.isNotEmpty && !name.contains("null")) {
+      return name;
+    }
+
+    // Is in UidIdName Table
+    var uidIdName = await _uidIdNameDao.getByUid(uid.asString());
+    if (uidIdName != null &&
+        ((uidIdName.id != null && uidIdName.id.isNotEmpty) ||
+            uidIdName.name != null && uidIdName.name.isNotEmpty)) {
+      // Set in cache
+      roomNameCache.set(uid.asString(), uidIdName.name ?? uidIdName.id);
+
+      return uidIdName.name ?? uidIdName.id;
+    }
+
+    // Is User
+    if (uid.category == Categories.USER) {
+      // TODO needs to be refactored!
+      // TODO MIGRATION NEEDS
+      var contact = await _contactRepo.getContact(uid);
+      if (contact != null &&
+          ((contact.firstName != null && contact.firstName.isNotEmpty) ||
+              (contact.lastName != null && contact.lastName.isNotEmpty))) {
+        var name = buildName(contact.firstName, contact.lastName);
+        roomNameCache.set(uid.asString(), name);
+        _uidIdNameDao.update(uid.asString(), name: name);
+
+        return name;
+      }
+    }
+
+    if (uidIdName != null && uidIdName.id != null && uidIdName.id.isNotEmpty) {
+      // Set in cache
+      roomNameCache.set(uid.asString(), uidIdName.id);
+
+      return uidIdName.id;
+    }
+
+    // Is Group or Channel
+    if (uid.category == Categories.GROUP ||
+        uid.category == Categories.CHANNEL) {
+      Muc  muc = await _mucRepo.fetchMucInfo(uid);
+      if (muc != null && muc.name != null && muc.name.isNotEmpty) {
+        roomNameCache.set(uid.asString(), muc.name);
+        _uidIdNameDao.update(uid.asString(), name: muc.name);
+
+        return muc.name;
+      }
+    }
+
+    // Is bot
+    if (uid.category == Categories.BOT) {
+      var botInfo = await _botRepo.getBotInfo(uid);
+      if (botInfo != null && botInfo.name.isNotEmpty) {
+        roomNameCache.set(uid.asString(), botInfo.name);
+        _uidIdNameDao.update(uid.asString(), name: botInfo.name);
+
+        return botInfo.name;
+      }
+      return uid.node;
+    }
+
+    var username = await getIdByUid(uid);
+    roomNameCache.set(uid.asString(), username);
+    _uidIdNameDao.update(uid.asString(), id: username);
+    return username ?? "Unknown";
   }
 
-  Future<String> getUsername(Uid uid) async {
-    var contact = await _contactDao.getContact(uid.asString());
-    if (contact != null)
-      return contact.username;
-    else {
-      var userInfo = await _userInfoDao.getUserInfo(uid.asString());
-      if (userInfo != null && userInfo.username != null) {
-        return userInfo.username;
-      } else {
-        var res = await _contactRepo.searchUserByUid(uid);
-        return res;
-      }
+  Future<String> getId(Uid uid) async {
+    var userInfo = await _uidIdNameDao.getByUid(uid.asString());
+    if (userInfo != null && userInfo.id != null) {
+      return userInfo.id;
+    } else {
+      var res = await getIdByUid(uid);
+      return res;
+    }
+  }
+
+  Future<String> getIdByUid(Uid uid) async {
+    try {
+      var result = await _queryServiceClient.getIdByUid(
+          GetIdByUidReq()..uid = uid,
+          options: CallOptions(
+              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      _uidIdNameDao.update(uid.asString(), id: result.id);
+      return result.id;
+    } catch (e) {
+      return null;
     }
   }
 
@@ -144,24 +179,67 @@ class RoomRepo {
     }
   }
 
-  updateRoomName(Uid uid, String name) {
-    _roomNameCache.set(uid.asString(), name);
+  updateRoomName(Uid uid, String name) =>
+      roomNameCache.set(uid.asString(), name);
+
+  Future<bool> isRoomMuted(String uid) => _muteDao.isMuted(uid);
+
+  Stream<bool> watchIsRoomMuted(String uid) => _muteDao.watchIsMuted(uid);
+
+  void mute(String uid) => _muteDao.mute(uid);
+
+  void unmute(String uid) => _muteDao.unmute(uid);
+
+  Future<bool> isRoomBlocked(String uid) => _blockDao.isBlocked(uid);
+
+  Stream<bool> watchIsRoomBlocked(String uid) => _blockDao.watchIsBlocked(uid);
+
+  Stream<List<Room>> watchAllRooms() => _roomDao.watchAllRooms();
+
+  Stream<Room> watchRoom(String roomUid) => _roomDao.watchRoom(roomUid);
+
+  Future<void> resetMention(String roomUid) =>
+      _roomDao.updateRoom(Room(uid: roomUid, mentioned: false));
+
+  Future<void> createRoomIfNotExist(String roomUid) =>
+      _roomDao.updateRoom(Room(uid: roomUid));
+
+  Stream<Seen> watchMySeen(String roomUid) => _seenDao.watchMySeen(roomUid);
+
+  Future<Seen> getMySeen(String roomUid) => _seenDao.getMySeen(roomUid);
+
+  Future<Seen> getOthersSeen(String roomUid) => _seenDao.getOthersSeen(roomUid);
+
+  Future<void> saveMySeen(Seen seen) => _seenDao.saveMySeen(seen);
+
+  void block(String uid) async {
+    await _queryServiceClient.block(BlockReq()..uid = uid.asUid(),
+        options: CallOptions(
+            metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    _blockDao.block(uid);
   }
 
-  changeRoomMuteTye({String roomId, bool mute}) async {
-    _roomDao
-        .updateRoom(RoomsCompanion(roomId: Value(roomId), mute: Value(mute)));
+  void unblock(String uid) async {
+    await _queryServiceClient.unblock(UnblockReq()..uid = uid.asUid(),
+        options: CallOptions(
+            metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    _blockDao.unblock(uid);
   }
 
-  Stream<Room> roomIsMute(String roomId) {
-    return _roomDao.getByRoomId(roomId);
+  fetchBlockedRoom() async {
+    var result = await _queryServiceClient.getBlockedList(GetBlockedListReq(),
+        options: CallOptions(
+            metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    for (var uid in result.uidList) {
+      _blockDao.block(uid.asString());
+    }
   }
 
   Future<List<Uid>> getAllRooms() async {
     Map<Uid, Uid> finalList = Map();
     var res = await _roomDao.getAllRooms();
     for (var room in res) {
-      Uid uid = room.roomId.getUid();
+      Uid uid = room.uid.asUid();
       finalList[uid] = uid;
     }
     return finalList.values.toList();
@@ -169,56 +247,40 @@ class RoomRepo {
 
   Future<List<Uid>> searchInRoomAndContacts(
       String text, bool searchInRooms) async {
-    List<Uid> searchResult = List();
-    List<Contact> searchInContact = await _contactDao.getContactByName(text);
 
-    for (Contact contact in searchInContact) {
-      searchResult.add(contact.uid.getUid());
-    }
-    if (searchInRooms) {
-      List<Muc> searchInMucs = await _mucDao.getMucByName(text);
-      for (Muc group in searchInMucs) {
-        searchResult.add(group.uid.getUid());
-      }
-    }
+    List<Uid> searchResult = [];
+    var res = await _uidIdNameDao.search(text);
+    res.forEach((element) {
+      searchResult.add(element.uid.asUid());
+    });
+
     return searchResult;
   }
 
-  Future<String> searchByUsername(String username) async {
-    if (username.contains('@')) {
-      username = username.substring(username.indexOf('@') + 1, username.length);
+  Future<String> getUidById(String id) async {
+    // TODO MIGRATION NEEDS
+    // TODO move string manipulation logic out of this function
+    if (id.contains('@')) {
+      id = id.substring(id.indexOf('@') + 1, id.length);
     }
-    var contact = await _contactDao.searchByUserName(username);
-    if (contact != null) {
-      return contact.uid;
+
+    var uid = await _uidIdNameDao.getUidById(id);
+    if (uid != null) {
+      return uid;
     } else {
-      var userInfo = await _userInfoDao.getByUserName(username);
-      if (userInfo != null) {
-        return userInfo.uid;
-      } else {
-        var uid = await _contactRepo.searchUserByUsername(username);
-        if (uid != null)
-        _userInfoDao.upsertUserInfo(
-              UserInfo(uid: uid.asString(), username: username));
-        return uid.asString();
-      }
+      var uid = await fetchUidById(id);
+      if (uid != null) _uidIdNameDao.update(uid.asString(), id: id);
+      return uid.asString();
     }
   }
 
-  void unBlockRoom(Uid roomUid) async {
-    await _queryServiceClient.unblock(UnblockReq()..uid = roomUid,
+  Future<Uid> fetchUidById(String username) async {
+    var result = await _queryServiceClient.getUidById(
+        GetUidByIdReq()..id = username,
         options: CallOptions(
-            metadata: {"access_token": await _accountRepo.getAccessToken()}));
-    _roomDao.insertRoomCompanion(RoomsCompanion(
-        roomId: Value(roomUid.asString()), isBlock: Value(false)));
-  }
+            metadata: {'access_token': await _accountRepo.getAccessToken()}));
 
-  void blockRoom(Uid roomUid) async {
-    await _queryServiceClient.block(BlockReq()..uid = roomUid,
-        options: CallOptions(
-            metadata: {"access_token": await _accountRepo.getAccessToken()}));
-    _roomDao.insertRoomCompanion(RoomsCompanion(
-        roomId: Value(roomUid.asString()), isBlock: Value(true)));
+    return result.uid;
   }
 
   void reportRoom(Uid roomUid) async {

@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -14,13 +13,12 @@ class MapWidget extends StatelessWidget {
   final Uid roomUid;
   final Position locationData;
   final Function scrollToLast;
+  final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _routingServices = GetIt.I.get<RoutingService>();
 
   MapWidget({Key key, this.roomUid, this.locationData, this.scrollToLast})
       : super(key: key);
-
-  var _messageRepo = GetIt.I.get<MessageRepo>();
-  var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _routingServices = GetIt.I.get<RoutingService>();
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +40,7 @@ class MapWidget extends StatelessWidget {
         appBar: AppBar(
           leading: _routingServices.backButtonLeading(),
           title: FutureBuilder<String>(
-            future: _roomRepo.getRoomDisplayName(roomUid),
+            future: _roomRepo.getName(roomUid),
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
               if (snapshot.data != null) {
                 return Text(

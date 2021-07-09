@@ -1,13 +1,11 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/checkboxFormField.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/form_TextField_widget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/form_list_Widget.dart';
-import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/radio_button_filed_widget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as protoForm;
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +32,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
   void initState() {
     form = widget.message.json.toForm();
     height = 85 * form.fields.length.toDouble();
+    super.initState();
   }
 
   Map<String, String> formResultMap = Map();
@@ -164,7 +163,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                   }
                 }
                 if (validate) {
-                  _messageRepo.sendFormMessage(
+                  _messageRepo.sendFormResultMessage(
                       widget.message.from, formResultMap, widget.message.id);
                 }
               },

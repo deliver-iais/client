@@ -2,8 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import 'helper_classes.dart';
-
 class ShareBoxFile extends StatefulWidget {
   final ScrollController scrollController;
   final Function onClick;
@@ -25,9 +23,8 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
 
   @override
   void initState() {
-    super.initState();
-
     //_future = FileItem.getFiles();
+    super.initState();
   }
 
   @override

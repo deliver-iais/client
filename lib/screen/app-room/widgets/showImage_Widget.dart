@@ -37,7 +37,7 @@ class _ImageWidget extends State<ShowImagePage> {
             color: Colors.white,
           ),
           onPressed: () {
-            _messageRepo.sendFileMessageDeprecated(
+            _messageRepo.sendMultipleFilesMessages(
                 widget.contactUid, [widget.imageFile.path],
                 caption: _controller.value.text);
             ExtendedNavigator.of(context).pop();
@@ -47,7 +47,7 @@ class _ImageWidget extends State<ShowImagePage> {
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         appBar: AppBar(
           title: FutureBuilder<String>(
-            future: _roomRepo.getRoomDisplayName(widget.contactUid),
+            future: _roomRepo.getName(widget.contactUid),
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
               if (snapshot.data != null) {
                 return Text(

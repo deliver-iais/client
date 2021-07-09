@@ -1,34 +1,46 @@
 
-
-import 'dart:io';
-
-import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:audioplayer/audioplayer.dart';
+import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
+import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+import 'package:desktoasts/desktoasts.dart';
 import 'package:desktop_notifications/desktop_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_sound/flutter_sound.dart';
+import 'package:get_it/get_it.dart';
 
 class NotificationServices {
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   NotificationDetails _notificationDetails;
 
   Map<String, List<int>> _notificationMessage = Map();
+  ToastService _windowsNotificationServices;
 
   NotificationServices() {
     if (!isDesktop()) Firebase.initializeApp();
+    if (isWindows()) {
+      _windowsNotificationServices = new ToastService(
+        appName: 'Deliver',
+        companyName: "tyty",
+        productName: "fdsd",
+      );
+    }
     var androidNotificationSetting =
         new AndroidInitializationSettings('@mipmap/ic_launcher');
     var iosNotificationSetting = new IOSInitializationSettings(
         onDidReceiveLocalNotification: onDidReceiveLocalNotification);
+    var macNotificationSetting = new MacOSInitializationSettings();
 
-    var initializationSettings = InitializationSettings(android:
-        androidNotificationSetting,iOS: iosNotificationSetting);
+    var initializationSettings = InitializationSettings(
+        android: androidNotificationSetting,
+        iOS: iosNotificationSetting,
+        macOS: macNotificationSetting);
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: (room) {
       if (room != null && room.isNotEmpty) {}
@@ -41,40 +53,43 @@ class NotificationServices {
 
   cancelNotification(notificationId) async {
     try {
-    await flutterLocalNotificationsPlugin.cancel(notificationId);
+      await flutterLocalNotificationsPlugin.cancel(notificationId);
     } catch (e) {
       debug(e.toString());
     }
   }
 
   cancelAllNotification() async {
-    try{await flutterLocalNotificationsPlugin.cancelAll();
-    }catch(e){
+    try {
+      await flutterLocalNotificationsPlugin.cancelAll();
+    } catch (e) {
       debug(e.toString());
     }
   }
 
   showTextNotification(int notificationId, String roomId, String roomName,
       String messageBody) async {
-    if(isLinux()){
-        try{
-         // var res = await rootBundle.load('@assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher');
-         // print(res.getUint8(byteOffset));
-          var client = NotificationsClient();
-          await client.notify('Deliver',body:"$roomName \n  $messageBody",appIcon: "mail-send");
-          SystemSound.play(SystemSoundType.alert);
-
-        }catch(e){
-          print(e.toString());
-        }
-    }else {
+    if (isWindows()) {
+      showWindowsNotify(roomId,roomName, messageBody);
+    } else if (isLinux()) {
+      try {
+        var client = NotificationsClient();
+        await client.notify('Deliver',
+            body: "$roomName \n  $messageBody", appIcon: "mail-send");
+        SystemSound.play(SystemSoundType.alert);
+      } catch (e) {
+        print(e.toString());
+      }
+    } else {
       var androidPlatformChannelSpecifics = AndroidNotificationDetails(
           'channel_id', 'channel_name', 'channel_description',
           importance: Importance.max, priority: Priority.high);
       var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+      var macOSPlatformChannelSpecifics = MacOSNotificationDetails();
       var platformChannelSpecifics = NotificationDetails(
           android: androidPlatformChannelSpecifics,
-          iOS: iOSPlatformChannelSpecifics);
+          iOS: iOSPlatformChannelSpecifics,
+          macOS: macOSPlatformChannelSpecifics);
       await flutterLocalNotificationsPlugin.show(
         notificationId,
         roomName,
@@ -83,6 +98,35 @@ class NotificationServices {
         payload: 'Default_Sound',
       );
     }
+  }
+
+  void showWindowsNotify(String roomUid,String roomName, String messageBody) async{
+    var _avatarRepo = GetIt.I.get<AvatarRepo>();
+    var fileRepo = GetIt.I.get<FileRepo>();
+    var lastAvatar = await _avatarRepo.getLastAvatar(roomUid.asUid(), false);
+    if(lastAvatar != null){
+      var file  = await fileRepo.getFile(lastAvatar.fileId,lastAvatar.fileName,thumbnailSize:  ThumbnailSize.medium);
+      Toast toast = new Toast(
+          type: ToastType.imageAndText02,
+          title: roomName,
+          subtitle: messageBody,
+          image: file
+      );
+      _windowsNotificationServices.show(toast);
+
+      toast.dispose();
+
+    } else{
+      Toast toast = new Toast(
+          type: ToastType.text04,
+          title: roomName,
+          subtitle: messageBody,
+      );
+      _windowsNotificationServices.show(toast);
+      // _windowsNotificationServices.dispose();
+      toast.dispose();
+    }
+
   }
 
   showImageNotification(int notificationId, String roomId, String roomName,
@@ -99,8 +143,8 @@ class NotificationServices {
         'channel_ID', 'cs', 'desc',
         styleInformation: bigPictureStyleInformation);
     var iOSNotificationDetails = IOSNotificationDetails();
-    _notificationDetails =
-        NotificationDetails(android:androidNotificationDetails,iOS: iOSNotificationDetails);
+    _notificationDetails = NotificationDetails(
+        android: androidNotificationDetails, iOS: iOSNotificationDetails);
 
     await flutterLocalNotificationsPlugin.show(
         notificationId, roomName, imagePath, _notificationDetails,
@@ -109,14 +153,12 @@ class NotificationServices {
 
   void showNotification(
       pro.Message message, String roomUid, String roomName) async {
-
     try {
       if (_notificationMessage[roomUid] == null) {
-        _notificationMessage[roomUid] = List();
+        _notificationMessage[roomUid] = [];
       }
       _notificationMessage[roomUid].add(message.id.toInt());
       switch (message.whichType()) {
-        case pro.Message_Type.persistEvent:
         case pro.Message_Type.text:
           showTextNotification(
               message.id.toInt(), roomUid, roomName, message.text.text);
@@ -161,6 +203,51 @@ class NotificationServices {
           showTextNotification(
               message.id.toInt(), roomUid, roomName, "Transaction");
           break;
+        case pro.Message_Type.persistEvent:
+          String s = "";
+          switch (message.persistEvent.whichType()) {
+            case PersistentEvent_Type.mucSpecificPersistentEvent:
+              switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
+                case MucSpecificPersistentEvent_Issue.ADD_USER:
+                  s = " عضو اضافه شد.";
+                  break;
+
+                case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
+                  s = "عکس پروفایل عوض شد";
+                  break;
+                case MucSpecificPersistentEvent_Issue.JOINED_USER:
+                  s = "به گروه پیوست.";
+                  break;
+
+                case MucSpecificPersistentEvent_Issue.KICK_USER:
+                  s = "مخاطب از گروه حذف شد.";
+                  break;
+                case MucSpecificPersistentEvent_Issue.LEAVE_USER:
+                  s = "مخاطب  گروه  را ترک کرد.";
+                  break;
+                case MucSpecificPersistentEvent_Issue.MUC_CREATED:
+                  s = " گروه  ساخته شد.";
+                  break;
+                case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
+                  s = " نام تغییر پیدا کرد.";
+                  break;
+                case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
+                  s = "پیام پین شد.";
+                  break;
+              }
+              break;
+            case PersistentEvent_Type.messageManipulationPersistentEvent:
+              //
+              break;
+            case PersistentEvent_Type.adminSpecificPersistentEvent:
+              s = "به دلیور پیوست";
+
+              break;
+            case PersistentEvent_Type.notSet:
+              // TODO: Handle this case.
+              break;
+          }
+          showTextNotification(message.id.toInt(), roomUid, roomName, s);
 
           break;
       }
@@ -169,14 +256,14 @@ class NotificationServices {
 
   void reset(String roomId) {
     if (_notificationMessage[roomId] != null)
-      _notificationMessage[roomId].forEach((element) async{
-       await  cancelNotification(element);
+      _notificationMessage[roomId].forEach((element) async {
+        await cancelNotification(element);
       });
   }
 
   void playSoundNotification() async {
-    AssetsAudioPlayer.newPlayer().open(
-      Audio("assets/audios/ack.mp3"),
-    );
+    // AssetsAudioPlayer.newPlayer().open(
+    //   Audio("assets/audios/ack.mp3"),
+    // );
   }
 }

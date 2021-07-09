@@ -41,14 +41,14 @@ class FileItem extends FileBasic {
     var _checkPermission = GetIt.I.get<CheckPermissionsService>();
     if (await _checkPermission.checkStoragePermission()) {
       List<StorageInfo> storageInfo = await PathProviderEx.getStorageInfo();
-      List<File> files = List();
+      List<File> files = [];
       for (var s in storageInfo) {
         try {
           var root =
               s.rootDir; //storageInfo[1] for SD card, geting the root directory
           var fm = FileManager(root: Directory(root)); //
           List<File> f = await fm
-              .filesTree(extensions: ["pdf", "mp4", "pptx", "docx", "xlsx"]);
+              .filesTree(extensions: ["pdf", "mp4", "pptx", "docx", "xlsx", "rar"]);
           files.addAll(f);
         } catch (e) {
           print(e.toString());
@@ -66,7 +66,7 @@ class AudioItem extends FileBasic {
 
   static Future<List<File>> getAudios() async {
     List<StorageInfo> storageInfo = await PathProviderEx.getStorageInfo();
-    List<File> files = List();
+    List<File> files = [];
     for (var s in storageInfo) {
       var root =
           s.rootDir; //storageInfo[1] for SD card, geting the root directory

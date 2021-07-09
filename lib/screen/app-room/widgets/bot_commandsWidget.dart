@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/bot_info.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -26,35 +26,37 @@ class _BotCommandsWidgetState extends State<BotCommandsWidget> {
       future: _botRepo.getBotInfo(widget.botUid),
       builder: (c, botInfo) {
         if (botInfo.hasData && botInfo.data != null) {
-          Map<String, dynamic> botCommands = jsonDecode(botInfo.data.commands.toString());
+          Map<String, dynamic> botCommands =
+              jsonDecode(botInfo.data.commands.toString());
           return Container(
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.all(Radius.circular(5)),
             ),
-            child:   SizedBox(
-              height: botCommands.keys.length*35.toDouble(),
-                  child:  Scrollbar(
-                      child:ListView.builder(
+            child: SizedBox(
+              height: botCommands.keys.length * 35.toDouble(),
+              child: Scrollbar(
+                  child: ListView.builder(
                       itemCount: botCommands.length,
                       itemBuilder: (c, index) {
                         return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 8),
                           child: GestureDetector(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  "/"+botCommands.keys.toList()[index],
-                                  style:
-                                  TextStyle(color: Colors.black,fontSize: 18),
+                                  "/" + botCommands.keys.toList()[index],
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 18),
                                 ),
                                 Text(
                                   botCommands.values.toList()[index],
-                                  style:
-                                      TextStyle(color: Theme.of(context).primaryColor,fontSize: 14),
+                                  style: TextStyle(
+                                      color: Theme.of(context).primaryColor,
+                                      fontSize: 14),
                                 ),
-
                               ],
                             ),
                             onTap: () {
@@ -64,7 +66,7 @@ class _BotCommandsWidgetState extends State<BotCommandsWidget> {
                           ),
                         );
                       })),
-                ),
+            ),
           );
         } else {
           return SizedBox.shrink();
@@ -72,5 +74,4 @@ class _BotCommandsWidgetState extends State<BotCommandsWidget> {
       },
     );
   }
-
 }

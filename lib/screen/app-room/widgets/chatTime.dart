@@ -26,7 +26,7 @@ class ChatTime extends StatelessWidget {
             if (currentDay == currentMessageTime.day &&
                 currentMonth == currentMessageTime.month) {
               outT = ' Today ';
-            } else if(currentDay - currentMessageTime.day<2
+            } else if(currentDay - currentMessageTime.day<2 && currentMonth ==currentMessageTime.month
             ){
               outT = ' Yesterday ';
             }

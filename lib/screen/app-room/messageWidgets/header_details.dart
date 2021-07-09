@@ -6,44 +6,24 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 
 class HeaderDetails extends StatelessWidget {
-  final String loadStatus;
-  final double loadProgress;
   final File file;
 
-  const HeaderDetails({Key key, this.loadStatus, this.loadProgress, this.file})
-      : super(key: key);
+  const HeaderDetails({Key key, this.file}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return loadStatus != 'loaded'
-        ? Padding(
+    return file.type.contains("audio")
+        ? AudioPlayProgress(
+            audio: file,
+            audioUuid: file.uuid,
+          )
+        : Padding(
             padding: const EdgeInsets.only(top: 26.0, left: 20),
             child: Text(
-              sizeFormater((loadProgress * file.size.toDouble()).round()) +
-                  ' / ' +
-                  sizeFormater(file.size.toInt()) +
-                  " " +
-                  findFileType(file.name),
-              style: TextStyle(fontSize: 10,
-                  color: ExtraTheme.of(context).textMessage
-              ),
+              sizeFormater(file.size.toInt()) + " " + findFileType(file.name),
+              style: TextStyle(
+                  fontSize: 10, color: ExtraTheme.of(context).textMessage),
             ),
-          )
-        : file.type.contains("audio") || file.type.contains("mp3")
-            ? AudioPlayProgress(
-                audio: file,
-                audioUuid: file.uuid,
-              )
-            : Padding(
-                padding: const EdgeInsets.only(top: 26.0, left: 20),
-                child: Text(
-                  sizeFormater(file.size.toInt()) +
-                      " " +
-                      findFileType(file.name),
-                  style: TextStyle(fontSize: 10,
-                      color: ExtraTheme.of(context).textMessage
-                  ),
-                ),
-              );
+          );
   }
 }

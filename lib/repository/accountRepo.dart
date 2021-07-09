@@ -1,10 +1,11 @@
 import 'dart:io';
 
-import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/db/dao/SharedPreferencesDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/avatar.dart';
+import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver_flutter/shared/constants.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -15,7 +16,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:device_info/device_info.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:get_it/get_it.dart';
 
@@ -23,22 +24,10 @@ import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:fixnum/fixnum.dart';
 
-const ACCESS_TOKEN_KEY = "access_token";
-const REFRESH_TOKEN_KEY = "refreshToken";
-const USERNAME = "username";
-const LAST_NAME = "lastName";
-const FIRST_NAME = "firstName";
-const PASSWORD = "password";
-const EMAIL = "email";
-const DESCRIPTION = "description";
-const PHONE_NUMBER = "phoneNumber";
-const NOTIFICATION = "notification";
-const CURRENT_USER_UID = "current_user_uid";
+import 'messageRepo.dart';
 
 class AccountRepo {
-  final SharedPreferencesDao sharedPrefs;
-
-  AccountRepo({@required this.sharedPrefs});
+  final _sharedDao = GetIt.I.get<SharedDao>();
 
   // TODO add account name protocol to server
   String currentUsername = "@john_doe";
@@ -47,17 +36,16 @@ class AccountRepo {
     ..node = "john";
   Avatar avatar;
   PhoneNumber phoneNumber;
-  String _access_token;
-
+  String _accessToken;
   String _refreshToken;
 
-  var authServiceStub = AuthServiceClient(ProfileServicesClientChannel);
+  var _authServiceStub = AuthServiceClient(ProfileServicesClientChannel);
   var _profile = UserServiceClient(ProfileServicesClientChannel);
 
   Future<void> init() async {
-    var access_token = await sharedPrefs.get(ACCESS_TOKEN_KEY);
-    var refreshToken = await sharedPrefs.get(REFRESH_TOKEN_KEY);
-    _setTokensAndCurrentUserUid(access_token, refreshToken);
+    var accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
+    var refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
+    _setTokensAndCurrentUserUid(accessToken, refreshToken);
   }
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -71,7 +59,7 @@ class AccountRepo {
         ..nationalNumber = Int64.parseInt(nationalNumber);
       this.phoneNumber = phone;
       _savePhoneNumber();
-      var verificationCode = await authServiceStub.getVerificationCode(
+      var verificationCode = await _authServiceStub.getVerificationCode(
           GetVerificationCodeReq()
             ..phoneNumber = phone
             ..type = VerificationType.SMS,
@@ -96,7 +84,7 @@ class AccountRepo {
     }
 
     var sendVerificationCode =
-        await authServiceStub.verifyAndGetToken(VerifyCodeReq()
+        await _authServiceStub.verifyAndGetToken(VerifyCodeReq()
           ..phoneNumber = this.phoneNumber
           ..code = code
           ..device = device
@@ -107,24 +95,29 @@ class AccountRepo {
   }
 
   Future _getAccessToken(String refreshToken) async {
-    var getAccessToken = await authServiceStub
-        .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
-    if (wrongAccessToken(getAccessToken.accessToken) ||
-        wrongRefreshToken(getAccessToken.refreshToken)) {
-      _getAccessToken(refreshToken);
-      return;
+    try {
+      var getAccessToken = await _authServiceStub
+          .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
+      if (wrongAccessToken(getAccessToken.accessToken,
+              getAccessToken.refreshToken, refreshToken) ||
+          wrongRefreshToken(getAccessToken.refreshToken)) {
+        _getAccessToken(refreshToken);
+        return;
+      }
+      return getAccessToken;
+    } catch (e) {
+      print(e.toString());
     }
-    return getAccessToken;
   }
 
   Future<String> getAccessToken() async {
-    if (_isExpired(_access_token) || exp(_access_token)) {
+    if (_isExpired(_accessToken) || exp(_accessToken)) {
       RenewAccessTokenRes renewAccessTokenRes =
           await _getAccessToken(_refreshToken);
       _saveTokens(renewAccessTokenRes);
       return renewAccessTokenRes.accessToken;
     } else {
-      return _access_token;
+      return _accessToken;
     }
   }
 
@@ -132,27 +125,38 @@ class AccountRepo {
     return _refreshToken != null && !_isExpired(_refreshToken);
   }
 
-  bool _isExpired(access_token) {
-    return JwtDecoder.isExpired(access_token);
+  bool _isExpired(accessToken) {
+    return JwtDecoder.isExpired(accessToken);
   }
 
   bool exp(String token) {
     final Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
     final DateTime iaTirationDate = new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["iat"]));
-    return ((DateTime.now().millisecondsSinceEpoch -
+    if (((DateTime.now().millisecondsSinceEpoch -
             iaTirationDate.millisecondsSinceEpoch) >
-        5 * 60 * 1000);
+        15 * 60 * 1000)) {
+      return true;
+    } else
+      return false;
   }
 
-  bool wrongAccessToken(String token) {
+  bool wrongAccessToken(
+      String token, String refreshToken, String oldRefreshToken) {
     final Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
     final DateTime iatTime = new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["iat"]));
     final DateTime expTime = new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["exp"]));
-    return ((expTime.millisecondsSinceEpoch - iatTime.millisecondsSinceEpoch) >
-        15 * 60 * 1000);
+    if ((expTime.millisecondsSinceEpoch - iatTime.millisecondsSinceEpoch) >
+        15 * 60 * 1000) {
+      var messageRepo = GetIt.I.get<MessageRepo>();
+      if (kDebugMode)
+        messageRepo.sendErrorMessage_DEBUG_MODE_(
+            "accessTonken = $token \n refrsh= $refreshToken \n oldRefreshToken $oldRefreshToken");
+      return true;
+    } else
+      return false;
   }
 
   bool wrongRefreshToken(String token) {
@@ -161,8 +165,13 @@ class AccountRepo {
         .add(new Duration(seconds: decodedToken["iat"]));
     final DateTime expTime = new DateTime.fromMillisecondsSinceEpoch(0)
         .add(new Duration(seconds: decodedToken["exp"]));
-    return ((expTime.millisecondsSinceEpoch - iatTime.millisecondsSinceEpoch) <
-        29 * 24 * 60 * 60 * 1000);
+    if (((expTime.millisecondsSinceEpoch - iatTime.millisecondsSinceEpoch) <
+        29 * 24 * 60 * 60 * 1000)) {
+      var messageRepo = GetIt.I.get<MessageRepo>();
+      if (kDebugMode) messageRepo.sendErrorMessage_DEBUG_MODE_("refreshTonken = $token");
+      return true;
+    }
+    return false;
   }
 
   void saveTokens(AccessTokenRes res) {
@@ -174,7 +183,7 @@ class AccountRepo {
   }
 
   Future<bool> getProfile({bool retry = false}) async {
-    if (null != await sharedPrefs.get(FIRST_NAME)) {
+    if (null != await _sharedDao.get(SHARED_DAO_FIRST_NAME)) {
       return true;
     }
     try {
@@ -191,7 +200,10 @@ class AccountRepo {
       } else
         return getUsername();
     } catch (e) {
-      if (retry) return getProfile();
+      if (retry)
+        return getProfile();
+      else
+        return false;
     }
   }
 
@@ -205,7 +217,7 @@ class AccountRepo {
               metadata: {'access_token': await getAccessToken()},
               timeout: Duration(seconds: 2)));
       if (getIdRequest != null && getIdRequest.id.isNotEmpty) {
-        sharedPrefs.set(USERNAME, getIdRequest.id);
+        _sharedDao.put(SHARED_DAO_USERNAME, getIdRequest.id);
         return true;
       } else {
         return false;
@@ -215,44 +227,44 @@ class AccountRepo {
     }
   }
 
-  void _setTokensAndCurrentUserUid(String access_token, String refreshToken) {
-    if (access_token == null ||
-        access_token.isEmpty ||
+  void _setTokensAndCurrentUserUid(String accessToken, String refreshToken) {
+    if (accessToken == null ||
+        accessToken.isEmpty ||
         refreshToken == null ||
         refreshToken.isEmpty) {
       return;
     }
-    _access_token = access_token;
+    _accessToken = accessToken;
     _refreshToken = refreshToken;
-    sharedPrefs.set(REFRESH_TOKEN_KEY, refreshToken);
-    sharedPrefs.set(ACCESS_TOKEN_KEY, access_token);
-    setCurrentUid(access_token);
+    _sharedDao.put(SHARED_DAO_REFRESH_TOKEN_KEY, refreshToken);
+    _sharedDao.put(SHARED_DAO_ACCESS_TOKEN_KEY, accessToken);
+    setCurrentUid(accessToken);
   }
 
-  setCurrentUid(String access_token) {
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(access_token);
+  setCurrentUid(String accessToken) {
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
     if (decodedToken != null) {
       currentUserUid = Uid()
         ..category = Categories.USER
         ..node = decodedToken["sub"];
       debug("UserId " + currentUserUid.asString());
-      sharedPrefs.set(CURRENT_USER_UID, currentUserUid.asString());
+      _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, currentUserUid.asString());
     }
   }
 
   Future<Uid> getCurrentUserUid() async {
-    return (await sharedPrefs.get(CURRENT_USER_UID)).getUid();
+    return (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID)).asUid();
   }
 
   Future<Account> getAccount() async {
     return Account()
-      ..phoneNumber = await sharedPrefs.get(PHONE_NUMBER)
-      ..userName = await sharedPrefs.get(USERNAME)
-      ..firstName = await sharedPrefs.get(FIRST_NAME)
-      ..lastName = await sharedPrefs.get(LAST_NAME)
-      ..email = await sharedPrefs.get(EMAIL)
-      ..password = await sharedPrefs.get(PASSWORD)
-      ..description = await sharedPrefs.get(DESCRIPTION);
+      ..phoneNumber = await _sharedDao.get(SHARED_DAO_PHONE_NUMBER)
+      ..userName = await _sharedDao.get(SHARED_DAO_USERNAME)
+      ..firstName = await _sharedDao.get(SHARED_DAO_FIRST_NAME)
+      ..lastName = await _sharedDao.get(SHARED_DAO_LAST_NAME)
+      ..email = await _sharedDao.get(SHARED_DAO_EMAIL)
+      ..password = await _sharedDao.get(SHARED_DAO_PASSWORD)
+      ..description = await _sharedDao.get(SHARED_DAO_DESCRIPTION);
   }
 
   Future<bool> checkUserName(String username) async {
@@ -307,30 +319,36 @@ class AccountRepo {
 
   _saveProfilePrivateDate(
       {String username, String firstName, String lastName, String email}) {
-    if (username != null) sharedPrefs.set(USERNAME, username);
-    sharedPrefs.set(FIRST_NAME, firstName);
-    sharedPrefs.set(LAST_NAME, lastName);
-    sharedPrefs.set(EMAIL, email);
+    if (username != null) _sharedDao.put(SHARED_DAO_USERNAME, username);
+    _sharedDao.put(SHARED_DAO_FIRST_NAME, firstName);
+    _sharedDao.put(SHARED_DAO_LAST_NAME, lastName);
+    _sharedDao.put(SHARED_DAO_EMAIL, email);
   }
 
   _savePhoneNumber() {
-    sharedPrefs.set(PHONE_NUMBER,
+    _sharedDao.put(SHARED_DAO_PHONE_NUMBER,
         "${this.phoneNumber.countryCode}${this.phoneNumber.nationalNumber}");
   }
 
-  setNotificationState(String notif) {
-    sharedPrefs.set(NOTIFICATION, notif);
+  setNotificationState(String n) {
+    _sharedDao.put(SHARED_DAO_NOTIFICATION, n);
   }
 
-  Future<String> get notification => sharedPrefs.get(NOTIFICATION);
+  Future<String> get notification => _sharedDao.get(SHARED_DAO_NOTIFICATION);
 
-  void fetchProfile() async {
-    if (null == await sharedPrefs.get(USERNAME)) {
+  Future<void> fetchProfile() async {
+    if (null == await _sharedDao.get(SHARED_DAO_USERNAME)) {
       await getUsername();
-    } else if (null == await sharedPrefs.get(FIRST_NAME)) {
+    } else if (null == await _sharedDao.get(SHARED_DAO_FIRST_NAME)) {
       await getProfile(retry: true);
     }
   }
 
   bool isCurrentUser(String uid) => uid.isSameEntity(currentUserUid);
+
+  Future<String> getName() async {
+    final account = await getAccount();
+
+    return buildName(account.firstName, account.lastName);
+  }
 }

@@ -1,7 +1,5 @@
 import 'dart:ui';
 
-import 'package:audioplayer/audioplayer.dart';
-import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
@@ -9,11 +7,9 @@ import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/chatsPage.dart';
 import 'package:deliver_flutter/screen/app-contacts/widgets/contactsPage.dart';
 import 'package:deliver_flutter/services/audioPlayerAppBar.dart';
-import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/screen/navigation_center/widgets/searchBox.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
@@ -50,7 +46,7 @@ BehaviorSubject<int> unreadMessageCount = BehaviorSubject.seeded(0);
 Map<String, int> unReadMessagemap = Map();
 Map<String, int> unReandCounterMessage = Map();
 
-addUnreadMessageCount(String roomId, int lastId, int unread) {
+updateUnreadMessageCount(String roomId, int lastId, int unread) {
   unReandCounterMessage[roomId] = unread;
   if (unReadMessagemap[roomId] == null) {
     unReadMessagemap[roomId] = lastId;
@@ -61,7 +57,7 @@ addUnreadMessageCount(String roomId, int lastId, int unread) {
   }
 }
 
-deceaseUnreadCountMessage(String roomId) {
+eraseUnreadCountMessage(String roomId) {
   if (unReandCounterMessage[roomId] != null) {
     unreadMessageCount.add(
         unreadMessageCount.valueWrapper.value - unReandCounterMessage[roomId]);
@@ -94,12 +90,12 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   void initState() {
-    super.initState();
     subject.stream.debounceTime(Duration(milliseconds: 250)).listen((text) {
       setState(() {
         query = text;
       });
     });
+    super.initState();
   }
 
   _NavigationCenterState(this.tapOnSelectChat, this.tapOnCurrentUserAvatar);
@@ -119,17 +115,20 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 SizedBox(
                   width: 20,
                 ),
-                GestureDetector(
-                  child: Container(
-                    child: Center(
-                      child: CircleAvatarWidget(
-                        _accountRepo.currentUserUid,
-                        18,
-                        showAsStreamOfAvatar: true,
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    child: Container(
+                      child: Center(
+                        child: CircleAvatarWidget(
+                          _accountRepo.currentUserUid,
+                          18,
+                          showAsStreamOfAvatar: true,
+                        ),
                       ),
                     ),
+                    onTap: tapOnCurrentUserAvatar,
                   ),
-                  onTap: tapOnCurrentUserAvatar,
                 ),
               ],
             ),
@@ -498,7 +497,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
               width: 20,
             ),
             FutureBuilder(
-                future: _roomRepo.getRoomDisplayName(uid),
+                future: _roomRepo.getName(uid),
                 builder: (BuildContext c, AsyncSnapshot<String> snaps) {
                   if (snaps.hasData && snaps.data != null) {
                     return Text(

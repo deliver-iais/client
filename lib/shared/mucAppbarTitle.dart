@@ -1,7 +1,6 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/dao/MucDao.dart';
-import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/services/audioPlayerAppBar.dart';
+import 'package:deliver_flutter/box/muc.dart';
+import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/title_status.dart';
@@ -12,7 +11,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class MucAppbarTitle extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
-  final _mucDao = GetIt.I.get<MucDao>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
   final String mucUid;
 
   MucAppbarTitle({Key key, this.mucUid}) : super(key: key);
@@ -25,12 +24,12 @@ class MucAppbarTitle extends StatelessWidget {
         child: GestureDetector(
           child: Row(
             children: [
-              CircleAvatarWidget(mucUid.uid, 23),
+              CircleAvatarWidget(mucUid.asUid(), 23),
               SizedBox(
                 width: 20,
               ),
               StreamBuilder<Muc>(
-                  stream: _mucDao.getByUid(mucUid),
+                  stream: _mucRepo.watchMuc(mucUid),
                   builder: (context, snapshot) {
                     if (snapshot.hasData)
                       return Column(
@@ -40,20 +39,56 @@ class MucAppbarTitle extends StatelessWidget {
                             snapshot.data.name,
                             style: Theme.of(context).textTheme.headline2,
                           ),
-                          DefaultTextStyle(
-                            style: TextStyle(fontSize: 11),
-                            child: TitleStatus(
-                              normalConditionWidget: Text(
-                                '${snapshot.data.members} ' +
-                                    appLocalization.getTraslateValue("members"), style: TextStyle(color: ExtraTheme.of(context).textDetails),
-                              ),
-                              currentRoomUid: mucUid.uid,
+                          TitleStatus(
+                            normalConditionWidget: Text(
+                              "${snapshot.data.population} ${appLocalization.getTraslateValue("members")}",
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  color: ExtraTheme.of(context).textDetails),
                             ),
+                            currentRoomUid: mucUid.asUid(),
                           )
                         ],
                       );
                     else
-                      return Container();
+                      return FutureBuilder<Muc>(
+                          future: _mucRepo.getMuc(mucUid),
+                          builder: (c, s) {
+                            if (s.hasData && s.data != null) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    s.data.name,
+                                    style:
+                                        Theme.of(context).textTheme.headline2,
+                                  ),
+                                  TitleStatus(
+                                    normalConditionWidget: Text(
+                                      "${s.data.population} ${appLocalization.getTraslateValue("members")}",
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          color: ExtraTheme.of(context)
+                                              .textDetails),
+                                    ),
+                                    currentRoomUid: mucUid.asUid(),
+                                  )
+                                ],
+                              );
+                            } else {
+                              return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        AppLocalization.of(context)
+                                            .getTraslateValue("loading"),
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: ExtraTheme.of(context)
+                                                .textDetails))
+                                  ]);
+                            }
+                          });
                   })
             ],
           ),

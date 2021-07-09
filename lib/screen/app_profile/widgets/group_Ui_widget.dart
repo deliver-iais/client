@@ -1,16 +1,11 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/dao/MucDao.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/role.dart';
-import 'package:deliver_flutter/repository/memberRepo.dart';
+import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -25,19 +20,18 @@ class GroupUiWidget extends StatefulWidget {
 }
 
 class _GroupUiWidgetState extends State<GroupUiWidget> {
-  var _memberRepo = GetIt.I.get<MemberRepo>();
   bool notification = true;
   Uid mucUid;
   AppLocalization appLocalization;
 
   var _routingService = GetIt.I.get<RoutingService>();
-  var _roomDao = GetIt.I.get<RoomDao>();
-  var _mucDao = GetIt.I.get<MucDao>();
+  var _roomRepo = GetIt.I.get<RoomRepo>();
+  var _mucRepo = GetIt.I.get<MucRepo>();
 
   @override
   void initState() {
-    super.initState();
     mucUid = widget.mucUid;
+    super.initState();
   }
 
   @override
@@ -64,20 +58,20 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
                     ],
                   ),
                 ),
-                StreamBuilder<Room>(
-                  stream: _roomDao.getByRoomId(widget.mucUid.asString()),
+                StreamBuilder<bool>(
+                  stream: _roomRepo.watchIsRoomMuted(widget.mucUid.asString()),
                   builder:
-                      (BuildContext context, AsyncSnapshot<Room> snapshot) {
+                      (BuildContext context, AsyncSnapshot<bool> snapshot) {
                     if (snapshot.data != null) {
                       return Switch(
                         activeColor: ExtraTheme.of(context).blueOfProfilePage,
-                        value: !snapshot.data.mute,
-                        onChanged: (newNotifState) {
-                          setState(() {
-                            _roomDao.insertRoom(Room(
-                                roomId: snapshot.data.roomId,
-                                mute: !newNotifState));
-                          });
+                        value: !snapshot.data,
+                        onChanged: (state) {
+                          if (state) {
+                            _roomRepo.unmute(widget.mucUid.asString());
+                          } else {
+                            _roomRepo.mute(widget.mucUid.asString());
+                          }
                         },
                       );
                     } else {
@@ -90,21 +84,17 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
         height: 10,
       ),
       StreamBuilder<Muc>(
-          stream: _mucDao.getMucByUidAsStream(widget.mucUid.asString()),
+          stream: _mucRepo.watchMuc(widget.mucUid.asString()),
           builder: (c, muc) {
             if (muc.hasData && muc.data != null && muc.data.info.isNotEmpty) {
               return Padding(
-                padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-                child:
-                    Container(
-                      child:Text(
-                        muc.data.info,
-                        style: TextStyle(fontSize: 15, color: Colors.blue),
-                      ),
-
-                )
-
-              );
+                  padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                  child: Container(
+                    child: Text(
+                      muc.data.info,
+                      style: TextStyle(fontSize: 15, color: Colors.blue),
+                    ),
+                  ));
             } else
               return SizedBox.shrink();
           }),
@@ -123,7 +113,8 @@ class _GroupUiWidgetState extends State<GroupUiWidget> {
               ),
               Text(
                 appLocalization.getTraslateValue("AddMember"),
-                style: TextStyle(color: ExtraTheme.of(context).textField,fontSize: 17),
+                style: TextStyle(
+                    color: ExtraTheme.of(context).textField, fontSize: 17),
               ),
             ],
           ),

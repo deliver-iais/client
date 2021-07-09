@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dcache/dcache.dart';
-import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/avatar.dart';
+import 'package:deliver_flutter/box/media.dart';
+import 'package:deliver_flutter/box/media_type.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
@@ -11,6 +12,7 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/dow
 import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,7 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MediaDetailsPage extends StatefulWidget {
@@ -120,7 +121,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
               ),
             );
           } else {
-            _allAvatars = snapshot.data;
+            _allAvatars = snapshot.data.reversed.toList();
             if (_allAvatars.length <= 0) {
               _routingService.pop();
               return Center(
@@ -180,18 +181,14 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     if (media == null) {
       widget.heroTag = "btn$i";
       return FutureBuilder<List<Media>>(
-          future: _mediaQueryRepo.getMediaAround(widget.userUid.asString(), i,
-              FetchMediasReq_MediaType.IMAGES.value),
+          future: _mediaQueryRepo.getMedia(widget.userUid,
+              MediaType.IMAGE,widget.mediasLength,),
           builder: (context, snapshot) {
             if (!snapshot.hasData || snapshot.data == null) {
-              return Center();
+              return Center(child: CircularProgressIndicator(color: Colors.blueAccent,),);
             } else {
               setMediaUrlCache(i, snapshot.data);
-              if (i == widget.mediasLength - 1) {
-                buildMediaPropertise(snapshot.data[snapshot.data.length - 1]);
-              } else {
-                buildMediaPropertise(snapshot.data[snapshot.data.length - 2]);
-              }
+              buildMediaPropertise(snapshot.data[i]);
               return buildFutureMediaBuilder(fileId, fileName, context, i);
             }
           });
@@ -210,7 +207,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   FutureBuilder<File> buildFutureMediaBuilder(
       fileId, fileName, BuildContext context, int i) {
     return FutureBuilder<File>(
-      future: _fileRepo.getFile(fileId, fileName,thumbnailSize: ThumbnailSize.large),
+      future: _fileRepo.getFile(fileId, fileName,
+          thumbnailSize: ThumbnailSize.large),
       builder: (BuildContext c, AsyncSnapshot snaps) {
         if (snaps.hasData &&
             snaps.data != null &&
@@ -219,7 +217,11 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           return buildMeidaCenter(
               context, i, snaps.data, fileId, widget.heroTag);
         } else {
-          return Center();
+          return Center(
+            child: CircularProgressIndicator(
+              color: Colors.blue,
+            ),
+          );
         }
       },
     );
@@ -232,28 +234,14 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: Stack(
-          alignment: Alignment.centerLeft,
+          alignment: Alignment.center,
           children: <Widget>[
-            //     buildAppBar(i, widget.mediasLength),
-            Positioned(
-              top: 80,
-              left: 0.0,
-              bottom: 0.0,
-              right: 0.0,
-              child: Hero(
-                tag: tag,
-                child: Container(
-                  decoration: new BoxDecoration(
-                    image: new DecorationImage(
-                      image: Image.file(
-                        mediaFile,
-                      ).image,
-                      fit: BoxFit.fitWidth,
-                    ),
-                  ),
-                ),
-                transitionOnUserGestures: true,
+           Hero(
+              tag: tag,
+              child: Image.file(
+                mediaFile,
               ),
+              transitionOnUserGestures: true,
             ),
             buildBottomAppBar(mediaSender, createdOn, senderName, fileId),
           ],
@@ -267,7 +255,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     if (media == null) {
       return FutureBuilder<List<Media>>(
           future: _mediaQueryRepo.getMediaAround(widget.userUid.asString(), i,
-              FetchMediasReq_MediaType.VIDEOS.value),
+              MediaType.VIDEO),
           builder: (context, snapshot) {
             if (!snapshot.hasData || snapshot.data == null) {
               return Center();
@@ -323,7 +311,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
   void buildMediaPropertise(Media media) {
     fileId = jsonDecode(media.json)["uuid"];
     fileName = jsonDecode(media.json)["name"];
-    mediaSender = media.createdBy.uid;
+    mediaSender = media.createdBy.asUid();
     createdOn = DateTime.fromMillisecondsSinceEpoch(media.createdOn);
     senderName = _mediaSenderCache.get(fileId);
     duration = jsonDecode(media.json)["duration"];
@@ -458,7 +446,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
       Uid mediaSender, DateTime createdOn, var name, var fileId) {
     if (name == null) {
       return FutureBuilder<String>(
-        future: _roomRepo.getRoomDisplayName(mediaSender),
+        future: _roomRepo.getName(mediaSender),
         builder: (BuildContext c, AsyncSnapshot s) {
           if (!s.hasData ||
               s.data == null ||
@@ -485,7 +473,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
           direction: Axis.vertical,
           runSpacing: 40,
           children: [
-            Text("${name}"),
+            Text(name),
             SizedBox(height: 10),
             Text("$createdOn"),
           ],
@@ -503,7 +491,10 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             stream: _swipePositionSubject.stream,
             builder: (c, position) {
               if (position.hasData && position.data != null)
-                return Text("${position.data + 1} of ${totalLength}");
+                return Text(
+                  "${position.data + 1} of $totalLength",
+                  style: TextStyle(color: ExtraTheme.of(context).textField),
+                );
               else {
                 return SizedBox.shrink();
               }
@@ -515,7 +506,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
             ? PopupMenuButton(
                 icon: Icon(
                   Icons.more_vert,
-                  color: Colors.white,
+                  color: ExtraTheme.of(context).textField,
                   size: 20,
                 ),
                 itemBuilder: (cc) => [

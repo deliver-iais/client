@@ -1,8 +1,8 @@
-import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/lastActivityRepo.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,9 +15,8 @@ class ContactPic extends StatelessWidget {
 
   ContactPic(this.userUid);
 
-  var _userInfoDao = GetIt.I.get<UserInfoDao>();
-
-  var _accountRepo = GetIt.I.get<AccountRepo>();
+  final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -26,14 +25,12 @@ class ContactPic extends StatelessWidget {
         CircleAvatarWidget(this.userUid, 24,
             showSavedMessageLogoIfNeeded: true),
         if (userUid.category == Categories.USER &&
-            !userUid.isSameEntity(_accountRepo.currentUserUid.asString()))
-          StreamBuilder<UserInfo>(
-              stream: _userInfoDao.getUserInfoAsStream(userUid.asString()),
-              builder: (c, userInfo) {
-                if (userInfo.hasData &&
-                    userInfo.data != null &&
-                    userInfo.data.lastActivity != null)
-                  return isOnline(userInfo)
+            !_accountRepo.isCurrentUser(userUid.asString()))
+          StreamBuilder<LastActivity>(
+              stream: _lastActivityRepo.watch(userUid.asString()),
+              builder: (c, la) {
+                if (la.hasData && la.data != null && la.data.time != null)
+                  return isOnline(la.data.time)
                       ? Positioned(
                           child: Container(
                             width: 12.0,
@@ -58,11 +55,5 @@ class ContactPic extends StatelessWidget {
               }),
       ],
     );
-  }
-
-  bool isOnline(AsyncSnapshot<UserInfo> userInfo) {
-    return DateTime.now().millisecondsSinceEpoch -
-            userInfo.data.lastActivity.millisecondsSinceEpoch <
-        60000;
   }
 }

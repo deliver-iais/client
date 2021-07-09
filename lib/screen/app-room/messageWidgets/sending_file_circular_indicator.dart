@@ -27,10 +27,10 @@ class _SendingFileCircularIndicatorState
 
   @override
   void initState() {
-    super.initState();
     _controller =
         AnimationController(duration: Duration(seconds: 1), vsync: this)
           ..repeat();
+    super.initState();
   }
 
   @override

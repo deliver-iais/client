@@ -1,48 +1,51 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:deliver_flutter/db/dao/LastSeenDao.dart';
-import 'package:deliver_flutter/db/dao/MessageDao.dart';
-import 'package:deliver_flutter/db/dao/PendingMessageDao.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/dao/SeenDao.dart';
-import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
-import 'package:deliver_flutter/db/database.dart' as Database;
+import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
+import 'package:deliver_flutter/box/dao/room_dao.dart';
+import 'package:deliver_flutter/box/message.dart' as DB;
+import 'package:deliver_flutter/box/dao/message_dao.dart';
+import 'package:deliver_flutter/box/dao/muc_dao.dart';
+import 'package:deliver_flutter/box/dao/seen_dao.dart';
+import 'package:deliver_flutter/box/last_activity.dart';
+import 'package:deliver_flutter/box/member.dart';
+import 'package:deliver_flutter/box/pending_message.dart';
+import 'package:deliver_flutter/box/room.dart';
+import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/models/account.dart';
-import 'package:deliver_flutter/models/messageType.dart';
+import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart'
+    as ProtocolSeen;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:flutter/cupertino.dart';
 
-
-
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
-import 'package:moor/moor.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:fixnum/fixnum.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
-const MIN_BACKOFF_TIME = 4;
-const MAX_BACKOFF_TIME = 32;
+const MIN_BACKOFF_TIME = 2;
+const MAX_BACKOFF_TIME = 8;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
+// TODO Change to StreamRepo, it is not a service, it is repo now!!!
 class CoreServices {
-  StreamController<ClientPacket> _clientPacket;
+  StreamController<ClientPacket> _clientPacketStream;
 
   ResponseStream<ServerPacket> _responseStream;
   @visibleForTesting
@@ -60,20 +63,18 @@ class CoreServices {
   var _grpcCoreService = GetIt.I.get<CoreServiceClient>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _messageDao = GetIt.I.get<MessageDao>();
-  var _seenDao = GetIt.I.get<SeenDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
-  var _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
+  var _seenDao = GetIt.I.get<SeenDao>();
   var _routingServices = GetIt.I.get<RoutingService>();
-  var _lastSeenDao = GetIt.I.get<LastSeenDao>();
-
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _notificationServices = GetIt.I.get<NotificationServices>();
-  var _userInfoDAo = GetIt.I.get<UserInfoDao>();
+  var _lastActivityDao = GetIt.I.get<LastActivityDao>();
 
   Timer _connectionTimer;
   var _lastPongTime = 0;
+  var _mucDao = GetIt.I.get<MucDao>();
 
-//TODO test
+  //TODO test
   initStreamConnection() async {
     if (_connectionTimer != null && _connectionTimer.isActive) {
       return;
@@ -87,7 +88,7 @@ class CoreServices {
 
   void closeConnection() {
     _connectionStatus.add(ConnectionStatus.Disconnected);
-    _clientPacket.close();
+    _clientPacketStream.close();
     if (_connectionTimer != null) _connectionTimer.cancel();
   }
 
@@ -96,10 +97,10 @@ class CoreServices {
     if (_connectionTimer != null && _connectionTimer.isActive) {
       return;
     }
-    if (_clientPacket.isClosed || _clientPacket.isPaused) {
+    if (_clientPacketStream.isClosed || _clientPacketStream.isPaused) {
       await startStream();
     }
-    sendPingMessage();
+    sendPing();
     responseChecked = false;
     _connectionTimer = Timer(new Duration(seconds: backoffTime), () {
       if (!responseChecked) {
@@ -108,7 +109,7 @@ class CoreServices {
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-        _clientPacket.close();
+        _clientPacketStream.close();
         _connectionStatus.add(ConnectionStatus.Disconnected);
       }
       startCheckerTimer();
@@ -116,7 +117,6 @@ class CoreServices {
   }
 
   void gotResponse() {
-
     _connectionStatus.add(ConnectionStatus.Connected);
     backoffTime = MIN_BACKOFF_TIME;
     responseChecked = true;
@@ -125,11 +125,12 @@ class CoreServices {
   @visibleForTesting
   startStream() async {
     try {
-      _clientPacket = StreamController<ClientPacket>();
-      _responseStream = _grpcCoreService.establishStream(_clientPacket.stream,
-          options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()},
-          ));
+      _clientPacketStream = StreamController<ClientPacket>();
+      _responseStream =
+          _grpcCoreService.establishStream(_clientPacketStream.stream,
+              options: CallOptions(
+                metadata: {'access_token': await _accountRepo.getAccessToken()},
+              ));
       _responseStream.listen((serverPacket) async {
         debug(serverPacket.toString());
         gotResponse();
@@ -143,10 +144,10 @@ class CoreServices {
           case ServerPacket_Type.error:
             break;
           case ServerPacket_Type.seen:
-            _saveSeenMessage(serverPacket.seen);
+            _saveSeen(serverPacket.seen);
             break;
           case ServerPacket_Type.activity:
-            _saveActivityMessage(serverPacket.activity);
+            _saveActivity(serverPacket.activity);
             break;
           case ServerPacket_Type.liveLocationStatusChanged:
             break;
@@ -159,25 +160,39 @@ class CoreServices {
         }
       });
     } catch (e) {
-      debug("correservice error");
+      startStream();
+      debug(e.toString());
+      debug("core service error");
     }
   }
 
   sendMessage(MessageByClient message) async {
-
-    if (_clientPacket != null && !_clientPacket.isClosed) {
-      _clientPacket.add(ClientPacket()
+    if (_clientPacketStream != null &&
+        !_clientPacketStream.isClosed &&
+        _connectionStatus.value == ConnectionStatus.Connected) {
+      _clientPacketStream.add(ClientPacket()
         ..message = message
         ..id = message.packetId);
+      new Timer(Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
+          () => checkPendingStatus(message.packetId));
     } else {
       startStream();
     }
   }
 
-  sendPingMessage() {
-    if (_clientPacket != null && !_clientPacket.isClosed) {
+  Future<void> checkPendingStatus(String packetId) async {
+    var pm = await _messageDao.getPendingMessage(packetId);
+    if (pm != null) {
+      await _messageDao.savePendingMessage(pm.copyWith(failed: true));
+      if (_connectionStatus.value == ConnectionStatus.Connected)
+        connectionStatus.add(ConnectionStatus.Connected);
+    }
+  }
+
+  sendPing() {
+    if (_clientPacketStream != null && !_clientPacketStream.isClosed) {
       var ping = Ping()..lastPongTime = Int64(_lastPongTime);
-      _clientPacket.add(ClientPacket()
+      _clientPacketStream.add(ClientPacket()
         ..ping = ping
         ..id = DateTime.now().microsecondsSinceEpoch.toString());
     } else {
@@ -185,9 +200,9 @@ class CoreServices {
     }
   }
 
-  sendSeenMessage(SeenByClient seen) {
-    if (!_clientPacket.isClosed) {
-      _clientPacket.add(ClientPacket()
+  sendSeen(ProtocolSeen.SeenByClient seen) {
+    if (!_clientPacketStream.isClosed) {
+      _clientPacketStream.add(ClientPacket()
         ..seen = seen
         ..id = seen.id.toString());
     } else {
@@ -195,9 +210,10 @@ class CoreServices {
     }
   }
 
-  sendActivityMessage(ActivityByClient activity, String id) {
-    if (!_clientPacket.isClosed)
-      _clientPacket.add(ClientPacket()
+  sendActivity(ActivityByClient activity, String id) {
+    if (!_clientPacketStream.isClosed &&
+        !_accountRepo.isCurrentUser(activity.to.asString()))
+      _clientPacketStream.add(ClientPacket()
         ..activity = activity
         ..id = id);
     else {
@@ -205,7 +221,7 @@ class CoreServices {
     }
   }
 
-  _saveSeenMessage(Seen seen) {
+  _saveSeen(ProtocolSeen.Seen seen) {
     Uid roomId;
     switch (seen.to.category) {
       case Categories.USER:
@@ -221,32 +237,42 @@ class CoreServices {
         roomId = seen.to;
         break;
     }
-    _lastSeenDao.insertLastSeen(Database.LastSeen(roomId: roomId.asString(),messageId: seen.id.toInt()),);
-    _seenDao.insertSeen(Database.SeensCompanion.insert(
-        messageId: seen.id.toInt(),
-        user: seen.from.asString(),
-        roomId: roomId.asString()));
-    updateLastActivityTime(_userInfoDAo, seen.from, DateTime.now());
+    if (_accountRepo.isCurrentUser(seen.from.asString())) {
+      _seenDao.saveMySeen(
+        Seen(uid: roomId.asString(), messageId: seen.id.toInt()),
+      );
+    } else {
+      _seenDao.saveOthersSeen(
+        Seen(uid: roomId.asString(), messageId: seen.id.toInt()),
+      );
+      updateLastActivityTime(
+          _lastActivityDao, seen.from, DateTime.now().millisecondsSinceEpoch);
+    }
   }
 
-  _saveActivityMessage(Activity activity) {
+  _saveActivity(Activity activity) {
     _roomRepo.updateActivity(activity);
-    updateLastActivityTime(_userInfoDAo, activity.from, DateTime.now());
+    updateLastActivityTime(
+        _lastActivityDao, activity.from, DateTime.now().millisecondsSinceEpoch);
   }
 
   _saveAckMessage(MessageDeliveryAck messageDeliveryAck) async {
     if (messageDeliveryAck.id.toInt() == 0) {
       return;
     }
-    var roomId = messageDeliveryAck.to.asString();
     var packetId = messageDeliveryAck.packetId;
     var id = messageDeliveryAck.id.toInt();
     var time = messageDeliveryAck.time.toInt() ??
         DateTime.now().millisecondsSinceEpoch;
-    _messageDao.updateMessageId(roomId, packetId, id, time);
-    _roomDao.insertRoomCompanion(Database.RoomsCompanion.insert(
-        roomId: roomId, lastMessageId: Value(id)));
-    _pendingMessageDao.deletePendingMessage(packetId);
+
+    var pm = await _messageDao.getPendingMessage(packetId);
+
+    var msg = pm.msg.copyWith(id: id, time: time);
+
+    _messageDao.deletePendingMessage(packetId);
+    _messageDao.saveMessage(msg);
+    _roomDao.updateRoom(Room(uid: msg.roomUid, lastMessage: msg));
+
     if (_routingServices.isInRoom(messageDeliveryAck.to.asString())) {
       _notificationServices.playSoundNotification();
     }
@@ -254,9 +280,7 @@ class CoreServices {
 
   _saveIncomingMessage(Message message) async {
     Uid roomUid = getRoomId(_accountRepo, message);
-    _lastSeenDao.insertLastSeen(Database.LastSeen(roomId: roomUid.asString()));
-    Database.Room room = await _roomDao.getByRoomIdFuture(roomUid.asString());
-    if (room != null && room.isBlock) {
+    if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
       return;
     }
     saveMessage(_accountRepo, _messageDao, _roomDao, message, roomUid);
@@ -265,20 +289,47 @@ class CoreServices {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
           switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
             case MucSpecificPersistentEvent_Issue.DELETED:
-              _roomDao.updateRoom(Database.RoomsCompanion(
-                  roomId: Value(message.from.asString()),
-                  deleted: Value(true)));
+              _roomDao.updateRoom(
+                  Room(uid: message.from.asString(), deleted: true));
               return;
               break;
+            case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
+              {
+                var muc = await _mucDao.get(roomUid.asString());
+                var pinMessages = muc.pinMessagesIdList;
+                pinMessages.add(message
+                    .persistEvent.mucSpecificPersistentEvent.messageId
+                    .toInt());
+                _mucDao.update(muc.copyWith(pinMessagesIdList: pinMessages));
+                break;
+              }
+
             case MucSpecificPersistentEvent_Issue.KICK_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
                   .isSameEntity(_accountRepo.currentUserUid.asString())) {
-                _roomDao.updateRoom(Database.RoomsCompanion(
-                    roomId: Value(message.from.asString()),
-                    deleted: Value(true)));
+                _roomDao.updateRoom(
+                    Room(uid: message.from.asString(), deleted: true));
                 return;
               }
               break;
+            case MucSpecificPersistentEvent_Issue.JOINED_USER:
+            case MucSpecificPersistentEvent_Issue.ADD_USER:
+              if (message.persistEvent.mucSpecificPersistentEvent.assignee
+                  .isSameEntity(_accountRepo.currentUserUid.asString())) {
+                _roomDao.updateRoom(
+                    Room(uid: message.from.asString(), deleted: false));
+              }
+              break;
+
+            case MucSpecificPersistentEvent_Issue.LEAVE_USER:
+              {
+                _mucDao.deleteMember(Member(
+                  memberUid: message
+                      .persistEvent.mucSpecificPersistentEvent.issuer
+                      .asString(),
+                  mucUid: roomUid.asString(),
+                ));
+              }
           }
           break;
         case PersistentEvent_Type.messageManipulationPersistentEvent:
@@ -293,20 +344,20 @@ class CoreServices {
       }
     }
 
-    if (!_accountRepo.isCurrentUser(message.from.asString()) && (
-            (await _accountRepo.notification) == null ||
-        (await _accountRepo.notification).contains("true") &&
-            (room != null && !room.mute))) {
+    if (!_accountRepo.isCurrentUser(message.from.asString()) &&
+        ((await _accountRepo.notification) == null ||
+            (await _accountRepo.notification).contains("true") &&
+                ( ! await _roomRepo.isRoomMuted(roomUid.asString())))) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)
-      updateLastActivityTime(_userInfoDAo, message.from,
-          DateTime.fromMillisecondsSinceEpoch(message.time.toInt()));
+      updateLastActivityTime(
+          _lastActivityDao, message.from, message.time.toInt());
   }
 
   Future showNotification(Uid roomUid, Message message) async {
-    String roomName = await _roomRepo.getRoomDisplayName(roomUid);
-    if (_routingServices.isInRoom(roomUid.asString())) {
+    String roomName = await _roomRepo.getName(roomUid);
+    if (_routingServices.isInRoom(roomUid.asString()) && !isDesktop()) {
       _notificationServices.playSoundNotification();
     } else {
       _notificationServices.showNotification(
@@ -324,31 +375,20 @@ class CoreServices {
         isMention = await checkMention(message.text.text, accountRepo);
       }
     }
-    if (isMention) {
-      roomDao.insertRoomCompanion(
-        Database.RoomsCompanion.insert(
-            roomId: roomUid.asString(),
-            lastMessageId: Value(message.id.toInt()),
-            mentioned: Value(isMention),
-            lastMessageDbId: Value(msg.dbId)),
-      );
-    } else {
-      roomDao.insertRoomCompanion(Database.RoomsCompanion.insert(
-          roomId: roomUid.asString(),
-          lastMessageId: Value(message.id.toInt()),
-          lastMessageDbId: Value(msg.dbId)));
-    }
+    roomDao.updateRoom(
+      Room(uid: roomUid.asString(), lastMessage: msg, mentioned: isMention),
+    );
 
     return roomUid;
   }
 }
 
 void updateLastActivityTime(
-    UserInfoDao userInfoDao, Uid userUid, DateTime lastActivityTime) {
-  userInfoDao.upsertUserInfo(Database.UserInfo(
+    LastActivityDao lastActivityDao, Uid userUid, int time) {
+  lastActivityDao.save(LastActivity(
       uid: userUid.asString(),
-      lastActivity: lastActivityTime,
-      lastTimeActivityUpdated: DateTime.now()));
+      time: time,
+      lastUpdate: DateTime.now().millisecondsSinceEpoch));
 }
 
 Future<bool> checkMention(String text, AccountRepo accountRepo) async {
@@ -356,38 +396,39 @@ Future<bool> checkMention(String text, AccountRepo accountRepo) async {
   return text.contains(account.userName);
 }
 
-saveMessageInMessagesDB(
+Future<DB.Message> saveMessageInMessagesDB(
     AccountRepo accountRepo, MessageDao messageDao, Message message) async {
-  // ignore: missing_required_param
-  Database.Message msg;
+  var msg = extractMessage(accountRepo, message);
+  await messageDao.saveMessage(msg);
+  return msg;
+}
+
+DB.Message extractMessage(AccountRepo accountRepo, Message message) {
+  var json = "";
+
   try {
-    msg = Database.Message(
-        id: message.id.toInt(),
-        roomId: message.whichType() == Message_Type.persistEvent
-            ? message.from.asString()
-            : message.from.node.contains(accountRepo.currentUserUid.node)
-                ? message.to.asString()
-                : message.to.category == Categories.USER
-                    ? message.from.asString()
-                    : message.to.asString(),
-        packetId: message.packetId,
-        time: DateTime.fromMillisecondsSinceEpoch(message.time.toInt()),
-        to: message.to.asString(),
-        from: message.from.asString(),
-        replyToId: message.replyToId.toInt(),
-        forwardedFrom: message.forwardFrom.asString(),
-        json: messageToJson(message),
-        edited: message.edited,
-        encrypted: message.encrypted,
-        type: getMessageType(message.whichType()));
-  } catch (e) {
-    debug(e.toString());
-    return msg;
-  }
+    json = messageToJson(message);
+  } catch (ignore) {}
 
-  int dbId = await messageDao.insertMessage(msg);
-
-  return msg.copyWith(dbId: dbId);
+  return DB.Message(
+      id: message.id.toInt(),
+      roomUid: message.whichType() == Message_Type.persistEvent
+          ? message.from.asString()
+          : message.from.node.contains(accountRepo.currentUserUid.node)
+              ? message.to.asString()
+              : message.to.category == Categories.USER
+                  ? message.from.asString()
+                  : message.to.asString(),
+      packetId: message.packetId,
+      time: message.time.toInt(),
+      to: message.to.asString(),
+      from: message.from.asString(),
+      replyToId: message.replyToId.toInt(),
+      forwardedFrom: message.forwardFrom.asString(),
+      json: json,
+      edited: message.edited,
+      encrypted: message.encrypted,
+      type: getMessageType(message.whichType()));
 }
 
 Uid getRoomId(AccountRepo accountRepo, Message message) {
@@ -436,14 +477,14 @@ String messageToJson(Message message) {
     case MessageType.FORM_RESULT:
       return message.formResult.writeToJson();
       break;
-    case MessageType.sharePrivateDataRequest:
+    case MessageType.SHARE_PRIVATE_DATA_REQUEST:
       return message.sharePrivateDataRequest.writeToJson();
       break;
-    case MessageType.sharePrivateDataAcceptance:
+    case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
       return message.sharePrivateDataAcceptance.writeToJson();
 
     case MessageType.NOT_SET:
-      // TODO: Handle this case.
+      return "";
       break;
   }
   return jsonEncode(jsonString);
@@ -474,9 +515,9 @@ MessageType getMessageType(Message_Type messageType) {
     case Message_Type.shareUid:
       return MessageType.SHARE_UID;
     case Message_Type.sharePrivateDataRequest:
-      return MessageType.sharePrivateDataRequest;
+      return MessageType.SHARE_PRIVATE_DATA_REQUEST;
     case Message_Type.sharePrivateDataAcceptance:
-      return MessageType.sharePrivateDataAcceptance;
+      return MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE;
     default:
       return MessageType.NOT_SET;
   }

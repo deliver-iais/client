@@ -1,51 +1,36 @@
-import 'package:deliver_flutter/db/dao/UserInfoDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/member.dart';
+import 'package:deliver_flutter/box/uid_id_name.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
 
 class MucMemberMentionWidget extends StatelessWidget {
-  final Member member;
-  Function onSelected;
+  final UidIdName member;
+  final Function onSelected;
+
 
   MucMemberMentionWidget(this.member, this.onSelected);
 
-  var _userInfoDao = GetIt.I.get<UserInfoDao>();
-
   @override
   Widget build(BuildContext context) {
-    return Padding(
-        padding: EdgeInsets.only(left: 10),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 10,
-            ),
-            member.username != null
-                ? buildGestureDetector(username: member.username,name: member.name)
-                : FutureBuilder<UserInfo>(
-                    future: _userInfoDao.getUserInfo(member.memberUid),
-                    builder: (c, u) {
-                      if (u.hasData &&
-                          u.data != null &&
-                          u.data.username != null) {
-                        return buildGestureDetector(username: u.data.username);
-                      }
-                      return SizedBox.shrink();
-                    })
-          ],
-        ));
+    return member != null? Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      child:  buildGestureDetector(
+        username: member.id??"", name: member.name??"",context: context)
+    ):SizedBox.shrink();
   }
 
-  GestureDetector buildGestureDetector({String username, String name}) {
+  Widget buildGestureDetector({String username, String name,BuildContext context}) {
     return GestureDetector(
       onTap: () {
         onSelected(username);
       },
       child: Row(
         children: [
-          CircleAvatarWidget(member.memberUid.uid, 18),
+          CircleAvatarWidget(member.uid.asUid(), 18),
           SizedBox(
             width: 10,
           ),
@@ -53,6 +38,7 @@ class MucMemberMentionWidget extends StatelessWidget {
             name ?? username,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
+              color:ExtraTheme.of(context).textField,
               fontSize: 16,
             ),
           ),
@@ -61,10 +47,11 @@ class MucMemberMentionWidget extends StatelessWidget {
           ),
           if (name != null)
             Text(
-              "@${username}",
+              "@$username",
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 12,
+                color: ExtraTheme.of(context).textField
               ),
             ),
         ],

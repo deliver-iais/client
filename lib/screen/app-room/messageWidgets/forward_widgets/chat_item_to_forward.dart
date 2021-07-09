@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
@@ -37,13 +37,14 @@ class ChatItemToForward extends StatelessWidget {
             ),
             GestureDetector(
               child: FutureBuilder(
-                  future: _roomRepo.getRoomDisplayName(uid),
+                  future: _roomRepo.getName(uid),
                   builder: (BuildContext c, AsyncSnapshot<String> snaps) {
                     if (snaps.hasData && snaps.data != null) {
                       return Text(
                         snaps.data,
                         style: TextStyle(
-                          color: ExtraTheme.of(context).chatOrContactItemDetails,
+                          color:
+                              ExtraTheme.of(context).chatOrContactItemDetails,
                           fontSize: 18,
                         ),
                       );
@@ -51,7 +52,8 @@ class ChatItemToForward extends StatelessWidget {
                       return Text(
                         "unKnown",
                         style: TextStyle(
-                          color: ExtraTheme.of(context).chatOrContactItemDetails,
+                          color:
+                              ExtraTheme.of(context).chatOrContactItemDetails,
                           fontSize: 18,
                         ),
                       );

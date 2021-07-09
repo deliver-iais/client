@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/models/sending_status.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/file_message.dart/open_file_status.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/load-file-status.dart';
@@ -8,40 +8,39 @@ import 'package:flutter/material.dart';
 
 class CircularFileStatusIndicator extends StatelessWidget {
   final bool isExist;
-  final SendingStatus sendingStatus;
+  final bool isPending;
   final File file;
-  final int messageDbId;
+  final Message msg;
   final Function onPressed;
 
   const CircularFileStatusIndicator(
       {Key key,
       this.isExist,
-      this.sendingStatus,
+      this.isPending = false,
       this.file,
-      this.messageDbId,
+      this.msg,
       this.onPressed})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     if (isExist != null) {
-      if (isExist && sendingStatus == null) {
-        return file.type.contains("audio") || file.type.contains("mp3")
+      if (isExist && !isPending) {
+        return file.type.contains("audio")
             ? PlayAudioStatus(
                 fileId: file.uuid,
                 fileName: file.name,
-                // dbId: messageDbId,
               )
             : OpenFileStatus(
                 file: file,
-                dbId: messageDbId,
               );
       } else {
-        return new LoadFileStatus(
-          //file: file,
+        return LoadFileStatus(
           fileId: file.uuid,
           fileName: file.name,
-          dbId: messageDbId,
+          messageId: msg.id,
+          messagePacketId: msg.packetId,
+          roomUid: msg.roomUid,
           onPressed: onPressed,
         );
       }
@@ -52,7 +51,8 @@ class CircularFileStatusIndicator extends StatelessWidget {
         width: 50,
         height: 50,
         decoration: BoxDecoration(
-            shape: BoxShape.circle, color: ExtraTheme.of(context).circularFileStatus),
+            shape: BoxShape.circle,
+            color: ExtraTheme.of(context).circularFileStatus),
         child: Icon(
           Icons.arrow_downward,
           color: ExtraTheme.of(context).fileMessageDetails,

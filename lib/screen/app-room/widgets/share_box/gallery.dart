@@ -39,8 +39,8 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
 
   @override
   void initState() {
-    super.initState();
     _future = ImageItem.getImages();
+    super.initState();
   }
 
   void cropAvatar(String imagePath) async {
@@ -74,7 +74,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     return FutureBuilder<List<ImageItem>>(
         future: _future,
         builder: (context, images) {
-          if (images.hasData) {
+          if (images.hasData && images.data != null && images.data.length>0) {
             return GridView.builder(
                 controller: widget.scrollController,
                 itemCount: images.data.length+1,

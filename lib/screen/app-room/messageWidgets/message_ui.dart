@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/image_message/image_ui.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/message_header.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/text_message/text_ui.dart';

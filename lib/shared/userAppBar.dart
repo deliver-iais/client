@@ -1,12 +1,11 @@
-import 'dart:ui';
-
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/services/audioPlayerAppBar.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/title_status.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -43,7 +42,7 @@ class UserAppbar extends StatelessWidget {
                       style: Theme.of(context).textTheme.headline3,
                     )
                   : FutureBuilder<String>(
-                      future: _roomRepo.getRoomDisplayName(userUid),
+                      future: _roomRepo.getName(userUid),
                       builder: (BuildContext context,
                           AsyncSnapshot<String> snapshot) {
                         if (snapshot.data != null) {
@@ -56,6 +55,14 @@ class UserAppbar extends StatelessWidget {
                               ),
                               TitleStatus(
                                 currentRoomUid: userUid,
+                                normalConditionWidget:
+                                    userUid.category == Categories.SYSTEM
+                                        ? Text("Notification Service",
+                                            style: TextStyle(
+                                                fontSize: 11,
+                                                color: ExtraTheme.of(context)
+                                                    .textDetails))
+                                        : const SizedBox.shrink(),
                               )
                             ],
                           );

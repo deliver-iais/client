@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
@@ -25,6 +26,7 @@ class _VerificationPageState extends State<VerificationPage> {
   final FocusNode focusNode = FocusNode();
 
   AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
+  ContactRepo _contactRepo = GetIt.I.get<ContactRepo>();
 
   var _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
@@ -40,13 +42,13 @@ class _VerificationPageState extends State<VerificationPage> {
     });
     FocusScope.of(context).requestFocus(FocusNode());
     var result = _accountRepo.sendVerificationCode(_verificationCode);
-    result.then((access_tokenResponse) {
-      if (access_tokenResponse.status == AccessTokenRes_Status.OK) {
-        _accountRepo.saveTokens(access_tokenResponse);
+    result.then((accessTokenResponse) {
+      if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
+        _accountRepo.saveTokens(accessTokenResponse);
         _fireBaseServices.sendFireBaseToken();
         _accountRepo.setNotificationState("true");
         _navigationToHome();
-      } else if (access_tokenResponse.status ==
+      } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {
         Fluttertoast.showToast(msg: "PASSWORD_PROTECTED");
         // TODO navigate to password validation page
@@ -63,6 +65,7 @@ class _VerificationPageState extends State<VerificationPage> {
   }
 
   _navigationToHome() async {
+    _contactRepo.getContacts();
     ExtendedNavigator.of(context).pushAndRemoveUntil(
       Routes.homePage,
       (_) => false,

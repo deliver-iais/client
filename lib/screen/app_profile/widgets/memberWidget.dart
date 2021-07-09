@@ -1,10 +1,8 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/db/dao/MemberDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/models/account.dart';
-import 'package:deliver_flutter/models/role.dart';
+import 'package:deliver_flutter/box/role.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/memberRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -26,9 +24,8 @@ class MucMemberWidget extends StatefulWidget {
 }
 
 class _MucMemberWidgetState extends State<MucMemberWidget> {
-  var _memberRepo = GetIt.I.get<MemberRepo>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
   Uid _mucUid;
-  var _memberDao = GetIt.I.get<MemberDao>();
   AppLocalization _appLocalization;
   var _routingServices = GetIt.I.get<RoutingService>();
   var _mucRepo = GetIt.I.get<MucRepo>();
@@ -41,11 +38,11 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
 
   @override
   void initState() {
-    super.initState();
     _mucUid = widget.mucUid;
     // _mucUid.category == Categories.GROUP
     //     ? _mucRepo.getGroupMembers(_mucUid)
     //     : _mucRepo.getChannelMembers(_mucUid);
+    super.initState();
   }
 
   @override
@@ -55,7 +52,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
         TextStyle(fontSize: 14, color: ExtraTheme.of(context).textField);
 
     return StreamBuilder<List<Member>>(
-        stream: _memberRepo.getMembers(_mucUid.asString()),
+        stream: _mucRepo.watchAllMembers(_mucUid.asString()),
         builder: (BuildContext context, AsyncSnapshot<List<Member>> snapshot) {
           if (snapshot.hasData &&
               snapshot.data != null &&
@@ -76,19 +73,28 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              CircleAvatarWidget(member.memberUid.uid, 18),
+                              CircleAvatarWidget(member.memberUid.asUid(), 18),
                               SizedBox(
                                 width: 10,
                               ),
                               if (member.memberUid !=
                                   _accountRepo.currentUserUid.asString())
-                                Text(
-                                  member.name ?? member.username ?? "",
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: ExtraTheme.of(context).textField,
-                                    fontSize: 16,
-                                  ),
+                                Container(
+                                  width: 150,
+                                  child: FutureBuilder<String>(
+                                      future: _roomRepo
+                                          .getName(member.memberUid.asUid()),
+                                      builder: (context, snapshot) {
+                                        return Text(
+                                          snapshot.data ?? "Unknown",
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: ExtraTheme.of(context)
+                                                .textField,
+                                            fontSize: 14,
+                                          ),
+                                        );
+                                      }),
                                 )
                               else if (member.memberUid ==
                                   _accountRepo.currentUserUid.asString())
@@ -97,13 +103,16 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                   builder: (BuildContext context,
                                       AsyncSnapshot<Account> snapshot) {
                                     if (snapshot.data != null) {
-                                      return Text(
-                                        "${snapshot.data.firstName} ${snapshot.data.lastName ?? ""}",
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: ExtraTheme.of(context)
-                                                .textField),
+                                      return Container(
+                                        width:150,
+                                        child: Text(
+                                          "${snapshot.data.firstName}${snapshot.data.lastName != null ? " " + snapshot.data.lastName : ""}",
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: ExtraTheme.of(context)
+                                                  .textField),
+                                        ),
                                       );
                                     } else {
                                       return SizedBox.shrink();
@@ -126,7 +135,8 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                               if (!member.memberUid.contains(
                                       _accountRepo.currentUserUid.asString()) &&
                                   (_myRoleInThisRoom == MucRole.ADMIN ||
-                                      _myRoleInThisRoom == MucRole.OWNER))
+                                      _myRoleInThisRoom == MucRole.OWNER) &&
+                                  member.role != MucRole.OWNER)
                                 PopupMenuButton(
                                   color: ExtraTheme.of(context).popupMenuButton,
                                   icon: Icon(
@@ -168,6 +178,16 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                   onSelected: (key) {
                                     onSelected(key, member);
                                   },
+                                ),
+                              if (member.memberUid.contains(_accountRepo
+                                          .currentUserUid
+                                          .asString()) &&
+                                      (_myRoleInThisRoom == MucRole.ADMIN ||
+                                          _myRoleInThisRoom == MucRole.OWNER) ||
+                                  (_myRoleInThisRoom == MucRole.ADMIN &&
+                                      member.role == MucRole.OWNER))
+                                SizedBox(
+                                  width: 40,
                                 )
                             ],
                           )

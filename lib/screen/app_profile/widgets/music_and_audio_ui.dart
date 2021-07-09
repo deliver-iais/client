@@ -1,7 +1,8 @@
 import 'dart:convert';
-import 'dart:ffi';
 
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/media.dart';
+import 'package:deliver_flutter/box/media_type.dart';
+
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/play_audio_status.dart';
@@ -39,7 +40,7 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
   Widget build(BuildContext context) {
     return FutureBuilder<List<Media>>(
         future: mediaQueryRepo.getMedia(
-            widget.userUid, FetchMediasReq_MediaType.MUSICS, widget.mediaCount),
+            widget.userUid, MediaType.MUSIC, widget.mediaCount),
         builder: (BuildContext context, AsyncSnapshot<List<Media>> media) {
           if (!media.hasData ||
               media.data == null ||
@@ -108,7 +109,7 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                       LoadFileStatus(
                                         fileId: fileId,
                                         fileName: fileName,
-                                        dbId: messageId,
+                                        messageId: messageId,
                                         onPressed: download,
                                       ),
                                       Expanded(

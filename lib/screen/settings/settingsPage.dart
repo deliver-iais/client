@@ -1,27 +1,32 @@
 import 'dart:io';
 
+import 'package:dbus/dbus.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/models/account.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
-import 'package:deliver_flutter/services/firebase_services.dart';
 
 import 'package:deliver_flutter/services/routing_service.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profile_avatar_card.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_flutter/shared/language.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:file_chooser/file_chooser.dart';
+import 'package:file_selector/file_selector.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:sms_autofill/sms_autofill.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key}) : super(key: key);
@@ -39,8 +44,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   final _routingService = GetIt.I.get<RoutingService>();
 
+  bool isDeveloperMode = false;
+
   bool _uploadNewAvatar = false;
   String _newAvatarPath;
+
+  int developerModeCounterCountDown = 10;
 
   bool _getTheme() {
     if (_uxService.theme == DarkTheme) {
@@ -57,15 +66,10 @@ class _SettingsPageState extends State<SettingsPage> {
   attachFile() async {
     String path;
     if (isDesktop()) {
-      final result = await showOpenPanel(
-          allowsMultipleSelection: false,
-          allowedFileTypes: [
-            FileTypeFilterGroup(
-                fileExtensions: ['png', 'jpg', 'jpeg', 'gif'], label: "image")
-          ]);
-      if (result.paths.isNotEmpty) {
-        path = result.paths.first;
-      }
+      final typeGroup = XTypeGroup(
+          label: 'images', extensions: ['png', 'jpg', 'jpeg', 'gif']);
+      final result = await openFile(acceptedTypeGroups: [typeGroup]);
+      path = result.path;
     } else {
       var result = await ImagePicker().getImage(source: ImageSource.gallery);
       path = result.path;
@@ -96,7 +100,6 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             leading: _routingService.backButtonLeading()),
-
         body: FluidContainerWidget(
           child: ListView(children: [
             ProfileAvatarCard(
@@ -149,8 +152,37 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     IconButton(
                         icon: Icon(Icons.navigate_next),
-                        onPressed: () {
-                          _routingService.openAccountSettings();
+                        onPressed: () async {
+                          var client = DBusClient.session();
+                          var object = DBusRemoteObject(
+                              client,
+                              'org.freedesktop.Notifications',
+                              DBusObjectPath('/org/freedesktop/Notifications'));
+                          var values = [
+                            DBusString(''),
+                            // App name
+                            DBusUint32(0),
+                            // Replaces
+                            DBusString(''),
+                            // Icon
+                            DBusString('Hello World!'),
+                            // Summary
+                            DBusString(''),
+                            // Body
+                            DBusArray(DBusSignature('s')),
+                            // Actions
+                            DBusDict(DBusSignature('s'), DBusSignature('v')),
+                            // Hints
+                            DBusInt32(-1),
+                            // Expire timeout
+                          ];
+                          var result = await object.callMethod(
+                              'org.freedesktop.Notifications', 'Notify', values,
+                              replySignature: DBusSignature('u'));
+                          var id = result.returnValues[0];
+                          print('notify ${id.toNative()}');
+                          await client.close();
+                          // _routingService.openAccountSettings();
                         }),
                   ],
                 )),
@@ -168,7 +200,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         return Text(
                           snapshot.data.phoneNumber,
                           style: TextStyle(
-                              color: ExtraTheme.of(context).textField, fontSize: 13),
+                              color: ExtraTheme.of(context).textField,
+                              fontSize: 13),
                         );
                       } else {
                         return SizedBox.shrink();
@@ -201,28 +234,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: FutureBuilder<String>(
                     future: _accountRepo.notification,
                     builder: (c, notif) {
-                      if (notif.hasData && notif.data != null) {
-                        bool notification =
-                            notif.data.contains("true") ? true : false;
-                        return Switch(
-                          value: notification,
-                          activeColor: ExtraTheme.of(context).activeSwitch,
-                          onChanged: (newNotifState) {
-                            _accountRepo
-                                .setNotificationState(newNotifState.toString());
-                            setState(() {});
-                          },
-                        );
-                      } else {
-                        return Switch(
-                          value: true,
-                          onChanged: (newNotifState) {
-                            _accountRepo
-                                .setNotificationState(newNotifState.toString());
-                            setState(() {});
-                          },
-                        );
-                      }
+                      return Switch(
+                        value: (notif.data ?? "true").contains("false")
+                            ? false
+                            : true,
+                        activeColor: ExtraTheme.of(context).activeSwitch,
+                        onChanged: (newNotificationState) {
+                          _accountRepo.setNotificationState(
+                              newNotificationState.toString());
+                          setState(() {});
+                        },
+                      );
                     })),
             settingsRow(context,
                 iconData: Icons.language,
@@ -262,8 +284,10 @@ class _SettingsPageState extends State<SettingsPage> {
                               context: context,
                               builder: (context) {
                                 return AlertDialog(
-                                  titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-                                  actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
+                                  titlePadding: EdgeInsets.only(
+                                      left: 0, right: 0, top: 0),
+                                  actionsPadding:
+                                      EdgeInsets.only(bottom: 10, right: 5),
                                   backgroundColor: Colors.white,
                                   title: Container(
                                     height: 50,
@@ -276,30 +300,39 @@ class _SettingsPageState extends State<SettingsPage> {
                                   ),
                                   content: Container(
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                            appLocalization.getTraslateValue("sure_exit_app"),
-                                            style: TextStyle(color: Colors.black, fontSize: 18)),
+                                            appLocalization.getTraslateValue(
+                                                "sure_exit_app"),
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 18)),
                                       ],
                                     ),
                                   ),
                                   actions: <Widget>[
                                     GestureDetector(
                                       child: Text(
-                                        appLocalization.getTraslateValue("cancel"),
-                                        style: TextStyle(fontSize: 16, color: Colors.blue),
+                                        appLocalization
+                                            .getTraslateValue("cancel"),
+                                        style: TextStyle(
+                                            fontSize: 16, color: Colors.blue),
                                       ),
                                       onTap: () {
                                         Navigator.pop(context);
                                       },
                                     ),
-                                    SizedBox(width: 15,),
-
+                                    SizedBox(
+                                      width: 15,
+                                    ),
                                     GestureDetector(
                                       child: Text(
-                                        appLocalization.getTraslateValue("Log_out"),
-                                        style: TextStyle(fontSize: 16, color: Colors.red),
+                                        appLocalization
+                                            .getTraslateValue("Log_out"),
+                                        style: TextStyle(
+                                            fontSize: 16, color: Colors.red),
                                       ),
                                       onTap: () {
                                         _routingService.logout(context);
@@ -311,6 +344,86 @@ class _SettingsPageState extends State<SettingsPage> {
                         }),
                   ],
                 )),
+            settingsRow(
+              context,
+              iconData: Icons.copyright_outlined,
+              title: appLocalization.getTraslateValue("version"),
+              child: Row(
+                children: <Widget>[
+                  if (isDeveloperMode)
+                    FutureBuilder(
+                      future: SmsAutoFill().getAppSignature,
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          return GestureDetector(
+                            onTap: () => Clipboard.setData(ClipboardData(
+                                text: snapshot.data ?? "no hashcode - ")),
+                            child: Text(
+                              snapshot.data ?? "no hashcode - ",
+                              style: TextStyle(
+                                  color: ExtraTheme.of(context).textField,
+                                  fontSize: 13),
+                            ),
+                          );
+                        } else {
+                          return GestureDetector(
+                            onTap: () => Clipboard.setData(ClipboardData(
+                                text: snapshot.data ?? "no hashcode - ")),
+                            child: Text(
+                              "no hashcode - ",
+                              style: TextStyle(
+                                color: ExtraTheme.of(context).textField,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  GestureDetector(
+                    onTap: () async {
+                      var version = (await PackageInfo.fromPlatform()).version;
+                      showAboutDialog(
+                          context: context,
+                          applicationIcon: Image(
+                            width: 50,
+                            height: 50,
+                            image: AssetImage(
+                                'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
+                          ),
+                          applicationName: APPLICATION_NAME,
+                          applicationVersion: version,
+                          children: [
+                            TextButton(
+                                onPressed: () => launch("https://doc.deliver-co.ir/blogs/updates/"),
+                                child: Text("What's new"))
+                          ]);
+                      print(developerModeCounterCountDown);
+                      developerModeCounterCountDown--;
+                      if (developerModeCounterCountDown < 1) {
+                        setState(() {
+                          isDeveloperMode = true;
+                        });
+                      }
+                    },
+                    child: FutureBuilder(
+                      future: PackageInfo.fromPlatform(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          return Text(
+                            snapshot.data.version ?? "",
+                            style: TextStyle(
+                                color: ExtraTheme.of(context).textField,
+                                fontSize: 13),
+                          );
+                        } else {
+                          return SizedBox.shrink();
+                        }
+                      },
+                    ),
+                  )
+                ],
+              ),
+            ),
           ]),
         ));
   }
@@ -331,7 +444,8 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 SizedBox(width: 8),
                 Icon(
-                  iconData,color: Colors.blue,
+                  iconData,
+                  color: Colors.blue,
                   size: 18,
                 ),
                 SizedBox(width: 8),
@@ -342,7 +456,6 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
             child
-
           ],
         ),
       ),

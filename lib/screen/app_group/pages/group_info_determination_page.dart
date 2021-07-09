@@ -8,7 +8,6 @@ import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -47,10 +46,10 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
 
   @override
   void initState() {
-    super.initState();
     controller = TextEditingController();
     idController = TextEditingController();
     infoController = TextEditingController();
+    super.initState();
   }
 
   Future<bool> checkChannelD(String id) async {
@@ -251,7 +250,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                 i < _createMucService.members.length;
                                 i++) {
                               memberUidList
-                                  .add(_createMucService.members[i].uid.uid);
+                                  .add(_createMucService.members[i].uid.asUid());
                             }
                             if (widget.isChannel) {
                               bool result =
@@ -287,7 +286,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         },
                       ),
                     )
-                  : SizedBox.shrink(),
+                  : CircularProgressIndicator(color: Colors.blueAccent,)
             ),
             Positioned(
               bottom: 0,

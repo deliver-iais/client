@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/media.dart';
+import 'package:deliver_flutter/box/media_type.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/thumbnail_video_ui.dart';
@@ -32,7 +33,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
   Widget build(BuildContext context) {
     return FutureBuilder<List<Media>>(
         future: mediaQueryRepo.getMedia(
-            widget.userUid, FetchMediasReq_MediaType.VIDEOS, widget.videoCount),
+            widget.userUid, MediaType.VIDEO, widget.videoCount),
         builder: (BuildContext c, AsyncSnapshot snaps) {
           if (!snaps.hasData ||
               snaps.data == null ||

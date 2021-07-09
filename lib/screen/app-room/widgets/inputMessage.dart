@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
+import 'package:deliver_flutter/box/room.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
-
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/bot_commandsWidget.dart';
@@ -19,22 +19,16 @@ import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:file_chooser/file_chooser.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/db/database.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:image_size_getter/image_size_getter.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:random_string/random_string.dart';
 
 import 'package:rxdart/rxdart.dart';
 import 'package:vibration/vibration.dart';
-import 'package:ext_storage/ext_storage.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 
 class InputMessage extends StatefulWidget {
@@ -72,7 +66,9 @@ class _InputMessageWidget extends State<InputMessage> {
   double size = 1;
   bool started = false;
   DateTime time = DateTime.now();
-  BehaviorSubject<DateTime> recordSubject = BehaviorSubject.seeded(DateTime.now()) ;
+  BehaviorSubject<DateTime> recordSubject =
+      BehaviorSubject.seeded(DateTime.now());
+
   double DX = 150.0;
   bool recordAudioPermission = false;
   FlutterSoundRecorder _soundRecorder = FlutterSoundRecorder();
@@ -102,7 +98,7 @@ class _InputMessageWidget extends State<InputMessage> {
           backgroundColor: Colors.transparent,
           builder: (context) {
             return ShareBox(
-                currentRoomId: currentRoom.roomId.uid,
+                currentRoomId: currentRoom.uid.asUid(),
                 replyMessageId: widget.replyMessageId,
                 resetRoomPageDetails: widget.resetRoomPageDetails,
                 scrollToLastSentMessage: widget.scrollToLastSentMessage);
@@ -112,17 +108,15 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
-    super.initState();
+    myFocusNode = FocusNode();
 
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, Duration(seconds: 10)))
         .listen((activityType) {
-      messageRepo.sendActivityMessage(
-          widget.currentRoom.roomId.getUid(), activityType);
+      messageRepo.sendActivity(widget.currentRoom.uid.asUid(), activityType);
     });
     NoActivitySubject.listen((event) {
-      messageRepo.sendActivityMessage(
-          widget.currentRoom.roomId.getUid(), event);
+      messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
     controller = TextEditingController();
     currentRoom = widget.currentRoom;
@@ -132,6 +126,7 @@ class _InputMessageWidget extends State<InputMessage> {
       else
         _showSendIcon.add(false);
     });
+    super.initState();
   }
 
   @override
@@ -152,7 +147,7 @@ class _InputMessageWidget extends State<InputMessage> {
                         TextPosition(offset: controller.text.length));
                     _showMentionList.add(false);
                   },
-                  roomUid: widget.currentRoom.roomId,
+                  roomUid: widget.currentRoom.uid,
                 );
               else
                 return SizedBox.shrink();
@@ -162,7 +157,7 @@ class _InputMessageWidget extends State<InputMessage> {
             builder: (c, show) {
               if (show.hasData && show.data) {
                 return BotCommandsWidget(
-                  botUid: widget.currentRoom.roomId.getUid(),
+                  botUid: widget.currentRoom.uid.asUid(),
                   onCommandClick: (String command) {
                     controller.text = "/" + command;
                     controller.selection = TextSelection.fromPosition(
@@ -227,18 +222,26 @@ class _InputMessageWidget extends State<InputMessage> {
                                 child: TextField(
                                   onTap: () {
                                     backSubject.add(false);
-                                    scrollTolast(1);
+                                    //     scrollTolast(1);
                                   },
                                   minLines: 1,
-                                  style: TextStyle(fontSize: 19, height: 1,color: ExtraTheme.of(context).textField),
+                                  style: TextStyle(
+                                      fontSize: 19,
+                                      height: 1,
+                                      color: ExtraTheme.of(context).textField),
                                   maxLines: 15,
-                                  autofocus: widget.replyMessageId > 1 || isDesktop(),
+                                  autofocus:
+                                      widget.replyMessageId > 0 || isDesktop(),
                                   textInputAction: isDesktop()
-                                      ? TextInputAction.send
+                                      ? TextInputAction.next
                                       : TextInputAction.newline,
                                   controller: controller,
                                   autocorrect: true,
+                                  focusNode: myFocusNode,
                                   onSubmitted: (d) {
+                                    if (isDesktop())
+                                      FocusScope.of(context)
+                                          .requestFocus(myFocusNode);
                                     controller.text?.isEmpty &&
                                             (widget.waitingForForward == null ||
                                                 widget.waitingForForward ==
@@ -263,7 +266,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   ),
                                 ),
                               ),
-                              if (currentRoom.roomId.getUid().category ==
+                              if (currentRoom.uid.asUid().category ==
                                   Categories.BOT)
                                 StreamBuilder<bool>(
                                     stream: _showSendIcon.stream,
@@ -279,7 +282,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                                   decoration: BoxDecoration(
                                                     border: Border.all(
                                                         width: 1,
-                                                        color: ExtraTheme.of(context).textField),
+                                                        color: ExtraTheme.of(
+                                                                context)
+                                                            .textField),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             5),
@@ -290,8 +295,10 @@ class _InputMessageWidget extends State<InputMessage> {
                                                           child: Text(
                                                         "/",
                                                         style: TextStyle(
-                                                            fontSize: 19,
-                                                            color: ExtraTheme.of(context).textField,
+                                                          fontSize: 19,
+                                                          color: ExtraTheme.of(
+                                                                  context)
+                                                              .textField,
                                                         ),
                                                       )))),
                                               SizedBox(
@@ -300,7 +307,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                             ],
                                           ),
                                           onTap: () {
-                                            _showBotCommands.add(!_showBotCommands.valueWrapper.value);
+                                            _showBotCommands.add(
+                                                !_showBotCommands
+                                                    .valueWrapper.value);
                                           },
                                         );
                                       else
@@ -315,7 +324,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                       return IconButton(
                                           icon: Icon(
                                             Icons.attach_file,
-                                            color: ExtraTheme.of(context).textField,
+                                            color: ExtraTheme.of(context)
+                                                .textField,
                                           ),
                                           onPressed: () {
                                             backSubject.add(false);
@@ -334,7 +344,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       return IconButton(
                                         icon: Icon(
                                           Icons.send,
-                                            color: Colors.blue,
+                                          color: Colors.blue,
                                         ),
                                         onPressed: controller.text?.isEmpty &&
                                                 (widget.waitingForForward ==
@@ -380,12 +390,12 @@ class _InputMessageWidget extends State<InputMessage> {
                                 } else {
                                   if (started) {
                                     started = false;
-                                    if(_ticktickTimer!=null) _ticktickTimer.cancel();
+                                    if (_ticktickTimer != null)
+                                      _ticktickTimer.cancel();
                                     Vibration.vibrate(duration: 200);
                                     setState(() {
                                       startAudioRecorder = false;
                                       _soundRecorder.closeAudioSession();
-                                      ;
                                       _soundRecorder.stopRecorder();
                                       x = 0;
                                       size = 1;
@@ -420,7 +430,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                 }
                               },
                               onLongPressEnd: (s) async {
-                                if(_ticktickTimer!=null) _ticktickTimer.cancel();
+                                if (_ticktickTimer != null)
+                                  _ticktickTimer.cancel();
 
                                 await _soundRecorder.stopRecorder();
                                 _soundRecorder.closeAudioSession();
@@ -434,7 +445,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (started) {
                                   try {
                                     messageRepo.sendFileMessage(
-                                        widget.currentRoom.roomId.uid, path);
+                                        widget.currentRoom.uid.asUid(), path);
                                   } catch (e) {}
                                 }
                               },
@@ -469,12 +480,12 @@ class _InputMessageWidget extends State<InputMessage> {
                       onTap: (emoji) {
                         controller.text = controller.text + emoji.toString();
                       },
-                      onStickerTap: (Sticker sticker) {
-                        messageRepo.sendStickerMessage(
-                            roomUid: widget.currentRoom.roomId.getUid(),
-                            sticker: sticker);
-                        widget.scrollToLastSentMessage();
-                      },
+                      // onStickerTap: (Sticker sticker) {
+                      //   messageRepo.sendStickerMessage(
+                      //       room: widget.currentRoom.uid.asUid(),
+                      //       sticker: sticker);
+                      //   widget.scrollToLastSentMessage();
+                      // },
                     ));
               } else {
                 return SizedBox.shrink();
@@ -492,13 +503,13 @@ class _InputMessageWidget extends State<InputMessage> {
     if (controller.text.isNotEmpty) {
       if (controller.text.isNotEmpty) if (widget.replyMessageId != null) {
         messageRepo.sendTextMessage(
-          currentRoom.roomId.uid,
+          currentRoom.uid.asUid(),
           controller.text,
           replyId: widget.replyMessageId,
         );
         if (widget.replyMessageId != -1) widget.resetRoomPageDetails();
       } else {
-        messageRepo.sendTextMessage(currentRoom.roomId.uid, controller.text);
+        messageRepo.sendTextMessage(currentRoom.uid.asUid(), controller.text);
       }
 
       controller.clear();
@@ -523,14 +534,14 @@ class _InputMessageWidget extends State<InputMessage> {
       sendMessage();
       return;
     }
-    if (currentRoom.roomId.getUid().category == Categories.BOT) {
+    if (currentRoom.uid.asUid().category == Categories.BOT) {
       if (str.isNotEmpty && str.length == 1 && str.contains("/")) {
         _showBotCommands.add(true);
         return;
       }
     }
     messageText = str;
-    if (currentRoom.roomId.getUid().category == Categories.GROUP) {
+    if (currentRoom.uid.asUid().category == Categories.GROUP) {
       if (str.isEmpty) {
         _showMentionList.add(false);
         return;
@@ -552,7 +563,7 @@ class _InputMessageWidget extends State<InputMessage> {
         }
       } catch (e) {}
     }
-    if (currentRoom.roomId.getUid().category == Categories.BOT) {
+    if (currentRoom.uid.asUid().category == Categories.BOT) {
       if (str.isNotEmpty && str.length == 1 && str.contains(" \ ")) {
         _showBotCommands.add(true);
       } else {
@@ -564,14 +575,10 @@ class _InputMessageWidget extends State<InputMessage> {
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;
 
   _attachFileInWindowsMode() async {
-    final result = await showOpenPanel(
-      allowsMultipleSelection: true,
-    );
-    if (result.paths != null) {
-      print(result.paths[0]);
-      messageRepo.sendFileMessageDeprecated(
-          currentRoom.roomId.uid, result.paths);
-    }
+    final typeGroup = XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
+    final result = await openFiles(acceptedTypeGroups: [typeGroup]);
+    messageRepo.sendMultipleFilesMessages(
+        currentRoom.uid.asUid(), result.map((e) => e.path).toList());
   }
 
   void scrollTolast(int count) {
@@ -582,9 +589,8 @@ class _InputMessageWidget extends State<InputMessage> {
       });
   }
 
-
   void setTime() {
-    _ticktickTimer = Timer(Duration(milliseconds: 500),(){
+    _ticktickTimer = Timer(Duration(milliseconds: 500), () {
       recordSubject.add(DateTime.now());
       setTime();
     });

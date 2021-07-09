@@ -1,13 +1,7 @@
-import 'dart:ui';
-
-import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/services/audioPlayerAppBar.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/title_status.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -17,9 +11,9 @@ class BotAppbar extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
   final Uid botUid;
 
-  BotAppbar({Key key, this.botUid}) : super(key: key);
+  final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  var _roomRepo = GetIt.I.get<RoomRepo>();
+  BotAppbar({Key key, this.botUid}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +27,7 @@ class BotAppbar extends StatelessWidget {
                 width: 15,
               ),
               FutureBuilder<String>(
-                  future: _roomRepo.getRoomDisplayName(botUid),
+                  future: _roomRepo.getName(botUid),
                   builder: (c, name) {
                     if (name.hasData && name.data != null)
                       return buildColumn(name.data, context);

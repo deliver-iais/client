@@ -4,16 +4,16 @@
 
 #include "generated_plugin_registrant.h"
 
-#include <file_chooser/file_chooser_plugin.h>
-#include <path_provider_fde/path_provider_plugin.h>
+#include <desktoasts/desktoasts_plugin.h>
+#include <file_selector_windows/file_selector_plugin.h>
 #include <url_launcher_windows/url_launcher_plugin.h>
 #include <window_size/window_size_plugin.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
-  FileChooserPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("FileChooserPlugin"));
-  PathProviderPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("PathProviderPlugin"));
+  DesktoastsPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("DesktoastsPlugin"));
+  FileSelectorPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("FileSelectorPlugin"));
   UrlLauncherPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("UrlLauncherPlugin"));
   WindowSizePluginRegisterWithRegistrar(

@@ -1,31 +1,26 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:android_intent/android_intent.dart';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/file.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/music.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:file_chooser/file_chooser.dart';
 import 'package:file_picker/file_picker.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_file_manager/flutter_file_manager.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:path_provider_ex/path_provider_ex.dart';
-import 'package:storage_path/storage_path.dart';
+
+import 'share_box/helper_classes.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
@@ -168,12 +163,12 @@ class _ShareBoxState extends State<ShareBox> {
                               Container(
                                 child: CircleButton(() {
                                   if (widget.replyMessageId != null) {
-                                    messageRepo.sendFileMessageDeprecated(
+                                    messageRepo.sendMultipleFilesMessages(
                                         widget.currentRoomId,
                                         finalSelected.values.toList(),
                                         replyToId: widget.replyMessageId);
                                   } else {
-                                    messageRepo.sendFileMessageDeprecated(
+                                    messageRepo.sendMultipleFilesMessages(
                                       widget.currentRoomId,
                                       finalSelected.values.toList(),
                                     );
@@ -244,6 +239,20 @@ class _ShareBoxState extends State<ShareBox> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: <Widget>[
                               CircleButton(() async {
+                                var res = await ImageItem.getImages();
+                                if(res == null  || res.length<1){
+                                  FilePickerResult result =
+                                  await FilePicker.platform.pickFiles(
+                                      allowMultiple: true,
+                                      type: FileType.custom,);
+                                  if (result != null) {
+                                    Navigator.pop(context);
+                                    for (var path in result.paths) {
+                                      messageRepo.sendFileMessage(
+                                          widget.currentRoomId, path);
+                                    }
+                                  }
+                                }else
                                 setState(() {
                                   _audioPlayer.stopPlayer();
                                   currentPage = Page.Gallery;
@@ -267,7 +276,7 @@ class _ShareBoxState extends State<ShareBox> {
                                       'png',
                                       'jpg',
                                       'jpeg',
-                                      'gif'
+                                      'gif','rar'
                                     ]);
                                 if (result != null) {
                                   Navigator.pop(context);

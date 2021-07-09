@@ -1,7 +1,11 @@
 import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/contact.dart';
+import 'package:deliver_flutter/box/media_meta_data.dart';
+import 'package:deliver_flutter/box/media.dart';
+import 'package:deliver_flutter/box/media_type.dart';
+
+
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
@@ -21,13 +25,12 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_parsed_text/flutter_parsed_text.dart';
+import 'package:flutter_link_preview/flutter_link_preview.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -35,9 +38,9 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
-  final Uid userUid;
+  final Uid roomUid;
 
-  ProfilePage(this.userUid, {Key key}) : super(key: key);
+  ProfilePage(this.roomUid, {Key key}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -46,10 +49,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
   final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  var mediasLength;
-  Room currentRoomId;
   var _routingService = GetIt.I.get<RoutingService>();
-  var _roomDao = GetIt.I.get<RoomDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
   var _uxService = GetIt.I.get<UxService>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
@@ -58,17 +58,27 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   void initState() {
-    _mediaQueryRepo.getMediaMetaDataReq(widget.userUid);
-    if (_uxService.getTabIndex(widget.userUid.asString()) == null) {
-      _uxService.setTabIndex(widget.userUid.asString(), 0);
+    featchMedia();
+    if (_uxService.getTabIndex(widget.roomUid.asString()) == null) {
+      _uxService.setTabIndex(widget.roomUid.asString(), 0);
     }
+    setState(() {
+
+    });
     super.initState();
+  }
+
+  void featchMedia()async {
+    await  _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
+    setState(() {
+
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _uxService.setTabIndex(widget.userUid.asString(), 0);
+    _uxService.setTabIndex(widget.roomUid.asString(), 0);
     super.dispose();
   }
 
@@ -83,9 +93,10 @@ class _ProfilePageState extends State<ProfilePage>
 
     return Scaffold(
       body: FluidContainerWidget(
-        child: StreamBuilder<MediasMetaDataData>(
-            stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.userUid),
-            builder: (context, AsyncSnapshot<MediasMetaDataData> snapshot) {
+        child: StreamBuilder<MediaMetaData>(
+            stream:
+                _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
+            builder: (context, AsyncSnapshot<MediaMetaData> snapshot) {
               tabsCount = 0;
               if (snapshot.hasData && snapshot.data != null) {
                 if (snapshot.data.imagesCount != 0) {
@@ -112,22 +123,22 @@ class _ProfilePageState extends State<ProfilePage>
               }
 
               _tabController = TabController(
-                  length: (widget.userUid.category == Categories.GROUP ||
-                          widget.userUid.category == Categories.CHANNEL)
+                  length: (widget.roomUid.category == Categories.GROUP ||
+                          widget.roomUid.category == Categories.CHANNEL)
                       ? tabsCount + 1
                       : tabsCount,
                   vsync: this,
                   initialIndex:
-                      _uxService.getTabIndex(widget.userUid.asString()));
+                      _uxService.getTabIndex(widget.roomUid.asString()));
               _tabController.addListener(() {
                 _uxService.setTabIndex(
-                    widget.userUid.asString(), _tabController.index);
+                    widget.roomUid.asString(), _tabController.index);
               });
 
               return DefaultTabController(
-                  length: (widget.userUid.category == Categories.USER ||
-                          widget.userUid.category == Categories.SYSTEM ||
-                          widget.userUid.category == Categories.BOT)
+                  length: (widget.roomUid.category == Categories.USER ||
+                          widget.roomUid.category == Categories.SYSTEM ||
+                          widget.roomUid.category == Categories.BOT)
                       ? tabsCount
                       : tabsCount + 1,
                   child: NestedScrollView(
@@ -136,12 +147,12 @@ class _ProfilePageState extends State<ProfilePage>
                         return <Widget>[
                           ProfileAvatar(
                             innerBoxIsScrolled: innerBoxIsScrolled,
-                            roomUid: widget.userUid,
+                            roomUid: widget.roomUid,
                           ),
-                          widget.userUid.category == Categories.USER ||
-                                  widget.userUid.category ==
+                          widget.roomUid.category == Categories.USER ||
+                                  widget.roomUid.category ==
                                       Categories.SYSTEM ||
-                                  widget.userUid.category == Categories.BOT
+                                  widget.roomUid.category == Categories.BOT
                               ? SliverList(
                                   delegate: SliverChildListDelegate([
                                   Container(
@@ -162,9 +173,9 @@ class _ProfilePageState extends State<ProfilePage>
                                                         .getTraslateValue(
                                                             "info"),
                                                     style: TextStyle(
-                                                      color: ExtraTheme.of(
-                                                              context)
-                                                          .textField,
+                                                      color:
+                                                          ExtraTheme.of(context)
+                                                              .textField,
                                                       fontSize: 16.0,
                                                     ),
                                                   ),
@@ -172,7 +183,7 @@ class _ProfilePageState extends State<ProfilePage>
                                               ),
                                             ),
                                             SizedBox(height: 5),
-                                            widget.userUid.category ==
+                                            widget.roomUid.category ==
                                                     Categories.SYSTEM
                                                 ? Padding(
                                                     padding: EdgeInsets.only(
@@ -182,18 +193,16 @@ class _ProfilePageState extends State<ProfilePage>
                                                       style: TextStyle(
                                                           color: Colors.blue),
                                                     ))
-                                                : widget.userUid.category ==
+                                                : widget.roomUid.category ==
                                                         Categories.BOT
                                                     ? _showUsername(
-                                                        widget.userUid.node,
-                                                        widget.userUid,
+                                                        widget.roomUid.node,
+                                                        widget.roomUid,
                                                         appLocalization,
                                                         context)
                                                     : FutureBuilder<String>(
-                                                        future: _roomRepo
-                                                            .getUsername(
-                                                                widget
-                                                                    .userUid),
+                                                        future: _roomRepo.getId(
+                                                            widget.roomUid),
                                                         builder: (BuildContext
                                                                 context,
                                                             AsyncSnapshot<
@@ -203,8 +212,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                               null) {
                                                             return _showUsername(
                                                                 snapshot.data,
-                                                                widget
-                                                                    .userUid,
+                                                                widget.roomUid,
                                                                 appLocalization,
                                                                 context);
                                                           } else {
@@ -217,7 +225,7 @@ class _ProfilePageState extends State<ProfilePage>
                                     ),
                                   ),
                                   SizedBox(height: 20),
-                                  if (widget.userUid.category !=
+                                  if (widget.roomUid.category !=
                                       Categories.SYSTEM)
                                     Container(
                                       decoration: BoxDecoration(
@@ -235,52 +243,39 @@ class _ProfilePageState extends State<ProfilePage>
                                                 borderRadius:
                                                     BorderRadius.circular(15),
                                               ),
-                                              height: 60,
+                                              height: 50,
                                               padding:
                                                   const EdgeInsetsDirectional
-                                                          .only(
-                                                      start: 5, end: 15),
+                                                      .only(start: 5, end: 15),
                                               child: GestureDetector(
                                                 child: Row(children: <Widget>[
-                                                  SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Icon(
-                                                    Icons.message,
-                                                    color: Colors.blue,
-                                                  ),
-                                                  SizedBox(
-                                                    width: 10,
+                                                  IconButton(
+                                                    icon: Icon(Icons.message,
+                                                        color: Colors.blue),
+                                                    onPressed: () {},
                                                   ),
                                                   Text(
                                                     appLocalization
                                                         .getTraslateValue(
                                                             "sendMessage"),
                                                     style: TextStyle(
-                                                      color: ExtraTheme.of(
-                                                              context)
-                                                          .textField,
+                                                      color:
+                                                          ExtraTheme.of(context)
+                                                              .textField,
                                                     ),
                                                   ),
                                                 ]),
                                                 onTap: () {
                                                   _routingService.openRoom(
-                                                      widget.userUid
+                                                      widget.roomUid
                                                           .asString());
                                                 },
                                               )),
                                           Container(
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                    color: ExtraTheme.of(
-                                                            context)
-                                                        .borderOfProfilePage),
-                                              ),
-                                              height: 60,
+                                              height: 50,
                                               padding:
                                                   const EdgeInsetsDirectional
-                                                          .only(
-                                                      start: 13, end: 15),
+                                                      .only(start: 7, end: 15),
                                               child: Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment
@@ -289,54 +284,58 @@ class _ProfilePageState extends State<ProfilePage>
                                                     Container(
                                                       child: Row(
                                                         children: <Widget>[
-                                                          Icon(
-                                                              Icons
-                                                                  .notifications_active,
-                                                              size: 30,
-                                                              color: Colors
-                                                                  .blue),
-                                                          SizedBox(width: 10),
+                                                          IconButton(
+                                                            icon: Icon(
+                                                                Icons
+                                                                    .notifications_active,
+                                                                color: Colors
+                                                                    .blue),
+                                                            onPressed: () {},
+                                                          ),
                                                           Text(
                                                             appLocalization
                                                                 .getTraslateValue(
                                                                     "notification"),
                                                             style: TextStyle(
-                                                              color: ExtraTheme.of(
-                                                                      context)
+                                                              color: ExtraTheme
+                                                                      .of(context)
                                                                   .textField,
                                                             ),
                                                           ),
                                                         ],
                                                       ),
                                                     ),
-                                                    StreamBuilder<Room>(
-                                                      stream: _roomDao
-                                                          .getByRoomId(widget
-                                                              .userUid
-                                                              .asString()),
+                                                    StreamBuilder<bool>(
+                                                      stream: _roomRepo
+                                                          .watchIsRoomMuted(
+                                                              widget.roomUid
+                                                                  .asString()),
                                                       builder: (BuildContext
                                                               context,
-                                                          AsyncSnapshot<Room>
+                                                          AsyncSnapshot<bool>
                                                               snapshot) {
-                                                        if (snapshot.data !=
-                                                            null) {
+                                                        if (snapshot.hasData &&
+                                                            snapshot.data !=
+                                                                null) {
                                                           return Switch(
                                                             activeColor:
                                                                 ExtraTheme.of(
                                                                         context)
                                                                     .activeSwitch,
-                                                            value: !snapshot
-                                                                .data.mute,
-                                                            onChanged:
-                                                                (newNotifState) {
-                                                              setState(() {
-                                                                _roomDao.insertRoom(Room(
-                                                                    roomId: widget
-                                                                        .userUid
-                                                                        .asString(),
-                                                                    mute:
-                                                                        !newNotifState));
-                                                              });
+                                                            value:
+                                                                !snapshot.data,
+                                                            onChanged: (state) {
+                                                              if (state) {
+                                                                _roomRepo.unmute(
+                                                                    widget
+                                                                        .roomUid
+                                                                        .asString());
+                                                              } else {
+                                                                _roomRepo.mute(
+                                                                    widget
+                                                                        .roomUid
+                                                                        .asString());
+                                                              }
                                                             },
                                                           );
                                                         } else {
@@ -346,89 +345,60 @@ class _ProfilePageState extends State<ProfilePage>
                                                       },
                                                     )
                                                   ])),
-                                          if (widget.userUid.category !=
+                                          if (widget.roomUid.category !=
                                                   Categories.SYSTEM &&
-                                              widget.userUid.category !=
+                                              widget.roomUid.category !=
                                                   Categories.BOT)
                                             FutureBuilder<Contact>(
                                               future: _contactRepo
-                                                  .getContact(widget.userUid),
+                                                  .getContact(widget.roomUid),
                                               builder: (BuildContext context,
                                                   AsyncSnapshot<Contact>
                                                       snapshot) {
                                                 if (snapshot.data != null) {
                                                   return Container(
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius
-                                                              .circular(15),
-                                                    ),
-                                                    height: 60,
+                                                    height: 50,
                                                     padding:
                                                         const EdgeInsetsDirectional
                                                                 .only(
-                                                            start: 7,
-                                                            end: 15),
-                                                    child: Stack(children: <
-                                                        Widget>[
-                                                      Row(
-                                                        children: [
-                                                          IconButton(
-                                                            icon: Icon(
-                                                                Icons.phone,
-                                                                color: Colors
-                                                                    .blue),
-                                                            onPressed: () {},
+                                                            start: 7, end: 15),
+                                                    child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: <Widget>[
+                                                          Row(
+                                                            children: [
+                                                              IconButton(
+                                                                icon: Icon(
+                                                                    Icons.phone,
+                                                                    color: Colors
+                                                                        .blue),
+                                                                onPressed:
+                                                                    () {},
+                                                              ),
+                                                              Text(
+                                                                  appLocalization
+                                                                      .getTraslateValue(
+                                                                          "phone"),
+                                                                  style: TextStyle(
+                                                                      color: ExtraTheme.of(
+                                                                              context)
+                                                                          .textField)),
+                                                            ],
                                                           ),
-                                                          Text(
-                                                              appLocalization
-                                                                  .getTraslateValue(
-                                                                      "phone"),
+                                                          MaterialButton(
+                                                            onPressed: () => launch(
+                                                                "tel:0${snapshot.data.phoneNumber}"),
+                                                            child: Text(
+                                                              "0${snapshot.data.phoneNumber}",
                                                               style: TextStyle(
                                                                   color: ExtraTheme.of(
                                                                           context)
-                                                                      .textField)),
-                                                        ],
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                top: 20),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .end,
-                                                          children: [
-                                                            ParsedText(
-                                                              textDirection:
-                                                                  TextDirection
-                                                                      .ltr,
-                                                              text:
-                                                                  "0${snapshot.data.phoneNumber}",
-                                                              parse: <
-                                                                  MatchText>[
-                                                                MatchText(
-                                                                  type: ParsedType
-                                                                      .PHONE,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                        .blue,
-                                                                    fontSize:
-                                                                        16,
-                                                                  ),
-                                                                  onTap:
-                                                                      (phone) async {
-                                                                    await launch(
-                                                                        "tel:$phone");
-                                                                  },
-                                                                ),
-                                                              ],
+                                                                      .username),
                                                             ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ]),
+                                                          )
+                                                        ]),
                                                   );
                                                 } else {
                                                   return SizedBox.shrink();
@@ -443,7 +413,7 @@ class _ProfilePageState extends State<ProfilePage>
                                   )
                                 ]))
                               : GroupUiWidget(
-                                  mucUid: widget.userUid,
+                                  mucUid: widget.roomUid,
                                 ),
                           SliverPersistentHeader(
                             pinned: true,
@@ -455,12 +425,12 @@ class _ProfilePageState extends State<ProfilePage>
                                   child: TabBar(
                                     onTap: (index) {
                                       _uxService.setTabIndex(
-                                          widget.userUid.asString(), index);
+                                          widget.roomUid.asString(), index);
                                     },
                                     tabs: [
-                                      if (widget.userUid.category ==
+                                      if (widget.roomUid.category ==
                                               Categories.GROUP ||
-                                          widget.userUid.category ==
+                                          widget.roomUid.category ==
                                               Categories.CHANNEL)
                                         Tab(
                                           text: appLocalization
@@ -493,8 +463,7 @@ class _ProfilePageState extends State<ProfilePage>
                                           snapshot.data.documentsCount != 0)
                                         Tab(
                                             text: appLocalization
-                                                .getTraslateValue(
-                                                    "documents")),
+                                                .getTraslateValue("documents")),
                                       if (snapshot.hasData &&
                                           snapshot.data.musicsCount != 0)
                                         Tab(
@@ -515,53 +484,51 @@ class _ProfilePageState extends State<ProfilePage>
                       body: Container(
                           child: TabBarView(
                         children: [
-                          if (widget.userUid.category != Categories.USER &&
-                              widget.userUid.category != Categories.SYSTEM &&
-                              widget.userUid.category != Categories.BOT)
+                          if (widget.roomUid.category != Categories.USER &&
+                              widget.roomUid.category != Categories.SYSTEM &&
+                              widget.roomUid.category != Categories.BOT)
                             SingleChildScrollView(
                               child: Column(children: [
                                 MucMemberWidget(
-                                  mucUid: widget.userUid,
+                                  mucUid: widget.roomUid,
                                 ),
                               ]),
                             ),
                           if (snapshot.hasData &&
                               snapshot.data.imagesCount != 0)
                             ImageTabUi(
-                                snapshot.data.imagesCount, widget.userUid),
+                                snapshot.data.imagesCount, widget.roomUid),
                           if (snapshot.hasData &&
                               snapshot.data.videosCount != 0)
                             VideoTabUi(
-                                userUid: widget.userUid,
+                                userUid: widget.roomUid,
                                 videoCount: snapshot.data.videosCount),
-                          if (snapshot.hasData &&
-                              snapshot.data.filesCount != 0)
+                          if (snapshot.hasData && snapshot.data.filesCount != 0)
                             DocumentAndFileUi(
-                              userUid: widget.userUid,
+                              roomUid: widget.roomUid,
                               documentCount: snapshot.data.filesCount,
-                              type: FetchMediasReq_MediaType.FILES,
+                              type:MediaType.FILE,
                             ),
-                          if (snapshot.hasData &&
-                              snapshot.data.linkCount != 0)
-                            linkWidget(widget.userUid, _mediaQueryRepo,
+                          if (snapshot.hasData && snapshot.data.linkCount != 0)
+                            linkWidget(widget.roomUid, _mediaQueryRepo,
                                 snapshot.data.linkCount),
                           if (snapshot.hasData &&
                               snapshot.data.documentsCount != 0)
                             DocumentAndFileUi(
-                              userUid: widget.userUid,
+                              roomUid: widget.roomUid,
                               documentCount: snapshot.data.documentsCount,
-                              type: FetchMediasReq_MediaType.DOCUMENTS,
+                              type: MediaType.DOCUMENT,
                             ),
                           if (snapshot.hasData &&
                               snapshot.data.musicsCount != 0)
                             MusicAndAudioUi(
-                                userUid: widget.userUid,
+                                userUid: widget.roomUid,
                                 type: FetchMediasReq_MediaType.MUSICS,
                                 mediaCount: snapshot.data.musicsCount),
                           if (snapshot.hasData &&
                               snapshot.data.audiosCount != 0)
                             MusicAndAudioUi(
-                                userUid: widget.userUid,
+                                userUid: widget.roomUid,
                                 type: FetchMediasReq_MediaType.AUDIOS,
                                 mediaCount: snapshot.data.audiosCount),
                         ],
@@ -577,7 +544,7 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
   //TODO i just implemented and not tested because server problem
   return FutureBuilder<List<Media>>(
       future: mediaQueryRepo.getMedia(
-          userUid, FetchMediasReq_MediaType.LINKS, linksCount),
+          userUid, MediaType.LINK, linksCount),
       builder: (BuildContext context, AsyncSnapshot<List<Media>> snapshot) {
         if (!snapshot.hasData ||
             snapshot.data == null ||
@@ -589,18 +556,18 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
             itemBuilder: (BuildContext ctx, int index) {
               return Column(
                 children: [
-                  ListTile(
-                      // title: FlutterLinkPreview(
-                      //   url: jsonDecode(snapshot.data[index].json)["url"],
-                      //   bodyStyle: TextStyle(
-                      //     fontSize: 10.0,
-                      //   ),
-                      //   titleStyle: TextStyle(
-                      //     fontSize: 18.0,
-                      //     fontWeight: FontWeight.bold,
-                      //   ),
-                      // ),
-                      ),
+                  FlutterLinkPreview(
+                    url: jsonDecode(snapshot.data[index].json)["url"],
+                    bodyStyle: TextStyle(
+                        fontSize: 12.0,
+                        height: 1.4,
+                        color: ExtraTheme.of(context).textField),
+                    useMultithread: true,
+                    titleStyle: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: ExtraTheme.of(context).textField),
+                  ),
                   Divider(),
                 ],
               );

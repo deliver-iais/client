@@ -1,4 +1,3 @@
-import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as formModel;
@@ -17,12 +16,10 @@ class RadioButtonFieldWisget extends StatefulWidget {
 }
 
 class _RadioButtonFieldWisgetState extends State<RadioButtonFieldWisget> {
-  AppLocalization _appLocalization;
   String selected;
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
     return SizedBox.shrink();
 
     // return Padding(

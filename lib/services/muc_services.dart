@@ -1,3 +1,6 @@
+import 'package:fixnum/fixnum.dart';
+
+import 'package:deliver_flutter/box/message.dart' as db;
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/utils/log.dart';
@@ -14,6 +17,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class MucServices {
   var _accountRepo = GetIt.I.get<AccountRepo>();
@@ -30,7 +34,7 @@ class MucServices {
             ..name = groupName
             ..info = info,
           options: CallOptions(
-              timeout: Duration(seconds: 2),
+              timeout: Duration(seconds: 5),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return request.uid;
     } catch (e) {
@@ -49,10 +53,11 @@ class MucServices {
       await groupServices.addMembers(addMemberRequest,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()},
-              timeout: Duration(seconds: 2)));
+              timeout: Duration(seconds: 4)));
 
       return true;
     } catch (e) {
+      debug(e);
       return false;
     }
   }
@@ -97,7 +102,7 @@ class MucServices {
     }
   }
 
-  Future<List<Member>> getGroupMembers(
+  Future<GroupServices.GetMembersRes> getGroupMembers(
       Uid groupUid, int limit, int pointer) async {
     var request = await groupServices.getMembers(
         GroupServices.GetMembersReq()
@@ -106,7 +111,7 @@ class MucServices {
           ..limit = limit,
         options: CallOptions(
             metadata: {'access_token': await _accountRepo.getAccessToken()}));
-    return request.members;
+    return request;
   }
 
   Future<bool> leaveGroup(Uid groupUid) async {
@@ -189,15 +194,18 @@ class MucServices {
     }
   }
 
-  Future<bool> joinGroup(Uid groupUid) async {
+  Future<bool> joinGroup(Uid groupUid, String token) async {
     try {
       await groupServices.joinGroup(
-          GroupServices.JoinGroupReq()..group = groupUid,
+          GroupServices.JoinGroupReq()
+            ..group = groupUid
+            ..token = token,
           options: CallOptions(
-              timeout: Duration(seconds: 2),
+              timeout: Duration(seconds: 4),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
+      debug(e);
       return false;
     }
   }
@@ -228,7 +236,7 @@ class MucServices {
             ..type = type
             ..id = channelId,
           options: CallOptions(
-              timeout: Duration(seconds: 2),
+              timeout: Duration(seconds: 5),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return request.uid;
     } catch (e) {
@@ -299,7 +307,7 @@ class MucServices {
     }
   }
 
-  Future<List<Member>> getChannelMembers(
+  Future<ChannelServices.GetMembersRes> getChannelMembers(
       Uid channelUid, int limit, int pointer) async {
     try {
       var request = await channelServices.getMembers(
@@ -310,7 +318,7 @@ class MucServices {
           options: CallOptions(
               timeout: Duration(seconds: 2),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      return request.members;
+      return request;
     } catch (e) {
       return null;
     }
@@ -376,12 +384,14 @@ class MucServices {
     }
   }
 
-  Future<bool> joinChannel(Uid channelUid) async {
+  Future<bool> joinChannel(Uid channelUid, String token) async {
     try {
       await channelServices.joinChannel(
-          ChannelServices.JoinChannelReq()..channel = channelUid,
+          ChannelServices.JoinChannelReq()
+            ..channel = channelUid
+            ..token,
           options: CallOptions(
-              timeout: Duration(seconds: 1),
+              timeout: Duration(seconds: 4),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
@@ -399,6 +409,87 @@ class MucServices {
           options: CallOptions(
               timeout: Duration(seconds: 2),
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> pinMessage(db.Message message) async {
+    try {
+      if (message.roomUid.asUid().category == Categories.GROUP) {
+        groupServices.pinMessage(
+            GroupServices.PinMessageReq()
+              ..uid = message.roomUid.asUid()
+              ..messageId = Int64(message.id),
+            options: CallOptions(
+                metadata: {'access_token': await _accountRepo.getAccessToken()},
+                timeout: Duration(seconds: 2)));
+      } else {
+        channelServices.pinMessage(
+            ChannelServices.PinMessageReq()
+              ..uid = message.roomUid.asUid()
+              ..messageId = Int64(message.id),
+            options: CallOptions(
+                metadata: {'access_token': await _accountRepo.getAccessToken()},
+                timeout: Duration(seconds: 2)));
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future getGroupJointToken({Uid groupUid}) async {
+    try {
+      var res = await groupServices.createToken(
+          GroupServices.CreateTokenReq()
+            ..uid = groupUid
+            ..validUntil = Int64(-1)
+            ..numberOfAvailableJoins = Int64(-1),
+          options: CallOptions(
+              metadata: {'access_token': await _accountRepo.getAccessToken()},
+              timeout: Duration(seconds: 3)));
+      return res.joinToken;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future getChannelJointToken({Uid channelUid}) async {
+    try {
+      var res = await channelServices.createToken(
+          ChannelServices.CreateTokenReq()
+            ..uid = channelUid
+            ..validUntil = Int64(-1),
+          options: CallOptions(
+              metadata: {'access_token': await _accountRepo.getAccessToken()},
+              timeout: Duration(seconds: 2)));
+      return res.joinToken;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<bool> unpinMessage(db.Message message) async {
+    try {
+      if (message.roomUid.asUid().category == Categories.GROUP) {
+        groupServices.unpinMessage(
+            GroupServices.UnpinMessageReq()
+              ..uid = message.roomUid.asUid()
+              ..messageId = Int64(message.id),
+            options: CallOptions(
+                metadata: {'access_token': await _accountRepo.getAccessToken()},
+                timeout: Duration(seconds: 2)));
+      } else {
+        channelServices.unpinMessage(
+            ChannelServices.UnpinMessageReq()
+              ..uid = message.roomUid.asUid()
+              ..messageId = Int64(message.id),
+            options: CallOptions(
+                metadata: {'access_token': await _accountRepo.getAccessToken()},
+                timeout: Duration(seconds: 2)));
+      }
       return true;
     } catch (e) {
       return false;

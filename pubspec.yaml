@@ -17,11 +17,13 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 
 # build appbundle --target-platform android-arm,android-arm64,android-x64
-version: 1.2.7
+version: 1.3.0
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
 
+dependency_overrides:
+  http: ^0.13.2
 
 dependencies:
   flutter:
@@ -29,7 +31,9 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
- # flutter_link_preview: ^1.5.6
+  flutter_link_preview: 1.5.6
+
+  desktoasts: 0.0.2
 
   carousel_slider: 2.3.1
   dots_indicator: 1.2.0
@@ -57,6 +61,8 @@ dependencies:
 
   linkify: 3.0.0
 
+  uni_links: 0.5.1
+
   flutter_map: 0.13.1
 
   geolocator: ^5.1.3
@@ -75,68 +81,67 @@ dependencies:
     git:
       url: git://github.com/google/flutter-desktop-embedding.git
       path: plugins/window_size
-      ref: 0efb6b14a802a01b5432b2a2ee97c7f4821f2ab2
+      ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
 
-  file_chooser:
-    git:
-      url: git://github.com/google/flutter-desktop-embedding.git
-      path: plugins/file_chooser
-      ref: 0efb6b14a802a01b5432b2a2ee97c7f4821f2ab2
+  file_selector: 0.8.2
+  file_selector_macos: 0.0.4
+  file_selector_linux: 0.0.2
+  file_selector_windows: 0.0.2
+
   dio: 4.0.0 # HTTP Invoker Library
   mime_type: 0.3.2 # Get mime type of file path
   jwt_decoder: 1.0.1
   deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
     git:
       url: https://gitlab.iais.co/deliver-public/pub-dart-artifactory
-      ref: tags/v1.7.0-rc.56
+      ref: tags/v1.7.0-rc.90
   grpc: 3.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   protobuf: 2.0.0 # (WEB NOT SUPPORTED BI-Directional Streaming)
   storage_path: 0.2.0 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: FILE CHOOSER)
   image_picker: 0.8.0+3 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
   image_cropper: 1.3.1 # (DESKTOP NOT SUPPORTED, NO BACKUP PLAN)
- # image: ^2.1.19
+
   vibration: 1.7.2 # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
   dcache: 0.3.0
 
   image_size_getter: 0.2.1
 
-  sqflite_common_ffi: 2.0.0+1
+
 
   audioplayer: 0.8.1
-
+  audioplayers: 0.19.0
 
   video_player: 1.0.1
-  open_file: 3.2.1
+  open_file: 3.2.1 # Open file in OS
+  package_info_plus: 1.0.3
 
   contacts_service: 0.6.1
   random_string: 2.1.0
   flutter_local_notifications: 6.0.0
 
-#  flutter_timer: 0.0.6
+
   uuid: 3.0.4
   flutter_sound: 8.1.4
 
   record: 2.1.1
   percent_indicator: 2.1.8
+  package_info: 2.0.2
   cached_network_image: 3.0.0
 
-  moor: 4.3.2 # Multi-Platform ORM
-  sqlite3_flutter_libs: 0.2.0 # Moor Needed Library
+
   sms_autofill: 1.2.6
+  sorted_list: 1.0.0
   scrollable_positioned_list: 0.1.10
   share: 2.0.4
   fluttertoast: ^3.1.3
   firebase_messaging: 10.0.1
   firebase_core: 1.2.1
   flutter_swiper: 1.1.6
-
-
   ## mockito: 5.0.10 # Great Library for Mocking in Tests
-
   test:
   badges: 1.1.4
 
-
+  modal_bottom_sheet: 2.0.0
 
   receive_sharing_intent: 1.4.5
 
@@ -147,25 +152,22 @@ dependencies:
   assets_audio_player: 3.0.3+3
 
   flutter_parsed_text: 1.2.5
+  msix: 2.1.3
 
   device_info: 2.0.2
 
-
-
-  path_provider_fde:
-    git:
-      url: git://github.com/google/flutter-desktop-embedding.git
-      path: plugins/flutter_plugins/path_provider_fde
-      ref: 66e4b05
+  hive: 2.0.4
+  hive_flutter: 1.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  moor_generator: 4.3.1
+
   marquee: 2.1.0
   build_runner:
-#  auto_route_generator:
+  hive_generator: ^1.1.0
+
 
 
 # For information on the generic Dart part of this file, see the
@@ -183,15 +185,15 @@ flutter:
   assets:
     - assets/images/a.flr
     - assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png
+    - assets/ic_launcher/web_hi_res_512.png
     - assets/icons/stickerIcon.png
     - assets/icons/emojiIcon.png
     - assets/audios/r.mp3
+    - assets/audios/ack.mp3
     - lib/lang/fa.json
     - lib/lang/en.json
-    - assets/audios/ack.mp3
     - assets/icons/mention.png
     - assets/icons/channel_icon.png
-    - assets/bac/bdark.jpg
     - assets/bac/b2.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
@@ -212,6 +214,7 @@ flutter:
         - asset: assets/fonts/vazir/Vazir-Medium.ttf
         - asset: assets/fonts/vazir/Vazir-Thin.ttf
           weight: 700
+
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
 #analyzer:

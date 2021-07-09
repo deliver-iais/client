@@ -1,7 +1,6 @@
 import 'dart:math';
 
-import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/account.dart';
+import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
@@ -18,6 +17,7 @@ import 'package:get_it/get_it.dart';
 class CircleAvatarWidget extends StatelessWidget {
   final Uid contactUid;
   final double radius;
+  final String forceText;
   final bool forceToUpdate;
   final bool showAsStreamOfAvatar;
   final bool showSavedMessageLogoIfNeeded;
@@ -29,6 +29,7 @@ class CircleAvatarWidget extends StatelessWidget {
 
   CircleAvatarWidget(this.contactUid, this.radius,
       {this.forceToUpdate = false,
+      this.forceText = "",
       this.showAsStreamOfAvatar = false,
       this.showSavedMessageLogoIfNeeded = false});
 
@@ -71,9 +72,9 @@ class CircleAvatarWidget extends StatelessWidget {
               : color,
       child: contactUid.category == Categories.SYSTEM
           ? Image(
-              image: AssetImage(
-                  'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
-            )
+            image: AssetImage(
+                'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
+          )
           : isSavedMessage()
               ? Icon(
                   Icons.bookmark,
@@ -81,12 +82,12 @@ class CircleAvatarWidget extends StatelessWidget {
                   color: Colors.white,
                 )
               : showAsStreamOfAvatar
-                  ? StreamBuilder<LastAvatar>(
+                  ? StreamBuilder<Avatar>(
                       stream: _avatarRepo.getLastAvatarStream(
                           contactUid, forceToUpdate),
                       builder: (context, snapshot) =>
                           this.builder(context, snapshot, textColor))
-                  : FutureBuilder<LastAvatar>(
+                  : FutureBuilder<Avatar>(
                       future:
                           _avatarRepo.getLastAvatar(contactUid, forceToUpdate),
                       builder: (context, snapshot) =>
@@ -94,7 +95,7 @@ class CircleAvatarWidget extends StatelessWidget {
     );
   }
 
-  Widget builder(BuildContext context, AsyncSnapshot<LastAvatar> snapshot,
+  Widget builder(BuildContext context, AsyncSnapshot<Avatar> snapshot,
       Color textColor) {
     if (snapshot.hasData &&
         snapshot.data != null &&
@@ -124,40 +125,33 @@ class CircleAvatarWidget extends StatelessWidget {
   }
 
   Widget showDisplayName(Color textColor) {
-    return contactUid != _accountRepo.currentUserUid
-        ? FutureBuilder<String>(
-            future: _roomRepo.getRoomDisplayName(contactUid),
-            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-              if (snapshot.data != null) {
-                String name = snapshot.data.replaceAll(' ', '');
-                return Center(
-                  child: Text(name.length > 2 ? name.substring(0, 2) : name,
-                      style:
-                          TextStyle(color: textColor, fontSize: (radius * 0.6).toInt().toDouble(), height: 2)),
-                );
-              } else {
-                return Icon(
-                  Icons.person,
-                  size: radius,
-                  color: Colors.white,
-                );
-              }
-            },
-          )
-        : FutureBuilder<Account>(
-            future: _accountRepo.getAccount(),
-            builder: (BuildContext context, AsyncSnapshot<Account> snapshot) {
-              if (snapshot.data != null) {
-                return Text(
-                    snapshot.data.firstName != null
-                        ? snapshot.data.firstName.substring(0, 2)
-                        : "",
-                    style: TextStyle(
-                        color: Colors.white, fontSize: radius, height: 2));
-              } else {
-                return SizedBox.shrink();
-              }
-            },
+    if (this.forceText.isNotEmpty) {
+      return avatarAlt(this.forceText, textColor);
+    }
+    return FutureBuilder<String>(
+      future: _roomRepo.getName(contactUid),
+      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+        if (snapshot.data != null) {
+          String name = snapshot.data.replaceAll(' ', '');
+          return avatarAlt(name, textColor);
+        } else {
+          return Icon(
+            Icons.person,
+            size: radius,
+            color: Colors.white,
           );
+        }
+      },
+    );
+  }
+
+  Center avatarAlt(String name, Color textColor) {
+    return Center(
+      child: Text(name.length > 2 ? name.substring(0, 2) : name,
+          style: TextStyle(
+              color: textColor,
+              fontSize: (radius * 0.6).toInt().toDouble(),
+              height: 2)),
+    );
   }
 }

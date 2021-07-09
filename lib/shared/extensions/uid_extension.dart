@@ -26,7 +26,7 @@ extension StringUidExtension on String {
     }
   }
 
-  get uid {
+  Uid asUid() {
     var list = this.split(":");
     if (list.length != 2) {
       throw AssertionError("Uid is incorrect");
@@ -37,6 +37,4 @@ extension StringUidExtension on String {
         ..sessionId = _ALL_SESSIONS;
     }
   }
-
-  Uid getUid() => this.uid;
 }

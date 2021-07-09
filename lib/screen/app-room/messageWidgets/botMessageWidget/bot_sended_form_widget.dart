@@ -1,7 +1,7 @@
-import 'dart:convert';
-import 'package:deliver_flutter/db/dao/MessageDao.dart';
-import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as formModel;
+import 'package:deliver_flutter/box/message.dart';
+import 'package:deliver_flutter/repository/messageRepo.dart';
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
+    as formModel;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -9,21 +9,20 @@ import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 
 import '../timeAndSeenStatus.dart';
 
-class BotSendedFormWidget extends StatelessWidget {
+class BotSentFormWidget extends StatelessWidget {
   final Message message;
   final bool isSeen;
 
-  BotSendedFormWidget({this.message,this.isSeen});
+  BotSentFormWidget({this.message, this.isSeen});
 
-  MessageDao _messageDao = GetIt.I.get<MessageDao>();
-  formModel.FormResult formResult;
+  final _messageDao = GetIt.I.get<MessageRepo>();
 
   @override
   Widget build(BuildContext context) {
-    formResult = message.json.toFormResult();
+    var formResult = message.json.toFormResult();
 
-    return StreamBuilder<Message>(
-        stream: _messageDao.getById(message.replyToId, message.to),
+    return FutureBuilder<Message>(
+        future: _messageDao.getMessage(message.to, message.replyToId),
         builder: (c, messageByForm) {
           if (messageByForm.hasData && messageByForm.data != null) {
             formModel.Form form = messageByForm.data.json.toForm();
@@ -44,31 +43,30 @@ class BotSendedFormWidget extends StatelessWidget {
                             height: 20 * form.fields.length.toDouble(),
                             width: 250,
                             child: ListView.builder(
-                                    itemCount: form.fields.length,
-                                    itemBuilder: (c, index) {
-                                      return Row(
-                                        crossAxisAlignment:
+                                itemCount: form.fields.length,
+                                itemBuilder: (c, index) {
+                                  return Row(
+                                    crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "${form.fields[index].label} : ",
-                                            style: TextStyle(
-                                                fontSize: 13, color: Colors.black),
-                                          ),
-                                          Text(
-                                            getText(form, index),
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                                fontSize: 14, color: Colors.white),
-                                          )
-                                        ],
-                                      );
-                                    })),
+                                    children: [
+                                      Text(
+                                        "${form.fields[index].label} : ",
+                                        style: TextStyle(
+                                            fontSize: 13, color: Colors.black),
+                                      ),
+                                      Text(
+                                        getText(form, index, formResult),
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            fontSize: 14, color: Colors.white),
+                                      )
+                                    ],
+                                  );
+                                })),
                       ),
                     ],
                   ),
-
-                  TimeAndSeenStatus(message, true, true,isSeen),
+                  TimeAndSeenStatus(message, true, true, isSeen),
                 ],
               ),
             );
@@ -78,7 +76,8 @@ class BotSendedFormWidget extends StatelessWidget {
         });
   }
 
-  String getText(formModel.Form form, int index) {
+  String getText(
+      formModel.Form form, int index, formModel.FormResult formResult) {
     var body = formResult.values[form.fields[index].id];
     String text = "";
     if (body == null) {

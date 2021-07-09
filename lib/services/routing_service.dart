@@ -1,12 +1,12 @@
 import 'dart:collection';
 import 'dart:io';
 
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/message.dart';
+
 import 'package:deliver_flutter/screen/app-contacts/widgets/new_Contact.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/addStickerPack.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
 import 'package:deliver_flutter/screen/app_group/pages/group_info_determination_page.dart';
 import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dart';
@@ -18,7 +18,6 @@ import 'package:deliver_flutter/screen/settings/account_settings.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -27,6 +26,7 @@ import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
 import 'package:rxdart/subjects.dart';
 
 class Page {
@@ -68,9 +68,7 @@ class RoutingService {
   }
 
   void openRoom(String roomId,
-      {List<Message> forwardedMessages = const [],
-      pro.ShareUid shareUid,
-      bool joinToMuc}) {
+      {List<Message> forwardedMessages = const [], pro.ShareUid shareUid}) {
     backSubject.add(false);
     var widget = WillPopScope(
         onWillPop: () async {
@@ -86,7 +84,6 @@ class RoutingService {
           roomId: roomId,
           forwardedMessages: forwardedMessages,
           shareUid: shareUid,
-          jointToMuc: joinToMuc,
         ));
     _popAllAndPush(Page(
         largePageNavigator: _navigationCenter,
@@ -173,7 +170,7 @@ class RoutingService {
   }
 
   void openProfile(String roomId) {
-    var widget = ProfilePage(roomId.uid, key: ValueKey("/profile/$roomId"));
+    var widget = ProfilePage(roomId.asUid(), key: ValueKey("/profile/$roomId"));
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,
@@ -248,14 +245,14 @@ class RoutingService {
   }
 
   void openAddStickerPcakPage() {
-    var widget = AddStickerPack(
-      key: ValueKey("/add-sticker-pack-page"),
-    );
-    _push(Page(
-        largePageNavigator: _navigationCenter,
-        largePageMain: widget,
-        smallPageMain: widget,
-        path: "/add-sticker-pack-page"));
+    // var widget = AddStickerPack(
+    //   key: ValueKey("/add-sticker-pack-page"),
+    // );
+    // _push(Page(
+    //     largePageNavigator: _navigationCenter,
+    //     largePageMain: widget,
+    //     smallPageMain: widget,
+    //     path: "/add-sticker-pack-page"));
   }
 
   _push(Page p) {
@@ -313,10 +310,7 @@ class RoutingService {
   }
 
   Future<void> deleteDb() async {
-    Database db = GetIt.I.get<Database>();
-    await db.delete(db.rooms).go();
-    await db.delete(db.pendingMessages).go();
-    await db.deleteAllData();
+    Hive.deleteFromDisk();
   }
 
   Stream<String> get currentRouteStream => _route.stream;

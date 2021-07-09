@@ -1,51 +1,45 @@
-import 'package:deliver_flutter/db/dao/RoomDao.dart';
-import 'package:deliver_flutter/db/database.dart';
-import 'package:deliver_flutter/models/roomWithMessage.dart';
+import 'package:deliver_flutter/box/room.dart';
+import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/chatItem.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class ChatsPage extends StatelessWidget {
-  final RoutingService routingService = GetIt.I.get<RoutingService>();
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
 
   ChatsPage({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var roomDao = GetIt.I.get<RoomDao>();
-    return StreamBuilder<List<RoomWithMessage>>(
-        stream: roomDao.getAllRoomsWithMessage(),
+    return StreamBuilder<List<Room>>(
+        stream: _roomRepo.watchAllRooms(),
         builder: (context, snapshot) {
           return StreamBuilder(
-            stream: routingService.currentRouteStream,
+            stream: _routingService.currentRouteStream,
             builder: (BuildContext c, AsyncSnapshot<Object> s) {
-              var roomsWithMessages = snapshot.data ?? [];
+              var room = snapshot.data ?? [];
               return Scrollbar(
                 child: ListView.separated(
-                  itemCount: roomsWithMessages.length,
+                  itemCount: room.length,
                   itemBuilder: (BuildContext ctx, int index) {
-                    if (roomsWithMessages[index].lastMessage != null) {
-                      return GestureDetector(
+                    return MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
                         behavior: HitTestBehavior.translucent,
                         child: ChatItem(
-                          key: ValueKey(
-                              "chatItem/${roomsWithMessages[index].room.roomId}"),
-                          roomWithMessage: roomsWithMessages[index],
-                          isSelected: routingService
-                              .isInRoom(roomsWithMessages[index].room.roomId),
+                          key: ValueKey("chatItem/${room[index].uid}"),
+                          room: room[index],
+                          isSelected: _routingService.isInRoom(room[index].uid),
                         ),
                         onTap: () {
-                          routingService.openRoom(
-                            roomsWithMessages[index].room.roomId.toString(),
+                          _routingService.openRoom(
+                            room[index].uid,
                           );
                         },
-                      );
-                    }
-                    return SizedBox.shrink();
+                      ),
+                    );
                   },
                   separatorBuilder: (BuildContext context, int index) {
                     return Divider();

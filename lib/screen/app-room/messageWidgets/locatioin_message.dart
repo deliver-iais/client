@@ -1,17 +1,17 @@
-import 'package:deliver_flutter/db/database.dart' as db;
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class LocationMessageWidget extends StatelessWidget {
-  final db.Message message;
+  final Message message;
   final bool isSender;
   final bool isSeen;
 
@@ -44,8 +44,7 @@ class LocationMessageWidget extends StatelessWidget {
                       height: 30.0,
                       point: LatLng(location.latitude, location.longitude),
                       builder: (ctx) => Container(
-                        child: CircleAvatarWidget(message.from.getUid(),20)
-                      ),
+                          child: CircleAvatarWidget(message.from.asUid(), 20)),
                     ),
                   ],
                 ),

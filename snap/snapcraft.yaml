@@ -1,0 +1,35 @@
+name: deliver-co
+version: 0.1.1
+summary: Messenger
+description: Messenger
+
+confinement: devmode
+base: core18
+grade: stable
+
+slots:
+  dbus-deliver-co: # adjust accordingly to your app name
+    interface: dbus
+    bus: session
+    name: ir.we.deliver # adjust accordingly to your app name and
+
+package-repositories:
+  - type: apt
+    ppa: linuxgndu/sqlitebrowser-testing
+
+apps:
+  deliver-co:
+    command: deliver
+    extensions: [flutter-master]
+    plugs:
+      - home
+      - network
+      - system-packages-doc
+    slots:
+      - dbus-deliver-co
+
+parts:
+  deliver-co:
+    source: .
+    plugin: flutter
+    flutter-target: lib/main.dart # The main entry-point file of the application

@@ -38,39 +38,51 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
               child: StreamBuilder<AudioPlayerState>(
                   stream: audioPlayerService.audioPlayerState(widget.fileId),
                   builder: (context, snapshot) {
-                    if (snapshot.data == AudioPlayerState.PLAYING &&  audioPlayerService.CURRENT_AUDIO_ID.contains(widget.fileId)) {
-                      return IconButton(
-                        padding: EdgeInsets.all(0),
-                        alignment: Alignment.center,
-                        icon: Icon(
-                          Icons.pause,
-                          color: ExtraTheme.of(context).fileMessageDetails,
-                          size: 40,
-                        ),
-                        onPressed: () {
-                            audioPlayerService.onPause(widget.fileId,hideAppBar: true);
-                        },
-                      );
-                    } else {
-                      return IconButton(
-                          padding: EdgeInsets.all(0),
-                          alignment: Alignment.center,
-                          icon: Icon(
-                            Icons.play_arrow,
-                            color: ExtraTheme.of(context).fileMessageDetails,
-                            size: 40,
-                          ),
-                          onPressed: () {
-                              audioPlayerService.onPlay(
-                                audio.data.path,
-                                widget.fileId,
-                                widget.fileName,
+                    if (snapshot.data == AudioPlayerState.PLAYING) {
+                   return StreamBuilder(
+                          stream: audioPlayerService.CURRENT_AUDIO_ID.stream,
+                          builder: (context, uuid) {
+                            if (uuid.hasData && uuid.data.toString().isNotEmpty && uuid.data.toString().contains(widget.fileId))
+                              return IconButton(
+                                padding: EdgeInsets.all(0),
+                                alignment: Alignment.center,
+                                icon: Icon(
+                                  Icons.pause,
+                                  color: ExtraTheme.of(context).fileMessageDetails,
+                                  size: 40,
+                                ),
+                                onPressed: () {
+                                  audioPlayerService.onPause(widget.fileId,hideAppBar: true);
+                                },
                               );
+                            else
+                              return  buildPlay(context, audio);
                           });
+
+                    } else {
+                      return buildPlay(context, audio);
                     }
                   }),
             ),
           );
         });
+  }
+
+  IconButton buildPlay(BuildContext context, AsyncSnapshot<File> audio) {
+    return IconButton(
+                        padding: EdgeInsets.all(0),
+                        alignment: Alignment.center,
+                        icon: Icon(
+                          Icons.play_arrow,
+                          color: ExtraTheme.of(context).fileMessageDetails,
+                          size: 40,
+                        ),
+                        onPressed: () {
+                            audioPlayerService.onPlay(
+                              audio.data.path,
+                              widget.fileId,
+                              widget.fileName,
+                            );
+                        });
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
-import 'package:deliver_flutter/db/database.dart';
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -53,7 +54,7 @@ class TextUi extends StatelessWidget {
       int D = (imageWidth.round() / 12).ceil();
       content = this.message.json.toFile().caption;
       if (imageWidth != null && content.length > D) {
-        List<String> d = List();
+        List<String> d = [];
         int u = (content.length / D).ceil();
         int i = 0;
         while (i < u) {
@@ -73,11 +74,11 @@ class TextUi extends StatelessWidget {
     }
     List<String> lines = LineSplitter().convert(content);
     List<Widget> texts = [];
-    texts.add(disjointThenJoin(preProcess(lines, color),context));
+    texts.add(disjointThenJoin(preProcess(lines, color), context));
     return texts;
   }
 
-  disjointThenJoin(List<TextBlock> blocks,BuildContext context) {
+  disjointThenJoin(List<TextBlock> blocks, BuildContext context) {
     var idx = 0;
     var m = 0;
     for (var i = 0; i < blocks.length; i++) {
@@ -101,7 +102,8 @@ class TextUi extends StatelessWidget {
         this.isSeen,
         this.onUsernameClick,
         this.pattern,
-        this.onBotCommandClick,context,
+        this.onBotCommandClick,
+        context,
         isBotMessage: isBotMessage);
 
     for (var i = 1; i <= idx; i++) {
@@ -122,7 +124,8 @@ class TextUi extends StatelessWidget {
               this.isSeen,
               this.onUsernameClick,
               this.pattern,
-              this.onBotCommandClick,context,
+              this.onBotCommandClick,
+              context,
               isBotMessage: isBotMessage),
           joint,
         ],
@@ -176,6 +179,7 @@ class TextBlock {
   List<String> texts = [];
   int ml = -1;
   Color color;
+
   TextBlock.withFirstText(String text, Color color) {
     isRtl = text.isPersian();
     texts.add(text);
@@ -198,7 +202,8 @@ class TextBlock {
       bool isSeen,
       Function onUsernameClick,
       String pattern,
-      Function onBotCommandClick,BuildContext context,
+      Function onBotCommandClick,
+      BuildContext context,
       {isBotMessage = false}) {
     return Column(
         crossAxisAlignment:
@@ -221,7 +226,8 @@ class TextBlock {
                         onUsernameClick,
                         pattern,
                         onBotCommandClick,
-                        this.color,context,
+                        this.color,
+                        context,
                         isBotMessage: isBotMessage)),
               ],
             )
@@ -253,13 +259,18 @@ Widget _textWidget(
         style: TextStyle(color: color, fontSize: 16),
         parse: <MatchText>[
           MatchText(
-            type: ParsedType.URL,
+            type: ParsedType.CUSTOM,
+            pattern:
+                r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)",
             style: TextStyle(
               color: ExtraTheme.of(context).username,
               fontSize: 16,
             ),
             onTap: (uri) async {
-              await launch(uri);
+              if (uri.toString().contains("deliver-co")) {
+                handleUri(uri, context);
+              } else
+                await launch(uri);
             },
           ),
           MatchText(
@@ -303,7 +314,7 @@ Widget _textWidget(
         Padding(
           padding: const EdgeInsets.only(left: 8.0, top: 5),
           child: MsgTime(
-            time: message.time,
+            time: date(message.time),
           ),
         ),
       if (i == lenght && isLastBlock & isSender)
