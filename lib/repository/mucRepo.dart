@@ -8,6 +8,7 @@ import 'package:deliver_flutter/box/role.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
@@ -29,6 +30,7 @@ class MucRepo {
   final _queryServices = GetIt.I.get<QueryServiceClient>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
+  final _contactRepo = GetIt.I.get<ContactRepo>();
 
   Future<Uid> createNewGroup(
       List<Uid> memberUids, String groupName, String info) async {
@@ -150,6 +152,7 @@ class MucRepo {
           uid: mucUid.asString(),
           info: group.info.info,
           token: group.token,
+          lastMessageId: group.lastMessageId.toInt(),
           pinMessagesIdList: group.pinMessages.map((e) => e.toInt()).toList(),
         );
 
@@ -166,6 +169,7 @@ class MucRepo {
             name: channel.info.name,
             population: channel.population.toInt(),
             uid: mucUid.asString(),
+            lastMessageId: channel.lastMessageId.toInt(),
             info: channel.info.info,
             token: channel.token,
             pinMessagesIdList:
@@ -189,6 +193,7 @@ class MucRepo {
 
   Future<bool> isMucAdminOrOwner(String memberUid, String mucUid) async {
     var member = await _mucDao.getMember(memberUid, mucUid);
+    if(member == null) return false;
     if (member.role == MucRole.OWNER || member.role == MucRole.ADMIN) {
       return true;
     } else if (mucUid.asUid().category == Categories.CHANNEL) {
@@ -453,6 +458,7 @@ class MucRepo {
     }
     for (Member member in members) {
       _mucDao.saveMember(member);
+      _contactRepo.fetchMemberId(member);
     }
   }
 

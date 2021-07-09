@@ -356,17 +356,18 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _mucRepo.watchMuc(widget.roomId).listen((muc) {
       if (muc != null) {
         List<int> pm = muc.pinMessagesIdList;
-        pm.forEach((element) async {
-          if (element != null) {
-            try {
-              var m = await _getMessage(element, widget.roomId);
-              _pinMessages.add(m);
-              _lastPinedMessage.add(_pinMessages.last.id);
-            } catch (e) {
-              print(element);
+        if (pm != null)
+          pm.forEach((element) async {
+            if (element != null) {
+              try {
+                var m = await _getMessage(element, widget.roomId);
+                _pinMessages.add(m);
+                _lastPinedMessage.add(_pinMessages.last.id);
+              } catch (e) {
+                print(element);
+              }
             }
-          }
-        });
+          });
       }
     });
   }
@@ -384,10 +385,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   fetchMucInfo(Uid uid) async {
-    var muc
-    = await _mucRepo.fetchMucInfo(widget.roomId.asUid());
-    if ( muc != null) {
-      _roomRepo.updateRoomName(uid,muc.name);
+    var muc = await _mucRepo.fetchMucInfo(widget.roomId.asUid());
+    if (muc != null) {
+      _roomRepo.updateRoomName(uid, muc.name);
     }
   }
 
@@ -419,9 +419,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             StreamBuilder<List<PendingMessage>>(
                 stream: _messageRepo.watchPendingMessages(widget.roomId),
                 builder: (context, pendingMessagesStream) {
-                  List<PendingMessage> pendingMessages = pendingMessagesStream.hasData
-                      ? pendingMessagesStream.data ?? []
-                      : [];
+                  List<PendingMessage> pendingMessages =
+                      pendingMessagesStream.hasData
+                          ? pendingMessagesStream.data ?? []
+                          : [];
                   return StreamBuilder<Room>(
                       stream: _roomRepo.watchRoom(widget.roomId),
                       builder: (context, currentRoomStream) {
@@ -909,7 +910,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     ],
                   ),
                 ),
-              if (_upTimeMap.containsKey(messages[0].packetId) &&! _downTimeMap.containsKey(messages[0].packetId))
+              if (_upTimeMap.containsKey(messages[0].packetId) &&
+                  !_downTimeMap.containsKey(messages[0].packetId))
                 ChatTime(currentMessageTime: _upTimeMap[messages[0].packetId]),
               messages[0].packetId == null
                   ? SizedBox.shrink()
@@ -937,7 +939,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                             ),
                           ],
                         ),
-              if (_downTimeMap.containsKey(messages[0].packetId) && ! _upTimeMap.containsKey(messages[0].packetId))
+              if (_downTimeMap.containsKey(messages[0].packetId) &&
+                  !_upTimeMap.containsKey(messages[0].packetId))
                 ChatTime(
                     currentMessageTime: _downTimeMap[messages[0].packetId]),
             ],

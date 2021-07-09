@@ -2,6 +2,7 @@ import 'package:deliver_flutter/box/dao/contact_dao.dart';
 import 'package:deliver_flutter/box/contact.dart' as DB;
 import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
+import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 
@@ -174,6 +175,11 @@ class ContactRepo {
     } catch (e) {
       return null;
     }
+  }
+  fetchMemberId(Member member)async{
+    var  m = await _uidIdNameDao.getByUid(member.memberUid);
+    if(m == null || m.id == null)
+      getIdByUid(member.memberUid.asUid());
   }
 
   Future<List<Uid>> searchUser(String query) async {

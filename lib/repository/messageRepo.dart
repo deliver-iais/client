@@ -100,7 +100,7 @@ class MessageRepo {
           FetchMessagesReq()
             ..roomUid = roomUid
             ..pointer = Int64(lastMessageId)
-            ..type = FetchMessagesReq_Type.FORWARD_FETCH
+            ..type = FetchMessagesReq_Type.BACKWARD_FETCH
             ..limit = 2,
           options: CallOptions(
               timeout: Duration(seconds: 3),
