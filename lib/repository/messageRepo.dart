@@ -75,7 +75,8 @@ class MessageRepo {
           debug('updating -----------------');
 
           updatingStatus.add(TitleStatusConditions.Updating);
-          await updating();
+          await updatingMessages();
+          await updatingLastSeen();
           updatingStatus.add(TitleStatusConditions.Normal);
 
           sendPendingMessages();
@@ -94,7 +95,7 @@ class MessageRepo {
 
   var _completerMap = Map<String, Completer<List<Message>>>();
 
-  updateNewMuc(Uid roomUid,int lastMessageId) async {
+  updateNewMuc(Uid roomUid, int lastMessageId) async {
     try {
       var fetchMessagesRes = await _queryServiceClient.fetchMessages(
           FetchMessagesReq()
@@ -121,7 +122,7 @@ class MessageRepo {
   }
 
   @visibleForTesting
-  updating() async {
+  Future<void> updatingMessages() async {
     bool finished = false;
     int pointer = 0;
 
@@ -139,7 +140,6 @@ class MessageRepo {
         finished = getAllUserRoomMetaRes.finished;
 
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
-          fetchLastSeen(roomMetadata);
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
           if (room != null &&
               room.lastMessage != null &&
@@ -149,7 +149,7 @@ class MessageRepo {
             finished = true; // no more updating needed after this room
             break;
           }
-          fetchMessages(roomMetadata, room);
+          fetchLastMessages(roomMetadata, room);
         }
       } catch (e) {
         debug(e);
@@ -158,7 +158,27 @@ class MessageRepo {
     }
   }
 
-  Future<void> fetchMessages(RoomMetadata roomMetadata, Room room,
+  Future<void> updatingLastSeen() async {
+    var rooms = await _roomDao.getAllRooms();
+
+    rooms.forEach((r) async {
+      var category = r.lastMessage.to.asUid().category;
+      if (_accountRepo.isCurrentUser(r.lastMessage.from) &&
+          (category == Categories.GROUP || category == Categories.USER)) {
+        var othersSeen = await _seenDao.getOthersSeen(r.lastMessage.to);
+        if (othersSeen == null || othersSeen.messageId < r.lastMessage.id) {
+          var rm = await _queryServiceClient.getUserRoomMeta(
+              GetUserRoomMetaReq()..roomUid = r.lastMessage.to.asUid(),
+              options: CallOptions(metadata: {
+                'access_token': await _accountRepo.getAccessToken()
+              }));
+          fetchLastSeen(rm.roomMeta);
+        }
+      }
+    });
+  }
+
+  Future<void> fetchLastMessages(RoomMetadata roomMetadata, Room room,
       {bool retry = true}) async {
     try {
       var fetchMessagesRes = await _queryServiceClient.fetchMessages(
@@ -180,18 +200,18 @@ class MessageRepo {
         ));
       }
 
-
-
       if (room != null && room.uid.asUid().category == Categories.GROUP) {
         getMentions(room);
       }
     } catch (e) {
-      if (retry) fetchMessages(roomMetadata, room, retry: false);
+      if (retry) fetchLastMessages(roomMetadata, room, retry: false);
       debug(e);
     }
   }
 
-  Future fetchLastSeen(RoomMetadata room) async {
+  Future<void> fetchLastSeen(RoomMetadata room) async {
+    debug("salooom $room");
+
     try {
       var fetchCurrentUserSeenData =
           await _queryServiceClient.fetchCurrentUserSeenData(
@@ -328,7 +348,7 @@ class MessageRepo {
 
     await _savePendingMessage(pm);
 
-   var m = await _sendFileToServerOfPendingMessage(pm);
+    var m = await _sendFileToServerOfPendingMessage(pm);
 
     await _sendMessageToServer(m);
   }
@@ -353,7 +373,8 @@ class MessageRepo {
     // _saveAndSend(pm);
   }
 
- Future< PendingMessage> _sendFileToServerOfPendingMessage(PendingMessage pm) async {
+  Future<PendingMessage> _sendFileToServerOfPendingMessage(
+      PendingMessage pm) async {
     var fakeFileInfo = FileProto.File.fromJson(pm.msg.json);
 
     var packetId = pm.msg.packetId;
