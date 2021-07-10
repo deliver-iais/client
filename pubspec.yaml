@@ -19,6 +19,17 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # build appbundle --target-platform android-arm,android-arm64,android-x64
 version: 1.3.0
 
+
+msix_config:
+  display_name: Deliver
+  publisher_display_name: Deliver
+  identity_name: MyCompany.MySuite.MyApp
+  msix_version: 1.0.0.0
+  certificate_password: 1234 (require if using .pfx certificate)
+  publisher: CN=My Company, O=My Company, L=Berlin, S=Berlin, C=DE
+  architecture: x64
+  capabilities: 'internetClient,location,microphone,webcam'
+
 environment:
   sdk: ">=2.7.0 <3.0.0"
 
