@@ -118,7 +118,6 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
     Uid roomUid = getRoomId(accountRepo, msg);
 
     CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg, roomUid);
-
     if (msg.from.category == Categories.USER)
       updateLastActivityTime(
           lastActivityDao, getRoomId(accountRepo, msg), msg.time.toInt());
@@ -128,16 +127,20 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
         accountRepo.isCurrentUser(msg.from.asString())) {
       return;
     }
-
-    if (msg.to.category == Categories.GROUP) {
-      var to = await roomRepo.getName(msg.to);
-      var from = await roomRepo.getName(msg.from);
-      roomName = "$to${from != null && from.isNotEmpty ? " - " : ""}$from";
-    } else if (msg.to.category == Categories.CHANNEL) {
-      roomName = await roomRepo.getName(msg.to);
-    } else {
+    if(msg.to.category == Categories.USER){
       roomName = await roomRepo.getName(msg.from);
-    }
+    }else if(msg.from == Ca)
+
+
+   //  if (msg.to.category == Categories.GROUP ) {
+   //    var to = await roomRepo.getName(msg.to);
+   //    var from = await roomRepo.getName(msg.from);
+   // //   roomName = "$to${from != null && from.isNotEmpty ? " - " : ""}$from";
+   //  } else if (msg.to.category == Categories.CHANNEL) {
+   //    roomName = await roomRepo.getName(msg.to);
+   //  } else {
+   //    roomName = await roomRepo.getName(msg.from);
+   //  }
 
     _notificationServices.showNotification(
         msg, getRoomId(accountRepo, msg).asString(), roomName);

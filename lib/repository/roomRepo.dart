@@ -30,7 +30,6 @@ Cache<String, String> roomNameCache =
     LruCache<String, String>(storage: SimpleStorage(size: 40));
 
 class RoomRepo {
-  var _messageDao = GetIt.I.get<MessageDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _seenDao = GetIt.I.get<SeenDao>();
   var _muteDao = GetIt.I.get<MuteDao>();

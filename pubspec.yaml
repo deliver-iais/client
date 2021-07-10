@@ -20,21 +20,26 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.3.0
 
 
-msix_config:
-  display_name: Deliver
-  publisher_display_name: Deliver
-  identity_name: MyCompany.MySuite.MyApp
-  msix_version: 1.0.0.0
-  certificate_password: 1234 (require if using .pfx certificate)
-  publisher: CN=My Company, O=My Company, L=Berlin, S=Berlin, C=DE
-  architecture: x64
-  capabilities: 'internetClient,location,microphone,webcam'
+
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependency_overrides:
   http: ^0.13.2
+
+msix_config:
+  display_name: deliver
+  publisher_display_name: deliver
+  identity_name: deliver
+  msix_version: 1.0.0.0
+  certificate_path: C:\Deliver\CERTIFICATE.pfx
+  certificate_password: 96112049
+  publisher: CN=deliver, O=deliver, L=tehran, S=deliver, C=IR
+  logo_path: C:\Deliver\deliver.png
+  start_menu_icon_path: C:\Deliver\deliver.png
+  tile_icon_path: C:\Deliver\deliver.png
+  architecture: x64
 
 dependencies:
   flutter:
