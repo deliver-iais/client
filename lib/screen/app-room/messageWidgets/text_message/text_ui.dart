@@ -161,6 +161,9 @@ class TextUi extends StatelessWidget {
 }
 
 List<TextBlock> preProcess(List<String> texts, Color color) {
+  if (texts.length <= 0) {
+    return [TextBlock.withFirstText("", color)];
+  }
   bool currentLang = texts[0].isPersian();
   List<TextBlock> blocks = [TextBlock.withFirstText(texts[0], color)];
   for (var i = 1; i < texts.length; i++) {

@@ -192,5 +192,6 @@
   "pin": "pin message",
   "Unpin": "unpin message",
   "pinned_message": "Pinned Message",
-  "create_invite_link": "Invite Link"
+  "create_invite_link": "Invite Link",
+  "send_by_shift_enter": "Send Message by Shift + Enter"
 }

@@ -192,5 +192,6 @@
   "pin":"سنجاق کردن",
   "Unpin": "حذف سنجاق",
   "pinned_message": "پیام های سنجاق شده",
-  "create_invite_link": "لینک دعوت"
+  "create_invite_link": "لینک دعوت",
+  "send_by_shift_enter": "ارسال پیام با Shift + Enter"
 }
