@@ -48,10 +48,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void initState() {
     _notificationServices.cancelAllNotification();
     checkIfUsernameIsSet();
-    initUniLinks(context);
+
     if (isAndroid()) {
       checkShareFile(context);
     }
+    initUniLinks(context);
     _coreServices.initStreamConnection();
     super.initState();
   }
@@ -71,7 +72,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
     // ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
     //   if (value != null) {
-    //     List<String> paths = List();
+    //     List<String> paths =[];
     //     for (var path in value) {
     //       paths.add(path.path);
     //     }
