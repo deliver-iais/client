@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/constants.dart';
@@ -126,12 +125,19 @@ class _InputMessageWidget extends State<InputMessage> {
     controller = TextEditingController();
     currentRoom = widget.currentRoom;
     controller.addListener(() {
-      if (controller.text.isNotEmpty && controller.text.length > 0)
+      if (controller.text.isNotEmpty &&
+          controller.text.length > 0)
         _showSendIcon.add(true);
       else
         _showSendIcon.add(false);
     });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -226,7 +232,7 @@ class _InputMessageWidget extends State<InputMessage> {
                               Flexible(
                                 child: RawKeyboardListener(
                                   focusNode: keyboardRawFocusNode,
-                                  onKey: (e) => handleKeyPress(context, e),
+                                  onKey: handleKeyPress,
                                   child: TextField(
                                     onTap: () {
                                       backSubject.add(false);
@@ -241,18 +247,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                     focusNode: myFocusNode,
                                     autofocus: widget.replyMessageId > 0 ||
                                         isDesktop(),
-                                    textInputAction: isDesktop()
-                                        ? TextInputAction.next
-                                        : TextInputAction.newline,
+                                    textInputAction: TextInputAction.newline,
                                     controller: controller,
                                     autocorrect: true,
-                                    onSubmitted: (d) {
-                                      if (isDesktop()) {
-                                        FocusScope.of(context)
-                                            .requestFocus(myFocusNode);
-                                        controller.clear();
-                                      }
-                                    },
                                     onChanged: (str) {
                                       if (str?.length > 0)
                                         isTypingActivitySubject
@@ -262,7 +259,11 @@ class _InputMessageWidget extends State<InputMessage> {
                                             ActivityType.NO_ACTIVITY);
                                       onChange(str);
                                     },
-                                    decoration: InputDecoration.collapsed(
+                                    decoration: InputDecoration(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 15, horizontal: 5),
+                                      border: InputBorder.none,
                                       hintText: appLocalization
                                           .getTraslateValue("message"),
                                     ),
@@ -275,45 +276,13 @@ class _InputMessageWidget extends State<InputMessage> {
                                     stream: _showSendIcon.stream,
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData && !snapshot.data)
-                                        return GestureDetector(
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 10,
-                                              ),
-                                              Container(
-                                                  decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        width: 1,
-                                                        color: ExtraTheme.of(
-                                                                context)
-                                                            .textField),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
-                                                  ),
-                                                  child: SizedBox(
-                                                      width: 20,
-                                                      child: Center(
-                                                          child: Text(
-                                                        "/",
-                                                        style: TextStyle(
-                                                          fontSize: 19,
-                                                          color: ExtraTheme.of(
-                                                                  context)
-                                                              .textField,
-                                                        ),
-                                                      )))),
-                                              SizedBox(
-                                                width: 15,
-                                              )
-                                            ],
+                                        return IconButton(
+                                          icon: Icon(
+                                            Icons.workspaces_outline,
                                           ),
-                                          onTap: () {
-                                            _showBotCommands.add(
-                                                !_showBotCommands
-                                                    .valueWrapper.value);
-                                          },
+                                          onPressed: () => _showBotCommands.add(
+                                              !_showBotCommands
+                                                  .valueWrapper.value),
                                         );
                                       else
                                         return SizedBox.shrink();
@@ -497,34 +466,20 @@ class _InputMessageWidget extends State<InputMessage> {
     );
   }
 
-  handleKeyPress(BuildContext context, event) {
+  handleKeyPress(event) async {
     bool sendByEnter = _uxService.sendByEnter == SEND_BY_ENTER;
-
-    if (event is RawKeyDownEvent) {
-      if (!sendByEnter &&
-          event.isShiftPressed &&
-          (event.isKeyPressed(LogicalKeyboardKey.enter) ||
-              event.isKeyPressed(LogicalKeyboardKey.numpadEnter))) {
-        sendMessage();
-      } else if (sendByEnter &&
-          !event.isShiftPressed &&
-          (event.isKeyPressed(LogicalKeyboardKey.enter) ||
-              event.isKeyPressed(LogicalKeyboardKey.numpadEnter))) {
-        sendMessage();
-      }
-    }
 
     if (event is RawKeyUpEvent) {
       if (!sendByEnter &&
           event.isShiftPressed &&
-          (event.isKeyPressed(LogicalKeyboardKey.enter) ||
-              event.isKeyPressed(LogicalKeyboardKey.numpadEnter))) {
-        controller.clear();
+          (event.logicalKey == LogicalKeyboardKey.enter ||
+              event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
+        sendMessage();
       } else if (sendByEnter &&
           !event.isShiftPressed &&
-          (event.isKeyPressed(LogicalKeyboardKey.enter) ||
-              event.isKeyPressed(LogicalKeyboardKey.numpadEnter))) {
-        controller.clear();
+          (event.logicalKey == LogicalKeyboardKey.enter ||
+              event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
+        sendMessage();
       }
     }
   }

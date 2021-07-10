@@ -1,12 +1,10 @@
 import 'dart:collection';
-import 'dart:io';
 
 import 'package:deliver_flutter/box/message.dart';
 
 import 'package:deliver_flutter/screen/app-contacts/widgets/new_Contact.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/addStickerPack.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
 import 'package:deliver_flutter/screen/app_group/pages/group_info_determination_page.dart';
 import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dart';
@@ -371,8 +369,9 @@ class Empty extends StatelessWidget {
       decoration: BoxDecoration(
         image: Theme.of(context).brightness == Brightness.light
             ? DecorationImage(
-                image: AssetImage("assets/bac/b2.png"),
-                fit: BoxFit.cover,
+                image: AssetImage("assets/bac/a.png"),
+                fit: BoxFit.scaleDown,
+                repeat: ImageRepeat.repeat,
               )
             : null,
         color: Theme.of(context).backgroundColor,

@@ -408,8 +408,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         decoration: Theme.of(context).brightness == Brightness.light
             ? BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage("assets/bac/b2.png"),
-                  fit: BoxFit.cover,
+                  image: AssetImage("assets/bac/a.png"),
+                  fit: BoxFit.scaleDown,
+                  repeat: ImageRepeat.repeat,
                 ),
               )
             : null,

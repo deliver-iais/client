@@ -210,8 +210,6 @@ class MessageRepo {
   }
 
   Future<void> fetchLastSeen(RoomMetadata room) async {
-    debug("salooom $room");
-
     try {
       var fetchCurrentUserSeenData =
           await _queryServiceClient.fetchCurrentUserSeenData(
@@ -267,7 +265,7 @@ class MessageRepo {
     }
   }
 
-  sendTextMessage(Uid room, String text,
+  Future<void> sendTextMessage(Uid room, String text,
       {int replyId, String forwardedFrom}) async {
     String json = (MessageProto.Text()..text = text).writeToJson();
     Message msg =
