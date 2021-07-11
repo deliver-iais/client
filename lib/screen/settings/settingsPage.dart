@@ -59,6 +59,14 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  bool _getSendByEnter() {
+    if (_uxService.sendByEnter == SEND_BY_ENTER) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   void _changeLanguage(Language language) {
     GetIt.I.get<UxService>().changeLanguage(language);
   }
@@ -223,8 +231,22 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Switch(
                 activeColor: ExtraTheme.of(context).activeSwitch,
                 value: _getTheme(),
-                onChanged: (newThemMode) {
+                onChanged: (_) {
                   _uxService.toggleTheme();
+                },
+              ),
+            ),
+            settingsRow(
+              context,
+              iconData: Icons.announcement_rounded,
+              title: appLocalization.getTraslateValue("send_by_shift_enter"),
+              child: Switch(
+                activeColor: ExtraTheme.of(context).activeSwitch,
+                value: !_getSendByEnter(),
+                onChanged: (_) {
+                  setState(() {
+                    _uxService.toggleSendByEnter();
+                  });
                 },
               ),
             ),
@@ -394,7 +416,8 @@ class _SettingsPageState extends State<SettingsPage> {
                           applicationVersion: version,
                           children: [
                             TextButton(
-                                onPressed: () => launch("https://doc.deliver-co.ir/blogs/updates/"),
+                                onPressed: () => launch(
+                                    "https://doc.deliver-co.ir/blogs/updates/"),
                                 child: Text("What's new"))
                           ]);
                       print(developerModeCounterCountDown);

@@ -210,7 +210,7 @@ flutter:
     - lib/lang/en.json
     - assets/icons/mention.png
     - assets/icons/channel_icon.png
-    - assets/bac/b2.png
+    - assets/bac/a.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

@@ -13,10 +13,13 @@ class UxService {
   final _sharedDao = GetIt.I.get<SharedDao>();
 
   BehaviorSubject<ThemeData> _theme = BehaviorSubject.seeded(LightTheme);
+
   BehaviorSubject<ExtraThemeData> _extraTheme =
       BehaviorSubject.seeded(LightExtraTheme);
 
   BehaviorSubject<Language> _language = BehaviorSubject.seeded(DefaultLanguage);
+
+  BehaviorSubject<String> _sendByEnter = BehaviorSubject.seeded(SEND_BY_ENTER);
 
   get localeStream => _sharedDao.getStream(SHARED_DAO_LANGUAGE).map((event) {
         if (event != null) {
@@ -44,9 +47,23 @@ class UxService {
         }
       });
 
+  get sendByEnterStream =>
+      _sharedDao.getStream(SHARED_DAO_SEND_BY_ENTER).map((event) {
+        if (event != null) {
+          var code = event;
+          if (code.contains(SEND_BY_SHIFT_ENTER)) {
+            _sendByEnter.add(SEND_BY_SHIFT_ENTER);
+          } else {
+            _sendByEnter.add(SEND_BY_ENTER);
+          }
+        }
+      });
+
   get isPersian => _language.value.countryCode.contains(Farsi.countryCode);
 
   get theme => _theme.value;
+
+  get sendByEnter => _sendByEnter.value;
 
   get extraTheme => _extraTheme.value;
 
@@ -62,6 +79,16 @@ class UxService {
       _sharedDao.put(SHARED_DAO_THEME, DarkThemeName);
       _theme.add(DarkTheme);
       _extraTheme.add(DarkExtraTheme);
+    }
+  }
+
+  toggleSendByEnter() {
+    if (sendByEnter == SEND_BY_SHIFT_ENTER) {
+      _sharedDao.put(SHARED_DAO_SEND_BY_ENTER, SEND_BY_ENTER);
+      _sendByEnter.add(SEND_BY_ENTER);
+    } else {
+      _sharedDao.put(SHARED_DAO_SEND_BY_ENTER, SEND_BY_SHIFT_ENTER);
+      _sendByEnter.add(SEND_BY_SHIFT_ENTER);
     }
   }
 

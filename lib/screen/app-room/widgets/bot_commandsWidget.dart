@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:deliver_flutter/box/bot_info.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -26,8 +24,7 @@ class _BotCommandsWidgetState extends State<BotCommandsWidget> {
       future: _botRepo.getBotInfo(widget.botUid),
       builder: (c, botInfo) {
         if (botInfo.hasData && botInfo.data != null) {
-          Map<String, dynamic> botCommands =
-              jsonDecode(botInfo.data.commands.toString());
+          Map<String, String> botCommands = botInfo.data.commands;
           return Container(
             decoration: BoxDecoration(
               color: Colors.white,

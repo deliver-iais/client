@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:deliver_flutter/box/room.dart';
+import 'package:deliver_flutter/services/ux_service.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 
@@ -55,12 +57,12 @@ class InputMessage extends StatefulWidget {
 
 class _InputMessageWidget extends State<InputMessage> {
   MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
+  var _uxService = GetIt.I.get<UxService>();
 
   var checkPermission = GetIt.I.get<CheckPermissionsService>();
   TextEditingController controller;
   Room currentRoom;
   bool showEmoji = false;
-  String messageText = "";
   bool autofocus = false;
   double x = 0.0;
   double size = 1;
@@ -83,6 +85,7 @@ class _InputMessageWidget extends State<InputMessage> {
   bool startAudioRecorder = false;
 
   FocusNode myFocusNode;
+  FocusNode keyboardRawFocusNode;
 
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> NoActivitySubject = BehaviorSubject();
@@ -109,6 +112,7 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   void initState() {
     myFocusNode = FocusNode();
+    keyboardRawFocusNode = FocusNode();
 
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, Duration(seconds: 10)))
@@ -121,12 +125,19 @@ class _InputMessageWidget extends State<InputMessage> {
     controller = TextEditingController();
     currentRoom = widget.currentRoom;
     controller.addListener(() {
-      if (controller.text.isNotEmpty && controller.text.length > 0)
+      if (controller.text.isNotEmpty &&
+          controller.text.length > 0)
         _showSendIcon.add(true);
       else
         _showSendIcon.add(false);
     });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -219,50 +230,43 @@ class _InputMessageWidget extends State<InputMessage> {
                                     );
                                   }),
                               Flexible(
-                                child: TextField(
-                                  onTap: () {
-                                    backSubject.add(false);
-                                    //     scrollTolast(1);
-                                  },
-                                  minLines: 1,
-                                  style: TextStyle(
-                                      fontSize: 19,
-                                      height: 1,
-                                      color: ExtraTheme.of(context).textField),
-                                  maxLines: 15,
-                                  autofocus:
-                                      widget.replyMessageId > 0 || isDesktop(),
-                                  textInputAction: isDesktop()
-                                      ? TextInputAction.next
-                                      : TextInputAction.newline,
-                                  controller: controller,
-                                  autocorrect: true,
-                                  focusNode: myFocusNode,
-                                  onSubmitted: (d) {
-                                    if (isDesktop())
-                                      FocusScope.of(context)
-                                          .requestFocus(myFocusNode);
-                                    controller.text?.isEmpty &&
-                                            (widget.waitingForForward == null ||
-                                                widget.waitingForForward ==
-                                                    false)
-                                        ? () async {}
-                                        : () {
-                                            sendMessage();
-                                          };
-                                  },
-                                  onChanged: (str) {
-                                    if (str?.length > 0)
-                                      isTypingActivitySubject
-                                          .add(ActivityType.TYPING);
-                                    else
-                                      NoActivitySubject.add(
-                                          ActivityType.NO_ACTIVITY);
-                                    onChange(str);
-                                  },
-                                  decoration: InputDecoration.collapsed(
-                                    hintText: appLocalization
-                                        .getTraslateValue("message"),
+                                child: RawKeyboardListener(
+                                  focusNode: keyboardRawFocusNode,
+                                  onKey: handleKeyPress,
+                                  child: TextField(
+                                    onTap: () {
+                                      backSubject.add(false);
+                                    },
+                                    minLines: 1,
+                                    style: TextStyle(
+                                        fontSize: 19,
+                                        height: 1,
+                                        color:
+                                            ExtraTheme.of(context).textField),
+                                    maxLines: 15,
+                                    focusNode: myFocusNode,
+                                    autofocus: widget.replyMessageId > 0 ||
+                                        isDesktop(),
+                                    textInputAction: TextInputAction.newline,
+                                    controller: controller,
+                                    autocorrect: true,
+                                    onChanged: (str) {
+                                      if (str?.length > 0)
+                                        isTypingActivitySubject
+                                            .add(ActivityType.TYPING);
+                                      else
+                                        NoActivitySubject.add(
+                                            ActivityType.NO_ACTIVITY);
+                                      onChange(str);
+                                    },
+                                    decoration: InputDecoration(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 15, horizontal: 5),
+                                      border: InputBorder.none,
+                                      hintText: appLocalization
+                                          .getTraslateValue("message"),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -272,45 +276,13 @@ class _InputMessageWidget extends State<InputMessage> {
                                     stream: _showSendIcon.stream,
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData && !snapshot.data)
-                                        return GestureDetector(
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 10,
-                                              ),
-                                              Container(
-                                                  decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        width: 1,
-                                                        color: ExtraTheme.of(
-                                                                context)
-                                                            .textField),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
-                                                  ),
-                                                  child: SizedBox(
-                                                      width: 20,
-                                                      child: Center(
-                                                          child: Text(
-                                                        "/",
-                                                        style: TextStyle(
-                                                          fontSize: 19,
-                                                          color: ExtraTheme.of(
-                                                                  context)
-                                                              .textField,
-                                                        ),
-                                                      )))),
-                                              SizedBox(
-                                                width: 15,
-                                              )
-                                            ],
+                                        return IconButton(
+                                          icon: Icon(
+                                            Icons.workspaces_outline,
                                           ),
-                                          onTap: () {
-                                            _showBotCommands.add(
-                                                !_showBotCommands
-                                                    .valueWrapper.value);
-                                          },
+                                          onPressed: () => _showBotCommands.add(
+                                              !_showBotCommands
+                                                  .valueWrapper.value),
                                         );
                                       else
                                         return SizedBox.shrink();
@@ -339,8 +311,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   stream: _showSendIcon.stream,
                                   builder: (c, sh) {
                                     if ((sh.hasData && sh.data) ||
-                                        widget.waitingForForward ||
-                                        isDesktop()) {
+                                        widget.waitingForForward) {
                                       return IconButton(
                                         icon: Icon(
                                           Icons.send,
@@ -495,25 +466,45 @@ class _InputMessageWidget extends State<InputMessage> {
     );
   }
 
+  handleKeyPress(event) async {
+    bool sendByEnter = _uxService.sendByEnter == SEND_BY_ENTER;
+
+    if (event is RawKeyUpEvent) {
+      if (!sendByEnter &&
+          event.isShiftPressed &&
+          (event.logicalKey == LogicalKeyboardKey.enter ||
+              event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
+        sendMessage();
+      } else if (sendByEnter &&
+          !event.isShiftPressed &&
+          (event.logicalKey == LogicalKeyboardKey.enter ||
+              event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
+        sendMessage();
+      }
+    }
+  }
+
   void sendMessage() {
     NoActivitySubject.add(ActivityType.NO_ACTIVITY);
     if (widget.waitingForForward == true) {
       widget.sendForwardMessage();
     }
-    if (controller.text.isNotEmpty) {
-      if (controller.text.isNotEmpty) if (widget.replyMessageId != null) {
+
+    var text = controller.text.trim();
+
+    if (text.isNotEmpty && text != null) {
+      if (text.isNotEmpty) if (widget.replyMessageId != null) {
         messageRepo.sendTextMessage(
           currentRoom.uid.asUid(),
-          controller.text,
+          text,
           replyId: widget.replyMessageId,
         );
         if (widget.replyMessageId != -1) widget.resetRoomPageDetails();
       } else {
-        messageRepo.sendTextMessage(currentRoom.uid.asUid(), controller.text);
+        messageRepo.sendTextMessage(currentRoom.uid.asUid(), text);
       }
 
       controller.clear();
-      messageText = "";
 
       _showMentionList.add(false);
     }
@@ -528,19 +519,12 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void onChange(String str) {
-    if (isDesktop() &&
-        str.isNotEmpty &&
-        str.lastIndexOf("\n") == str.length - 1) {
-      sendMessage();
-      return;
-    }
     if (currentRoom.uid.asUid().category == Categories.BOT) {
       if (str.isNotEmpty && str.length == 1 && str.contains("/")) {
         _showBotCommands.add(true);
         return;
       }
     }
-    messageText = str;
     if (currentRoom.uid.asUid().category == Categories.GROUP) {
       if (str.isEmpty) {
         _showMentionList.add(false);
