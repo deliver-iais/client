@@ -24,12 +24,16 @@ class NotificationServices {
 
   NotificationServices() {
     if (!isDesktop()) Firebase.initializeApp();
-    if (isWindows()) {
+    if (isWindows()) {try{
       _windowsNotificationServices = new ToastService(
         appName: 'Deliver',
-        companyName: "tyty",
-        productName: "fdsd",
+        companyName: "we",
+        productName: "deliver",
       );
+    }catch(e){
+      debug(e.toString());
+    }
+
     }
     var androidNotificationSetting =
         new AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -101,6 +105,9 @@ class NotificationServices {
   }
 
   void showWindowsNotify(String roomUid,String roomName, String messageBody) async{
+    try{
+
+
     var _avatarRepo = GetIt.I.get<AvatarRepo>();
     var fileRepo = GetIt.I.get<FileRepo>();
     var lastAvatar = await _avatarRepo.getLastAvatar(roomUid.asUid(), false);
@@ -125,6 +132,8 @@ class NotificationServices {
       _windowsNotificationServices.show(toast);
       // _windowsNotificationServices.dispose();
       toast.dispose();
+    }}catch(e){
+      debug(e.toString());
     }
 
   }

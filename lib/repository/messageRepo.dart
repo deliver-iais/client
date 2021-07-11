@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
+import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/pending_message.dart';
 import 'package:deliver_flutter/box/room.dart';
@@ -17,6 +18,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
@@ -65,6 +67,8 @@ class MessageRepo {
   final _mucServices = GetIt.I.get<MucServices>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
+  final _sharedDao = GetIt.I.get<SharedDao>();
+
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
 
@@ -125,6 +129,7 @@ class MessageRepo {
   Future<void> updatingMessages() async {
     bool finished = false;
     int pointer = 0;
+    var fetchAllRoom = await _sharedDao.get(FETCH_ALL_ROOM);
 
     while (!finished && pointer < 10000) {
       try {
@@ -138,6 +143,7 @@ class MessageRepo {
                 }));
 
         finished = getAllUserRoomMetaRes.finished;
+        if (finished) _sharedDao.put(FETCH_ALL_ROOM, "true");
 
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
@@ -146,7 +152,8 @@ class MessageRepo {
               room.lastMessage.id != null &&
               room.lastMessage.id >= roomMetadata.lastMessageId.toInt() &&
               room.lastMessage.id != 0) {
-            finished = true; // no more updating needed after this room
+            if (fetchAllRoom != null)
+              finished = true; // no more updating needed after this room
             break;
           }
           fetchLastMessages(roomMetadata, room);

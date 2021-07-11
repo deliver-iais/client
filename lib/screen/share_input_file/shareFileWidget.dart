@@ -19,53 +19,54 @@ ChatItemToShareFile({Key key, this.uid, this.sharedText,this.sharedFilePath})
 
   @override
   Widget build(BuildContext context) {    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
-      child: Container(
-          height: 40,
-          child: Expanded(
-            child: Row(
-              children: <Widget>[
-                SizedBox(
-                  width: 12,
-                ),
-                ContactPic(uid),
-                SizedBox(
-                  width: 12,
-                ),
-                GestureDetector(
-                  child: FutureBuilder(
-                      future: _roomRepo.getName(uid),
-                      builder: (BuildContext c, AsyncSnapshot<String> snaps) {
-                        if (snaps.hasData && snaps.data != null) {
-                          return Text(
-                            snaps.data,
-                            style: TextStyle(
-                              color: ExtraTheme.of(context).chatOrContactItemDetails,
-                              fontSize: 18,
-                            ),
-                          );
-                        } else {
-                          return Text(
-                            "unKnown",
-                            style: TextStyle(
-                              color: ExtraTheme.of(context).chatOrContactItemDetails,
-                              fontSize: 18,
-                            ),
-                          );
-                        }
-                      }),
-                  onTap: () {
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+      child: SingleChildScrollView(
+        child: Container(
+            height: 50,
+            child:  Row(
+                children: <Widget>[
+                  SizedBox(
+                    width: 12,
+                  ),
+                  ContactPic(uid),
+                  SizedBox(
+                    width: 12,
+                  ),
+                  GestureDetector(
+                    child: FutureBuilder(
+                        future: _roomRepo.getName(uid),
+                        builder: (BuildContext c, AsyncSnapshot<String> snaps) {
+                          if (snaps.hasData && snaps.data != null) {
+                            return Text(
+                              snaps.data,
+                              style: TextStyle(
+                                color: ExtraTheme.of(context).chatOrContactItemDetails,
+                                fontSize: 18,
+                              ),
+                            );
+                          } else {
+                            return Text(
+                              "unKnown",
+                              style: TextStyle(
+                                color: ExtraTheme.of(context).chatOrContactItemDetails,
+                                fontSize: 18,
+                              ),
+                            );
+                          }
+                        }),
+                    onTap: () {
 
-                    ExtendedNavigator.of(context).push(Routes.roomPage,
-                        arguments: RoomPageArguments(
-                            roomId: uid.asString(),inputFilePath:sharedFilePath )
-                    );
-                  },
-                ),
-                Spacer(),
-              ],
+                      ExtendedNavigator.of(context).push(Routes.roomPage,
+                          arguments: RoomPageArguments(
+                              roomId: uid.asString(),inputFilePath:sharedFilePath )
+                      );
+                    },
+                  ),
+                  Spacer(),
+                ],
+              ),
             ),
-          )),
+      ),
     );
   }
 }
