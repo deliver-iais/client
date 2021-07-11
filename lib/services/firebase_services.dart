@@ -163,15 +163,6 @@ try{
     }
 
 
-   //  if (msg.to.category == Categories.GROUP ) {
-   //    var to = await roomRepo.getName(msg.to);
-   //    var from = await roomRepo.getName(msg.from);
-   // //   roomName = "$to${from != null && from.isNotEmpty ? " - " : ""}$from";
-   //  } else if (msg.to.category == Categories.CHANNEL) {
-   //    roomName = await roomRepo.getName(msg.to);
-   //  } else {
-   //    roomName = await roomRepo.getName(msg.from);
-   //  }
     await Hive.close();
     _notificationServices.showNotification(
         msg, getRoomId(accountRepo, msg).asString(), roomName);
