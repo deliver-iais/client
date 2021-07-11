@@ -575,7 +575,7 @@ class _InputMessageWidget extends State<InputMessage> {
   opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;
 
   _attachFileInWindowsMode() async {
-    final typeGroup = XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
+    final typeGroup = XTypeGroup(label: 'images');
     final result = await openFiles(acceptedTypeGroups: [typeGroup]);
     messageRepo.sendMultipleFilesMessages(
         currentRoom.uid.asUid(), result.map((e) => e.path).toList());
