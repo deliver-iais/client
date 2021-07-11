@@ -236,20 +236,21 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
               ),
             ),
-            settingsRow(
-              context,
-              iconData: Icons.announcement_rounded,
-              title: appLocalization.getTraslateValue("send_by_shift_enter"),
-              child: Switch(
-                activeColor: ExtraTheme.of(context).activeSwitch,
-                value: !_getSendByEnter(),
-                onChanged: (_) {
-                  setState(() {
-                    _uxService.toggleSendByEnter();
-                  });
-                },
+            if (isDesktop())
+              settingsRow(
+                context,
+                iconData: Icons.announcement_rounded,
+                title: appLocalization.getTraslateValue("send_by_shift_enter"),
+                child: Switch(
+                  activeColor: ExtraTheme.of(context).activeSwitch,
+                  value: !_getSendByEnter(),
+                  onChanged: (_) {
+                    setState(() {
+                      _uxService.toggleSendByEnter();
+                    });
+                  },
+                ),
               ),
-            ),
             settingsRow(context,
                 iconData: Icons.notifications_active,
                 title: appLocalization.getTraslateValue("notification"),
