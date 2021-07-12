@@ -35,8 +35,12 @@ class RoomRepo {
   var _muteDao = GetIt.I.get<MuteDao>();
   var _blockDao = GetIt.I.get<BlockDao>();
   var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
+  var _contactRepo = GetIt.I.get<ContactRepo>();
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
+  var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
+  var _mucRepo = GetIt.I.get<MucRepo>();
+  var _botRepo = GetIt.I.get<BotRepo>();
 
 
 
@@ -76,7 +80,7 @@ class RoomRepo {
     if (uid.category == Categories.USER) {
       // TODO needs to be refactored!
       // TODO MIGRATION NEEDS
-      var _contactRepo = GetIt.I.get<ContactRepo>();
+
       var contact = await _contactRepo.getContact(uid);
       if (contact != null &&
           ((contact.firstName != null && contact.firstName.isNotEmpty) ||
@@ -99,7 +103,6 @@ class RoomRepo {
     // Is Group or Channel
     if (uid.category == Categories.GROUP ||
         uid.category == Categories.CHANNEL) {
-      var _mucRepo = GetIt.I.get<MucRepo>();
       Muc  muc = await _mucRepo.fetchMucInfo(uid);
       if (muc != null && muc.name != null && muc.name.isNotEmpty) {
         roomNameCache.set(uid.asString(), muc.name);
@@ -111,7 +114,6 @@ class RoomRepo {
 
     // Is bot
     if (uid.category == Categories.BOT) {
-      var _botRepo = GetIt.I.get<BotRepo>();
       var botInfo = await _botRepo.getBotInfo(uid);
       if (botInfo != null && botInfo.name.isNotEmpty) {
         roomNameCache.set(uid.asString(), botInfo.name);
@@ -139,7 +141,7 @@ class RoomRepo {
   }
 
   Future<String> getIdByUid(Uid uid) async {
-    var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
+
     try {
       var result = await _queryServiceClient.getIdByUid(
           GetIdByUidReq()..uid = uid,
@@ -213,7 +215,6 @@ class RoomRepo {
   Future<void> saveMySeen(Seen seen) => _seenDao.saveMySeen(seen);
 
   void block(String uid) async {
-    var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
     await _queryServiceClient.block(BlockReq()..uid = uid.asUid(),
         options: CallOptions(
             metadata: {"access_token": await _accountRepo.getAccessToken()}));
@@ -221,7 +222,6 @@ class RoomRepo {
   }
 
   void unblock(String uid) async {
-    var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
     await _queryServiceClient.unblock(UnblockReq()..uid = uid.asUid(),
         options: CallOptions(
             metadata: {"access_token": await _accountRepo.getAccessToken()}));
@@ -229,7 +229,7 @@ class RoomRepo {
   }
 
   fetchBlockedRoom() async {
-    var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
+
     var result = await _queryServiceClient.getBlockedList(GetBlockedListReq(),
         options: CallOptions(
             metadata: {"access_token": await _accountRepo.getAccessToken()}));
@@ -278,7 +278,7 @@ class RoomRepo {
   }
 
   Future<Uid> fetchUidById(String username) async {
-    var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
+
     var result = await _queryServiceClient.getUidById(
         GetUidByIdReq()..id = username,
         options: CallOptions(
@@ -288,7 +288,6 @@ class RoomRepo {
   }
 
   void reportRoom(Uid roomUid) async {
-    var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
     _queryServiceClient.report(ReportReq()..uid = roomUid,
         options: CallOptions(
             metadata: {"access_token": await _accountRepo.getAccessToken()}));

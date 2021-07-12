@@ -28,6 +28,8 @@ import 'messageRepo.dart';
 
 class AccountRepo {
   final _sharedDao = GetIt.I.get<SharedDao>();
+  final QueryServiceClient _queryServiceClient =
+  GetIt.I.get<QueryServiceClient>();
 
   // TODO add account name protocol to server
   String currentUsername = "@john_doe";
@@ -209,8 +211,6 @@ class AccountRepo {
 
   Future<bool> getUsername() async {
     try {
-      final QueryServiceClient _queryServiceClient =
-          GetIt.I.get<QueryServiceClient>();
       var getIdRequest = await _queryServiceClient.getIdByUid(
           GetIdByUidReq()..uid = currentUserUid,
           options: CallOptions(
@@ -268,8 +268,7 @@ class AccountRepo {
   }
 
   Future<bool> checkUserName(String username) async {
-    final QueryServiceClient _queryServiceClient =
-        GetIt.I.get<QueryServiceClient>();
+
     var checkUsernameRes = await _queryServiceClient.idIsAvailable(
         IdIsAvailableReq()..id = username,
         options:
@@ -283,8 +282,6 @@ class AccountRepo {
     String lastName,
     String email,
   ) async {
-    final QueryServiceClient _queryServiceClient =
-        GetIt.I.get<QueryServiceClient>();
     try {
       _queryServiceClient.setId(SetIdReq()..id = username,
           options:

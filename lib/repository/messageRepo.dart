@@ -129,7 +129,7 @@ class MessageRepo {
   Future<void> updatingMessages() async {
     bool finished = false;
     int pointer = 0;
-    var fetchAllRoom = await _sharedDao.get(FETCH_ALL_ROOM);
+    var fetchAllRoom = await _sharedDao.get(SHARED_DAO_FETCH_ALL_ROOM);
 
     while (!finished && pointer < 10000) {
       try {
@@ -143,7 +143,7 @@ class MessageRepo {
                 }));
 
         finished = getAllUserRoomMetaRes.finished;
-        if (finished) _sharedDao.put(FETCH_ALL_ROOM, "true");
+        if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
 
         for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
