@@ -22,6 +22,13 @@ DateTime date(int time) {
   return DateTime.fromMillisecondsSinceEpoch(time);
 }
 
+String durationTimeFormat(Duration duration) {
+  String twoDigits(int n) => n.toString().padLeft(2, "0");
+  String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+  String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+  return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+}
+
 String dateTimeFormat(DateTime time) {
   var now = DateTime.now();
   var difference = now.difference(time);
