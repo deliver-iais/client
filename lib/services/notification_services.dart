@@ -26,7 +26,7 @@ class NotificationServices {
     if (!isDesktop()) Firebase.initializeApp();
     if (isWindows()) {try{
       _windowsNotificationServices = new ToastService(
-        appName: 'Deliver',
+        appName: APPLICATION_NAME,
         companyName: "we",
         productName: "deliver",
       );

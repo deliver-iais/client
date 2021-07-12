@@ -157,7 +157,7 @@ try{
     if(msg.to.category == Categories.USER){
       roomName = await roomRepo.getName(msg.from);
     }else if(msg.from.category == Categories.SYSTEM){
-      roomName = "Deliver";
+      roomName = APPLICATION_NAME;
     }else if(msg.from.category == Categories.BOT){
       roomName = msg.from.node;
     }
