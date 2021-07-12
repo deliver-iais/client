@@ -16,6 +16,7 @@ import 'package:deliver_flutter/screen/settings/account_settings.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
 import 'package:deliver_flutter/screen/share_input_file/share_input_file.dart';
 import 'package:deliver_flutter/services/core_services.dart';
+import 'package:deliver_flutter/shared/scanQrCode.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -255,6 +256,18 @@ class RoutingService {
         path: "/share_file_page"));
   }
 
+  void openScanQrCode() {
+    var widget = ScanQrCode(
+        key: ValueKey("/scan_qr_code"),
+    );
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/scan_qr_code"));
+
+  }
+
   void openAddStickerPcakPage() {
     // var widget = AddStickerPack(
     //   key: ValueKey("/add-sticker-pack-page"),
@@ -371,6 +384,7 @@ class RoutingService {
   _smallPageMain(BuildContext context) {
     return _stack.last.smallPageMain;
   }
+
 
 }
 

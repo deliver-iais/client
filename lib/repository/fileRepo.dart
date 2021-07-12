@@ -12,7 +12,7 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as FileProto;
 
 import 'package:fixnum/fixnum.dart';
-import 'package:image/image.dart';
+// import 'package:image/image.dart' as e;
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -161,50 +161,50 @@ class FileRepo {
   }
 }
 
-void decodeIsolate(Map<dynamic, dynamic> param) async {
-  Image largeThumbnail;
-  Image mediumThumbnail;
-  Image smallThumbnail;
-  Directory directory;
-  Map fileMap = Map<dynamic, dynamic>();
-
-  directory = await getApplicationDocumentsDirectory();
-  if (!await Directory('${directory.path}/Deliver').exists())
-    await Directory('${directory.path}//Deliver').create(recursive: true);
-
-  final realLocalFile = File(
-      '${directory.path + "/Deliver"}/${param['uploadKey']}.${param['name']}');
-
-  final largeLocalFile = File(
-      '${directory.path + "/Deliver"}/${param['uploadKey'] + "-large"}.${param['name']}');
-
-
-  final mediumLocalFile = File(
-      '${directory.path + "/Deliver"}/${param['uploadKey'] + "-medium"}.${param['name']}');
-
-  final smallLocalFile = File(
-      '${directory.path + "/Deliver"}/${param['uploadKey'] + "-small"}.${param['name']}');
-  Image image = decodeImage(File(param['file']).readAsBytesSync());
-  if (image.width > image.height) {
-    largeThumbnail = copyResize(image, width: 500);
-    mediumThumbnail = copyResize(image, width: 300);
-    smallThumbnail = copyResize(image, width: 64);
-  } else {
-    largeThumbnail = copyResize(image, height: 500);
-    mediumThumbnail = copyResize(image, height: 300);
-    smallThumbnail = copyResize(image, height: 64);
-  }
-
-  realLocalFile.writeAsBytesSync(File(param['file']).readAsBytesSync());
-  largeLocalFile.writeAsBytesSync(encodeJpg(largeThumbnail));
-  mediumLocalFile.writeAsBytesSync(encodeJpg(mediumThumbnail));
-  smallLocalFile.writeAsBytesSync(encodeJpg(smallThumbnail));
-  fileMap['real'] = realLocalFile.path;
-  fileMap['large'] = largeLocalFile.path;
-  fileMap['medium'] = mediumLocalFile.path;
-  fileMap['small'] = smallLocalFile.path;
-
-  SendPort sendport = param['sendPort'];
-
-  sendport.send(fileMap);
-}
+// void decodeIsolate(Map<dynamic, dynamic> param) async {
+//   Image largeThumbnail;
+//   Image mediumThumbnail;
+//   Image smallThumbnail;
+//   Directory directory;
+//   Map fileMap = Map<dynamic, dynamic>();
+//
+//   directory = await getApplicationDocumentsDirectory();
+//   if (!await Directory('${directory.path}/Deliver').exists())
+//     await Directory('${directory.path}//Deliver').create(recursive: true);
+//
+//   final realLocalFile = File(
+//       '${directory.path + "/Deliver"}/${param['uploadKey']}.${param['name']}');
+//
+//   final largeLocalFile = File(
+//       '${directory.path + "/Deliver"}/${param['uploadKey'] + "-large"}.${param['name']}');
+//
+//
+//   final mediumLocalFile = File(
+//       '${directory.path + "/Deliver"}/${param['uploadKey'] + "-medium"}.${param['name']}');
+//
+//   final smallLocalFile = File(
+//       '${directory.path + "/Deliver"}/${param['uploadKey'] + "-small"}.${param['name']}');
+//   Image image = decodeImage(File(param['file']).readAsBytesSync());
+//   if (image.width > image.height) {
+//     largeThumbnail = copyResize(image, width: 500);
+//     mediumThumbnail = copyResize(image, width: 300);
+//     smallThumbnail = copyResize(image, width: 64);
+//   } else {
+//     largeThumbnail = copyResize(image, height: 500);
+//     mediumThumbnail = copyResize(image, height: 300);
+//     smallThumbnail = copyResize(image, height: 64);
+//   }
+//
+//   realLocalFile.writeAsBytesSync(File(param['file']).readAsBytesSync());
+//   largeLocalFile.writeAsBytesSync(encodeJpg(largeThumbnail));
+//   mediumLocalFile.writeAsBytesSync(encodeJpg(mediumThumbnail));
+//   smallLocalFile.writeAsBytesSync(encodeJpg(smallThumbnail));
+//   fileMap['real'] = realLocalFile.path;
+//   fileMap['large'] = largeLocalFile.path;
+//   fileMap['medium'] = mediumLocalFile.path;
+//   fileMap['small'] = smallLocalFile.path;
+//
+//   SendPort sendport = param['sendPort'];
+//
+//   sendport.send(fileMap);
+// }

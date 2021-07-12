@@ -14,7 +14,9 @@ import 'package:deliver_flutter/screen/navigation_center/widgets/searchBox.dart'
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -170,9 +172,22 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   }
                 }),
             actions: [
-              buildMenu(context),
+              if (!isDesktop())
+                Container(
+                  width: 42,height: 42,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: ExtraTheme.of(context).menuIconButton,
+                    ),
+                    child: IconButton(onPressed: () {
+                      _routingService.openScanQrCode();
+                    }, icon: Icon(Icons.qr_code,size: 17,))),
               SizedBox(
                 width: 16,
+              ),
+              buildMenu(context),
+              SizedBox(
+                width: 8,
               )
             ],
           ),
@@ -289,7 +304,18 @@ class _NavigationCenterState extends State<NavigationCenter> {
         });
   }
 
-  IconButton buildMenu(BuildContext context) {
+  void _onQRViewCreated(QRViewController controller) {
+    setState(() {
+      //   this.controller = controller;
+    });
+    controller.scannedDataStream.listen((scanData) {
+      setState(() {
+        //    result = scanData;
+      });
+    });
+  }
+
+  Widget buildMenu(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
     return IconButton(
         padding: const EdgeInsets.only(top: 4, left: 6, bottom: 4, right: 0),
