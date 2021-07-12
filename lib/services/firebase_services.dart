@@ -49,13 +49,12 @@ class FireBaseServices {
   FirebaseMessaging _firebaseMessaging;
 
   sendFireBaseToken() async {
-    if(!isDesktop()){
+    if (!isDesktop()) {
       _firebaseMessaging = FirebaseMessaging.instance;
       _firebaseMessaging.requestPermission();
       await _setFirebaseSetting();
       _sendFireBaseToken(await _firebaseMessaging.getToken());
     }
-
   }
 
   deleteToken() {
@@ -106,21 +105,19 @@ M.Message _decodeMessage(String notificationBody) {
 Future<void> backgroundMessageHandler(RemoteMessage message) async {
   var _notificationServices = NotificationServices();
 
-try{
-  await setupDI();
-
-}catch(e){
-  debug(e.toString());
-}
+  try {
+    await setupDI();
+  } catch (e) {
+    debug(e.toString());
+  }
 
   var lastActivityDao;
-try{
-  lastActivityDao = GetIt.I.get<LastActivityDao>();
-
-}catch(e){
-   GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
-   lastActivityDao = GetIt.I.get<LastActivityDao>();
-}
+  try {
+    lastActivityDao = GetIt.I.get<LastActivityDao>();
+  } catch (e) {
+    GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
+    lastActivityDao = GetIt.I.get<LastActivityDao>();
+  }
 
   // TODO needs to be refactored!!!
   var accountRepo = AccountRepo();
@@ -135,33 +132,28 @@ try{
 
     CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg, roomUid);
     if (msg.from.category == Categories.USER)
-      try{
+      try {
         updateLastActivityTime(
             lastActivityDao, getRoomId(accountRepo, msg), msg.time.toInt());
-      }catch(e){
+      } catch (e) {}
 
-      }
-
-
-    try{
+    try {
       if ((await accountRepo.notification).contains("false") ||
           await roomRepo.isRoomMuted(roomUid.asString()) ||
           accountRepo.isCurrentUser(msg.from.asString())) {
         return;
       }
-    }catch(e){
+    } catch (e) {
       debug(e.toString());
     }
 
-
-    if(msg.to.category == Categories.USER){
+    if (msg.to.category == Categories.USER) {
       roomName = await roomRepo.getName(msg.from);
-    }else if(msg.from.category == Categories.SYSTEM){
+    } else if (msg.from.category == Categories.SYSTEM) {
       roomName = APPLICATION_NAME;
-    }else if(msg.from.category == Categories.BOT){
+    } else if (msg.from.category == Categories.BOT) {
       roomName = msg.from.node;
     }
-
 
     await Hive.close();
     _notificationServices.showNotification(
