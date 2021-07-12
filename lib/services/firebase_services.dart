@@ -139,7 +139,7 @@ try{
         updateLastActivityTime(
             lastActivityDao, getRoomId(accountRepo, msg), msg.time.toInt());
       }catch(e){
-
+      debug(e.toString());
       }
 
 
