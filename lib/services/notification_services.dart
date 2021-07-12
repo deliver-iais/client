@@ -1,7 +1,7 @@
-
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/services/file_service.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
@@ -25,11 +25,15 @@ class NotificationServices {
   NotificationServices() {
     if (!isDesktop()) Firebase.initializeApp();
     if (isWindows()) {
-      _windowsNotificationServices = new ToastService(
-        appName: 'Deliver',
-        companyName: "tyty",
-        productName: "fdsd",
-      );
+      try {
+        _windowsNotificationServices = new ToastService(
+          appName: APPLICATION_NAME,
+          companyName: "we",
+          productName: "deliver",
+        );
+      } catch (e) {
+        debug(e.toString());
+      }
     }
     var androidNotificationSetting =
         new AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -70,7 +74,7 @@ class NotificationServices {
   showTextNotification(int notificationId, String roomId, String roomName,
       String messageBody) async {
     if (isWindows()) {
-      showWindowsNotify(roomId,roomName, messageBody);
+      showWindowsNotify(roomId, roomName, messageBody);
     } else if (isLinux()) {
       try {
         var client = NotificationsClient();
@@ -100,33 +104,37 @@ class NotificationServices {
     }
   }
 
-  void showWindowsNotify(String roomUid,String roomName, String messageBody) async{
-    var _avatarRepo = GetIt.I.get<AvatarRepo>();
-    var fileRepo = GetIt.I.get<FileRepo>();
-    var lastAvatar = await _avatarRepo.getLastAvatar(roomUid.asUid(), false);
-    if(lastAvatar != null){
-      var file  = await fileRepo.getFile(lastAvatar.fileId,lastAvatar.fileName,thumbnailSize:  ThumbnailSize.medium);
-      Toast toast = new Toast(
-          type: ToastType.imageAndText02,
-          title: roomName,
-          subtitle: messageBody,
-          image: file
-      );
-      _windowsNotificationServices.show(toast);
+  void showWindowsNotify(
+      String roomUid, String roomName, String messageBody) async {
+    try {
+      var _avatarRepo = GetIt.I.get<AvatarRepo>();
+      var fileRepo = GetIt.I.get<FileRepo>();
+      var lastAvatar = await _avatarRepo.getLastAvatar(roomUid.asUid(), false);
+      if (lastAvatar != null) {
+        var file = await fileRepo.getFile(
+            lastAvatar.fileId, lastAvatar.fileName,
+            thumbnailSize: ThumbnailSize.medium);
+        Toast toast = new Toast(
+            type: ToastType.imageAndText02,
+            title: roomName,
+            subtitle: messageBody,
+            image: file);
+        _windowsNotificationServices.show(toast);
 
-      toast.dispose();
-
-    } else{
-      Toast toast = new Toast(
+        toast.dispose();
+      } else {
+        Toast toast = new Toast(
           type: ToastType.text04,
           title: roomName,
           subtitle: messageBody,
-      );
-      _windowsNotificationServices.show(toast);
-      // _windowsNotificationServices.dispose();
-      toast.dispose();
+        );
+        _windowsNotificationServices.show(toast);
+        // _windowsNotificationServices.dispose();
+        toast.dispose();
+      }
+    } catch (e) {
+      debug(e.toString());
     }
-
   }
 
   showImageNotification(int notificationId, String roomId, String roomName,

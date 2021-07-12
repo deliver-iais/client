@@ -161,36 +161,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     IconButton(
                         icon: Icon(Icons.navigate_next),
                         onPressed: () async {
-                          var client = DBusClient.session();
-                          var object = DBusRemoteObject(
-                              client,
-                              'org.freedesktop.Notifications',
-                              DBusObjectPath('/org/freedesktop/Notifications'));
-                          var values = [
-                            DBusString(''),
-                            // App name
-                            DBusUint32(0),
-                            // Replaces
-                            DBusString(''),
-                            // Icon
-                            DBusString('Hello World!'),
-                            // Summary
-                            DBusString(''),
-                            // Body
-                            DBusArray(DBusSignature('s')),
-                            // Actions
-                            DBusDict(DBusSignature('s'), DBusSignature('v')),
-                            // Hints
-                            DBusInt32(-1),
-                            // Expire timeout
-                          ];
-                          var result = await object.callMethod(
-                              'org.freedesktop.Notifications', 'Notify', values,
-                              replySignature: DBusSignature('u'));
-                          var id = result.returnValues[0];
-                          print('notify ${id.toNative()}');
-                          await client.close();
-                          // _routingService.openAccountSettings();
+                           _routingService.openAccountSettings();
                         }),
                   ],
                 )),
@@ -236,20 +207,21 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
               ),
             ),
-            settingsRow(
-              context,
-              iconData: Icons.announcement_rounded,
-              title: appLocalization.getTraslateValue("send_by_shift_enter"),
-              child: Switch(
-                activeColor: ExtraTheme.of(context).activeSwitch,
-                value: !_getSendByEnter(),
-                onChanged: (_) {
-                  setState(() {
-                    _uxService.toggleSendByEnter();
-                  });
-                },
+            if (isDesktop())
+              settingsRow(
+                context,
+                iconData: Icons.announcement_rounded,
+                title: appLocalization.getTraslateValue("send_by_shift_enter"),
+                child: Switch(
+                  activeColor: ExtraTheme.of(context).activeSwitch,
+                  value: !_getSendByEnter(),
+                  onChanged: (_) {
+                    setState(() {
+                      _uxService.toggleSendByEnter();
+                    });
+                  },
+                ),
               ),
-            ),
             settingsRow(context,
                 iconData: Icons.notifications_active,
                 title: appLocalization.getTraslateValue("notification"),

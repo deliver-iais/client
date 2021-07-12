@@ -1,6 +1,7 @@
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/language.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/light.dart';
@@ -19,7 +20,7 @@ class UxService {
 
   BehaviorSubject<Language> _language = BehaviorSubject.seeded(DefaultLanguage);
 
-  BehaviorSubject<String> _sendByEnter = BehaviorSubject.seeded(SEND_BY_ENTER);
+  BehaviorSubject<String> _sendByEnter = BehaviorSubject.seeded(isDesktop() ? SEND_BY_ENTER : SEND_BY_SHIFT_ENTER);
 
   get localeStream => _sharedDao.getStream(SHARED_DAO_LANGUAGE).map((event) {
         if (event != null) {
@@ -63,7 +64,7 @@ class UxService {
 
   get theme => _theme.value;
 
-  get sendByEnter => _sendByEnter.value;
+  get sendByEnter => isDesktop() ? _sendByEnter.value : SEND_BY_SHIFT_ENTER;
 
   get extraTheme => _extraTheme.value;
 

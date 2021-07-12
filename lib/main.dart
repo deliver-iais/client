@@ -163,7 +163,12 @@ void setupDIAndRunApp() async {
   if (isAndroid()) {
     await setupFlutterNotification();
   }
-  await setupDI();
+  try{
+    await setupDI();
+  } catch(e){
+    debug(e);
+  }
+
 
   // TODO: Android just now is available
 

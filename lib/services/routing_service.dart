@@ -14,6 +14,7 @@ import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
 import 'package:deliver_flutter/screen/settings/account_settings.dart';
 import 'package:deliver_flutter/screen/settings/settingsPage.dart';
+import 'package:deliver_flutter/screen/share_input_file/share_input_file.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
@@ -242,6 +243,18 @@ class RoutingService {
         path: "/group-info-determination-page"));
   }
 
+  void openShareFile({List<String> path}) {
+    var widget = ShareInputFile(
+      key: ValueKey("/share_file_page"),
+            inputSharedFilePath: path
+    );
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/share_file_page"));
+  }
+
   void openAddStickerPcakPage() {
     // var widget = AddStickerPack(
     //   key: ValueKey("/add-sticker-pack-page"),
@@ -358,6 +371,7 @@ class RoutingService {
   _smallPageMain(BuildContext context) {
     return _stack.last.smallPageMain;
   }
+
 }
 
 class Empty extends StatelessWidget {

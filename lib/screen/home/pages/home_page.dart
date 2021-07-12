@@ -48,38 +48,29 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void initState() {
     _notificationServices.cancelAllNotification();
     checkIfUsernameIsSet();
-    initUniLinks(context);
+
     if (isAndroid()) {
       checkShareFile(context);
     }
+    initUniLinks(context);
     _coreServices.initStreamConnection();
     super.initState();
   }
 
   checkShareFile(BuildContext context) {
-    ReceiveSharingIntent.getMediaStream().listen((List<SharedMediaFile> value) {
-      if (value != null) {
-        Fluttertoast.showToast(msg: value.length.toString());
-        List<String> paths = [];
+
+    ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
+      if (value.length>0) {
+        List<String> paths =[];
         for (var path in value) {
           paths.add(path.path);
         }
-        ExtendedNavigator.of(context).pushAndRemoveUntil(
-            Routes.shareInputFile, (_) => false,
-            arguments: ShareInputFileArguments(inputSharedFilePath: paths));
+        _routingService.openShareFile(path:paths);
+        // ExtendedNavigator.of(context).pushAndRemoveUntil(
+        //     Routes.shareInputFile, (_) => false,
+        //     arguments: ShareInputFileArguments(inputSharedFilePath: paths));
       }
     });
-    // ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
-    //   if (value != null) {
-    //     List<String> paths = List();
-    //     for (var path in value) {
-    //       paths.add(path.path);
-    //     }
-    //     ExtendedNavigator.of(context).pushAndRemoveUntil(
-    //         Routes.shareInputFile, (_) => false,
-    //         arguments: ShareInputFileArguments(inputSharedFilePath: paths));
-    //   }
-    // });
   }
 
   @override

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/box/dao/block_dao.dart';
-import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/mute_dao.dart';
 import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
@@ -14,6 +13,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 
@@ -30,19 +30,17 @@ Cache<String, String> roomNameCache =
     LruCache<String, String>(storage: SimpleStorage(size: 40));
 
 class RoomRepo {
-  var _messageDao = GetIt.I.get<MessageDao>();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _seenDao = GetIt.I.get<SeenDao>();
   var _muteDao = GetIt.I.get<MuteDao>();
   var _blockDao = GetIt.I.get<BlockDao>();
   var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
+  var _contactRepo = GetIt.I.get<ContactRepo>();
 
   var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _contactRepo = GetIt.I.get<ContactRepo>();
+  var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _botRepo = GetIt.I.get<BotRepo>();
-
-  var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
 
   Map<String, BehaviorSubject<Activity>> activityObject = Map();
 
@@ -51,7 +49,7 @@ class RoomRepo {
   Future<String> getName(Uid uid) async {
     // Is System Id
     if (uid.category == Categories.SYSTEM) {
-      return "Deliver";
+      return APPLICATION_NAME;
     }
 
     // Is Current User
@@ -80,6 +78,7 @@ class RoomRepo {
     if (uid.category == Categories.USER) {
       // TODO needs to be refactored!
       // TODO MIGRATION NEEDS
+
       var contact = await _contactRepo.getContact(uid);
       if (contact != null &&
           ((contact.firstName != null && contact.firstName.isNotEmpty) ||
@@ -102,7 +101,7 @@ class RoomRepo {
     // Is Group or Channel
     if (uid.category == Categories.GROUP ||
         uid.category == Categories.CHANNEL) {
-      Muc  muc = await _mucRepo.fetchMucInfo(uid);
+      Muc muc = await _mucRepo.fetchMucInfo(uid);
       if (muc != null && muc.name != null && muc.name.isNotEmpty) {
         roomNameCache.set(uid.asString(), muc.name);
         _uidIdNameDao.update(uid.asString(), name: muc.name);
@@ -247,7 +246,6 @@ class RoomRepo {
 
   Future<List<Uid>> searchInRoomAndContacts(
       String text, bool searchInRooms) async {
-
     List<Uid> searchResult = [];
     var res = await _uidIdNameDao.search(text);
     res.forEach((element) {
