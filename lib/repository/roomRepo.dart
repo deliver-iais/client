@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/box/dao/block_dao.dart';
-import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/mute_dao.dart';
 import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
@@ -14,6 +13,7 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 
@@ -42,8 +42,6 @@ class RoomRepo {
   var _mucRepo = GetIt.I.get<MucRepo>();
   var _botRepo = GetIt.I.get<BotRepo>();
 
-
-
   Map<String, BehaviorSubject<Activity>> activityObject = Map();
 
   insertRoom(String uid) => _roomDao.updateRoom(Room(uid: uid));
@@ -51,7 +49,7 @@ class RoomRepo {
   Future<String> getName(Uid uid) async {
     // Is System Id
     if (uid.category == Categories.SYSTEM) {
-      return "Deliver";
+      return APPLICATION_NAME;
     }
 
     // Is Current User
@@ -103,7 +101,7 @@ class RoomRepo {
     // Is Group or Channel
     if (uid.category == Categories.GROUP ||
         uid.category == Categories.CHANNEL) {
-      Muc  muc = await _mucRepo.fetchMucInfo(uid);
+      Muc muc = await _mucRepo.fetchMucInfo(uid);
       if (muc != null && muc.name != null && muc.name.isNotEmpty) {
         roomNameCache.set(uid.asString(), muc.name);
         _uidIdNameDao.update(uid.asString(), name: muc.name);
@@ -141,7 +139,6 @@ class RoomRepo {
   }
 
   Future<String> getIdByUid(Uid uid) async {
-
     try {
       var result = await _queryServiceClient.getIdByUid(
           GetIdByUidReq()..uid = uid,
@@ -229,7 +226,6 @@ class RoomRepo {
   }
 
   fetchBlockedRoom() async {
-
     var result = await _queryServiceClient.getBlockedList(GetBlockedListReq(),
         options: CallOptions(
             metadata: {"access_token": await _accountRepo.getAccessToken()}));
@@ -250,7 +246,6 @@ class RoomRepo {
 
   Future<List<Uid>> searchInRoomAndContacts(
       String text, bool searchInRooms) async {
-
     List<Uid> searchResult = [];
     var res = await _uidIdNameDao.search(text);
     res.forEach((element) {
@@ -278,7 +273,6 @@ class RoomRepo {
   }
 
   Future<Uid> fetchUidById(String username) async {
-
     var result = await _queryServiceClient.getUidById(
         GetUidByIdReq()..id = username,
         options: CallOptions(
