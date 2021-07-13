@@ -27,7 +27,7 @@ import 'package:grpc/grpc.dart';
 import 'package:rxdart/rxdart.dart';
 
 Cache<String, String> roomNameCache =
-    LruCache<String, String>(storage: SimpleStorage(size: 40));
+    LruCache<String, String>(storage: SimpleStorage(size: 100));
 
 class RoomRepo {
   var _roomDao = GetIt.I.get<RoomDao>();

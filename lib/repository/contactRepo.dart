@@ -162,6 +162,7 @@ class ContactRepo {
 
       if (contact.uid != null) {
         roomNameCache.set(contact.uid.asString(), contact.firstName);
+        _uidIdNameDao.update(contact.uid.asString(), name: "${contact.firstName} ${contact.lastName ??""}");
         _roomDao.updateRoom(Room(uid: contact.uid.asString()));
       }
     }
