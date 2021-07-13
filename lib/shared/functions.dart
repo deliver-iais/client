@@ -77,11 +77,11 @@ Future<void> handleUri(String initialLink, BuildContext context) async {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  ElevatedButton(
+                  MaterialButton(
                       onPressed: () => Navigator.of(context).pop(),
                       child: Text(AppLocalization.of(context)
                           .getTraslateValue("skip"))),
-                  ElevatedButton(
+                  MaterialButton(
                     onPressed: () async {
                       if (mucUid.category == Categories.GROUP) {
                         Muc  muc =

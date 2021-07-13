@@ -194,5 +194,9 @@
   "pinned_message": "پیام های سنجاق شده",
   "create_invite_link": "لینک دعوت",
   "send_by_shift_enter": "ارسال پیام با Shift + Enter",
-  "scan_qr_code": "اسکن کردن"
+  "scan_qr_code": "اسکن کردن",
+  "sure_add_contact": "اضافه کردن مخاطب ؟",
+  "add_contact": "اضافه کردن",
+  "contact_exist": " جزو مخاطبین شما می باشد.",
+  "contact_add": " به مخاطبین اضافه شد."
 }

@@ -194,5 +194,9 @@
   "pinned_message": "Pinned Message",
   "create_invite_link": "Invite Link",
   "send_by_shift_enter": "Send Message by Shift + Enter",
-  "scan_qr_code": "Scan QR Code"
+  "scan_qr_code": "Scan QR Code",
+  "sure_add_contact": "Add Contact ?",
+  "add_contact": "Add Contact",
+  "contact_exist": " is one of your contacts.",
+  "contact_add": " Add in Contacts"
 }

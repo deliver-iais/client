@@ -15,6 +15,7 @@ import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:rxdart/rxdart.dart';
@@ -22,23 +23,19 @@ import 'package:fixnum/fixnum.dart';
 
 import 'functions.dart';
 
-
-
 class ScanQrCode extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() => _ScanQrCode();
-  ScanQrCode({Key key}):super(key: key);
 
+  ScanQrCode({Key key}) : super(key: key);
 }
 
 class _ScanQrCode extends State<ScanQrCode> {
-
   QRViewController controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   var _routingServices = GetIt.I.get<RoutingService>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
-  
+
   @override
   void reassemble() {
     super.reassemble();
@@ -47,62 +44,82 @@ class _ScanQrCode extends State<ScanQrCode> {
     }
     controller.resumeCamera();
   }
+
   String _message = "";
+  List<String> _contactDetails = [];
 
   BehaviorSubject<bool> _mucJoinQrCode = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> _sendMessageToBotQrCode = BehaviorSubject.seeded(false);
-  BehaviorSubject<bool> _sendAccessPrivateDataQrCode = BehaviorSubject.seeded(false);
+  BehaviorSubject<bool> _sendAccessPrivateDataQrCode =
+      BehaviorSubject.seeded(false);
   BehaviorSubject<bool> _addContact = BehaviorSubject.seeded(false);
-
 
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(appLocalization.getTraslateValue("scan_qr_code"),style: TextStyle(color: ExtraTheme.of(context).textField),),leading: _routingServices.backButtonLeading(),),
+      appBar: AppBar(
+        title: Text(
+          appLocalization.getTraslateValue("scan_qr_code"),
+          style: TextStyle(color: ExtraTheme.of(context).textField),
+        ),
+        leading: _routingServices.backButtonLeading(),
+      ),
       body: Column(
         children: <Widget>[
           Expanded(flex: 4, child: _buildQrView(context)),
           Expanded(
-            flex: 1,
+            flex: 2,
             child: FittedBox(
               fit: BoxFit.contain,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  StreamBuilder<bool>(stream: _mucJoinQrCode.stream,builder: (c,s){
-                    if(s.hasData && s.data){
-                      handleUri(_message, context);
-                      return SizedBox.shrink();
-                    }else{
-                      return SizedBox.shrink();
-                    }
-                  }),
-                  StreamBuilder<bool>(stream: _sendMessageToBotQrCode.stream,builder: (c,s){
-                    if(s.hasData && s.data){
-                   //   handleUri(mucJoinUrl, context);
-                      return SizedBox.shrink();
-                    }else{
-                      return SizedBox.shrink();
-                    }
-                  }),
-                  StreamBuilder<bool>(stream: _sendAccessPrivateDataQrCode.stream,builder: (c,s){
-                    if(s.hasData && s.data){
-                  //    handleUri(mucJoinUrl, context);
-                      return SizedBox.shrink();
-                    }else{
-                      return SizedBox.shrink();
-                    }
-                  }),
-                  StreamBuilder<bool>(stream: _addContact.stream,builder: (c,s){
-                    if(s.hasData && s.data){
-                     //handleAddContact();
-                      return SizedBox.shrink();
-                    }else{
-                      return SizedBox.shrink();
-                    }
-                  }),
-
+                  StreamBuilder<bool>(
+                      stream: _mucJoinQrCode.stream,
+                      builder: (c, s) {
+                        if (s.hasData && s.data) {
+                          handleUri(_message, context);
+                          return SizedBox.shrink();
+                        } else {
+                          return SizedBox.shrink();
+                        }
+                      }),
+                  StreamBuilder<bool>(
+                      stream: _sendMessageToBotQrCode.stream,
+                      builder: (c, s) {
+                        if (s.hasData && s.data) {
+                          //   handleUri(mucJoinUrl, context);
+                          return SizedBox.shrink();
+                        } else {
+                          return SizedBox.shrink();
+                        }
+                      }),
+                  StreamBuilder<bool>(
+                      stream: _sendAccessPrivateDataQrCode.stream,
+                      builder: (c, s) {
+                        if (s.hasData && s.data) {
+                          //    handleUri(mucJoinUrl, context);
+                          return SizedBox.shrink();
+                        } else {
+                          return SizedBox.shrink();
+                        }
+                      }),
+                  StreamBuilder<bool>(
+                      stream: _addContact.stream,
+                      builder: (c, s) {
+                        if (s.hasData && s.data) {
+                          handleAddContact(
+                              context: context,
+                              countryCode: _contactDetails[0].split("=")[1],
+                              nationalNumber: _contactDetails[1].split("=")[1],
+                              firstName: _contactDetails[2].split("=")[1],
+                              lastName: _contactDetails[3].split("=")[1]);
+                          return SizedBox.shrink();
+                        } else {
+                          return SizedBox.shrink();
+                        }
+                      }),
                 ],
               ),
             ),
@@ -115,7 +132,7 @@ class _ScanQrCode extends State<ScanQrCode> {
   Widget _buildQrView(BuildContext context) {
     // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
     var scanArea = (MediaQuery.of(context).size.width < 400 ||
-        MediaQuery.of(context).size.height < 400)
+            MediaQuery.of(context).size.height < 400)
         ? 150.0
         : 300.0;
     // To ensure the Scanner view is properly sizes after rotation
@@ -136,7 +153,10 @@ class _ScanQrCode extends State<ScanQrCode> {
     setState(() {
       this.controller = controller;
     });
-    controller.scannedDataStream.map((event) => event.code).distinct().listen((scanData) {
+    controller.scannedDataStream
+        .map((event) => event.code)
+        .distinct()
+        .listen((scanData) {
       _parsQrCode(scanData);
     });
   }
@@ -150,55 +170,85 @@ class _ScanQrCode extends State<ScanQrCode> {
   void _parsQrCode(String scanData) {
     _message = scanData;
     var m = scanData.split("/");
-    if(m[3].toString().contains("join")){
+    if (m[3].toString().contains("join")) {
       _mucJoinQrCode.add(true);
-    }else if(m[3].contains("text") ){
+    } else if (m[3].contains("text")) {
       _sendMessageToBotQrCode.add(true);
-    }else if(m[3].contains("spda")){
+    } else if (m[3].contains("spda")) {
       _sendAccessPrivateDataQrCode.add(true);
-    }else if(m[3].contains("addContact")){
+    } else if (m[3].contains("addContact")) {
+      _contactDetails = m[3].split("&");
       _addContact.add(true);
     }
   }
-  Future<void> handleAddContact(String fm ,String ln ,String cc ,String nn , BuildContext context) async {
-    var res = await _contactRepo.contactIsExist(nn);
-    if(res != null){
-      //todo
-    }else{
-        showFloatingModalBottomSheet(
-          context: context,
-          builder: (context) => Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text(AppLocalization.of(context).getTraslateValue("sure_add_contact"),style: TextStyle(color: ExtraTheme.of(context).textField,fontSize: 16),),
-                SizedBox(height: 10,),
-                CircleAvatarWidget(null, 40,
-                    forceText: fm),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: Text(AppLocalization.of(context)
-                            .getTraslateValue("skip"))),
-                    ElevatedButton(
-                      onPressed: () async {
-                        var res = await _contactRepo.addContact(C.Contact()..firstName = fm..lastName = ln..phoneNumber = PhoneNumber(countryCode:int.parse(cc),nationalNumber: Int64(int.parse(nn))));
-                        if(res){
-                          //todo
-                        }
-                      },
-                      child: Text(
-                          AppLocalization.of(context).getTraslateValue("add_contact")),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+
+  Future<void> handleAddContact(
+      {String firstName,
+      String lastName,
+      String countryCode,
+      String nationalNumber,
+      BuildContext context}) async {
+    var res = await _contactRepo.contactIsExist(nationalNumber.trim());
+    if (res) {
+      Fluttertoast.showToast(
+          msg:
+              "$firstName $lastName ${AppLocalization.of(context).getTraslateValue("contact_exist")}");
+    } else {
+      showFloatingModalBottomSheet(
+        context: context,
+        builder: (context) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                AppLocalization.of(context)
+                    .getTraslateValue("sure_add_contact"),
+                style: TextStyle(
+                    color: ExtraTheme.of(context).textField, fontSize: 16),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              // CircleAvatarWidget(, 40,
+              //     forceText: fm),
+              Text(
+                "$firstName$lastName ",
+                style: TextStyle(
+                    color: ExtraTheme.of(context).username, fontSize: 25),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  MaterialButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(AppLocalization.of(context)
+                          .getTraslateValue("skip"))),
+                  MaterialButton(
+                    onPressed: () async {
+                      var res = await _contactRepo.addContact(C.Contact()
+                        ..firstName = firstName
+                        ..lastName = lastName
+                        ..phoneNumber = PhoneNumber(
+                            countryCode: int.parse(countryCode),
+                            nationalNumber: Int64(int.parse(nationalNumber))));
+                      if (res) {
+                        Fluttertoast.showToast(msg: "$firstName$lastName ${AppLocalization.of(context).getTraslateValue("contact_add")}");
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    child: Text(AppLocalization.of(context)
+                        .getTraslateValue("add_contact")),
+                  ),
+                ],
+              ),
+            ],
           ),
-        );
-      }
+        ),
+      );
     }
   }
+}
