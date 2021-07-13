@@ -50,6 +50,7 @@ import 'package:grpc/grpc.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:mime_type/mime_type.dart';
+import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/foundation.dart';
 
@@ -496,14 +497,12 @@ class MessageRepo {
 
   sendForwardedMessage(Uid room, List<Message> forwardedMessage) async {
     for (Message forwardedMessage in forwardedMessage) {
-      Timer(Duration(seconds: 2), () async {
-        Message msg = _createMessage(room, forwardedFrom: forwardedMessage.from)
-            .copyWith(type: forwardedMessage.type, json: forwardedMessage.json);
+      Message msg = _createMessage(room, forwardedFrom: forwardedMessage.from)
+          .copyWith(type: forwardedMessage.type, json: forwardedMessage.json);
 
-        var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+      var pm = _createPendingMessage(msg, SendingStatus.PENDING);
 
-        _saveAndSend(pm);
-      });
+      _saveAndSend(pm);
     }
   }
 
@@ -520,7 +519,7 @@ class MessageRepo {
   }
 
   String _getPacketId() {
-    return DateTime.now().microsecondsSinceEpoch.toString();
+    return "${DateTime.now().microsecondsSinceEpoch.toString()}-${randomString(5)}";
   }
 
   Future<List<Message>> getPage(int page, String roomId, int containsId,
