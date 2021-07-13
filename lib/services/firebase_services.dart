@@ -110,45 +110,34 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
   } catch (e) {
     debug(e.toString());
   }
+  var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
+  var _muteDao = GetIt.I.get<MuteDao>();
 
-  var lastActivityDao;
-  try {
-    lastActivityDao = GetIt.I.get<LastActivityDao>();
-  } catch (e) {
-    GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
-    lastActivityDao = GetIt.I.get<LastActivityDao>();
-  }
 
   // TODO needs to be refactored!!!
   var accountRepo = AccountRepo();
-  var roomRepo = RoomRepo();
-  var messageDao = MessageDaoImpl();
-  var roomDao = RoomDaoImpl();
+  // var roomRepo = RoomRepo();
+
 
   if (message.data.containsKey('body')) {
     M.Message msg = _decodeMessage(message.data["body"]);
     String roomName = message.data['title'];
     Uid roomUid = getRoomId(accountRepo, msg);
 
-    CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg, roomUid);
-    if (msg.from.category == Categories.USER)
-      try {
-        updateLastActivityTime(
-            lastActivityDao, getRoomId(accountRepo, msg), msg.time.toInt());
-      } catch (e) {}
+   // CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg, roomUid);
+   //  if (msg.from.category == Categories.USER)
+   //      updateLastActivityTime(
+   //          lastActivityDao, getRoomId(accountRepo, msg), msg.time.toInt());
 
-    try {
       if ((await accountRepo.notification).contains("false") ||
-          await roomRepo.isRoomMuted(roomUid.asString()) ||
+         !await _muteDao.isMuted(roomUid.asString()) ||
           accountRepo.isCurrentUser(msg.from.asString())) {
         return;
       }
-    } catch (e) {
-      debug(e.toString());
-    }
 
     if (msg.to.category == Categories.USER) {
-      roomName = await roomRepo.getName(msg.from);
+      var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
+     if(uidName!= null) roomName = uidName.name??uidName.id??"unknown";
     } else if (msg.from.category == Categories.SYSTEM) {
       roomName = APPLICATION_NAME;
     } else if (msg.from.category == Categories.BOT) {

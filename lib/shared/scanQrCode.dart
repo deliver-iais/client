@@ -4,7 +4,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_flutter/utils/log.dart';
+
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +36,8 @@ class _ScanQrCode extends State<ScanQrCode> {
     }
     controller.resumeCamera();
   }
-  String _mucJoinUrl = "";
+  String _message = "";
+
   BehaviorSubject<bool> _mucJoinQrCode = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> _sendMessageToBotQrCode = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> _sendAccessPrivateDataQrCode = BehaviorSubject.seeded(false);
@@ -59,7 +60,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                 children: <Widget>[
                   StreamBuilder<bool>(stream: _mucJoinQrCode.stream,builder: (c,s){
                     if(s.hasData && s.data){
-                      handleUri(_mucJoinUrl, context);
+                      handleUri(_message, context);
                       return SizedBox.shrink();
                     }else{
                       return SizedBox.shrink();
@@ -67,7 +68,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                   }),
                   StreamBuilder<bool>(stream: _sendMessageToBotQrCode.stream,builder: (c,s){
                     if(s.hasData && s.data){
-                      handleUri(mucJoinUrl, context);
+                   //   handleUri(mucJoinUrl, context);
                       return SizedBox.shrink();
                     }else{
                       return SizedBox.shrink();
@@ -75,14 +76,12 @@ class _ScanQrCode extends State<ScanQrCode> {
                   }),
                   StreamBuilder<bool>(stream: _sendAccessPrivateDataQrCode.stream,builder: (c,s){
                     if(s.hasData && s.data){
-                      handleUri(mucJoinUrl, context);
+                  //    handleUri(mucJoinUrl, context);
                       return SizedBox.shrink();
                     }else{
                       return SizedBox.shrink();
                     }
                   }),
-
-
 
                 ],
               ),
@@ -129,12 +128,14 @@ class _ScanQrCode extends State<ScanQrCode> {
   }
 
   void _parsQrCode(String scanData) {
+    _message = scanData;
     var m = scanData.split("/");
-    if(m[4]=="join"){
-      _mucJoinUrl = scanData;
+    if(m[3].toString().contains("join")){
       _mucJoinQrCode.add(true);
-    }else if(m[4] == "text") {
+    }else if(m[3].contains("text") ){
       _sendMessageToBotQrCode.add(true);
-    }else if()
+    }else if(m[3].contains("spda")){
+      _sendAccessPrivateDataQrCode.add(true);
+    }
   }
 }

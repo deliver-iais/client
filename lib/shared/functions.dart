@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
+import 'circleAvatar.dart';
 import 'constants.dart';
 
 bool isOnline(int time) {
@@ -71,6 +72,8 @@ Future<void> handleUri(String initialLink, BuildContext context) async {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
+              CircleAvatarWidget(mucUid, 40,
+                  forceText: "un"),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
