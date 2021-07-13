@@ -46,6 +46,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    _coreServices.initStreamConnection();
     _notificationServices.cancelAllNotification();
     checkIfUsernameIsSet();
 
@@ -53,7 +54,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       checkShareFile(context);
     }
     initUniLinks(context);
-    _coreServices.initStreamConnection();
+
     super.initState();
   }
 
@@ -66,9 +67,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           paths.add(path.path);
         }
         _routingService.openShareFile(path:paths);
-        // ExtendedNavigator.of(context).pushAndRemoveUntil(
-        //     Routes.shareInputFile, (_) => false,
-        //     arguments: ShareInputFileArguments(inputSharedFilePath: paths));
       }
     });
   }

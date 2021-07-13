@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/utils/log.dart';
 
@@ -9,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:rxdart/rxdart.dart';
 
 
 
@@ -21,7 +23,7 @@ class ScanQrCode extends StatefulWidget {
 }
 
 class _ScanQrCode extends State<ScanQrCode> {
-  Barcode result;
+
   QRViewController controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   var _routingServices = GetIt.I.get<RoutingService>();
@@ -34,6 +36,11 @@ class _ScanQrCode extends State<ScanQrCode> {
     }
     controller.resumeCamera();
   }
+  String _mucJoinUrl = "";
+  BehaviorSubject<bool> _mucJoinQrCode = BehaviorSubject.seeded(false);
+  BehaviorSubject<bool> _sendMessageToBotQrCode = BehaviorSubject.seeded(false);
+  BehaviorSubject<bool> _sendAccessPrivateDataQrCode = BehaviorSubject.seeded(false);
+
 
   @override
   Widget build(BuildContext context) {
@@ -50,74 +57,33 @@ class _ScanQrCode extends State<ScanQrCode> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  if (result != null)
-                    Text(
-                        'Barcode Type: ${describeEnum(result.format)}   Data: ${result.code}')
-                  else
-                    Text('Scan a code'),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.all(8),
-                        child: ElevatedButton(
-                            onPressed: () async {
-                              await controller?.toggleFlash();
-                              setState(() {});
-                            },
-                            child: FutureBuilder(
-                              future: controller?.getFlashStatus(),
-                              builder: (context, snapshot) {
-                                return Text('Flash: ${snapshot.data}');
-                              },
-                            )),
-                      ),
-                      Container(
-                        margin: EdgeInsets.all(8),
-                        child: ElevatedButton(
-                            onPressed: () async {
-                              await controller?.flipCamera();
-                              setState(() {});
-                            },
-                            child: FutureBuilder(
-                              future: controller?.getCameraInfo(),
-                              builder: (context, snapshot) {
-                                if (snapshot.data != null) {
-                                  return Text(
-                                      'Camera facing ${describeEnum(snapshot.data)}');
-                                } else {
-                                  return Text('loading');
-                                }
-                              },
-                            )),
-                      )
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.all(8),
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            await controller?.pauseCamera();
-                          },
-                          child: Text('pause', style: TextStyle(fontSize: 20)),
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.all(8),
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            await controller?.resumeCamera();
-                          },
-                          child: Text('resume', style: TextStyle(fontSize: 20)),
-                        ),
-                      )
-                    ],
-                  ),
+                  StreamBuilder<bool>(stream: _mucJoinQrCode.stream,builder: (c,s){
+                    if(s.hasData && s.data){
+                      handleUri(_mucJoinUrl, context);
+                      return SizedBox.shrink();
+                    }else{
+                      return SizedBox.shrink();
+                    }
+                  }),
+                  StreamBuilder<bool>(stream: _sendMessageToBotQrCode.stream,builder: (c,s){
+                    if(s.hasData && s.data){
+                      handleUri(mucJoinUrl, context);
+                      return SizedBox.shrink();
+                    }else{
+                      return SizedBox.shrink();
+                    }
+                  }),
+                  StreamBuilder<bool>(stream: _sendAccessPrivateDataQrCode.stream,builder: (c,s){
+                    if(s.hasData && s.data){
+                      handleUri(mucJoinUrl, context);
+                      return SizedBox.shrink();
+                    }else{
+                      return SizedBox.shrink();
+                    }
+                  }),
+
+
+
                 ],
               ),
             ),
@@ -152,10 +118,7 @@ class _ScanQrCode extends State<ScanQrCode> {
       this.controller = controller;
     });
     controller.scannedDataStream.map((event) => event.code).distinct().listen((scanData) {
-      setState(() {
-        // result = scanData;
-        debug("#########"+scanData.toString());
-      });
+      _parsQrCode(scanData);
     });
   }
 
@@ -163,5 +126,15 @@ class _ScanQrCode extends State<ScanQrCode> {
   void dispose() {
     controller?.dispose();
     super.dispose();
+  }
+
+  void _parsQrCode(String scanData) {
+    var m = scanData.split("/");
+    if(m[4]=="join"){
+      _mucJoinUrl = scanData;
+      _mucJoinQrCode.add(true);
+    }else if(m[4] == "text") {
+      _sendMessageToBotQrCode.add(true);
+    }else if()
   }
 }
