@@ -1,16 +1,26 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/box/contact.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/share_uid_message_widget.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/functions.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/shared/circleAvatar.dart';
 
+import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as C;
+import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:fixnum/fixnum.dart';
+
+import 'functions.dart';
 
 
 
@@ -27,6 +37,7 @@ class _ScanQrCode extends State<ScanQrCode> {
   QRViewController controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   var _routingServices = GetIt.I.get<RoutingService>();
+  var _contactRepo = GetIt.I.get<ContactRepo>();
   
   @override
   void reassemble() {
@@ -41,6 +52,7 @@ class _ScanQrCode extends State<ScanQrCode> {
   BehaviorSubject<bool> _mucJoinQrCode = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> _sendMessageToBotQrCode = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> _sendAccessPrivateDataQrCode = BehaviorSubject.seeded(false);
+  BehaviorSubject<bool> _addContact = BehaviorSubject.seeded(false);
 
 
   @override
@@ -77,6 +89,14 @@ class _ScanQrCode extends State<ScanQrCode> {
                   StreamBuilder<bool>(stream: _sendAccessPrivateDataQrCode.stream,builder: (c,s){
                     if(s.hasData && s.data){
                   //    handleUri(mucJoinUrl, context);
+                      return SizedBox.shrink();
+                    }else{
+                      return SizedBox.shrink();
+                    }
+                  }),
+                  StreamBuilder<bool>(stream: _addContact.stream,builder: (c,s){
+                    if(s.hasData && s.data){
+                     //handleAddContact();
                       return SizedBox.shrink();
                     }else{
                       return SizedBox.shrink();
@@ -136,6 +156,49 @@ class _ScanQrCode extends State<ScanQrCode> {
       _sendMessageToBotQrCode.add(true);
     }else if(m[3].contains("spda")){
       _sendAccessPrivateDataQrCode.add(true);
+    }else if(m[3].contains("addContact")){
+      _addContact.add(true);
     }
   }
-}
+  Future<void> handleAddContact(String fm ,String ln ,String cc ,String nn , BuildContext context) async {
+    var res = await _contactRepo.contactIsExist(nn);
+    if(res != null){
+      //todo
+    }else{
+        showFloatingModalBottomSheet(
+          context: context,
+          builder: (context) => Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(AppLocalization.of(context).getTraslateValue("sure_add_contact"),style: TextStyle(color: ExtraTheme.of(context).textField,fontSize: 16),),
+                SizedBox(height: 10,),
+                CircleAvatarWidget(null, 40,
+                    forceText: fm),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(AppLocalization.of(context)
+                            .getTraslateValue("skip"))),
+                    ElevatedButton(
+                      onPressed: () async {
+                        var res = await _contactRepo.addContact(C.Contact()..firstName = fm..lastName = ln..phoneNumber = PhoneNumber(countryCode:int.parse(cc),nationalNumber: Int64(int.parse(nn))));
+                        if(res){
+                          //todo
+                        }
+                      },
+                      child: Text(
+                          AppLocalization.of(context).getTraslateValue("add_contact")),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
+  }

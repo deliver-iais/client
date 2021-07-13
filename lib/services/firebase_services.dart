@@ -1,18 +1,13 @@
 import 'dart:convert';
-import 'package:deliver_flutter/box/dao/block_dao.dart';
-import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
-import 'package:deliver_flutter/box/dao/message_dao.dart';
-import 'package:deliver_flutter/box/dao/muc_dao.dart';
+
 import 'package:deliver_flutter/box/dao/mute_dao.dart';
-import 'package:deliver_flutter/box/dao/room_dao.dart';
-import 'package:deliver_flutter/box/dao/seen_dao.dart';
+
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/main.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/mucRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
+
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/shared/constants.dart';
@@ -24,7 +19,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as M;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -128,12 +123,16 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
    //  if (msg.from.category == Categories.USER)
    //      updateLastActivityTime(
    //          lastActivityDao, getRoomId(accountRepo, msg), msg.time.toInt());
-
+    try{
       if ((await accountRepo.notification).contains("false") ||
-         !await _muteDao.isMuted(roomUid.asString()) ||
+          await _muteDao.isMuted(roomUid.asString()) ||
           accountRepo.isCurrentUser(msg.from.asString())) {
         return;
       }
+    }catch(e){
+
+    }
+
 
     if (msg.to.category == Categories.USER) {
       var uidName = await _uidIdNameDao.getByUid(msg.from.asString());

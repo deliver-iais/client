@@ -10,6 +10,7 @@ import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:contacts_service/contacts_service.dart' as OsContact;
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/utils/log.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -122,11 +123,11 @@ class ContactRepo {
     }
   }
 
-  Future addContact(Contact contact) async {
-    _sendContacts([contact]);
+  Future<bool> addContact(Contact contact) async {
+    return _sendContacts([contact]);
   }
 
-  _sendContacts(List<Contact> contacts) async {
+ Future<bool> _sendContacts(List<Contact> contacts) async {
     try {
       var sendContacts = SaveContactsReq();
       contacts.forEach((element) {
@@ -135,8 +136,10 @@ class ContactRepo {
       await _contactServices.saveContacts(sendContacts,
           options: CallOptions(
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      return true;
     } catch (e) {
-      print(e.toString());
+      debug(e.toString());
+      return false;
     }
   }
 
