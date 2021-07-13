@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/models/muc_type.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
@@ -26,6 +28,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ProfileAvatar extends StatefulWidget {
@@ -46,6 +49,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _contactRepo = GetIt.I.get<ContactRepo>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _routingServices = GetIt.I.get<RoutingService>();
   double currentAvatarIndex = 0;
@@ -54,6 +58,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   bool _setAvatarPermission = false;
   bool _modifyMUc = false;
   String mucName = "";
+  Contact _contact;
   AppLocalization _appLocalization;
   MucType _mucType;
   BehaviorSubject<bool> showChannelIdError = BehaviorSubject.seeded(false);
@@ -175,7 +180,50 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         break;
       case "invite_link":
         createInviteLink();
+        break;
+      case "qr_share":
+        showQrCode();
+        break;
     }
+  }
+
+  showQrCode() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
+            actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
+            backgroundColor: Colors.white,
+            title: Container(
+              height: 30,
+              color: Colors.blue,
+              child: Icon(
+                Icons.person_add,
+                color: Colors.white,
+                size: 30,
+              ),
+            ),
+            content: Container(
+              width: 150,
+              height: 200,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  QrImage(
+                    data: _getUriLink(),
+                    version: QrVersions.auto,
+                    size: MediaQuery.of(context).size.width/2,
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  String _getUriLink() {
+    return "https://deliver-co.ir/addContact ? cc = 98 & nn = ${_contact.phoneNumber.length == 10 ? _contact.phoneNumber : _contact.phoneNumber.substring(1, 11)} & fn =${_contact.firstName} & ln = ${_contact.lastName ?? ""}";
   }
 
   createInviteLink() async {
@@ -432,6 +480,38 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                           color: ExtraTheme.of(context).popupMenuButton,
                           icon: Icon(Icons.more_vert),
                           itemBuilder: (_) => <PopupMenuItem<String>>[
+                            if (widget.roomUid.category == Categories.USER)
+                              new PopupMenuItem<String>(
+                                child: FutureBuilder<Contact>(
+                                    future:
+                                        _contactRepo.getContact(widget.roomUid),
+                                    builder: (c, contact) {
+                                      if (contact.hasData &&
+                                          contact.data != null) {
+                                        _contact = contact.data;
+                                        return Row(
+                                          children: [
+                                            Icon(Icons.qr_code,
+                                                color: Colors.blue),
+                                            SizedBox(
+                                              width: 15,
+                                            ),
+                                            Text(
+                                              AppLocalization.of(context)
+                                                  .getTraslateValue("qr_share"),
+                                              style: TextStyle(
+                                                  color: ExtraTheme.of(context)
+                                                      .textField,
+                                                  fontSize: 13),
+                                            ),
+                                          ],
+                                        );
+                                      } else {
+                                        return SizedBox.shrink();
+                                      }
+                                    }),
+                                value: "qr_share",
+                              ),
                             new PopupMenuItem<String>(
                                 child: Row(
                                   children: [

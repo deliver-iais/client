@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/contact.dart';
+import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_uid_message_widget.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -67,9 +68,12 @@ class _ScanQrCode extends State<ScanQrCode> {
       ),
       body: Column(
         children: <Widget>[
-          Expanded(flex: 4, child: _buildQrView(context)),
+          Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height/2,
+              child: _buildQrView(context)),
           Expanded(
-            flex: 2,
+            flex: 1,
             child: FittedBox(
               fit: BoxFit.contain,
               child: Column(
@@ -131,10 +135,10 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   Widget _buildQrView(BuildContext context) {
     // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
-    var scanArea = (MediaQuery.of(context).size.width < 400 ||
-            MediaQuery.of(context).size.height < 400)
-        ? 150.0
-        : 300.0;
+    var scanArea = (MediaQuery.of(context).size.width < 300 ||
+            MediaQuery.of(context).size.height < 300)
+        ? 200
+        : 200.0;
     // To ensure the Scanner view is properly sizes after rotation
     // we need to listen for Flutter SizeChanged notification and update controller
     return QRView(
@@ -236,7 +240,9 @@ class _ScanQrCode extends State<ScanQrCode> {
                             countryCode: int.parse(countryCode),
                             nationalNumber: Int64(int.parse(nationalNumber))));
                       if (res) {
-                        Fluttertoast.showToast(msg: "$firstName$lastName ${AppLocalization.of(context).getTraslateValue("contact_add")}");
+                        Fluttertoast.showToast(
+                            msg:
+                                "$firstName$lastName ${AppLocalization.of(context).getTraslateValue("contact_add")}");
                         Navigator.of(context).pop();
                       }
                     },
