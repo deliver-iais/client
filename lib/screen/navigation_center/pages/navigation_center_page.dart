@@ -172,7 +172,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   }
                 }),
             actions: [
-              if (!isDesktop())
+              if (false)
                 Container(
                   width: 42,height: 42,
                     decoration: BoxDecoration(

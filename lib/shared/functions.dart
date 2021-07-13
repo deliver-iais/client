@@ -69,7 +69,7 @@ Future<void> handleUri(String initialLink, BuildContext context) async {
   }
   if (mucUid != null) {
     var muc = await _mucDao.get(mucUid.asString());
-    if (muc == null) {
+    if (muc != null) {
       _routingService.openRoom(mucUid.asString());
     } else {
       showFloatingModalBottomSheet(

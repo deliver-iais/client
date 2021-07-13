@@ -480,7 +480,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                           color: ExtraTheme.of(context).popupMenuButton,
                           icon: Icon(Icons.more_vert),
                           itemBuilder: (_) => <PopupMenuItem<String>>[
-                            if (widget.roomUid.category == Categories.USER)
+                            if (false)
                               new PopupMenuItem<String>(
                                 child: FutureBuilder<Contact>(
                                     future:
