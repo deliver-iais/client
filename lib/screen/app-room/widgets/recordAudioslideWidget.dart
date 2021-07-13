@@ -1,4 +1,5 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -61,7 +62,7 @@ class RecordAudioSlideWidget extends  StatelessWidget{
         StreamBuilder<DateTime>(stream:streamTime.stream ,builder:(c,t){
           _show.add(!_show.valueWrapper.value);
           if(t.hasData && t.data != null && t.data.isAfter(time))
-            return Text("${t.data.difference(time)}",style: TextStyle(color: ExtraTheme.of(context).textField),);
+            return Text("${durationTimeFormat(t.data.difference(time))}",style: TextStyle(color: ExtraTheme.of(context).textField),);
           else
             return SizedBox.shrink();
         }),
