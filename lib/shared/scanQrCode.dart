@@ -74,8 +74,7 @@ class _ScanQrCode extends State<ScanQrCode> {
               child: _buildQrView(context)),
           Expanded(
             flex: 1,
-            child: FittedBox(
-              fit: BoxFit.contain,
+
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
@@ -125,7 +124,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                         }
                       }),
                 ],
-              ),
+
             ),
           )
         ],
@@ -135,10 +134,10 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   Widget _buildQrView(BuildContext context) {
     // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
-    var scanArea = (MediaQuery.of(context).size.width < 300 ||
-            MediaQuery.of(context).size.height < 300)
-        ? 200
-        : 200.0;
+    var scanArea = (MediaQuery.of(context).size.width < 400 ||
+            MediaQuery.of(context).size.height < 400)
+        ? 250
+        : 350.0;
     // To ensure the Scanner view is properly sizes after rotation
     // we need to listen for Flutter SizeChanged notification and update controller
     return QRView(
@@ -209,7 +208,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                 AppLocalization.of(context)
                     .getTraslateValue("sure_add_contact"),
                 style: TextStyle(
-                    color: ExtraTheme.of(context).textField, fontSize: 16),
+                    color: ExtraTheme.of(context).textField, fontSize: 20,),
               ),
               SizedBox(
                 height: 20,
@@ -228,10 +227,12 @@ class _ScanQrCode extends State<ScanQrCode> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   MaterialButton(
+                      color: Colors.blueAccent,
                       onPressed: () => Navigator.of(context).pop(),
                       child: Text(AppLocalization.of(context)
                           .getTraslateValue("skip"))),
                   MaterialButton(
+                    color: Colors.blueAccent,
                     onPressed: () async {
                       var res = await _contactRepo.addContact(C.Contact()
                         ..firstName = firstName

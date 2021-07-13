@@ -223,7 +223,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   String _getUriLink() {
-    return "https://deliver-co.ir/addContact ? cc = 98 & nn = ${_contact.phoneNumber.length == 10 ? _contact.phoneNumber : _contact.phoneNumber.substring(1, 11)} & fn =${_contact.firstName} & ln = ${_contact.lastName ?? ""}";
+    return "https://deliver-co.ir/addContact ? cc = 98 & nn = ${_contact.phoneNumber} & fn =${_contact.firstName} & ln = ${_contact.lastName ?? ""}";
   }
 
   createInviteLink() async {

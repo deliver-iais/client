@@ -69,7 +69,7 @@ Future<void> handleUri(String initialLink, BuildContext context) async {
   }
   if (mucUid != null) {
     var muc = await _mucDao.get(mucUid.asString());
-    if (muc != null) {
+    if (muc == null) {
       _routingService.openRoom(mucUid.asString());
     } else {
       showFloatingModalBottomSheet(
@@ -85,10 +85,12 @@ Future<void> handleUri(String initialLink, BuildContext context) async {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   MaterialButton(
+                      color: Colors.blueAccent,
                       onPressed: () => Navigator.of(context).pop(),
                       child: Text(AppLocalization.of(context)
                           .getTraslateValue("skip"))),
                   MaterialButton(
+                    color: Colors.blueAccent,
                     onPressed: () async {
                       if (mucUid.category == Categories.GROUP) {
                         Muc  muc =
