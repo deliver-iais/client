@@ -35,7 +35,7 @@ class PersistentEventMessage extends StatelessWidget {
             : Theme.of(context).primaryColor,
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      child: FutureBuilder(
+      child: FutureBuilder<String>(
         future: getPersistentMessage(context, persistentEventMessage),
         builder: (c, s) {
           if (s.hasData) {
@@ -45,6 +45,9 @@ class PersistentEventMessage extends StatelessWidget {
                     : TextDirection.ltr,
                 child: Text(
                   s.data,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
                   style: TextStyle(
                       color: showLastMessage
                           ? ExtraTheme.of(context).textMessage
@@ -123,9 +126,9 @@ class PersistentEventMessage extends StatelessWidget {
         return "$user ${_appLocalization.getTraslateValue("new_contact_add")}";
         break;
       case PersistentEvent_Type.notSet:
-        // TODO: Handle this case.
         break;
     }
+    return "";
   }
 
   Future<String> getName(BuildContext context, Uid uid, Uid to) async {
@@ -134,8 +137,7 @@ class PersistentEventMessage extends StatelessWidget {
     if (uid.isSameEntity(_accountRepo.currentUserUid.asString()))
       return _appLocalization.getTraslateValue("you");
     else {
-      var name = _roomRepo.getName(uid);
-      return name;
+      return _roomRepo.getName(uid);
     }
   }
 }

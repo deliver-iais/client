@@ -11,7 +11,7 @@ class SearchBox extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 5),
+      padding: const EdgeInsets.only(bottom: 8),
       child: TextField(
         style: TextStyle(color: ExtraTheme.of(context).textField),
         textAlignVertical: TextAlignVertical.center,
@@ -35,12 +35,14 @@ class SearchBox extends StatelessWidget {
               width: 0.0,
             ),
           ),
-          contentPadding: const EdgeInsets.all(10),
+          contentPadding: const EdgeInsets.all(8),
           filled: true,
+          isDense: true,
           fillColor: ExtraTheme.of(context).searchBox,
           prefixIcon: Icon(
             Icons.search,
             color: ExtraTheme.of(context).centerPageDetails,
+            size: 20,
           ),
           hintText: appLocalization.getTraslateValue("search"),
         ),
