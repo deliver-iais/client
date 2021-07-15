@@ -181,7 +181,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       onPressed: () {
                         _routingService.openScanQrCode();
                       },
-                      color: ExtraTheme.of(context).menuIconButton,
                       icon: Icon(
                         Icons.qr_code,
                         color: Theme.of(context).brightness == Brightness.dark

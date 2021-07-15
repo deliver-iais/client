@@ -10,7 +10,9 @@ import 'package:deliver_flutter/services/routing_service.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profile_avatar_card.dart';
+import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/constants.dart';
+import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/shared/language.dart';
@@ -47,6 +49,8 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _uploadNewAvatar = false;
   String _newAvatarPath;
   int developerModeCounterCountDown = 10;
+
+  final _routingServices = GetIt.I.get<RoutingService>();
 
   bool _getTheme() {
     if (_uxService.theme == DarkTheme) {
@@ -103,20 +107,121 @@ class _SettingsPageState extends State<SettingsPage> {
             leading: _routingService.backButtonLeading()),
         body: FluidContainerWidget(
           child: ListView(children: [
-            ProfileAvatarCard(
-              uploadNewAvatar: _uploadNewAvatar,
-              newAvatarPath: _newAvatarPath,
-              uid: _accountRepo.currentUserUid,
-            ),
-            SizedBox(height: 10),
-            settingsRow(context,
-                iconData: Icons.add_a_photo,
-                title: appLocalization.getTraslateValue("set_avatar"),
-                onClick: () => attachFile(),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0).copyWith(right: 14.0),
-                  child: Icon(Icons.add_a_photo),
+            Padding(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                        onTap: () async {
+                          var lastAvatar = await _avatarRepo.getLastAvatar(
+                              _accountRepo.currentUserUid, false);
+                          if (lastAvatar.createdOn != null) {
+                            _routingServices.openShowAllAvatars(
+                                uid: _accountRepo.currentUserUid,
+                                hasPermissionToDeleteAvatar: true,
+                                heroTag: "avatar");
+                          }
+                        },
+                        child: _newAvatarPath != null
+                            ? CircleAvatar(
+                                radius: 30,
+                                backgroundImage:
+                                    Image.file(File(_newAvatarPath)).image,
+                                child: Center(
+                                  child: SizedBox(
+                                      height: 50.0,
+                                      width: 50.0,
+                                      child: _uploadNewAvatar
+                                          ? CircularProgressIndicator(
+                                              valueColor:
+                                                  AlwaysStoppedAnimation(
+                                                      Colors.blue),
+                                              strokeWidth: 6.0,
+                                            )
+                                          : SizedBox.shrink()),
+                                ),
+                              )
+                            : CircleAvatarWidget(
+                                _accountRepo.currentUserUid,
+                                30,
+                                showAsStreamOfAvatar: true,
+                              )),
+                    SizedBox(width: 15),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          FutureBuilder<Account>(
+                            future: _accountRepo.getAccount(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<Account> snapshot) {
+                              if (snapshot.data != null) {
+                                return Expanded(
+                                  child: Text(
+                                    "${snapshot.data.firstName} ${snapshot.data.lastName}"
+                                        .trim(),
+                                    overflow: TextOverflow.fade,
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    style: TextStyle(
+                                        fontSize: 25,
+                                        color:
+                                            ExtraTheme.of(context).textField),
+                                  ),
+                                );
+                              } else {
+                                return SizedBox.shrink();
+                              }
+                            },
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: ExtraTheme.of(context).menuIconButton,
+                            ),
+                            child: IconButton(
+                                iconSize: 30,
+                                onPressed: () => attachFile(),
+                                icon: Icon(
+                                  Icons.add_a_photo,
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Colors.white
+                                      : Colors.black,
+                                )),
+                          ),
+                          SizedBox(width: 8),
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: ExtraTheme.of(context).menuIconButton,
+                            ),
+                            child: IconButton(
+                                iconSize: 30,
+                                onPressed: () async {
+                                  var account = await _accountRepo.getAccount();
+                                  showQrCode(
+                                      context,
+                                      buildShareUserUrl(
+                                          account.countryCode,
+                                          account.nationalNumber,
+                                          account.firstName,
+                                          account.lastName));
+                                },
+                                icon: Icon(
+                                  Icons.qr_code,
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Colors.white
+                                      : Colors.black,
+                                )),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
                 )),
+            Divider(),
             settingsRow(context,
                 iconData: Icons.bookmark,
                 title: appLocalization.getTraslateValue("saved_message"),
