@@ -5,7 +5,6 @@ import 'package:deliver_flutter/box/media_meta_data.dart';
 import 'package:deliver_flutter/box/media.dart';
 import 'package:deliver_flutter/box/media_type.dart';
 
-
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
@@ -58,21 +57,11 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   void initState() {
-    featchMedia();
+    fetchMedia();
     if (_uxService.getTabIndex(widget.roomUid.asString()) == null) {
       _uxService.setTabIndex(widget.roomUid.asString(), 0);
     }
-    setState(() {
-
-    });
     super.initState();
-  }
-
-  void featchMedia()async {
-    await  _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
-    setState(() {
-
-    });
   }
 
   @override
@@ -82,8 +71,8 @@ class _ProfilePageState extends State<ProfilePage>
     super.dispose();
   }
 
-  download(String uuid, String name) async {
-    await GetIt.I.get<FileRepo>().getFile(uuid, name);
+  void fetchMedia() async {
+    await _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
     setState(() {});
   }
 
@@ -507,7 +496,7 @@ class _ProfilePageState extends State<ProfilePage>
                             DocumentAndFileUi(
                               roomUid: widget.roomUid,
                               documentCount: snapshot.data.filesCount,
-                              type:MediaType.FILE,
+                              type: MediaType.FILE,
                             ),
                           if (snapshot.hasData && snapshot.data.linkCount != 0)
                             linkWidget(widget.roomUid, _mediaQueryRepo,
@@ -543,8 +532,7 @@ class _ProfilePageState extends State<ProfilePage>
 Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
   //TODO i just implemented and not tested because server problem
   return FutureBuilder<List<Media>>(
-      future: mediaQueryRepo.getMedia(
-          userUid, MediaType.LINK, linksCount),
+      future: mediaQueryRepo.getMedia(userUid, MediaType.LINK, linksCount),
       builder: (BuildContext context, AsyncSnapshot<List<Media>> snapshot) {
         if (!snapshot.hasData ||
             snapshot.data == null ||

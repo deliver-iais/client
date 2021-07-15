@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 
 import 'package:flutter/material.dart';
 
@@ -33,28 +34,16 @@ class _SplashScreenState extends State<SplashScreen> {
         _navigateToIntroPage();
       }
     }).then((_) {
-      _accountRepo.isLoggedIn() ? gotoRooms(context) : _navigateToIntroPage();
+      if(_accountRepo.isLoggedIn())
+        _navigateToHomePage();
+      else
+        _navigateToIntroPage();
     });
   }
 
   void _navigateToIntroPage() {
     ExtendedNavigator.of(context)
         .pushAndRemoveUntil(Routes.introPage, (_) => false);
-  }
-
-  gotoRooms(BuildContext context) async {
-    /* var result = await ReceiveSharingIntent.getInitialMedia();
-      if (result != null ) {
-        List<String> paths = List();
-        for(var path in result){
-          paths.add(path.path);
-        }
-        ExtendedNavigator.of(context).push(
-          Routes.shareInputFile,arguments: ShareInputFileArguments(inputSharedFilePath: paths)
-        );
-      } else {*/
-    _navigateToHomePage();
-    // }
   }
 
   void _navigateToHomePage() async {
@@ -75,14 +64,27 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: Theme.of(context).backgroundColor,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            child: Center(
-              child: Image.asset(
-                  "assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png"),
-            ),
+          Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(50),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0xFFFFFFFF).withAlpha(190),
+                    blurRadius: 500.0,
+                    spreadRadius: 10.0,
+                  ),
+                ]),
+            child: Image.asset(
+                "assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png"),
           ),
+          Text(APPLICATION_NAME, style: Theme.of(context).textTheme.headline2),
+          SizedBox(
+            height: 50,
+          )
         ],
       ),
     );

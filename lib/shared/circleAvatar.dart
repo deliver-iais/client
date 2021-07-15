@@ -98,7 +98,7 @@ class CircleAvatarWidget extends StatelessWidget {
             color,
             lighten(color,
                 Theme.of(context).brightness == Brightness.dark ? 15 : 30),
-          ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
+          ], begin: Alignment.topLeft, end: Alignment.centerRight)),
       child: CircleAvatar(
         radius: radius,
         backgroundColor: Colors.transparent,

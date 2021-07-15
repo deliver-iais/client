@@ -10,7 +10,7 @@ import 'package:deliver_flutter/screen/app-room/widgets/showImage_Widget.dart';
 import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 import 'package:deliver_flutter/screen/settings/account_settings.dart';
 import 'package:deliver_flutter/screen/share_input_file/share_input_file.dart';
-import 'package:deliver_flutter/screen/splash/pages/splash_screen.dart';
+import 'package:deliver_flutter/screen/splash/splash_screen.dart';
 
 @MaterialAutoRouter(
   routes: <AutoRoute>[

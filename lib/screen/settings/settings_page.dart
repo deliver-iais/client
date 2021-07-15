@@ -9,7 +9,7 @@ import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
-import 'package:deliver_flutter/shared/Widget/profile_avatar_card.dart';
+import 'package:deliver_flutter/shared/Widget/settings_row.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
@@ -222,7 +222,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ],
                 )),
             Divider(),
-            settingsRow(context,
+            SettingsRow(
                 iconData: Icons.bookmark,
                 title: appLocalization.getTraslateValue("saved_message"),
                 onClick: () => _routingService
@@ -231,7 +231,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Icon(Icons.navigate_next),
                 )),
-            settingsRow(context,
+            SettingsRow(
                 iconData: Icons.person,
                 title: appLocalization.getTraslateValue("username"),
                 onClick: () => _routingService.openAccountSettings(),
@@ -259,8 +259,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     )
                   ],
                 )),
-            settingsRow(
-              context,
+            SettingsRow(
               iconData: Icons.phone,
               title: appLocalization.getTraslateValue("phone"),
               onClick: () => _routingService.openAccountSettings(),
@@ -290,8 +289,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
             ),
-            settingsRow(
-              context,
+            SettingsRow(
               iconData: Icons.brightness_2,
               title: appLocalization.getTraslateValue("dark_mode"),
               onClick: () => setState(() => _uxService.toggleTheme()),
@@ -302,8 +300,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             if (isDesktop())
-              settingsRow(
-                context,
+              SettingsRow(
                 iconData: Icons.keyboard,
                 title: appLocalization.getTraslateValue("send_by_shift_enter"),
                 onClick: () => setState(() => _uxService.toggleSendByEnter()),
@@ -313,7 +310,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   onChanged: (_) {},
                 ),
               ),
-            settingsRow(context,
+            SettingsRow(
                 iconData: Icons.notifications_active,
                 title: appLocalization.getTraslateValue("notification"),
                 child: FutureBuilder<String>(
@@ -332,7 +329,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         },
                       );
                     })),
-            settingsRow(context,
+            SettingsRow(
                 iconData: Icons.language,
                 title: appLocalization.getTraslateValue("changeLanguage"),
                 child: Padding(
@@ -369,7 +366,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           .toList()),
                 )),
             if (isDeveloperMode)
-              settingsRow(context,
+              SettingsRow(
                   iconData: Icons.bug_report_rounded,
                   title: "Log Level",
                   child: Padding(
@@ -397,8 +394,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             .toList()),
                   )),
             Divider(),
-            settingsRow(
-              context,
+            SettingsRow(
               iconData: Icons.copyright_outlined,
               title: appLocalization.getTraslateValue("version"),
               child: Padding(
@@ -466,8 +462,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
             ),
-            settingsRow(
-              context,
+            SettingsRow(
               iconData: Icons.info_outlined,
               title: appLocalization.getTraslateValue("about"),
               onClick: () async {
@@ -491,7 +486,7 @@ class _SettingsPageState extends State<SettingsPage> {
               },
               child: Container(),
             ),
-            settingsRow(context,
+            SettingsRow(
                 iconData: Icons.exit_to_app,
                 title: appLocalization.getTraslateValue("Log_out"),
                 onClick: () => openLogoutAlertDialog(context, appLocalization),
@@ -532,44 +527,5 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           );
         });
-  }
-
-  Widget settingsRow(BuildContext context,
-      {Widget child, IconData iconData, String title, Function onClick}) {
-    return MouseRegion(
-      cursor: onClick == null ? MouseCursor.defer : SystemMouseCursors.click,
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          onClick?.call();
-        },
-        child: Container(
-          height: 60,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Row(
-                children: [
-                  SizedBox(width: 8),
-                  Icon(
-                    iconData,
-                    color: Colors.blue,
-                    size: 18,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    title,
-                    style: TextStyle(
-                        color: ExtraTheme.of(context).textField, fontSize: 16),
-                  ),
-                ],
-              ),
-              child
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

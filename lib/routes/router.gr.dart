@@ -21,7 +21,7 @@ import '../screen/register/pages/login_page.dart';
 import '../screen/register/pages/verification_page.dart';
 import '../screen/settings/account_settings.dart';
 import '../screen/share_input_file/share_input_file.dart';
-import '../screen/splash/pages/splash_screen.dart';
+import '../screen/splash/splash_screen.dart';
 
 class Routes {
   static const String splashScreen = '/';
