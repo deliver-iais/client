@@ -42,7 +42,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (isAndroid()) {
       checkShareFile(context);
     }
-    initUniLinks(context);
+    if (isAndroid() || isIOS()) {
+      initUniLinks(context);
+    }
 
     super.initState();
   }
