@@ -14,7 +14,6 @@ import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';

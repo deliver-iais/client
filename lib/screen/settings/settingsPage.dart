@@ -37,20 +37,13 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final _logger = Logger();
-
   final _uxService = GetIt.I.get<UxService>();
-
   final _accountRepo = GetIt.I.get<AccountRepo>();
-
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
-
   final _routingService = GetIt.I.get<RoutingService>();
-
   bool isDeveloperMode = false;
-
   bool _uploadNewAvatar = false;
   String _newAvatarPath;
-
   int developerModeCounterCountDown = 10;
 
   bool _getTheme() {

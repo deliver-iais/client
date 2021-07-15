@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:flutter_file_manager/flutter_file_manager.dart';
-import 'package:get_it/get_it.dart';
 import 'package:path_provider_ex/path_provider_ex.dart';
 import 'package:storage_path/storage_path.dart';
 
@@ -30,33 +28,6 @@ class FileBasic {
   final String path;
 
   FileBasic(this.path);
-}
-
-class FileItem extends FileBasic {
-  final String title;
-
-  FileItem({String path, this.title}) : super(path);
-
-  Future<List<File>> getFiles() async {
-    var _checkPermission = GetIt.I.get<CheckPermissionsService>();
-    if (await _checkPermission.checkStoragePermission()) {
-      List<StorageInfo> storageInfo = await PathProviderEx.getStorageInfo();
-      List<File> files = [];
-      for (var s in storageInfo) {
-        try {
-          var root =
-              s.rootDir; //storageInfo[1] for SD card, geting the root directory
-          var fm = FileManager(root: Directory(root)); //
-          List<File> f = await fm
-              .filesTree(extensions: ["pdf", "mp4", "pptx", "docx", "xlsx", "rar"]);
-          files.addAll(f);
-        } catch (e) {
-          print(e.toString());
-        }
-        return files;
-      }
-    }
-  }
 }
 
 class AudioItem extends FileBasic {

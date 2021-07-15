@@ -1,16 +1,12 @@
-import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:get_it/get_it.dart';
 
 class MucMemberMentionWidget extends StatelessWidget {
   final UidIdName member;
   final Function onSelected;
-
 
   MucMemberMentionWidget(this.member, this.onSelected);
 

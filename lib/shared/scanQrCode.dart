@@ -1,16 +1,11 @@
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/box/contact.dart';
-import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_uid_message_widget.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as C;
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 

@@ -1,4 +1,3 @@
-import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
@@ -10,7 +9,6 @@ import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pb.dart' as MucPro;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -22,8 +20,10 @@ import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:grpc/grpc.dart';
+import 'package:logger/logger.dart';
 
 class MucRepo {
+  final _logger = Logger();
   final _mucDao = GetIt.I.get<MucDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _mucServices = GetIt.I.get<MucServices>();
@@ -88,7 +88,7 @@ class MucRepo {
                 memberUid: member.uid.asString(),
                 role: getLocalRole(member.role)));
           } catch (e) {
-            debug(e.toString());
+            _logger.e(e);
           }
         }
         finish = result.finished;
@@ -98,7 +98,7 @@ class MucRepo {
       if (len <= membersSize)
         _mucDao.update(Muc(uid: groupUid.asString(), population: membersSize));
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
     }
   }
 
@@ -126,7 +126,7 @@ class MucRepo {
                 memberUid: member.uid.asString(),
                 role: getLocalRole(member.role)));
           } catch (e) {
-            debug(e.toString());
+            _logger.e(e);
           }
         }
 
@@ -138,7 +138,7 @@ class MucRepo {
       }
       insertUserInDb(channelUid, members);
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
     }
   }
 
@@ -193,7 +193,7 @@ class MucRepo {
 
   Future<bool> isMucAdminOrOwner(String memberUid, String mucUid) async {
     var member = await _mucDao.getMember(memberUid, mucUid);
-    if(member == null) return false;
+    if (member == null) return false;
     if (member.role == MucRole.OWNER || member.role == MucRole.ADMIN) {
       return true;
     } else if (mucUid.asUid().category == Categories.CHANNEL) {
@@ -330,22 +330,21 @@ class MucRepo {
     MucPro.Member member = MucPro.Member()
       ..uid = groupMember.memberUid.asUid()
       ..role = getRole(groupMember.role);
-   if( await _mucServices.banGroupMember(member, groupMember.mucUid.asUid())){
-     _mucDao.deleteMember(groupMember);
-     return true;
-   }
-
+    if (await _mucServices.banGroupMember(member, groupMember.mucUid.asUid())) {
+      _mucDao.deleteMember(groupMember);
+      return true;
+    }
   }
 
   banChannelMember(Member channelMember) async {
     MucPro.Member member = MucPro.Member()
       ..uid = channelMember.memberUid.asUid()
       ..role = getRole(channelMember.role);
-    if(await _mucServices.unbanChannelMember(member, channelMember.mucUid.asUid())){
+    if (await _mucServices.unbanChannelMember(
+        member, channelMember.mucUid.asUid())) {
       _mucDao.deleteMember(channelMember);
       return true;
     }
-
   }
 
   unBanGroupMember(Member groupMember) async {
@@ -364,7 +363,7 @@ class MucRepo {
     //todo change database
   }
 
-  Future<Muc>joinGroup(Uid groupUid, String token) async {
+  Future<Muc> joinGroup(Uid groupUid, String token) async {
     var result = await _mucServices.joinGroup(groupUid, token);
     if (result) {
       return await fetchMucInfo(groupUid);
@@ -372,7 +371,7 @@ class MucRepo {
     return null;
   }
 
- Future<Muc> joinChannel(Uid channelUid, String token) async {
+  Future<Muc> joinChannel(Uid channelUid, String token) async {
     var result = await _mucServices.joinChannel(channelUid, token);
     if (result) {
       return await fetchMucInfo(channelUid);
@@ -448,6 +447,7 @@ class MucRepo {
       }
       return false;
     } catch (e) {
+      _logger.e(e);
       return false;
     }
   }
@@ -510,7 +510,7 @@ class MucRepo {
     List<UidIdName> _filteredMember = [];
 
     var res = await getAllMembers(roomUid);
-   await res.forEach((member) async {
+    res.forEach((member) async {
       if (_accountRepo.isCurrentUser(member.memberUid)) {
         var a = await _accountRepo.getAccount();
         _mucMembers.add(UidIdName(

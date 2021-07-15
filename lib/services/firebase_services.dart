@@ -12,7 +12,6 @@ import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -24,22 +23,25 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:logger/logger.dart';
 
 import 'notification_services.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class FireBaseServices {
+  final _logger = Logger();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _sharedDao = GetIt.I.get<SharedDao>();
+  final _firebaseServices =
+      FirebaseServiceClient(FirebaseServicesClientChannel);
+  final _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
   AndroidNotificationChannel channel = const AndroidNotificationChannel(
     'high_importance_channel', // id
     'High Importance Notifications', // title
     'This channel is used for important notifications.', // description
     importance: Importance.high,
   );
-
-  var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _sharedDao = GetIt.I.get<SharedDao>();
-  var _firebaseServices = FirebaseServiceClient(FirebaseServicesClientChannel);
-  var _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   FirebaseMessaging _firebaseMessaging;
 
@@ -68,7 +70,7 @@ class FireBaseServices {
             }));
         _sharedDao.put(SHARED_DAO_FIREBASE_SETTING_IS_SET, "true");
       } catch (e) {
-        debug(e.toString());
+        _logger.e(e);
       }
     }
   }
@@ -86,7 +88,7 @@ class FireBaseServices {
         sound: true,
       );
     } catch (e) {
-      debug(e);
+      _logger.e(e);
     }
   }
 }
@@ -103,40 +105,35 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
   try {
     await setupDI();
   } catch (e) {
-    debug(e.toString());
+    Logger().e(e);
   }
   var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   var _muteDao = GetIt.I.get<MuteDao>();
 
-
   // TODO needs to be refactored!!!
   var accountRepo = AccountRepo();
   // var roomRepo = RoomRepo();
-
 
   if (message.data.containsKey('body')) {
     M.Message msg = _decodeMessage(message.data["body"]);
     String roomName = message.data['title'];
     Uid roomUid = getRoomId(accountRepo, msg);
 
-   // CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg, roomUid);
-   //  if (msg.from.category == Categories.USER)
-   //      updateLastActivityTime(
-   //          lastActivityDao, getRoomId(accountRepo, msg), msg.time.toInt());
-    try{
+    // CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg, roomUid);
+    //  if (msg.from.category == Categories.USER)
+    //      updateLastActivityTime(
+    //          lastActivityDao, getRoomId(accountRepo, msg), msg.time.toInt());
+    try {
       if ((await accountRepo.notification).contains("false") ||
           await _muteDao.isMuted(roomUid.asString()) ||
           accountRepo.isCurrentUser(msg.from.asString())) {
         return;
       }
-    }catch(e){
-
-    }
-
+    } catch (e) {}
 
     if (msg.to.category == Categories.USER) {
       var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
-     if(uidName!= null) roomName = uidName.name??uidName.id??"unknown";
+      if (uidName != null) roomName = uidName.name ?? uidName.id ?? "unknown";
     } else if (msg.from.category == Categories.SYSTEM) {
       roomName = APPLICATION_NAME;
     } else if (msg.from.category == Categories.BOT) {

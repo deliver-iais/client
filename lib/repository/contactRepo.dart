@@ -10,7 +10,6 @@ import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:contacts_service/contacts_service.dart' as OsContact;
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/utils/log.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -23,25 +22,20 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:logger/logger.dart';
 
 import 'accountRepo.dart';
 
 class ContactRepo {
+  final _logger = Logger();
   final _accountRepo = GetIt.I.get<AccountRepo>();
-
   final _contactDao = GetIt.I.get<ContactDao>();
-
   final _roomDao = GetIt.I.get<RoomDao>();
-
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
-
   final _contactServices = ContactServiceClient(ProfileServicesClientChannel);
-
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
-
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
-
   final Map<PhoneNumber, String> _contactsDisplayName = Map();
 
   syncContacts() async {
@@ -74,12 +68,8 @@ class ContactRepo {
                 ..lastName = phoneContact.displayName
                 ..phoneNumber = phoneNumber;
               contacts.add(contact);
-              // debug("+++++++++++++++++++++++++++++++++++++");
-              // debug("${p.value} +++++ ${phoneContact.displayName}");
             } catch (e) {
-              // debug("______________________________");
-              // debug(e.toString());
-              // debug("${phoneContact.displayName} ______${p.value}");
+              _logger.e(e);
             }
           }
         }
@@ -119,7 +109,7 @@ class ContactRepo {
       }
       getContacts();
     } catch (e) {
-      print(e.toString());
+      _logger.e(e);
     }
   }
 
@@ -127,7 +117,7 @@ class ContactRepo {
     return _sendContacts([contact]);
   }
 
- Future<bool> _sendContacts(List<Contact> contacts) async {
+  Future<bool> _sendContacts(List<Contact> contacts) async {
     try {
       var sendContacts = SaveContactsReq();
       contacts.forEach((element) {
@@ -138,7 +128,7 @@ class ContactRepo {
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
       return false;
     }
   }
@@ -162,7 +152,8 @@ class ContactRepo {
 
       if (contact.uid != null) {
         roomNameCache.set(contact.uid.asString(), contact.firstName);
-        _uidIdNameDao.update(contact.uid.asString(), name: "${contact.firstName} ${contact.lastName ??""}");
+        _uidIdNameDao.update(contact.uid.asString(),
+            name: "${contact.firstName} ${contact.lastName ?? ""}");
         _roomDao.updateRoom(Room(uid: contact.uid.asString()));
       }
     }
@@ -177,13 +168,14 @@ class ContactRepo {
       _uidIdNameDao.update(uid.asString(), id: result.id);
       return result.id;
     } catch (e) {
+      _logger.e(e);
       return null;
     }
   }
-  fetchMemberId(Member member)async{
-    var  m = await _uidIdNameDao.getByUid(member.memberUid);
-    if(m == null || m.id == null)
-      getIdByUid(member.memberUid.asUid());
+
+  fetchMemberId(Member member) async {
+    var m = await _uidIdNameDao.getByUid(member.memberUid);
+    if (m == null || m.id == null) getIdByUid(member.memberUid.asUid());
   }
 
   Future<List<Uid>> searchUser(String query) async {

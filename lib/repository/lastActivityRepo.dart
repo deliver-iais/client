@@ -1,16 +1,17 @@
 import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:grpc/grpc.dart';
+import 'package:logger/logger.dart';
 
 class LastActivityRepo {
-  var _lastActivityDao = GetIt.I.get<LastActivityDao>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
+  final _lastActivityDao = GetIt.I.get<LastActivityDao>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _logger = Logger();
 
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
@@ -35,7 +36,7 @@ class LastActivityRepo {
         GetLastActivityReq()..uid = currentUserUid,
         options: CallOptions(
             metadata: {"access_token": await _accountRepo.getAccessToken()}));
-    trace("last activity : " + lastActivityTime.toString());
+    _logger.v(lastActivityTime.toString());
 
     if (lastActivityTime != null) {
       _lastActivityDao.save(LastActivity(

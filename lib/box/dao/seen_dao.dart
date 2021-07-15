@@ -1,5 +1,4 @@
 import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:hive/hive.dart';
 
 abstract class SeenDao {

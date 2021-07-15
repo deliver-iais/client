@@ -3,7 +3,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:deliver_flutter/box/message.dart' as db;
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart'
     as ChannelServices;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
@@ -18,13 +17,15 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:logger/logger.dart';
 
 class MucServices {
-  var _accountRepo = GetIt.I.get<AccountRepo>();
+  final _logger = Logger();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
 
-  var groupServices =
+  final groupServices =
       GroupServices.GroupServiceClient(MucServicesClientChannel);
-  var channelServices =
+  final channelServices =
       ChannelServices.ChannelServiceClient(MucServicesClientChannel);
 
   Future<Uid> createNewGroup(String groupName, String info) async {
@@ -57,7 +58,7 @@ class MucServices {
 
       return true;
     } catch (e) {
-      debug(e);
+      _logger.e(e);
       return false;
     }
   }
@@ -205,7 +206,7 @@ class MucServices {
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
-      debug(e);
+      _logger.e(e);
       return false;
     }
   }
@@ -241,7 +242,8 @@ class MucServices {
       return request.uid;
     } catch (e) {
       if (retry)
-        createNewChannel(channelName, type, channelId, info, retry: false);
+        return createNewChannel(channelName, type, channelId, info,
+            retry: false);
       else
         return null;
     }
@@ -261,7 +263,7 @@ class MucServices {
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       return true;
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
       return false;
     }
   }

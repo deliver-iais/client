@@ -136,6 +136,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                           },
                           selectedImages: _selectedImages,
                           selectGallery: false,
+                          roomUid: widget.roomUid,
                         ),
                       ),
                     ]));
@@ -213,7 +214,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                   QrImage(
                     data: _getUriLink(),
                     version: QrVersions.auto,
-                    size: MediaQuery.of(context).size.width/2,
+                    size: MediaQuery.of(context).size.width / 2,
                   ),
                 ],
               ),
@@ -666,7 +667,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                 },
                                 minLines: 1,
                                 onChanged: (str) {
-                                  if (str.isNotEmpty && str != name) {
+                                  if (str.isNotEmpty && str != name.data) {
                                     mucName = str;
                                     newChange.add(true);
                                   }

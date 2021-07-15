@@ -54,7 +54,6 @@ import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -64,6 +63,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
 import 'box/dao/contact_dao.dart';
@@ -166,7 +166,7 @@ void setupDIAndRunApp() async {
   try{
     await setupDI();
   } catch(e){
-    debug(e);
+    Logger().e(e);
   }
 
 
@@ -177,7 +177,7 @@ void setupDIAndRunApp() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  debug("Application has been started");
+  Logger().d("Application has been started");
 
   if (isDesktop()) {
     _setWindowSize();

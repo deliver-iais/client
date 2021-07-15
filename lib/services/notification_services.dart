@@ -3,7 +3,6 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:desktoasts/desktoasts.dart';
@@ -14,8 +13,10 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 class NotificationServices {
+  final _logger = Logger();
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   NotificationDetails _notificationDetails;
 
@@ -32,7 +33,7 @@ class NotificationServices {
           productName: "deliver",
         );
       } catch (e) {
-        debug(e.toString());
+        _logger.e(e);
       }
     }
     var androidNotificationSetting =
@@ -59,7 +60,7 @@ class NotificationServices {
     try {
       await flutterLocalNotificationsPlugin.cancel(notificationId);
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
     }
   }
 
@@ -67,7 +68,7 @@ class NotificationServices {
     try {
       await flutterLocalNotificationsPlugin.cancelAll();
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
     }
   }
 
@@ -82,7 +83,7 @@ class NotificationServices {
             body: "$roomName \n  $messageBody", appIcon: "mail-send");
         SystemSound.play(SystemSoundType.alert);
       } catch (e) {
-        print(e.toString());
+        _logger.e(e);
       }
     } else {
       var androidPlatformChannelSpecifics = AndroidNotificationDetails(
@@ -133,7 +134,7 @@ class NotificationServices {
         toast.dispose();
       }
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
     }
   }
 
@@ -257,6 +258,8 @@ class NotificationServices {
           }
           showTextNotification(message.id.toInt(), roomUid, roomName, s);
 
+          break;
+        default:
           break;
       }
     } catch (e) {}

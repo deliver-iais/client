@@ -1,6 +1,5 @@
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/pending_message.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:hive/hive.dart';
 
 abstract class MessageDao {

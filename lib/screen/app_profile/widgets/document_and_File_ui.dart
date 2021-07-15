@@ -10,7 +10,6 @@ import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/load-file-status.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:open_file/open_file.dart';

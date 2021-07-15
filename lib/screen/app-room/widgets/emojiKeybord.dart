@@ -1,4 +1,3 @@
-import 'package:deliver_flutter/screen/app-room/widgets/stickerWidget.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:emojis/emoji.dart';
 import 'package:flutter/cupertino.dart';

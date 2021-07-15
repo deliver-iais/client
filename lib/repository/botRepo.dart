@@ -2,19 +2,19 @@ import 'package:deliver_flutter/box/bot_info.dart';
 import 'package:deliver_flutter/box/dao/bot_dao.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
+import 'package:logger/logger.dart';
 
 class BotRepo {
-  BotServiceClient _botServiceClient = GetIt.I.get<BotServiceClient>();
-
-  var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _botDao = GetIt.I.get<BotDao>();
+  final _logger = Logger();
+  final _botServiceClient = GetIt.I.get<BotServiceClient>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _botDao = GetIt.I.get<BotDao>();
 
   Future<BotInfo> fetchBotInfo(Uid botUid) async {
     var result = await _botServiceClient.getInfo(GetInfoReq()..bot = botUid,
@@ -55,7 +55,7 @@ class BotRepo {
       searchInBots.add(uid);
     }
 
-    debug(searchInBots.toString());
+    _logger.d(searchInBots.toString());
     // for(var bot in result.bot){
     //  searchInBots.add(bot.bot);
     // }

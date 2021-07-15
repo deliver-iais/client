@@ -6,7 +6,6 @@ import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
-import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 class SplashScreen extends StatefulWidget {
   @override

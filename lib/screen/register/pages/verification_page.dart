@@ -6,11 +6,11 @@ import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
 class VerificationPage extends StatefulWidget {
@@ -19,16 +19,16 @@ class VerificationPage extends StatefulWidget {
 }
 
 class _VerificationPageState extends State<VerificationPage> {
+  final _logger = Logger();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _fireBaseServices = GetIt.I.get<FireBaseServices>();
+  final _contactRepo = GetIt.I.get<ContactRepo>();
+  final focusNode = FocusNode();
   bool _showError = false;
   String _verificationCode;
+
+  // TODO ???
   AppLocalization _appLocalization;
-
-  final FocusNode focusNode = FocusNode();
-
-  AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
-  ContactRepo _contactRepo = GetIt.I.get<ContactRepo>();
-
-  var _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
   _sendVerificationCode() {
     if ((_verificationCode?.length ?? 0) < 5) {
@@ -59,7 +59,7 @@ class _VerificationPageState extends State<VerificationPage> {
         _setErrorAndResetCode();
       }
     }).catchError((e) {
-      debug(e);
+      _logger.e(e);
       _setErrorAndResetCode();
     });
   }
@@ -124,15 +124,17 @@ class _VerificationPageState extends State<VerificationPage> {
                     height: 10,
                   ),
                   Text(
-                    _appLocalization.getTraslateValue("enter_code"),style:
-                      TextStyle(fontSize: 17,color: ExtraTheme.of(context).textField),
+                    _appLocalization.getTraslateValue("enter_code"),
+                    style: TextStyle(
+                        fontSize: 17, color: ExtraTheme.of(context).textField),
                   ),
                   SizedBox(
                     height: 30,
                   ),
                   Text(
                     _appLocalization.getTraslateValue("sendCode"),
-                    style: TextStyle(fontSize: 17,color: ExtraTheme.of(context).textField),
+                    style: TextStyle(
+                        fontSize: 17, color: ExtraTheme.of(context).textField),
                   ),
                   SizedBox(
                     height: 30,
@@ -155,11 +157,11 @@ class _VerificationPageState extends State<VerificationPage> {
                       currentCode: _verificationCode,
                       onCodeSubmitted: (code) {
                         _verificationCode = code;
-                        debug(_verificationCode);
+                        _logger.d(_verificationCode);
                         _sendVerificationCode();
                       },
                       onCodeChanged: (code) {
-                        debug(_verificationCode);
+                        _logger.d(_verificationCode);
                         _verificationCode = code;
                         if (code.length == 5) {
                           _sendVerificationCode();

@@ -19,7 +19,6 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -49,6 +48,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
+import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
@@ -57,6 +57,7 @@ import 'package:flutter/foundation.dart';
 enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
 class MessageRepo {
+  final _logger = Logger();
   final _messageDao = GetIt.I.get<MessageDao>();
 
   // migrate to room repo
@@ -77,7 +78,7 @@ class MessageRepo {
     _coreServices.connectionStatus.listen((mode) async {
       switch (mode) {
         case ConnectionStatus.Connected:
-          debug('updating -----------------');
+          _logger.i('updating -----------------');
 
           updatingStatus.add(TitleStatusConditions.Updating);
           await updatingMessages();
@@ -122,7 +123,7 @@ class MessageRepo {
         ));
       }
     } catch (e) {
-      debug(e);
+      _logger.e(e);
     }
   }
 
@@ -160,7 +161,7 @@ class MessageRepo {
           fetchLastMessages(roomMetadata, room);
         }
       } catch (e) {
-        debug(e);
+        _logger.e(e);
       }
       pointer += 10;
     }
@@ -212,8 +213,8 @@ class MessageRepo {
         getMentions(room);
       }
     } catch (e) {
+      _logger.e(e);
       if (retry) fetchLastMessages(roomMetadata, room, retry: false);
-      debug(e);
     }
   }
 
@@ -236,7 +237,7 @@ class MessageRepo {
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
               room.lastCurrentUserSentMessageId.toInt())));
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
     }
 
     try {
@@ -253,7 +254,7 @@ class MessageRepo {
             messageId: fetchLastOtherUserSeenData.seen.id.toInt()));
       }
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
     }
   }
 
@@ -269,7 +270,7 @@ class MessageRepo {
         _roomDao.updateRoom(Room(uid: room.uid, mentioned: true));
       }
     } catch (e) {
-      e.toString();
+      _logger.e(e);
     }
   }
 
@@ -557,6 +558,7 @@ class MessageRepo {
               metadata: {'access_token': await _accountRepo.getAccessToken()}));
       completer.complete(await _saveFetchMessages(fetchMessagesRes.messages));
     } catch (e) {
+      _logger.e(e);
       if (retry)
         getMessages(roomId, page, pageSize, completer, retry: false);
       else
@@ -594,7 +596,7 @@ class MessageRepo {
           }
         } else {}
       } catch (e) {
-        debug(e.toString());
+        _logger.e(e);
       }
       msgList.add(
           await saveMessageInMessagesDB(_accountRepo, _messageDao, message));
@@ -689,6 +691,7 @@ class MessageRepo {
     try {
       return await _mucServices.pinMessage(message);
     } catch (e) {
+      _logger.e(e);
       return false;
     }
   }
@@ -697,6 +700,7 @@ class MessageRepo {
     try {
       return await _mucServices.unpinMessage(message);
     } catch (e) {
+      _logger.e(e);
       return false;
     }
   }

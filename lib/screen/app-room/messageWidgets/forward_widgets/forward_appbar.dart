@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ForwardAppbar extends StatelessWidget {
-  var _routingServices = GetIt.I.get<RoutingService>();
+  final _routingServices = GetIt.I.get<RoutingService>();
 
   @override
   Widget build(BuildContext context) {

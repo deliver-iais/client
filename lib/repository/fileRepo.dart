@@ -1,23 +1,20 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:isolate';
 import 'package:deliver_flutter/box/dao/file_dao.dart';
 import 'package:deliver_flutter/box/file_info.dart';
-import 'package:deliver_flutter/utils/log.dart';
-import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as FileProto;
 
 import 'package:fixnum/fixnum.dart';
-// import 'package:image/image.dart' as e;
 import 'package:get_it/get_it.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:logger/logger.dart';
 
 class FileRepo {
-  var _fileDao = GetIt.I.get<FileDao>();
+  final _logger = Logger();
+  final _fileDao = GetIt.I.get<FileDao>();
   final _fileService = GetIt.I.get<FileService>();
 
   Future<void> cloneFileInLocalDirectory(
@@ -42,7 +39,7 @@ class FileRepo {
       ..height = json["height"] ?? 0
       ..duration = json["duration"] ?? 0;
 
-    debug("^^^^^^^^^^^^^^^^${uploadedFile.toString()}");
+    _logger.v(uploadedFile);
 
     await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
     return uploadedFile;

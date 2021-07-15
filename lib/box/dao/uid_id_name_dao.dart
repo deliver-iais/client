@@ -1,5 +1,4 @@
 import 'package:deliver_flutter/box/uid_id_name.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:hive/hive.dart';
 
 abstract class UidIdNameDao {

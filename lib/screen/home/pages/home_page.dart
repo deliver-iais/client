@@ -1,22 +1,12 @@
-import 'package:auto_route/auto_route.dart';
-
-
 import 'package:deliver_flutter/repository/accountRepo.dart';
-
-import 'package:deliver_flutter/routes/router.gr.dart';
-
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/utils/log.dart';
-
 import 'package:flutter/material.dart';
-
-import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:uni_links/uni_links.dart';
 
@@ -28,19 +18,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+  final _logger = Logger();
   final _routingService = GetIt.I.get<RoutingService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
-  var _notificationServices = GetIt.I.get<NotificationServices>();
+  final _notificationServices = GetIt.I.get<NotificationServices>();
 
   Future<void> initUniLinks(BuildContext context) async {
     try {
       final initialLink = await getInitialLink();
       if (initialLink.isNotEmpty) await handleUri(initialLink, context);
-    } on PlatformException {
-      debug("deep link exception");
     } catch (e) {
-      debug("%%%%%%%%%%%%%%%%+${e.toString()}");
+      _logger.e(e);
     }
   }
 
@@ -59,14 +48,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   checkShareFile(BuildContext context) {
-
     ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
-      if (value.length>0) {
-        List<String> paths =[];
+      if (value.length > 0) {
+        List<String> paths = [];
         for (var path in value) {
           paths.add(path.path);
         }
-        _routingService.openShareFile(path:paths);
+        _routingService.openShareFile(path: paths);
       }
     });
   }

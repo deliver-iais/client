@@ -42,7 +42,6 @@ import 'package:deliver_flutter/shared/mucAppbarTitle.dart';
 import 'package:deliver_flutter/shared/userAppBar.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -52,6 +51,7 @@ import 'package:flutter/services.dart';
 
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
@@ -80,6 +80,7 @@ class RoomPage extends StatefulWidget {
 }
 
 class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
+  final _logger = Logger();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -223,7 +224,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         : 'Deliver');
               break;
             } catch (e) {
-              print(e.toString());
+              _logger.e(e);
               break;
             }
           }
@@ -364,7 +365,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 _pinMessages.add(m);
                 _lastPinedMessage.add(_pinMessages.last.id);
               } catch (e) {
-                print(element);
+                _logger.e(e);
+                _logger.d(element);
               }
             }
           });
@@ -393,7 +395,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   @override
   Widget build(BuildContext context) {
-    debug(widget.roomId);
     _appLocalization = AppLocalization.of(context);
     double _maxWidth = MediaQuery.of(context).size.width * 0.7;
     menuColor = ExtraTheme.of(context).popupMenuButton;
@@ -541,7 +542,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     return Container();
                   }
                 }),
-            searchInMessageButtom(
+            SearchInMessageButton(
                 keyboardWidget: keybrodWidget,
                 searchMode: _searchMode,
                 searchResult: searchResult,
@@ -1009,7 +1010,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         _upTimeMap[messages[0].packetId] = date(messages[0].time);
       }
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
     }
     _currentMessageForCheckTime = messages[0];
   }
@@ -1073,8 +1074,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     },
                   ));
   }
-
-  Widget selectMultiMessage({Message message}) {}
 
   _addForwardMessage(Message message) {
     setState(() {

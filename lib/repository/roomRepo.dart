@@ -24,19 +24,20 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:grpc/grpc.dart';
+import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
 Cache<String, String> roomNameCache =
     LruCache<String, String>(storage: SimpleStorage(size: 100));
 
 class RoomRepo {
+  final _logger = Logger();
   var _roomDao = GetIt.I.get<RoomDao>();
   var _seenDao = GetIt.I.get<SeenDao>();
   var _muteDao = GetIt.I.get<MuteDao>();
   var _blockDao = GetIt.I.get<BlockDao>();
   var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
-
   var _accountRepo = GetIt.I.get<AccountRepo>();
   var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   var _mucRepo = GetIt.I.get<MucRepo>();
@@ -147,6 +148,7 @@ class RoomRepo {
       _uidIdNameDao.update(uid.asString(), id: result.id);
       return result.id;
     } catch (e) {
+      _logger.e(e);
       return null;
     }
   }

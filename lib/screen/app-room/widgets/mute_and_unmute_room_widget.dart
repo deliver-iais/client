@@ -11,7 +11,7 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
   final _mucRepo = GetIt.I.get<MucRepo>();
   final String roomId;
   final Widget inputMessage;
-  var _accountRpo = GetIt.I.get<AccountRepo>();
+  final _accountRpo = GetIt.I.get<AccountRepo>();
 
   MuteAndUnMuteRoomWidget({Key key, this.roomId, this.inputMessage})
       : super(key: key);

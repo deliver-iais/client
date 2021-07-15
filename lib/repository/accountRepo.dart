@@ -6,7 +6,6 @@ import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/functions.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -23,10 +22,12 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:logger/logger.dart';
 
 import 'messageRepo.dart';
 
 class AccountRepo {
+  final _logger = Logger();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final QueryServiceClient _queryServiceClient =
   GetIt.I.get<QueryServiceClient>();
@@ -68,6 +69,7 @@ class AccountRepo {
           options: CallOptions(timeout: Duration(seconds: 3)));
       return verificationCode;
     } catch (e) {
+      _logger.e(e);
       return null;
     }
   }
@@ -108,7 +110,7 @@ class AccountRepo {
       }
       return getAccessToken;
     } catch (e) {
-      print(e.toString());
+      _logger.e(e);
     }
   }
 
@@ -202,6 +204,7 @@ class AccountRepo {
       } else
         return getUsername();
     } catch (e) {
+      _logger.e(e);
       if (retry)
         return getProfile();
       else
@@ -223,6 +226,7 @@ class AccountRepo {
         return false;
       }
     } catch (e) {
+      _logger.e(e);
       return false;
     }
   }
@@ -247,7 +251,7 @@ class AccountRepo {
       currentUserUid = Uid()
         ..category = Categories.USER
         ..node = decodedToken["sub"];
-      debug("UserId " + currentUserUid.asString());
+      _logger.d(currentUserUid);
       _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, currentUserUid.asString());
     }
   }
@@ -309,7 +313,7 @@ class AccountRepo {
 
       return true;
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
       return false;
     }
   }

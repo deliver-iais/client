@@ -11,13 +11,10 @@ class ActivityStatus extends StatelessWidget {
   final Activity activity;
   final TextStyle style;
   final Uid roomUid;
-
-  ActivityStatus({this.activity, this.style, this.roomUid});
-
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  BuildContext buildContext;
-
+  ActivityStatus({this.activity, this.style, this.roomUid});
+  
   TextStyle textStyle(BuildContext context) {
     return TextStyle(fontSize: 14, color: Theme.of(context).primaryColor);
   }
@@ -42,11 +39,12 @@ class ActivityStatus extends StatelessWidget {
                 );
               }
             });
+      } else {
+        return Text(
+          appLocalization.getTraslateValue("isTyping"),
+          style: textStyle(context),
+        );
       }
-      return Text(
-        appLocalization.getTraslateValue("isTyping"),
-        style: textStyle(context),
-      );
     } else if (activity.typeOfActivity == ActivityType.RECORDING_VOICE) {
       if (roomUid.category == Categories.GROUP) {
         return FutureBuilder<String>(
@@ -92,6 +90,8 @@ class ActivityStatus extends StatelessWidget {
           style: textStyle(context),
         );
       }
+    } else {
+      return SizedBox.shrink();
     }
   }
 }

@@ -6,13 +6,13 @@ import 'package:deliver_flutter/screen/register/pages/testing_environment_tokens
 import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver_flutter/screen/register/widgets/phone_number.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -20,9 +20,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  PhoneNumber phoneNumber;
-  AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
+  final _logger = Logger();
+  final accountRepo = GetIt.I.get<AccountRepo>();
   final _formKey = GlobalKey<FormState>();
+  PhoneNumber phoneNumber;
 
   checkAndGoNext() async {
     AppLocalization appLocalization = AppLocalization.of(context);
@@ -42,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
               textColor: Colors.white,
               fontSize: 16.0);
       } catch (e) {
-        debug(e);
+        _logger.e(e);
         Fluttertoast.showToast(
 //          TODO more detailed error message needed here.
             msg: appLocalization.getTraslateValue("occurred_Error"),

@@ -88,7 +88,7 @@ class _InputMessageWidget extends State<InputMessage> {
   FocusNode keyboardRawFocusNode;
 
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
-  Subject<ActivityType> NoActivitySubject = BehaviorSubject();
+  Subject<ActivityType> noActivitySubject = BehaviorSubject();
 
   void showButtonSheet() {
     if (isDesktop()) {
@@ -119,7 +119,7 @@ class _InputMessageWidget extends State<InputMessage> {
         .listen((activityType) {
       messageRepo.sendActivity(widget.currentRoom.uid.asUid(), activityType);
     });
-    NoActivitySubject.listen((event) {
+    noActivitySubject.listen((event) {
       messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
     controller = TextEditingController();
@@ -153,7 +153,7 @@ class _InputMessageWidget extends State<InputMessage> {
                 return ShowMentionList(
                   query: query,
                   onSelected: (s) {
-                    controller.text = "${controller.text}${s} ";
+                    controller.text = "${controller.text}$s ";
                     controller.selection = TextSelection.fromPosition(
                         TextPosition(offset: controller.text.length));
                     _showMentionList.add(false);
@@ -193,7 +193,7 @@ class _InputMessageWidget extends State<InputMessage> {
                         !widget.waitingForForward &&
                         !isDesktop()) {
                       return RecordAudioAnimation(
-                        righPadding: x,
+                        rightPadding: x,
                         size: size,
                       );
                     } else {
@@ -255,7 +255,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                         isTypingActivitySubject
                                             .add(ActivityType.TYPING);
                                       else
-                                        NoActivitySubject.add(
+                                        noActivitySubject.add(
                                             ActivityType.NO_ACTIVITY);
                                       onChange(str);
                                     },
@@ -407,7 +407,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 await _soundRecorder.stopRecorder();
                                 _soundRecorder.closeAudioSession();
                                 recordAudioTimer.cancel();
-                                NoActivitySubject.add(ActivityType.NO_ACTIVITY);
+                                noActivitySubject.add(ActivityType.NO_ACTIVITY);
                                 setState(() {
                                   startAudioRecorder = false;
                                   x = 0;
@@ -485,7 +485,7 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void sendMessage() {
-    NoActivitySubject.add(ActivityType.NO_ACTIVITY);
+    noActivitySubject.add(ActivityType.NO_ACTIVITY);
     if (widget.waitingForForward == true) {
       widget.sendForwardMessage();
     }

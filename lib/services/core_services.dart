@@ -9,7 +9,6 @@ import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/box/member.dart';
-import 'package:deliver_flutter/box/pending_message.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/models/account.dart';
@@ -20,7 +19,6 @@ import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -34,6 +32,7 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
+import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:fixnum/fixnum.dart';
 
@@ -45,6 +44,24 @@ const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 // TODO Change to StreamRepo, it is not a service, it is repo now!!!
 class CoreServices {
+  final _logger = Logger();
+  final _grpcCoreService = GetIt.I.get<CoreServiceClient>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _messageDao = GetIt.I.get<MessageDao>();
+  final _roomDao = GetIt.I.get<RoomDao>();
+  final _seenDao = GetIt.I.get<SeenDao>();
+  final _routingServices = GetIt.I.get<RoutingService>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _notificationServices = GetIt.I.get<NotificationServices>();
+  final _lastActivityDao = GetIt.I.get<LastActivityDao>();
+  final _mucDao = GetIt.I.get<MucDao>();
+
+  Timer _connectionTimer;
+  var _lastPongTime = 0;
+
+  @visibleForTesting
+  bool responseChecked = false;
+
   StreamController<ClientPacket> _clientPacketStream;
 
   ResponseStream<ServerPacket> _responseStream;
@@ -56,23 +73,6 @@ class CoreServices {
 
   BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
-
-  @visibleForTesting
-  bool responseChecked = false;
-
-  var _grpcCoreService = GetIt.I.get<CoreServiceClient>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _messageDao = GetIt.I.get<MessageDao>();
-  var _roomDao = GetIt.I.get<RoomDao>();
-  var _seenDao = GetIt.I.get<SeenDao>();
-  var _routingServices = GetIt.I.get<RoutingService>();
-  var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _notificationServices = GetIt.I.get<NotificationServices>();
-  var _lastActivityDao = GetIt.I.get<LastActivityDao>();
-
-  Timer _connectionTimer;
-  var _lastPongTime = 0;
-  var _mucDao = GetIt.I.get<MucDao>();
 
   //TODO test
   initStreamConnection() async {
@@ -132,7 +132,7 @@ class CoreServices {
                 metadata: {'access_token': await _accountRepo.getAccessToken()},
               ));
       _responseStream.listen((serverPacket) async {
-        debug(serverPacket.toString());
+        _logger.d(serverPacket.toString());
         gotResponse();
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:
@@ -161,8 +161,7 @@ class CoreServices {
       });
     } catch (e) {
       startStream();
-      debug(e.toString());
-      debug("core service error");
+      _logger.e(e);
     }
   }
 
