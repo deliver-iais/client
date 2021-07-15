@@ -17,15 +17,13 @@ import '../floating_modal_bottom_sheet.dart';
 
 class ProfileAvatarCard extends StatelessWidget {
   final Uid uid;
-  final List<Widget> buttons;
   final bool uploadNewAvatar;
   final String newAvatarPath;
   final _routingServices = GetIt.I.get<RoutingService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
 
-  ProfileAvatarCard(
-      {this.uid, this.buttons, this.uploadNewAvatar, this.newAvatarPath});
+  ProfileAvatarCard({this.uid, this.uploadNewAvatar, this.newAvatarPath});
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +70,7 @@ class ProfileAvatarCard extends StatelessWidget {
                           alignment: Alignment.bottomRight,
                           child: Container(
                             padding: const EdgeInsets.all(2.0),
-                            color: ExtraTheme.of(context).profileAvatarCard,
+                            color: ExtraTheme.of(context).boxBackground,
                             child: IconButton(
                               // color: ,
                               onPressed: () async {
@@ -117,7 +115,8 @@ class ProfileAvatarCard extends StatelessWidget {
                     (BuildContext context, AsyncSnapshot<Account> snapshot) {
                   if (snapshot.data != null) {
                     return Text(
-                      "${snapshot.data.firstName}${snapshot.data.lastName ?? ""}",
+                      "${snapshot.data.firstName} ${snapshot.data.lastName}"
+                          .trim(),
                       style: TextStyle(
                           fontSize: 25,
                           color: ExtraTheme.of(context).textField),
@@ -127,13 +126,8 @@ class ProfileAvatarCard extends StatelessWidget {
                   }
                 },
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: buttons,
-              )
             ],
-          ),
-          color: ExtraTheme.of(context).profileAvatarCard,
+          )
         ));
   }
 }

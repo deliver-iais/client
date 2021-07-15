@@ -11,7 +11,7 @@ class SearchBox extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 4),
       child: TextField(
         style: TextStyle(color: ExtraTheme.of(context).textField),
         textAlignVertical: TextAlignVertical.center,

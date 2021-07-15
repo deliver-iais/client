@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 // Constraints
 const double BREAKDOWN_SIZE = 700;
 
-const double MAIN_PADDING = 8;
-
 const double FLUID_MAX_WIDTH = 400;
 const double FLUID_MAX_HEIGHT = 540;
 

@@ -16,7 +16,7 @@ ThemeData LightTheme =
         buttonColor: Color(0xff1f655d),
         dividerTheme: DividerThemeData(
             space: 1.0, thickness: 1.0, color: Color(0xFFf0f0f0)),
-        focusColor: Color(0xff179c96).withOpacity(0.5),
+        focusColor: Color(0xff179c96).withOpacity(0.4),
         cardColor: Color(0xff489088),
         textTheme: TextTheme(
           headline1: TextStyle(color: Colors.black, fontSize: 40),
@@ -53,26 +53,18 @@ ThemeData LightTheme =
 ExtraThemeData LightExtraTheme = ExtraThemeData(
   centerPageDetails: Color(0xff0b796c),
   circleAvatarIcon: Colors.white,
-  // secondColor: Colors.white,
-  // active: Color(0xff174b45),
-  // infoChat: Colors.black,
-  // text: Colors.white,
   boxDetails: Color(0xff15786c),
-  boxBackground: Colors.white,
+  boxBackground: Color(0xFFf2f9ff),
   activeSwitch: Color(0xff15786c),
   textDetails: Colors.black,
-  //homePage
   bottomNavigationAppbar: LightTheme.appBarTheme.color,
   activePageIcon: LightTheme.accentColor,
   inactivePageIcon: LightTheme.accentColor.withAlpha(100),
-  //details in extra
   menuIconButton: LightTheme.accentColor.withAlpha(50),
   popupMenuButton: Colors.white,
   popupMenuButtonDetails: LightTheme.accentColor,
   searchBox: Color(0xFFEEEEEE),
   chatOrContactItemDetails: Colors.black,
-  //info chat in extra
-  // roomPage
   sentMessageBox: Color(0xFFDCEDC8),
   receivedMessageBox: Colors.white,
   textMessage: LightTheme.accentColor,
@@ -85,15 +77,7 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   titleStatus: Colors.blue,
   seenStatus: Colors.blue,
   pinMessageTheme: Colors.white,
-
-  profileAvatarCard: Color(0xFFEEEEEE),
   inputBoxBackground: Colors.white,
   mentionWidget: Colors.white,
-  //group
   border: Color(0xff174b45),
-  // text1 : white black
-  // text2 : blue ligth green
-  // text3 : white dark green
 );
-
-// SendingFileCircularIndicator

@@ -352,7 +352,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                                 ),
                                 Text(
                                     _appLocalization
-                                        .getTraslateValue("setProfile"),
+                                        .getTraslateValue("set_avatar"),
                                     style: style),
                               ],
                             ),

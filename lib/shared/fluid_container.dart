@@ -18,7 +18,7 @@ class FluidContainerWidget extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS)),
           child: Container(
             color: ExtraTheme.of(context).boxBackground,
-            padding: const EdgeInsets.all(MAIN_PADDING),
+            padding: const EdgeInsets.all(8),
             constraints: BoxConstraints(maxWidth: BREAKDOWN_SIZE),
             child: child,
           ),

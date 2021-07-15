@@ -27,7 +27,6 @@ class ExtraThemeData {
   Color textMessage;
   Color seenStatus; //green white
   Color messageDetails;
-  Color profileAvatarCard;
   Color persistentEventMessage;
   Color circularFileStatus;
   Color fileMessageDetails;
@@ -54,7 +53,6 @@ class ExtraThemeData {
     this.searchBox,
     this.username,
     this.titleStatus,
-    this.profileAvatarCard,
     this.chatOrContactItemDetails,
     this.sentMessageBox,
     this.receivedMessageBox,

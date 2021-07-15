@@ -200,11 +200,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: Column(
-          children: <Widget>[
-            SearchBox(
+      body: Column(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: SearchBox(
               onChange: (str) {
                 if (str.length > 0) {
                   setState(() {
@@ -218,15 +218,15 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 }
               },
             ),
-            AudioPlayerAppBar(),
-            _searchMode
-                ? searchResult()
-                : Expanded(
-                    child: (tab == NavigationTabs.Chats)
-                        ? ChatsPage(key: ValueKey("ChatsPage"))
-                        : ContactsPage(key: ValueKey("ContactsPage"))),
-          ],
-        ),
+          ),
+          AudioPlayerAppBar(),
+          _searchMode
+              ? searchResult()
+              : Expanded(
+                  child: (tab == NavigationTabs.Chats)
+                      ? ChatsPage(key: ValueKey("ChatsPage"))
+                      : ContactsPage(key: ValueKey("ContactsPage"))),
+        ],
       ),
       bottomNavigationBar: BottomAppBar(
         color: ExtraTheme.of(context).bottomNavigationAppbar,

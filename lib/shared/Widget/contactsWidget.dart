@@ -24,7 +24,6 @@ class ContactWidget extends StatelessWidget {
       this.isSelected = false,
       this.currentMember = false});
 
-
   @override
   Widget build(BuildContext context) {
     var _appLocalization = AppLocalization.of(context);
@@ -36,43 +35,39 @@ class ContactWidget extends StatelessWidget {
                   ? Theme.of(context).focusColor
                   : null,
           borderRadius: BorderRadius.circular(MAIN_BORDER_RADIUS)),
-      padding: const EdgeInsets.all(MAIN_PADDING / 2),
+      padding: const EdgeInsets.all(8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Stack(
-                children: <Widget>[
-                  contact.uid != null
-                      ? CircleAvatarWidget(contact.uid.asUid(), 23,
-                          showSavedMessageLogoIfNeeded: true)
-                      : CircleAvatar(
-                          backgroundColor: Colors.blue,
-                          child: Text(
-                            contact.lastName.length > 2
-                                ? contact.lastName.substring(0, 2)
-                                : contact.lastName,
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          radius: 23,
-                        ),
-                ],
-              ),
-              SizedBox(
-                width: 20,
-              ),
-              Text(
-                _accountRepo.isCurrentUser(contact.uid)
-                    ? _appLocalization.getTraslateValue("saved_message")
-                    : buildName(contact.firstName, contact.lastName),
-                overflow: TextOverflow.clip,
-                style: TextStyle(
-                  color: ExtraTheme.of(context).chatOrContactItemDetails,
-                  fontSize: 18,
+          contact.uid != null
+              ? CircleAvatarWidget(contact.uid.asUid(), 23,
+                  showSavedMessageLogoIfNeeded: true)
+              : CircleAvatar(
+                  backgroundColor: Colors.blue,
+                  child: Text(
+                    contact.lastName.length > 2
+                        ? contact.lastName.substring(0, 2)
+                        : contact.lastName,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  radius: 23,
                 ),
+          SizedBox(
+            width: 15,
+          ),
+          Expanded(
+            child: Text(
+              _accountRepo.isCurrentUser(contact.uid)
+                  ? _appLocalization.getTraslateValue("saved_message")
+                  : buildName(contact.firstName, contact.lastName),
+              overflow: TextOverflow.fade,
+              maxLines: 1,
+              softWrap: false,
+              style: TextStyle(
+                color: ExtraTheme.of(context).chatOrContactItemDetails,
+                fontSize: 18,
               ),
-            ],
+            ),
           ),
           if (circleIcon != null)
             CircleAvatar(

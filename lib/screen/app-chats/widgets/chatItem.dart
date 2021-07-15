@@ -56,7 +56,7 @@ class _ChatItemState extends State<ChatItem> {
         builder: (c, name) {
           if (name.hasData && name.data != null && name.data.isNotEmpty) {
             return Container(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.all(8),
               color: widget.isSelected
                   ? Theme.of(context).focusColor
                   : Colors.transparent,

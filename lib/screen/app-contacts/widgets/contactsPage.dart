@@ -1,6 +1,7 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
@@ -13,6 +14,7 @@ class ContactsPage extends StatelessWidget {
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _rootingServices = GetIt.I.get<RoutingService>();
   final _sharedDao = GetIt.I.get<SharedDao>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
 
   ContactsPage({Key key}) : super(key: key) {
     _syncContacts();
@@ -90,19 +92,18 @@ class ContactsPage extends StatelessWidget {
                 child: Scrollbar(
               child: ListView.builder(
                 itemCount: snapshot.data.length,
-                itemBuilder: (BuildContext ctx, int index) => GestureDetector(
-                    onTap: () {
-                      if (contacts[index].uid != null) {
-                        _rootingServices.openRoom(contacts[index].uid);
-                      } else {
-                        // todo invite contact
-                      }
-                    },
-                    child: ContactWidget(
-                        contact: contacts[index],
-                        circleIcon: (contacts[index].uid != null)
-                            ? Icons.message
-                            : Icons.add)),
+                itemBuilder: (BuildContext ctx, int index) =>
+                    _accountRepo.isCurrentUser(contacts[index].uid)
+                        ? SizedBox.shrink()
+                        : GestureDetector(
+                            onTap: () {
+                              if (contacts[index].uid != null) {
+                                _rootingServices.openRoom(contacts[index].uid);
+                              } else {
+                                // todo invite contact
+                              }
+                            },
+                            child: ContactWidget(contact: contacts[index])),
               ),
             ));
           } else {

@@ -11,7 +11,6 @@ import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profile_avatar_card.dart';
 import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/shared/language.dart';
@@ -27,7 +26,6 @@ import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:logger/logger.dart';
@@ -109,29 +107,25 @@ class _SettingsPageState extends State<SettingsPage> {
               uploadNewAvatar: _uploadNewAvatar,
               newAvatarPath: _newAvatarPath,
               uid: _accountRepo.currentUserUid,
-              buttons: [
-                MaterialButton(
-                  color: Theme.of(context).buttonColor,
-                  onPressed: () {
-                    attachFile();
-                  },
-                  shape: CircleBorder(),
-                  child: Icon(Icons.add_a_photo, color: Colors.white),
-                  padding: const EdgeInsets.all(20),
-                ),
-                MaterialButton(
-                  color: Theme.of(context).buttonColor,
-                  onPressed: () {
-                    _routingService
-                        .openRoom(_accountRepo.currentUserUid.asString());
-                  },
-                  shape: CircleBorder(),
-                  child: Icon(Icons.bookmark, color: Colors.white),
-                  padding: const EdgeInsets.all(20),
-                )
-              ],
             ),
             SizedBox(height: 10),
+            settingsRow(context,
+                iconData: Icons.add_a_photo,
+                title: appLocalization.getTraslateValue("set_avatar"),
+                onClick: () => attachFile(),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0).copyWith(right: 14.0),
+                  child: Icon(Icons.add_a_photo),
+                )),
+            settingsRow(context,
+                iconData: Icons.bookmark,
+                title: appLocalization.getTraslateValue("saved_message"),
+                onClick: () => _routingService
+                    .openRoom(_accountRepo.currentUserUid.asString()),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Icon(Icons.navigate_next),
+                )),
             settingsRow(context,
                 iconData: Icons.person,
                 title: appLocalization.getTraslateValue("username"),
@@ -154,8 +148,10 @@ class _SettingsPageState extends State<SettingsPage> {
                         }
                       },
                     ),
-                    IconButton(
-                        icon: Icon(Icons.navigate_next), onPressed: () {}),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Icon(Icons.navigate_next),
+                    )
                   ],
                 )),
             settingsRow(
@@ -182,7 +178,10 @@ class _SettingsPageState extends State<SettingsPage> {
                       }
                     },
                   ),
-                  IconButton(icon: Icon(Icons.navigate_next), onPressed: () {}),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(Icons.navigate_next),
+                  ),
                 ],
               ),
             ),

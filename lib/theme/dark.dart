@@ -51,21 +51,14 @@ ThemeData DarkTheme =
 ExtraThemeData DarkExtraTheme = ExtraThemeData(
     centerPageDetails: Color(0xFF9D9D9D),
     circleAvatarIcon: Colors.white,
-    // active: Colors.white,
-    // infoChat: Colors.white,
-    // text: Color(0xFFBCE0FD),
     boxDetails: Colors.white,
-    boxBackground: Color(0x8bc1e0FF).withAlpha(50),
+    boxBackground: Color(0xFF032738),
     activeSwitch: Color(0xFF2699FB),
-    //homePage
     textDetails: DarkTheme.primaryColor,
     bottomNavigationAppbar: DarkTheme.appBarTheme.color.withAlpha(200),
     activePageIcon: Colors.white,
-    //active in extra
     inactivePageIcon: Color(0xFF9D9D9D),
-    //details in extra
     menuIconButton: DarkTheme.accentColor.withAlpha(50),
-    // popupMenuButton : Color(0x8b848b93),
     popupMenuButton: Colors.black,
     popupMenuButtonDetails: Colors.white,
     searchBox: DarkTheme.accentColor.withAlpha(50),
@@ -82,7 +75,6 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     textField: Colors.white,
     username: Colors.yellowAccent,
     seenStatus: Colors.white,
-    profileAvatarCard: DarkTheme.accentColor.withAlpha(50),
     inputBoxBackground: DarkTheme.accentColor.withAlpha(50),
     pinMessageTheme: Color(0xFF263238),
     mentionWidget: Color(0xFF263238),
