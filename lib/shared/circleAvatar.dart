@@ -13,6 +13,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/shared/methods/isPersian.dart';
 
 class CircleAvatarWidget extends StatelessWidget {
   final Uid contactUid;
@@ -158,14 +159,14 @@ class CircleAvatarWidget extends StatelessWidget {
 
   Widget showDisplayName(Color textColor) {
     if (this.forceText.isNotEmpty) {
-      return avatarAlt(this.forceText, textColor);
+      return avatarAlt(this.forceText.trim(), textColor);
     }
     return FutureBuilder<String>(
       future: _roomRepo.getName(contactUid),
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
         if (snapshot.data != null) {
-          String name = snapshot.data.replaceAll(' ', '');
-          return avatarAlt(name, textColor);
+          String name = snapshot.data.trim();
+          return avatarAlt(name.trim(), textColor);
         } else {
           return Icon(
             Icons.person,
@@ -179,11 +180,15 @@ class CircleAvatarWidget extends StatelessWidget {
 
   Center avatarAlt(String name, Color textColor) {
     return Center(
-      child: Text(name.length > 2 ? name.substring(0, 2) : name,
+      child: Text(
+          name.length > 1
+              ? name.substring(0, 1).toUpperCase()
+              : name.toUpperCase(),
+          maxLines: null,
           style: TextStyle(
               color: textColor,
-              fontSize: (radius * 0.6).toInt().toDouble(),
-              height: 2)),
+              fontSize: (radius * 0.8).toInt().toDouble(),
+              height: name.isPersian() ? 0.6 : 2)),
     );
   }
 }
