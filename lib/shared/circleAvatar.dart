@@ -53,6 +53,27 @@ class CircleAvatarWidget extends StatelessWidget {
         colorSaturation: ColorSaturation.highSaturation);
   }
 
+  /// Darken a color by [percent] amount (100 = black)
+  // ........................................................
+  Color darken(Color c, [int percent = 10]) {
+    assert(1 <= percent && percent <= 100);
+    var f = 1 - percent / 100;
+    return Color.fromARGB(c.alpha, (c.red * f).round(), (c.green * f).round(),
+        (c.blue * f).round());
+  }
+
+  /// Lighten a color by [percent] amount (100 = white)
+  // ........................................................
+  Color lighten(Color c, [int percent = 10]) {
+    assert(1 <= percent && percent <= 100);
+    var p = percent / 100;
+    return Color.fromARGB(
+        c.alpha,
+        c.red + ((255 - c.red) * p).round(),
+        c.green + ((255 - c.green) * p).round(),
+        c.blue + ((255 - c.blue) * p).round());
+  }
+
   bool isSavedMessage() =>
       showSavedMessageLogoIfNeeded &&
       _accountRepo.isCurrentUser(contactUid.asString());
@@ -60,43 +81,54 @@ class CircleAvatarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var color = colorFor(context, contactUid.asString());
+
+    if (isSavedMessage()) color = Colors.blue;
+    if (contactUid.category == Categories.SYSTEM) color = Colors.grey[300];
+
     var textColor =
         color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
 
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor: isSavedMessage()
-          ? Colors.blue
-          : contactUid.category == Categories.SYSTEM
-              ? Colors.black12
-              : color,
-      child: contactUid.category == Categories.SYSTEM
-          ? Image(
-            image: AssetImage(
-                'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
-          )
-          : isSavedMessage()
-              ? Icon(
-                  Icons.bookmark,
-                  size: radius,
-                  color: Colors.white,
-                )
-              : showAsStreamOfAvatar
-                  ? StreamBuilder<Avatar>(
-                      stream: _avatarRepo.getLastAvatarStream(
-                          contactUid, forceToUpdate),
-                      builder: (context, snapshot) =>
-                          this.builder(context, snapshot, textColor))
-                  : FutureBuilder<Avatar>(
-                      future:
-                          _avatarRepo.getLastAvatar(contactUid, forceToUpdate),
-                      builder: (context, snapshot) =>
-                          this.builder(context, snapshot, textColor)),
+    return Container(
+      decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(colors: [
+            darken(color,
+                Theme.of(context).brightness == Brightness.dark ? 20 : 20),
+            color,
+            lighten(color,
+                Theme.of(context).brightness == Brightness.dark ? 15 : 30),
+          ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
+      child: CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.transparent,
+        child: contactUid.category == Categories.SYSTEM
+            ? Image(
+                image: AssetImage(
+                    'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
+              )
+            : isSavedMessage()
+                ? Icon(
+                    Icons.bookmark,
+                    size: radius,
+                    color: Colors.white,
+                  )
+                : showAsStreamOfAvatar
+                    ? StreamBuilder<Avatar>(
+                        stream: _avatarRepo.getLastAvatarStream(
+                            contactUid, forceToUpdate),
+                        builder: (context, snapshot) =>
+                            this.builder(context, snapshot, textColor))
+                    : FutureBuilder<Avatar>(
+                        future: _avatarRepo.getLastAvatar(
+                            contactUid, forceToUpdate),
+                        builder: (context, snapshot) =>
+                            this.builder(context, snapshot, textColor)),
+      ),
     );
   }
 
-  Widget builder(BuildContext context, AsyncSnapshot<Avatar> snapshot,
-      Color textColor) {
+  Widget builder(
+      BuildContext context, AsyncSnapshot<Avatar> snapshot, Color textColor) {
     if (snapshot.hasData &&
         snapshot.data != null &&
         snapshot.data.fileId != null &&
