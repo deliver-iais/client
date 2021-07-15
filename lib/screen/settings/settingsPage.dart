@@ -495,10 +495,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 iconData: Icons.exit_to_app,
                 title: appLocalization.getTraslateValue("Log_out"),
                 onClick: () => openLogoutAlertDialog(context, appLocalization),
-                child: IconButton(
-                  icon: Icon(Icons.exit_to_app),
-                  onPressed: () =>
-                      openLogoutAlertDialog(context, appLocalization),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Icon(Icons.exit_to_app),
                 )),
           ]),
         ));
