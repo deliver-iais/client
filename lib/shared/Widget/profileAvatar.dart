@@ -267,10 +267,10 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 
   showAvatar() {
     return Container(
-      padding: const EdgeInsets.only(top: 40, bottom: 60),
+      // padding: const EdgeInsets.only(top: 40, bottom: 60),
       child: showProgressBar
           ? CircleAvatar(
-              radius: 100,
+              radius: 80,
               backgroundImage: Image.file(File(_uploadAvatarPath)).image,
               child: Center(
                 child: SizedBox(
@@ -287,7 +287,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                 child: GestureDetector(
                   child: CircleAvatarWidget(
                     widget.roomUid,
-                    110,
+                    80,
                     showAsStreamOfAvatar: true,
                     showSavedMessageLogoIfNeeded: true,
                   ),
@@ -304,7 +304,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                 ),
               ),
             ),
-      color: Theme.of(context).accentColor.withAlpha(30),
     );
   }
 
@@ -555,27 +554,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     }),
         ],
         forceElevated: widget.innerBoxIsScrolled,
-        leading: _routingService.backButtonLeading(),
-        expandedHeight: 350,
-        floating: false,
-        pinned: true,
+        expandedHeight: 180,
         flexibleSpace: FlexibleSpaceBar(
-          centerTitle: true,
-          collapseMode: CollapseMode.pin,
-          titlePadding: const EdgeInsets.all(10),
-          title: Container(
-            child: FutureBuilder<String>(
-              future: _roomRepo.getName(widget.roomUid),
-              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                if (snapshot.data != null) {
-                  mucName = snapshot.data;
-                  return _showDisplayName(snapshot.data);
-                } else {
-                  return _showDisplayName("Unknown");
-                }
-              },
-            ),
-          ),
           background: showAvatar(),
         ));
   }

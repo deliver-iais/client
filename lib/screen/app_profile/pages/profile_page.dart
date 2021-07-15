@@ -81,6 +81,19 @@ class _ProfilePageState extends State<ProfilePage>
     AppLocalization appLocalization = AppLocalization.of(context);
 
     return Scaffold(
+      appBar: AppBar(
+          elevation: 0,
+          title: Align(
+            alignment: Alignment.centerLeft,
+            child: FutureBuilder<String>(
+              future: _roomRepo.getName(widget.roomUid),
+              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                var name = snapshot.data ?? "Loading...";
+                return Text(name, style: Theme.of(context).textTheme.headline2);
+              },
+            ),
+          ),
+          leading: _routingService.backButtonLeading()),
       body: FluidContainerWidget(
         child: StreamBuilder<MediaMetaData>(
             stream:
