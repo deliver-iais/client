@@ -84,6 +84,8 @@ dependencies:
 
   file_picker:
 
+  logger: 1.0.0
+
   path_provider_ex: ^1.0.1
 
   overlay_support:

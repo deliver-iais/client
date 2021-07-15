@@ -7,10 +7,57 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/light.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
+class LogLevelHelper {
+  static String levelToString(Level level) {
+    switch (level) {
+      case Level.debug:
+        return "DEBUG";
+      case Level.verbose:
+        return "VERBOSE";
+      case Level.error:
+        return "ERROR";
+      case Level.info:
+        return "INFO";
+      case Level.warning:
+        return "WARNING";
+      case Level.wtf:
+        return "WTF";
+      case Level.nothing:
+        return "NOTHING";
+      default:
+        return "DEBUG";
+    }
+  }
+
+  static Level stringToLevel(String level) {
+    switch (level) {
+      case "DEBUG":
+        return Level.debug;
+      case "VERBOSE":
+        return Level.verbose;
+      case "ERROR":
+        return Level.error;
+      case "INFO":
+        return Level.info;
+      case "WARNING":
+        return Level.warning;
+      case "WTF":
+        return Level.wtf;
+      case "NOTHING":
+        return Level.nothing;
+      default:
+        return Level.debug;
+    }
+  }
+
+  static List<String> levels() =>
+      ["DEBUG", "VERBOSE", "ERROR", "INFO", "WARNING", "WTF", "NOTHING"];
+}
+
 class UxService {
-  Map tabIndexMap = new Map<String, int>();
   final _sharedDao = GetIt.I.get<SharedDao>();
 
   BehaviorSubject<ThemeData> _theme = BehaviorSubject.seeded(LightTheme);
@@ -20,7 +67,18 @@ class UxService {
 
   BehaviorSubject<Language> _language = BehaviorSubject.seeded(DefaultLanguage);
 
-  BehaviorSubject<String> _sendByEnter = BehaviorSubject.seeded(isDesktop() ? SEND_BY_ENTER : SEND_BY_SHIFT_ENTER);
+  BehaviorSubject<String> _sendByEnter =
+      BehaviorSubject.seeded(isDesktop() ? SEND_BY_ENTER : SEND_BY_SHIFT_ENTER);
+
+  UxService() {
+    _sharedDao
+        .getStream(SHARED_DAO_LOG_LEVEL, defaultValue: "DEBUG")
+        .map((event) => LogLevelHelper.stringToLevel(event))
+        .listen((level) => Logger.level = level);
+  }
+
+  // TODO ???
+  Map tabIndexMap = new Map<String, int>();
 
   get localeStream => _sharedDao.getStream(SHARED_DAO_LANGUAGE).map((event) {
         if (event != null) {
@@ -44,18 +102,6 @@ class UxService {
           } else {
             _theme.add(LightTheme);
             _extraTheme.add(LightExtraTheme);
-          }
-        }
-      });
-
-  get sendByEnterStream =>
-      _sharedDao.getStream(SHARED_DAO_SEND_BY_ENTER).map((event) {
-        if (event != null) {
-          var code = event;
-          if (code.contains(SEND_BY_SHIFT_ENTER)) {
-            _sendByEnter.add(SEND_BY_SHIFT_ENTER);
-          } else {
-            _sendByEnter.add(SEND_BY_ENTER);
           }
         }
       });
@@ -91,6 +137,10 @@ class UxService {
       _sharedDao.put(SHARED_DAO_SEND_BY_ENTER, SEND_BY_SHIFT_ENTER);
       _sendByEnter.add(SEND_BY_SHIFT_ENTER);
     }
+  }
+
+  changeLogLevel(String level) {
+    _sharedDao.put(SHARED_DAO_LOG_LEVEL, level);
   }
 
   changeLanguage(Language language) {

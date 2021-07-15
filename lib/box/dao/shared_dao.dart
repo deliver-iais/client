@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 abstract class SharedDao {
   Future<String> get(String key);
 
-  Stream<String> getStream(String key);
+  Stream<String> getStream(String key, {defaultValue: String});
 
   Future<void> put(String key, String value);
 
@@ -17,12 +17,12 @@ class SharedDaoImpl implements SharedDao {
     return box.get(key);
   }
 
-  Stream<String> getStream(String key) async* {
+  Stream<String> getStream(String key, {defaultValue: String}) async* {
     var box = await _open();
 
-    yield box.get(key);
+    yield box.get(key) ?? defaultValue;
 
-    yield* box.watch(key: key).map((event) => box.get(key));
+    yield* box.watch(key: key).map((event) => box.get(key) ?? defaultValue);
   }
 
   Future<void> put(String key, String value) async {

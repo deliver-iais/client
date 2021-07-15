@@ -199,5 +199,6 @@
   "add_contact": "Add Contact",
   "contact_exist": " is one of your contacts.",
   "contact_add": " Add in Contacts",
-  "qr_share": "Share by QR Code"
+  "qr_share": "Share by QR Code",
+  "about": "About"
 }

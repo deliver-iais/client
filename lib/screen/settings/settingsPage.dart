@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:dbus/dbus.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/models/account.dart';
 
@@ -27,6 +26,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:logger/logger.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key}) : super(key: key);
@@ -36,6 +36,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final _logger = Logger();
+
   final _uxService = GetIt.I.get<UxService>();
 
   final _accountRepo = GetIt.I.get<AccountRepo>();
@@ -65,10 +67,6 @@ class _SettingsPageState extends State<SettingsPage> {
     } else {
       return false;
     }
-  }
-
-  void _changeLanguage(Language language) {
-    GetIt.I.get<UxService>().changeLanguage(language);
   }
 
   attachFile() async {
@@ -161,7 +159,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     IconButton(
                         icon: Icon(Icons.navigate_next),
                         onPressed: () async {
-                           _routingService.openAccountSettings();
+                          _routingService.openAccountSettings();
                         }),
                   ],
                 )),
@@ -227,9 +225,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 title: appLocalization.getTraslateValue("notification"),
                 child: FutureBuilder<String>(
                     future: _accountRepo.notification,
-                    builder: (c, notif) {
+                    builder: (c, notificationStatus) {
                       return Switch(
-                        value: (notif.data ?? "true").contains("false")
+                        value: (notificationStatus.data ?? "true")
+                                .contains("false")
                             ? false
                             : true,
                         activeColor: ExtraTheme.of(context).activeSwitch,
@@ -249,7 +248,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       style: TextStyle(color: ExtraTheme.of(context).textField),
                     ),
                     onChanged: (Language language) {
-                      _changeLanguage(language);
+                      _uxService.changeLanguage(language);
                     },
                     items: Language.languageList()
                         .map<DropdownMenuItem<Language>>(
@@ -259,13 +258,138 @@ class _SettingsPageState extends State<SettingsPage> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceEvenly,
                                     children: <Widget>[
-                                      Text(lang.flag),
-                                      Text(lang.name),
+                                      Text(lang.flag,
+                                          style: TextStyle(
+                                              color: ExtraTheme.of(context)
+                                                  .textField)),
+                                      Text(lang.name,
+                                          style: TextStyle(
+                                              color: ExtraTheme.of(context)
+                                                  .textField)),
                                     ],
                                   ),
                                 ))
                         .toList())),
+            if (isDeveloperMode)
+              settingsRow(context,
+                  iconData: Icons.bug_report_rounded,
+                  title: "Log Level",
+                  child: DropdownButton(
+                      hint: Text(
+                        LogLevelHelper.levelToString(Logger.level),
+                        style:
+                            TextStyle(color: ExtraTheme.of(context).textField),
+                      ),
+                      onChanged: (String level) {
+                        setState(() {
+                          _uxService.changeLogLevel(level);
+                        });
+                      },
+                      items: LogLevelHelper.levels()
+                          .map<DropdownMenuItem<String>>((level) =>
+                              DropdownMenuItem(
+                                  value: level,
+                                  child: Text(level,
+                                      style: TextStyle(
+                                          color: ExtraTheme.of(context)
+                                              .textField))))
+                          .toList())),
             Divider(),
+            settingsRow(
+              context,
+              iconData: Icons.copyright_outlined,
+              title: appLocalization.getTraslateValue("version"),
+              child: Row(
+                children: <Widget>[
+                  if (isDeveloperMode)
+                    FutureBuilder(
+                      future: SmsAutoFill().getAppSignature,
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          return GestureDetector(
+                            onTap: () => Clipboard.setData(ClipboardData(
+                                text: snapshot.data ?? "no hashcode - ")),
+                            child: Text(
+                              snapshot.data ?? "no hashcode - ",
+                              style: TextStyle(
+                                  color: ExtraTheme.of(context).textField,
+                                  fontSize: 13),
+                            ),
+                          );
+                        } else {
+                          return GestureDetector(
+                            onTap: () => Clipboard.setData(ClipboardData(
+                                text: snapshot.data ?? "no hashcode - ")),
+                            child: Text(
+                              "no hashcode - ",
+                              style: TextStyle(
+                                color: ExtraTheme.of(context).textField,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  GestureDetector(
+                    onTap: () async {
+                      _logger.d(developerModeCounterCountDown);
+                      developerModeCounterCountDown--;
+                      if (developerModeCounterCountDown < 1) {
+                        setState(() {
+                          isDeveloperMode = true;
+                        });
+                      }
+                    },
+                    child: FutureBuilder(
+                      future: PackageInfo.fromPlatform(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          return Text(
+                            snapshot.data.version ?? "",
+                            style: TextStyle(
+                                color: ExtraTheme.of(context).textField,
+                                fontSize: 13),
+                          );
+                        } else {
+                          return SizedBox.shrink();
+                        }
+                      },
+                    ),
+                  )
+                ],
+              ),
+            ),
+            settingsRow(
+              context,
+              iconData: Icons.info_outlined,
+              title: appLocalization.getTraslateValue("about"),
+              child: Row(
+                children: <Widget>[
+                  GestureDetector(
+                    onTap: () async {
+                      showAboutDialog(
+                          context: context,
+                          applicationIcon: Image(
+                            width: 50,
+                            height: 50,
+                            image: AssetImage(
+                                'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
+                          ),
+                          applicationName: APPLICATION_NAME,
+                          applicationVersion:
+                              (await PackageInfo.fromPlatform()).version,
+                          children: [
+                            TextButton(
+                                onPressed: () => launch(
+                                    "https://doc.deliver-co.ir/blogs/updates/"),
+                                child: Text("What's new"))
+                          ]);
+                    },
+                    child: Container(),
+                  )
+                ],
+              ),
+            ),
             settingsRow(context,
                 iconData: Icons.exit_to_app,
                 title: appLocalization.getTraslateValue("Log_out"),
@@ -338,87 +462,6 @@ class _SettingsPageState extends State<SettingsPage> {
                         }),
                   ],
                 )),
-            settingsRow(
-              context,
-              iconData: Icons.copyright_outlined,
-              title: appLocalization.getTraslateValue("version"),
-              child: Row(
-                children: <Widget>[
-                  if (isDeveloperMode)
-                    FutureBuilder(
-                      future: SmsAutoFill().getAppSignature,
-                      builder: (context, snapshot) {
-                        if (snapshot.data != null) {
-                          return GestureDetector(
-                            onTap: () => Clipboard.setData(ClipboardData(
-                                text: snapshot.data ?? "no hashcode - ")),
-                            child: Text(
-                              snapshot.data ?? "no hashcode - ",
-                              style: TextStyle(
-                                  color: ExtraTheme.of(context).textField,
-                                  fontSize: 13),
-                            ),
-                          );
-                        } else {
-                          return GestureDetector(
-                            onTap: () => Clipboard.setData(ClipboardData(
-                                text: snapshot.data ?? "no hashcode - ")),
-                            child: Text(
-                              "no hashcode - ",
-                              style: TextStyle(
-                                color: ExtraTheme.of(context).textField,
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  GestureDetector(
-                    onTap: () async {
-                      var version = (await PackageInfo.fromPlatform()).version;
-                      showAboutDialog(
-                          context: context,
-                          applicationIcon: Image(
-                            width: 50,
-                            height: 50,
-                            image: AssetImage(
-                                'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
-                          ),
-                          applicationName: APPLICATION_NAME,
-                          applicationVersion: version,
-                          children: [
-                            TextButton(
-                                onPressed: () => launch(
-                                    "https://doc.deliver-co.ir/blogs/updates/"),
-                                child: Text("What's new"))
-                          ]);
-                      print(developerModeCounterCountDown);
-                      developerModeCounterCountDown--;
-                      if (developerModeCounterCountDown < 1) {
-                        setState(() {
-                          isDeveloperMode = true;
-                        });
-                      }
-                    },
-                    child: FutureBuilder(
-                      future: PackageInfo.fromPlatform(),
-                      builder: (context, snapshot) {
-                        if (snapshot.data != null) {
-                          return Text(
-                            snapshot.data.version ?? "",
-                            style: TextStyle(
-                                color: ExtraTheme.of(context).textField,
-                                fontSize: 13),
-                          );
-                        } else {
-                          return SizedBox.shrink();
-                        }
-                      },
-                    ),
-                  )
-                ],
-              ),
-            ),
           ]),
         ));
   }

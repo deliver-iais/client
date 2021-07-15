@@ -4,10 +4,8 @@ import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/lastActivityRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/app-chats/widgets/unread_message_counter.dart';
 import 'package:deliver_flutter/shared/activity_status.dart';
 import 'package:deliver_flutter/shared/functions.dart';
-import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
@@ -16,11 +14,10 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 import 'contactPic.dart';
 import 'lastMessage.dart';
-
-enum MessageDirection { SENT, RECEIVED }
 
 class ChatItem extends StatefulWidget {
   final Room room;
@@ -49,10 +46,10 @@ class _ChatItemState extends State<ChatItem> {
   Widget build(BuildContext context) {
     _roomRepo.initActivity(widget.room.uid.asUid().node);
     AppLocalization _appLocalization = AppLocalization.of(context);
-    MessageDirection messageDir =
-        widget.room.lastMessage.from.isSameEntity(_accountRepo.currentUserUid)
-            ? MessageDirection.SENT
-            : MessageDirection.RECEIVED;
+
+    var logger = Logger();
+
+    logger.d("Logger is working!");
 
     return FutureBuilder<String>(
         future: _roomRepo.getName(widget.room.uid.asUid()),
@@ -176,7 +173,7 @@ class _ChatItemState extends State<ChatItem> {
           } else
             return Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),
+                  const EdgeInsets.symmetric(horizontal: 0.0, vertical: 11.0),
               child: Row(
                 children: [
                   Container(
