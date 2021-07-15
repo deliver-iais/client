@@ -5,12 +5,15 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+
+import '../floating_modal_bottom_sheet.dart';
 
 class ProfileAvatarCard extends StatelessWidget {
   final Uid uid;
@@ -33,31 +36,66 @@ class ProfileAvatarCard extends StatelessWidget {
           child: Column(
             children: [
               GestureDetector(
-                child: Hero(
-                  tag: "avatar",
-                  child: newAvatarPath != null
-                      ? CircleAvatar(
-                          radius: 80,
-                          backgroundImage:
-                              Image.file(File(newAvatarPath)).image,
-                          child: Center(
-                            child: SizedBox(
-                                height: 50.0,
-                                width: 50.0,
-                                child: uploadNewAvatar
-                                    ? CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation(Colors.blue),
-                                        strokeWidth: 6.0,
-                                      )
-                                    : SizedBox.shrink()),
-                          ),
-                        )
-                      : CircleAvatarWidget(
-                          uid,
-                          80,
-                          showAsStreamOfAvatar: true,
-                        ),
+                child: Container(
+                  width: 160,
+                  height: 160,
+                  child: Stack(
+                    children: [
+                      Hero(
+                        tag: "avatar",
+                        child: newAvatarPath != null
+                            ? CircleAvatar(
+                                radius: 80,
+                                backgroundImage:
+                                    Image.file(File(newAvatarPath)).image,
+                                child: Center(
+                                  child: SizedBox(
+                                      height: 50.0,
+                                      width: 50.0,
+                                      child: uploadNewAvatar
+                                          ? CircularProgressIndicator(
+                                              valueColor:
+                                                  AlwaysStoppedAnimation(
+                                                      Colors.blue),
+                                              strokeWidth: 6.0,
+                                            )
+                                          : SizedBox.shrink()),
+                                ),
+                              )
+                            : CircleAvatarWidget(
+                                uid,
+                                80,
+                                showAsStreamOfAvatar: true,
+                              ),
+                      ),
+                      Align(
+                          alignment: Alignment.bottomRight,
+                          child: Container(
+                            padding: const EdgeInsets.all(2.0),
+                            color: ExtraTheme.of(context).profileAvatarCard,
+                            child: IconButton(
+                              // color: ,
+                              onPressed: () async {
+                                var account = await _accountRepo.getAccount();
+                                showQrCode(
+                                    context,
+                                    buildShareUserUrl(
+                                        account.countryCode,
+                                        account.nationalNumber,
+                                        account.firstName,
+                                        account.lastName));
+                              },
+                              padding: EdgeInsets.zero,
+                              iconSize: 34,
+                              icon: Container(
+                                color: Theme.of(context).cardColor,
+                                child: Icon(Icons.qr_code_rounded,
+                                    color: Colors.white),
+                              ),
+                            ),
+                          ))
+                    ],
+                  ),
                 ),
                 onTap: () async {
                   var lastAvatar = await _avatarRepo.getLastAvatar(
@@ -79,8 +117,10 @@ class ProfileAvatarCard extends StatelessWidget {
                     (BuildContext context, AsyncSnapshot<Account> snapshot) {
                   if (snapshot.data != null) {
                     return Text(
-                      "${snapshot.data.firstName }${snapshot.data.lastName ?? ""}",
-                      style: TextStyle(fontSize: 25,color: ExtraTheme.of(context).textField),
+                      "${snapshot.data.firstName}${snapshot.data.lastName ?? ""}",
+                      style: TextStyle(
+                          fontSize: 25,
+                          color: ExtraTheme.of(context).textField),
                     );
                   } else {
                     return SizedBox.shrink();

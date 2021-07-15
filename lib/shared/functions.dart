@@ -4,8 +4,8 @@ import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/share_uid_message_widget.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +50,13 @@ String buildName(String firstName, String lastName) {
   return res.trim();
 }
 
+String buildPhoneNumber(String countryCode, String nationalNumber) =>
+    "+$countryCode-$nationalNumber";
+
+String buildShareUserUrl(String countryCode, String nationalNumber,
+        String firstName, String lastName) =>
+    "$APPLICATION_DOMAIN/ac?cc=$countryCode&nn=$nationalNumber&fn=$firstName&ln=$lastName";
+
 Future<void> handleUri(String initialLink, BuildContext context) async {
   var _mucDao = GetIt.I.get<MucDao>();
   var _messageRepo = GetIt.I.get<MessageRepo>();
@@ -79,8 +86,7 @@ Future<void> handleUri(String initialLink, BuildContext context) async {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              CircleAvatarWidget(mucUid, 40,
-                  forceText: "un"),
+              CircleAvatarWidget(mucUid, 40, forceText: "un"),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -93,17 +99,17 @@ Future<void> handleUri(String initialLink, BuildContext context) async {
                     color: Colors.blueAccent,
                     onPressed: () async {
                       if (mucUid.category == Categories.GROUP) {
-                        Muc  muc =
+                        Muc muc =
                             await _mucRepo.joinGroup(mucUid, m[6].toString());
                         if (muc != null) {
-                          _messageRepo.updateNewMuc(mucUid,muc.lastMessageId);
+                          _messageRepo.updateNewMuc(mucUid, muc.lastMessageId);
                           _routingService.openRoom(mucUid.asString());
                           Navigator.of(context).pop();
                         }
                       } else {
                         Muc muc = await _mucRepo.joinChannel(mucUid, m[6]);
                         if (muc != null) {
-                          _messageRepo.updateNewMuc(mucUid,muc.lastMessageId);
+                          _messageRepo.updateNewMuc(mucUid, muc.lastMessageId);
                           _routingService.openRoom(mucUid.asString());
                           Navigator.of(context).pop();
                         }

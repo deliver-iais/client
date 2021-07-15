@@ -72,7 +72,7 @@ class UxService {
 
   UxService() {
     _sharedDao
-        .getStream(SHARED_DAO_LOG_LEVEL, defaultValue: "DEBUG")
+        .getStream(SHARED_DAO_LOG_LEVEL, defaultValue: "ERROR")
         .map((event) => LogLevelHelper.stringToLevel(event))
         .listen((level) => Logger.level = level);
   }

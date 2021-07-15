@@ -30,7 +30,7 @@ class AccountRepo {
   final _logger = Logger();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final QueryServiceClient _queryServiceClient =
-  GetIt.I.get<QueryServiceClient>();
+      GetIt.I.get<QueryServiceClient>();
 
   // TODO add account name protocol to server
   String currentUsername = "@john_doe";
@@ -172,7 +172,8 @@ class AccountRepo {
     if (((expTime.millisecondsSinceEpoch - iatTime.millisecondsSinceEpoch) <
         29 * 24 * 60 * 60 * 1000)) {
       var messageRepo = GetIt.I.get<MessageRepo>();
-      if (kDebugMode) messageRepo.sendErrorMessage_DEBUG_MODE_("refreshTonken = $token");
+      if (kDebugMode)
+        messageRepo.sendErrorMessage_DEBUG_MODE_("refreshTonken = $token");
       return true;
     }
     return false;
@@ -262,7 +263,8 @@ class AccountRepo {
 
   Future<Account> getAccount() async {
     return Account()
-      ..phoneNumber = await _sharedDao.get(SHARED_DAO_PHONE_NUMBER)
+      ..countryCode = await _sharedDao.get(SHARED_DAO_COUNTRY_CODE)
+      ..nationalNumber = await _sharedDao.get(SHARED_DAO_NATIONAL_NUMBER)
       ..userName = await _sharedDao.get(SHARED_DAO_USERNAME)
       ..firstName = await _sharedDao.get(SHARED_DAO_FIRST_NAME)
       ..lastName = await _sharedDao.get(SHARED_DAO_LAST_NAME)
@@ -272,7 +274,6 @@ class AccountRepo {
   }
 
   Future<bool> checkUserName(String username) async {
-
     var checkUsernameRes = await _queryServiceClient.idIsAvailable(
         IdIsAvailableReq()..id = username,
         options:
@@ -327,8 +328,10 @@ class AccountRepo {
   }
 
   _savePhoneNumber() {
-    _sharedDao.put(SHARED_DAO_PHONE_NUMBER,
-        "${this.phoneNumber.countryCode}${this.phoneNumber.nationalNumber}");
+    _sharedDao.put(
+        SHARED_DAO_COUNTRY_CODE, this.phoneNumber.countryCode.toString());
+    _sharedDao.put(
+        SHARED_DAO_NATIONAL_NUMBER, this.phoneNumber.nationalNumber.toString());
   }
 
   setNotificationState(String n) {

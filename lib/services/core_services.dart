@@ -38,7 +38,7 @@ import 'package:fixnum/fixnum.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
-const MIN_BACKOFF_TIME = 2;
+const MIN_BACKOFF_TIME = 4;
 const MAX_BACKOFF_TIME = 8;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
@@ -132,7 +132,7 @@ class CoreServices {
                 metadata: {'access_token': await _accountRepo.getAccessToken()},
               ));
       _responseStream.listen((serverPacket) async {
-        _logger.d(serverPacket.toString());
+        _logger.d(serverPacket);
         gotResponse();
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:

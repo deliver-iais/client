@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
@@ -7,6 +5,7 @@ import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 
 import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -16,52 +15,11 @@ import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+
 
 import 'msgTime.dart';
 
-class FloatingModal extends StatelessWidget {
-  final Widget child;
-  final Color backgroundColor;
 
-  const FloatingModal({Key key, this.child, this.backgroundColor})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      heightFactor: 1,
-      child: Container(
-        width: min(MediaQuery.of(context).size.width, 400),
-        // height: 100,
-        child: Material(
-          color: backgroundColor,
-          clipBehavior: Clip.antiAlias,
-          borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(20),
-              topRight: const Radius.circular(20)),
-          child: child,
-        ),
-      ),
-    );
-  }
-}
-
-Future<T> showFloatingModalBottomSheet<T>({
-  BuildContext context,
-  WidgetBuilder builder,
-  Color backgroundColor,
-}) async {
-  final result = await showCustomModalBottomSheet(
-      context: context,
-      builder: builder,
-      containerWidget: (_, animation, child) => FloatingModal(
-            child: child,
-          ),
-      expand: false);
-
-  return result;
-}
 
 class ShareUidMessageWidget extends StatelessWidget {
   final Message message;

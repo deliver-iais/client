@@ -19,14 +19,16 @@ ThemeData LightTheme =
         focusColor: Color(0xff179c96).withOpacity(0.5),
         cardColor: Color(0xff489088),
         textTheme: TextTheme(
-          headline1: TextStyle(color: Colors.white, fontSize: 40),
+          headline1: TextStyle(color: Colors.black, fontSize: 40),
           headline2: TextStyle(
               color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold),
           headline3: TextStyle(color: Colors.black, fontSize: 20),
-          headline4: TextStyle(color: Colors.white, fontSize: 14),
-          headline5: TextStyle(color: Colors.black, fontSize: 24),
+          headline4: TextStyle(color: Colors.black, fontSize: 18),
+          headline6: TextStyle(color: Colors.black, fontSize: 15),
           bodyText2: TextStyle(color: Colors.black, fontSize: 15),
         ),
+        dialogTheme: DialogTheme(
+            titleTextStyle: TextStyle(color: Colors.black, fontSize: 18)),
         appBarTheme: AppBarTheme(
             color: Colors.white,
             elevation: 0,
@@ -49,7 +51,6 @@ ThemeData LightTheme =
 
 // ignore: non_constant_identifier_names
 ExtraThemeData LightExtraTheme = ExtraThemeData(
-  circleAvatarBackground: Color(0xFF2699FB),
   centerPageDetails: Color(0xff0b796c),
   circleAvatarIcon: Colors.white,
   // secondColor: Colors.white,

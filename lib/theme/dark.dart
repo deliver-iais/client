@@ -22,8 +22,12 @@ ThemeData DarkTheme =
           headline2: TextStyle(
               color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
           headline3: TextStyle(color: Colors.white, fontSize: 20),
-          headline4: TextStyle(color: Colors.white, fontSize: 14),
+          headline4: TextStyle(color: Colors.white, fontSize: 18),
+          headline6: TextStyle(color: Colors.white, fontSize: 15),
+          bodyText2: TextStyle(color: Colors.white, fontSize: 15),
         ),
+        dialogTheme: DialogTheme(
+            titleTextStyle: TextStyle(color: Colors.white, fontSize: 18)),
         appBarTheme: AppBarTheme(
           color: Colors.black,
           elevation: 0,
@@ -45,7 +49,6 @@ ThemeData DarkTheme =
 
 // ignore: non_constant_identifier_names
 ExtraThemeData DarkExtraTheme = ExtraThemeData(
-    circleAvatarBackground: Color(0xFF2699FB),
     centerPageDetails: Color(0xFF9D9D9D),
     circleAvatarIcon: Colors.white,
     // active: Colors.white,
@@ -73,7 +76,6 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     textMessage: Colors.white,
     messageDetails: Color(0xFF001D39),
     titleStatus: Colors.blue,
-
     persistentEventMessage: DarkTheme.accentColor.withAlpha(50),
     circularFileStatus: Color(0xFFBCE0FD),
     fileMessageDetails: DarkTheme.primaryColor,
@@ -83,6 +85,5 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     profileAvatarCard: DarkTheme.accentColor.withAlpha(50),
     inputBoxBackground: DarkTheme.accentColor.withAlpha(50),
     pinMessageTheme: Color(0xFF263238),
-    mentionWidget:Color(0xFF263238),
+    mentionWidget: Color(0xFF263238),
     border: DarkTheme.primaryColor);
-

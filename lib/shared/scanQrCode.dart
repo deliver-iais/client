@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/share_uid_message_widget.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as C;
@@ -65,61 +65,59 @@ class _ScanQrCode extends State<ScanQrCode> {
         children: <Widget>[
           Container(
               width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height/2,
+              height: MediaQuery.of(context).size.height / 2,
               child: _buildQrView(context)),
           Expanded(
             flex: 1,
-
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  StreamBuilder<bool>(
-                      stream: _mucJoinQrCode.stream,
-                      builder: (c, s) {
-                        if (s.hasData && s.data) {
-                          handleUri(_message, context);
-                          return SizedBox.shrink();
-                        } else {
-                          return SizedBox.shrink();
-                        }
-                      }),
-                  StreamBuilder<bool>(
-                      stream: _sendMessageToBotQrCode.stream,
-                      builder: (c, s) {
-                        if (s.hasData && s.data) {
-                          //   handleUri(mucJoinUrl, context);
-                          return SizedBox.shrink();
-                        } else {
-                          return SizedBox.shrink();
-                        }
-                      }),
-                  StreamBuilder<bool>(
-                      stream: _sendAccessPrivateDataQrCode.stream,
-                      builder: (c, s) {
-                        if (s.hasData && s.data) {
-                          //    handleUri(mucJoinUrl, context);
-                          return SizedBox.shrink();
-                        } else {
-                          return SizedBox.shrink();
-                        }
-                      }),
-                  StreamBuilder<bool>(
-                      stream: _addContact.stream,
-                      builder: (c, s) {
-                        if (s.hasData && s.data) {
-                          handleAddContact(
-                              context: context,
-                              countryCode: _contactDetails[0].split("=")[1],
-                              nationalNumber: _contactDetails[1].split("=")[1],
-                              firstName: _contactDetails[2].split("=")[1],
-                              lastName: _contactDetails[3].split("=")[1]);
-                          return SizedBox.shrink();
-                        } else {
-                          return SizedBox.shrink();
-                        }
-                      }),
-                ],
-
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                StreamBuilder<bool>(
+                    stream: _mucJoinQrCode.stream,
+                    builder: (c, s) {
+                      if (s.hasData && s.data) {
+                        handleUri(_message, context);
+                        return SizedBox.shrink();
+                      } else {
+                        return SizedBox.shrink();
+                      }
+                    }),
+                StreamBuilder<bool>(
+                    stream: _sendMessageToBotQrCode.stream,
+                    builder: (c, s) {
+                      if (s.hasData && s.data) {
+                        //   handleUri(mucJoinUrl, context);
+                        return SizedBox.shrink();
+                      } else {
+                        return SizedBox.shrink();
+                      }
+                    }),
+                StreamBuilder<bool>(
+                    stream: _sendAccessPrivateDataQrCode.stream,
+                    builder: (c, s) {
+                      if (s.hasData && s.data) {
+                        //    handleUri(mucJoinUrl, context);
+                        return SizedBox.shrink();
+                      } else {
+                        return SizedBox.shrink();
+                      }
+                    }),
+                StreamBuilder<bool>(
+                    stream: _addContact.stream,
+                    builder: (c, s) {
+                      if (s.hasData && s.data) {
+                        handleAddContact(
+                            context: context,
+                            countryCode: _contactDetails[0].split("=")[1],
+                            nationalNumber: _contactDetails[1].split("=")[1],
+                            firstName: _contactDetails[2].split("=")[1],
+                            lastName: _contactDetails[3].split("=")[1]);
+                        return SizedBox.shrink();
+                      } else {
+                        return SizedBox.shrink();
+                      }
+                    }),
+              ],
             ),
           )
         ],
@@ -203,7 +201,9 @@ class _ScanQrCode extends State<ScanQrCode> {
                 AppLocalization.of(context)
                     .getTraslateValue("sure_add_contact"),
                 style: TextStyle(
-                    color: ExtraTheme.of(context).textField, fontSize: 20,),
+                  color: ExtraTheme.of(context).textField,
+                  fontSize: 20,
+                ),
               ),
               SizedBox(
                 height: 20,

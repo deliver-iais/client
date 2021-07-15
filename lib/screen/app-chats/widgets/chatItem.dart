@@ -80,50 +80,50 @@ class _ChatItemState extends State<ChatItem> {
                             if (widget.room.uid.asUid().category ==
                                 Categories.GROUP)
                               Flexible(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 4.0),
-                                  child: Icon(
-                                    Icons.group_rounded,
-                                    size: 16,
-                                  ),
+                                child: Icon(
+                                  Icons.group_rounded,
+                                  size: 16,
                                 ),
                               ),
                             if (widget.room.uid.asUid().category ==
                                 Categories.CHANNEL)
                               Flexible(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 4.0),
-                                  child: Icon(
-                                    Icons.rss_feed_rounded,
-                                    size: 16,
-                                  ),
+                                child: Icon(
+                                  Icons.rss_feed_rounded,
+                                  size: 16,
                                 ),
                               ),
                             if (widget.room.uid.asUid().category ==
                                 Categories.BOT)
                               Flexible(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 4.0),
-                                  child: Icon(
-                                    Icons.smart_toy_rounded,
-                                    size: 16,
-                                  ),
+                                child: Icon(
+                                  Icons.smart_toy_rounded,
+                                  size: 16,
                                 ),
                               ),
                             Expanded(
-                                flex: 16,
-                                child: widget.room.uid
-                                        .asUid()
-                                        .toString()
-                                        .contains(_accountRepo.currentUserUid
-                                            .toString())
-                                    ? _showDisplayName(
-                                        widget.room.uid.asUid(),
-                                        _appLocalization
-                                            .getTraslateValue("saved_message"),
-                                        context)
-                                    : _showDisplayName(widget.room.uid.asUid(),
-                                        name.data, context)),
+                                flex: 50,
+                                child: Padding(
+                                    padding: (widget.room.uid.asUid().category ==
+                                                Categories.GROUP) ||
+                                            (widget.room.uid.asUid().category ==
+                                                Categories.CHANNEL) ||
+                                            (widget.room.uid.asUid().category ==
+                                                Categories.BOT)
+                                        ? const EdgeInsets.only(left: 16.0)
+                                        : EdgeInsets.zero,
+                                    child: widget.room.uid
+                                            .asUid()
+                                            .toString()
+                                            .contains(_accountRepo
+                                                .currentUserUid
+                                                .toString())
+                                        ? _showDisplayName(
+                                            widget.room.uid.asUid(),
+                                            _appLocalization.getTraslateValue(
+                                                "saved_message"),
+                                            context)
+                                        : _showDisplayName(widget.room.uid.asUid(), name.data, context))),
                             Text(
                               dateTimeFormat(
                                   date(widget.room.lastMessage.time)),

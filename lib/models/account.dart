@@ -1,5 +1,7 @@
 class Account {
-  String phoneNumber;
+  String countryCode;
+
+  String nationalNumber;
 
   String userName;
 

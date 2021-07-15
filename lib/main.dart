@@ -96,7 +96,6 @@ Future<void> setupDI() async {
   Hive.registerAdapter(MediaMetaDataAdapter());
   Hive.registerAdapter(MediaTypeAdapter());
 
-
   GetIt getIt = GetIt.instance;
   getIt.registerSingleton<AvatarDao>(AvatarDaoImpl());
   getIt.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
@@ -113,9 +112,6 @@ Future<void> setupDI() async {
   getIt.registerSingleton<RoomDao>(RoomDaoImpl());
   getIt.registerSingleton<MediaDao>(MediaDaoImpl());
   getIt.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
-
-
-
 
   // Order is important, don't change it!
   getIt.registerSingleton<UxService>(UxService());
@@ -168,7 +164,6 @@ void setupDIAndRunApp() async {
   } catch(e){
     Logger().e(e);
   }
-
 
   // TODO: Android just now is available
 
