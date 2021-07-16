@@ -3,7 +3,7 @@
 import 'package:auto_route/auto_route_annotations.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
 import 'package:deliver_flutter/screen/home/pages/home_page.dart';
-import 'package:deliver_flutter/screen/app-contacts/widgets/new_Contact.dart';
+import 'package:deliver_flutter/screen/app-contacts/widgets/new_contact.dart';
 import 'package:deliver_flutter/screen/register/pages/login_page.dart';
 import 'package:deliver_flutter/screen/register/pages/verification_page.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/showImage_Widget.dart';

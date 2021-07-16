@@ -231,80 +231,67 @@ class _NavigationCenterState extends State<NavigationCenter> {
           shape: BoxShape.circle,
           color: ExtraTheme.of(context).menuIconButton,
         ),
-        child: tab == NavigationTabs.Chats
-            ? PopupMenuButton(
-                color: ExtraTheme.of(context).popupMenuButton,
-                icon: Icon(
-                  Icons.create,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Colors.black,
-                ),
-                onSelected: selectChatMenu,
-                itemBuilder: (context) => [
-                      PopupMenuItem<String>(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Icon(
-                                Icons.group,
-                                color: ExtraTheme.of(context)
-                                    .popupMenuButtonDetails,
-                              ),
-                              SizedBox(
-                                width: 15,
-                              ),
-                              Text(
-                                appLocalization.getTraslateValue("newGroup"),
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    color: ExtraTheme.of(context)
-                                        .popupMenuButtonDetails),
-                              ),
-                            ],
+        child: PopupMenuButton(
+            color: ExtraTheme.of(context).popupMenuButton,
+            icon: Icon(
+              Icons.create,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.black,
+            ),
+            onSelected: selectChatMenu,
+            itemBuilder: (context) => [
+                  PopupMenuItem<String>(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.group,
+                            color:
+                                ExtraTheme.of(context).popupMenuButtonDetails,
                           ),
-                        ),
-                        value: "newGroup",
+                          SizedBox(
+                            width: 15,
+                          ),
+                          Text(
+                            appLocalization.getTraslateValue("newGroup"),
+                            style: TextStyle(
+                                fontSize: 15,
+                                color: ExtraTheme.of(context)
+                                    .popupMenuButtonDetails),
+                          ),
+                        ],
                       ),
-                      PopupMenuItem<String>(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Image.asset(
-                              "assets/icons/channel_icon.png",
-                              width: 25,
-                              height: 25,
-                              color:
-                                  ExtraTheme.of(context).popupMenuButtonDetails,
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            Text(
-                              appLocalization.getTraslateValue("newChannel"),
-                              style: TextStyle(
-                                  fontSize: 15,
-                                  color: ExtraTheme.of(context)
-                                      .popupMenuButtonDetails),
-                            )
-                          ],
+                    ),
+                    value: "newGroup",
+                  ),
+                  PopupMenuItem<String>(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Image.asset(
+                          "assets/icons/channel_icon.png",
+                          width: 25,
+                          height: 25,
+                          color: ExtraTheme.of(context).popupMenuButtonDetails,
                         ),
-                        value: "newChannel",
-                      )
-                    ])
-            : IconButton(
-                color: ExtraTheme.of(context).popupMenuButton,
-                onPressed: () {
-                  _routingService.openCreateNewContactPage();
-                },
-                icon: Icon(
-                  Icons.add,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Colors.black,
-                )));
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Text(
+                          appLocalization.getTraslateValue("newChannel"),
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: ExtraTheme.of(context)
+                                  .popupMenuButtonDetails),
+                        )
+                      ],
+                    ),
+                    value: "newChannel",
+                  )
+                ]));
   }
 
   selectChatMenu(String key) {

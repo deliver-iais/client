@@ -39,7 +39,7 @@ class _NewContactState extends State<NewContact> {
       appBar: AppBar(
         leading: _routingServices.backButtonLeading(),
         title: Text(
-          _appLocalization.getTraslateValue("newContact"),
+          _appLocalization.getTraslateValue("add_new_contact"),
           style: TextStyle(fontSize: 20),
         ),
         actions: [
