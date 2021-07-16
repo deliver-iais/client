@@ -95,6 +95,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                           .primaryColor,
                                                       size: 35,
                                                     ),
+                                                    onPressed: () {},
                                                   ),
                                                 )),
                                             Expanded(

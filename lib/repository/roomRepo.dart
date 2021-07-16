@@ -10,6 +10,7 @@ import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
@@ -23,7 +24,6 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -32,18 +32,19 @@ Cache<String, String> roomNameCache =
 
 class RoomRepo {
   final _logger = Logger();
-  var _roomDao = GetIt.I.get<RoomDao>();
-  var _seenDao = GetIt.I.get<SeenDao>();
-  var _muteDao = GetIt.I.get<MuteDao>();
-  var _blockDao = GetIt.I.get<BlockDao>();
-  var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
-  var _contactRepo = GetIt.I.get<ContactRepo>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _queryServiceClient = GetIt.I.get<QueryServiceClient>();
-  var _mucRepo = GetIt.I.get<MucRepo>();
-  var _botRepo = GetIt.I.get<BotRepo>();
+  final _roomDao = GetIt.I.get<RoomDao>();
+  final _seenDao = GetIt.I.get<SeenDao>();
+  final _muteDao = GetIt.I.get<MuteDao>();
+  final _blockDao = GetIt.I.get<BlockDao>();
+  final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
+  final _contactRepo = GetIt.I.get<ContactRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
+  final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
+  final _botRepo = GetIt.I.get<BotRepo>();
 
-  Map<String, BehaviorSubject<Activity>> activityObject = Map();
+  final Map<String, BehaviorSubject<Activity>> activityObject = Map();
 
   insertRoom(String uid) => _roomDao.updateRoom(Room(uid: uid));
 
@@ -54,7 +55,7 @@ class RoomRepo {
     }
 
     // Is Current User
-    if (_accountRepo.isCurrentUser(uid.asString())) {
+    if (_authRepo.isCurrentUser(uid.asString())) {
       return await _accountRepo.getName();
     }
 
@@ -141,10 +142,8 @@ class RoomRepo {
 
   Future<String> getIdByUid(Uid uid) async {
     try {
-      var result = await _queryServiceClient.getIdByUid(
-          GetIdByUidReq()..uid = uid,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      var result =
+          await _queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
       _uidIdNameDao.update(uid.asString(), id: result.id);
       return result.id;
     } catch (e) {
@@ -214,23 +213,17 @@ class RoomRepo {
   Future<void> saveMySeen(Seen seen) => _seenDao.saveMySeen(seen);
 
   void block(String uid) async {
-    await _queryServiceClient.block(BlockReq()..uid = uid.asUid(),
-        options: CallOptions(
-            metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    await _queryServiceClient.block(BlockReq()..uid = uid.asUid());
     _blockDao.block(uid);
   }
 
   void unblock(String uid) async {
-    await _queryServiceClient.unblock(UnblockReq()..uid = uid.asUid(),
-        options: CallOptions(
-            metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    await _queryServiceClient.unblock(UnblockReq()..uid = uid.asUid());
     _blockDao.unblock(uid);
   }
 
   fetchBlockedRoom() async {
-    var result = await _queryServiceClient.getBlockedList(GetBlockedListReq(),
-        options: CallOptions(
-            metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    var result = await _queryServiceClient.getBlockedList(GetBlockedListReq());
     for (var uid in result.uidList) {
       _blockDao.block(uid.asString());
     }
@@ -275,17 +268,13 @@ class RoomRepo {
   }
 
   Future<Uid> fetchUidById(String username) async {
-    var result = await _queryServiceClient.getUidById(
-        GetUidByIdReq()..id = username,
-        options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()}));
+    var result =
+        await _queryServiceClient.getUidById(GetUidByIdReq()..id = username);
 
     return result.uid;
   }
 
   void reportRoom(Uid roomUid) async {
-    _queryServiceClient.report(ReportReq()..uid = roomUid,
-        options: CallOptions(
-            metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    _queryServiceClient.report(ReportReq()..uid = roomUid);
   }
 }

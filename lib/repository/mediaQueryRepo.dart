@@ -6,10 +6,7 @@ import 'package:deliver_flutter/box/media_meta_data.dart';
 import 'package:deliver_flutter/box/media.dart';
 import 'package:deliver_flutter/box/media_type.dart';
 
-import 'package:deliver_flutter/repository/accountRepo.dart';
-
 import 'package:get_it/get_it.dart';
-import 'package:grpc/grpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart' as queryObject;
 import 'package:deliver_public_protocol/pub/v1/models/media.pb.dart'
@@ -22,7 +19,6 @@ import 'package:logger/logger.dart';
 class MediaQueryRepo {
   final _logger = Logger();
   final _mediaQueriesDao = GetIt.I.get<MediaDao>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   final QueryServiceClient _queryServiceClient =
@@ -34,10 +30,8 @@ class MediaQueryRepo {
 
   getMediaMetaDataReq(Uid uid) async {
     try {
-      var mediaResponse = await _queryServiceClient.getMediaMetadata(
-          GetMediaMetadataReq()..with_1 = uid,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      var mediaResponse = await _queryServiceClient
+          .getMediaMetadata(GetMediaMetadataReq()..with_1 = uid);
       insertMediaMetaData(uid, mediaResponse);
     } catch (e) {
       _logger.e(e);
@@ -103,9 +97,7 @@ class MediaQueryRepo {
     getMediaReq..fetchingDirectionType = directionType;
     getMediaReq..limit = 30;
     try {
-      var getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      var getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq);
       List<Media> medias =
           await _saveFetchedMedias(getMediasRes.medias, roomId, mediaType);
       return medias;

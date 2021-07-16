@@ -1,5 +1,5 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
@@ -14,7 +14,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 class UserAppbar extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   final Uid userUid;
 
@@ -36,7 +36,7 @@ class UserAppbar extends StatelessWidget {
               SizedBox(
                 width: 15,
               ),
-              _accountRepo.isCurrentUser(userUid.asString())
+              _authRepo.isCurrentUser(userUid.asString())
                   ? Text(
                       i18n.getTraslateValue("saved_message"),
                       style: Theme.of(context).textTheme.headline3,

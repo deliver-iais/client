@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
@@ -20,6 +21,7 @@ class VerificationPage extends StatefulWidget {
 
 class _VerificationPageState extends State<VerificationPage> {
   final _logger = Logger();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
@@ -41,10 +43,10 @@ class _VerificationPageState extends State<VerificationPage> {
       _showError = false;
     });
     FocusScope.of(context).requestFocus(FocusNode());
-    var result = _accountRepo.sendVerificationCode(_verificationCode);
+    var result = _authRepo.sendVerificationCode(_verificationCode);
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
-        _accountRepo.saveTokens(accessTokenResponse);
+        _authRepo.saveTokens(accessTokenResponse);
         _fireBaseServices.sendFireBaseToken();
         _accountRepo.setNotificationState("true");
         _navigationToHome();

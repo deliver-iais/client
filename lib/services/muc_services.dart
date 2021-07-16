@@ -1,8 +1,6 @@
 import 'package:fixnum/fixnum.dart';
 
 import 'package:deliver_flutter/box/message.dart' as db;
-import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart'
     as ChannelServices;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
@@ -19,24 +17,19 @@ import 'package:grpc/grpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
 
+// TODO check timeout time again!!!!
 class MucServices {
   final _logger = Logger();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
 
-  final groupServices =
-      GroupServices.GroupServiceClient(MucServicesClientChannel);
-  final channelServices =
-      ChannelServices.ChannelServiceClient(MucServicesClientChannel);
+  final groupServices = GetIt.I.get<GroupServices.GroupServiceClient>();
+  final channelServices = GetIt.I.get<ChannelServices.ChannelServiceClient>();
 
   Future<Uid> createNewGroup(String groupName, String info) async {
     try {
-      var request = await groupServices.createGroup(
-          GroupServices.CreateGroupReq()
+      var request =
+          await groupServices.createGroup(GroupServices.CreateGroupReq()
             ..name = groupName
-            ..info = info,
-          options: CallOptions(
-              timeout: Duration(seconds: 5),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+            ..info = info);
       return request.uid;
     } catch (e) {
       return null;
@@ -52,9 +45,7 @@ class MucServices {
     addMemberRequest..group = groupUid;
     try {
       await groupServices.addMembers(addMemberRequest,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()},
-              timeout: Duration(seconds: 4)));
+          options: CallOptions(timeout: Duration(seconds: 4)));
 
       return true;
     } catch (e) {
@@ -65,12 +56,8 @@ class MucServices {
 
   Future<GroupServices.GetGroupRes> getGroup(Uid groupUid) async {
     try {
-      var request = await groupServices.getGroup(
-          GroupServices.GetGroupReq()..uid = groupUid,
-          options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()},
-            timeout: Duration(seconds: 2),
-          ));
+      var request = await groupServices
+          .getGroup(GroupServices.GetGroupReq()..uid = groupUid);
       return request;
     } catch (e) {
       return null;
@@ -79,10 +66,8 @@ class MucServices {
 
   Future<bool> removeGroup(Uid groupUid) async {
     try {
-      await groupServices.removeGroup(
-          GroupServices.RemoveGroupReq()..uid = groupUid,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      await groupServices
+          .removeGroup(GroupServices.RemoveGroupReq()..uid = groupUid);
       return true;
     } catch (e) {
       return false;
@@ -91,12 +76,9 @@ class MucServices {
 
   Future<bool> changeGroupRole(Member member, Uid group) async {
     try {
-      await groupServices.changeRole(
-          GroupServices.ChangeRoleReq()
-            ..member = member
-            ..group = group,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      await groupServices.changeRole(GroupServices.ChangeRoleReq()
+        ..member = member
+        ..group = group);
       return true;
     } catch (e) {
       return false;
@@ -105,23 +87,17 @@ class MucServices {
 
   Future<GroupServices.GetMembersRes> getGroupMembers(
       Uid groupUid, int limit, int pointer) async {
-    var request = await groupServices.getMembers(
-        GroupServices.GetMembersReq()
-          ..uid = groupUid
-          ..pointer = pointer
-          ..limit = limit,
-        options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()}));
+    var request = await groupServices.getMembers(GroupServices.GetMembersReq()
+      ..uid = groupUid
+      ..pointer = pointer
+      ..limit = limit);
     return request;
   }
 
   Future<bool> leaveGroup(Uid groupUid) async {
     try {
-      await groupServices.leaveGroup(
-          GroupServices.LeaveGroupReq()..group = groupUid,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()},
-              timeout: Duration(seconds: 2)));
+      await groupServices
+          .leaveGroup(GroupServices.LeaveGroupReq()..group = groupUid);
       return true;
     } catch (e) {
       return false;
@@ -135,10 +111,7 @@ class MucServices {
     }
     kickMembersReq.group = groupUid;
     try {
-      await groupServices.kickMembers(kickMembersReq,
-          options: CallOptions(
-              timeout: Duration(seconds: 2),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      await groupServices.kickMembers(kickMembersReq);
       return true;
     } catch (e) {
       return false;
@@ -147,13 +120,9 @@ class MucServices {
 
   Future<bool> banGroupMember(Member member, Uid mucUid) async {
     try {
-      await groupServices.banMember(
-          GroupServices.BanMemberReq()
-            ..member = member.uid
-            ..group = mucUid,
-          options: CallOptions(
-              timeout: Duration(seconds: 2),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      await groupServices.banMember(GroupServices.BanMemberReq()
+        ..member = member.uid
+        ..group = mucUid);
       return true;
     } catch (e) {
       return false;
@@ -162,13 +131,9 @@ class MucServices {
 
   Future<bool> unbanGroupMember(Member member, Uid mucUid) async {
     try {
-      await groupServices.unbanMember(
-          GroupServices.UnbanMemberReq()
-            ..member = member.uid
-            ..group = mucUid,
-          options: CallOptions(
-              timeout: Duration(seconds: 1),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      await groupServices.unbanMember(GroupServices.UnbanMemberReq()
+        ..member = member.uid
+        ..group = mucUid);
       return true;
     } catch (e) {
       return false;
@@ -177,20 +142,15 @@ class MucServices {
 
   Future<String> getPermissionToken(Uid uid) async {
     if (uid.category == Categories.GROUP) {
-      var res = await groupServices.getPermission(
-          GroupServices.GetPermissionReq()
+      var res =
+          await groupServices.getPermission(GroupServices.GetPermissionReq()
             ..group = uid
-            ..accessField = AccessField.CHANGE_AVATAR,
-          options: CallOptions(
-              metadata: {"access_token": await _accountRepo.getAccessToken()}));
+            ..accessField = AccessField.CHANGE_AVATAR);
       return res.token;
     } else {
-      var res = await channelServices.getPermission(
-          GetPermissionReq()
-            ..channel = uid
-            ..accessField = AccessField.CHANGE_AVATAR,
-          options: CallOptions(
-              metadata: {"access_token": await _accountRepo.getAccessToken()}));
+      var res = await channelServices.getPermission(GetPermissionReq()
+        ..channel = uid
+        ..accessField = AccessField.CHANGE_AVATAR);
       return res.token;
     }
   }
@@ -201,9 +161,7 @@ class MucServices {
           GroupServices.JoinGroupReq()
             ..group = groupUid
             ..token = token,
-          options: CallOptions(
-              timeout: Duration(seconds: 4),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+          options: CallOptions(timeout: Duration(seconds: 4)));
       return true;
     } catch (e) {
       _logger.e(e);
@@ -213,13 +171,9 @@ class MucServices {
 
   Future<bool> modifyGroup(GroupServices.GroupInfo group, Uid mucUid) async {
     try {
-      await groupServices.modifyGroup(
-          GroupServices.ModifyGroupReq()
-            ..info = group
-            ..uid = mucUid,
-          options: CallOptions(
-              timeout: Duration(seconds: 2),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      await groupServices.modifyGroup(GroupServices.ModifyGroupReq()
+        ..info = group
+        ..uid = mucUid);
       return true;
     } catch (c) {
       return false;
@@ -236,9 +190,7 @@ class MucServices {
             ..info = info
             ..type = type
             ..id = channelId,
-          options: CallOptions(
-              timeout: Duration(seconds: 5),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+          options: CallOptions(timeout: Duration(seconds: 5)));
       return request.uid;
     } catch (e) {
       if (retry)
@@ -257,10 +209,7 @@ class MucServices {
         addMemberRequest.members.add(member);
       }
       addMemberRequest..channel = mucUid;
-      await channelServices.addMembers(addMemberRequest,
-          options: CallOptions(
-              timeout: Duration(seconds: 2),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      await channelServices.addMembers(addMemberRequest);
       return true;
     } catch (e) {
       _logger.e(e);
@@ -270,11 +219,8 @@ class MucServices {
 
   Future<ChannelServices.GetChannelRes> getChannel(Uid channelUid) async {
     try {
-      var request = await channelServices.getChannel(
-          ChannelServices.GetChannelReq()..uid = channelUid,
-          options: CallOptions(
-              timeout: Duration(seconds: 2),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      var request = await channelServices
+          .getChannel(ChannelServices.GetChannelReq()..uid = channelUid);
       return request;
     } catch (e) {
       return null;
@@ -283,11 +229,8 @@ class MucServices {
 
   Future<bool> removeChannel(Uid channelUid) async {
     try {
-      await channelServices.removeChannel(
-          ChannelServices.RemoveChannelReq()..uid = channelUid,
-          options: CallOptions(
-              timeout: Duration(seconds: 2),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      await channelServices
+          .removeChannel(ChannelServices.RemoveChannelReq()..uid = channelUid);
       return true;
     } catch (e) {
       return false;
@@ -296,13 +239,9 @@ class MucServices {
 
   Future<bool> changeCahnnelRole(Member member, Uid channel) async {
     try {
-      await channelServices.changeRole(
-          ChannelServices.ChangeRoleReq()
-            ..member = member
-            ..channel = channel,
-          options: CallOptions(
-              timeout: Duration(seconds: 1),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      await channelServices.changeRole(ChannelServices.ChangeRoleReq()
+        ..member = member
+        ..channel = channel);
       return true;
     } catch (e) {
       return false;
@@ -312,14 +251,11 @@ class MucServices {
   Future<ChannelServices.GetMembersRes> getChannelMembers(
       Uid channelUid, int limit, int pointer) async {
     try {
-      var request = await channelServices.getMembers(
-          ChannelServices.GetMembersReq()
+      var request =
+          await channelServices.getMembers(ChannelServices.GetMembersReq()
             ..uid = channelUid
             ..limit = limit
-            ..pointer = pointer,
-          options: CallOptions(
-              timeout: Duration(seconds: 2),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+            ..pointer = pointer);
       return request;
     } catch (e) {
       return null;
@@ -329,10 +265,7 @@ class MucServices {
   Future<bool> leaveChannel(Uid channelUid) async {
     try {
       await channelServices.leaveChannel(
-          ChannelServices.LeaveChannelReq()..channel = channelUid,
-          options: CallOptions(
-              timeout: Duration(seconds: 1),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+          ChannelServices.LeaveChannelReq()..channel = channelUid);
       return true;
     } catch (e) {
       return false;
@@ -346,10 +279,7 @@ class MucServices {
     }
     kickMembersReq..channel = channelUid;
     try {
-      await channelServices.kickMembers(kickMembersReq,
-          options: CallOptions(
-              timeout: Duration(seconds: 1),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      await channelServices.kickMembers(kickMembersReq);
       return true;
     } catch (e) {
       return false;
@@ -358,13 +288,9 @@ class MucServices {
 
   Future<bool> banChannelMember(Member member, Uid channelUid) async {
     try {
-      await channelServices.banMember(
-          ChannelServices.BanMemberReq()
-            ..member = member.uid
-            ..channel = channelUid,
-          options: CallOptions(
-              timeout: Duration(seconds: 1),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      await channelServices.banMember(ChannelServices.BanMemberReq()
+        ..member = member.uid
+        ..channel = channelUid);
       return true;
     } catch (e) {
       return false;
@@ -373,13 +299,9 @@ class MucServices {
 
   Future<bool> unbanChannelMember(Member member, Uid channelUid) async {
     try {
-      await channelServices.unbanMember(
-          ChannelServices.UnbanMemberReq()
-            ..member = member.uid
-            ..channel = channelUid,
-          options: CallOptions(
-              timeout: Duration(seconds: 1),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      await channelServices.unbanMember(ChannelServices.UnbanMemberReq()
+        ..member = member.uid
+        ..channel = channelUid);
       return true;
     } catch (e) {
       return false;
@@ -392,9 +314,7 @@ class MucServices {
           ChannelServices.JoinChannelReq()
             ..channel = channelUid
             ..token,
-          options: CallOptions(
-              timeout: Duration(seconds: 4),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+          options: CallOptions(timeout: Duration(seconds: 4)));
       return true;
     } catch (e) {
       return false;
@@ -404,13 +324,9 @@ class MucServices {
   Future<bool> modifyChannel(
       ChannelServices.ChannelInfo channelInfo, Uid mucUid) async {
     try {
-      await channelServices.modifyChannel(
-          ChannelServices.ModifyChannelReq()
-            ..info = channelInfo
-            ..uid = mucUid,
-          options: CallOptions(
-              timeout: Duration(seconds: 2),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      await channelServices.modifyChannel(ChannelServices.ModifyChannelReq()
+        ..info = channelInfo
+        ..uid = mucUid);
       return true;
     } catch (e) {
       return false;
@@ -420,21 +336,13 @@ class MucServices {
   Future<bool> pinMessage(db.Message message) async {
     try {
       if (message.roomUid.asUid().category == Categories.GROUP) {
-        groupServices.pinMessage(
-            GroupServices.PinMessageReq()
-              ..uid = message.roomUid.asUid()
-              ..messageId = Int64(message.id),
-            options: CallOptions(
-                metadata: {'access_token': await _accountRepo.getAccessToken()},
-                timeout: Duration(seconds: 2)));
+        groupServices.pinMessage(GroupServices.PinMessageReq()
+          ..uid = message.roomUid.asUid()
+          ..messageId = Int64(message.id));
       } else {
-        channelServices.pinMessage(
-            ChannelServices.PinMessageReq()
-              ..uid = message.roomUid.asUid()
-              ..messageId = Int64(message.id),
-            options: CallOptions(
-                metadata: {'access_token': await _accountRepo.getAccessToken()},
-                timeout: Duration(seconds: 2)));
+        channelServices.pinMessage(ChannelServices.PinMessageReq()
+          ..uid = message.roomUid.asUid()
+          ..messageId = Int64(message.id));
       }
       return true;
     } catch (e) {
@@ -444,14 +352,10 @@ class MucServices {
 
   Future getGroupJointToken({Uid groupUid}) async {
     try {
-      var res = await groupServices.createToken(
-          GroupServices.CreateTokenReq()
-            ..uid = groupUid
-            ..validUntil = Int64(-1)
-            ..numberOfAvailableJoins = Int64(-1),
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()},
-              timeout: Duration(seconds: 3)));
+      var res = await groupServices.createToken(GroupServices.CreateTokenReq()
+        ..uid = groupUid
+        ..validUntil = Int64(-1)
+        ..numberOfAvailableJoins = Int64(-1));
       return res.joinToken;
     } catch (e) {
       return null;
@@ -460,13 +364,10 @@ class MucServices {
 
   Future getChannelJointToken({Uid channelUid}) async {
     try {
-      var res = await channelServices.createToken(
-          ChannelServices.CreateTokenReq()
+      var res =
+          await channelServices.createToken(ChannelServices.CreateTokenReq()
             ..uid = channelUid
-            ..validUntil = Int64(-1),
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()},
-              timeout: Duration(seconds: 2)));
+            ..validUntil = Int64(-1));
       return res.joinToken;
     } catch (e) {
       return null;
@@ -476,21 +377,13 @@ class MucServices {
   Future<bool> unpinMessage(db.Message message) async {
     try {
       if (message.roomUid.asUid().category == Categories.GROUP) {
-        groupServices.unpinMessage(
-            GroupServices.UnpinMessageReq()
-              ..uid = message.roomUid.asUid()
-              ..messageId = Int64(message.id),
-            options: CallOptions(
-                metadata: {'access_token': await _accountRepo.getAccessToken()},
-                timeout: Duration(seconds: 2)));
+        groupServices.unpinMessage(GroupServices.UnpinMessageReq()
+          ..uid = message.roomUid.asUid()
+          ..messageId = Int64(message.id));
       } else {
-        channelServices.unpinMessage(
-            ChannelServices.UnpinMessageReq()
-              ..uid = message.roomUid.asUid()
-              ..messageId = Int64(message.id),
-            options: CallOptions(
-                metadata: {'access_token': await _accountRepo.getAccessToken()},
-                timeout: Duration(seconds: 2)));
+        channelServices.unpinMessage(ChannelServices.UnpinMessageReq()
+          ..uid = message.roomUid.asUid()
+          ..messageId = Int64(message.id));
       }
       return true;
     } catch (e) {

@@ -29,6 +29,7 @@ import 'package:deliver_flutter/box/sending_status.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -54,8 +55,13 @@ import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -114,30 +120,57 @@ Future<void> setupDI() async {
   getIt.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
 
   // Order is important, don't change it!
-  getIt.registerSingleton<UxService>(UxService());
-  getIt.registerSingleton<QueryServiceClient>(
-      QueryServiceClient(QueryClientChannel));
-  getIt.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel));
-  getIt.registerSingleton<StickerServiceClient>(
-      StickerServiceClient(StickerClientChannel));
+  getIt.registerSingleton<AuthServiceClient>(
+      AuthServiceClient(ProfileServicesClientChannel));
+  getIt.registerSingleton<AuthRepo>(AuthRepo());
+  getIt.registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
+
+  getIt.registerSingleton<UserServiceClient>(UserServiceClient(
+      ProfileServicesClientChannel,
+      interceptors: [getIt.get<DeliverClientInterceptor>()]));
+  getIt.registerSingleton<ContactServiceClient>(ContactServiceClient(
+      ProfileServicesClientChannel,
+      interceptors: [getIt.get<DeliverClientInterceptor>()]));
+  getIt.registerSingleton<QueryServiceClient>(QueryServiceClient(
+      QueryClientChannel,
+      interceptors: [getIt.get<DeliverClientInterceptor>()]));
+  getIt.registerSingleton<CoreServiceClient>(CoreServiceClient(
+      CoreServicesClientChannel,
+      interceptors: [getIt.get<DeliverClientInterceptor>()]));
+  getIt.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel,
+      interceptors: [getIt.get<DeliverClientInterceptor>()]));
+  getIt.registerSingleton<StickerServiceClient>(StickerServiceClient(
+      StickerClientChannel,
+      interceptors: [getIt.get<DeliverClientInterceptor>()]));
+  getIt.registerSingleton<GroupServiceClient>(GroupServiceClient(
+      MucServicesClientChannel,
+      interceptors: [getIt.get<DeliverClientInterceptor>()]));
+  getIt.registerSingleton<ChannelServiceClient>(ChannelServiceClient(
+      MucServicesClientChannel,
+      interceptors: [getIt.get<DeliverClientInterceptor>()]));
+  getIt.registerSingleton<AvatarServiceClient>(AvatarServiceClient(
+      AvatarServicesClientChannel,
+      interceptors: [getIt.get<DeliverClientInterceptor>()]));
+  getIt.registerSingleton<FirebaseServiceClient>(FirebaseServiceClient(
+      FirebaseServicesClientChannel,
+      interceptors: [getIt.get<DeliverClientInterceptor>()]));
 
   getIt.registerSingleton<AccountRepo>(AccountRepo());
-  getIt.registerSingleton<BotRepo>(BotRepo());
-
   getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
+  getIt.registerSingleton<UxService>(UxService());
   getIt.registerSingleton<FileService>(FileService());
+  getIt.registerSingleton<MucServices>(MucServices());
+  getIt.registerSingleton<CreateMucService>(CreateMucService());
+
+  getIt.registerSingleton<BotRepo>(BotRepo());
   getIt.registerSingleton<StickerRepo>(StickerRepo());
   getIt.registerSingleton<FileRepo>(FileRepo());
   getIt.registerSingleton<ContactRepo>(ContactRepo());
-  getIt.registerSingleton<MucServices>(MucServices());
   getIt.registerSingleton<AvatarRepo>(AvatarRepo());
-  getIt.registerSingleton<CreateMucService>(CreateMucService());
   getIt.registerSingleton<RoutingService>(RoutingService());
   getIt.registerSingleton<NotificationServices>(NotificationServices());
   getIt.registerSingleton<MucRepo>(MucRepo());
   getIt.registerSingleton<RoomRepo>(RoomRepo());
-  getIt.registerSingleton<CoreServiceClient>(
-      CoreServiceClient(CoreServicesClientChannel));
   getIt.registerSingleton<CoreServices>(CoreServices());
 
   getIt.registerSingleton<MessageRepo>(MessageRepo());
@@ -159,9 +192,9 @@ void setupDIAndRunApp() async {
   if (isAndroid()) {
     await setupFlutterNotification();
   }
-  try{
+  try {
     await setupDI();
-  } catch(e){
+  } catch (e) {
     Logger().e(e);
   }
 

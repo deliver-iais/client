@@ -2,9 +2,7 @@ import 'dart:io';
 
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/dao/avatar_dao.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
@@ -14,7 +12,6 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:get_it/get_it.dart';
-import 'package:grpc/grpc.dart';
 
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
@@ -22,13 +19,15 @@ import 'package:dcache/dcache.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:logger/logger.dart';
 
+import 'authRepo.dart';
+
 class AvatarRepo {
   final _logger = Logger();
   final _avatarDao = GetIt.I.get<AvatarDao>();
   final _mucServices = GetIt.I.get<MucServices>();
   final _fileRepo = GetIt.I.get<FileRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
-  final _avatarServices = AvatarServiceClient(AvatarServicesClientChannel);
+  final _authRepo = GetIt.I.get<AuthRepo>();
+  final _avatarServices = GetIt.I.get<AvatarServiceClient>();
   final Cache<String, Avatar> _avatarCache =
       LruCache<String, Avatar>(storage: SimpleStorage(size: 40));
 
@@ -42,9 +41,7 @@ class AvatarRepo {
     try {
       var getAvatarReq = GetAvatarReq();
       getAvatarReq.uidList.add(userUid);
-      var getAvatars = await _avatarServices.getAvatar(getAvatarReq,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      var getAvatars = await _avatarServices.getAvatar(getAvatarReq);
       var avatars = getAvatars.avatar
           .map((e) => Avatar(
                 uid: userUid.asString(),
@@ -61,7 +58,7 @@ class AvatarRepo {
   }
 
   Future<bool> needsUpdate(Uid userUid) async {
-    if (userUid == _accountRepo.currentUserUid) {
+    if (userUid == _authRepo.currentUserUid) {
       _logger.v("current user avatar update needed");
       return true;
     }
@@ -161,12 +158,10 @@ class AvatarRepo {
     }
 
     try {
-      await _avatarServices.addAvatar(addAvatarReq,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      await _avatarDao.saveAvatars(_accountRepo.currentUserUid.asString(), [
+      await _avatarServices.addAvatar(addAvatarReq);
+      await _avatarDao.saveAvatars(_authRepo.currentUserUid.asString(), [
         Avatar(
-            uid: _accountRepo.currentUserUid.asString(),
+            uid: _authRepo.currentUserUid.asString(),
             createdOn: createOn,
             fileId: fileInfo.uuid,
             fileName: fileInfo.name)
@@ -180,14 +175,12 @@ class AvatarRepo {
     ProtocolAvatar.Avatar deleteAvatar = ProtocolAvatar.Avatar();
     deleteAvatar..fileUuid = avatar.fileId;
     deleteAvatar..fileName = avatar.fileName;
-    deleteAvatar..node = _accountRepo.currentUserUid.node;
+    deleteAvatar..node = _authRepo.currentUserUid.node;
     deleteAvatar
       ..createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10));
-    deleteAvatar..category = _accountRepo.currentUserUid.category;
+    deleteAvatar..category = _authRepo.currentUserUid.category;
     var removeAvatarReq = RemoveAvatarReq()..avatar = deleteAvatar;
-    await _avatarServices.removeAvatar(removeAvatarReq,
-        options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()}));
+    await _avatarServices.removeAvatar(removeAvatarReq);
     await _avatarDao.removeAvatar(avatar);
   }
 }

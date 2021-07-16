@@ -6,7 +6,6 @@ import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 
-import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:contacts_service/contacts_service.dart' as OsContact;
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
@@ -19,21 +18,18 @@ import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:grpc/grpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
 
-import 'accountRepo.dart';
-
 class ContactRepo {
   final _logger = Logger();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
   final _contactDao = GetIt.I.get<ContactDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
-  final _checkPermission = GetIt.I.get<CheckPermissionsService>();
-  final _contactServices = ContactServiceClient(ProfileServicesClientChannel);
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
+  final _contactServices = GetIt.I.get<ContactServiceClient>();
+  final _checkPermission = GetIt.I.get<CheckPermissionsService>();
+
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
   final Map<PhoneNumber, String> _contactsDisplayName = Map();
@@ -123,9 +119,7 @@ class ContactRepo {
       contacts.forEach((element) {
         sendContacts.contactList.add(element);
       });
-      await _contactServices.saveContacts(sendContacts,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      await _contactServices.saveContacts(sendContacts);
       return true;
     } catch (e) {
       _logger.e(e);
@@ -138,10 +132,8 @@ class ContactRepo {
   Future<List<DB.Contact>> getAll() => _contactDao.getAll();
 
   Future getContacts() async {
-    var result = await _contactServices.getContactListUsers(
-        GetContactListUsersReq(),
-        options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()}));
+    var result =
+        await _contactServices.getContactListUsers(GetContactListUsersReq());
 
     for (var contact in result.userList) {
       _contactDao.save(DB.Contact(
@@ -162,10 +154,8 @@ class ContactRepo {
 
   Future<String> getIdByUid(Uid uid) async {
     try {
-      var result = await _queryServiceClient.getIdByUid(
-          GetIdByUidReq()..uid = uid,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      var result =
+          await _queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
       _uidIdNameDao.update(uid.asString(), id: result.id);
       return result.id;
     } catch (e) {
@@ -180,10 +170,8 @@ class ContactRepo {
   }
 
   Future<List<Uid>> searchUser(String query) async {
-    var result = await _queryServiceClient.searchUid(
-        SearchUidReq()..text = query,
-        options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()}));
+    var result =
+        await _queryServiceClient.searchUid(SearchUidReq()..text = query);
     List<Uid> searchResult = [];
     for (var room in result.itemList) {
       searchResult.add(room.uid);

@@ -5,7 +5,8 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/
 import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/form_TextField_widget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/botMessageWidget/form_list_Widget.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
-import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as protoForm;
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
+    as protoForm;
 import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:flutter/material.dart';
@@ -23,27 +24,28 @@ class BotFormMessage extends StatefulWidget {
 }
 
 class _BotFormMessageState extends State<BotFormMessage> {
-  protoForm.Form form;
+  final _messageRepo = GetIt.I.get<MessageRepo>();
+  final Map<String, String> formResultMap = Map();
+  final _verify = BehaviorSubject.seeded(false);
+  final Map<String, GlobalKey<FormState>> formFieldsKey = Map();
 
-  var _messageRepo = GetIt.I.get<MessageRepo>();
-  double height = 0;
+  protoForm.Form form;
 
   @override
   void initState() {
     form = widget.message.json.toForm();
-    height = 85 * form.fields.length.toDouble();
     super.initState();
   }
 
-  Map<String, String> formResultMap = Map();
-  AppLocalization _appLocalization;
-  BehaviorSubject<bool> verify = BehaviorSubject.seeded(false);
-
-  Map<String, GlobalKey<FormState>> formFieldsKey = Map();
+  @override
+  void dispose() {
+    _verify.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    var height = 85.0 * form.fields.length;
 
     return Container(
         child: Stack(
@@ -63,86 +65,85 @@ class _BotFormMessageState extends State<BotFormMessage> {
               child: SizedBox(
                 height: height,
                 width: 230,
-                child:ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: form.fields.length,
-                        itemBuilder: (c, index) {
-                          var formKey;
-                          if (form.fields[index].whichType() !=
-                              protoForm.Form_Field_Type.checkbox) {
-                            formKey = new GlobalKey<FormState>();
-                            formFieldsKey[form.fields[index].id] = formKey;
-                          }
-                          switch (form.fields[index].whichType()) {
-                            case protoForm.Form_Field_Type.textField:
-                              return FormInputTextFieldWidget(
-                                formField: form.fields[index],
-                                formValidator: formKey,
-                                setResult: (value) {
-                                  setResult(index, value);
-                                },
-                              );
-                              break;
-                            case protoForm.Form_Field_Type.numberField:
-                              return FormInputTextFieldWidget(
-                                formField: form.fields[index],
-                                formValidator: formKey,
-                                setResult: (value) {
-                                  setResult(index, value);
-                                },
-                              );
-                              break;
-                            case protoForm.Form_Field_Type.dateField:
-                              return FormInputTextFieldWidget(
-                                formField: form.fields[index],
-                                formValidator: formKey,
-                                setResult: (value) {
-                                  setResult(index, value);
-                                },
-                              );
-                              break;
-                            case protoForm.Form_Field_Type.timeField:
-                              return FormInputTextFieldWidget(
-                                formField: form.fields[index],
-                                formValidator: formKey,
-                                setResult: (value) {
-                                  setResult(index, value);
-                                },
-                              );
-                              break;
-                            case protoForm.Form_Field_Type.checkbox:
-                              return CheckBoxFormField(
-                                formField: form.fields[index],
-                                selected: (value) {
-                                  setResult(index, value);
-                                },
-                              );
-                              break;
-                            case protoForm.Form_Field_Type.list:
-                              return FormListWidget(
-                                formField: form.fields[index],
-                                formValidator:
-                                    formFieldsKey[form.fields[index].id],
-                                selected: (value) {
-                                  setResult(index, value);
-                                },
-                              );
-                              break;
-                            case protoForm.Form_Field_Type.radioButtonList:
-                              return FormListWidget(
-                                formField: form.fields[index],
-                                formValidator: formKey,
-                                selected: (value) {
-                                  setResult(index, value);
-                                },
-                              );
-                              break;
-                            case protoForm.Form_Field_Type.notSet:
-                              return SizedBox.shrink();
-                              break;
-                          }
+                child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: form.fields.length,
+                    itemBuilder: (c, index) {
+                      var formKey;
+                      if (form.fields[index].whichType() !=
+                          protoForm.Form_Field_Type.checkbox) {
+                        formKey = new GlobalKey<FormState>();
+                        formFieldsKey[form.fields[index].id] = formKey;
+                      }
+                      switch (form.fields[index].whichType()) {
+                        case protoForm.Form_Field_Type.textField:
+                          return FormInputTextFieldWidget(
+                            formField: form.fields[index],
+                            formValidator: formKey,
+                            setResult: (value) {
+                              setResult(index, value);
+                            },
+                          );
+                          break;
+                        case protoForm.Form_Field_Type.numberField:
+                          return FormInputTextFieldWidget(
+                            formField: form.fields[index],
+                            formValidator: formKey,
+                            setResult: (value) {
+                              setResult(index, value);
+                            },
+                          );
+                          break;
+                        case protoForm.Form_Field_Type.dateField:
+                          return FormInputTextFieldWidget(
+                            formField: form.fields[index],
+                            formValidator: formKey,
+                            setResult: (value) {
+                              setResult(index, value);
+                            },
+                          );
+                          break;
+                        case protoForm.Form_Field_Type.timeField:
+                          return FormInputTextFieldWidget(
+                            formField: form.fields[index],
+                            formValidator: formKey,
+                            setResult: (value) {
+                              setResult(index, value);
+                            },
+                          );
+                          break;
+                        case protoForm.Form_Field_Type.checkbox:
+                          return CheckBoxFormField(
+                            formField: form.fields[index],
+                            selected: (value) {
+                              setResult(index, value);
+                            },
+                          );
+                          break;
+                        case protoForm.Form_Field_Type.list:
+                          return FormListWidget(
+                            formField: form.fields[index],
+                            formValidator: formFieldsKey[form.fields[index].id],
+                            selected: (value) {
+                              setResult(index, value);
+                            },
+                          );
+                          break;
+                        case protoForm.Form_Field_Type.radioButtonList:
+                          return FormListWidget(
+                            formField: form.fields[index],
+                            formValidator: formKey,
+                            selected: (value) {
+                              setResult(index, value);
+                            },
+                          );
+                          break;
+                        case protoForm.Form_Field_Type.notSet:
                           return SizedBox.shrink();
-                        }),
+                          break;
+                      }
+                      return SizedBox.shrink();
+                    }),
               ),
             ),
             SizedBox(
@@ -168,7 +169,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                 }
               },
               child: Text(
-                _appLocalization.getTraslateValue("submit"),
+                AppLocalization.of(context).getTraslateValue("submit"),
                 style: TextStyle(color: Colors.white),
               ),
             ),

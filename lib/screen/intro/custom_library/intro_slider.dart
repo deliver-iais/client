@@ -448,7 +448,6 @@ class IntroSliderState extends State<IntroSlider>
     if (sizeDot == null) {
       sizeDot = 8.0;
     }
-    double initValueMarginRight = (sizeDot * 2) * (slides.length - 1);
 
     for (int i = 0; i < slides.length; i++) {
       if (i == 0) {

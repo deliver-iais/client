@@ -7,6 +7,7 @@ import 'package:deliver_flutter/box/role.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
@@ -19,7 +20,6 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 
 class MucRepo {
@@ -29,6 +29,7 @@ class MucRepo {
   final _mucServices = GetIt.I.get<MucServices>();
   final _queryServices = GetIt.I.get<QueryServiceClient>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
 
@@ -51,7 +52,7 @@ class MucRepo {
     if (channelUid != null) {
       sendMembers(channelUid, memberUids);
       _mucDao.saveMember(Member(
-          memberUid: _accountRepo.currentUserUid.asString(),
+          memberUid: _authRepo.currentUserUid.asString(),
           mucUid: channelUid.asString(),
           role: MucRole.OWNER));
       _insertToDb(channelUid, channelName, memberUids.length + 1, info,
@@ -65,9 +66,8 @@ class MucRepo {
   }
 
   Future<bool> channelIdIsAvailable(String id) async {
-    var result = await _queryServices.idIsAvailable(IdIsAvailableReq()..id = id,
-        options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()}));
+    var result =
+        await _queryServices.idIsAvailable(IdIsAvailableReq()..id = id);
     return result.isAvailable;
   }
 
@@ -179,7 +179,7 @@ class MucRepo {
         _mucDao.save(muc);
         insertUserInDb(mucUid, [
           Member(
-              memberUid: _accountRepo.currentUserUid.asString(),
+              memberUid: _authRepo.currentUserUid.asString(),
               mucUid: mucUid.asString(),
               role: getLocalRole(channel.requesterRole))
         ]);
@@ -511,7 +511,7 @@ class MucRepo {
 
     var res = await getAllMembers(roomUid);
     res.forEach((member) async {
-      if (_accountRepo.isCurrentUser(member.memberUid)) {
+      if (_authRepo.isCurrentUser(member.memberUid)) {
         var a = await _accountRepo.getAccount();
         _mucMembers.add(UidIdName(
             uid: member.memberUid, id: a.userName, name: a.firstName));

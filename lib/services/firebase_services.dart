@@ -7,8 +7,8 @@ import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/main.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 
-import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/theme/constants.dart';
@@ -21,7 +21,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
-import 'package:grpc/grpc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logger/logger.dart';
 
@@ -30,10 +29,8 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class FireBaseServices {
   final _logger = Logger();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
   final _sharedDao = GetIt.I.get<SharedDao>();
-  final _firebaseServices =
-      FirebaseServiceClient(FirebaseServicesClientChannel);
+  final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
   final _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   AndroidNotificationChannel channel = const AndroidNotificationChannel(
@@ -63,11 +60,8 @@ class FireBaseServices {
         await _sharedDao.get(SHARED_DAO_FIREBASE_SETTING_IS_SET);
     if (firebaseSetting == null) {
       try {
-        await _firebaseServices.registration(
-            RegistrationReq()..tokenId = fireBaseToken,
-            options: CallOptions(metadata: {
-              'access_token': await _accountRepo.getAccessToken()
-            }));
+        await _firebaseServices
+            .registration(RegistrationReq()..tokenId = fireBaseToken);
         _sharedDao.put(SHARED_DAO_FIREBASE_SETTING_IS_SET, "true");
       } catch (e) {
         _logger.e(e);
@@ -112,12 +106,13 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
 
   // TODO needs to be refactored!!!
   var accountRepo = AccountRepo();
+  var authRepo = AuthRepo();
   // var roomRepo = RoomRepo();
 
   if (message.data.containsKey('body')) {
     M.Message msg = _decodeMessage(message.data["body"]);
     String roomName = message.data['title'];
-    Uid roomUid = getRoomId(accountRepo, msg);
+    Uid roomUid = getRoomId(authRepo, msg);
 
     // CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg, roomUid);
     //  if (msg.from.category == Categories.USER)
@@ -126,7 +121,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
     try {
       if ((await accountRepo.notification).contains("false") ||
           await _muteDao.isMuted(roomUid.asString()) ||
-          accountRepo.isCurrentUser(msg.from.asString())) {
+          authRepo.isCurrentUser(msg.from.asString())) {
         return;
       }
     } catch (e) {}
@@ -142,6 +137,6 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
 
     await Hive.close();
     _notificationServices.showNotification(
-        msg, getRoomId(accountRepo, msg).asString(), roomName);
+        msg, getRoomId(authRepo, msg).asString(), roomName);
   }
 }

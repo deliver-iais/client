@@ -1,7 +1,7 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/message_type.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/unread_message_counter.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
@@ -18,7 +18,7 @@ class LastMessage extends StatelessWidget {
   final int lastMessageId;
   final bool hasMentioned;
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   LastMessage({Key key, this.message, this.lastMessageId, this.hasMentioned})
       : super(key: key);
@@ -57,7 +57,7 @@ class LastMessage extends StatelessWidget {
     String oneLine = messageText(context);
     bool shouldHighlight = message.type != MessageType.TEXT;
 
-    var isReceivedMessage = !_accountRepo.isCurrentUser(message.from);
+    var isReceivedMessage = !_authRepo.isCurrentUser(message.from);
 
     return Row(
       // crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,5 +1,5 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +11,7 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
   final _mucRepo = GetIt.I.get<MucRepo>();
   final String roomId;
   final Widget inputMessage;
-  final _accountRpo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   MuteAndUnMuteRoomWidget({Key key, this.roomId, this.inputMessage})
       : super(key: key);
@@ -21,7 +21,7 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
     var _appLocalization = AppLocalization.of(context);
     return FutureBuilder<bool>(
         future: _mucRepo.isMucAdminOrOwner(
-            _accountRpo.currentUserUid.asString(), this.roomId),
+            _authRepo.currentUserUid.asString(), this.roomId),
         builder: (c, s) {
           if (s.hasData && s.data) {
             return this.inputMessage;

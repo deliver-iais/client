@@ -1,7 +1,7 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
@@ -19,7 +19,7 @@ class ContactsPage extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
   final _rootingServices = GetIt.I.get<RoutingService>();
   final _sharedDao = GetIt.I.get<SharedDao>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   ContactsPage({Key key}) : super(key: key) {
     _syncContacts();
@@ -113,7 +113,7 @@ class ContactsPage extends StatelessWidget {
                         child: Scrollbar(
                       child: ListView.separated(
                         separatorBuilder: (BuildContext context, int index) {
-                          if (_accountRepo.isCurrentUser(contacts[index].uid))
+                          if (_authRepo.isCurrentUser(contacts[index].uid))
                             return SizedBox.shrink();
                           else
                             return Divider();
@@ -121,7 +121,7 @@ class ContactsPage extends StatelessWidget {
                         itemCount: snapshot.data.length,
                         itemBuilder: (BuildContext ctx, int index) {
                           var c = contacts[index];
-                          return _accountRepo.isCurrentUser(c.uid)
+                          return _authRepo.isCurrentUser(c.uid)
                               ? SizedBox.shrink()
                               : GestureDetector(
                                   onTap: () {

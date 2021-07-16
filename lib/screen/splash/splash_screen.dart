@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/shared/constants.dart';
@@ -15,7 +16,8 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   var loggedInStatus;
-  AccountRepo _accountRepo = GetIt.I.get<AccountRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   var _fireBaseServices = GetIt.I.get<FireBaseServices>();
   int attempts = 0;
 
@@ -26,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   tryInitAccountRepo() {
-    _accountRepo.init().timeout(Duration(seconds: 2), onTimeout: () {
+    _authRepo.init().timeout(Duration(seconds: 2), onTimeout: () {
       if (attempts < 3) {
         attempts++;
         tryInitAccountRepo();
@@ -34,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
         _navigateToIntroPage();
       }
     }).then((_) {
-      if(_accountRepo.isLoggedIn())
+      if(_authRepo.isLoggedIn())
         _navigateToHomePage();
       else
         _navigateToIntroPage();

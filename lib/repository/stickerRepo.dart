@@ -1,31 +1,24 @@
-
 import 'package:deliver_flutter/models/stickerPacket.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart' as proto;
 
 import 'package:get_it/get_it.dart';
-import 'package:grpc/grpc.dart';
 
 class StickerRepo {
-
   var _stickerServices = GetIt.I.get<proto.StickerServiceClient>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
 
   StickerRepo() {
- //   getTrendPacks();
+    //   getTrendPacks();
   }
 
   Future<StickerPacket> getStickerPackByUUID(String uuid) async {
+    return null;
     // Sticker sticker = await _stickerDao.getSticker(uuid);
     // if (sticker != null) {
     //   List<Sticker> stickers = await _stickerDao.gatStickerPack(sticker.packId);
     //   if (stickers == null && (stickers != null && stickers.length < 2)) {
     //     var result = await _stickerServices.getStickerPackByUUID(
-    //         proto.GetStickerPackByUUIDReq()..uuid = uuid,
-    //         options: CallOptions(metadata: {
-    //           'access_token': await _accountRepo.getAccessToken()
-    //         }));
+    //         proto.GetStickerPackByUUIDReq()..uuid = uuid);
     //     if (result.info_ != null) {
     //       List<Sticker> newStickers;
     //       for (var stickerFile in result.pack.stickers) {
@@ -43,12 +36,13 @@ class StickerRepo {
   }
 
   Future<Sticker> getSticker(String uuid) async {
+    return null;
     // var sticker = await _stickerDao.getSticker(uuid);
     // return sticker;
   }
 
   void saveStickers(List<Sticker> stickers) {
-  //  _stickerDao.saveStikers(stickers);
+    //  _stickerDao.saveStikers(stickers);
   }
 
   // Future<List<StickerId>> getStickersId() async {
@@ -61,14 +55,12 @@ class StickerRepo {
   // }
 
   Future<Sticker> getFirstStickerFromPack(String packId) async {
-   // List<Sticker> stickers = await _stickerDao.getStickerByPacKId(packId);
+    // List<Sticker> stickers = await _stickerDao.getStickerByPacKId(packId);
     return null;
   }
 
   getTrendPacks() async {
-    var result = await _stickerServices.getTrendPacks(proto.GetTrendPacksReq(),
-        options: CallOptions(
-            metadata: {"access_token": await _accountRepo.getAccessToken()}));
+    var result = await _stickerServices.getTrendPacks(proto.GetTrendPacksReq());
     if (result != null) {
       // for (String packId in result.packIdList)
       //   _stickerIdDao.upsertStickerPack(StickerId(
@@ -83,11 +75,9 @@ class StickerRepo {
   }
 
   Future<proto.StickerPack> downloadStickerPackByPackId(String packId) async {
-    var result = await _stickerServices.getStickerPackByID(
-       proto.GetStickerPackByIDReq()..id = packId,
-        options: CallOptions(
-            metadata: {"access_token": await _accountRepo.getAccessToken()}));
-    result.pack;
+    var result = await _stickerServices
+        .getStickerPackByID(proto.GetStickerPackByIDReq()..id = packId);
+    return result.pack;
   }
 
   // void InsertStickerPack(proto.StickerPack stickerPack) {
@@ -105,8 +95,8 @@ class StickerRepo {
   // }
 
   Future<List<Sticker>> getStickerPackByPackId(String packId) async {
+    return null;
     // List<Sticker> stickers = await _stickerDao.gatStickerPack(packId);
     // return stickers;
   }
-
 }

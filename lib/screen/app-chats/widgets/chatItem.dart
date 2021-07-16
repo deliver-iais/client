@@ -1,7 +1,7 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/box/room.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/lastActivityRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/shared/activity_status.dart';
@@ -32,7 +32,7 @@ class ChatItem extends StatefulWidget {
 
 class _ChatItemState extends State<ChatItem> {
   final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
   @override
@@ -115,7 +115,7 @@ class _ChatItemState extends State<ChatItem> {
                                     child: widget.room.uid
                                             .asUid()
                                             .toString()
-                                            .contains(_accountRepo
+                                            .contains(_authRepo
                                                 .currentUserUid
                                                 .toString())
                                         ? _showDisplayName(

@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/register/pages/testing_environment_tokens.dart';
 import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';
@@ -21,7 +21,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _logger = Logger();
-  final accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _formKey = GlobalKey<FormState>();
   PhoneNumber phoneNumber;
 
@@ -30,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
     var isValidated = _formKey?.currentState?.validate() ?? false;
     if (isValidated && phoneNumber != null) {
       try {
-        var res = await accountRepo.getVerificationCode(
+        var res = await _authRepo.getVerificationCode(
             phoneNumber.countryCode, phoneNumber.nationalNumber);
         if (res != null)
           ExtendedNavigator.of(context).push(Routes.verificationPage);
@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _navigateToApplicationInDevelopment() {
-    accountRepo.saveTokens(AccessTokenRes()
+    _authRepo.saveTokens(AccessTokenRes()
       ..accessToken = TESTING_ENVIRONMENT_ACCESS_TOKEN
       ..refreshToken = TESTING_ENVIRONMENT_REFRESH_TOKEN);
     ExtendedNavigator.of(context)
@@ -91,9 +91,13 @@ class _LoginPageState extends State<LoginPage> {
                 Expanded(
                   child: Column(
                     children: <Widget>[
-                      SizedBox(height: 5,),
+                      SizedBox(
+                        height: 5,
+                      ),
                       IntlPhoneField(
-                        initialValue: phoneNumber!= null? phoneNumber.nationalNumber:"",
+                        initialValue: phoneNumber != null
+                            ? phoneNumber.nationalNumber
+                            : "",
                         validator: (value) => value.length != 10 ||
                                 (value.length > 0 && value[0] == '0')
                             ? appLocalization

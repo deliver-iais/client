@@ -1,6 +1,6 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/contact.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 
 import 'package:deliver_flutter/repository/mucRepo.dart';
@@ -45,7 +45,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   var _createMucService = GetIt.I.get<CreateMucService>();
 
-  var _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   List<Contact> contacts = [];
 
@@ -124,7 +124,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                           snapshot.data != null &&
                           snapshot.data.length > 0) {
                         snapshot.data.removeWhere((element) => element.uid
-                            .contains(_accountRepo.currentUserUid.asString()));
+                            .contains(_authRepo.currentUserUid.asString()));
                         contacts = snapshot.data;
                         if (items == null) {
                           items = contacts;

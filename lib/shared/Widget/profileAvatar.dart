@@ -2,12 +2,10 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/models/muc_type.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
-import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
@@ -46,19 +44,16 @@ class ProfileAvatar extends StatefulWidget {
 class _ProfileAvatarState extends State<ProfileAvatar> {
   final _selectedImages = Map<int, bool>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
-  final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
-  final _contactRepo = GetIt.I.get<ContactRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _mucRepo = GetIt.I.get<MucRepo>();
-  final _routingServices = GetIt.I.get<RoutingService>();
+  final _routingService = GetIt.I.get<RoutingService>();
   double currentAvatarIndex = 0;
   bool showProgressBar = false;
   String _uploadAvatarPath;
   bool _setAvatarPermission = false;
   bool _modifyMUc = false;
   String mucName = "";
-  Contact _contact;
   AppLocalization _appLocalization;
   MucType _mucType;
   BehaviorSubject<bool> showChannelIdError = BehaviorSubject.seeded(false);
@@ -80,9 +75,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
 
   _checkPermissions() async {
     bool settingAvatarPermission = await _mucRepo.isMucAdminOrOwner(
-        _accountRepo.currentUserUid.asString(), widget.roomUid.asString());
+        _authRepo.currentUserUid.asString(), widget.roomUid.asString());
     bool mucOwner = await _mucRepo.mucOwner(
-        _accountRepo.currentUserUid.asString(), widget.roomUid.asString());
+        _authRepo.currentUserUid.asString(), widget.roomUid.asString());
     setState(() {
       _setAvatarPermission = settingAvatarPermission;
       _modifyMUc = mucOwner;
@@ -147,7 +142,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   _navigateHomePage() {
-    _routingServices.reset();
+    _routingService.reset();
     ExtendedNavigator.of(context).pushAndRemoveUntil(
       Routes.homePage,
       (_) => false,
@@ -295,7 +290,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     var lastAvatar =
                         await _avatarRepo.getLastAvatar(widget.roomUid, false);
                     if (lastAvatar.createdOn != null) {
-                      _routingServices.openShowAllAvatars(
+                      _routingService.openShowAllAvatars(
                           uid: widget.roomUid,
                           hasPermissionToDeleteAvatar: _setAvatarPermission,
                           heroTag: "avatar");
@@ -305,21 +300,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
               ),
             ),
     );
-  }
-
-  _showDisplayName(String name) {
-    return Text(name,
-        //textAlign: TextAlign.center,
-        style: TextStyle(
-          color: ExtraTheme.of(context).textField,
-          fontSize: 22.0,
-          shadows: <Shadow>[
-            Shadow(
-              blurRadius: 10.0,
-              color: Color.fromARGB(100, 0, 0, 0),
-            ),
-          ],
-        ));
   }
 
   @override
@@ -480,56 +460,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                           color: ExtraTheme.of(context).popupMenuButton,
                           icon: Icon(Icons.more_vert),
                           itemBuilder: (_) => <PopupMenuItem<String>>[
-                            if (false)
-                              new PopupMenuItem<String>(
-                                child: FutureBuilder<Contact>(
-                                    future:
-                                        _contactRepo.getContact(widget.roomUid),
-                                    builder: (c, contact) {
-                                      if (contact.hasData &&
-                                          contact.data != null) {
-                                        _contact = contact.data;
-                                        return Row(
-                                          children: [
-                                            Icon(Icons.qr_code,
-                                                color: Colors.blue),
-                                            SizedBox(
-                                              width: 15,
-                                            ),
-                                            Text(
-                                              AppLocalization.of(context)
-                                                  .getTraslateValue("qr_share"),
-                                              style: TextStyle(
-                                                  color: ExtraTheme.of(context)
-                                                      .textField,
-                                                  fontSize: 13),
-                                            ),
-                                          ],
-                                        );
-                                      } else {
-                                        return SizedBox.shrink();
-                                      }
-                                    }),
-                                value: "qr_share",
-                              ),
-                            new PopupMenuItem<String>(
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.block, color: Colors.blue),
-                                    SizedBox(
-                                      width: 15,
-                                    ),
-                                    Text(
-                                      room.data
-                                          ? _appLocalization
-                                              .getTraslateValue("unBlockRoom")
-                                          : _appLocalization
-                                              .getTraslateValue("blockRoom"),
-                                      style: style,
-                                    ),
-                                  ],
-                                ),
-                                value: room.data ? "unBlockRoom" : "blockRoom"),
                             new PopupMenuItem<String>(
                                 child: Row(
                                   children: [
@@ -765,7 +695,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                     return GestureDetector(
                       child: Row(
                         children: [
-                          RaisedButton(
+                          ElevatedButton(
                             onPressed: change.data
                                 ? () async {
                                     if (nameFormKey?.currentState?.validate()) {
@@ -1040,7 +970,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                       )),
                   ElevatedButton(
                     onPressed: () {
-                      _routingServices.openSelectForwardMessage(
+                      _routingService.openSelectForwardMessage(
                           sharedUid: proto.ShareUid()
                             ..name = mucName
                             ..joinToken = token

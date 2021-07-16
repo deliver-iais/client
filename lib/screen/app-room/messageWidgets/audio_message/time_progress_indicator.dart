@@ -28,7 +28,7 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
               state.data != null &&
               state.data == AudioPlayerState.PLAYING) {
             return StreamBuilder(
-                stream: audioPlayerService.CURRENT_AUDIO_ID.stream,
+                stream: audioPlayerService.currentAudioId.stream,
                 builder: (c, uuid) {
                   if (uuid.hasData && uuid.data.toString().contains(widget.audioUuid)) {
                     return StreamBuilder<Duration>(

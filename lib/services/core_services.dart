@@ -14,6 +14,7 @@ import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -47,6 +48,7 @@ class CoreServices {
   final _logger = Logger();
   final _grpcCoreService = GetIt.I.get<CoreServiceClient>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _messageDao = GetIt.I.get<MessageDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _seenDao = GetIt.I.get<SeenDao>();
@@ -127,10 +129,7 @@ class CoreServices {
     try {
       _clientPacketStream = StreamController<ClientPacket>();
       _responseStream =
-          _grpcCoreService.establishStream(_clientPacketStream.stream,
-              options: CallOptions(
-                metadata: {'access_token': await _accountRepo.getAccessToken()},
-              ));
+          _grpcCoreService.establishStream(_clientPacketStream.stream);
       _responseStream.listen((serverPacket) async {
         _logger.d(serverPacket);
         gotResponse();
@@ -211,7 +210,7 @@ class CoreServices {
 
   sendActivity(ActivityByClient activity, String id) {
     if (!_clientPacketStream.isClosed &&
-        !_accountRepo.isCurrentUser(activity.to.asString()))
+        !_authRepo.isCurrentUser(activity.to.asString()))
       _clientPacketStream.add(ClientPacket()
         ..activity = activity
         ..id = id);
@@ -224,7 +223,7 @@ class CoreServices {
     Uid roomId;
     switch (seen.to.category) {
       case Categories.USER:
-        seen.to.asString() == _accountRepo.currentUserUid.asString()
+        seen.to.asString() == _authRepo.currentUserUid.asString()
             ? roomId = seen.from
             : roomId = seen.to;
         break;
@@ -236,7 +235,7 @@ class CoreServices {
         roomId = seen.to;
         break;
     }
-    if (_accountRepo.isCurrentUser(seen.from.asString())) {
+    if (_authRepo.isCurrentUser(seen.from.asString())) {
       _seenDao.saveMySeen(
         Seen(uid: roomId.asString(), messageId: seen.id.toInt()),
       );
@@ -278,11 +277,12 @@ class CoreServices {
   }
 
   _saveIncomingMessage(Message message) async {
-    Uid roomUid = getRoomId(_accountRepo, message);
+    Uid roomUid = getRoomId(_authRepo, message);
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
       return;
     }
-    saveMessage(_accountRepo, _messageDao, _roomDao, message, roomUid);
+    saveMessage(
+        _authRepo, _accountRepo, _messageDao, _roomDao, message, roomUid);
     if (message.whichType() == Message_Type.persistEvent) {
       switch (message.persistEvent.whichType()) {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
@@ -305,7 +305,7 @@ class CoreServices {
 
             case MucSpecificPersistentEvent_Issue.KICK_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                  .isSameEntity(_accountRepo.currentUserUid.asString())) {
+                  .isSameEntity(_authRepo.currentUserUid.asString())) {
                 _roomDao.updateRoom(
                     Room(uid: message.from.asString(), deleted: true));
                 return;
@@ -314,7 +314,7 @@ class CoreServices {
             case MucSpecificPersistentEvent_Issue.JOINED_USER:
             case MucSpecificPersistentEvent_Issue.ADD_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                  .isSameEntity(_accountRepo.currentUserUid.asString())) {
+                  .isSameEntity(_authRepo.currentUserUid.asString())) {
                 _roomDao.updateRoom(
                     Room(uid: message.from.asString(), deleted: false));
               }
@@ -343,10 +343,10 @@ class CoreServices {
       }
     }
 
-    if (!_accountRepo.isCurrentUser(message.from.asString()) &&
+    if (!_authRepo.isCurrentUser(message.from.asString()) &&
         ((await _accountRepo.notification) == null ||
             (await _accountRepo.notification).contains("true") &&
-                ( ! await _roomRepo.isRoomMuted(roomUid.asString())))) {
+                (!await _roomRepo.isRoomMuted(roomUid.asString())))) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)
@@ -364,9 +364,14 @@ class CoreServices {
     }
   }
 
-  static Future<Uid> saveMessage(AccountRepo accountRepo, MessageDao messageDao,
-      RoomDao roomDao, Message message, Uid roomUid) async {
-    var msg = await saveMessageInMessagesDB(accountRepo, messageDao, message);
+  static Future<Uid> saveMessage(
+      AuthRepo authRepo,
+      AccountRepo accountRepo,
+      MessageDao messageDao,
+      RoomDao roomDao,
+      Message message,
+      Uid roomUid) async {
+    var msg = await saveMessageInMessagesDB(authRepo, messageDao, message);
 
     bool isMention = false;
     if (roomUid.category == Categories.GROUP) {
@@ -396,13 +401,13 @@ Future<bool> checkMention(String text, AccountRepo accountRepo) async {
 }
 
 Future<DB.Message> saveMessageInMessagesDB(
-    AccountRepo accountRepo, MessageDao messageDao, Message message) async {
-  var msg = extractMessage(accountRepo, message);
+    AuthRepo authRepo, MessageDao messageDao, Message message) async {
+  var msg = extractMessage(authRepo, message);
   await messageDao.saveMessage(msg);
   return msg;
 }
 
-DB.Message extractMessage(AccountRepo accountRepo, Message message) {
+DB.Message extractMessage(AuthRepo authRepo, Message message) {
   var json = "";
 
   try {
@@ -413,7 +418,7 @@ DB.Message extractMessage(AccountRepo accountRepo, Message message) {
       id: message.id.toInt(),
       roomUid: message.whichType() == Message_Type.persistEvent
           ? message.from.asString()
-          : message.from.node.contains(accountRepo.currentUserUid.node)
+          : message.from.node.contains(authRepo.currentUserUid.node)
               ? message.to.asString()
               : message.to.category == Categories.USER
                   ? message.from.asString()
@@ -430,9 +435,8 @@ DB.Message extractMessage(AccountRepo accountRepo, Message message) {
       type: getMessageType(message.whichType()));
 }
 
-Uid getRoomId(AccountRepo accountRepo, Message message) {
-  bool isCurrentUser =
-      message.from.node.contains(accountRepo.currentUserUid.node);
+Uid getRoomId(AuthRepo authRepo, Message message) {
+  bool isCurrentUser = message.from.node.contains(authRepo.currentUserUid.node);
   var roomUid = isCurrentUser
       ? message.to
       : (message.to.category == Categories.USER ? message.from : message.to);

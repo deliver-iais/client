@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
@@ -55,7 +55,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   NavigationTabs tab = NavigationTabs.Chats;
 
   var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   var _routingService = GetIt.I.get<RoutingService>();
   var _botRepo = GetIt.I.get<BotRepo>();
   bool _searchMode = false;
@@ -106,7 +106,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         child: MouseRegion(
                           cursor: SystemMouseCursors.click,
                           child: CircleAvatarWidget(
-                            _accountRepo.currentUserUid,
+                            _authRepo.currentUserUid,
                             20,
                             showAsStreamOfAvatar: true,
                           ),

@@ -71,7 +71,7 @@ class _InputMessageWidget extends State<InputMessage> {
   BehaviorSubject<DateTime> recordSubject =
       BehaviorSubject.seeded(DateTime.now());
 
-  double DX = 150.0;
+  double dx = 150.0;
   bool recordAudioPermission = false;
   FlutterSoundRecorder _soundRecorder = FlutterSoundRecorder();
   BehaviorSubject<bool> _showBotCommands = BehaviorSubject.seeded(false);
@@ -143,7 +143,7 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    DX = min(MediaQuery.of(context).size.width / 2, 150.0);
+    dx = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
       children: <Widget>[
         StreamBuilder(
@@ -337,7 +337,7 @@ class _InputMessageWidget extends State<InputMessage> {
                       : RecordAudioSlideWidget(
                           opacity: opacity(),
                           time: time,
-                          rinning: startAudioRecorder,
+                          running: startAudioRecorder,
                           streamTime: recordSubject,
                         ),
                   StreamBuilder(
@@ -353,7 +353,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     .checkAudioRecorderPermission();
                               },
                               onLongPressMoveUpdate: (tg) {
-                                if (tg.offsetFromOrigin.dx > -DX && started) {
+                                if (tg.offsetFromOrigin.dx > -dx && started) {
                                   setState(() {
                                     x = -tg.offsetFromOrigin.dx;
                                     startAudioRecorder = true;
@@ -556,7 +556,7 @@ class _InputMessageWidget extends State<InputMessage> {
     }
   }
 
-  opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;
+  opacity() => x < 0.0 ? 1.0 : (dx - x) / dx;
 
   _attachFileInWindowsMode() async {
     final typeGroup = XTypeGroup(label: 'images');

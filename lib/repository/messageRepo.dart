@@ -13,7 +13,7 @@ import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/box/sending_status.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
@@ -63,7 +63,7 @@ class MessageRepo {
   // migrate to room repo
   final _roomDao = GetIt.I.get<RoomDao>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _seenDao = GetIt.I.get<SeenDao>();
   final _mucServices = GetIt.I.get<MucServices>();
@@ -103,15 +103,12 @@ class MessageRepo {
 
   updateNewMuc(Uid roomUid, int lastMessageId) async {
     try {
-      var fetchMessagesRes = await _queryServiceClient.fetchMessages(
-          FetchMessagesReq()
+      var fetchMessagesRes =
+          await _queryServiceClient.fetchMessages(FetchMessagesReq()
             ..roomUid = roomUid
             ..pointer = Int64(lastMessageId)
             ..type = FetchMessagesReq_Type.BACKWARD_FETCH
-            ..limit = 2,
-          options: CallOptions(
-              timeout: Duration(seconds: 3),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+            ..limit = 2);
       List<Message> messages =
           await _saveFetchMessages(fetchMessagesRes.messages);
 
@@ -136,13 +133,9 @@ class MessageRepo {
     while (!finished && pointer < 10000) {
       try {
         var getAllUserRoomMetaRes =
-            await _queryServiceClient.getAllUserRoomMeta(
-                GetAllUserRoomMetaReq()
-                  ..pointer = pointer
-                  ..limit = 10,
-                options: CallOptions(metadata: {
-                  'access_token': await _accountRepo.getAccessToken()
-                }));
+            await _queryServiceClient.getAllUserRoomMeta(GetAllUserRoomMetaReq()
+              ..pointer = pointer
+              ..limit = 10);
 
         finished = getAllUserRoomMetaRes.finished;
         if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
@@ -172,15 +165,12 @@ class MessageRepo {
 
     rooms.forEach((r) async {
       var category = r.lastMessage.to.asUid().category;
-      if (_accountRepo.isCurrentUser(r.lastMessage.from) &&
+      if (_authRepo.isCurrentUser(r.lastMessage.from) &&
           (category == Categories.GROUP || category == Categories.USER)) {
         var othersSeen = await _seenDao.getOthersSeen(r.lastMessage.to);
         if (othersSeen == null || othersSeen.messageId < r.lastMessage.id) {
           var rm = await _queryServiceClient.getUserRoomMeta(
-              GetUserRoomMetaReq()..roomUid = r.lastMessage.to.asUid(),
-              options: CallOptions(metadata: {
-                'access_token': await _accountRepo.getAccessToken()
-              }));
+              GetUserRoomMetaReq()..roomUid = r.lastMessage.to.asUid());
           fetchLastSeen(rm.roomMeta);
         }
       }
@@ -196,9 +186,7 @@ class MessageRepo {
             ..pointer = roomMetadata.lastMessageId
             ..type = FetchMessagesReq_Type.FORWARD_FETCH
             ..limit = 2,
-          options: CallOptions(
-              timeout: Duration(seconds: 3),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+          options: CallOptions(timeout: Duration(seconds: 3)));
       List<Message> messages =
           await _saveFetchMessages(fetchMessagesRes.messages);
 
@@ -222,10 +210,7 @@ class MessageRepo {
     try {
       var fetchCurrentUserSeenData =
           await _queryServiceClient.fetchCurrentUserSeenData(
-              FetchCurrentUserSeenDataReq()..roomUid = room.roomUid,
-              options: CallOptions(metadata: {
-                "access_token": await _accountRepo.getAccessToken()
-              }));
+              FetchCurrentUserSeenDataReq()..roomUid = room.roomUid);
 
       var lastSeen = await _seenDao.getMySeen(room.roomUid.asString());
       if (lastSeen != null &&
@@ -245,10 +230,7 @@ class MessageRepo {
           room.roomUid.category == Categories.GROUP) {
         var fetchLastOtherUserSeenData =
             await _queryServiceClient.fetchLastOtherUserSeenData(
-                FetchLastOtherUserSeenDataReq()..roomUid = room.roomUid,
-                options: CallOptions(metadata: {
-                  "access_token": await _accountRepo.getAccessToken()
-                }));
+                FetchLastOtherUserSeenDataReq()..roomUid = room.roomUid);
         _seenDao.saveOthersSeen(Seen(
             uid: room.roomUid.asString(),
             messageId: fetchLastOtherUserSeenData.seen.id.toInt()));
@@ -260,12 +242,10 @@ class MessageRepo {
 
   Future getMentions(Room room) async {
     try {
-      var mentionResult = await _queryServiceClient.fetchMentionList(
-          FetchMentionListReq()
+      var mentionResult =
+          await _queryServiceClient.fetchMentionList(FetchMentionListReq()
             ..group = room.uid.asUid()
-            ..afterId = Int64.parseInt(room.lastMessage.id.toString()),
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+            ..afterId = Int64.parseInt(room.lastMessage.id.toString()));
       if (mentionResult.idList != null && mentionResult.idList.length > 0) {
         _roomDao.updateRoom(Room(uid: room.uid, mentioned: true));
       }
@@ -512,7 +492,7 @@ class MessageRepo {
       roomUid: room.asString(),
       packetId: _getPacketId(),
       time: DateTime.now().millisecondsSinceEpoch,
-      from: _accountRepo.currentUserUid.asString(),
+      from: _authRepo.currentUserUid.asString(),
       to: room.asString(),
       replyToId: replyId,
       forwardedFrom: forwardedFrom,
@@ -548,14 +528,12 @@ class MessageRepo {
       String roomId, int page, int pageSize, Completer<List<Message>> completer,
       {bool retry = true}) async {
     try {
-      var fetchMessagesRes = await _queryServiceClient.fetchMessages(
-          FetchMessagesReq()
+      var fetchMessagesRes =
+          await _queryServiceClient.fetchMessages(FetchMessagesReq()
             ..roomUid = roomId.asUid()
             ..pointer = Int64(page * pageSize)
             ..type = FetchMessagesReq_Type.FORWARD_FETCH
-            ..limit = pageSize,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+            ..limit = pageSize);
       completer.complete(await _saveFetchMessages(fetchMessagesRes.messages));
     } catch (e) {
       _logger.e(e);
@@ -583,7 +561,7 @@ class MessageRepo {
                   break;
                 case MucSpecificPersistentEvent_Issue.KICK_USER:
                   if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                      .isSameEntity(_accountRepo.currentUserUid.asString())) {
+                      .isSameEntity(_authRepo.currentUserUid.asString())) {
                     _roomDao.updateRoom(
                         Room(uid: message.from.asString(), deleted: true));
                     continue;
@@ -599,7 +577,7 @@ class MessageRepo {
         _logger.e(e);
       }
       msgList.add(
-          await saveMessageInMessagesDB(_accountRepo, _messageDao, message));
+          await saveMessageInMessagesDB(_authRepo, _messageDao, message));
     }
     return msgList;
   }
@@ -703,13 +681,5 @@ class MessageRepo {
       _logger.e(e);
       return false;
     }
-  }
-
-  void sendErrorMessage_DEBUG_MODE_(String s) {
-    sendTextMessage(
-        Uid.create()
-          ..category = Categories.USER
-          ..node = "db8ab0da-d0cb-4aaf-b642-2419ef59f05d",
-        s);
   }
 }

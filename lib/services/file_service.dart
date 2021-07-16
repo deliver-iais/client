@@ -1,8 +1,8 @@
 import 'dart:io';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:http_parser/http_parser.dart';
 
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
 import 'package:deliver_flutter/theme/constants.dart';
@@ -15,8 +15,8 @@ import 'package:rxdart/rxdart.dart';
 enum ThumbnailSize { small, medium, large }
 
 class FileService {
-  var _checkPermission = GetIt.I.get<CheckPermissionsService>();
-  var accountRepo = GetIt.I.get<AccountRepo>();
+  final _checkPermission = GetIt.I.get<CheckPermissionsService>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   var _dio = Dio();
   Map<String, BehaviorSubject<double>> filesUploadStatus = Map();
@@ -24,7 +24,9 @@ class FileService {
   Map<String, BehaviorSubject<double>> filesDownloadStatus = Map();
 
   Future<String> get _localPath async {
-    if (await _checkPermission.checkStoragePermission() || isDesktop() || isIOS()) {
+    if (await _checkPermission.checkStoragePermission() ||
+        isDesktop() ||
+        isIOS()) {
       final directory = await getApplicationDocumentsDirectory();
       if (!await Directory('${directory.path}/Deliver').exists())
         await Directory('${directory.path}/Deliver').create(recursive: true);
@@ -55,11 +57,11 @@ class FileService {
   }
 
   FileService() {
-    _dio.interceptors
-        .add(InterceptorsWrapper(onRequest: (RequestOptions options,RequestInterceptorHandler handler) async {
+    _dio.interceptors.add(InterceptorsWrapper(onRequest:
+        (RequestOptions options, RequestInterceptorHandler handler) async {
       options.baseUrl = FileServiceBaseUrl;
-      options.headers["Authorization"] = await accountRepo.getAccessToken();
-      return handler.next(options);//continue
+      options.headers["Authorization"] = await _authRepo.getAccessToken();
+      return handler.next(options); //continue
     }));
   }
 
@@ -118,7 +120,7 @@ class FileService {
     var formData = FormData.fromMap({
       "file": MultipartFile.fromFileSync(filePath,
           contentType:
-          MediaType.parse(mime(filePath) ?? "application/octet-stream")),
+              MediaType.parse(mime(filePath) ?? "application/octet-stream")),
     });
 
     return _dio.post(

@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:deliver_flutter/box/avatar.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -26,7 +26,7 @@ class CircleAvatarWidget extends StatelessWidget {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   CircleAvatarWidget(this.contactUid, this.radius,
       {this.forceToUpdate = false,
@@ -77,7 +77,7 @@ class CircleAvatarWidget extends StatelessWidget {
 
   bool isSavedMessage() =>
       showSavedMessageLogoIfNeeded &&
-      _accountRepo.isCurrentUser(contactUid.asString());
+      _authRepo.isCurrentUser(contactUid.asString());
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +136,7 @@ class CircleAvatarWidget extends StatelessWidget {
         snapshot.data.fileName != null) {
       return FutureBuilder(
         future: _fileRepo.getFile(snapshot.data.fileId, snapshot.data.fileName,
-            thumbnailSize: contactUid == _accountRepo.currentUserUid
+            thumbnailSize: contactUid == _authRepo.currentUserUid
                 ? ThumbnailSize.large
                 : ThumbnailSize.medium),
         builder: (BuildContext c, AsyncSnapshot snaps) {

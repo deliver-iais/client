@@ -3,6 +3,7 @@ import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/box/role.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -25,15 +26,18 @@ class MucMemberWidget extends StatefulWidget {
 
 class _MucMemberWidgetState extends State<MucMemberWidget> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  Uid _mucUid;
-  AppLocalization _appLocalization;
-  var _routingServices = GetIt.I.get<RoutingService>();
-  var _mucRepo = GetIt.I.get<MucRepo>();
+  final _routingServices = GetIt.I.get<RoutingService>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
 
-  var _accountRepo = GetIt.I.get<AccountRepo>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
+
   static const String CHANGE_ROLE = "changeRole";
   static const String DELETE = "delete";
   static const String BAN = "ban";
+
+  Uid _mucUid;
+  AppLocalization _appLocalization;
   MucRole _myRoleInThisRoom;
 
   @override
@@ -78,7 +82,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                 width: 10,
                               ),
                               if (member.memberUid !=
-                                  _accountRepo.currentUserUid.asString())
+                                  _authRepo.currentUserUid.asString())
                                 Container(
                                   width: 150,
                                   child: FutureBuilder<String>(
@@ -97,14 +101,14 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                       }),
                                 )
                               else if (member.memberUid ==
-                                  _accountRepo.currentUserUid.asString())
+                                  _authRepo.currentUserUid.asString())
                                 FutureBuilder<Account>(
                                   future: _accountRepo.getAccount(),
                                   builder: (BuildContext context,
                                       AsyncSnapshot<Account> snapshot) {
                                     if (snapshot.data != null) {
                                       return Container(
-                                        width:150,
+                                        width: 150,
                                         child: Text(
                                           "${snapshot.data.firstName}${snapshot.data.lastName != null ? " " + snapshot.data.lastName : ""}",
                                           overflow: TextOverflow.ellipsis,
@@ -133,7 +137,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                             children: [
                               showMemberRole(member),
                               if (!member.memberUid.contains(
-                                      _accountRepo.currentUserUid.asString()) &&
+                                      _authRepo.currentUserUid.asString()) &&
                                   (_myRoleInThisRoom == MucRole.ADMIN ||
                                       _myRoleInThisRoom == MucRole.OWNER) &&
                                   member.role != MucRole.OWNER)
@@ -179,7 +183,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                     onSelected(key, member);
                                   },
                                 ),
-                              if (member.memberUid.contains(_accountRepo
+                              if (member.memberUid.contains(_authRepo
                                           .currentUserUid
                                           .asString()) &&
                                       (_myRoleInThisRoom == MucRole.ADMIN ||
@@ -275,7 +279,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
 
   obtainMyRole(List<Member> members) {
     for (Member member in members) {
-      if (member.memberUid.contains(_accountRepo.currentUserUid.asString())) {
+      if (member.memberUid.contains(_authRepo.currentUserUid.asString())) {
         _myRoleInThisRoom = member.role;
       }
     }

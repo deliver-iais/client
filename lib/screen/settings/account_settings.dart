@@ -71,6 +71,8 @@ class _AccountSettingsState extends State<AccountSettings> {
       },
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: ExtraTheme.of(context).boxOuterBackground,
+          elevation: 0,
           leading: !widget.forceToSetUsernameAndName
               ? _routingService.backButtonLeading()
               : null,
@@ -78,174 +80,183 @@ class _AccountSettingsState extends State<AccountSettings> {
             children: [
               Text(_appLocalization.getTraslateValue("account_info"),
                   style: Theme.of(context).textTheme.headline2),
-              if (widget.forceToSetUsernameAndName)
+              if (!widget.forceToSetUsernameAndName)
                 Text(
                   _appLocalization
                       .getTraslateValue("should_set_username_and_name"),
-                  style: Theme.of(context).textTheme.subtitle2,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline6
+                      .copyWith(fontSize: 10),
                 )
             ],
           ),
         ),
         body: FluidContainerWidget(
-          child: Stack(
-            children: [
-              FutureBuilder<Account>(
-                future: _accountRepo.getAccount(),
-                builder: (BuildContext c, AsyncSnapshot<Account> snapshot) {
-                  if (!snapshot.hasData || snapshot.data == null) {
-                    return SizedBox.shrink();
-                  }
-                  _account = snapshot.data;
-                  _lastUserName = snapshot.data.userName;
-                  return ListView(
-                    children: [
-                      Form(
-                          key: _formKey,
-                          child: Column(
-                            children: [
-                              Form(
-                                key: _usernameFormKey,
-                                child: TextFormField(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Stack(
+              children: [
+                FutureBuilder<Account>(
+                  future: _accountRepo.getAccount(),
+                  builder: (BuildContext c, AsyncSnapshot<Account> snapshot) {
+                    if (!snapshot.hasData || snapshot.data == null) {
+                      return SizedBox.shrink();
+                    }
+                    _account = snapshot.data;
+                    _lastUserName = snapshot.data.userName;
+                    return ListView(
+                      children: [
+                        Form(
+                            key: _formKey,
+                            child: Column(
+                              children: [
+                                Form(
+                                  key: _usernameFormKey,
+                                  child: TextFormField(
+                                      minLines: 1,
+                                      style: TextStyle(
+                                          color:
+                                              ExtraTheme.of(context).textField),
+                                      initialValue: snapshot.data.userName,
+                                      textInputAction: TextInputAction.send,
+                                      onChanged: (str) {
+                                        setState(() {
+                                          _newUsername = str;
+                                          _username = str;
+                                          subject.add(str);
+                                        });
+                                      },
+                                      validator: validateUsername,
+                                      decoration: buildInputDecoration(
+                                          _appLocalization
+                                              .getTraslateValue("username"),
+                                          true)),
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                _newUsername.isEmpty
+                                    ? Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              _appLocalization.getTraslateValue(
+                                                  "usernameHelper"),
+                                              textAlign: TextAlign.justify,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 2,
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.blueAccent),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : SizedBox.shrink(),
+                                !usernameIsAvailable
+                                    ? Row(
+                                        children: [
+                                          Text(
+                                            _appLocalization.getTraslateValue(
+                                                "usernameExit"),
+                                            style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.red),
+                                          ),
+                                        ],
+                                      )
+                                    : SizedBox.shrink(),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                TextFormField(
+                                  initialValue: snapshot.data.firstName ?? "",
+                                  minLines: 1,
+                                  style: TextStyle(
+                                      color: ExtraTheme.of(context).textField),
+                                  textInputAction: TextInputAction.send,
+                                  onChanged: (str) {
+                                    setState(() {
+                                      _firstName = str;
+                                    });
+                                  },
+                                  validator: validateFirstName,
+                                  decoration: buildInputDecoration(
+                                      _appLocalization
+                                          .getTraslateValue("firstName"),
+                                      true),
+                                ),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                TextFormField(
+                                    initialValue: snapshot.data.lastName ?? "",
                                     minLines: 1,
                                     style: TextStyle(
                                         color:
                                             ExtraTheme.of(context).textField),
-                                    initialValue: snapshot.data.userName,
                                     textInputAction: TextInputAction.send,
                                     onChanged: (str) {
                                       setState(() {
-                                        _newUsername = str;
-                                        _username = str;
-                                        subject.add(str);
+                                        _lastName = str;
                                       });
                                     },
-                                    validator: validateUsername,
                                     decoration: buildInputDecoration(
                                         _appLocalization
-                                            .getTraslateValue("username"),
-                                        true)),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              _newUsername.isEmpty
-                                  ? Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            _appLocalization.getTraslateValue(
-                                                "usernameHelper"),
-                                            textAlign: TextAlign.justify,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.blueAccent),
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  : SizedBox.shrink(),
-                              !usernameIsAvailable
-                                  ? Row(
-                                      children: [
-                                        Text(
-                                          _appLocalization
-                                              .getTraslateValue("usernameExit"),
-                                          style: TextStyle(
-                                              fontSize: 10, color: Colors.red),
-                                        ),
-                                      ],
-                                    )
-                                  : SizedBox.shrink(),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              TextFormField(
-                                initialValue: snapshot.data.firstName ?? "",
-                                minLines: 1,
-                                style: TextStyle(
-                                    color: ExtraTheme.of(context).textField),
-                                textInputAction: TextInputAction.send,
-                                onChanged: (str) {
-                                  setState(() {
-                                    _firstName = str;
-                                  });
-                                },
-                                validator: validateFirstName,
-                                decoration: buildInputDecoration(
-                                    _appLocalization
-                                        .getTraslateValue("firstName"),
-                                    true),
-                              ),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              TextFormField(
-                                  initialValue: snapshot.data.lastName ?? "",
-                                  minLines: 1,
-                                  style: TextStyle(
-                                      color: ExtraTheme.of(context).textField),
-                                  textInputAction: TextInputAction.send,
-                                  onChanged: (str) {
-                                    setState(() {
-                                      _lastName = str;
-                                    });
-                                  },
-                                  decoration: buildInputDecoration(
-                                      _appLocalization
-                                          .getTraslateValue("lastName"),
-                                      false)),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              TextFormField(
-                                  initialValue: snapshot.data.email ?? "",
-                                  minLines: 1,
-                                  style: TextStyle(
-                                      color: ExtraTheme.of(context).textField),
-                                  textInputAction: TextInputAction.send,
-                                  onChanged: (str) {
-                                    setState(() {
-                                      _email = str;
-                                    });
-                                  },
-                                  validator: validateEmail,
-                                  decoration: buildInputDecoration(
-                                      _appLocalization
-                                          .getTraslateValue("email"),
-                                      false)),
-                              SizedBox(
-                                height: 40,
-                              ),
-                            ],
-                          )),
-                    ],
-                  );
-                },
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  child: IconButton(
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.all(0),
-                    icon: Icon(Icons.done),
-                    onPressed: () async {
-                      checkAndSend();
-                    },
+                                            .getTraslateValue("lastName"),
+                                        false)),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                TextFormField(
+                                    initialValue: snapshot.data.email ?? "",
+                                    minLines: 1,
+                                    style: TextStyle(
+                                        color:
+                                            ExtraTheme.of(context).textField),
+                                    textInputAction: TextInputAction.send,
+                                    onChanged: (str) {
+                                      setState(() {
+                                        _email = str;
+                                      });
+                                    },
+                                    validator: validateEmail,
+                                    decoration: buildInputDecoration(
+                                        _appLocalization
+                                            .getTraslateValue("email"),
+                                        false)),
+                                SizedBox(
+                                  height: 40,
+                                ),
+                              ],
+                            )),
+                      ],
+                    );
+                  },
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    child: IconButton(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(0),
+                      icon: Icon(Icons.done),
+                      onPressed: () async {
+                        checkAndSend();
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

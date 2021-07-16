@@ -4,6 +4,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/models/account.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -29,7 +30,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sms_autofill/sms_autofill.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:logger/logger.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -45,6 +45,7 @@ class _SettingsPageState extends State<SettingsPage> {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   bool isDeveloperMode = false || kDebugMode;
   bool _uploadNewAvatar = false;
   String _newAvatarPath;
@@ -84,7 +85,7 @@ class _SettingsPageState extends State<SettingsPage> {
         _newAvatarPath = path;
         _uploadNewAvatar = true;
       });
-      await _avatarRepo.uploadAvatar(File(path), _accountRepo.currentUserUid);
+      await _avatarRepo.uploadAvatar(File(path), _authRepo.currentUserUid);
       setState(() {
         _uploadNewAvatar = false;
       });
@@ -122,10 +123,10 @@ class _SettingsPageState extends State<SettingsPage> {
                       GestureDetector(
                           onTap: () async {
                             var lastAvatar = await _avatarRepo.getLastAvatar(
-                                _accountRepo.currentUserUid, false);
+                                _authRepo.currentUserUid, false);
                             if (lastAvatar.createdOn != null) {
                               _routingServices.openShowAllAvatars(
-                                  uid: _accountRepo.currentUserUid,
+                                  uid: _authRepo.currentUserUid,
                                   hasPermissionToDeleteAvatar: true,
                                   heroTag: "avatar");
                             }
@@ -150,7 +151,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                   ),
                                 )
                               : CircleAvatarWidget(
-                                  _accountRepo.currentUserUid,
+                                  _authRepo.currentUserUid,
                                   30,
                                   showAsStreamOfAvatar: true,
                                 )),
@@ -274,7 +275,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   iconData: Icons.bookmark,
                   title: appLocalization.getTraslateValue("saved_message"),
                   onClick: () => _routingService
-                      .openRoom(_accountRepo.currentUserUid.asString()),
+                      .openRoom(_authRepo.currentUserUid.asString()),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Icon(Icons.navigate_next),

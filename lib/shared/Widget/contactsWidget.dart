@@ -1,6 +1,6 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/contact.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -17,7 +17,7 @@ class ContactWidget extends StatelessWidget {
   final Function onCircleIcon;
   final bool isSelected;
   final bool currentMember;
-  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   ContactWidget(
       {this.contact,
@@ -59,7 +59,7 @@ class ContactWidget extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              _accountRepo.isCurrentUser(contact.uid)
+              _authRepo.isCurrentUser(contact.uid)
                   ? _appLocalization.getTraslateValue("saved_message")
                   : buildName(contact.firstName, contact.lastName),
               overflow: TextOverflow.fade,

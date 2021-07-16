@@ -31,7 +31,7 @@ class AudioPlayProgress extends StatelessWidget {
                       if (state.data != null &&
                           state.data == AudioPlayerState.PLAYING) {
                         return StreamBuilder(
-                            stream: _audioPlayerService.CURRENT_AUDIO_ID.stream,
+                            stream: _audioPlayerService.currentAudioId.stream,
                             builder: (c, uuid) {
                               if (uuid.hasData && uuid.data.toString().isNotEmpty && uuid.data.toString().contains(audioUuid))
                                 return AudioProgressIndicator(
