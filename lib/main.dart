@@ -194,20 +194,19 @@ void setupDIAndRunApp() async {
   if (isAndroid()) {
     await setupFlutterNotification();
   }
+
   try {
     await setupDI();
   } catch (e) {
     Logger().e(e);
   }
 
-  // TODO: Android just now is available
-
   runApp(MyApp());
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Logger().d("Application has been started");
+  Logger().i("Application has been started");
 
   if (isDesktop()) {
     _setWindowSize();

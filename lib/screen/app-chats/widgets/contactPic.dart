@@ -11,12 +11,11 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class ContactPic extends StatelessWidget {
+  final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final Uid userUid;
 
   ContactPic(this.userUid);
-
-  final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
 
   @override
   Widget build(BuildContext context) {
