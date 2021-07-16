@@ -9,6 +9,7 @@ class ExtraThemeData {
   Color backgroundOfProfilePage = Color(0xFF424242);
   Color borderOfProfilePage = Color(0xFF9D9D9D);
   Color boxDetails = Colors.white;
+  Color boxOuterBackground = Color(0xfde2f8f0);
   Color boxBackground = Color(0xfde2f8f0);
   Color activeSwitch = Color(0xff15786c);
   Color textDetails; //light green - blue
@@ -41,6 +42,7 @@ class ExtraThemeData {
     this.centerPageDetails,
     this.circleAvatarIcon,
     this.boxDetails,
+    this.boxOuterBackground,
     this.boxBackground,
     this.activeSwitch,
     this.textDetails,

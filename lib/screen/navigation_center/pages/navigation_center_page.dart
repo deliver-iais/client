@@ -15,7 +15,6 @@ import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -43,29 +42,6 @@ class NavigationCenter extends StatefulWidget {
       _NavigationCenterState(this.tapOnSelectChat, this.tapOnCurrentUserAvatar);
 }
 
-BehaviorSubject<int> unreadMessageCount = BehaviorSubject.seeded(0);
-Map<String, int> unReadMessagemap = Map();
-Map<String, int> unReandCounterMessage = Map();
-
-updateUnreadMessageCount(String roomId, int lastId, int unread) {
-  unReandCounterMessage[roomId] = unread;
-  if (unReadMessagemap[roomId] == null) {
-    unReadMessagemap[roomId] = lastId;
-    unreadMessageCount.add(unreadMessageCount.valueWrapper.value + unread);
-  } else if (unReadMessagemap[roomId] != lastId) {
-    unReadMessagemap[roomId] = lastId;
-    unreadMessageCount.add(unreadMessageCount.valueWrapper.value + 1);
-  }
-}
-
-eraseUnreadCountMessage(String roomId) {
-  if (unReandCounterMessage[roomId] != null) {
-    unreadMessageCount.add(
-        unreadMessageCount.valueWrapper.value - unReandCounterMessage[roomId]);
-    unReandCounterMessage[roomId] = 0;
-  }
-}
-
 class _NavigationCenterState extends State<NavigationCenter> {
   final void Function(String) tapOnSelectChat;
 
@@ -76,8 +52,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
   final Function tapOnCurrentUserAvatar;
 
   NavigationTabs tab = NavigationTabs.Chats;
-
-  AppLocalization _appLocalization;
 
   var _roomRepo = GetIt.I.get<RoomRepo>();
   var _accountRepo = GetIt.I.get<AccountRepo>();
@@ -103,7 +77,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    var _appLocalization = AppLocalization.of(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(56),
@@ -221,105 +195,21 @@ class _NavigationCenterState extends State<NavigationCenter> {
           ),
           AudioPlayerAppBar(),
           _searchMode
-              ? searchResult()
+              ? searchResult(_appLocalization)
               : Expanded(
                   child: (tab == NavigationTabs.Chats)
                       ? ChatsPage()
                       : ContactsPage()),
         ],
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: ExtraTheme.of(context).bottomNavigationAppbar,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: <Widget>[
-            Container(
-              width: 60,
-              child: Stack(
-                children: [
-                  buildIconButton(
-                      context, Icons.question_answer, NavigationTabs.Chats),
-                  StreamBuilder<int>(
-                      stream: unreadMessageCount.stream,
-                      builder: (c, s) {
-                        if (s.hasData && s.data > 0)
-                          return Padding(
-                            padding: const EdgeInsets.only(
-                                right: 0.0, top: 2, left: 23),
-                            child: Container(
-                              width: s.data < 100 ? 25 : 28,
-                              height: s.data < 100 ? 25 : 28,
-                              child: Center(
-                                  child: Text(
-                                "${s.data}",
-                                style: TextStyle(
-                                    fontSize: 15, color: Colors.white),
-                              )),
-                              alignment: Alignment.center,
-                              decoration: new BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          );
-                        else
-                          return SizedBox.shrink();
-                      }),
-                ],
-              ),
-            ),
-            SizedBox(
-              width: 20,
-            ),
-            buildIconButton(context, Icons.people, NavigationTabs.Contacts),
-          ],
-        ),
-      ),
     );
   }
 
   Text buildText(BuildContext context) {
     return Text(
-      data(),
+      AppLocalization.of(context).getTraslateValue("chats"),
       style: Theme.of(context).textTheme.headline2,
     );
-  }
-
-  String data() {
-    return tab == NavigationTabs.Chats
-        ? _appLocalization.getTraslateValue("chats")
-        : _appLocalization.getTraslateValue("contacts");
-  }
-
-  IconButton buildIconButton(
-      BuildContext context, IconData icon, NavigationTabs assignedTab) {
-    return IconButton(
-        icon: Icon(
-          icon,
-          color: assignedTab == tab
-              ? ExtraTheme.of(context).activePageIcon
-              : ExtraTheme.of(context).inactivePageIcon,
-          size: 28,
-        ),
-        onPressed: () {
-          if (assignedTab != tab) {
-            setState(() {
-              tab = assignedTab;
-            });
-          }
-        });
-  }
-
-  void _onQRViewCreated(QRViewController controller) {
-    setState(() {
-      //   this.controller = controller;
-    });
-    controller.scannedDataStream.listen((scanData) {
-      setState(() {
-        //    result = scanData;
-      });
-    });
   }
 
   Widget buildMenu(BuildContext context) {
@@ -423,7 +313,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     GetIt.I.get<MessageRepo>().sendTextMessage(randomUid(), '0');
   }
 
-  Widget searchResult() {
+  Widget searchResult(AppLocalization _appLocalization) {
     return Expanded(
       child: Column(
         children: [

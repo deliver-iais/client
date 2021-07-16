@@ -21,7 +21,7 @@ ThemeData LightTheme =
         textTheme: TextTheme(
           headline1: TextStyle(color: Colors.black, fontSize: 40),
           headline2: TextStyle(
-              color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold),
+              color: Colors.black, fontSize: 25),
           headline3: TextStyle(color: Colors.black, fontSize: 20),
           headline4: TextStyle(color: Colors.black, fontSize: 18),
           headline6: TextStyle(color: Colors.black, fontSize: 15),
@@ -54,7 +54,8 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   centerPageDetails: Color(0xff0b796c),
   circleAvatarIcon: Colors.white,
   boxDetails: Color(0xff15786c),
-  boxBackground: Color(0xFFf2f9ff),
+  boxOuterBackground: Colors.lightBlue[300],
+  boxBackground: Colors.lightBlue[50],
   activeSwitch: Color(0xff15786c),
   textDetails: Colors.black,
   bottomNavigationAppbar: LightTheme.appBarTheme.color,

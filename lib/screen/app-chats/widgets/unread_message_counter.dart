@@ -1,6 +1,5 @@
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -19,11 +18,6 @@ class UnreadMessageCounterWidget extends StatelessWidget {
         if (snapshot.hasData) {
           int lastSeen = snapshot.data?.messageId ?? 0;
           int unreadCount = lastMessageId - lastSeen;
-          // unreadCount = 100;
-          if (unreadCount > 0) {
-            updateUnreadMessageCount(roomUid, lastMessageId, unreadCount);
-          } else
-            eraseUnreadCountMessage(roomUid);
           return (unreadCount > 0)
               ? Container(
                   width: 24,

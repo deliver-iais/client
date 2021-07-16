@@ -97,25 +97,24 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
-          child: FluidContainerWidget(
-            child: AppBar(
-                elevation: 0,
-                backgroundColor:
-                    Theme.of(context).dialogBackgroundColor.withAlpha(30),
-                title: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    appLocalization.getTraslateValue("settings"),
-                    style: Theme.of(context).textTheme.headline2,
-                  ),
-                ),
-                leading: _routingService.backButtonLeading()),
+          child: AppBar(
+            backgroundColor: ExtraTheme.of(context).boxOuterBackground,
+            elevation: 0,
+            title: Align(
+              alignment: Alignment.center,
+              child: Text(
+                appLocalization.getTraslateValue("settings"),
+                style: Theme.of(context).textTheme.headline2,
+              ),
+            ),
+            leading: _routingService.backButtonLeading(),
+            titleSpacing: -30,
           ),
         ),
         body: FluidContainerWidget(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: ListView(children: [
+            child: ListView(shrinkWrap: true, children: [
               Padding(
                   padding: const EdgeInsets.all(8),
                   child: Row(
@@ -164,23 +163,20 @@ class _SettingsPageState extends State<SettingsPage> {
                               future: _accountRepo.getAccount(),
                               builder: (BuildContext context,
                                   AsyncSnapshot<Account> snapshot) {
-                                if (snapshot.data != null) {
-                                  return Expanded(
-                                    child: Text(
-                                      "${snapshot.data.firstName} ${snapshot.data.lastName}"
-                                          .trim(),
-                                      overflow: TextOverflow.fade,
-                                      maxLines: 1,
-                                      softWrap: false,
-                                      style: TextStyle(
-                                          fontSize: 25,
-                                          color:
-                                              ExtraTheme.of(context).textField),
-                                    ),
-                                  );
-                                } else {
-                                  return SizedBox.shrink();
-                                }
+                                var account = snapshot.data ?? Account();
+                                return Expanded(
+                                  child: Text(
+                                    "${account.firstName ?? ""} ${account.lastName ?? ""}"
+                                        .trim(),
+                                    overflow: TextOverflow.fade,
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    style: TextStyle(
+                                        fontSize: 25,
+                                        color:
+                                            ExtraTheme.of(context).textField),
+                                  ),
+                                );
                               },
                             ),
                             Container(
@@ -232,17 +228,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     ],
                   )),
               SettingsRow(
-                  iconData: Icons.bookmark,
-                  title: appLocalization.getTraslateValue("saved_message"),
-                  onClick: () => _routingService
-                      .openRoom(_accountRepo.currentUserUid.asString()),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Icon(Icons.navigate_next),
-                  )),
-              SettingsRow(
                   iconData: Icons.person,
-                  title: appLocalization.getTraslateValue("username"),
+                  title: appLocalization.getTraslateValue("account_info"),
                   onClick: () => _routingService.openAccountSettings(),
                   child: Row(
                     children: <Widget>[
@@ -251,11 +238,26 @@ class _SettingsPageState extends State<SettingsPage> {
                         builder: (BuildContext context,
                             AsyncSnapshot<Account> snapshot) {
                           if (snapshot.data != null) {
-                            return Text(
-                              snapshot.data.userName ?? "",
-                              style: TextStyle(
-                                  color: ExtraTheme.of(context).textField,
-                                  fontSize: 13),
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  snapshot.data.userName ?? "",
+                                  style: TextStyle(
+                                      color: ExtraTheme.of(context).textField,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 14),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  buildPhoneNumber(snapshot.data.countryCode,
+                                      snapshot.data.nationalNumber),
+                                  style: TextStyle(
+                                      color: ExtraTheme.of(context).textField,
+                                      fontSize: 12),
+                                )
+                              ],
                             );
                           } else {
                             return SizedBox.shrink();
@@ -269,35 +271,23 @@ class _SettingsPageState extends State<SettingsPage> {
                     ],
                   )),
               SettingsRow(
-                iconData: Icons.phone,
-                title: appLocalization.getTraslateValue("phone"),
-                onClick: () => _routingService.openAccountSettings(),
-                child: Row(
-                  children: <Widget>[
-                    FutureBuilder<Account>(
-                      future: _accountRepo.getAccount(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<Account> snapshot) {
-                        if (snapshot.data != null) {
-                          return Text(
-                            buildPhoneNumber(snapshot.data.countryCode,
-                                snapshot.data.nationalNumber),
-                            style: TextStyle(
-                                color: ExtraTheme.of(context).textField,
-                                fontSize: 13),
-                          );
-                        } else {
-                          return SizedBox.shrink();
-                        }
-                      },
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Icon(Icons.navigate_next),
-                    ),
-                  ],
-                ),
-              ),
+                  iconData: Icons.bookmark,
+                  title: appLocalization.getTraslateValue("saved_message"),
+                  onClick: () => _routingService
+                      .openRoom(_accountRepo.currentUserUid.asString()),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(Icons.navigate_next),
+                  )),
+              SettingsRow(
+                  iconData: Icons.contacts,
+                  title: appLocalization.getTraslateValue("contacts"),
+                  onClick: () => _routingService
+                      .openContacts(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(Icons.navigate_next),
+                  )),
               SettingsRow(
                 iconData: Icons.brightness_2,
                 title: appLocalization.getTraslateValue("dark_mode"),
@@ -403,7 +393,6 @@ class _SettingsPageState extends State<SettingsPage> {
                                                   .textField))))
                               .toList()),
                     )),
-              Divider(),
               SettingsRow(
                 iconData: Icons.copyright_outlined,
                 title: appLocalization.getTraslateValue("version"),
@@ -471,30 +460,6 @@ class _SettingsPageState extends State<SettingsPage> {
                     ],
                   ),
                 ),
-              ),
-              SettingsRow(
-                iconData: Icons.info_outlined,
-                title: appLocalization.getTraslateValue("about"),
-                onClick: () async {
-                  showAboutDialog(
-                      context: context,
-                      applicationIcon: Image(
-                        width: 50,
-                        height: 50,
-                        image: AssetImage(
-                            'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
-                      ),
-                      applicationName: APPLICATION_NAME,
-                      applicationVersion:
-                          (await PackageInfo.fromPlatform()).version,
-                      children: [
-                        TextButton(
-                            onPressed: () => launch(
-                                "https://doc.deliver-co.ir/blogs/updates/"),
-                            child: Text("What's new"))
-                      ]);
-                },
-                child: Container(),
               ),
               SettingsRow(
                   iconData: Icons.exit_to_app,

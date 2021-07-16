@@ -286,7 +286,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   var _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
   void initState() {
-    eraseUnreadCountMessage(widget.roomId);
     Timer(Duration(seconds: 1), () {
       _showOtherMessage.add(true);
     });

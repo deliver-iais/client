@@ -7,11 +7,13 @@ import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ContactsPage extends StatelessWidget {
   final _contactRepo = GetIt.I.get<ContactRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
   final _rootingServices = GetIt.I.get<RoutingService>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
@@ -74,49 +76,67 @@ class ContactsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _showSyncContactDialog(context);
-    return StreamBuilder<List<Contact>>(
-        stream: _contactRepo.watchAll(),
-        builder: (BuildContext context, AsyncSnapshot<List<Contact>> snapshot) {
-          if (snapshot.hasData &&
-              snapshot.data != null &&
-              snapshot.data.length > 0) {
-            List<Contact> contacts = [];
-            List<Contact> contactUsers = [];
-            snapshot.data.forEach((element) {
-              element.uid != null
-                  ? contacts.add(element)
-                  : contactUsers.add(element);
-            });
-            contacts.addAll(contactUsers);
-            return Container(
-                child: Scrollbar(
-              child: ListView.separated(
-                separatorBuilder: (BuildContext context, int index) {
-                  return Divider();
-                },
-                itemCount: snapshot.data.length,
-                itemBuilder: (BuildContext ctx, int index) =>
-                    _accountRepo.isCurrentUser(contacts[index].uid)
-                        ? SizedBox.shrink()
-                        : GestureDetector(
-                            onTap: () {
-                              if (contacts[index].uid != null) {
-                                _rootingServices.openRoom(contacts[index].uid);
-                              } else {
-                                // todo invite contact
-                              }
-                            },
-                            child: ContactWidget(contact: contacts[index])),
-              ),
-            ));
-          } else {
-            if (snapshot.hasData && snapshot.data == null) {
-              return SizedBox.shrink();
-            } else
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-          }
-        });
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60.0),
+        child: AppBar(
+          elevation: 0,
+          title: Align(
+            alignment: Alignment.center,
+            child: Text(
+              "Contacts",
+              style: Theme.of(context).textTheme.headline3,
+            ),
+          ),
+          leading: _routingService.backButtonLeading(),
+          titleSpacing: -30,
+        ),
+      ),
+      body: StreamBuilder<List<Contact>>(
+          stream: _contactRepo.watchAll(),
+          builder:
+              (BuildContext context, AsyncSnapshot<List<Contact>> snapshot) {
+            if (snapshot.hasData &&
+                snapshot.data != null &&
+                snapshot.data.length > 0) {
+              List<Contact> contacts = [];
+              List<Contact> contactUsers = [];
+              snapshot.data.forEach((element) {
+                element.uid != null
+                    ? contacts.add(element)
+                    : contactUsers.add(element);
+              });
+              contacts.addAll(contactUsers);
+              return Container(
+                  child: Scrollbar(
+                child: ListView.separated(
+                  separatorBuilder: (BuildContext context, int index) {
+                    return Divider();
+                  },
+                  itemCount: snapshot.data.length,
+                  itemBuilder: (BuildContext ctx, int index) => _accountRepo
+                          .isCurrentUser(contacts[index].uid)
+                      ? SizedBox.shrink()
+                      : GestureDetector(
+                          onTap: () {
+                            if (contacts[index].uid != null) {
+                              _rootingServices.openRoom(contacts[index].uid);
+                            } else {
+                              // todo invite contact
+                            }
+                          },
+                          child: ContactWidget(contact: contacts[index])),
+                ),
+              ));
+            } else {
+              if (snapshot.hasData && snapshot.data == null) {
+                return SizedBox.shrink();
+              } else
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+            }
+          }),
+    );
   }
 }

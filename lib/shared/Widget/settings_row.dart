@@ -23,7 +23,7 @@ class SettingsRow extends StatelessWidget {
           onClick?.call();
         },
         child: Container(
-          height: 60,
+          constraints: BoxConstraints(minHeight: 60),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,

@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:deliver_flutter/box/message.dart';
+import 'package:deliver_flutter/screen/app-contacts/widgets/contactsPage.dart';
 
 import 'package:deliver_flutter/screen/app-contacts/widgets/new_Contact.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
@@ -60,6 +61,7 @@ class RoutingService {
     this._navigationCenter = NavigationCenter(
       key: ValueKey("navigator"),
       tapOnCurrentUserAvatar: () {
+        // this.openContacts();
         this.openSettings();
       },
     );
@@ -114,6 +116,15 @@ class RoutingService {
         largePageMain: widget,
         smallPageMain: widget,
         path: "/settings"));
+  }
+
+  void openContacts() {
+    var widget = ContactsPage(key: ValueKey("/contacts"));
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/contacts"));
   }
 
   void openShowAllAvatars(
@@ -246,9 +257,7 @@ class RoutingService {
 
   void openShareFile({List<String> path}) {
     var widget = ShareInputFile(
-      key: ValueKey("/share_file_page"),
-            inputSharedFilePath: path
-    );
+        key: ValueKey("/share_file_page"), inputSharedFilePath: path);
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,
@@ -258,14 +267,13 @@ class RoutingService {
 
   void openScanQrCode() {
     var widget = ScanQrCode(
-        key: ValueKey("/scan_qr_code"),
+      key: ValueKey("/scan_qr_code"),
     );
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,
         smallPageMain: widget,
         path: "/scan_qr_code"));
-
   }
 
   void openAddStickerPcakPage() {
@@ -384,8 +392,6 @@ class RoutingService {
   _smallPageMain(BuildContext context) {
     return _stack.last.smallPageMain;
   }
-
-
 }
 
 class Empty extends StatelessWidget {
