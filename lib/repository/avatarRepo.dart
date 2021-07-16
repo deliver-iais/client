@@ -22,7 +22,7 @@ import 'package:logger/logger.dart';
 import 'authRepo.dart';
 
 class AvatarRepo {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   final _avatarDao = GetIt.I.get<AvatarDao>();
   final _mucServices = GetIt.I.get<MucServices>();
   final _fileRepo = GetIt.I.get<FileRepo>();

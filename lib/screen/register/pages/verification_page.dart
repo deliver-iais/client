@@ -20,7 +20,7 @@ class VerificationPage extends StatefulWidget {
 }
 
 class _VerificationPageState extends State<VerificationPage> {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();

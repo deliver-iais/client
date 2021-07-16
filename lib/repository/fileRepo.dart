@@ -13,7 +13,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
 class FileRepo {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   final _fileDao = GetIt.I.get<FileDao>();
   final _fileService = GetIt.I.get<FileService>();
 

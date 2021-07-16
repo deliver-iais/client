@@ -8,7 +8,7 @@ import 'package:logger/logger.dart';
 
 class LastActivityRepo {
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
 
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();

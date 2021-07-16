@@ -9,7 +9,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
 class BotRepo {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   final _botServiceClient = GetIt.I.get<BotServiceClient>();
   final _botDao = GetIt.I.get<BotDao>();
 

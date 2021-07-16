@@ -12,7 +12,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
 class AccountRepo {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _profileServiceClient = GetIt.I.get<UserServiceClient>();

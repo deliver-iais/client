@@ -16,7 +16,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
 class NotificationServices {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   NotificationDetails _notificationDetails;
 

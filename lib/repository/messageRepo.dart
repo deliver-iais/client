@@ -57,7 +57,7 @@ import 'package:flutter/foundation.dart';
 enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
 class MessageRepo {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   final _messageDao = GetIt.I.get<MessageDao>();
 
   // migrate to room repo

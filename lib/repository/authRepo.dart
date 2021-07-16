@@ -20,7 +20,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:logger/logger.dart';
 
 class AuthRepo {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _authServiceClient = GetIt.I.get<AuthServiceClient>();
 

@@ -79,7 +79,7 @@ class RoomPage extends StatefulWidget {
 }
 
 class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _routingService = GetIt.I.get<RoutingService>();

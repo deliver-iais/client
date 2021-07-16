@@ -23,7 +23,7 @@ class VideoTabUi extends StatefulWidget {
 }
 
 class _VideoTabUiState extends State<VideoTabUi> {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   final mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   final fileRepo = GetIt.I.get<FileRepo>();
   Duration duration;

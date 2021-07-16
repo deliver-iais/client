@@ -28,7 +28,7 @@ import 'notification_services.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class FireBaseServices {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
   final _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();

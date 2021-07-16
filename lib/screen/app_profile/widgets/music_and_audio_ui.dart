@@ -29,7 +29,7 @@ class MusicAndAudioUi extends StatefulWidget {
 }
 
 class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   final mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   final fileRepo = GetIt.I.get<FileRepo>();
 

@@ -14,7 +14,6 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
 
 import 'contactPic.dart';
 import 'lastMessage.dart';
@@ -46,10 +45,6 @@ class _ChatItemState extends State<ChatItem> {
   Widget build(BuildContext context) {
     _roomRepo.initActivity(widget.room.uid.asUid().node);
     AppLocalization _appLocalization = AppLocalization.of(context);
-
-    var logger = Logger();
-
-    logger.d("Logger is working!");
 
     return FutureBuilder<String>(
         future: _roomRepo.getName(widget.room.uid.asUid()),
@@ -112,18 +107,17 @@ class _ChatItemState extends State<ChatItem> {
                                                 Categories.BOT)
                                         ? const EdgeInsets.only(left: 16.0)
                                         : EdgeInsets.zero,
-                                    child: widget.room.uid
-                                            .asUid()
-                                            .toString()
-                                            .contains(_authRepo
-                                                .currentUserUid
-                                                .toString())
+                                    child: widget.room.uid.asUid().toString().contains(
+                                            _authRepo.currentUserUid.toString())
                                         ? _showDisplayName(
                                             widget.room.uid.asUid(),
                                             _appLocalization.getTraslateValue(
                                                 "saved_message"),
                                             context)
-                                        : _showDisplayName(widget.room.uid.asUid(), name.data, context))),
+                                        : _showDisplayName(
+                                            widget.room.uid.asUid(),
+                                            name.data,
+                                            context))),
                             Text(
                               dateTimeFormat(
                                   date(widget.room.lastMessage.time)),

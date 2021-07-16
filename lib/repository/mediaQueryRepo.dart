@@ -17,7 +17,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:logger/logger.dart';
 
 class MediaQueryRepo {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   final _mediaQueriesDao = GetIt.I.get<MediaDao>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();

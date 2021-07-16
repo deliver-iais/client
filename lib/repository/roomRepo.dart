@@ -31,7 +31,7 @@ Cache<String, String> roomNameCache =
     LruCache<String, String>(storage: SimpleStorage(size: 100));
 
 class RoomRepo {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _seenDao = GetIt.I.get<SeenDao>();
   final _muteDao = GetIt.I.get<MuteDao>();

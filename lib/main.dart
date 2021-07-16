@@ -65,6 +65,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
@@ -81,6 +82,11 @@ import 'box/media.dart';
 import 'repository/mucRepo.dart';
 
 Future<void> setupDI() async {
+  GetIt.I.registerSingleton<DeliverLogFilter>(DeliverLogFilter());
+  GetIt.I.registerSingleton<Logger>(Logger(
+      filter: GetIt.I.get<DeliverLogFilter>(),
+      level: kDebugMode ? Level.info : Level.nothing));
+
   await Hive.initFlutter("db");
 
   Hive.registerAdapter(AvatarAdapter());
@@ -102,86 +108,82 @@ Future<void> setupDI() async {
   Hive.registerAdapter(MediaMetaDataAdapter());
   Hive.registerAdapter(MediaTypeAdapter());
 
-  GetIt getIt = GetIt.instance;
-  getIt.registerSingleton<AvatarDao>(AvatarDaoImpl());
-  getIt.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
-  getIt.registerSingleton<SharedDao>(SharedDaoImpl());
-  getIt.registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
-  getIt.registerSingleton<SeenDao>(SeenDaoImpl());
-  getIt.registerSingleton<FileDao>(FileDaoImpl());
-  getIt.registerSingleton<BlockDao>(BlockDaoImpl());
-  getIt.registerSingleton<MuteDao>(MuteDaoImpl());
-  getIt.registerSingleton<MucDao>(MucDaoImpl());
-  getIt.registerSingleton<BotDao>(BotDaoImpl());
-  getIt.registerSingleton<ContactDao>(ContactDaoImpl());
-  getIt.registerSingleton<MessageDao>(MessageDaoImpl());
-  getIt.registerSingleton<RoomDao>(RoomDaoImpl());
-  getIt.registerSingleton<MediaDao>(MediaDaoImpl());
-  getIt.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
+  GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
+  GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
+  GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
+  GetIt.I.registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
+  GetIt.I.registerSingleton<SeenDao>(SeenDaoImpl());
+  GetIt.I.registerSingleton<FileDao>(FileDaoImpl());
+  GetIt.I.registerSingleton<BlockDao>(BlockDaoImpl());
+  GetIt.I.registerSingleton<MuteDao>(MuteDaoImpl());
+  GetIt.I.registerSingleton<MucDao>(MucDaoImpl());
+  GetIt.I.registerSingleton<BotDao>(BotDaoImpl());
+  GetIt.I.registerSingleton<ContactDao>(ContactDaoImpl());
+  GetIt.I.registerSingleton<MessageDao>(MessageDaoImpl());
+  GetIt.I.registerSingleton<RoomDao>(RoomDaoImpl());
+  GetIt.I.registerSingleton<MediaDao>(MediaDaoImpl());
+  GetIt.I.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
 
   // Order is important, don't change it!
-  getIt.registerSingleton<AuthServiceClient>(
+  GetIt.I.registerSingleton<AuthServiceClient>(
       AuthServiceClient(ProfileServicesClientChannel));
-  getIt.registerSingleton<AuthRepo>(AuthRepo());
-  getIt.registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
+  GetIt.I.registerSingleton<AuthRepo>(AuthRepo());
+  GetIt.I
+      .registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
 
-  getIt.registerSingleton<UserServiceClient>(UserServiceClient(
+  GetIt.I.registerSingleton<UserServiceClient>(UserServiceClient(
       ProfileServicesClientChannel,
-      interceptors: [getIt.get<DeliverClientInterceptor>()]));
-  getIt.registerSingleton<ContactServiceClient>(ContactServiceClient(
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<ContactServiceClient>(ContactServiceClient(
       ProfileServicesClientChannel,
-      interceptors: [getIt.get<DeliverClientInterceptor>()]));
-  getIt.registerSingleton<QueryServiceClient>(QueryServiceClient(
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<QueryServiceClient>(QueryServiceClient(
       QueryClientChannel,
-      interceptors: [getIt.get<DeliverClientInterceptor>()]));
-  getIt.registerSingleton<CoreServiceClient>(CoreServiceClient(
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<CoreServiceClient>(CoreServiceClient(
       CoreServicesClientChannel,
-      interceptors: [getIt.get<DeliverClientInterceptor>()]));
-  getIt.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel,
-      interceptors: [getIt.get<DeliverClientInterceptor>()]));
-  getIt.registerSingleton<StickerServiceClient>(StickerServiceClient(
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel,
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<StickerServiceClient>(StickerServiceClient(
       StickerClientChannel,
-      interceptors: [getIt.get<DeliverClientInterceptor>()]));
-  getIt.registerSingleton<GroupServiceClient>(GroupServiceClient(
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<GroupServiceClient>(GroupServiceClient(
       MucServicesClientChannel,
-      interceptors: [getIt.get<DeliverClientInterceptor>()]));
-  getIt.registerSingleton<ChannelServiceClient>(ChannelServiceClient(
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<ChannelServiceClient>(ChannelServiceClient(
       MucServicesClientChannel,
-      interceptors: [getIt.get<DeliverClientInterceptor>()]));
-  getIt.registerSingleton<AvatarServiceClient>(AvatarServiceClient(
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<AvatarServiceClient>(AvatarServiceClient(
       AvatarServicesClientChannel,
-      interceptors: [getIt.get<DeliverClientInterceptor>()]));
-  getIt.registerSingleton<FirebaseServiceClient>(FirebaseServiceClient(
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<FirebaseServiceClient>(FirebaseServiceClient(
       FirebaseServicesClientChannel,
-      interceptors: [getIt.get<DeliverClientInterceptor>()]));
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
 
-  getIt.registerSingleton<AccountRepo>(AccountRepo());
-  getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
-  getIt.registerSingleton<UxService>(UxService());
-  getIt.registerSingleton<FileService>(FileService());
-  getIt.registerSingleton<MucServices>(MucServices());
-  getIt.registerSingleton<CreateMucService>(CreateMucService());
+  GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
+  GetIt.I.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
+  GetIt.I.registerSingleton<UxService>(UxService());
+  GetIt.I.registerSingleton<FileService>(FileService());
+  GetIt.I.registerSingleton<MucServices>(MucServices());
+  GetIt.I.registerSingleton<CreateMucService>(CreateMucService());
 
-  getIt.registerSingleton<BotRepo>(BotRepo());
-  getIt.registerSingleton<StickerRepo>(StickerRepo());
-  getIt.registerSingleton<FileRepo>(FileRepo());
-  getIt.registerSingleton<ContactRepo>(ContactRepo());
-  getIt.registerSingleton<AvatarRepo>(AvatarRepo());
-  getIt.registerSingleton<RoutingService>(RoutingService());
-  getIt.registerSingleton<NotificationServices>(NotificationServices());
-  getIt.registerSingleton<MucRepo>(MucRepo());
-  getIt.registerSingleton<RoomRepo>(RoomRepo());
-  getIt.registerSingleton<CoreServices>(CoreServices());
-
-  getIt.registerSingleton<MessageRepo>(MessageRepo());
-
-  getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
-  getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());
-
-  getIt.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
-
-  getIt.registerSingleton<FireBaseServices>(FireBaseServices());
-  getIt.registerSingleton<LastActivityRepo>(LastActivityRepo());
+  GetIt.I.registerSingleton<BotRepo>(BotRepo());
+  GetIt.I.registerSingleton<StickerRepo>(StickerRepo());
+  GetIt.I.registerSingleton<FileRepo>(FileRepo());
+  GetIt.I.registerSingleton<ContactRepo>(ContactRepo());
+  GetIt.I.registerSingleton<AvatarRepo>(AvatarRepo());
+  GetIt.I.registerSingleton<RoutingService>(RoutingService());
+  GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
+  GetIt.I.registerSingleton<MucRepo>(MucRepo());
+  GetIt.I.registerSingleton<RoomRepo>(RoomRepo());
+  GetIt.I.registerSingleton<CoreServices>(CoreServices());
+  GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
+  GetIt.I.registerSingleton<AudioPlayerService>(AudioPlayerService());
+  GetIt.I.registerSingleton<VideoPlayerService>(VideoPlayerService());
+  GetIt.I.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
+  GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
+  GetIt.I.registerSingleton<LastActivityRepo>(LastActivityRepo());
 }
 
 Future setupFlutterNotification() async {

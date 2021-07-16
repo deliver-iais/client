@@ -23,7 +23,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
 
 class MucRepo {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   final _mucDao = GetIt.I.get<MucDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _mucServices = GetIt.I.get<MucServices>();

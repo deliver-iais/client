@@ -40,7 +40,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
   final _uxService = GetIt.I.get<UxService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
@@ -283,8 +283,7 @@ class _SettingsPageState extends State<SettingsPage> {
               SettingsRow(
                   iconData: Icons.contacts,
                   title: appLocalization.getTraslateValue("contacts"),
-                  onClick: () => _routingService
-                      .openContacts(),
+                  onClick: () => _routingService.openContacts(),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Icon(Icons.navigate_next),
@@ -375,7 +374,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       child: DropdownButton(
                           underline: SizedBox.shrink(),
                           hint: Text(
-                            LogLevelHelper.levelToString(Logger.level),
+                            LogLevelHelper.levelToString(
+                                GetIt.I.get<DeliverLogFilter>().level),
                             style: TextStyle(
                                 color: ExtraTheme.of(context).textField),
                           ),

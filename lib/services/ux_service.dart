@@ -5,10 +5,23 @@ import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/light.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+
+class DeliverLogFilter extends LogFilter {
+  @override
+  set level(Level _level) {
+    super.level = _level;
+  }
+
+  @override
+  bool shouldLog(LogEvent event) {
+    return event.level != Level.nothing && event.level.index >= level.index;
+  }
+}
 
 class LogLevelHelper {
   static String levelToString(Level level) {
@@ -72,9 +85,11 @@ class UxService {
 
   UxService() {
     _sharedDao
-        .getStream(SHARED_DAO_LOG_LEVEL, defaultValue: "ERROR")
+        .getStream(SHARED_DAO_LOG_LEVEL, defaultValue: kDebugMode ? "INFO" : "NOTHING")
         .map((event) => LogLevelHelper.stringToLevel(event))
-        .listen((level) => Logger.level = level);
+        .listen((level) {
+      GetIt.I.get<DeliverLogFilter>().level = level;
+    });
   }
 
   // TODO ???

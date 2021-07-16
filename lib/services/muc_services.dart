@@ -19,7 +19,7 @@ import 'package:logger/logger.dart';
 
 // TODO check timeout time again!!!!
 class MucServices {
-  final _logger = Logger();
+  final _logger = GetIt.I.get<Logger>();
 
   final groupServices = GetIt.I.get<GroupServices.GroupServiceClient>();
   final channelServices = GetIt.I.get<ChannelServices.ChannelServiceClient>();
