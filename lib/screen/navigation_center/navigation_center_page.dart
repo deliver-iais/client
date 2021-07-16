@@ -10,7 +10,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/chatsPage.dart';
 import 'package:deliver_flutter/screen/contacts/contacts_page.dart';
 import 'package:deliver_flutter/services/audioPlayerAppBar.dart';
-import 'package:deliver_flutter/screen/navigation_center/widgets/searchBox.dart';
+import 'package:deliver_flutter/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';

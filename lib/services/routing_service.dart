@@ -11,7 +11,7 @@ import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dar
 import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/profile_page.dart';
 import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
-import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
+import 'package:deliver_flutter/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver_flutter/screen/settings/account_settings.dart';
 import 'package:deliver_flutter/screen/settings/settings_page.dart';
 import 'package:deliver_flutter/screen/share_input_file/share_input_file.dart';
