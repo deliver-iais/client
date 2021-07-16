@@ -20,6 +20,7 @@ import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
@@ -391,9 +392,13 @@ class _ProfilePageState extends State<ProfilePage>
                                                           ),
                                                           MaterialButton(
                                                             onPressed: () => launch(
-                                                                "tel:0${snapshot.data.phoneNumber}"),
+                                                                "tel:${snapshot.data.countryCode}${snapshot.data.nationalNumber}"),
                                                             child: Text(
-                                                              "0${snapshot.data.phoneNumber}",
+                                                              buildPhoneNumber(
+                                                                  snapshot.data
+                                                                      .countryCode,
+                                                                  snapshot.data
+                                                                      .nationalNumber),
                                                               style: TextStyle(
                                                                   color: ExtraTheme.of(
                                                                           context)

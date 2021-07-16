@@ -16,12 +16,11 @@ ThemeData LightTheme =
         buttonColor: Color(0xFF2699FB),
         dividerTheme: DividerThemeData(
             space: 1.0, thickness: 1.0, color: Color(0xFFf0f0f0)),
-        focusColor: Color(0xFF2699FB).withOpacity(0.8),
+        focusColor: Colors.lightBlue[300].withOpacity(0.6),
         cardColor: Color(0xff489088),
         textTheme: TextTheme(
           headline1: TextStyle(color: Colors.black, fontSize: 40),
-          headline2: TextStyle(
-              color: Colors.black, fontSize: 25),
+          headline2: TextStyle(color: Colors.black, fontSize: 25),
           headline3: TextStyle(color: Colors.black, fontSize: 20),
           headline4: TextStyle(color: Colors.black, fontSize: 18),
           headline6: TextStyle(color: Colors.black, fontSize: 15),
@@ -52,7 +51,7 @@ ThemeData LightTheme =
 // ignore: non_constant_identifier_names
 ExtraThemeData LightExtraTheme = ExtraThemeData(
   centerPageDetails: Color(0xff0b796c),
-  circleAvatarIcon: Colors.white,
+  circleAvatarIcon: Color(0xFF2699FB),
   boxDetails: Color(0xff15786c),
   boxOuterBackground: Colors.lightBlue[300],
   boxBackground: Colors.lightBlue[50],
@@ -74,7 +73,7 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   circularFileStatus: LightTheme.backgroundColor,
   fileMessageDetails: Color(0xff00a394),
   textField: LightTheme.accentColor,
-  username: Colors.blue,
+  username: Colors.blue[900],
   titleStatus: Colors.blue,
   seenStatus: Colors.blue,
   pinMessageTheme: Colors.white,

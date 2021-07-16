@@ -31,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
     if (isValidated && phoneNumber != null) {
       try {
         var res = await accountRepo.getVerificationCode(
-            phoneNumber.countryCode, phoneNumber.number);
+            phoneNumber.countryCode, phoneNumber.nationalNumber);
         if (res != null)
           ExtendedNavigator.of(context).push(Routes.verificationPage);
         else
@@ -93,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
                     children: <Widget>[
                       SizedBox(height: 5,),
                       IntlPhoneField(
-                        initialValue: phoneNumber!= null? phoneNumber.number:"",
+                        initialValue: phoneNumber!= null? phoneNumber.nationalNumber:"",
                         validator: (value) => value.length != 10 ||
                                 (value.length > 0 && value[0] == '0')
                             ? appLocalization

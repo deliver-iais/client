@@ -461,6 +461,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
               ),
+              Divider(),
               SettingsRow(
                   iconData: Icons.exit_to_app,
                   title: appLocalization.getTraslateValue("Log_out"),

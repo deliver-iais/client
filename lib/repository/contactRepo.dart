@@ -146,7 +146,8 @@ class ContactRepo {
     for (var contact in result.userList) {
       _contactDao.save(DB.Contact(
           uid: contact.uid.asString(),
-          phoneNumber: contact.phoneNumber.nationalNumber.toString(),
+          countryCode: contact.phoneNumber.countryCode.toString(),
+          nationalNumber: contact.phoneNumber.nationalNumber.toString(),
           firstName: contact.firstName,
           lastName: contact.lastName));
 
@@ -196,8 +197,8 @@ class ContactRepo {
     return contact;
   }
 
-  Future<bool> contactIsExist(String number) async {
-    var result = await _contactDao.get(number);
+  Future<bool> contactIsExist(String countryCode, String nationalNumber) async {
+    var result = await _contactDao.get(countryCode, nationalNumber);
     return result != null;
   }
 }

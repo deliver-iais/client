@@ -3,25 +3,28 @@ import 'package:rxdart/rxdart.dart';
 
 class CreateMucService {
   BehaviorSubject<int> _membersLength = BehaviorSubject.seeded(0);
-  List<Contact> members = [];
+  List<Contact> contacts = [];
 
-  reset() {
-    members = [];
-    _membersLength.add(members.length);
+  void reset() {
+    contacts = [];
+    _membersLength.add(contacts.length);
   }
 
-  addMember(Contact member) {
-    members.add(member);
-    _membersLength.add(members.length);
+  void addContact(Contact contact) {
+    contacts.add(contact);
+    _membersLength.add(contacts.length);
   }
 
-  deleteMember(Contact member) {
-    members.removeWhere((m) => m.phoneNumber == member.phoneNumber);
-    _membersLength.add(members.length);
+  void deleteContact(Contact contact) {
+    contacts.removeWhere((c) =>
+        c.nationalNumber == contact.nationalNumber &&
+        c.countryCode == contact.countryCode);
+    _membersLength.add(contacts.length);
   }
 
   Stream<int> selectedLengthStream() => _membersLength.stream;
 
-  isSelected(Contact member) =>
-      members.any((m) => m.phoneNumber == member.phoneNumber);
+  bool isSelected(Contact contact) => contacts.any((c) =>
+      c.nationalNumber == contact.nationalNumber &&
+      c.countryCode == contact.countryCode);
 }

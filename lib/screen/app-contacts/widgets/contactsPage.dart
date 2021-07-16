@@ -6,6 +6,9 @@ import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
 import 'package:deliver_flutter/shared/constants.dart';
+import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
+import 'package:deliver_flutter/shared/fluid_container.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
@@ -80,63 +83,69 @@ class ContactsPage extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
         child: AppBar(
+          backgroundColor: ExtraTheme.of(context).boxOuterBackground,
           elevation: 0,
           title: Align(
             alignment: Alignment.center,
             child: Text(
               "Contacts",
-              style: Theme.of(context).textTheme.headline3,
+              style: Theme.of(context).textTheme.headline2,
             ),
           ),
           leading: _routingService.backButtonLeading(),
           titleSpacing: -30,
         ),
       ),
-      body: StreamBuilder<List<Contact>>(
-          stream: _contactRepo.watchAll(),
-          builder:
-              (BuildContext context, AsyncSnapshot<List<Contact>> snapshot) {
-            if (snapshot.hasData &&
-                snapshot.data != null &&
-                snapshot.data.length > 0) {
-              List<Contact> contacts = [];
-              List<Contact> contactUsers = [];
-              snapshot.data.forEach((element) {
-                element.uid != null
-                    ? contacts.add(element)
-                    : contactUsers.add(element);
-              });
-              contacts.addAll(contactUsers);
-              return Container(
-                  child: Scrollbar(
-                child: ListView.separated(
-                  separatorBuilder: (BuildContext context, int index) {
-                    return Divider();
-                  },
-                  itemCount: snapshot.data.length,
-                  itemBuilder: (BuildContext ctx, int index) => _accountRepo
-                          .isCurrentUser(contacts[index].uid)
-                      ? SizedBox.shrink()
-                      : GestureDetector(
-                          onTap: () {
-                            if (contacts[index].uid != null) {
-                              _rootingServices.openRoom(contacts[index].uid);
-                            } else {
-                              // todo invite contact
-                            }
-                          },
-                          child: ContactWidget(contact: contacts[index])),
-                ),
-              ));
-            } else {
-              if (snapshot.hasData && snapshot.data == null) {
-                return SizedBox.shrink();
-              } else
+      body: FluidContainerWidget(
+        child: StreamBuilder<List<Contact>>(
+            stream: _contactRepo.watchAll(),
+            builder:
+                (BuildContext context, AsyncSnapshot<List<Contact>> snapshot) {
+              List<Contact> contacts = snapshot.data ?? [];
+              if (!snapshot.hasData) {
                 return Center(
                   child: CircularProgressIndicator(),
                 );
-            }
-          }),
+              } else {
+                return Container(
+                    child: Scrollbar(
+                  child: ListView.separated(
+                    separatorBuilder: (BuildContext context, int index) {
+                      if (_accountRepo.isCurrentUser(contacts[index].uid))
+                        return SizedBox.shrink();
+                      else
+                        return Divider();
+                    },
+                    itemCount: snapshot.data.length,
+                    itemBuilder: (BuildContext ctx, int index) {
+                      var c = contacts[index];
+                      return _accountRepo.isCurrentUser(c.uid)
+                          ? SizedBox.shrink()
+                          : GestureDetector(
+                              onTap: () {
+                                if (c.uid != null) {
+                                  _rootingServices.openRoom(c.uid);
+                                } else {
+                                  // todo invite contact
+                                }
+                              },
+                              child: ContactWidget(
+                                  contact: c,
+                                  circleIcon: Icons.qr_code_rounded,
+                                  onCircleIcon: () => showQrCode(
+                                      context,
+                                      buildShareUserUrl(
+                                          c.countryCode,
+                                          c.nationalNumber,
+                                          c.firstName,
+                                          c.lastName))),
+                            );
+                    },
+                  ),
+                ));
+              }
+            }),
+      ),
     );
   }
 }

@@ -12,17 +12,25 @@ class FluidContainerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: ExtraTheme.of(context).boxOuterBackground,
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.all(10),
-          child: ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS)),
-            child: Container(
-              color: ExtraTheme.of(context).boxBackground,
-              constraints: BoxConstraints(maxWidth: FLUID_CONTAINER_MAX_WIDTH),
-              child: child,
+    return DividerTheme(
+      data: DividerThemeData(
+          space: 1.0,
+          thickness: 1.0,
+          color: ExtraTheme.of(context).boxOuterBackground.withAlpha(50)),
+      child: Container(
+        color: ExtraTheme.of(context).boxOuterBackground,
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            child: ClipRRect(
+              borderRadius:
+                  BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS)),
+              child: Container(
+                color: ExtraTheme.of(context).boxBackground,
+                constraints:
+                    BoxConstraints(maxWidth: FLUID_CONTAINER_MAX_WIDTH),
+                child: child,
+              ),
             ),
           ),
         ),

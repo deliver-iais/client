@@ -129,10 +129,11 @@ class LastMessage extends StatelessWidget {
 
   Widget _fromDisplayName(String from, BuildContext context) {
     return Text(
-      "$from :",
+      "$from: ",
       style: TextStyle(
-        color: Theme.of(context).primaryColor,
+        color: ExtraTheme.of(context).username,
         fontSize: 14,
+        fontWeight: FontWeight.w500
       ),
     );
   }

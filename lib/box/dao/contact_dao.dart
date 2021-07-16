@@ -2,7 +2,7 @@ import 'package:deliver_flutter/box/contact.dart';
 import 'package:hive/hive.dart';
 
 abstract class ContactDao {
-  Future<Contact> get(String phoneNumber);
+  Future<Contact> get(String countryCode, String nationalNumber);
 
   Future<Contact> getByUid(String uid);
 
@@ -14,11 +14,13 @@ abstract class ContactDao {
 }
 
 class ContactDaoImpl implements ContactDao {
-  Future<Contact> get(String phoneNumber) async {
+  Future<Contact> get(String countryCode, String nationalNumber) async {
     var box = await _open();
 
     return box.values.firstWhere(
-        (element) => element.phoneNumber == phoneNumber,
+        (element) =>
+            element.countryCode == countryCode &&
+            element.nationalNumber == nationalNumber,
         orElse: () => null);
   }
 

@@ -14,6 +14,7 @@ import '../circleAvatar.dart';
 class ContactWidget extends StatelessWidget {
   final Contact contact;
   final IconData circleIcon;
+  final Function onCircleIcon;
   final bool isSelected;
   final bool currentMember;
   final _accountRepo = GetIt.I.get<AccountRepo>();
@@ -22,7 +23,8 @@ class ContactWidget extends StatelessWidget {
       {this.contact,
       this.circleIcon,
       this.isSelected = false,
-      this.currentMember = false});
+      this.currentMember = false,
+      this.onCircleIcon});
 
   @override
   Widget build(BuildContext context) {
@@ -70,15 +72,12 @@ class ContactWidget extends StatelessWidget {
             ),
           ),
           if (circleIcon != null)
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: Theme.of(context).accentColor.withAlpha(200),
-              child: FittedBox(
-                child: Icon(
-                  circleIcon,
-                  color: ExtraTheme.of(context).circleAvatarIcon,
-                  size: 21,
-                ),
+            IconButton(
+              onPressed: () => onCircleIcon?.call(),
+              icon: Icon(
+                circleIcon,
+                color: ExtraTheme.of(context).circleAvatarIcon,
+                size: 21,
               ),
             ),
         ],

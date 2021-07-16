@@ -184,7 +184,7 @@ class _ScanQrCode extends State<ScanQrCode> {
       String countryCode,
       String nationalNumber,
       BuildContext context}) async {
-    var res = await _contactRepo.contactIsExist(nationalNumber.trim());
+    var res = await _contactRepo.contactIsExist(countryCode, nationalNumber);
     if (res) {
       Fluttertoast.showToast(
           msg:

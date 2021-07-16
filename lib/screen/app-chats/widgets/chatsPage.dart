@@ -8,8 +8,9 @@ import 'package:get_it/get_it.dart';
 class ChatsPage extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final ScrollController scrollController;
 
-  ChatsPage({Key key}) : super(key: key);
+  ChatsPage({Key key, this.scrollController}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +23,7 @@ class ChatsPage extends StatelessWidget {
               var room = snapshot.data ?? [];
               return Scrollbar(
                 child: ListView.separated(
+                  controller: scrollController,
                   itemCount: room.length,
                   itemBuilder: (BuildContext ctx, int index) {
                     return MouseRegion(

@@ -48,6 +48,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   var rootingServices = GetIt.I.get<RoutingService>();
   var contactRepo = GetIt.I.get<ContactRepo>();
   var _messageRepo = GetIt.I.get<MessageRepo>();
+  final ScrollController scrollController = ScrollController();
 
   final Function tapOnCurrentUserAvatar;
 
@@ -83,94 +84,105 @@ class _NavigationCenterState extends State<NavigationCenter> {
         preferredSize: Size.fromHeight(56),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 0.0),
-          child: AppBar(
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-            leading: Row(
-              children: [
-                SizedBox(
-                  width: 10,
-                ),
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
+          child: GestureDetector(
+            onTap: () {
+              scrollController.animateTo(
+                0.0,
+                curve: Curves.easeOut,
+                duration: const Duration(milliseconds: 300),
+              );
+            },
+            child: AppBar(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              leading: Row(
+                children: [
+                  SizedBox(
+                    width: 10,
+                  ),
+                  GestureDetector(
                     child: Container(
                       child: Center(
-                        child: CircleAvatarWidget(
-                          _accountRepo.currentUserUid,
-                          20,
-                          showAsStreamOfAvatar: true,
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: CircleAvatarWidget(
+                            _accountRepo.currentUserUid,
+                            20,
+                            showAsStreamOfAvatar: true,
+                          ),
                         ),
                       ),
                     ),
                     onTap: tapOnCurrentUserAvatar,
                   ),
+                ],
+              ),
+              titleSpacing: 8.0,
+              title: StreamBuilder<TitleStatusConditions>(
+                  stream: _messageRepo.updatingStatus.stream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData &&
+                        snapshot.data == TitleStatusConditions.Normal) {
+                      return buildText(context);
+                    } else if (snapshot.data ==
+                        TitleStatusConditions.Updating) {
+                      return Text(_appLocalization.getTraslateValue("updating"),
+                          style: TextStyle(
+                              fontSize: 20,
+                              color:
+                                  Theme.of(context).textTheme.headline2.color));
+                    } else if (snapshot.data ==
+                        TitleStatusConditions.Connecting) {
+                      return Text(
+                          _appLocalization.getTraslateValue("connecting"),
+                          style: TextStyle(
+                              fontSize: 20,
+                              color:
+                                  Theme.of(context).textTheme.headline2.color));
+                    } else if (snapshot.hasData &&
+                        snapshot.data == TitleStatusConditions.Disconnected) {
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          buildText(context),
+                          SizedBox(
+                            width: 7,
+                          ),
+                          Text(_appLocalization.getTraslateValue("disconnect"),
+                              style: TextStyle(fontSize: 16, color: Colors.red))
+                        ],
+                      );
+                    } else {
+                      return buildText(context);
+                    }
+                  }),
+              actions: [
+                if (true)
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: ExtraTheme.of(context).menuIconButton,
+                    ),
+                    child: IconButton(
+                        onPressed: () {
+                          _routingService.openScanQrCode();
+                        },
+                        icon: Icon(
+                          Icons.qr_code,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black,
+                        )),
+                  ),
+                SizedBox(
+                  width: 8,
                 ),
+                buildMenu(context),
+                SizedBox(
+                  width: 8,
+                )
               ],
             ),
-            titleSpacing: 8.0,
-            title: StreamBuilder<TitleStatusConditions>(
-                stream: _messageRepo.updatingStatus.stream,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData &&
-                      snapshot.data == TitleStatusConditions.Normal) {
-                    return buildText(context);
-                  } else if (snapshot.data == TitleStatusConditions.Updating) {
-                    return Text(_appLocalization.getTraslateValue("updating"),
-                        style: TextStyle(
-                            fontSize: 20,
-                            color:
-                                Theme.of(context).textTheme.headline2.color));
-                  } else if (snapshot.data ==
-                      TitleStatusConditions.Connecting) {
-                    return Text(_appLocalization.getTraslateValue("connecting"),
-                        style: TextStyle(
-                            fontSize: 20,
-                            color:
-                                Theme.of(context).textTheme.headline2.color));
-                  } else if (snapshot.hasData &&
-                      snapshot.data == TitleStatusConditions.Disconnected) {
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        buildText(context),
-                        SizedBox(
-                          width: 7,
-                        ),
-                        Text(_appLocalization.getTraslateValue("disconnect"),
-                            style: TextStyle(fontSize: 16, color: Colors.red))
-                      ],
-                    );
-                  } else {
-                    return buildText(context);
-                  }
-                }),
-            actions: [
-              if (true)
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: ExtraTheme.of(context).menuIconButton,
-                  ),
-                  child: IconButton(
-                      onPressed: () {
-                        _routingService.openScanQrCode();
-                      },
-                      icon: Icon(
-                        Icons.qr_code,
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white
-                            : Colors.black,
-                      )),
-                ),
-              SizedBox(
-                width: 8,
-              ),
-              buildMenu(context),
-              SizedBox(
-                width: 10,
-              )
-            ],
           ),
         ),
       ),
@@ -198,7 +210,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
               ? searchResult(_appLocalization)
               : Expanded(
                   child: (tab == NavigationTabs.Chats)
-                      ? ChatsPage()
+                      ? ChatsPage(scrollController: scrollController)
                       : ContactsPage()),
         ],
       ),

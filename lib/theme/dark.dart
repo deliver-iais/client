@@ -19,8 +19,7 @@ ThemeData DarkTheme =
         cardColor: Color(0xFF2699FB),
         textTheme: TextTheme(
           headline1: TextStyle(color: Colors.white, fontSize: 40),
-          headline2: TextStyle(
-              color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
+          headline2: TextStyle(color: Colors.white, fontSize: 25),
           headline3: TextStyle(color: Colors.white, fontSize: 20),
           headline4: TextStyle(color: Colors.white, fontSize: 18),
           headline6: TextStyle(color: Colors.white, fontSize: 15),

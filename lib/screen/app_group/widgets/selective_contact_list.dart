@@ -177,7 +177,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                             onPressed: () async {
                               List<Uid> users = [];
                               for (Contact contact
-                                  in _createMucService.members) {
+                                  in _createMucService.contacts) {
                                 users.add(contact.uid.asUid());
                               }
                               bool usersAdd = await _mucRepo.sendMembers(
@@ -221,10 +221,10 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
         onTap: () {
           if (!members.contains(items[index].uid)) {
             if (!_createMucService.isSelected(items[index])) {
-              _createMucService.addMember(items[index]);
+              _createMucService.addContact(items[index]);
               editingController.clear();
             } else {
-              _createMucService.deleteMember(items[index]);
+              _createMucService.deleteContact(items[index]);
               editingController.clear();
             }
           }
