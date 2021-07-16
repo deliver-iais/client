@@ -111,6 +111,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
           padding: const EdgeInsets.symmetric(horizontal: 0.0),
           child: AppBar(
             elevation: 0,
+            backgroundColor: Colors.transparent,
             leading: Row(
               children: [
                 SizedBox(
@@ -223,8 +224,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
               ? searchResult()
               : Expanded(
                   child: (tab == NavigationTabs.Chats)
-                      ? ChatsPage(key: ValueKey("ChatsPage"))
-                      : ContactsPage(key: ValueKey("ContactsPage"))),
+                      ? ChatsPage()
+                      : ContactsPage()),
         ],
       ),
       bottomNavigationBar: BottomAppBar(

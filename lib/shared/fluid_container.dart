@@ -14,15 +14,9 @@ class FluidContainerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        child: ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS)),
-          child: Container(
-            color: ExtraTheme.of(context).boxBackground,
-            padding: const EdgeInsets.all(8),
-            constraints: BoxConstraints(maxWidth: BREAKDOWN_SIZE),
-            child: child,
-          ),
-        ),
+        color: ExtraTheme.of(context).boxBackground,
+        constraints: BoxConstraints(maxWidth: FLUID_CONTAINER_MAX_WIDTH),
+        child: child,
       ),
     );
   }

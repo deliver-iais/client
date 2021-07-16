@@ -94,11 +94,11 @@ class CircleAvatarWidget extends StatelessWidget {
           shape: BoxShape.circle,
           gradient: LinearGradient(colors: [
             darken(color,
-                Theme.of(context).brightness == Brightness.dark ? 20 : 20),
+                Theme.of(context).brightness == Brightness.dark ? 35 : 30),
             color,
             lighten(color,
-                Theme.of(context).brightness == Brightness.dark ? 15 : 30),
-          ], begin: Alignment.topLeft, end: Alignment.centerRight)),
+                Theme.of(context).brightness == Brightness.dark ? 25 : 30),
+          ], begin: Alignment.bottomCenter, end: Alignment.topCenter)),
       child: CircleAvatar(
         radius: radius,
         backgroundColor: Colors.transparent,

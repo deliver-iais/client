@@ -9,14 +9,14 @@ ThemeData LightTheme =
         visualDensity: VisualDensity.adaptivePlatformDensity,
         // primaryColor: Color(0xFF2699FB),
         // accentColor: Color(0x8bc1e0FF),
-        primaryColor: Color(0xff179c96),
+        primaryColor: Color(0xFF2699FB),
         accentColor: Color(0xff002121),
         scaffoldBackgroundColor: Colors.white,
         backgroundColor: Color(0xfde2f8f0),
-        buttonColor: Color(0xff1f655d),
+        buttonColor: Color(0xFF2699FB),
         dividerTheme: DividerThemeData(
             space: 1.0, thickness: 1.0, color: Color(0xFFf0f0f0)),
-        focusColor: Color(0xff179c96).withOpacity(0.4),
+        focusColor: Color(0xFF2699FB).withOpacity(0.8),
         cardColor: Color(0xff489088),
         textTheme: TextTheme(
           headline1: TextStyle(color: Colors.black, fontSize: 40),

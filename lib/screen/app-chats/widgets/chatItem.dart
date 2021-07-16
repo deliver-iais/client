@@ -173,7 +173,7 @@ class _ChatItemState extends State<ChatItem> {
           } else
             return Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 0.0, vertical: 11.0),
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 11.0),
               child: Row(
                 children: [
                   Container(

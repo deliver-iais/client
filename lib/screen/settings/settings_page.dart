@@ -95,145 +95,182 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
     return Scaffold(
-        appBar: AppBar(
-            elevation: 0,
-            title: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                appLocalization.getTraslateValue("settings"),
-                style: Theme.of(context).textTheme.headline2,
-              ),
-            ),
-            leading: _routingService.backButtonLeading()),
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(60.0),
+          child: FluidContainerWidget(
+            child: AppBar(
+                elevation: 0,
+                backgroundColor:
+                    Theme.of(context).dialogBackgroundColor.withAlpha(30),
+                title: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    appLocalization.getTraslateValue("settings"),
+                    style: Theme.of(context).textTheme.headline2,
+                  ),
+                ),
+                leading: _routingService.backButtonLeading()),
+          ),
+        ),
         body: FluidContainerWidget(
-          child: ListView(children: [
-            Padding(
-                padding: const EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                        onTap: () async {
-                          var lastAvatar = await _avatarRepo.getLastAvatar(
-                              _accountRepo.currentUserUid, false);
-                          if (lastAvatar.createdOn != null) {
-                            _routingServices.openShowAllAvatars(
-                                uid: _accountRepo.currentUserUid,
-                                hasPermissionToDeleteAvatar: true,
-                                heroTag: "avatar");
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: ListView(children: [
+              Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                          onTap: () async {
+                            var lastAvatar = await _avatarRepo.getLastAvatar(
+                                _accountRepo.currentUserUid, false);
+                            if (lastAvatar.createdOn != null) {
+                              _routingServices.openShowAllAvatars(
+                                  uid: _accountRepo.currentUserUid,
+                                  hasPermissionToDeleteAvatar: true,
+                                  heroTag: "avatar");
+                            }
+                          },
+                          child: _newAvatarPath != null
+                              ? CircleAvatar(
+                                  radius: 30,
+                                  backgroundImage:
+                                      Image.file(File(_newAvatarPath)).image,
+                                  child: Center(
+                                    child: SizedBox(
+                                        height: 50.0,
+                                        width: 50.0,
+                                        child: _uploadNewAvatar
+                                            ? CircularProgressIndicator(
+                                                valueColor:
+                                                    AlwaysStoppedAnimation(
+                                                        Colors.blue),
+                                                strokeWidth: 6.0,
+                                              )
+                                            : SizedBox.shrink()),
+                                  ),
+                                )
+                              : CircleAvatarWidget(
+                                  _accountRepo.currentUserUid,
+                                  30,
+                                  showAsStreamOfAvatar: true,
+                                )),
+                      SizedBox(width: 15),
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            FutureBuilder<Account>(
+                              future: _accountRepo.getAccount(),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<Account> snapshot) {
+                                if (snapshot.data != null) {
+                                  return Expanded(
+                                    child: Text(
+                                      "${snapshot.data.firstName} ${snapshot.data.lastName}"
+                                          .trim(),
+                                      overflow: TextOverflow.fade,
+                                      maxLines: 1,
+                                      softWrap: false,
+                                      style: TextStyle(
+                                          fontSize: 25,
+                                          color:
+                                              ExtraTheme.of(context).textField),
+                                    ),
+                                  );
+                                } else {
+                                  return SizedBox.shrink();
+                                }
+                              },
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: ExtraTheme.of(context).menuIconButton,
+                              ),
+                              child: IconButton(
+                                  iconSize: 25,
+                                  onPressed: () => attachFile(),
+                                  icon: Icon(
+                                    Icons.add_a_photo,
+                                    color: Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? Colors.white
+                                        : Colors.black,
+                                  )),
+                            ),
+                            SizedBox(width: 8),
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: ExtraTheme.of(context).menuIconButton,
+                              ),
+                              child: IconButton(
+                                  iconSize: 25,
+                                  onPressed: () async {
+                                    var account =
+                                        await _accountRepo.getAccount();
+                                    showQrCode(
+                                        context,
+                                        buildShareUserUrl(
+                                            account.countryCode,
+                                            account.nationalNumber,
+                                            account.firstName,
+                                            account.lastName));
+                                  },
+                                  icon: Icon(
+                                    Icons.qr_code,
+                                    color: Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? Colors.white
+                                        : Colors.black,
+                                  )),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
+                  )),
+              SettingsRow(
+                  iconData: Icons.bookmark,
+                  title: appLocalization.getTraslateValue("saved_message"),
+                  onClick: () => _routingService
+                      .openRoom(_accountRepo.currentUserUid.asString()),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(Icons.navigate_next),
+                  )),
+              SettingsRow(
+                  iconData: Icons.person,
+                  title: appLocalization.getTraslateValue("username"),
+                  onClick: () => _routingService.openAccountSettings(),
+                  child: Row(
+                    children: <Widget>[
+                      FutureBuilder<Account>(
+                        future: _accountRepo.getAccount(),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<Account> snapshot) {
+                          if (snapshot.data != null) {
+                            return Text(
+                              snapshot.data.userName ?? "",
+                              style: TextStyle(
+                                  color: ExtraTheme.of(context).textField,
+                                  fontSize: 13),
+                            );
+                          } else {
+                            return SizedBox.shrink();
                           }
                         },
-                        child: _newAvatarPath != null
-                            ? CircleAvatar(
-                                radius: 30,
-                                backgroundImage:
-                                    Image.file(File(_newAvatarPath)).image,
-                                child: Center(
-                                  child: SizedBox(
-                                      height: 50.0,
-                                      width: 50.0,
-                                      child: _uploadNewAvatar
-                                          ? CircularProgressIndicator(
-                                              valueColor:
-                                                  AlwaysStoppedAnimation(
-                                                      Colors.blue),
-                                              strokeWidth: 6.0,
-                                            )
-                                          : SizedBox.shrink()),
-                                ),
-                              )
-                            : CircleAvatarWidget(
-                                _accountRepo.currentUserUid,
-                                30,
-                                showAsStreamOfAvatar: true,
-                              )),
-                    SizedBox(width: 15),
-                    Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          FutureBuilder<Account>(
-                            future: _accountRepo.getAccount(),
-                            builder: (BuildContext context,
-                                AsyncSnapshot<Account> snapshot) {
-                              if (snapshot.data != null) {
-                                return Expanded(
-                                  child: Text(
-                                    "${snapshot.data.firstName} ${snapshot.data.lastName}"
-                                        .trim(),
-                                    overflow: TextOverflow.fade,
-                                    maxLines: 1,
-                                    softWrap: false,
-                                    style: TextStyle(
-                                        fontSize: 25,
-                                        color:
-                                            ExtraTheme.of(context).textField),
-                                  ),
-                                );
-                              } else {
-                                return SizedBox.shrink();
-                              }
-                            },
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: ExtraTheme.of(context).menuIconButton,
-                            ),
-                            child: IconButton(
-                                iconSize: 30,
-                                onPressed: () => attachFile(),
-                                icon: Icon(
-                                  Icons.add_a_photo,
-                                  color: Theme.of(context).brightness ==
-                                          Brightness.dark
-                                      ? Colors.white
-                                      : Colors.black,
-                                )),
-                          ),
-                          SizedBox(width: 8),
-                          Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: ExtraTheme.of(context).menuIconButton,
-                            ),
-                            child: IconButton(
-                                iconSize: 30,
-                                onPressed: () async {
-                                  var account = await _accountRepo.getAccount();
-                                  showQrCode(
-                                      context,
-                                      buildShareUserUrl(
-                                          account.countryCode,
-                                          account.nationalNumber,
-                                          account.firstName,
-                                          account.lastName));
-                                },
-                                icon: Icon(
-                                  Icons.qr_code,
-                                  color: Theme.of(context).brightness ==
-                                          Brightness.dark
-                                      ? Colors.white
-                                      : Colors.black,
-                                )),
-                          )
-                        ],
                       ),
-                    ),
-                  ],
-                )),
-            Divider(),
-            SettingsRow(
-                iconData: Icons.bookmark,
-                title: appLocalization.getTraslateValue("saved_message"),
-                onClick: () => _routingService
-                    .openRoom(_accountRepo.currentUserUid.asString()),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(Icons.navigate_next),
-                )),
-            SettingsRow(
-                iconData: Icons.person,
-                title: appLocalization.getTraslateValue("username"),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(Icons.navigate_next),
+                      )
+                    ],
+                  )),
+              SettingsRow(
+                iconData: Icons.phone,
+                title: appLocalization.getTraslateValue("phone"),
                 onClick: () => _routingService.openAccountSettings(),
                 child: Row(
                   children: <Widget>[
@@ -243,7 +280,8 @@ class _SettingsPageState extends State<SettingsPage> {
                           AsyncSnapshot<Account> snapshot) {
                         if (snapshot.data != null) {
                           return Text(
-                            snapshot.data.userName ?? "",
+                            buildPhoneNumber(snapshot.data.countryCode,
+                                snapshot.data.nationalNumber),
                             style: TextStyle(
                                 color: ExtraTheme.of(context).textField,
                                 fontSize: 13),
@@ -256,245 +294,219 @@ class _SettingsPageState extends State<SettingsPage> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Icon(Icons.navigate_next),
-                    )
+                    ),
                   ],
-                )),
-            SettingsRow(
-              iconData: Icons.phone,
-              title: appLocalization.getTraslateValue("phone"),
-              onClick: () => _routingService.openAccountSettings(),
-              child: Row(
-                children: <Widget>[
-                  FutureBuilder<Account>(
-                    future: _accountRepo.getAccount(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<Account> snapshot) {
-                      if (snapshot.data != null) {
-                        return Text(
-                          buildPhoneNumber(snapshot.data.countryCode,
-                              snapshot.data.nationalNumber),
-                          style: TextStyle(
-                              color: ExtraTheme.of(context).textField,
-                              fontSize: 13),
-                        );
-                      } else {
-                        return SizedBox.shrink();
-                      }
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Icon(Icons.navigate_next),
-                  ),
-                ],
+                ),
               ),
-            ),
-            SettingsRow(
-              iconData: Icons.brightness_2,
-              title: appLocalization.getTraslateValue("dark_mode"),
-              onClick: () => setState(() => _uxService.toggleTheme()),
-              child: Switch(
-                activeColor: ExtraTheme.of(context).activeSwitch,
-                value: _getTheme(),
-                onChanged: (_) {},
-              ),
-            ),
-            if (isDesktop())
               SettingsRow(
-                iconData: Icons.keyboard,
-                title: appLocalization.getTraslateValue("send_by_shift_enter"),
-                onClick: () => setState(() => _uxService.toggleSendByEnter()),
+                iconData: Icons.brightness_2,
+                title: appLocalization.getTraslateValue("dark_mode"),
+                onClick: () => setState(() => _uxService.toggleTheme()),
                 child: Switch(
                   activeColor: ExtraTheme.of(context).activeSwitch,
-                  value: !_getSendByEnter(),
+                  value: _getTheme(),
                   onChanged: (_) {},
                 ),
               ),
-            SettingsRow(
-                iconData: Icons.notifications_active,
-                title: appLocalization.getTraslateValue("notification"),
-                child: FutureBuilder<String>(
-                    future: _accountRepo.notification,
-                    builder: (c, notificationStatus) {
-                      return Switch(
-                        value: (notificationStatus.data ?? "true")
-                                .contains("false")
-                            ? false
-                            : true,
-                        activeColor: ExtraTheme.of(context).activeSwitch,
-                        onChanged: (newNotificationState) {
-                          _accountRepo.setNotificationState(
-                              newNotificationState.toString());
-                          setState(() {});
-                        },
-                      );
-                    })),
-            SettingsRow(
-                iconData: Icons.language,
-                title: appLocalization.getTraslateValue("changeLanguage"),
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: DropdownButton(
-                      underline: SizedBox.shrink(),
-                      hint: Text(
-                        (_uxService.locale as Locale).language().name,
-                        style:
-                            TextStyle(color: ExtraTheme.of(context).textField),
-                      ),
-                      onChanged: (Language language) {
-                        _uxService.changeLanguage(language);
-                      },
-                      items: Language.languageList()
-                          .map<DropdownMenuItem<Language>>(
-                              (lang) => DropdownMenuItem(
-                                    value: lang,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: <Widget>[
-                                        Text(lang.flag,
-                                            style: TextStyle(
-                                                color: ExtraTheme.of(context)
-                                                    .textField)),
-                                        Text(lang.name,
-                                            style: TextStyle(
-                                                color: ExtraTheme.of(context)
-                                                    .textField)),
-                                      ],
-                                    ),
-                                  ))
-                          .toList()),
-                )),
-            if (isDeveloperMode)
+              if (isDesktop())
+                SettingsRow(
+                  iconData: Icons.keyboard,
+                  title:
+                      appLocalization.getTraslateValue("send_by_shift_enter"),
+                  onClick: () => setState(() => _uxService.toggleSendByEnter()),
+                  child: Switch(
+                    activeColor: ExtraTheme.of(context).activeSwitch,
+                    value: !_getSendByEnter(),
+                    onChanged: (_) {},
+                  ),
+                ),
               SettingsRow(
-                  iconData: Icons.bug_report_rounded,
-                  title: "Log Level",
+                  iconData: Icons.notifications_active,
+                  title: appLocalization.getTraslateValue("notification"),
+                  child: FutureBuilder<String>(
+                      future: _accountRepo.notification,
+                      builder: (c, notificationStatus) {
+                        return Switch(
+                          value: (notificationStatus.data ?? "true")
+                                  .contains("false")
+                              ? false
+                              : true,
+                          activeColor: ExtraTheme.of(context).activeSwitch,
+                          onChanged: (newNotificationState) {
+                            _accountRepo.setNotificationState(
+                                newNotificationState.toString());
+                            setState(() {});
+                          },
+                        );
+                      })),
+              SettingsRow(
+                  iconData: Icons.language,
+                  title: appLocalization.getTraslateValue("changeLanguage"),
                   child: Padding(
                     padding: const EdgeInsets.only(right: 8.0),
                     child: DropdownButton(
                         underline: SizedBox.shrink(),
                         hint: Text(
-                          LogLevelHelper.levelToString(Logger.level),
+                          (_uxService.locale as Locale).language().name,
                           style: TextStyle(
                               color: ExtraTheme.of(context).textField),
                         ),
-                        onChanged: (String level) {
-                          setState(() {
-                            _uxService.changeLogLevel(level);
-                          });
+                        onChanged: (Language language) {
+                          _uxService.changeLanguage(language);
                         },
-                        items: LogLevelHelper.levels()
-                            .map<DropdownMenuItem<String>>((level) =>
-                                DropdownMenuItem(
-                                    value: level,
-                                    child: Text(level,
-                                        style: TextStyle(
-                                            color: ExtraTheme.of(context)
-                                                .textField))))
+                        items: Language.languageList()
+                            .map<DropdownMenuItem<Language>>(
+                                (lang) => DropdownMenuItem(
+                                      value: lang,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: <Widget>[
+                                          Text(lang.flag,
+                                              style: TextStyle(
+                                                  color: ExtraTheme.of(context)
+                                                      .textField)),
+                                          Text(lang.name,
+                                              style: TextStyle(
+                                                  color: ExtraTheme.of(context)
+                                                      .textField)),
+                                        ],
+                                      ),
+                                    ))
                             .toList()),
                   )),
-            Divider(),
-            SettingsRow(
-              iconData: Icons.copyright_outlined,
-              title: appLocalization.getTraslateValue("version"),
-              child: Padding(
-                padding: const EdgeInsets.only(right: 12.0),
-                child: Row(
-                  children: <Widget>[
-                    if (isDeveloperMode)
-                      FutureBuilder(
-                        future: SmsAutoFill().getAppSignature,
-                        builder: (context, snapshot) {
-                          if (snapshot.data != null) {
-                            return GestureDetector(
-                              onTap: () => Clipboard.setData(ClipboardData(
-                                  text:
-                                      snapshot.data ?? "No Hashcode" + " - ")),
-                              child: Text(
-                                snapshot.data ?? "No Hashcode" + " - ",
-                                style: TextStyle(
-                                    color: ExtraTheme.of(context).textField,
-                                    fontSize: 16),
-                              ),
-                            );
-                          } else {
-                            return GestureDetector(
-                              onTap: () => Clipboard.setData(ClipboardData(
-                                  text: snapshot.data ?? "No Hashcode - ")),
-                              child: Text(
-                                "No Hashcode - ",
-                                style: TextStyle(
-                                    color: ExtraTheme.of(context).textField,
-                                    fontSize: 16),
-                              ),
-                            );
+              if (isDeveloperMode)
+                SettingsRow(
+                    iconData: Icons.bug_report_rounded,
+                    title: "Log Level",
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: DropdownButton(
+                          underline: SizedBox.shrink(),
+                          hint: Text(
+                            LogLevelHelper.levelToString(Logger.level),
+                            style: TextStyle(
+                                color: ExtraTheme.of(context).textField),
+                          ),
+                          onChanged: (String level) {
+                            setState(() {
+                              _uxService.changeLogLevel(level);
+                            });
+                          },
+                          items: LogLevelHelper.levels()
+                              .map<DropdownMenuItem<String>>((level) =>
+                                  DropdownMenuItem(
+                                      value: level,
+                                      child: Text(level,
+                                          style: TextStyle(
+                                              color: ExtraTheme.of(context)
+                                                  .textField))))
+                              .toList()),
+                    )),
+              Divider(),
+              SettingsRow(
+                iconData: Icons.copyright_outlined,
+                title: appLocalization.getTraslateValue("version"),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: Row(
+                    children: <Widget>[
+                      if (isDeveloperMode)
+                        FutureBuilder(
+                          future: SmsAutoFill().getAppSignature,
+                          builder: (context, snapshot) {
+                            if (snapshot.data != null) {
+                              return GestureDetector(
+                                onTap: () => Clipboard.setData(ClipboardData(
+                                    text: snapshot.data ??
+                                        "No Hashcode" + " - ")),
+                                child: Text(
+                                  snapshot.data ?? "No Hashcode" + " - ",
+                                  style: TextStyle(
+                                      color: ExtraTheme.of(context).textField,
+                                      fontSize: 16),
+                                ),
+                              );
+                            } else {
+                              return GestureDetector(
+                                onTap: () => Clipboard.setData(ClipboardData(
+                                    text: snapshot.data ?? "No Hashcode - ")),
+                                child: Text(
+                                  "No Hashcode - ",
+                                  style: TextStyle(
+                                      color: ExtraTheme.of(context).textField,
+                                      fontSize: 16),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      GestureDetector(
+                        onTap: () async {
+                          _logger.d(developerModeCounterCountDown);
+                          developerModeCounterCountDown--;
+                          if (developerModeCounterCountDown < 1) {
+                            setState(() {
+                              isDeveloperMode = true;
+                            });
                           }
                         },
-                      ),
-                    GestureDetector(
-                      onTap: () async {
-                        _logger.d(developerModeCounterCountDown);
-                        developerModeCounterCountDown--;
-                        if (developerModeCounterCountDown < 1) {
-                          setState(() {
-                            isDeveloperMode = true;
-                          });
-                        }
-                      },
-                      child: FutureBuilder(
-                        future: PackageInfo.fromPlatform(),
-                        builder: (context, snapshot) {
-                          if (snapshot.data != null) {
-                            return Text(
-                              snapshot.data.version ?? "",
-                              style: TextStyle(
-                                  color: ExtraTheme.of(context).textField,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16),
-                            );
-                          } else {
-                            return SizedBox.shrink();
-                          }
-                        },
-                      ),
-                    )
-                  ],
+                        child: FutureBuilder(
+                          future: PackageInfo.fromPlatform(),
+                          builder: (context, snapshot) {
+                            if (snapshot.data != null) {
+                              return Text(
+                                snapshot.data.version ?? "",
+                                style: TextStyle(
+                                    color: ExtraTheme.of(context).textField,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16),
+                              );
+                            } else {
+                              return SizedBox.shrink();
+                            }
+                          },
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
-            ),
-            SettingsRow(
-              iconData: Icons.info_outlined,
-              title: appLocalization.getTraslateValue("about"),
-              onClick: () async {
-                showAboutDialog(
-                    context: context,
-                    applicationIcon: Image(
-                      width: 50,
-                      height: 50,
-                      image: AssetImage(
-                          'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
-                    ),
-                    applicationName: APPLICATION_NAME,
-                    applicationVersion:
-                        (await PackageInfo.fromPlatform()).version,
-                    children: [
-                      TextButton(
-                          onPressed: () => launch(
-                              "https://doc.deliver-co.ir/blogs/updates/"),
-                          child: Text("What's new"))
-                    ]);
-              },
-              child: Container(),
-            ),
-            SettingsRow(
-                iconData: Icons.exit_to_app,
-                title: appLocalization.getTraslateValue("Log_out"),
-                onClick: () => openLogoutAlertDialog(context, appLocalization),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(Icons.exit_to_app),
-                )),
-          ]),
+              SettingsRow(
+                iconData: Icons.info_outlined,
+                title: appLocalization.getTraslateValue("about"),
+                onClick: () async {
+                  showAboutDialog(
+                      context: context,
+                      applicationIcon: Image(
+                        width: 50,
+                        height: 50,
+                        image: AssetImage(
+                            'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
+                      ),
+                      applicationName: APPLICATION_NAME,
+                      applicationVersion:
+                          (await PackageInfo.fromPlatform()).version,
+                      children: [
+                        TextButton(
+                            onPressed: () => launch(
+                                "https://doc.deliver-co.ir/blogs/updates/"),
+                            child: Text("What's new"))
+                      ]);
+                },
+                child: Container(),
+              ),
+              SettingsRow(
+                  iconData: Icons.exit_to_app,
+                  title: appLocalization.getTraslateValue("Log_out"),
+                  onClick: () =>
+                      openLogoutAlertDialog(context, appLocalization),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(Icons.exit_to_app),
+                  )),
+            ]),
+          ),
         ));
   }
 

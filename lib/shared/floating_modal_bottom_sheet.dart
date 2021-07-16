@@ -60,6 +60,9 @@ void showQrCode(BuildContext context, String url) =>
               data: url,
               version: QrVersions.auto,
               padding: EdgeInsets.zero,
+              foregroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.black,
             ),
             Container(
               width: double.infinity,

@@ -4,7 +4,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 // Constraints
-const double BREAKDOWN_SIZE = 700;
+const double BREAKDOWN_SIZE = 725;
+const double FLUID_CONTAINER_MAX_WIDTH = 600;
 
 const double FLUID_MAX_WIDTH = 400;
 const double FLUID_MAX_HEIGHT = 540;

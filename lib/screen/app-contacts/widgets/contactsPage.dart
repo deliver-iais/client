@@ -90,7 +90,10 @@ class ContactsPage extends StatelessWidget {
             contacts.addAll(contactUsers);
             return Container(
                 child: Scrollbar(
-              child: ListView.builder(
+              child: ListView.separated(
+                separatorBuilder: (BuildContext context, int index) {
+                  return Divider();
+                },
                 itemCount: snapshot.data.length,
                 itemBuilder: (BuildContext ctx, int index) =>
                     _accountRepo.isCurrentUser(contacts[index].uid)

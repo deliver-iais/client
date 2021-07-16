@@ -411,7 +411,7 @@ class Empty extends StatelessWidget {
                 borderRadius: BorderRadius.all(Radius.circular(10)),
                 color: Theme.of(context).dividerColor.withOpacity(0.1)),
             child: Text("Please select a chat to start messaging",
-                style: Theme.of(context).textTheme.headline3)),
+                style: Theme.of(context).textTheme.headline6)),
       ),
     );
   }
