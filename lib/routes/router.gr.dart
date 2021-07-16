@@ -12,7 +12,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
-import '../screen/app-contacts/widgets/new_Contact.dart';
+import '../screen/contacts/new_contact.dart';
 import '../screen/app-room/pages/roomPage.dart';
 import '../screen/app-room/widgets/showImage_Widget.dart';
 import '../screen/home/pages/home_page.dart';
