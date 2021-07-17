@@ -110,7 +110,8 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   final Map<String, DateTime> _upTimeMap = Map();
   final Map<int, Message> _selectedMessages = Map();
 
-  final _messageCache = LruCache<int, Message>(storage: SimpleStorage(size: 50));
+  final _messageCache =
+      LruCache<int, Message>(storage: SimpleStorage(size: 50));
 
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
@@ -301,7 +302,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   void initState() {
     Timer(Duration(seconds: 1), () {
-      _showOtherMessage.add(true);
+      if (_showOtherMessage.isClosed) {
+        _showOtherMessage.add(true);
+      }
     });
     if (!isDesktop()) _fireBaseServices.sendFireBaseToken();
     _getLastShowMessageId();

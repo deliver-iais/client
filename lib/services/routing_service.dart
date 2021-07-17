@@ -13,6 +13,8 @@ import 'package:deliver_flutter/screen/app_profile/pages/profile_page.dart';
 import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 import 'package:deliver_flutter/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver_flutter/screen/settings/account_settings.dart';
+import 'package:deliver_flutter/screen/settings/pages/language_settings.dart';
+import 'package:deliver_flutter/screen/settings/pages/log_settings.dart';
 import 'package:deliver_flutter/screen/settings/settings_page.dart';
 import 'package:deliver_flutter/screen/share_input_file/share_input_file.dart';
 import 'package:deliver_flutter/services/core_services.dart';
@@ -115,6 +117,24 @@ class RoutingService {
         largePageMain: widget,
         smallPageMain: widget,
         path: "/settings"));
+  }
+
+  void openLanguageSettings() {
+    var widget = LanguageSettingsPage(key: ValueKey("/language_settings"));
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/language_settings"));
+  }
+
+  void openLogSettings() {
+    var widget = LogSettingsPage(key: ValueKey("/log_settings"));
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/log_settings"));
   }
 
   void openContacts() {
@@ -313,6 +333,10 @@ class RoutingService {
       _stack.removeLast();
       _route.add(_stack.last.path);
     }
+  }
+
+  Page _top() {
+    return _stack.last;
   }
 
   reset() {

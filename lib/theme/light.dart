@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -53,8 +54,8 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   centerPageDetails: Color(0xff0b796c),
   circleAvatarIcon: Color(0xFF2699FB),
   boxDetails: Color(0xff15786c),
-  boxOuterBackground: Colors.lightBlue[300],
-  boxBackground: Colors.lightBlue[50],
+  boxOuterBackground: Colors.white ,
+  boxBackground: Color(0xFFEFEFF4),
   activeSwitch: Color(0xff15786c),
   textDetails: Colors.black,
   bottomNavigationAppbar: LightTheme.appBarTheme.color,

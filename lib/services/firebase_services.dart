@@ -6,10 +6,10 @@ import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/main.dart';
 
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 
 import 'package:deliver_flutter/services/core_services.dart';
+import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
@@ -56,13 +56,11 @@ class FireBaseServices {
   }
 
   _sendFireBaseToken(String fireBaseToken) async {
-    String firebaseSetting =
-        await _sharedDao.get(SHARED_DAO_FIREBASE_SETTING_IS_SET);
-    if (firebaseSetting == null) {
+    if (await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
       try {
         await _firebaseServices
             .registration(RegistrationReq()..tokenId = fireBaseToken);
-        _sharedDao.put(SHARED_DAO_FIREBASE_SETTING_IS_SET, "true");
+        _sharedDao.putBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET, true);
       } catch (e) {
         _logger.e(e);
       }
@@ -94,34 +92,27 @@ M.Message _decodeMessage(String notificationBody) {
 }
 
 Future<void> backgroundMessageHandler(RemoteMessage message) async {
-  var _notificationServices = NotificationServices();
-
   try {
     await setupDI();
   } catch (e) {
     Logger().e(e);
   }
+
+  var _notificationServices = GetIt.I.get<NotificationServices>();
+  var _authRepo = GetIt.I.get<AuthRepo>();
+  var _uxService = GetIt.I.get<UxService>();
   var _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   var _muteDao = GetIt.I.get<MuteDao>();
-
-  // TODO needs to be refactored!!!
-  var accountRepo = AccountRepo();
-  var authRepo = AuthRepo();
-  // var roomRepo = RoomRepo();
 
   if (message.data.containsKey('body')) {
     M.Message msg = _decodeMessage(message.data["body"]);
     String roomName = message.data['title'];
-    Uid roomUid = getRoomId(authRepo, msg);
+    Uid roomUid = getRoomId(_authRepo, msg);
 
-    // CoreServices.saveMessage(accountRepo, messageDao, roomDao, msg, roomUid);
-    //  if (msg.from.category == Categories.USER)
-    //      updateLastActivityTime(
-    //          lastActivityDao, getRoomId(accountRepo, msg), msg.time.toInt());
     try {
-      if ((await accountRepo.notification).contains("false") ||
+      if (_uxService.isAllNotificationDisabled ||
           await _muteDao.isMuted(roomUid.asString()) ||
-          authRepo.isCurrentUser(msg.from.asString())) {
+          _authRepo.isCurrentUser(msg.from.asString())) {
         return;
       }
     } catch (e) {}
@@ -135,8 +126,10 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
       roomName = msg.from.node;
     }
 
-    await Hive.close();
     _notificationServices.showNotification(
-        msg, getRoomId(authRepo, msg).asString(), roomName);
+        msg, getRoomId(_authRepo, msg).asString(), roomName);
+
+    // TODO, this is needed ??!!
+    await Hive.close();
   }
 }

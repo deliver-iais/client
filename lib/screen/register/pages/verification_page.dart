@@ -22,7 +22,6 @@ class VerificationPage extends StatefulWidget {
 class _VerificationPageState extends State<VerificationPage> {
   final _logger = GetIt.I.get<Logger>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final focusNode = FocusNode();
@@ -48,7 +47,6 @@ class _VerificationPageState extends State<VerificationPage> {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
         _authRepo.saveTokens(accessTokenResponse);
         _fireBaseServices.sendFireBaseToken();
-        _accountRepo.setNotificationState("true");
         _navigationToHome();
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {

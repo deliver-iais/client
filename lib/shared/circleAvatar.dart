@@ -7,6 +7,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -52,27 +53,6 @@ class CircleAvatarWidget extends StatelessWidget {
             ? ColorBrightness.light
             : ColorBrightness.dark,
         colorSaturation: ColorSaturation.highSaturation);
-  }
-
-  /// Darken a color by [percent] amount (100 = black)
-  // ........................................................
-  Color darken(Color c, [int percent = 10]) {
-    assert(1 <= percent && percent <= 100);
-    var f = 1 - percent / 100;
-    return Color.fromARGB(c.alpha, (c.red * f).round(), (c.green * f).round(),
-        (c.blue * f).round());
-  }
-
-  /// Lighten a color by [percent] amount (100 = white)
-  // ........................................................
-  Color lighten(Color c, [int percent = 10]) {
-    assert(1 <= percent && percent <= 100);
-    var p = percent / 100;
-    return Color.fromARGB(
-        c.alpha,
-        c.red + ((255 - c.red) * p).round(),
-        c.green + ((255 - c.green) * p).round(),
-        c.blue + ((255 - c.blue) * p).round());
   }
 
   bool isSavedMessage() =>

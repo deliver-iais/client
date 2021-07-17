@@ -18,6 +18,7 @@ import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
@@ -48,6 +49,7 @@ class CoreServices {
   final _logger = GetIt.I.get<Logger>();
   final _grpcCoreService = GetIt.I.get<CoreServiceClient>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _uxService = GetIt.I.get<UxService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _messageDao = GetIt.I.get<MessageDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
@@ -344,9 +346,8 @@ class CoreServices {
     }
 
     if (!_authRepo.isCurrentUser(message.from.asString()) &&
-        ((await _accountRepo.notification) == null ||
-            (await _accountRepo.notification).contains("true") &&
-                (!await _roomRepo.isRoomMuted(roomUid.asString())))) {
+        !_uxService.isAllNotificationDisabled &&
+        (!await _roomRepo.isRoomMuted(roomUid.asString()))) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)

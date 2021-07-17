@@ -73,23 +73,29 @@ class LogLevelHelper {
 class UxService {
   final _sharedDao = GetIt.I.get<SharedDao>();
 
-  BehaviorSubject<ThemeData> _theme = BehaviorSubject.seeded(LightTheme);
-
-  BehaviorSubject<ExtraThemeData> _extraTheme =
-      BehaviorSubject.seeded(LightExtraTheme);
-
-  BehaviorSubject<Language> _language = BehaviorSubject.seeded(DefaultLanguage);
-
-  BehaviorSubject<String> _sendByEnter =
-      BehaviorSubject.seeded(isDesktop() ? SEND_BY_ENTER : SEND_BY_SHIFT_ENTER);
+  final _theme = BehaviorSubject.seeded(LightTheme);
+  final _extraTheme = BehaviorSubject.seeded(LightExtraTheme);
+  final _language = BehaviorSubject.seeded(DefaultLanguage);
+  final _isAllNotificationDisabled = BehaviorSubject.seeded(false);
+  final _sendByEnter = BehaviorSubject.seeded(isDesktop());
 
   UxService() {
     _sharedDao
-        .getStream(SHARED_DAO_LOG_LEVEL, defaultValue: kDebugMode ? "INFO" : "NOTHING")
+        .getStream(SHARED_DAO_LOG_LEVEL,
+            defaultValue: kDebugMode ? "INFO" : "NOTHING")
         .map((event) => LogLevelHelper.stringToLevel(event))
-        .listen((level) {
-      GetIt.I.get<DeliverLogFilter>().level = level;
-    });
+        .listen((level) => GetIt.I.get<DeliverLogFilter>().level = level);
+
+    _sharedDao
+        .getBooleanStream(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED,
+            defaultValue: false)
+        .distinct()
+        .listen((isDisabled) => _isAllNotificationDisabled.add(isDisabled));
+
+    _sharedDao
+        .getBooleanStream(SHARED_DAO_SEND_BY_ENTER, defaultValue: isDesktop())
+        .distinct()
+        .listen((sbn) => _sendByEnter.add(sbn));
   }
 
   // TODO ???
@@ -121,16 +127,18 @@ class UxService {
         }
       });
 
-  get isPersian => _language.value.countryCode.contains(Farsi.countryCode);
+  bool get isPersian => _language.value.countryCode.contains(Farsi.countryCode);
 
-  get theme => _theme.value;
+  ThemeData get theme => _theme.value;
 
-  get sendByEnter => isDesktop() ? _sendByEnter.value : SEND_BY_SHIFT_ENTER;
+  ExtraThemeData get extraTheme => _extraTheme.value;
 
-  get extraTheme => _extraTheme.value;
+  bool get sendByEnter => isDesktop() ? _sendByEnter.value : false;
 
-  get locale =>
+  Locale get locale =>
       Locale(_language.value.languageCode, _language.value.countryCode);
+
+  bool get isAllNotificationDisabled => _isAllNotificationDisabled.value;
 
   toggleTheme() {
     if (theme == DarkTheme) {
@@ -145,13 +153,16 @@ class UxService {
   }
 
   toggleSendByEnter() {
-    if (sendByEnter == SEND_BY_SHIFT_ENTER) {
-      _sharedDao.put(SHARED_DAO_SEND_BY_ENTER, SEND_BY_ENTER);
-      _sendByEnter.add(SEND_BY_ENTER);
+    if (sendByEnter == false) {
+      _sharedDao.putBoolean(SHARED_DAO_SEND_BY_ENTER, true);
     } else {
-      _sharedDao.put(SHARED_DAO_SEND_BY_ENTER, SEND_BY_SHIFT_ENTER);
-      _sendByEnter.add(SEND_BY_SHIFT_ENTER);
+      _sharedDao.putBoolean(SHARED_DAO_SEND_BY_ENTER, false);
     }
+  }
+
+  toggleIsAllNotificationDisabled() {
+    _sharedDao.putBoolean(
+        SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED, !isAllNotificationDisabled);
   }
 
   changeLogLevel(String level) {

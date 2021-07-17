@@ -82,88 +82,93 @@ class ContactsPage extends StatelessWidget {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
-        child: AppBar(
-          backgroundColor: ExtraTheme.of(context).boxOuterBackground,
-          elevation: 0,
-          title: Align(
-            alignment: Alignment.center,
-            child: Text(
-              "Contacts",
+        child: FluidContainerWidget(
+          child: AppBar(
+            backgroundColor: ExtraTheme.of(context).boxBackground,
+            titleSpacing: 8,
+            title: Text(
+              AppLocalization.of(context).getTraslateValue("contacts"),
               style: Theme.of(context).textTheme.headline2,
             ),
+            leading: _routingService.backButtonLeading(),
           ),
-          leading: _routingService.backButtonLeading(),
-          titleSpacing: -30,
         ),
       ),
       body: FluidContainerWidget(
-        child: StreamBuilder<List<Contact>>(
-            stream: _contactRepo.watchAll(),
-            builder:
-                (BuildContext context, AsyncSnapshot<List<Contact>> snapshot) {
-              List<Contact> contacts = snapshot.data ?? [];
-              if (!snapshot.hasData) {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else {
-                return Column(
-                  children: [
-                    Expanded(
-                        child: Scrollbar(
-                      child: ListView.separated(
-                        separatorBuilder: (BuildContext context, int index) {
-                          if (_authRepo.isCurrentUser(contacts[index].uid))
-                            return SizedBox.shrink();
-                          else
-                            return Divider();
-                        },
-                        itemCount: snapshot.data.length,
-                        itemBuilder: (BuildContext ctx, int index) {
-                          var c = contacts[index];
-                          return _authRepo.isCurrentUser(c.uid)
-                              ? SizedBox.shrink()
-                              : GestureDetector(
-                                  onTap: () {
-                                    if (c.uid != null) {
-                                      _rootingServices.openRoom(c.uid);
-                                    } else {
-                                      // todo invite contact
-                                    }
-                                  },
-                                  child: ContactWidget(
-                                      contact: c,
-                                      circleIcon: Icons.qr_code_rounded,
-                                      onCircleIcon: () => showQrCode(
-                                          context,
-                                          buildShareUserUrl(
-                                              c.countryCode,
-                                              c.nationalNumber,
-                                              c.firstName,
-                                              c.lastName))),
-                                );
-                        },
-                      ),
-                    )),
-                    Divider(thickness: 8.0, height: 8.0,),
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      child: TextButton.icon(
-                        icon: Icon(
-                          Icons.add,
+        child: Container(
+          margin: const EdgeInsets.all(24.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: ExtraTheme.of(context).boxOuterBackground,
+          ),
+          child: StreamBuilder<List<Contact>>(
+              stream: _contactRepo.watchAll(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<Contact>> snapshot) {
+                List<Contact> contacts = snapshot.data ?? [];
+                if (!snapshot.hasData) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else {
+                  return Column(
+                    children: [
+                      Expanded(
+                          child: Scrollbar(
+                        child: ListView.separated(
+                          separatorBuilder: (BuildContext context, int index) {
+                            if (_authRepo.isCurrentUser(contacts[index].uid))
+                              return SizedBox.shrink();
+                            else
+                              return Divider();
+                          },
+                          itemCount: snapshot.data.length,
+                          itemBuilder: (BuildContext ctx, int index) {
+                            var c = contacts[index];
+                            return _authRepo.isCurrentUser(c.uid)
+                                ? SizedBox.shrink()
+                                : GestureDetector(
+                                    onTap: () {
+                                      if (c.uid != null) {
+                                        _rootingServices.openRoom(c.uid);
+                                      } else {
+                                        // todo invite contact
+                                      }
+                                    },
+                                    child: ContactWidget(
+                                        contact: c,
+                                        circleIcon: Icons.qr_code_rounded,
+                                        onCircleIcon: () => showQrCode(
+                                            context,
+                                            buildShareUserUrl(
+                                                c.countryCode,
+                                                c.nationalNumber,
+                                                c.firstName,
+                                                c.lastName))),
+                                  );
+                          },
                         ),
-                        onPressed: () {
-                          _routingService.openCreateNewContactPage();
-                        },
-                        label: Text(AppLocalization.of(context)
-                            .getTraslateValue("add_new_contact")),
+                      )),
+                      Divider(),
+                      Container(
+                        height: 40,
+                        width: double.infinity,
+                        child: TextButton.icon(
+                          icon: Icon(
+                            Icons.add,
+                          ),
+                          onPressed: () {
+                            _routingService.openCreateNewContactPage();
+                          },
+                          label: Text(AppLocalization.of(context)
+                              .getTraslateValue("add_new_contact")),
+                        ),
                       ),
-                    ),
-                  ],
-                );
-              }
-            }),
+                    ],
+                  );
+                }
+              }),
+        ),
       ),
     );
   }

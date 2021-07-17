@@ -94,6 +94,8 @@ dependencies:
 
   android_intent: 0.3.7+7
 
+  settings_ui: 1.0.0
+
   window_size: # (DESKTOP ONLY) Setting min and max window size in desktop
     git:
       url: git://github.com/google/flutter-desktop-embedding.git

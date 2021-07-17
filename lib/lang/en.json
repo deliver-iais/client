@@ -73,7 +73,7 @@
   "Delete": "Delete",
   "ForwardTo": "Forward to...",
   "ForwardedMessages": "forwarded messages",
-  "Log_out": "Log out",
+  "logout": "Log out",
   "new_Contact": "new Contact",
   "firstName": "name",
   "lastName": "last name",
@@ -200,5 +200,6 @@
   "contact_exist": " is one of your contacts.",
   "contact_add": " Add in Contacts",
   "qr_share": "Share by QR Code",
-  "about": "About"
+  "about": "About",
+  "user_experience": "User Experience"
 }

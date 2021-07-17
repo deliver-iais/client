@@ -118,11 +118,8 @@ class AccountRepo {
     _sharedDao.put(SHARED_DAO_EMAIL, email);
   }
 
-  setNotificationState(String n) {
-    _sharedDao.put(SHARED_DAO_NOTIFICATION, n);
-  }
 
-  Future<String> get notification => _sharedDao.get(SHARED_DAO_NOTIFICATION);
+  Future<String> get notification => _sharedDao.get(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED);
 
   Future<void> fetchProfile() async {
     if (null == await _sharedDao.get(SHARED_DAO_USERNAME)) {

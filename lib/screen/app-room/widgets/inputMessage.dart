@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
-import 'package:deliver_flutter/shared/constants.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 
@@ -125,8 +124,7 @@ class _InputMessageWidget extends State<InputMessage> {
     controller = TextEditingController();
     currentRoom = widget.currentRoom;
     controller.addListener(() {
-      if (controller.text.isNotEmpty &&
-          controller.text.length > 0)
+      if (controller.text.isNotEmpty && controller.text.length > 0)
         _showSendIcon.add(true);
       else
         _showSendIcon.add(false);
@@ -255,8 +253,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                         isTypingActivitySubject
                                             .add(ActivityType.TYPING);
                                       else
-                                        noActivitySubject.add(
-                                            ActivityType.NO_ACTIVITY);
+                                        noActivitySubject
+                                            .add(ActivityType.NO_ACTIVITY);
                                       onChange(str);
                                     },
                                     decoration: InputDecoration(
@@ -467,15 +465,13 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   handleKeyPress(event) async {
-    bool sendByEnter = _uxService.sendByEnter == SEND_BY_ENTER;
-
     if (event is RawKeyUpEvent) {
-      if (!sendByEnter &&
+      if (!_uxService.sendByEnter &&
           event.isShiftPressed &&
           (event.logicalKey == LogicalKeyboardKey.enter ||
               event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
         sendMessage();
-      } else if (sendByEnter &&
+      } else if (_uxService.sendByEnter &&
           !event.isShiftPressed &&
           (event.logicalKey == LogicalKeyboardKey.enter ||
               event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
