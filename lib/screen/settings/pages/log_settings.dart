@@ -46,13 +46,20 @@ class _LogSettingsPageState extends State<LogSettingsPage> {
             sections: [
               SettingsSection(
                 title: 'Log Levels',
-                tiles: LogLevelHelper.levels().map((level) => SettingsTile(
-                      title: level,
-                      onPressed: (BuildContext context) {
-                        _uxService.changeLogLevel(level);
-                        _routingService.pop();
-                      },
-                    )).toList(),
+                tiles: LogLevelHelper.levels()
+                    .map((level) => SettingsTile(
+                          title: level,
+                          trailing: LogLevelHelper.stringToLevel(level) ==
+                                  GetIt.I.get<DeliverLogFilter>().level
+                              ? Icon(Icons.done)
+                              : SizedBox.shrink(),
+                          onPressed: (BuildContext context) {
+                            setState(() {
+                              _uxService.changeLogLevel(level);
+                            });
+                          },
+                        ))
+                    .toList(),
               ),
             ],
           ),
