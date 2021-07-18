@@ -445,7 +445,7 @@ class _InputMessageWidget extends State<InputMessage> {
               if (back.hasData && back.data) {
                 return Container(
                     height: 270.0,
-                    child: EmojiKeybord(
+                    child: EmojiKeyboard(
                       onTap: (emoji) {
                         controller.text = controller.text + emoji.toString();
                       },
