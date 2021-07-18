@@ -12,6 +12,16 @@ extension UidExtension on Uid {
   }
 
   String asString() => "${this.category.value}:${this.node}";
+
+  bool isUser() => this.category == Categories.USER;
+
+  bool isBot() => this.category == Categories.BOT;
+
+  bool isGroup() => this.category == Categories.GROUP;
+
+  bool isChannel() => this.category == Categories.CHANNEL;
+
+  bool isMuc() => this.isGroup() || this.isChannel();
 }
 
 const _ALL_SESSIONS = "*";
@@ -37,4 +47,14 @@ extension StringUidExtension on String {
         ..sessionId = _ALL_SESSIONS;
     }
   }
+
+  bool isUser() => this.asUid().category == Categories.USER;
+
+  bool isBot() => this.asUid().category == Categories.BOT;
+
+  bool isGroup() => this.asUid().category == Categories.GROUP;
+
+  bool isChannel() => this.asUid().category == Categories.CHANNEL;
+
+  bool isMuc() => this.isGroup() || this.isChannel();
 }

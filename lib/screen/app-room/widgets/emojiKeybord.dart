@@ -1,21 +1,22 @@
 import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:emojis/emoji.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 
-class EmojiKeybord extends StatefulWidget {
+class EmojiKeyboard extends StatefulWidget {
   final Function onTap;
   final Function onStickerTap;
 
-  const EmojiKeybord({this.onTap, this.onStickerTap});
+  const EmojiKeyboard({this.onTap, this.onStickerTap});
 
   @override
   _Emojikeybord createState() => _Emojikeybord();
 }
 
-class _Emojikeybord extends State<EmojiKeybord> {
-  Iterable<Emoji> emojis = [];
+class _Emojikeybord extends State<EmojiKeyboard> {
+  List<Emoji> emojis = [];
   Function onTap;
 
   int selectedGroupIndex = 1;
@@ -24,186 +25,259 @@ class _Emojikeybord extends State<EmojiKeybord> {
 
   @override
   void initState() {
-    emojis = Emoji.byGroup(EmojiGroup.smileysEmotion);
+    emojis = Emoji.byGroup(EmojiGroup.smileysEmotion).toList();
     this.onTap = widget.onTap;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: Column(
-      children: [
-        Expanded(
-            child: emojiState
-                ? Column(
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          IconButton(
-                            icon: Icon(
-                              Icons.mood,
+    return Expanded(
+        child: emojiState
+            ? Column(
+                children: <Widget>[
+                  Container(
+                    color: ExtraTheme.of(context).boxDetails,
+                    child: DefaultTextStyle(
+                      style: TextStyle(fontSize: 20),
+                      child: Container(
+                        height: 50,
+                        width: MediaQuery.of(context).size.width,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: <Widget>[
+                            Container(
                               color: selectedGroupIndex == 1
-                                  ? Colors.white
-                                  : Colors.grey,
+                                  ? Theme.of(context)
+                                      .dividerColor
+                                      .withOpacity(0.3)
+                                  : Colors.transparent,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 4.0),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: IconButton(
+                                icon: Text("🙂"),
+                                onPressed: () {
+                                  setState(() {
+                                    selectedGroupIndex = 1;
+                                    emojis =
+                                        Emoji.byGroup(EmojiGroup.smileysEmotion)
+                                            .where((e) => !e.shortName
+                                                .contains("transgender"))
+                                            .toList();
+                                  });
+                                },
+                              ),
                             ),
-                            onPressed: () {
-                              setState(() {
-                                selectedGroupIndex = 1;
-                                emojis =
-                                    Emoji.byGroup(EmojiGroup.smileysEmotion);
-                              });
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.account_circle,
+                            Container(
                               color: selectedGroupIndex == 2
-                                  ? Colors.white
-                                  : Colors.grey,
+                                  ? Theme.of(context)
+                                      .dividerColor
+                                      .withOpacity(0.3)
+                                  : Colors.transparent,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 4.0),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: IconButton(
+                                icon: Text("🖐"),
+                                onPressed: () {
+                                  setState(() {
+                                    selectedGroupIndex = 2;
+                                    emojis =
+                                        Emoji.byGroup(EmojiGroup.peopleBody)
+                                            .where((e) => !e.shortName
+                                                .contains("transgender"))
+                                            .where((element) => !element
+                                                .shortName
+                                                .contains("_tone"))
+                                            .toList();
+                                  });
+                                },
+                              ),
                             ),
-                            onPressed: () {
-                              setState(() {
-                                selectedGroupIndex = 2;
-                                emojis = Emoji.byGroup(EmojiGroup.peopleBody);
-                              });
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Octicons.octoface,
+                            Container(
                               color: selectedGroupIndex == 3
-                                  ? Colors.white
-                                  : Colors.grey,
+                                  ? Theme.of(context)
+                                      .dividerColor
+                                      .withOpacity(0.3)
+                                  : Colors.transparent,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 4.0),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: IconButton(
+                                icon: Text("🐸"),
+                                onPressed: () {
+                                  setState(() {
+                                    selectedGroupIndex = 3;
+                                    emojis =
+                                        Emoji.byGroup(EmojiGroup.animalsNature)
+                                            .where((e) => !e.shortName
+                                                .contains("transgender"))
+                                            .toList();
+                                  });
+                                },
+                              ),
                             ),
-                            onPressed: () {
-                              setState(() {
-                                selectedGroupIndex = 3;
-                                emojis =
-                                    Emoji.byGroup(EmojiGroup.animalsNature);
-                              });
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.flag,
+                            Container(
                               color: selectedGroupIndex == 4
-                                  ? Colors.white
-                                  : Colors.grey,
+                                  ? Theme.of(context)
+                                      .dividerColor
+                                      .withOpacity(0.3)
+                                  : Colors.transparent,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 4.0),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: IconButton(
+                                icon: Text("🏁"),
+                                onPressed: () {
+                                  selectedGroupIndex = 4;
+                                  emojis = Emoji.byGroup(EmojiGroup.flags)
+                                      .where((e) =>
+                                          !e.shortName.contains("transgender"))
+                                      .where((e) =>
+                                          !e.shortName.contains("rainbow_flag"))
+                                      .where((e) =>
+                                          !e.shortName.contains("flag_il"))
+                                      .toList();
+                                  setState(() {});
+                                },
+                              ),
                             ),
-                            onPressed: () {
-                              setState(() {
-                                selectedGroupIndex = 4;
-                                emojis = Emoji.byGroup(EmojiGroup.flags);
-                              });
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.watch,
+                            Container(
                               color: selectedGroupIndex == 5
-                                  ? Colors.white
-                                  : Colors.grey,
+                                  ? Theme.of(context)
+                                      .dividerColor
+                                      .withOpacity(0.3)
+                                  : Colors.transparent,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 4.0),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: IconButton(
+                                icon: Text("💎"),
+                                onPressed: () {
+                                  setState(() {
+                                    selectedGroupIndex = 5;
+                                    emojis = Emoji.byGroup(EmojiGroup.objects)
+                                        .where((e) => !e.shortName
+                                            .contains("transgender"))
+                                        .toList();
+                                  });
+                                },
+                              ),
                             ),
-                            onPressed: () {
-                              setState(() {
-                                selectedGroupIndex = 5;
-                                emojis = Emoji.byGroup(EmojiGroup.objects);
-                              });
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.wb_incandescent,
+                            Container(
                               color: selectedGroupIndex == 6
-                                  ? Colors.white
-                                  : Colors.grey,
+                                  ? Theme.of(context)
+                                      .dividerColor
+                                      .withOpacity(0.3)
+                                  : Colors.transparent,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 4.0),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: IconButton(
+                                icon: Text("🚑"),
+                                onPressed: () {
+                                  setState(() {
+                                    selectedGroupIndex = 6;
+                                    emojis =
+                                        Emoji.byGroup(EmojiGroup.travelPlaces)
+                                            .toList();
+                                  });
+                                },
+                              ),
                             ),
-                            onPressed: () {
-                              setState(() {
-                                selectedGroupIndex = 6;
-                                emojis = Emoji.byGroup(EmojiGroup.travelPlaces);
-                              });
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.add_circle_outline,
+                            Container(
                               color: selectedGroupIndex == 7
-                                  ? Colors.white
-                                  : Colors.grey,
+                                  ? Theme.of(context)
+                                      .dividerColor
+                                      .withOpacity(0.3)
+                                  : Colors.transparent,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 4.0),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: IconButton(
+                                icon: Text("✅"),
+                                onPressed: () {
+                                  setState(() {
+                                    selectedGroupIndex = 7;
+                                    emojis = Emoji.byGroup(EmojiGroup.symbols)
+                                        .where((e) => !e.shortName
+                                            .contains("transgender"))
+                                        .toList();
+                                  });
+                                },
+                              ),
                             ),
-                            onPressed: () {
-                              setState(() {
-                                selectedGroupIndex = 7;
-                                emojis = Emoji.byGroup(EmojiGroup.symbols);
-                              });
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.local_florist,
+                            Container(
                               color: selectedGroupIndex == 8
-                                  ? Colors.white
-                                  : Colors.grey,
+                                  ? Theme.of(context)
+                                      .dividerColor
+                                      .withOpacity(0.3)
+                                  : Colors.transparent,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 4.0),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: IconButton(
+                                icon: Text("🍎"),
+                                onPressed: () {
+                                  setState(() {
+                                    selectedGroupIndex = 8;
+                                    emojis = Emoji.byGroup(EmojiGroup.foodDrink)
+                                        .where((e) => !e.shortName
+                                            .contains("transgender"))
+                                        .toList();
+                                  });
+                                },
+                              ),
                             ),
-                            onPressed: () {
-                              setState(() {
-                                selectedGroupIndex = 8;
-                                emojis = Emoji.byGroup(EmojiGroup.foodDrink);
-                              });
-                            },
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                      Expanded(
-                        child: GridView.count(
-                          crossAxisCount: isDesktop() ? 25 : 7,
-                          children: List.generate(emojis.length, (index) {
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      color: ExtraTheme.of(context).boxBackground,
+                      child: GridView.builder(
+                          itemCount: emojis.length,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount:
+                                      (MediaQuery.of(context).size.width -
+                                              (isLarge(context)
+                                                  ? navigationPanelSize()
+                                                  : 0)) ~/
+                                          50),
+                          itemBuilder: (context, index) {
+                            var emoji = emojis.elementAt(index);
+
+                            if (emoji.char == "🇮🇱") print(emoji.shortName);
+
                             return GestureDetector(
+                              behavior: HitTestBehavior.translucent,
                               onTap: () {
-                                onTap(emojis.elementAt(index).toString());
+                                onTap(emoji.toString());
                               },
-                              child: Text(
-                                emojis.elementAt(index).toString(),
-                                style: TextStyle(fontSize: 26),
+                              child: Center(
+                                child: Text(
+                                  emoji.toString(),
+                                  style: TextStyle(fontSize: 26),
+                                ),
                               ),
                             );
                           }),
-                        ),
-                      ),
-                    ],
-                  )
-                : SizedBox.shrink())
-            // StickerWidget(
-            //         onStickerTap: widget.onStickerTap,
-            //       )),
-        // Container(
-        //     color: Theme.of(context).accentColor,
-        //     height: 38,
-        //     child: Row(
-        //       mainAxisAlignment: MainAxisAlignment.center,
-        //       children: [
-        //         IconButton(
-        //             icon: Image.asset("assets/icons/emojiIcon.png"),
-        //             iconSize: 1,
-        //             onPressed: () {
-        //               setState(() {
-        //                 emojiState = true;
-        //               });
-        //             }),
-        //         IconButton(
-        //             icon: new Image.asset('assets/icons/stickerIcon.png'),
-        //             color: Colors.red,
-        //             onPressed: () {
-        //               setState(() {
-        //                 emojiState = false;
-        //               });
-        //             })
-        //       ],
-        //     ))
-      ],
-    ));
+                    ),
+                  ),
+                ],
+              )
+            : SizedBox.shrink());
   }
 }
