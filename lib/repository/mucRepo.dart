@@ -203,7 +203,7 @@ class MucRepo {
     return false;
   }
 
-  Future<bool> mucOwner(userUid, mucUid) async {
+  Future<bool> isMucOwner(userUid, mucUid) async {
     var member = await _mucDao.getMember(userUid, mucUid);
     if (member != null) {
       if (member.role == MucRole.OWNER) {
@@ -227,8 +227,17 @@ class MucRepo {
 
   Stream<Muc> watchMuc(String mucUid) => _mucDao.watch(mucUid);
 
+  Future<bool> removeMuc(Uid mucUid) {
+    if (mucUid.isGroup())
+      return _removeGroup(mucUid);
+    else if (mucUid.isChannel())
+      return _removeChannel(mucUid);
+    else
+      return Future.value(false);
+  }
+
   // TODO there is bugs in delete member, where is memberUid ?!?!?
-  Future<bool> removeGroup(Uid groupUid) async {
+  Future<bool> _removeGroup(Uid groupUid) async {
     var result = await _mucServices.removeGroup(groupUid);
     if (result) {
       _mucDao.delete(groupUid.asString());
@@ -239,7 +248,7 @@ class MucRepo {
     return false;
   }
 
-  Future<bool> removeChannel(Uid channelUid) async {
+  Future<bool> _removeChannel(Uid channelUid) async {
     var result = await _mucServices.removeChannel(channelUid);
     if (result) {
       _mucDao.delete(channelUid.asString());
@@ -276,13 +285,13 @@ class MucRepo {
     }
   }
 
-  Future<bool> leaveMuc(Uid mucUid) async {
+  Future<bool> leaveMuc(Uid mucUid) {
     if (mucUid.isGroup())
       return _leaveGroup(mucUid);
     else if (mucUid.isChannel())
       return _leaveChannel(mucUid);
     else
-      return false;
+      return Future.value(false);
   }
 
   Future<bool> _leaveGroup(Uid groupUid) async {
