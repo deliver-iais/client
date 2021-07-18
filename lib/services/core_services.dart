@@ -283,15 +283,12 @@ class CoreServices {
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
       return;
     }
-    saveMessage(
-        _authRepo, _accountRepo, _messageDao, _roomDao, message, roomUid);
     if (message.whichType() == Message_Type.persistEvent) {
       switch (message.persistEvent.whichType()) {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
           switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
             case MucSpecificPersistentEvent_Issue.DELETED:
-              _roomDao.updateRoom(
-                  Room(uid: message.from.asString(), deleted: true));
+              _roomDao.deleteRoom(Room(uid: roomUid.asString()));
               return;
               break;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
@@ -308,8 +305,7 @@ class CoreServices {
             case MucSpecificPersistentEvent_Issue.KICK_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
                   .isSameEntity(_authRepo.currentUserUid.asString())) {
-                _roomDao.updateRoom(
-                    Room(uid: message.from.asString(), deleted: true));
+                _roomDao.deleteRoom(Room(uid: roomUid.asString()));
                 return;
               }
               break;
@@ -323,27 +319,34 @@ class CoreServices {
               break;
 
             case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-              {
-                _mucDao.deleteMember(Member(
-                  memberUid: message
-                      .persistEvent.mucSpecificPersistentEvent.issuer
-                      .asString(),
-                  mucUid: roomUid.asString(),
-                ));
+              if (message.persistEvent.mucSpecificPersistentEvent.assignee
+                  .isSameEntity(_authRepo.currentUserUid.asString())) {
+                _roomDao.deleteRoom(Room(uid: roomUid.asString()));
+                return;
               }
+
+              _mucDao.deleteMember(Member(
+                memberUid: message
+                    .persistEvent.mucSpecificPersistentEvent.issuer
+                    .asString(),
+                mucUid: roomUid.asString(),
+              ));
           }
           break;
         case PersistentEvent_Type.messageManipulationPersistentEvent:
-          // TODO: Handle this case.
+        // TODO: Handle this case.
           break;
         case PersistentEvent_Type.adminSpecificPersistentEvent:
-          // TODO: Handle this case.
+        // TODO: Handle this case.
           break;
         case PersistentEvent_Type.notSet:
-          // TODO: Handle this case.
+        // TODO: Handle this case.
           break;
       }
     }
+    saveMessage(
+        _authRepo, _accountRepo, _messageDao, _roomDao, message, roomUid);
+
 
     if (!_authRepo.isCurrentUser(message.from.asString()) &&
         !_uxService.isAllNotificationDisabled &&

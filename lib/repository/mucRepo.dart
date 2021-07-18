@@ -280,7 +280,7 @@ class MucRepo {
     var result = await _mucServices.leaveGroup(groupUid);
     if (result) {
       _mucDao.delete(groupUid.asString());
-      _roomDao.deleteRoom(Room(uid: groupUid.asString()));
+      await _roomDao.deleteRoom(Room(uid: groupUid.asString()));
       return true;
     }
     return false;
