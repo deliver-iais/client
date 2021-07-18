@@ -73,7 +73,7 @@ class MessageDaoImpl implements MessageDao {
   Stream<List<PendingMessage>> watchPendingMessages(String roomUid) async* {
     var box = await _openPending();
 
-    yield box.values.where((element) => element.roomUid == roomUid).toList();
+    yield box.values.where((element) => element.roomUid == roomUid).toList().reversed.toList();
 
     yield* box
         .watch()

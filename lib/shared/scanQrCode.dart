@@ -41,8 +41,9 @@ class _ScanQrCode extends State<ScanQrCode> {
     controller.resumeCamera();
   }
 
-  String _message = "";
-  List<String> _contactDetails = [];
+  String _decodedData = "";
+  Map<String,String> _contactDetails = Map();
+  Map<String,String> _map = Map();
 
   BehaviorSubject<bool> _mucJoinQrCode = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> _sendMessageToBotQrCode = BehaviorSubject.seeded(false);
@@ -76,7 +77,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                     stream: _mucJoinQrCode.stream,
                     builder: (c, s) {
                       if (s.hasData && s.data) {
-                        handleUri(_message, context);
+                        handleUri(_decodedData, context);
                         return SizedBox.shrink();
                       } else {
                         return SizedBox.shrink();
@@ -108,10 +109,10 @@ class _ScanQrCode extends State<ScanQrCode> {
                       if (s.hasData && s.data) {
                         handleAddContact(
                             context: context,
-                            countryCode: _contactDetails[0].split("=")[1],
-                            nationalNumber: _contactDetails[1].split("=")[1],
-                            firstName: _contactDetails[2].split("=")[1],
-                            lastName: _contactDetails[3].split("=")[1]);
+                            countryCode: _contactDetails["cc"],
+                            nationalNumber: _contactDetails["nn"],
+                            firstName: _contactDetails["fn"],
+                            lastName: _contactDetails["ln"]);
                         return SizedBox.shrink();
                       } else {
                         return SizedBox.shrink();
@@ -126,13 +127,11 @@ class _ScanQrCode extends State<ScanQrCode> {
   }
 
   Widget _buildQrView(BuildContext context) {
-    // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
     var scanArea = (MediaQuery.of(context).size.width < 400 ||
             MediaQuery.of(context).size.height < 400)
         ? 250
         : 350.0;
-    // To ensure the Scanner view is properly sizes after rotation
-    // we need to listen for Flutter SizeChanged notification and update controller
+
     return QRView(
       key: qrKey,
       onQRViewCreated: _onQRViewCreated,
@@ -164,18 +163,21 @@ class _ScanQrCode extends State<ScanQrCode> {
   }
 
   void _parsQrCode(String scanData) {
-    _message = scanData;
-    var m = scanData.split("/");
-    if (m[3].toString().contains("join")) {
-      _mucJoinQrCode.add(true);
-    } else if (m[3].contains("text")) {
-      _sendMessageToBotQrCode.add(true);
-    } else if (m[3].contains("spda")) {
-      _sendAccessPrivateDataQrCode.add(true);
-    } else if (m[3].contains("addContact")) {
-      _contactDetails = m[3].split("&");
+    Uri uri = Uri.parse(scanData);
+    List<String> pathSegments = uri.pathSegments;
+    _decodedData = scanData;
+    if(pathSegments.last.contains("ac")){
       _addContact.add(true);
+      uri.queryParameters.forEach((key, value) {
+        _contactDetails[key] = value;
+      });
+    }else{
+      if(pathSegments[0].contains("join")){
+        _mucJoinQrCode.add(true);
+      }
     }
+
+
   }
 
   Future<void> handleAddContact(

@@ -165,6 +165,7 @@ class MessageRepo {
 
     rooms.forEach((r) async {
       var category = r.lastMessage.to.asUid().category;
+      if (r.lastMessage.id == null) return;
       if (_authRepo.isCurrentUser(r.lastMessage.from) &&
           (category == Categories.GROUP || category == Categories.USER)) {
         var othersSeen = await _seenDao.getOthersSeen(r.lastMessage.to);
@@ -441,15 +442,16 @@ class MessageRepo {
     List<PendingMessage> pendingMessages =
         await _messageDao.getAllPendingMessages();
     for (var pendingMessage in pendingMessages) {
-      switch (pendingMessage.status) {
-        case SendingStatus.SENDING_FILE:
-          await _sendFileToServerOfPendingMessage(pendingMessage);
-          await _sendMessageToServer(pendingMessage);
-          break;
-        case SendingStatus.PENDING:
-          await _sendMessageToServer(pendingMessage);
-          break;
-      }
+      if (!pendingMessage.failed)
+        switch (pendingMessage.status) {
+          case SendingStatus.SENDING_FILE:
+            await _sendFileToServerOfPendingMessage(pendingMessage);
+            await _sendMessageToServer(pendingMessage);
+            break;
+          case SendingStatus.PENDING:
+            await _sendMessageToServer(pendingMessage);
+            break;
+        }
     }
   }
 
@@ -576,8 +578,8 @@ class MessageRepo {
       } catch (e) {
         _logger.e(e);
       }
-      msgList.add(
-          await saveMessageInMessagesDB(_authRepo, _messageDao, message));
+      msgList
+          .add(await saveMessageInMessagesDB(_authRepo, _messageDao, message));
     }
     return msgList;
   }

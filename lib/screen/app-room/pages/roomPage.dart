@@ -1069,7 +1069,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         onSecondaryTap: !isDesktop()
             ? null
             : () {
-                if (!_selectMultiMessageSubject.stream.value)
+                if (!_selectMultiMessageSubject.stream.value )
                   _showCustomMenu(message);
               },
         onDoubleTap: !isDesktop() ? null : () => onReply(message),
