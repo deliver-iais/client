@@ -302,7 +302,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   void initState() {
     Timer(Duration(seconds: 1), () {
-      if (_showOtherMessage.isClosed) {
+      if (!_showOtherMessage.isClosed) {
         _showOtherMessage.add(true);
       }
     });
