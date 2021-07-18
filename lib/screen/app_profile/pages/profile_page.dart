@@ -84,8 +84,7 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void initState() {
     fetchMedia();
-    if (widget.roomUid.category == Categories.CHANNEL ||
-        widget.roomUid.category == Categories.GROUP) {
+    if (widget.roomUid.isMuc()) {
       _checkPermissions();
     }
     if (_uxService.getTabIndex(widget.roomUid.asString()) == null) {
@@ -102,9 +101,9 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   _checkPermissions() async {
-    bool settingAvatarPermission = await _mucRepo.isMucAdminOrOwner(
+    final settingAvatarPermission = await _mucRepo.isMucAdminOrOwner(
         _authRepo.currentUserUid.asString(), widget.roomUid.asString());
-    bool mucOwner = await _mucRepo.mucOwner(
+    final mucOwner = await _mucRepo.mucOwner(
         _authRepo.currentUserUid.asString(), widget.roomUid.asString());
     setState(() {
       _setAvatarPermission = settingAvatarPermission;
@@ -421,7 +420,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                     ? _showUsername(
                                                         widget.roomUid.node,
                                                         widget.roomUid,
-                                                _appLocalization,
+                                                        _appLocalization,
                                                         context)
                                                     : FutureBuilder<String>(
                                                         future: _roomRepo.getId(
