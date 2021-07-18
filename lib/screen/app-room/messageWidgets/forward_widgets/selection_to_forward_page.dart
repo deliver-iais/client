@@ -26,57 +26,55 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
 
   @override
   Widget build(BuildContext context) {
-
     var _roomRepo = GetIt.I.get<RoomRepo>();
 
-          return Scaffold(
-            backgroundColor: Theme.of(context).backgroundColor,
-            appBar: PreferredSize(
-              preferredSize: Size.fromHeight( 60),
-              child: ForwardAppbar(),
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60),
+        child: ForwardAppbar(),
+      ),
+      body: Column(
+        children: <Widget>[
+          SearchBox(
+            onChange: (str) {
+              if (str.isNotEmpty) {
+                setState(() {
+                  _searchMode = true;
+                  _query = str;
+                });
+              } else {
+                setState(() {
+                  _searchMode = false;
+                });
+              }
+            },
+          ),
+          Expanded(
+            child: FutureBuilder<List<Uid>>(
+              future: _searchMode
+                  ? _roomRepo.searchInRoomAndContacts(_query)
+                  : _roomRepo.getAllRooms(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData &&
+                    snapshot.data != null &&
+                    snapshot.data.length > 0) {
+                  return Container(
+                    child: buildListView(snapshot.data),
+                  );
+                } else {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.blue,
+                    ),
+                  );
+                }
+              },
             ),
-            body: Column(
-              children: <Widget>[
-                SearchBox(
-                  onChange: (str) {
-                    if (str.isNotEmpty) {
-                      setState(() {
-                        _searchMode = true;
-                        _query = str;
-                      });
-                    }else{
-                      setState(() {
-                        _searchMode = false;
-                      });
-                    }
-                  },
-                ),
-                Expanded(
-                  child: FutureBuilder<List<Uid>>(
-                    future: _searchMode
-                        ? _roomRepo.searchInRoomAndContacts(_query, true)
-                        : _roomRepo.getAllRooms(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData &&
-                          snapshot.data != null &&
-                          snapshot.data.length > 0) {
-                        return Container(
-                          child: buildListView(snapshot.data),
-                        );
-                      } else {
-                        return Center(
-                          child: CircularProgressIndicator(
-                            backgroundColor: Colors.blue,
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          );
-
+          ),
+        ],
+      ),
+    );
   }
 
   ListView buildListView(List<Uid> uids) {

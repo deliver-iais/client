@@ -26,8 +26,6 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
-enum NavigationTabs { Chats, Contacts }
-
 class NavigationCenter extends StatefulWidget {
   final void Function(String) tapOnSelectChat;
 
@@ -51,8 +49,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
   final ScrollController scrollController = ScrollController();
 
   final Function tapOnCurrentUserAvatar;
-
-  NavigationTabs tab = NavigationTabs.Chats;
 
   var _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -208,10 +204,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
           AudioPlayerAppBar(),
           _searchMode
               ? searchResult(_appLocalization)
-              : Expanded(
-                  child: (tab == NavigationTabs.Chats)
-                      ? ChatsPage(scrollController: scrollController)
-                      : ContactsPage()),
+              : Expanded(child: ChatsPage(scrollController: scrollController)),
         ],
       ),
     );
@@ -314,72 +307,74 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   Widget searchResult(AppLocalization _appLocalization) {
     return Expanded(
-      child: Column(
-        children: [
-          FutureBuilder<List<Uid>>(
-              future: contactRepo.searchUser(query),
-              builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
-                if (snaps.data != null && snaps.data.length > 0) {
-                  return Container(
-                      child: Expanded(
-                          child: SingleChildScrollView(
-                    child: Column(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            FutureBuilder<List<Uid>>(
+                future: contactRepo.searchUser(query),
+                builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
+                  if (snaps.data != null && snaps.data.length > 0) {
+                    return Container(
+                        child: Expanded(
+                            child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Text(
+                              _appLocalization.getTraslateValue("global_search")),
+                          //    searchResultWidget(snaps, c),
+                          SizedBox(
+                            height: 10,
+                          ),
+                        ],
+                      ),
+                    )));
+                  } else {
+                    return SizedBox.shrink();
+                  }
+                }),
+            FutureBuilder<List<Uid>>(
+                future: _botRepo.searchBotByName(query),
+                builder: (c, bot) {
+                  if (bot.hasData && bot.data != null && bot.data.length > 0) {
+                    return Column(
+                      children: [
+                        Text(_appLocalization.getTraslateValue("bots")),
+                        Container(height: 200, child: searchResultWidget(bot, c))
+                      ],
+                    );
+                  } else {
+                    return SizedBox.shrink();
+                  }
+                }),
+            FutureBuilder<List<Uid>>(
+                future: _roomRepo.searchInRoomAndContacts(query),
+                builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
+                  if (snaps.hasData &&
+                      snaps.data != null &&
+                      snaps.data.length > 0) {
+                    return Container(
+                        child: Expanded(
+                            child: SingleChildScrollView(
+                                child: Column(
                       children: [
                         Text(
-                            _appLocalization.getTraslateValue("global_search")),
-                        //    searchResultWidget(snaps, c),
-                        SizedBox(
-                          height: 10,
+                          _appLocalization.getTraslateValue("local_search"),
+                          style: TextStyle(
+                              color: ExtraTheme.of(context).textDetails),
                         ),
+                        Container(
+                          height: MediaQuery.of(context).size.height,
+                          child: searchResultWidget(snaps, c),
+                        )
                       ],
-                    ),
-                  )));
-                } else {
-                  return SizedBox.shrink();
-                }
-              }),
-          FutureBuilder<List<Uid>>(
-              future: _botRepo.searchBotByName(query),
-              builder: (c, bot) {
-                if (bot.hasData && bot.data != null && bot.data.length > 0) {
-                  return Column(
-                    children: [
-                      Text(_appLocalization.getTraslateValue("bots")),
-                      Container(height: 200, child: searchResultWidget(bot, c))
-                    ],
-                  );
-                } else {
-                  return SizedBox.shrink();
-                }
-              }),
-          FutureBuilder<List<Uid>>(
-              future: _roomRepo.searchInRoomAndContacts(
-                  query, tab == NavigationTabs.Chats ? true : false),
-              builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
-                if (snaps.hasData &&
-                    snaps.data != null &&
-                    snaps.data.length > 0) {
-                  return Container(
-                      child: Expanded(
-                          child: SingleChildScrollView(
-                              child: Column(
-                    children: [
-                      Text(
-                        _appLocalization.getTraslateValue("local_search"),
-                        style: TextStyle(
-                            color: ExtraTheme.of(context).textDetails),
-                      ),
-                      Container(
-                        height: MediaQuery.of(context).size.height,
-                        child: searchResultWidget(snaps, c),
-                      )
-                    ],
-                  ))));
-                } else {
-                  return SizedBox.shrink();
-                }
-              })
-        ],
+                    ))));
+                  } else {
+                    return SizedBox.shrink();
+                  }
+                })
+          ],
+        ),
       ),
     );
   }

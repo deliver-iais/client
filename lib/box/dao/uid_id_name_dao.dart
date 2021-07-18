@@ -53,12 +53,14 @@ class UidIdNameDaoImpl implements UidIdNameDao {
   static Future<Box<String>> _open2() => Hive.openBox<String>(_key2());
 
   @override
-  Future<List<UidIdName>> search(String text) async {
+  Future<List<UidIdName>> search(String term) async {
+    var text = term.toLowerCase();
     var box = await _open();
     var res = box.values
         .where((element) =>
-            (element.id != null && element.id.contains(text)) ||
-            (element.name != null && element.name.contains(text)))
+            (element.id != null &&
+                element.id.toString().toLowerCase().contains(text)) ||
+            (element.name != null && element.name.toLowerCase().contains(text)))
         .toList();
     return res;
   }
