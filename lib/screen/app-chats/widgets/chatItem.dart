@@ -57,7 +57,7 @@ class _ChatItemState extends State<ChatItem> {
                   : Colors.transparent,
               height:
                   widget.room.lastMessage.type == MessageType.PERSISTENT_EVENT
-                      ? 74
+                      ? 76
                       : 70,
               child: Row(
                 children: <Widget>[
