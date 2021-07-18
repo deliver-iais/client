@@ -14,7 +14,6 @@ import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/document_and_File_ui.dart';
-import 'package:deliver_flutter/screen/app_profile/widgets/group_Ui_widget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/image_tab_ui.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/memberWidget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/music_and_audio_ui.dart';
@@ -135,7 +134,8 @@ class _ProfilePageState extends State<ProfilePage>
               });
 
               return DefaultTabController(
-                  length: (widget.roomUid.isMuc()) ? _tabsCount + 1 : _tabsCount,
+                  length:
+                      (widget.roomUid.isMuc()) ? _tabsCount + 1 : _tabsCount,
                   child: NestedScrollView(
                       headerSliverBuilder:
                           (BuildContext context, bool innerBoxIsScrolled) {
@@ -145,272 +145,7 @@ class _ProfilePageState extends State<ProfilePage>
                             roomUid: widget.roomUid,
                             canSetAvatar: _isMucAdminOrOwner,
                           ),
-                          widget.roomUid.category == Categories.USER ||
-                                  widget.roomUid.category ==
-                                      Categories.SYSTEM ||
-                                  widget.roomUid.category == Categories.BOT
-                              ? SliverList(
-                                  delegate: SliverChildListDelegate([
-                                  Container(
-                                    height: 80,
-                                    child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Wrap(
-                                          direction: Axis.vertical,
-                                          runSpacing: 40,
-                                          children: <Widget>[
-                                            Padding(
-                                              padding: EdgeInsets.fromLTRB(
-                                                  20, 0, 0, 0),
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    _locale.getTraslateValue(
-                                                        "info"),
-                                                    style: TextStyle(
-                                                      color:
-                                                          ExtraTheme.of(context)
-                                                              .textField,
-                                                      fontSize: 16.0,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(height: 5),
-                                            widget.roomUid.category ==
-                                                    Categories.SYSTEM
-                                                ? Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 25),
-                                                    child: Text(
-                                                      "@ Deliver",
-                                                      style: TextStyle(
-                                                          color: Colors.blue),
-                                                    ))
-                                                : widget.roomUid.category ==
-                                                        Categories.BOT
-                                                    ? _showUsername(
-                                                        widget.roomUid.node,
-                                                        widget.roomUid,
-                                                        _locale,
-                                                        context)
-                                                    : FutureBuilder<String>(
-                                                        future: _roomRepo.getId(
-                                                            widget.roomUid),
-                                                        builder: (BuildContext
-                                                                context,
-                                                            AsyncSnapshot<
-                                                                    String>
-                                                                snapshot) {
-                                                          if (snapshot.data !=
-                                                              null) {
-                                                            return _showUsername(
-                                                                snapshot.data,
-                                                                widget.roomUid,
-                                                                _locale,
-                                                                context);
-                                                          } else {
-                                                            return SizedBox
-                                                                .shrink();
-                                                          }
-                                                        },
-                                                      ),
-                                          ]),
-                                    ),
-                                  ),
-                                  SizedBox(height: 20),
-                                  if (widget.roomUid.category !=
-                                      Categories.SYSTEM)
-                                    Container(
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: ExtraTheme.of(context)
-                                                  .borderOfProfilePage),
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          color: ExtraTheme.of(context)
-                                              .boxBackground),
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                              ),
-                                              height: 50,
-                                              padding:
-                                                  const EdgeInsetsDirectional
-                                                      .only(start: 5, end: 15),
-                                              child: GestureDetector(
-                                                child: Row(children: <Widget>[
-                                                  IconButton(
-                                                    icon: Icon(Icons.message,
-                                                        color: Colors.blue),
-                                                    onPressed: () {},
-                                                  ),
-                                                  Text(
-                                                    _locale.getTraslateValue(
-                                                        "sendMessage"),
-                                                    style: TextStyle(
-                                                      color:
-                                                          ExtraTheme.of(context)
-                                                              .textField,
-                                                    ),
-                                                  ),
-                                                ]),
-                                                onTap: () {
-                                                  _routingService.openRoom(
-                                                      widget.roomUid
-                                                          .asString());
-                                                },
-                                              )),
-                                          Container(
-                                              height: 50,
-                                              padding:
-                                                  const EdgeInsetsDirectional
-                                                      .only(start: 7, end: 15),
-                                              child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: <Widget>[
-                                                    Container(
-                                                      child: Row(
-                                                        children: <Widget>[
-                                                          IconButton(
-                                                            icon: Icon(
-                                                                Icons
-                                                                    .notifications_active,
-                                                                color: Colors
-                                                                    .blue),
-                                                            onPressed: () {},
-                                                          ),
-                                                          Text(
-                                                            _locale.getTraslateValue(
-                                                                "notification"),
-                                                            style: TextStyle(
-                                                              color: ExtraTheme
-                                                                      .of(context)
-                                                                  .textField,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    StreamBuilder<bool>(
-                                                      stream: _roomRepo
-                                                          .watchIsRoomMuted(
-                                                              widget.roomUid
-                                                                  .asString()),
-                                                      builder: (BuildContext
-                                                              context,
-                                                          AsyncSnapshot<bool>
-                                                              snapshot) {
-                                                        if (snapshot.hasData &&
-                                                            snapshot.data !=
-                                                                null) {
-                                                          return Switch(
-                                                            activeColor:
-                                                                ExtraTheme.of(
-                                                                        context)
-                                                                    .activeSwitch,
-                                                            value:
-                                                                !snapshot.data,
-                                                            onChanged: (state) {
-                                                              if (state) {
-                                                                _roomRepo.unmute(
-                                                                    widget
-                                                                        .roomUid
-                                                                        .asString());
-                                                              } else {
-                                                                _roomRepo.mute(
-                                                                    widget
-                                                                        .roomUid
-                                                                        .asString());
-                                                              }
-                                                            },
-                                                          );
-                                                        } else {
-                                                          return SizedBox
-                                                              .shrink();
-                                                        }
-                                                      },
-                                                    )
-                                                  ])),
-                                          if (widget.roomUid.category !=
-                                                  Categories.SYSTEM &&
-                                              widget.roomUid.category !=
-                                                  Categories.BOT)
-                                            FutureBuilder<Contact>(
-                                              future: _contactRepo
-                                                  .getContact(widget.roomUid),
-                                              builder: (BuildContext context,
-                                                  AsyncSnapshot<Contact>
-                                                      snapshot) {
-                                                if (snapshot.data != null) {
-                                                  return Container(
-                                                    height: 50,
-                                                    padding:
-                                                        const EdgeInsetsDirectional
-                                                                .only(
-                                                            start: 7, end: 15),
-                                                    child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: <Widget>[
-                                                          Row(
-                                                            children: [
-                                                              IconButton(
-                                                                icon: Icon(
-                                                                    Icons.phone,
-                                                                    color: Colors
-                                                                        .blue),
-                                                                onPressed:
-                                                                    () {},
-                                                              ),
-                                                              Text(
-                                                                  _locale.getTraslateValue(
-                                                                      "phone"),
-                                                                  style: TextStyle(
-                                                                      color: ExtraTheme.of(
-                                                                              context)
-                                                                          .textField)),
-                                                            ],
-                                                          ),
-                                                          MaterialButton(
-                                                            onPressed: () => launch(
-                                                                "tel:${snapshot.data.countryCode}${snapshot.data.nationalNumber}"),
-                                                            child: Text(
-                                                              buildPhoneNumber(
-                                                                  snapshot.data
-                                                                      .countryCode,
-                                                                  snapshot.data
-                                                                      .nationalNumber),
-                                                              style: TextStyle(
-                                                                  color: ExtraTheme.of(
-                                                                          context)
-                                                                      .username),
-                                                            ),
-                                                          )
-                                                        ]),
-                                                  );
-                                                } else {
-                                                  return SizedBox.shrink();
-                                                }
-                                              },
-                                            )
-                                        ],
-                                      ),
-                                    ),
-                                  SizedBox(
-                                    height: 40,
-                                  )
-                                ]))
-                              : GroupUiWidget(
-                                  mucUid: widget.roomUid,
-                                ),
+                          _buildInfo(context),
                           SliverPersistentHeader(
                             pinned: true,
                             delegate: _SliverAppBarDelegate(
@@ -535,6 +270,211 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  Widget _buildInfo(BuildContext context) {
+    return SliverList(
+        delegate: SliverChildListDelegate([
+      if (!widget.roomUid.isSystem())
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(children: <Widget>[
+            Text(
+              _locale.getTraslateValue("username"),
+              style: TextStyle(
+                color: ExtraTheme.of(context).textField,
+                fontSize: 16.0,
+              ),
+            ),
+            SizedBox(height: 5),
+            widget.roomUid.category == Categories.BOT
+                ? _showUsername(
+                    widget.roomUid.node, widget.roomUid, _locale, context)
+                : FutureBuilder<String>(
+                    future: _roomRepo.getId(widget.roomUid),
+                    builder:
+                        (BuildContext context, AsyncSnapshot<String> snapshot) {
+                      if (snapshot.data != null) {
+                        return _showUsername(
+                            snapshot.data, widget.roomUid, _locale, context);
+                      } else {
+                        return SizedBox.shrink();
+                      }
+                    },
+                  ),
+          ]),
+        ),
+      if (widget.roomUid.category != Categories.SYSTEM)
+        Container(
+          decoration: BoxDecoration(
+              border:
+                  Border.all(color: ExtraTheme.of(context).borderOfProfilePage),
+              borderRadius: BorderRadius.circular(15),
+              color: ExtraTheme.of(context).boxBackground),
+          child: Column(
+            children: [
+              Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  height: 50,
+                  padding: const EdgeInsetsDirectional.only(start: 5, end: 15),
+                  child: GestureDetector(
+                    child: Row(children: <Widget>[
+                      IconButton(
+                        icon: Icon(Icons.message, color: Colors.blue),
+                        onPressed: () {},
+                      ),
+                      Text(
+                        _locale.getTraslateValue("sendMessage"),
+                        style: TextStyle(
+                          color: ExtraTheme.of(context).textField,
+                        ),
+                      ),
+                    ]),
+                    onTap: () {
+                      _routingService.openRoom(widget.roomUid.asString());
+                    },
+                  )),
+              Container(
+                  height: 50,
+                  padding: const EdgeInsetsDirectional.only(start: 7, end: 15),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Container(
+                          child: Row(
+                            children: <Widget>[
+                              IconButton(
+                                icon: Icon(Icons.notifications_active,
+                                    color: Colors.blue),
+                                onPressed: () {},
+                              ),
+                              Text(
+                                _locale.getTraslateValue("notification"),
+                                style: TextStyle(
+                                  color: ExtraTheme.of(context).textField,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        StreamBuilder<bool>(
+                          stream: _roomRepo
+                              .watchIsRoomMuted(widget.roomUid.asString()),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<bool> snapshot) {
+                            if (snapshot.hasData && snapshot.data != null) {
+                              return Switch(
+                                activeColor:
+                                    ExtraTheme.of(context).activeSwitch,
+                                value: !snapshot.data,
+                                onChanged: (state) {
+                                  if (state) {
+                                    _roomRepo.unmute(widget.roomUid.asString());
+                                  } else {
+                                    _roomRepo.mute(widget.roomUid.asString());
+                                  }
+                                },
+                              );
+                            } else {
+                              return SizedBox.shrink();
+                            }
+                          },
+                        )
+                      ])),
+              if (widget.roomUid.isUser())
+                FutureBuilder<Contact>(
+                  future: _contactRepo.getContact(widget.roomUid),
+                  builder:
+                      (BuildContext context, AsyncSnapshot<Contact> snapshot) {
+                    if (snapshot.data != null) {
+                      return Container(
+                        height: 50,
+                        padding:
+                            const EdgeInsetsDirectional.only(start: 7, end: 15),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.phone, color: Colors.blue),
+                                    onPressed: () {},
+                                  ),
+                                  Text(_locale.getTraslateValue("phone"),
+                                      style: TextStyle(
+                                          color: ExtraTheme.of(context)
+                                              .textField)),
+                                ],
+                              ),
+                              MaterialButton(
+                                onPressed: () => launch(
+                                    "tel:${snapshot.data.countryCode}${snapshot.data.nationalNumber}"),
+                                child: Text(
+                                  buildPhoneNumber(snapshot.data.countryCode,
+                                      snapshot.data.nationalNumber),
+                                  style: TextStyle(
+                                      color: ExtraTheme.of(context).username),
+                                ),
+                              )
+                            ]),
+                      );
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  },
+                )
+            ],
+          ),
+        ),
+      SizedBox(
+        height: 40,
+      ),
+      if (widget.roomUid.isMuc())
+        StreamBuilder<Muc>(
+            stream: _mucRepo.watchMuc(widget.roomUid.asString()),
+            builder: (c, muc) {
+              if (muc.hasData && muc.data != null && muc.data.info.isNotEmpty) {
+                return Padding(
+                    padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                    child: Container(
+                      child: Text(
+                        muc.data.info,
+                        style: TextStyle(fontSize: 15, color: Colors.blue),
+                      ),
+                    ));
+              } else
+                return SizedBox.shrink();
+            }),
+      if (widget.roomUid.isMuc())
+        GestureDetector(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.person_add),
+                  disabledColor: Colors.blue,
+                  onPressed: null,
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  _locale.getTraslateValue("AddMember"),
+                  style: TextStyle(
+                      color: ExtraTheme.of(context).textField, fontSize: 17),
+                ),
+              ],
+            ),
+          ),
+          onTap: () {
+            _routingService.openMemberSelection(
+                isChannel: true, mucUid: widget.roomUid);
+          },
+        )
+    ]));
+  }
+
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
         elevation: 0,
@@ -559,12 +499,8 @@ class _ProfilePageState extends State<ProfilePage>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.add_a_photo_rounded,
-                          ),
-                          SizedBox(
-                            width: 8,
-                          ),
+                          Icon(Icons.add_a_photo_rounded),
+                          SizedBox(width: 8),
                           Text(_locale.getTraslateValue("set_avatar")),
                         ],
                       ),
@@ -574,26 +510,18 @@ class _ProfilePageState extends State<ProfilePage>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.add_link_outlined,
-                          ),
-                          SizedBox(
-                            width: 8,
-                          ),
+                          Icon(Icons.add_link_outlined),
+                          SizedBox(width: 8),
                           Text(_locale.getTraslateValue("create_invite_link"))
                         ],
                       ),
                       value: "invite_link"),
                 if (widget.roomUid.isMuc() && _isMucOwner)
-                  new PopupMenuItem<String>(
+                  PopupMenuItem<String>(
                       child: Row(
                         children: [
-                          Icon(
-                            Icons.settings,
-                          ),
-                          SizedBox(
-                            width: 8,
-                          ),
+                          Icon(Icons.settings),
+                          SizedBox(width: 8),
                           Text(widget.roomUid.category == Categories.GROUP
                               ? _locale.getTraslateValue("manage_group")
                               : _locale.getTraslateValue("manage_channel")),
@@ -601,16 +529,12 @@ class _ProfilePageState extends State<ProfilePage>
                       ),
                       value: "manage"),
                 if (widget.roomUid.isMuc() && !_isMucOwner)
-                  new PopupMenuItem<String>(
+                  PopupMenuItem<String>(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.arrow_back_outlined,
-                          ),
-                          SizedBox(
-                            width: 8,
-                          ),
+                          Icon(Icons.arrow_back_outlined),
+                          SizedBox(width: 8),
                           Text(
                             widget.roomUid.isGroup()
                                 ? _locale.getTraslateValue("leftGroup")
@@ -619,30 +543,13 @@ class _ProfilePageState extends State<ProfilePage>
                         ],
                       ),
                       value: "leftMuc"),
-                new PopupMenuItem<String>(
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.report,
-                        ),
-                        SizedBox(
-                          width: 8,
-                        ),
-                        Text(_locale.getTraslateValue("report")),
-                      ],
-                    ),
-                    value: "report"),
-                if (_isMucOwner)
-                  new PopupMenuItem<String>(
+                if (widget.roomUid.isMuc() && _isMucOwner)
+                  PopupMenuItem<String>(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.delete,
-                          ),
-                          SizedBox(
-                            width: 8,
-                          ),
+                          Icon(Icons.delete),
+                          SizedBox(width: 8),
                           Text(widget.roomUid.isGroup()
                               ? _locale.getTraslateValue("deleteGroup")
                               : _locale.getTraslateValue("deleteChannel"))
@@ -653,10 +560,8 @@ class _ProfilePageState extends State<ProfilePage>
                   PopupMenuItem<String>(
                       child: Row(
                         children: [
-                          Icon(Icons.report, color: Colors.blue),
-                          SizedBox(
-                            width: 15,
-                          ),
+                          Icon(Icons.report),
+                          SizedBox(width: 8),
                           Text(_locale.getTraslateValue("report")),
                         ],
                       ),
@@ -1297,7 +1202,7 @@ Widget _showUsername(String username, Uid currentUid,
     AppLocalization _appLocalization, BuildContext context) {
   var routingServices = GetIt.I.get<RoutingService>();
   return Padding(
-    padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+    padding: EdgeInsets.all(8.0),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
