@@ -76,86 +76,89 @@ class _SettingsPageState extends State<SettingsPage> {
                   NormalSettingsTitle(
                       onTap: () => _routingService.openAccountSettings(),
                       child: Row(
-                    children: <Widget>[
-                      GestureDetector(
-                          onTap: () async {
-                            var lastAvatar = await _avatarRepo.getLastAvatar(
-                                _authRepo.currentUserUid, false);
-                            if (lastAvatar.createdOn != null) {
-                              _routingServices.openShowAllAvatars(
-                                  uid: _authRepo.currentUserUid,
-                                  hasPermissionToDeleteAvatar: true,
-                                  heroTag: "avatar");
-                            }
-                          },
-                          child: CircleAvatarWidget(
-                            _authRepo.currentUserUid,
-                            35,
-                            showAsStreamOfAvatar: true,
-                          )),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: FutureBuilder<Account>(
-                          future: _accountRepo.getAccount(),
-                          builder: (BuildContext context,
-                              AsyncSnapshot<Account> snapshot) {
-                            if (snapshot.data != null) {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "${snapshot.data.firstName ?? ""} ${snapshot.data.lastName ?? ""}"
-                                        .trim(),
-                                    overflow: TextOverflow.fade,
-                                    // maxLines: 1,
-                                    textDirection: TextDirection.rtl,
-                                    // softWrap: false,
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w800,
-                                        color:
-                                            ExtraTheme.of(context).textField),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    snapshot.data.userName ?? "",
-                                    style: TextStyle(
-                                        color:
-                                            ExtraTheme.of(context).username,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 14),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    buildPhoneNumber(
-                                        snapshot.data.countryCode,
-                                        snapshot.data.nationalNumber),
-                                    style: TextStyle(
-                                        color:
-                                            ExtraTheme.of(context).textField,
-                                        fontSize: 12),
-                                  )
-                                ],
-                              );
-                            } else {
-                              return SizedBox.shrink();
-                            }
-                          },
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.only(left: 4.0),
-                        child: Icon(Icons.navigate_next),
-                      )
-                    ],
-                  ))
+                        children: <Widget>[
+                          GestureDetector(
+                              onTap: () async {
+                                var lastAvatar =
+                                    await _avatarRepo.getLastAvatar(
+                                        _authRepo.currentUserUid, false);
+                                if (lastAvatar.createdOn != null) {
+                                  _routingServices.openShowAllAvatars(
+                                      uid: _authRepo.currentUserUid,
+                                      hasPermissionToDeleteAvatar: true,
+                                      heroTag: "avatar");
+                                }
+                              },
+                              child: CircleAvatarWidget(
+                                _authRepo.currentUserUid,
+                                35,
+                                showAsStreamOfAvatar: true,
+                              )),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: FutureBuilder<Account>(
+                              future: _accountRepo.getAccount(),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<Account> snapshot) {
+                                if (snapshot.data != null) {
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "${snapshot.data.firstName ?? ""} ${snapshot.data.lastName ?? ""}"
+                                            .trim(),
+                                        overflow: TextOverflow.fade,
+                                        // maxLines: 1,
+                                        textDirection: TextDirection.rtl,
+                                        // softWrap: false,
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w800,
+                                            color: ExtraTheme.of(context)
+                                                .textField),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        snapshot.data.userName ?? "",
+                                        style: TextStyle(
+                                            color:
+                                                ExtraTheme.of(context).username,
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 14),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        buildPhoneNumber(
+                                            snapshot.data.countryCode,
+                                            snapshot.data.nationalNumber),
+                                        style: TextStyle(
+                                            color: ExtraTheme.of(context)
+                                                .textField,
+                                            fontSize: 12),
+                                      )
+                                    ],
+                                  );
+                                } else {
+                                  return SizedBox.shrink();
+                                }
+                              },
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.only(left: 4.0),
+                            child: Icon(Icons.navigate_next),
+                          )
+                        ],
+                      ))
                 ],
               ),
               SettingsSection(
                 tiles: [
                   SettingsTile(
                     title: appLocalization.getTraslateValue("qr_share"),
+                    titleTextStyle:
+                        TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.qr_code),
                     onPressed: (BuildContext context) async {
                       var account = await _accountRepo.getAccount();
@@ -170,6 +173,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   SettingsTile(
                     title: appLocalization.getTraslateValue("saved_message"),
+                    titleTextStyle:
+                    TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.bookmark),
                     onPressed: (BuildContext context) {
                       _routingService
@@ -178,6 +183,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   SettingsTile(
                     title: appLocalization.getTraslateValue("contacts"),
+                    titleTextStyle:
+                    TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.contacts),
                     onPressed: (BuildContext context) {
                       _routingService.openContacts();
@@ -187,8 +194,12 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               SettingsSection(
                 title: appLocalization.getTraslateValue("user_experience"),
+                titleTextStyle:
+                TextStyle(color: ExtraTheme.of(context).textField),
                 tiles: [
                   SettingsTile.switchTile(
+                    titleTextStyle:
+                    TextStyle(color: ExtraTheme.of(context).textField),
                     title: appLocalization.getTraslateValue("notification"),
                     leading: Icon(Icons.notifications_active),
                     switchValue: _uxService.isAllNotificationDisabled,
@@ -197,6 +208,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   SettingsTile(
                     title: appLocalization.getTraslateValue("language"),
+                    titleTextStyle:
+                    TextStyle(color: ExtraTheme.of(context).textField),
                     subtitle: _uxService.locale.language().name,
                     leading: Icon(Icons.language),
                     onPressed: (BuildContext context) {
@@ -206,6 +219,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile.switchTile(
                     title: appLocalization.getTraslateValue("dark_mode"),
                     leading: Icon(Icons.brightness_2),
+                    titleTextStyle:
+                    TextStyle(color: ExtraTheme.of(context).textField),
                     switchValue: _uxService.theme == DarkTheme,
                     onToggle: (value) {
                       _uxService.toggleTheme();
@@ -215,6 +230,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     SettingsTile.switchTile(
                       title: appLocalization
                           .getTraslateValue("send_by_shift_enter"),
+                      titleTextStyle:
+                      TextStyle(color: ExtraTheme.of(context).textField),
                       leading: Icon(Icons.keyboard),
                       switchValue: !_uxService.sendByEnter,
                       onToggle: (bool value) {
@@ -229,6 +246,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   tiles: [
                     SettingsTile(
                       title: 'Log Level',
+                      titleTextStyle:
+                      TextStyle(color: ExtraTheme.of(context).textField),
                       subtitle: LogLevelHelper.levelToString(
                           GetIt.I.get<DeliverLogFilter>().level),
                       leading: Icon(Icons.bug_report_rounded),
