@@ -238,86 +238,86 @@ class _SettingsPageState extends State<SettingsPage> {
                     )
                   ],
                 ),
-              SettingsSection(
-                tiles: [
-                  SettingsTile(
-                      title: appLocalization.getTraslateValue("version"),
-                      trailing: Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: Row(
-                          children: <Widget>[
-                            if (isDeveloperMode)
-                              FutureBuilder(
-                                future: SmsAutoFill().getAppSignature,
-                                builder: (context, snapshot) {
-                                  if (snapshot.data != null) {
-                                    return GestureDetector(
-                                      onTap: () => Clipboard.setData(
-                                          ClipboardData(
-                                              text: snapshot.data ??
-                                                  "No Hashcode" + " - ")),
-                                      child: Text(
-                                        snapshot.data ?? "No Hashcode" + " - ",
-                                        style: TextStyle(
-                                            color: ExtraTheme.of(context)
-                                                .textField,
-                                            fontSize: 16),
-                                      ),
-                                    );
-                                  } else {
-                                    return GestureDetector(
-                                      onTap: () => Clipboard.setData(
-                                          ClipboardData(
-                                              text: snapshot.data ??
-                                                  "No Hashcode - ")),
-                                      child: Text(
-                                        "No Hashcode - ",
-                                        style: TextStyle(
-                                            color: ExtraTheme.of(context)
-                                                .textField,
-                                            fontSize: 16),
-                                      ),
-                                    );
-                                  }
-                                },
-                              ),
-                            FutureBuilder(
-                              future: PackageInfo.fromPlatform(),
-                              builder: (context, snapshot) {
-                                if (snapshot.data != null) {
-                                  return Text(
-                                    snapshot.data.version ?? "",
-                                    style: TextStyle(
-                                        // color: ExtraTheme.of(context).textField,
-                                        // fontWeight: FontWeight.bold,
-                                        fontSize: 16),
-                                  );
-                                } else {
-                                  return SizedBox.shrink();
-                                }
-                              },
-                            )
-                          ],
-                        ),
-                      ),
-                      onPressed: (_) async {
-                        _logger.d(developerModeCounterCountDown);
-                        developerModeCounterCountDown--;
-                        if (developerModeCounterCountDown < 1) {
-                          setState(() {
-                            isDeveloperMode = true;
-                          });
-                        }
-                      }),
-                  SettingsTile(
-                    title: appLocalization.getTraslateValue("logout"),
-                    leading: Icon(Icons.exit_to_app),
-                    onPressed: (BuildContext context) =>
-                        openLogoutAlertDialog(context, appLocalization),
-                    trailing: SizedBox.shrink(),
-                  ),
-                ],
-              ),
+              // SettingsSection(
+              //   tiles: [
+              //     SettingsTile(
+              //         title: appLocalization.getTraslateValue("version"),
+              //         trailing: Padding(
+              //           padding: const EdgeInsets.only(right: 8.0),
+              //           child: Row(
+              //             children: <Widget>[
+              //               if (isDeveloperMode)
+              //                 FutureBuilder(
+              //                   future: SmsAutoFill().getAppSignature,
+              //                   builder: (context, snapshot) {
+              //                     if (snapshot.data != null) {
+              //                       return GestureDetector(
+              //                         onTap: () => Clipboard.setData(
+              //                             ClipboardData(
+              //                                 text: snapshot.data ??
+              //                                     "No Hashcode" + " - ")),
+              //                         child: Text(
+              //                           snapshot.data ?? "No Hashcode" + " - ",
+              //                           style: TextStyle(
+              //                               color: ExtraTheme.of(context)
+              //                                   .textField,
+              //                               fontSize: 16),
+              //                         ),
+              //                       );
+              //                     } else {
+              //                       return GestureDetector(
+              //                         onTap: () => Clipboard.setData(
+              //                             ClipboardData(
+              //                                 text: snapshot.data ??
+              //                                     "No Hashcode - ")),
+              //                         child: Text(
+              //                           "No Hashcode - ",
+              //                           style: TextStyle(
+              //                               color: ExtraTheme.of(context)
+              //                                   .textField,
+              //                               fontSize: 16),
+              //                         ),
+              //                       );
+              //                     }
+              //                   },
+              //                 ),
+              //               FutureBuilder(
+              //                 future: PackageInfo.fromPlatform(),
+              //                 builder: (context, snapshot) {
+              //                   if (snapshot.data != null) {
+              //                     return Text(
+              //                       snapshot.data.version ?? "",
+              //                       style: TextStyle(
+              //                           // color: ExtraTheme.of(context).textField,
+              //                           // fontWeight: FontWeight.bold,
+              //                           fontSize: 16),
+              //                     );
+              //                   } else {
+              //                     return SizedBox.shrink();
+              //                   }
+              //                 },
+              //               )
+              //             ],
+              //           ),
+              //         ),
+              //         onPressed: (_) async {
+              //           _logger.d(developerModeCounterCountDown);
+              //           developerModeCounterCountDown--;
+              //           if (developerModeCounterCountDown < 1) {
+              //             setState(() {
+              //               isDeveloperMode = true;
+              //             });
+              //           }
+              //         }),
+              //     SettingsTile(
+              //       title: appLocalization.getTraslateValue("logout"),
+              //       leading: Icon(Icons.exit_to_app),
+              //       onPressed: (BuildContext context) =>
+              //           openLogoutAlertDialog(context, appLocalization),
+              //       trailing: SizedBox.shrink(),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ));
