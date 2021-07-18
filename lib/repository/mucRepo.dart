@@ -276,7 +276,16 @@ class MucRepo {
     }
   }
 
-  Future<bool> leaveGroup(Uid groupUid) async {
+  Future<bool> leaveMuc(Uid mucUid) async {
+    if (mucUid.isGroup())
+      return _leaveGroup(mucUid);
+    else if (mucUid.isChannel())
+      return _leaveChannel(mucUid);
+    else
+      return false;
+  }
+
+  Future<bool> _leaveGroup(Uid groupUid) async {
     var result = await _mucServices.leaveGroup(groupUid);
     if (result) {
       _mucDao.delete(groupUid.asString());
@@ -286,7 +295,7 @@ class MucRepo {
     return false;
   }
 
-  Future<bool> leaveChannel(Uid channelUid) async {
+  Future<bool> _leaveChannel(Uid channelUid) async {
     var result = await _mucServices.leaveChannel(channelUid);
     if (result) {
       _mucDao.delete(channelUid.asString());

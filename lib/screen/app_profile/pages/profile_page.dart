@@ -74,22 +74,20 @@ class _ProfilePageState extends State<ProfilePage>
   final showChannelIdError = BehaviorSubject.seeded(false);
   TabController _tabController;
   String _uploadAvatarPath;
-  bool showProgressBar = false;
-  bool _setAvatarPermission = false;
-  bool _modifyMUc = false;
-  String mucName = "";
+  bool _showProgressBar = false;
+  bool _canSetAvatar = false;
+  bool _canModifyMuc = false;
   AppLocalization _appLocalization;
   int tabsCount;
 
   @override
   void initState() {
-    fetchMedia();
-    if (widget.roomUid.isMuc()) {
-      _checkPermissions();
-    }
+    _setupRoomSettings();
+
     if (_uxService.getTabIndex(widget.roomUid.asString()) == null) {
       _uxService.setTabIndex(widget.roomUid.asString(), 0);
     }
+
     super.initState();
   }
 
@@ -100,27 +98,13 @@ class _ProfilePageState extends State<ProfilePage>
     super.dispose();
   }
 
-  _checkPermissions() async {
-    final settingAvatarPermission = await _mucRepo.isMucAdminOrOwner(
-        _authRepo.currentUserUid.asString(), widget.roomUid.asString());
-    final mucOwner = await _mucRepo.mucOwner(
-        _authRepo.currentUserUid.asString(), widget.roomUid.asString());
-    setState(() {
-      _setAvatarPermission = settingAvatarPermission;
-      _modifyMUc = mucOwner;
-    });
-  }
-
-  void fetchMedia() async {
-    await _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     this._appLocalization = AppLocalization.of(context);
     var style =
-        TextStyle(fontSize: 14, color: ExtraTheme.of(context).textField);
+    TextStyle(fontSize: 14, color: ExtraTheme
+        .of(context)
+        .textField);
 
     return Scaffold(
       appBar: AppBar(
@@ -131,192 +115,200 @@ class _ProfilePageState extends State<ProfilePage>
               future: _roomRepo.getName(widget.roomUid),
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 var name = snapshot.data ?? "Loading...";
-                return Text(name, style: Theme.of(context).textTheme.headline2);
+                return Text(name, style: Theme
+                    .of(context)
+                    .textTheme
+                    .headline2);
               },
             ),
           ),
           actions: <Widget>[
-            if (widget.roomUid.category != Categories.SYSTEM)
-              widget.roomUid.category != Categories.USER &&
-                      widget.roomUid.category != Categories.BOT
+            if (!widget.roomUid.isSystem())
+              widget.roomUid.isMuc()
                   ? PopupMenuButton(
-                      color: ExtraTheme.of(context).popupMenuButton,
-                      icon: Icon(Icons.more_vert),
-                      itemBuilder: (_) => <PopupMenuItem<String>>[
-                        if (_setAvatarPermission)
-                          new PopupMenuItem<String>(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.add_a_photo_rounded,
-                                    color: Colors.blue,
-                                    size: 23,
-                                  ),
-                                  SizedBox(
-                                    width: 6,
-                                  ),
-                                  Text(
-                                      _appLocalization
-                                          .getTraslateValue("set_avatar"),
-                                      style: style),
-                                ],
-                              ),
-                              value: "select"),
-                        if (_modifyMUc)
-                          new PopupMenuItem<String>(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.add_link_outlined,
-                                    color: Colors.blue,
-                                    size: 23,
-                                  ),
-                                  SizedBox(
-                                    width: 6,
-                                  ),
-                                  Text(
-                                    widget.roomUid.isGroup()
-                                        ? _appLocalization.getTraslateValue(
-                                            "create_invite_link")
-                                        : _appLocalization.getTraslateValue(
-                                            "create_invite_link"),
-                                    style: style,
-                                  )
-                                ],
-                              ),
-                              value: "invite_link"),
-                        if (_modifyMUc &&
-                            (widget.roomUid.category == Categories.GROUP ||
-                                widget.roomUid.category == Categories.CHANNEL))
-                          new PopupMenuItem<String>(
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.settings,
-                                    color: Colors.blue,
-                                    size: 23,
-                                  ),
-                                  SizedBox(
-                                    width: 6,
-                                  ),
-                                  Text(
-                                      widget.roomUid.category ==
-                                              Categories.GROUP
-                                          ? _appLocalization
-                                              .getTraslateValue("manage_group")
-                                          : _appLocalization.getTraslateValue(
-                                              "manage_channel"),
-                                      style: style),
-                                ],
-                              ),
-                              value: "manage"),
-                        if (!_modifyMUc)
-                          new PopupMenuItem<String>(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.arrow_back_outlined,
-                                    color: Colors.blue,
-                                    size: 23,
-                                  ),
-                                  SizedBox(
-                                    width: 6,
-                                  ),
-                                  Text(
-                                    widget.roomUid.isGroup()
-                                        ? _appLocalization
-                                            .getTraslateValue("leftGroup")
-                                        : _appLocalization
-                                            .getTraslateValue("leftChannel"),
-                                    style: style,
-                                  ),
-                                ],
-                              ),
-                              value: "leftMuc"),
-                        new PopupMenuItem<String>(
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.report,
-                                  color: Colors.blue,
-                                  size: 23,
-                                ),
-                                SizedBox(
-                                  width: 6,
-                                ),
-                                Text(
-                                    _appLocalization.getTraslateValue("report"),
-                                    style: style),
-                              ],
+                color: ExtraTheme
+                    .of(context)
+                    .popupMenuButton,
+                icon: Icon(Icons.more_vert),
+                itemBuilder: (_) =>
+                <PopupMenuItem<String>>[
+                  if (_canSetAvatar)
+                    PopupMenuItem<String>(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.add_a_photo_rounded,
+                              color: Colors.blue,
+                              size: 23,
                             ),
-                            value: "report"),
-                        if (_modifyMUc)
+                            SizedBox(
+                              width: 6,
+                            ),
+                            Text(
+                                _appLocalization
+                                    .getTraslateValue("set_avatar"),
+                                style: style),
+                          ],
+                        ),
+                        value: "select"),
+                  if (_canModifyMuc)
+                    new PopupMenuItem<String>(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.add_link_outlined,
+                              color: Colors.blue,
+                              size: 23,
+                            ),
+                            SizedBox(
+                              width: 6,
+                            ),
+                            Text(
+                              widget.roomUid.isGroup()
+                                  ? _appLocalization.getTraslateValue(
+                                  "create_invite_link")
+                                  : _appLocalization.getTraslateValue(
+                                  "create_invite_link"),
+                              style: style,
+                            )
+                          ],
+                        ),
+                        value: "invite_link"),
+                  if (_canModifyMuc &&
+                      (widget.roomUid.category == Categories.GROUP ||
+                          widget.roomUid.category == Categories.CHANNEL))
+                    new PopupMenuItem<String>(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.settings,
+                              color: Colors.blue,
+                              size: 23,
+                            ),
+                            SizedBox(
+                              width: 6,
+                            ),
+                            Text(
+                                widget.roomUid.category ==
+                                    Categories.GROUP
+                                    ? _appLocalization
+                                    .getTraslateValue("manage_group")
+                                    : _appLocalization.getTraslateValue(
+                                    "manage_channel"),
+                                style: style),
+                          ],
+                        ),
+                        value: "manage"),
+                  if (!_canModifyMuc)
+                    new PopupMenuItem<String>(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.arrow_back_outlined,
+                              color: Colors.blue,
+                              size: 23,
+                            ),
+                            SizedBox(
+                              width: 6,
+                            ),
+                            Text(
+                              widget.roomUid.isGroup()
+                                  ? _appLocalization
+                                  .getTraslateValue("leftGroup")
+                                  : _appLocalization
+                                  .getTraslateValue("leftChannel"),
+                              style: style,
+                            ),
+                          ],
+                        ),
+                        value: "leftMuc"),
+                  new PopupMenuItem<String>(
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.report,
+                            color: Colors.blue,
+                            size: 23,
+                          ),
+                          SizedBox(
+                            width: 6,
+                          ),
+                          Text(
+                              _appLocalization.getTraslateValue("report"),
+                              style: style),
+                        ],
+                      ),
+                      value: "report"),
+                  if (_canModifyMuc)
+                    new PopupMenuItem<String>(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.delete,
+                              color: Colors.blue,
+                              size: 23,
+                            ),
+                            SizedBox(
+                              width: 6,
+                            ),
+                            Text(
+                              widget.roomUid.isGroup()
+                                  ? _appLocalization
+                                  .getTraslateValue("deleteGroup")
+                                  : _appLocalization
+                                  .getTraslateValue("deleteChannel"),
+                              style: style,
+                            )
+                          ],
+                        ),
+                        value: "deleteMuc"),
+                ],
+                onSelected: onSelected,
+              )
+                  : StreamBuilder<bool>(
+                  stream: _roomRepo
+                      .watchIsRoomBlocked(widget.roomUid.asString()),
+                  builder: (c, room) {
+                    if (room.hasData && room.data != null) {
+                      return PopupMenuButton(
+                        color: ExtraTheme
+                            .of(context)
+                            .popupMenuButton,
+                        icon: Icon(Icons.more_vert),
+                        itemBuilder: (_) =>
+                        <PopupMenuItem<String>>[
                           new PopupMenuItem<String>(
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    Icons.delete,
-                                    color: Colors.blue,
-                                    size: 23,
-                                  ),
+                                  Icon(Icons.report, color: Colors.blue),
                                   SizedBox(
-                                    width: 6,
+                                    width: 15,
                                   ),
                                   Text(
-                                    widget.roomUid.isGroup()
-                                        ? _appLocalization
-                                            .getTraslateValue("deleteGroup")
-                                        : _appLocalization
-                                            .getTraslateValue("deleteChannel"),
+                                    _appLocalization
+                                        .getTraslateValue("report"),
                                     style: style,
-                                  )
+                                  ),
                                 ],
                               ),
-                              value: "deleteMuc"),
-                      ],
-                      onSelected: onSelected,
-                    )
-                  : StreamBuilder<bool>(
-                      stream: _roomRepo
-                          .watchIsRoomBlocked(widget.roomUid.asString()),
-                      builder: (c, room) {
-                        if (room.hasData && room.data != null) {
-                          return PopupMenuButton(
-                            color: ExtraTheme.of(context).popupMenuButton,
-                            icon: Icon(Icons.more_vert),
-                            itemBuilder: (_) => <PopupMenuItem<String>>[
-                              new PopupMenuItem<String>(
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.report, color: Colors.blue),
-                                      SizedBox(
-                                        width: 15,
-                                      ),
-                                      Text(
-                                        _appLocalization
-                                            .getTraslateValue("report"),
-                                        style: style,
-                                      ),
-                                    ],
-                                  ),
-                                  value: "report"),
-                            ],
-                            onSelected: onSelected,
-                          );
-                        } else {
-                          return SizedBox.shrink();
-                        }
-                      }),
+                              value: "report"),
+                        ],
+                        onSelected: onSelected,
+                      );
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  }),
           ],
           leading: _routingService.backButtonLeading()),
       body: FluidContainerWidget(
         child: StreamBuilder<MediaMetaData>(
             stream:
-                _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
+            _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
             builder: (context, AsyncSnapshot<MediaMetaData> snapshot) {
               tabsCount = 0;
               if (snapshot.hasData && snapshot.data != null) {
@@ -345,12 +337,12 @@ class _ProfilePageState extends State<ProfilePage>
 
               _tabController = TabController(
                   length: (widget.roomUid.category == Categories.GROUP ||
-                          widget.roomUid.category == Categories.CHANNEL)
+                      widget.roomUid.category == Categories.CHANNEL)
                       ? tabsCount + 1
                       : tabsCount,
                   vsync: this,
                   initialIndex:
-                      _uxService.getTabIndex(widget.roomUid.asString()));
+                  _uxService.getTabIndex(widget.roomUid.asString()));
               _tabController.addListener(() {
                 _uxService.setTabIndex(
                     widget.roomUid.asString(), _tabController.index);
@@ -358,8 +350,8 @@ class _ProfilePageState extends State<ProfilePage>
 
               return DefaultTabController(
                   length: (widget.roomUid.category == Categories.USER ||
-                          widget.roomUid.category == Categories.SYSTEM ||
-                          widget.roomUid.category == Categories.BOT)
+                      widget.roomUid.category == Categories.SYSTEM ||
+                      widget.roomUid.category == Categories.BOT)
                       ? tabsCount
                       : tabsCount + 1,
                   child: NestedScrollView(
@@ -369,285 +361,299 @@ class _ProfilePageState extends State<ProfilePage>
                           ProfileAvatar(
                             innerBoxIsScrolled: innerBoxIsScrolled,
                             roomUid: widget.roomUid,
-                            setAvatarPermission: _setAvatarPermission,
+                            setAvatarPermission: _canSetAvatar,
                           ),
                           widget.roomUid.category == Categories.USER ||
-                                  widget.roomUid.category ==
-                                      Categories.SYSTEM ||
-                                  widget.roomUid.category == Categories.BOT
+                              widget.roomUid.category ==
+                                  Categories.SYSTEM ||
+                              widget.roomUid.category == Categories.BOT
                               ? SliverList(
-                                  delegate: SliverChildListDelegate([
-                                  Container(
-                                    height: 80,
-                                    child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Wrap(
-                                          direction: Axis.vertical,
-                                          runSpacing: 40,
-                                          children: <Widget>[
-                                            Padding(
-                                              padding: EdgeInsets.fromLTRB(
-                                                  20, 0, 0, 0),
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    _appLocalization
-                                                        .getTraslateValue(
-                                                            "info"),
-                                                    style: TextStyle(
-                                                      color:
-                                                          ExtraTheme.of(context)
-                                                              .textField,
-                                                      fontSize: 16.0,
-                                                    ),
+                              delegate: SliverChildListDelegate([
+                                Container(
+                                  height: 80,
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Wrap(
+                                        direction: Axis.vertical,
+                                        runSpacing: 40,
+                                        children: <Widget>[
+                                          Padding(
+                                            padding: EdgeInsets.fromLTRB(
+                                                20, 0, 0, 0),
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  _appLocalization
+                                                      .getTraslateValue(
+                                                      "info"),
+                                                  style: TextStyle(
+                                                    color:
+                                                    ExtraTheme
+                                                        .of(context)
+                                                        .textField,
+                                                    fontSize: 16.0,
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
-                                            SizedBox(height: 5),
-                                            widget.roomUid.category ==
-                                                    Categories.SYSTEM
-                                                ? Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 25),
-                                                    child: Text(
-                                                      "@ Deliver",
-                                                      style: TextStyle(
-                                                          color: Colors.blue),
-                                                    ))
-                                                : widget.roomUid.category ==
-                                                        Categories.BOT
-                                                    ? _showUsername(
-                                                        widget.roomUid.node,
-                                                        widget.roomUid,
-                                                        _appLocalization,
-                                                        context)
-                                                    : FutureBuilder<String>(
-                                                        future: _roomRepo.getId(
-                                                            widget.roomUid),
-                                                        builder: (BuildContext
-                                                                context,
-                                                            AsyncSnapshot<
-                                                                    String>
-                                                                snapshot) {
-                                                          if (snapshot.data !=
-                                                              null) {
-                                                            return _showUsername(
-                                                                snapshot.data,
-                                                                widget.roomUid,
-                                                                _appLocalization,
-                                                                context);
-                                                          } else {
-                                                            return SizedBox
-                                                                .shrink();
-                                                          }
-                                                        },
-                                                      ),
-                                          ]),
-                                    ),
+                                          ),
+                                          SizedBox(height: 5),
+                                          widget.roomUid.category ==
+                                              Categories.SYSTEM
+                                              ? Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: 25),
+                                              child: Text(
+                                                "@ Deliver",
+                                                style: TextStyle(
+                                                    color: Colors.blue),
+                                              ))
+                                              : widget.roomUid.category ==
+                                              Categories.BOT
+                                              ? _showUsername(
+                                              widget.roomUid.node,
+                                              widget.roomUid,
+                                              _appLocalization,
+                                              context)
+                                              : FutureBuilder<String>(
+                                            future: _roomRepo.getId(
+                                                widget.roomUid),
+                                            builder: (BuildContext
+                                            context,
+                                                AsyncSnapshot<
+                                                    String>
+                                                snapshot) {
+                                              if (snapshot.data !=
+                                                  null) {
+                                                return _showUsername(
+                                                    snapshot.data,
+                                                    widget.roomUid,
+                                                    _appLocalization,
+                                                    context);
+                                              } else {
+                                                return SizedBox
+                                                    .shrink();
+                                              }
+                                            },
+                                          ),
+                                        ]),
                                   ),
-                                  SizedBox(height: 20),
-                                  if (widget.roomUid.category !=
-                                      Categories.SYSTEM)
-                                    Container(
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: ExtraTheme.of(context)
-                                                  .borderOfProfilePage),
-                                          borderRadius:
+                                ),
+                                SizedBox(height: 20),
+                                if (widget.roomUid.category !=
+                                    Categories.SYSTEM)
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: ExtraTheme
+                                                .of(context)
+                                                .borderOfProfilePage),
+                                        borderRadius:
+                                        BorderRadius.circular(15),
+                                        color: ExtraTheme
+                                            .of(context)
+                                            .boxBackground),
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
                                               BorderRadius.circular(15),
-                                          color: ExtraTheme.of(context)
-                                              .boxBackground),
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                              ),
-                                              height: 50,
-                                              padding:
-                                                  const EdgeInsetsDirectional
-                                                      .only(start: 5, end: 15),
-                                              child: GestureDetector(
-                                                child: Row(children: <Widget>[
-                                                  IconButton(
-                                                    icon: Icon(Icons.message,
-                                                        color: Colors.blue),
-                                                    onPressed: () {},
+                                            ),
+                                            height: 50,
+                                            padding:
+                                            const EdgeInsetsDirectional
+                                                .only(start: 5, end: 15),
+                                            child: GestureDetector(
+                                              child: Row(children: <Widget>[
+                                                IconButton(
+                                                  icon: Icon(Icons.message,
+                                                      color: Colors.blue),
+                                                  onPressed: () {},
+                                                ),
+                                                Text(
+                                                  _appLocalization
+                                                      .getTraslateValue(
+                                                      "sendMessage"),
+                                                  style: TextStyle(
+                                                    color:
+                                                    ExtraTheme
+                                                        .of(context)
+                                                        .textField,
                                                   ),
-                                                  Text(
-                                                    _appLocalization
-                                                        .getTraslateValue(
-                                                            "sendMessage"),
-                                                    style: TextStyle(
-                                                      color:
-                                                          ExtraTheme.of(context)
-                                                              .textField,
+                                                ),
+                                              ]),
+                                              onTap: () {
+                                                _routingService.openRoom(
+                                                    widget.roomUid
+                                                        .asString());
+                                              },
+                                            )),
+                                        Container(
+                                            height: 50,
+                                            padding:
+                                            const EdgeInsetsDirectional
+                                                .only(start: 7, end: 15),
+                                            child: Row(
+                                                mainAxisAlignment:
+                                                MainAxisAlignment
+                                                    .spaceBetween,
+                                                children: <Widget>[
+                                                  Container(
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        IconButton(
+                                                          icon: Icon(
+                                                              Icons
+                                                                  .notifications_active,
+                                                              color: Colors
+                                                                  .blue),
+                                                          onPressed: () {},
+                                                        ),
+                                                        Text(
+                                                          _appLocalization
+                                                              .getTraslateValue(
+                                                              "notification"),
+                                                          style: TextStyle(
+                                                            color: ExtraTheme
+                                                                .of(context)
+                                                                .textField,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
-                                                ]),
-                                                onTap: () {
-                                                  _routingService.openRoom(
-                                                      widget.roomUid
-                                                          .asString());
-                                                },
-                                              )),
-                                          Container(
-                                              height: 50,
-                                              padding:
+                                                  StreamBuilder<bool>(
+                                                    stream: _roomRepo
+                                                        .watchIsRoomMuted(
+                                                        widget.roomUid
+                                                            .asString()),
+                                                    builder: (BuildContext
+                                                    context,
+                                                        AsyncSnapshot<bool>
+                                                        snapshot) {
+                                                      if (snapshot.hasData &&
+                                                          snapshot.data !=
+                                                              null) {
+                                                        return Switch(
+                                                          activeColor:
+                                                          ExtraTheme
+                                                              .of(
+                                                              context)
+                                                              .activeSwitch,
+                                                          value:
+                                                          !snapshot.data,
+                                                          onChanged: (state) {
+                                                            if (state) {
+                                                              _roomRepo.unmute(
+                                                                  widget
+                                                                      .roomUid
+                                                                      .asString());
+                                                            } else {
+                                                              _roomRepo.mute(
+                                                                  widget
+                                                                      .roomUid
+                                                                      .asString());
+                                                            }
+                                                          },
+                                                        );
+                                                      } else {
+                                                        return SizedBox
+                                                            .shrink();
+                                                      }
+                                                    },
+                                                  )
+                                                ])),
+                                        if (widget.roomUid.category !=
+                                            Categories.SYSTEM &&
+                                            widget.roomUid.category !=
+                                                Categories.BOT)
+                                          FutureBuilder<Contact>(
+                                            future: _contactRepo
+                                                .getContact(widget.roomUid),
+                                            builder: (BuildContext context,
+                                                AsyncSnapshot<Contact>
+                                                snapshot) {
+                                              if (snapshot.data != null) {
+                                                return Container(
+                                                  height: 50,
+                                                  padding:
                                                   const EdgeInsetsDirectional
-                                                      .only(start: 7, end: 15),
-                                              child: Row(
-                                                  mainAxisAlignment:
+                                                      .only(
+                                                      start: 7, end: 15),
+                                                  child: Row(
+                                                      mainAxisAlignment:
                                                       MainAxisAlignment
                                                           .spaceBetween,
-                                                  children: <Widget>[
-                                                    Container(
-                                                      child: Row(
-                                                        children: <Widget>[
-                                                          IconButton(
-                                                            icon: Icon(
-                                                                Icons
-                                                                    .notifications_active,
-                                                                color: Colors
-                                                                    .blue),
-                                                            onPressed: () {},
-                                                          ),
-                                                          Text(
-                                                            _appLocalization
-                                                                .getTraslateValue(
-                                                                    "notification"),
-                                                            style: TextStyle(
-                                                              color: ExtraTheme
-                                                                      .of(context)
-                                                                  .textField,
+                                                      children: <Widget>[
+                                                        Row(
+                                                          children: [
+                                                            IconButton(
+                                                              icon: Icon(
+                                                                  Icons.phone,
+                                                                  color: Colors
+                                                                      .blue),
+                                                              onPressed:
+                                                                  () {},
                                                             ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    StreamBuilder<bool>(
-                                                      stream: _roomRepo
-                                                          .watchIsRoomMuted(
-                                                              widget.roomUid
-                                                                  .asString()),
-                                                      builder: (BuildContext
-                                                              context,
-                                                          AsyncSnapshot<bool>
-                                                              snapshot) {
-                                                        if (snapshot.hasData &&
-                                                            snapshot.data !=
-                                                                null) {
-                                                          return Switch(
-                                                            activeColor:
-                                                                ExtraTheme.of(
+                                                            Text(
+                                                                _appLocalization
+                                                                    .getTraslateValue(
+                                                                    "phone"),
+                                                                style: TextStyle(
+                                                                    color: ExtraTheme
+                                                                        .of(
                                                                         context)
-                                                                    .activeSwitch,
-                                                            value:
-                                                                !snapshot.data,
-                                                            onChanged: (state) {
-                                                              if (state) {
-                                                                _roomRepo.unmute(
-                                                                    widget
-                                                                        .roomUid
-                                                                        .asString());
-                                                              } else {
-                                                                _roomRepo.mute(
-                                                                    widget
-                                                                        .roomUid
-                                                                        .asString());
-                                                              }
-                                                            },
-                                                          );
-                                                        } else {
-                                                          return SizedBox
-                                                              .shrink();
-                                                        }
-                                                      },
-                                                    )
-                                                  ])),
-                                          if (widget.roomUid.category !=
-                                                  Categories.SYSTEM &&
-                                              widget.roomUid.category !=
-                                                  Categories.BOT)
-                                            FutureBuilder<Contact>(
-                                              future: _contactRepo
-                                                  .getContact(widget.roomUid),
-                                              builder: (BuildContext context,
-                                                  AsyncSnapshot<Contact>
-                                                      snapshot) {
-                                                if (snapshot.data != null) {
-                                                  return Container(
-                                                    height: 50,
-                                                    padding:
-                                                        const EdgeInsetsDirectional
-                                                                .only(
-                                                            start: 7, end: 15),
-                                                    child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: <Widget>[
-                                                          Row(
-                                                            children: [
-                                                              IconButton(
-                                                                icon: Icon(
-                                                                    Icons.phone,
-                                                                    color: Colors
-                                                                        .blue),
-                                                                onPressed:
-                                                                    () {},
-                                                              ),
-                                                              Text(
-                                                                  _appLocalization
-                                                                      .getTraslateValue(
-                                                                          "phone"),
-                                                                  style: TextStyle(
-                                                                      color: ExtraTheme.of(
-                                                                              context)
-                                                                          .textField)),
-                                                            ],
+                                                                        .textField)),
+                                                          ],
+                                                        ),
+                                                        MaterialButton(
+                                                          onPressed: () =>
+                                                              launch(
+                                                                  "tel:${snapshot
+                                                                      .data
+                                                                      .countryCode}${snapshot
+                                                                      .data
+                                                                      .nationalNumber}"),
+                                                          child: Text(
+                                                            buildPhoneNumber(
+                                                                snapshot.data
+                                                                    .countryCode,
+                                                                snapshot.data
+                                                                    .nationalNumber),
+                                                            style: TextStyle(
+                                                                color: ExtraTheme
+                                                                    .of(
+                                                                    context)
+                                                                    .username),
                                                           ),
-                                                          MaterialButton(
-                                                            onPressed: () => launch(
-                                                                "tel:${snapshot.data.countryCode}${snapshot.data.nationalNumber}"),
-                                                            child: Text(
-                                                              buildPhoneNumber(
-                                                                  snapshot.data
-                                                                      .countryCode,
-                                                                  snapshot.data
-                                                                      .nationalNumber),
-                                                              style: TextStyle(
-                                                                  color: ExtraTheme.of(
-                                                                          context)
-                                                                      .username),
-                                                            ),
-                                                          )
-                                                        ]),
-                                                  );
-                                                } else {
-                                                  return SizedBox.shrink();
-                                                }
-                                              },
-                                            )
-                                        ],
-                                      ),
+                                                        )
+                                                      ]),
+                                                );
+                                              } else {
+                                                return SizedBox.shrink();
+                                              }
+                                            },
+                                          )
+                                      ],
                                     ),
-                                  SizedBox(
-                                    height: 40,
-                                  )
-                                ]))
+                                  ),
+                                SizedBox(
+                                  height: 40,
+                                )
+                              ]))
                               : GroupUiWidget(
-                                  mucUid: widget.roomUid,
-                                ),
+                            mucUid: widget.roomUid,
+                          ),
                           SliverPersistentHeader(
                             pinned: true,
                             delegate: _SliverAppBarDelegate(
                                 maxHeight: 60,
                                 minHeight: 60,
                                 child: Container(
-                                  color: Theme.of(context).backgroundColor,
+                                  color: Theme
+                                      .of(context)
+                                      .backgroundColor,
                                   child: TabBar(
                                     onTap: (index) {
                                       _uxService.setTabIndex(
@@ -655,7 +661,7 @@ class _ProfilePageState extends State<ProfilePage>
                                     },
                                     tabs: [
                                       if (widget.roomUid.category ==
-                                              Categories.GROUP ||
+                                          Categories.GROUP ||
                                           widget.roomUid.category ==
                                               Categories.CHANNEL)
                                         Tab(
@@ -709,77 +715,89 @@ class _ProfilePageState extends State<ProfilePage>
                       },
                       body: Container(
                           child: TabBarView(
-                        children: [
-                          if (widget.roomUid.category != Categories.USER &&
-                              widget.roomUid.category != Categories.SYSTEM &&
-                              widget.roomUid.category != Categories.BOT)
-                            SingleChildScrollView(
-                              child: Column(children: [
-                                MucMemberWidget(
-                                  mucUid: widget.roomUid,
+                            children: [
+                              if (widget.roomUid.category != Categories.USER &&
+                                  widget.roomUid.category !=
+                                      Categories.SYSTEM &&
+                                  widget.roomUid.category != Categories.BOT)
+                                SingleChildScrollView(
+                                  child: Column(children: [
+                                    MucMemberWidget(
+                                      mucUid: widget.roomUid,
+                                    ),
+                                  ]),
                                 ),
-                              ]),
-                            ),
-                          if (snapshot.hasData &&
-                              snapshot.data.imagesCount != 0)
-                            ImageTabUi(
-                                snapshot.data.imagesCount, widget.roomUid),
-                          if (snapshot.hasData &&
-                              snapshot.data.videosCount != 0)
-                            VideoTabUi(
-                                userUid: widget.roomUid,
-                                videoCount: snapshot.data.videosCount),
-                          if (snapshot.hasData && snapshot.data.filesCount != 0)
-                            DocumentAndFileUi(
-                              roomUid: widget.roomUid,
-                              documentCount: snapshot.data.filesCount,
-                              type: MediaType.FILE,
-                            ),
-                          if (snapshot.hasData && snapshot.data.linkCount != 0)
-                            linkWidget(widget.roomUid, _mediaQueryRepo,
-                                snapshot.data.linkCount),
-                          if (snapshot.hasData &&
-                              snapshot.data.documentsCount != 0)
-                            DocumentAndFileUi(
-                              roomUid: widget.roomUid,
-                              documentCount: snapshot.data.documentsCount,
-                              type: MediaType.DOCUMENT,
-                            ),
-                          if (snapshot.hasData &&
-                              snapshot.data.musicsCount != 0)
-                            MusicAndAudioUi(
-                                userUid: widget.roomUid,
-                                type: FetchMediasReq_MediaType.MUSICS,
-                                mediaCount: snapshot.data.musicsCount),
-                          if (snapshot.hasData &&
-                              snapshot.data.audiosCount != 0)
-                            MusicAndAudioUi(
-                                userUid: widget.roomUid,
-                                type: FetchMediasReq_MediaType.AUDIOS,
-                                mediaCount: snapshot.data.audiosCount),
-                        ],
-                        controller: _tabController,
-                      ))));
+                              if (snapshot.hasData &&
+                                  snapshot.data.imagesCount != 0)
+                                ImageTabUi(
+                                    snapshot.data.imagesCount, widget.roomUid),
+                              if (snapshot.hasData &&
+                                  snapshot.data.videosCount != 0)
+                                VideoTabUi(
+                                    userUid: widget.roomUid,
+                                    videoCount: snapshot.data.videosCount),
+                              if (snapshot.hasData &&
+                                  snapshot.data.filesCount != 0)
+                                DocumentAndFileUi(
+                                  roomUid: widget.roomUid,
+                                  documentCount: snapshot.data.filesCount,
+                                  type: MediaType.FILE,
+                                ),
+                              if (snapshot.hasData &&
+                                  snapshot.data.linkCount != 0)
+                                linkWidget(widget.roomUid, _mediaQueryRepo,
+                                    snapshot.data.linkCount),
+                              if (snapshot.hasData &&
+                                  snapshot.data.documentsCount != 0)
+                                DocumentAndFileUi(
+                                  roomUid: widget.roomUid,
+                                  documentCount: snapshot.data.documentsCount,
+                                  type: MediaType.DOCUMENT,
+                                ),
+                              if (snapshot.hasData &&
+                                  snapshot.data.musicsCount != 0)
+                                MusicAndAudioUi(
+                                    userUid: widget.roomUid,
+                                    type: FetchMediasReq_MediaType.MUSICS,
+                                    mediaCount: snapshot.data.musicsCount),
+                              if (snapshot.hasData &&
+                                  snapshot.data.audiosCount != 0)
+                                MusicAndAudioUi(
+                                    userUid: widget.roomUid,
+                                    type: FetchMediasReq_MediaType.AUDIOS,
+                                    mediaCount: snapshot.data.audiosCount),
+                            ],
+                            controller: _tabController,
+                          ))));
             }),
       ),
     );
+  }
+
+  Future<void> _setupRoomSettings() async {
+    await _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
+
+    if (widget.roomUid.isMuc()) {
+      final settingAvatarPermission = await _mucRepo.isMucAdminOrOwner(
+          _authRepo.currentUserUid.asString(), widget.roomUid.asString());
+      final mucOwner = await _mucRepo.mucOwner(
+          _authRepo.currentUserUid.asString(), widget.roomUid.asString());
+      _canSetAvatar = settingAvatarPermission;
+      _canModifyMuc = mucOwner;
+    }
+    setState(() {});
   }
 
   _navigateHomePage() {
     _routingService.reset();
     ExtendedNavigator.of(context).pushAndRemoveUntil(
       Routes.homePage,
-      (_) => false,
+          (_) => false,
     );
   }
 
-  _leftGroup() async {
-    var result = await _mucRepo.leaveGroup(widget.roomUid);
-    if (result) _navigateHomePage();
-  }
-
-  _leftChannel() async {
-    bool result = await _mucRepo.leaveChannel(widget.roomUid);
+  _leftMuc() async {
+    var result = await _mucRepo.leaveMuc(widget.roomUid);
     if (result) _navigateHomePage();
   }
 
@@ -830,9 +848,9 @@ class _ProfilePageState extends State<ProfilePage>
             ),
             content: Container(
                 child: Text(
-              generateInviteLink(token),
-              style: TextStyle(color: Colors.black),
-            )),
+                  generateInviteLink(token),
+                  style: TextStyle(color: Colors.black),
+                )),
             actions: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -851,9 +869,10 @@ class _ProfilePageState extends State<ProfilePage>
                       )),
                   ElevatedButton(
                     onPressed: () {
+                      // TODO set name for share uid
                       _routingService.openSelectForwardMessage(
                           sharedUid: proto.ShareUid()
-                            ..name = mucName
+                            ..name = ""
                             ..joinToken = token
                             ..uid = widget.roomUid);
 
@@ -872,48 +891,51 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   generateInviteLink(String token) {
-    return "https://deliver-co.ir/join/${widget.roomUid.category}/${widget.roomUid.node}/$token";
+    return "https://deliver-co.ir/join/${widget.roomUid.category}/${widget
+        .roomUid.node}/$token";
   }
 
   showAvatar() {
     return Container(
       // padding: const EdgeInsets.only(top: 40, bottom: 60),
-      child: showProgressBar
+      child: _showProgressBar
           ? CircleAvatar(
-              radius: 80,
-              backgroundImage: Image.file(File(_uploadAvatarPath)).image,
-              child: Center(
-                child: SizedBox(
-                    height: 70.0,
-                    width: 70.0,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(Colors.blue),
-                      strokeWidth: 6.0,
-                    )),
-              ),
-            )
+        radius: 80,
+        backgroundImage: Image
+            .file(File(_uploadAvatarPath))
+            .image,
+        child: Center(
+          child: SizedBox(
+              height: 70.0,
+              width: 70.0,
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation(Colors.blue),
+                strokeWidth: 6.0,
+              )),
+        ),
+      )
           : Center(
-              child: Container(
-                child: GestureDetector(
-                  child: CircleAvatarWidget(
-                    widget.roomUid,
-                    80,
-                    showAsStreamOfAvatar: true,
-                    showSavedMessageLogoIfNeeded: true,
-                  ),
-                  onTap: () async {
-                    var lastAvatar =
-                        await _avatarRepo.getLastAvatar(widget.roomUid, false);
-                    if (lastAvatar.createdOn != null) {
-                      _routingService.openShowAllAvatars(
-                          uid: widget.roomUid,
-                          hasPermissionToDeleteAvatar: _setAvatarPermission,
-                          heroTag: "avatar");
-                    }
-                  },
-                ),
-              ),
+        child: Container(
+          child: GestureDetector(
+            child: CircleAvatarWidget(
+              widget.roomUid,
+              80,
+              showAsStreamOfAvatar: true,
+              showSavedMessageLogoIfNeeded: true,
             ),
+            onTap: () async {
+              var lastAvatar =
+              await _avatarRepo.getLastAvatar(widget.roomUid, false);
+              if (lastAvatar.createdOn != null) {
+                _routingService.openShowAllAvatars(
+                    uid: widget.roomUid,
+                    hasPermissionToDeleteAvatar: _canSetAvatar,
+                    heroTag: "avatar");
+              }
+            },
+          ),
+        ),
+      ),
     );
   }
 
@@ -943,7 +965,10 @@ class _ProfilePageState extends State<ProfilePage>
                   QrImage(
                     data: "",
                     version: QrVersions.auto,
-                    size: MediaQuery.of(context).size.width / 2,
+                    size: MediaQuery
+                        .of(context)
+                        .size
+                        .width / 2,
                   ),
                 ],
               ),
@@ -954,17 +979,17 @@ class _ProfilePageState extends State<ProfilePage>
 
   _setAvatar(String avatarPath) async {
     setState(() {
-      showProgressBar = true;
+      _showProgressBar = true;
       _uploadAvatarPath = avatarPath;
     });
     if (await _avatarRepo.setMucAvatar(widget.roomUid, File(avatarPath)) !=
         null) {
       setState(() {
-        showProgressBar = false;
+        _showProgressBar = false;
       });
     } else {
       setState(() {
-        showProgressBar = false;
+        _showProgressBar = false;
       });
       Fluttertoast.showToast(
           msg: _appLocalization.getTraslateValue("occurred_Error"));
@@ -995,9 +1020,9 @@ class _ProfilePageState extends State<ProfilePage>
                   Text(
                       widget.roomUid.isGroup()
                           ? _appLocalization
-                              .getTraslateValue("sure_delete_group")
+                          .getTraslateValue("sure_delete_group")
                           : _appLocalization
-                              .getTraslateValue("sure_delete_channel"),
+                          .getTraslateValue("sure_delete_channel"),
                       style: TextStyle(color: Colors.black, fontSize: 18)),
                 ],
               ),
@@ -1142,7 +1167,7 @@ class _ProfilePageState extends State<ProfilePage>
                       widget.roomUid.isGroup()
                           ? _appLocalization.getTraslateValue("sure_left_group")
                           : _appLocalization
-                              .getTraslateValue("sure_left_channel"),
+                          .getTraslateValue("sure_left_channel"),
                       style: TextStyle(color: Colors.black, fontSize: 18)),
                 ],
               ),
@@ -1169,7 +1194,7 @@ class _ProfilePageState extends State<ProfilePage>
                       style: TextStyle(fontSize: 16, color: Colors.red),
                     ),
                     onTap: () {
-                      widget.roomUid.isGroup() ? _leftGroup() : _leftChannel();
+                      widget.roomUid.isGroup() ? _leftMuc();
                     },
                   ),
                   SizedBox(
@@ -1203,7 +1228,9 @@ class _ProfilePageState extends State<ProfilePage>
             title: Container(
               decoration: new BoxDecoration(
                 shape: BoxShape.rectangle,
-                color: Theme.of(context).primaryColor,
+                color: Theme
+                    .of(context)
+                    .primaryColor,
                 borderRadius: new BorderRadius.all(new Radius.circular(32.0)),
               ),
               height: 35,
@@ -1217,138 +1244,148 @@ class _ProfilePageState extends State<ProfilePage>
               height: widget.roomUid.category == Categories.GROUP ? 200 : 300,
               child: SingleChildScrollView(
                   child: Column(
-                children: [
-                  FutureBuilder<String>(
-                    future: _roomRepo.getName(widget.roomUid),
-                    builder: (c, name) {
-                      if (name.hasData) {
-                        _currentName = name.data;
-                        return Container(
-                          child: Form(
-                              key: nameFormKey,
-                              child: TextFormField(
-                                style: TextStyle(
-                                    color: Colors.black, fontSize: 18),
-                                initialValue: name.data,
-                                validator: (s) {
-                                  if (s.isEmpty) {
-                                    return _appLocalization
-                                        .getTraslateValue("name_not_empty");
-                                  } else {
-                                    return null;
-                                  }
-                                },
-                                minLines: 1,
-                                onChanged: (str) {
-                                  if (str.isNotEmpty && str != name.data) {
-                                    mucName = str;
-                                    newChange.add(true);
-                                  }
-                                },
-                                keyboardType: TextInputType.text,
-                                decoration: buildInputDecoration(
-                                  widget.roomUid.category == Categories.GROUP
-                                      ? _appLocalization
+                    children: [
+                      FutureBuilder<String>(
+                        future: _roomRepo.getName(widget.roomUid),
+                        builder: (c, name) {
+                          if (name.hasData) {
+                            _currentName = name.data;
+                            return Container(
+                              child: Form(
+                                  key: nameFormKey,
+                                  child: TextFormField(
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 18),
+                                    initialValue: name.data,
+                                    validator: (s) {
+                                      if (s.isEmpty) {
+                                        return _appLocalization
+                                            .getTraslateValue("name_not_empty");
+                                      } else {
+                                        return null;
+                                      }
+                                    },
+                                    minLines: 1,
+                                    onChanged: (str) {
+                                      if (str.isNotEmpty && str != name.data) {
+                                        mucName = str;
+                                        newChange.add(true);
+                                      }
+                                    },
+                                    keyboardType: TextInputType.text,
+                                    decoration: buildInputDecoration(
+                                      widget.roomUid.category ==
+                                          Categories.GROUP
+                                          ? _appLocalization
                                           .getTraslateValue("group_name")
-                                      : _appLocalization
+                                          : _appLocalization
                                           .getTraslateValue("channel_name"),
-                                ),
-                              )),
-                        );
-                      }
-                      return SizedBox.shrink();
-                    },
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  if (widget.roomUid.category == Categories.CHANNEL)
-                    StreamBuilder<Muc>(
+                                    ),
+                                  )),
+                            );
+                          }
+                          return SizedBox.shrink();
+                        },
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      if (widget.roomUid.category == Categories.CHANNEL)
+                        StreamBuilder<Muc>(
+                            stream: _mucRepo.watchMuc(
+                                widget.roomUid.asString()),
+                            builder: (c, muc) {
+                              if (muc.hasData && muc.data != null) {
+                                _currentId = muc.data.id;
+                                return Column(
+                                  children: [
+                                    Form(
+                                        key: channelIdFormKey,
+                                        child: TextFormField(
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 18),
+                                          initialValue: muc.data.id,
+                                          minLines: 1,
+                                          validator: validateChannelId,
+                                          onChanged: (str) {
+                                            if (str.isNotEmpty &&
+                                                str != muc.data.id) {
+                                              channelId = str;
+                                              if (!newChange.value)
+                                                newChange.add(true);
+                                            }
+                                          },
+                                          keyboardType: TextInputType.text,
+                                          decoration: buildInputDecoration(
+                                              _appLocalization
+                                                  .getTraslateValue(
+                                                  "channel_Id")),
+                                        )),
+                                    StreamBuilder(
+                                        stream: showChannelIdError.stream,
+                                        builder: (c, e) {
+                                          if (e.hasData && e.data) {
+                                            return Text(
+                                              _appLocalization.getTraslateValue(
+                                                  "channel_id_isExist"),
+                                              style: TextStyle(
+                                                  color: Colors.red),
+                                            );
+                                          } else {
+                                            return SizedBox.shrink();
+                                          }
+                                        }),
+                                  ],
+                                );
+                              } else
+                                return SizedBox.shrink();
+                            }),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      StreamBuilder<Muc>(
                         stream: _mucRepo.watchMuc(widget.roomUid.asString()),
                         builder: (c, muc) {
                           if (muc.hasData && muc.data != null) {
-                            _currentId = muc.data.id;
-                            return Column(
-                              children: [
-                                Form(
-                                    key: channelIdFormKey,
-                                    child: TextFormField(
-                                      style: TextStyle(
-                                          color: Colors.black, fontSize: 18),
-                                      initialValue: muc.data.id,
-                                      minLines: 1,
-                                      validator: validateChannelId,
-                                      onChanged: (str) {
-                                        if (str.isNotEmpty &&
-                                            str != muc.data.id) {
-                                          channelId = str;
-                                          if (!newChange.value)
-                                            newChange.add(true);
-                                        }
-                                      },
-                                      keyboardType: TextInputType.text,
-                                      decoration: buildInputDecoration(
-                                          _appLocalization
-                                              .getTraslateValue("channel_Id")),
-                                    )),
-                                StreamBuilder(
-                                    stream: showChannelIdError.stream,
-                                    builder: (c, e) {
-                                      if (e.hasData && e.data) {
-                                        return Text(
-                                          _appLocalization.getTraslateValue(
-                                              "channel_id_isExist"),
-                                          style: TextStyle(color: Colors.red),
-                                        );
-                                      } else {
-                                        return SizedBox.shrink();
-                                      }
-                                    }),
-                              ],
-                            );
-                          } else
-                            return SizedBox.shrink();
-                        }),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  StreamBuilder<Muc>(
-                    stream: _mucRepo.watchMuc(widget.roomUid.asString()),
-                    builder: (c, muc) {
-                      if (muc.hasData && muc.data != null) {
-                        mucInfo = muc.data.info;
-                        return TextFormField(
-                          style: TextStyle(color: Colors.black, fontSize: 18),
-                          initialValue: muc.data.info ?? "",
-                          minLines: muc.data.info.isNotEmpty
-                              ? muc.data.info.split("\n").length
-                              : 1,
-                          maxLines: muc.data.info.isNotEmpty
-                              ? muc.data.info.split("\n").length + 4
-                              : 4,
-                          onChanged: (str) {
-                            mucInfo = str;
-                            newChange.add(true);
-                          },
-                          keyboardType: TextInputType.multiline,
-                          decoration: buildInputDecoration(
-                            widget.roomUid.category == Categories.GROUP
-                                ? _appLocalization
+                            mucInfo = muc.data.info;
+                            return TextFormField(
+                              style: TextStyle(
+                                  color: Colors.black, fontSize: 18),
+                              initialValue: muc.data.info ?? "",
+                              minLines: muc.data.info.isNotEmpty
+                                  ? muc.data.info
+                                  .split("\n")
+                                  .length
+                                  : 1,
+                              maxLines: muc.data.info.isNotEmpty
+                                  ? muc.data.info
+                                  .split("\n")
+                                  .length + 4
+                                  : 4,
+                              onChanged: (str) {
+                                mucInfo = str;
+                                newChange.add(true);
+                              },
+                              keyboardType: TextInputType.multiline,
+                              decoration: buildInputDecoration(
+                                widget.roomUid.category == Categories.GROUP
+                                    ? _appLocalization
                                     .getTraslateValue("enter-group-desc")
-                                : _appLocalization
+                                    : _appLocalization
                                     .getTraslateValue("enter-channel-desc"),
-                          ),
-                        );
-                      } else {
-                        return SizedBox.shrink();
-                      }
-                    },
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                ],
-              )),
+                              ),
+                            );
+                          } else {
+                            return SizedBox.shrink();
+                          }
+                        },
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                    ],
+                  )),
             ),
             actions: <Widget>[
               StreamBuilder<bool>(
@@ -1361,48 +1398,48 @@ class _ProfilePageState extends State<ProfilePage>
                           ElevatedButton(
                             onPressed: change.data
                                 ? () async {
-                                    if (nameFormKey?.currentState?.validate()) {
-                                      if (widget.roomUid.category ==
-                                          Categories.GROUP) {
-                                        _mucRepo.modifyGroup(
-                                            widget.roomUid.asString(),
-                                            mucName ?? _currentName,
-                                            mucInfo);
-                                        _roomRepo.updateRoomName(widget.roomUid,
-                                            mucName ?? _currentName);
-                                        setState(() {});
-                                        Navigator.pop(context);
-                                      } else {
-                                        if (channelId == null) {
-                                          _mucRepo.modifyChannel(
-                                              widget.roomUid.asString(),
-                                              mucName ?? _currentName,
-                                              _currentId,
-                                              mucInfo);
-                                          _roomRepo.updateRoomName(
-                                              widget.roomUid,
-                                              mucName ?? _currentName);
-                                          Navigator.pop(context);
-                                        } else if (channelIdFormKey
-                                            ?.currentState
-                                            ?.validate()) {
-                                          if (await checkChannelD(channelId)) {
-                                            _mucRepo.modifyChannel(
-                                                widget.roomUid.asString(),
-                                                mucName ?? _currentName,
-                                                channelId,
-                                                mucInfo);
-                                            _roomRepo.updateRoomName(
-                                                widget.roomUid,
-                                                mucName ?? _currentName);
+                              if (nameFormKey?.currentState?.validate()) {
+                                if (widget.roomUid.category ==
+                                    Categories.GROUP) {
+                                  _mucRepo.modifyGroup(
+                                      widget.roomUid.asString(),
+                                      mucName ?? _currentName,
+                                      mucInfo);
+                                  _roomRepo.updateRoomName(widget.roomUid,
+                                      mucName ?? _currentName);
+                                  setState(() {});
+                                  Navigator.pop(context);
+                                } else {
+                                  if (channelId == null) {
+                                    _mucRepo.modifyChannel(
+                                        widget.roomUid.asString(),
+                                        mucName ?? _currentName,
+                                        _currentId,
+                                        mucInfo);
+                                    _roomRepo.updateRoomName(
+                                        widget.roomUid,
+                                        mucName ?? _currentName);
+                                    Navigator.pop(context);
+                                  } else if (channelIdFormKey
+                                      ?.currentState
+                                      ?.validate()) {
+                                    if (await checkChannelD(channelId)) {
+                                      _mucRepo.modifyChannel(
+                                          widget.roomUid.asString(),
+                                          mucName ?? _currentName,
+                                          channelId,
+                                          mucInfo);
+                                      _roomRepo.updateRoomName(
+                                          widget.roomUid,
+                                          mucName ?? _currentName);
 
-                                            Navigator.pop(context);
-                                          }
-                                        }
-                                        setState(() {});
-                                      }
+                                      Navigator.pop(context);
                                     }
                                   }
+                                  setState(() {});
+                                }
+                              }
+                            }
                                 : () {},
                             child: Text(
                               _appLocalization.getTraslateValue("set"),
@@ -1504,12 +1541,16 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
                     bodyStyle: TextStyle(
                         fontSize: 12.0,
                         height: 1.4,
-                        color: ExtraTheme.of(context).textField),
+                        color: ExtraTheme
+                            .of(context)
+                            .textField),
                     useMultithread: true,
                     titleStyle: TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.bold,
-                        color: ExtraTheme.of(context).textField),
+                        color: ExtraTheme
+                            .of(context)
+                            .textField),
                   ),
                   Divider(),
                 ],
@@ -1577,8 +1618,8 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => maxHeight > minHeight ? maxHeight : minHeight;
 
   @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(BuildContext context, double shrinkOffset,
+      bool overlapsContent) {
     return new SizedBox.expand(child: child);
   }
 

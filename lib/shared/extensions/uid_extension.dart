@@ -21,6 +21,8 @@ extension UidExtension on Uid {
 
   bool isChannel() => this.category == Categories.CHANNEL;
 
+  bool isSystem() => this.category == Categories.SYSTEM;
+
   bool isMuc() => this.isGroup() || this.isChannel();
 }
 
@@ -48,13 +50,15 @@ extension StringUidExtension on String {
     }
   }
 
-  bool isUser() => this.asUid().category == Categories.USER;
+  bool isUser() => this.asUid().isUser();
 
-  bool isBot() => this.asUid().category == Categories.BOT;
+  bool isBot() => this.asUid().isBot();
 
-  bool isGroup() => this.asUid().category == Categories.GROUP;
+  bool isGroup() => this.asUid().isGroup();
 
-  bool isChannel() => this.asUid().category == Categories.CHANNEL;
+  bool isChannel() => this.asUid().isChannel();
+
+  bool isSystem() => this.asUid().isSystem();
 
   bool isMuc() => this.isGroup() || this.isChannel();
 }
