@@ -629,9 +629,9 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  void sendPrivateMessageAccept(Uid to, PrivateDataType privateDataType) async {
+  void sendPrivateMessageAccept(Uid to, PrivateDataType privateDataType,String token) async {
     SharePrivateDataAcceptance sharePrivateDataAcceptance =
-        SharePrivateDataAcceptance()..data = privateDataType;
+        SharePrivateDataAcceptance()..data = privateDataType..token = token;
     String json = sharePrivateDataAcceptance.writeToJson();
 
     Message msg = _createMessage(to)

@@ -67,6 +67,7 @@ import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -236,35 +237,42 @@ class MyApp extends StatelessWidget {
       builder: (context, snapshot) {
         return ExtraTheme(
           extraThemeData: uxService.extraTheme,
-          child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'Deliver',
-            locale: uxService.locale,
-            theme: uxService.theme,
-            supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],
-            localizationsDelegates: [
-              AppLocalization.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate
-            ],
-            localeResolutionCallback: (deviceLocale, supportedLocale) {
-              for (var locale in supportedLocale) {
-                if (locale.languageCode == deviceLocale.languageCode &&
-                    locale.countryCode == deviceLocale.countryCode) {
-                  return deviceLocale;
-                }
-              }
-              return supportedLocale.first;
-            },
-            onGenerateRoute: R.Router(),
-            builder: (x, c) => Directionality(
-              textDirection: TextDirection.ltr,
-              child: ExtendedNavigator<R.Router>(
-                router: R.Router(),
-              ),
-            ),
-          ),
+          child: Focus(
+              focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
+              onKey: (_, RawKeyEvent event) {
+                return event.physicalKey == PhysicalKeyboardKey.shiftRight
+                    ? KeyEventResult.handled
+                    : KeyEventResult.ignored;
+              },
+              child: MaterialApp(
+                debugShowCheckedModeBanner: false,
+                title: 'Deliver',
+                locale: uxService.locale,
+                theme: uxService.theme,
+                supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],
+                localizationsDelegates: [
+                  AppLocalization.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate
+                ],
+                localeResolutionCallback: (deviceLocale, supportedLocale) {
+                  for (var locale in supportedLocale) {
+                    if (locale.languageCode == deviceLocale.languageCode &&
+                        locale.countryCode == deviceLocale.countryCode) {
+                      return deviceLocale;
+                    }
+                  }
+                  return supportedLocale.first;
+                },
+                onGenerateRoute: R.Router(),
+                builder: (x, c) => Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: ExtendedNavigator<R.Router>(
+                    router: R.Router(),
+                  ),
+                ),
+              )),
         );
       },
     );

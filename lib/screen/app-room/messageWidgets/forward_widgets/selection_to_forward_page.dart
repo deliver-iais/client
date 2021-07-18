@@ -49,6 +49,11 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
                 });
               }
             },
+            onCancel: (){
+              setState(() {
+                _searchMode = false;
+              });
+            },
           ),
           Expanded(
             child: FutureBuilder<List<Uid>>(

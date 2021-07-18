@@ -201,5 +201,7 @@
   "contact_add": " به مخاطبین اضافه شد.",
   "qr_share": "اشتراک گذاری با کد QR",
   "about": "درباره ما...",
-  "user_experience": "رابط کاربری"
+  "user_experience": "رابط کاربری",
+  "send_msg_to_bot": "فرستادن پیام به بات ",
+  "get_Private_date_access": "اجازه دسترسی به اطلاعات  شخصی "
 }
