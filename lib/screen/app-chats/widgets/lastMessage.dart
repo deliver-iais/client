@@ -35,7 +35,8 @@ class LastMessage extends StatelessWidget {
             .issue
             .name;
       case MessageType.FILE:
-        return _appLocalization.getTraslateValue("file");
+        var file = this.message.json.toFile();
+        return file.name;
       case MessageType.LOCATION:
         return _appLocalization.getTraslateValue("location");
       case MessageType.SHARE_UID:
@@ -131,10 +132,9 @@ class LastMessage extends StatelessWidget {
     return Text(
       "$from: ",
       style: TextStyle(
-        color: ExtraTheme.of(context).username,
-        fontSize: 14,
-        fontWeight: FontWeight.w500
-      ),
+          color: ExtraTheme.of(context).username,
+          fontSize: 14,
+          fontWeight: FontWeight.w500),
     );
   }
 }
