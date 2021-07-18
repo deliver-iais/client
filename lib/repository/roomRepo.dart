@@ -131,6 +131,8 @@ class RoomRepo {
   }
 
   Future<String> getId(Uid uid) async {
+    if (uid.isBot()) return uid.node;
+
     var userInfo = await _uidIdNameDao.getByUid(uid.asString());
     if (userInfo != null && userInfo.id != null) {
       return userInfo.id;
@@ -239,8 +241,7 @@ class RoomRepo {
     return finalList.values.toList();
   }
 
-  Future<List<Uid>> searchInRoomAndContacts(
-      String text) async {
+  Future<List<Uid>> searchInRoomAndContacts(String text) async {
     List<Uid> searchResult = [];
     var res = await _uidIdNameDao.search(text);
     res.forEach((element) {
