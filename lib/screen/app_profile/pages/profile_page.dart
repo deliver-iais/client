@@ -60,12 +60,12 @@ class _ProfilePageState extends State<ProfilePage>
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final showChannelIdError = BehaviorSubject.seeded(false);
+  final _showChannelIdError = BehaviorSubject.seeded(false);
   TabController _tabController;
   bool _isMucAdminOrOwner = false;
   bool _isMucOwner = false;
   AppLocalization _locale;
-  int tabsCount;
+  int _tabsCount;
 
   @override
   void initState() {
@@ -96,36 +96,36 @@ class _ProfilePageState extends State<ProfilePage>
             stream:
                 _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
             builder: (context, AsyncSnapshot<MediaMetaData> snapshot) {
-              tabsCount = 0;
+              _tabsCount = 0;
               if (snapshot.hasData && snapshot.data != null) {
                 if (snapshot.data.imagesCount != 0) {
-                  tabsCount = tabsCount + 1;
+                  _tabsCount = _tabsCount + 1;
                 }
                 if (snapshot.data.videosCount != 0) {
-                  tabsCount = tabsCount + 1;
+                  _tabsCount = _tabsCount + 1;
                 }
                 if (snapshot.data.linkCount != 0) {
-                  tabsCount = tabsCount + 1;
+                  _tabsCount = _tabsCount + 1;
                 }
                 if (snapshot.data.filesCount != 0) {
-                  tabsCount = tabsCount + 1;
+                  _tabsCount = _tabsCount + 1;
                 }
                 if (snapshot.data.documentsCount != 0) {
-                  tabsCount = tabsCount + 1;
+                  _tabsCount = _tabsCount + 1;
                 }
                 if (snapshot.data.musicsCount != 0) {
-                  tabsCount = tabsCount + 1;
+                  _tabsCount = _tabsCount + 1;
                 }
                 if (snapshot.data.audiosCount != 0) {
-                  tabsCount = tabsCount + 1;
+                  _tabsCount = _tabsCount + 1;
                 }
               }
 
               _tabController = TabController(
                   length: (widget.roomUid.category == Categories.GROUP ||
                           widget.roomUid.category == Categories.CHANNEL)
-                      ? tabsCount + 1
-                      : tabsCount,
+                      ? _tabsCount + 1
+                      : _tabsCount,
                   vsync: this,
                   initialIndex:
                       _uxService.getTabIndex(widget.roomUid.asString()));
@@ -135,7 +135,7 @@ class _ProfilePageState extends State<ProfilePage>
               });
 
               return DefaultTabController(
-                  length: (widget.roomUid.isMuc()) ? tabsCount + 1 : tabsCount,
+                  length: (widget.roomUid.isMuc()) ? _tabsCount + 1 : _tabsCount,
                   child: NestedScrollView(
                       headerSliverBuilder:
                           (BuildContext context, bool innerBoxIsScrolled) {
@@ -1070,7 +1070,7 @@ class _ProfilePageState extends State<ProfilePage>
                                           .getTraslateValue("channel_Id")),
                                     )),
                                 StreamBuilder(
-                                    stream: showChannelIdError.stream,
+                                    stream: _showChannelIdError.stream,
                                     builder: (c, e) {
                                       if (e.hasData && e.data) {
                                         return Text(
@@ -1208,10 +1208,10 @@ class _ProfilePageState extends State<ProfilePage>
   Future<bool> checkChannelD(String id) async {
     var res = await _mucRepo.channelIdIsAvailable(id);
     if (res != null && res) {
-      showChannelIdError.add(false);
+      _showChannelIdError.add(false);
       return res;
     } else
-      showChannelIdError.add(true);
+      _showChannelIdError.add(true);
     return false;
   }
 
