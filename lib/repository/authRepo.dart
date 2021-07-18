@@ -69,7 +69,7 @@ class AuthRepo {
       device = "Android/${androidInfo.model}";
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-      device = "Android/${iosInfo.identifierForVendor}";
+      device = "iOS/${iosInfo.identifierForVendor}";
     } else {
       device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     }
