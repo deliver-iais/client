@@ -55,6 +55,9 @@ class _TitleStatusState extends State<TitleStatus> {
               case TitleStatusConditions.Normal:
                 if (widget.currentRoomUid.category == Categories.BOT)
                   return Text(title(appLocalization, snapshot.data),
+                      maxLines: 1,
+                      overflow: TextOverflow.fade,
+                      softWrap: false,
                       style: TextStyle(
                           fontSize: 12,
                           color: ExtraTheme.of(context).textDetails));
@@ -65,6 +68,9 @@ class _TitleStatusState extends State<TitleStatus> {
               case TitleStatusConditions.Disconnected:
               case TitleStatusConditions.Connecting:
                 return Text(title(appLocalization, snapshot.data),
+                    maxLines: 1,
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
                     style: TextStyle(
                         fontSize: 12,
                         color: ExtraTheme.of(context).textDetails));
@@ -75,6 +81,9 @@ class _TitleStatusState extends State<TitleStatus> {
               return this.widget.normalConditionWidget;
             } else {
               return Text(title(appLocalization, snapshot.data),
+                  maxLines: 1,
+                  overflow: TextOverflow.fade,
+                  softWrap: false,
                   style: this.widget.style);
             }
           }

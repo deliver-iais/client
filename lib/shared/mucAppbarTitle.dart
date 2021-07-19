@@ -22,74 +22,66 @@ class MucAppbarTitle extends StatelessWidget {
     return Container(
         color: Theme.of(context).appBarTheme.color,
         child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
           child: Row(
             children: [
               CircleAvatarWidget(mucUid.asUid(), 23),
               SizedBox(
                 width: 20,
               ),
-              StreamBuilder<Muc>(
-                  stream: _mucRepo.watchMuc(mucUid),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData)
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            snapshot.data.name,
-                            style: Theme.of(context).textTheme.headline2,
-                          ),
-                          TitleStatus(
-                            normalConditionWidget: Text(
-                              "${snapshot.data.population} ${appLocalization.getTraslateValue("members")}",
-                              style: TextStyle(
-                                  fontSize: 11,
-                                  color: ExtraTheme.of(context).textDetails),
+              Expanded(
+                child: StreamBuilder<Muc>(
+                    stream: _mucRepo.watchMuc(mucUid),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData)
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              snapshot.data.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
+                              style: Theme.of(context).textTheme.headline2,
                             ),
-                            currentRoomUid: mucUid.asUid(),
-                          )
-                        ],
-                      );
-                    else
-                      return FutureBuilder<Muc>(
-                          future: _mucRepo.getMuc(mucUid),
-                          builder: (c, s) {
-                            if (s.hasData && s.data != null) {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    s.data.name,
-                                    style:
-                                        Theme.of(context).textTheme.headline2,
-                                  ),
-                                  TitleStatus(
-                                    normalConditionWidget: Text(
-                                      "${s.data.population} ${appLocalization.getTraslateValue("members")}",
-                                      style: TextStyle(
-                                          fontSize: 11,
-                                          color: ExtraTheme.of(context)
-                                              .textDetails),
-                                    ),
-                                    currentRoomUid: mucUid.asUid(),
-                                  )
-                                ],
-                              );
-                            } else {
-                              return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                        AppLocalization.of(context)
-                                            .getTraslateValue("loading"),
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            color: ExtraTheme.of(context)
-                                                .textDetails))
-                                  ]);
-                            }
-                          });
-                  })
+                            TitleStatus(
+                              normalConditionWidget: Text(
+                                "${snapshot.data.population} ${appLocalization.getTraslateValue("members")}",
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
+                                softWrap: false,
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color: ExtraTheme.of(context).textDetails),
+                              ),
+                              currentRoomUid: mucUid.asUid(),
+                            )
+                          ],
+                        );
+                      else
+                        return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 200,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                    color: Theme.of(context).brightness == Brightness.light
+                                        ? Colors.grey[200]
+                                        : Colors.grey[800])
+                              ),
+                              SizedBox(height: 6),
+                              Container(
+                                  width: 100,
+                                  height: 11,
+                                  decoration: BoxDecoration(
+                                      color: Theme.of(context).brightness == Brightness.light
+                                          ? Colors.grey[200]
+                                          : Colors.grey[800])
+                              ),
+                            ]);
+                    }),
+              )
             ],
           ),
           onTap: () {
