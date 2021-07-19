@@ -415,17 +415,6 @@ class _ProfilePageState extends State<ProfilePage>
       color: ExtraTheme.of(context).popupMenuButton,
       icon: Icon(Icons.more_vert),
       itemBuilder: (_) => <PopupMenuItem<String>>[
-        if (widget.roomUid.isMuc() && _isMucAdminOrOwner)
-          PopupMenuItem<String>(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Icon(Icons.add_a_photo_rounded),
-                  SizedBox(width: 8),
-                  Text(_locale.getTraslateValue("set_avatar")),
-                ],
-              ),
-              value: "select"),
         if (widget.roomUid.isMuc() && _isMucOwner)
           PopupMenuItem<String>(
               child: Row(
