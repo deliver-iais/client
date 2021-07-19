@@ -103,7 +103,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                     stream: _sendAccessPrivateDataQrCode.stream,
                     builder: (c, s) {
                       if (s.hasData && s.data) {
-                       handleSendPrivateDateAccestance();
+                       handleSendPrivateDateAccestance(context);
                         return SizedBox.shrink();
                       } else {
                         return SizedBox.shrink();
@@ -266,7 +266,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     }
   }
 
-  void handleSendMsgToBot(BuildContext context) {
+  void handleSendMsgToBot(BuildContext context) async{
     showFloatingModalBottomSheet(
       context: context,
       builder: (context) => Padding(
@@ -319,7 +319,7 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   }
 
-  void handleSendPrivateDateAccestance() {
+  Future<void> handleSendPrivateDateAccestance(BuildContext context)async {
     PrivateDataType  privateDataType;
     switch(_parsedMsg["type"]){
       case "PHONE_NUMBER":
@@ -339,7 +339,8 @@ class _ScanQrCode extends State<ScanQrCode> {
 
     }
 
-    showFloatingModalBottomSheet(
+
+   showFloatingModalBottomSheet(
       context: context,
       builder: (context) => Padding(
         padding: const EdgeInsets.all(8.0),
