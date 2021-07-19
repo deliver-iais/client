@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/message_type.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +15,7 @@ class SenderAndContent extends StatelessWidget {
   final List<Message> messages;
   final bool inBox;
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   SenderAndContent({Key key, this.messages, this.inBox}) : super(key: key);
 
@@ -52,7 +52,7 @@ class SenderAndContent extends StatelessWidget {
           if (!messages[0]
               .from
               .asUid()
-              .isSameEntity(_accountRepo.currentUserUid.asString()))
+              .isSameEntity(_authRepo.currentUserUid.asString()))
             FutureBuilder<String>(
                 future: _roomRepo.getName(messages[0].from.asUid()),
                 builder: (ctx, AsyncSnapshot<String> s) {

@@ -6,12 +6,7 @@ import 'package:deliver_flutter/box/media_meta_data.dart';
 import 'package:deliver_flutter/box/media.dart';
 import 'package:deliver_flutter/box/media_type.dart';
 
-
-import 'package:deliver_flutter/repository/accountRepo.dart';
-import 'package:deliver_flutter/utils/log.dart';
-
 import 'package:get_it/get_it.dart';
-import 'package:grpc/grpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart' as queryObject;
 import 'package:deliver_public_protocol/pub/v1/models/media.pb.dart'
@@ -19,35 +14,33 @@ import 'package:deliver_public_protocol/pub/v1/models/media.pb.dart'
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:logger/logger.dart';
 
 class MediaQueryRepo {
-  var mediaList;
-  var allMedia;
-  var _mediaQueriesDao = GetIt.I.get<MediaDao>();
-  int count;
-  var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _mediaDao = GetIt.I.get<MediaDao>();
-  var _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
-  int lastTime;
+  final _logger = GetIt.I.get<Logger>();
+  final _mediaQueriesDao = GetIt.I.get<MediaDao>();
+  final _mediaDao = GetIt.I.get<MediaDao>();
+  final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
+  var mediaList;
+  var allMedia;
+  int count;
+  int lastTime;
 
   getMediaMetaDataReq(Uid uid) async {
     try {
-      var mediaResponse = await _queryServiceClient.getMediaMetadata(
-          GetMediaMetadataReq()..with_1 = uid,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      var mediaResponse = await _queryServiceClient
+          .getMediaMetadata(GetMediaMetadataReq()..with_1 = uid);
       insertMediaMetaData(uid, mediaResponse);
     } catch (e) {
-      debug(e);
+      _logger.e(e);
     }
-
   }
 
   Future insertMediaMetaData(
       Uid uid, queryObject.GetMediaMetadataRes mediaResponse) async {
-    _mediaMetaDataDao.save( MediaMetaData(
+    _mediaMetaDataDao.save(MediaMetaData(
       roomId: uid.asString(),
       imagesCount: mediaResponse.allImagesCount.toInt(),
       videosCount: mediaResponse.allVideosCount.toInt(),
@@ -59,17 +52,15 @@ class MediaQueryRepo {
     ));
   }
 
-  Stream< MediaMetaData> getMediasMetaDataCountFromDB(Uid roomId) {
+  Stream<MediaMetaData> getMediasMetaDataCountFromDB(Uid roomId) {
     return _mediaMetaDataDao.get(roomId.asString());
   }
-
 
 //TODO correction of performance
   Future<List<Media>> getMedia(
       Uid uid, MediaType mediaType, int mediaCount) async {
     List<Media> mediasList = [];
-    mediasList =
-        await _mediaDao.getByRoomIdAndType(uid.asString(), mediaType);
+    mediasList = await _mediaDao.getByRoomIdAndType(uid.asString(), mediaType);
     if (mediasList.length == 0) {
       mediasList = await getLastMediasList(
           uid,
@@ -80,9 +71,12 @@ class MediaQueryRepo {
       return mediasList;
     } else if (mediasList.length < mediaCount) {
       int pointer = mediasList.first.createdOn;
-      var newMediasServerList = await getLastMediasList(uid, convertType(mediaType), pointer,
+      var newMediasServerList = await getLastMediasList(
+          uid,
+          convertType(mediaType),
+          pointer,
           FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH);
-     mediasList.removeAt(0);
+      mediasList.removeAt(0);
       var combinedList = [...newMediasServerList.reversed, ...mediasList];
       return combinedList.reversed.toList();
     } else {
@@ -103,14 +97,12 @@ class MediaQueryRepo {
     getMediaReq..fetchingDirectionType = directionType;
     getMediaReq..limit = 30;
     try {
-      var getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      var getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq);
       List<Media> medias =
           await _saveFetchedMedias(getMediasRes.medias, roomId, mediaType);
       return medias;
     } catch (e) {
-      debug("error on get lastMediaList:$e");
+      _logger.e(e);
       return [];
     }
   }
@@ -129,7 +121,7 @@ class MediaQueryRepo {
           roomId: roomUid.asString(),
           json: json);
       mediaList.add(insertedMedia);
-       _mediaDao.save(insertedMedia);
+      _mediaDao.save(insertedMedia);
     }
     return mediaList;
   }
@@ -152,35 +144,33 @@ class MediaQueryRepo {
     } else
       return MediaType.NOT_SET;
   }
-  FetchMediasReq_MediaType convertType(MediaType mediaType){
-    switch(mediaType){
 
+  FetchMediasReq_MediaType convertType(MediaType mediaType) {
+    switch (mediaType) {
       case MediaType.IMAGE:
-       return  FetchMediasReq_MediaType.IMAGES;
+        return FetchMediasReq_MediaType.IMAGES;
         break;
       case MediaType.VIDEO:
-        return  FetchMediasReq_MediaType.VIDEOS;
+        return FetchMediasReq_MediaType.VIDEOS;
         break;
       case MediaType.FILE:
-        return  FetchMediasReq_MediaType.FILES;
+        return FetchMediasReq_MediaType.FILES;
         break;
       case MediaType.AUDIO:
-        return  FetchMediasReq_MediaType.AUDIOS;
+        return FetchMediasReq_MediaType.AUDIOS;
         break;
       case MediaType.MUSIC:
-        return  FetchMediasReq_MediaType.MUSICS;
+        return FetchMediasReq_MediaType.MUSICS;
         break;
       case MediaType.DOCUMENT:
-        return  FetchMediasReq_MediaType.DOCUMENTS;
+        return FetchMediasReq_MediaType.DOCUMENTS;
         break;
       case MediaType.LINK:
-        return  FetchMediasReq_MediaType.LINKS;
+        return FetchMediasReq_MediaType.LINKS;
         break;
-      case MediaType.NOT_SET:
-        return  FetchMediasReq_MediaType.FILES;
-        break;
+      default:
+        return FetchMediasReq_MediaType.FILES;
     }
-
   }
 
   Future<List<Media>> getMediaAround(
@@ -188,7 +178,6 @@ class MediaQueryRepo {
     mediaList = await _mediaQueriesDao.getMediaAround(roomId, offset, type);
     return mediaList;
   }
-
 
   String findFetchedMediaJson(MediaObject.Media media) {
     var json = Object();

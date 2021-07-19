@@ -1,8 +1,9 @@
 import 'dart:collection';
+import 'dart:io';
 
 import 'package:deliver_flutter/box/message.dart';
-
-import 'package:deliver_flutter/screen/app-contacts/widgets/new_Contact.dart';
+import 'package:deliver_flutter/screen/contacts/contacts_page.dart';
+import 'package:deliver_flutter/screen/contacts/new_contact.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver_flutter/screen/app-room/pages/roomPage.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/map_widget.dart';
@@ -11,11 +12,16 @@ import 'package:deliver_flutter/screen/app_group/pages/member_selection_page.dar
 import 'package:deliver_flutter/screen/app_profile/pages/media_details_page.dart';
 import 'package:deliver_flutter/screen/app_profile/pages/profile_page.dart';
 import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
-import 'package:deliver_flutter/screen/navigation_center/pages/navigation_center_page.dart';
+import 'package:deliver_flutter/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver_flutter/screen/settings/account_settings.dart';
-import 'package:deliver_flutter/screen/settings/settingsPage.dart';
+import 'package:deliver_flutter/screen/settings/pages/devices_page.dart';
+import 'package:deliver_flutter/screen/settings/pages/language_settings.dart';
+import 'package:deliver_flutter/screen/settings/pages/log_settings.dart';
+import 'package:deliver_flutter/screen/settings/settings_page.dart';
 import 'package:deliver_flutter/screen/share_input_file/share_input_file.dart';
 import 'package:deliver_flutter/services/core_services.dart';
+import 'package:deliver_flutter/services/firebase_services.dart';
+import 'package:deliver_flutter/shared/scanQrCode.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -26,6 +32,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/subjects.dart';
 
 class Page {
@@ -46,6 +53,7 @@ class Page {
 }
 
 BehaviorSubject<bool> backSubject = BehaviorSubject.seeded(false);
+FireBaseServices fireBaseServices = GetIt.I.get<FireBaseServices>();
 
 class RoutingService {
   BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
@@ -59,6 +67,7 @@ class RoutingService {
     this._navigationCenter = NavigationCenter(
       key: ValueKey("navigator"),
       tapOnCurrentUserAvatar: () {
+        // this.openContacts();
         this.openSettings();
       },
     );
@@ -113,6 +122,41 @@ class RoutingService {
         largePageMain: widget,
         smallPageMain: widget,
         path: "/settings"));
+  }
+
+  void openLanguageSettings() {
+    var widget = LanguageSettingsPage(key: ValueKey("/language_settings"));
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/language_settings"));
+  }
+  void openDevicesPage() {
+    var widget = DevicesPage(key: ValueKey("/devices_page"));
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/language_settings"));
+  }
+
+  void openLogSettings() {
+    var widget = LogSettingsPage(key: ValueKey("/log_settings"));
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/log_settings"));
+  }
+
+  void openContacts() {
+    var widget = ContactsPage(key: ValueKey("/contacts"));
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/contacts"));
   }
 
   void openShowAllAvatars(
@@ -245,14 +289,23 @@ class RoutingService {
 
   void openShareFile({List<String> path}) {
     var widget = ShareInputFile(
-      key: ValueKey("/share_file_page"),
-            inputSharedFilePath: path
-    );
+        key: ValueKey("/share_file_page"), inputSharedFilePath: path);
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,
         smallPageMain: widget,
         path: "/share_file_page"));
+  }
+
+  void openScanQrCode() {
+    var widget = ScanQrCode(
+      key: ValueKey("/scan_qr_code"),
+    );
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/scan_qr_code"));
   }
 
   void openAddStickerPcakPage() {
@@ -295,6 +348,10 @@ class RoutingService {
     }
   }
 
+  Page _top() {
+    return _stack.last;
+  }
+
   reset() {
     if (_stack != null) {
       _stack.clear();
@@ -311,6 +368,8 @@ class RoutingService {
 
   logout(BuildContext context) {
     CoreServices coreServices = GetIt.I.get<CoreServices>();
+
+    if (!isDesktop()) fireBaseServices.deleteToken();
     coreServices.closeConnection();
     deleteDb();
     reset();
@@ -371,7 +430,6 @@ class RoutingService {
   _smallPageMain(BuildContext context) {
     return _stack.last.smallPageMain;
   }
-
 }
 
 class Empty extends StatelessWidget {
@@ -397,7 +455,7 @@ class Empty extends StatelessWidget {
                 borderRadius: BorderRadius.all(Radius.circular(10)),
                 color: Theme.of(context).dividerColor.withOpacity(0.1)),
             child: Text("Please select a chat to start messaging",
-                style: Theme.of(context).textTheme.headline3)),
+                style: Theme.of(context).textTheme.headline6)),
       ),
     );
   }

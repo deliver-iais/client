@@ -5,12 +5,12 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/thumbnail_video_ui.dart';
 import 'package:deliver_flutter/services/file_service.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'dart:io';
+
+import 'package:logger/logger.dart';
 
 class VideoTabUi extends StatefulWidget {
   final Uid userUid;
@@ -23,12 +23,14 @@ class VideoTabUi extends StatefulWidget {
 }
 
 class _VideoTabUiState extends State<VideoTabUi> {
-  MediaQueryRepo mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  FileRepo fileRepo = GetIt.I.get<FileRepo>();
+  final _logger = GetIt.I.get<Logger>();
+  final mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final fileRepo = GetIt.I.get<FileRepo>();
   Duration duration;
   String videoLength;
   bool isExist;
   Map<int, String> totalDuration = Map();
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Media>>(
@@ -108,7 +110,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                                   thumbnailFile.data != null &&
                                   thumbnailFile.connectionState ==
                                       ConnectionState.done) {
-                                debug("FilevideoooooooPosition$position");
+                                _logger.d("FilevideoooooooPosition$position");
                                 return VideoThumbnail(
                                   userUid: widget.userUid,
                                   thumbnail: thumbnailFile.data,

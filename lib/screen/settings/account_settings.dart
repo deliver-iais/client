@@ -1,15 +1,25 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
+import 'package:deliver_flutter/repository/avatarRepo.dart';
+import 'package:deliver_flutter/screen/settings/settings_page.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:settings_ui/settings_ui.dart';
 
 class AccountSettings extends StatefulWidget {
   final bool forceToSetUsernameAndName;
@@ -23,8 +33,11 @@ class AccountSettings extends StatefulWidget {
 
 class _AccountSettingsState extends State<AccountSettings> {
   AppLocalization _appLocalization;
-  BehaviorSubject<String> subject = new BehaviorSubject<String>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
+  final subject = new BehaviorSubject<String>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   String _username = "";
   String _newUsername = "";
   String _email = "";
@@ -36,7 +49,32 @@ class _AccountSettingsState extends State<AccountSettings> {
   final _usernameFormKey = GlobalKey<FormState>();
   bool usernameIsAvailable = true;
   bool _userNameCorrect = false;
-  final _routingService = GetIt.I.get<RoutingService>();
+
+  bool _uploadNewAvatar = false;
+  String _newAvatarPath;
+
+  attachFile() async {
+    String path;
+    if (isDesktop()) {
+      final typeGroup = XTypeGroup(
+          label: 'images', extensions: SUPPORTED_IMAGE_EXTENSIONS);
+      final result = await openFile(acceptedTypeGroups: [typeGroup]);
+      path = result.path;
+    } else {
+      var result = await ImagePicker().getImage(source: ImageSource.gallery);
+      path = result.path;
+    }
+    if (path != null) {
+      setState(() {
+        _newAvatarPath = path;
+        _uploadNewAvatar = true;
+      });
+      await _avatarRepo.uploadAvatar(File(path), _authRepo.currentUserUid);
+      setState(() {
+        _uploadNewAvatar = false;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -70,182 +108,248 @@ class _AccountSettingsState extends State<AccountSettings> {
         return true;
       },
       child: Scaffold(
-        appBar: AppBar(
-          leading: !widget.forceToSetUsernameAndName
-              ? _routingService.backButtonLeading()
-              : null,
-          title: Column(
-            children: [
-              Text(_appLocalization.getTraslateValue("account_info"),
-                  style: Theme.of(context).textTheme.headline2),
-              if (widget.forceToSetUsernameAndName)
-                Text(
-                  _appLocalization
-                      .getTraslateValue("should_set_username_and_name"),
-                  style: Theme.of(context).textTheme.subtitle2,
-                )
-            ],
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(60.0),
+          child: FluidContainerWidget(
+            child: AppBar(
+              backgroundColor: ExtraTheme.of(context).boxBackground,
+              // elevation: 0,
+              titleSpacing: 8,
+              title: Column(children: [
+                Text(_appLocalization.getTraslateValue("account_info"),
+                    style: Theme.of(context).textTheme.headline2),
+                if (widget.forceToSetUsernameAndName)
+                  Text(
+                    _appLocalization
+                        .getTraslateValue("should_set_username_and_name"),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline6
+                        .copyWith(fontSize: 10),
+                  )
+              ]),
+              leading: !widget.forceToSetUsernameAndName
+                  ? _routingService.backButtonLeading()
+                  : null,
+            ),
           ),
         ),
         body: FluidContainerWidget(
-          child: Stack(
-            children: [
-              FutureBuilder<Account>(
-                future: _accountRepo.getAccount(),
-                builder: (BuildContext c, AsyncSnapshot<Account> snapshot) {
-                  if (!snapshot.hasData || snapshot.data == null) {
-                    return SizedBox.shrink();
-                  }
-                  _account = snapshot.data;
-                  _lastUserName = snapshot.data.userName;
-                  return ListView(
-                    children: [
-                      Form(
-                          key: _formKey,
-                          child: Column(
-                            children: [
-                              Form(
-                                key: _usernameFormKey,
-                                child: TextFormField(
-                                    minLines: 1,
-                                    style: TextStyle(
-                                        color:
-                                            ExtraTheme.of(context).textField),
-                                    initialValue: snapshot.data.userName,
-                                    textInputAction: TextInputAction.send,
-                                    onChanged: (str) {
-                                      setState(() {
-                                        _newUsername = str;
-                                        _username = str;
-                                        subject.add(str);
-                                      });
-                                    },
-                                    validator: validateUsername,
-                                    decoration: buildInputDecoration(
-                                        _appLocalization
-                                            .getTraslateValue("username"),
-                                        true)),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              _newUsername.isEmpty
-                                  ? Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            _appLocalization.getTraslateValue(
-                                                "usernameHelper"),
-                                            textAlign: TextAlign.justify,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.blueAccent),
-                                          ),
+          child: FutureBuilder<Account>(
+            future: _accountRepo.getAccount(),
+            builder: (BuildContext c, AsyncSnapshot<Account> snapshot) {
+              if (!snapshot.hasData || snapshot.data == null) {
+                return SizedBox.shrink();
+              }
+              _account = snapshot.data;
+              _lastUserName = snapshot.data.userName;
+              return ListView(
+                children: [
+                  SettingsSection(
+                      title: _appLocalization.getTraslateValue("avatar"),
+                      tiles: [
+                        NormalSettingsTitle(
+                          child: Center(
+                            child: Stack(
+                              children: [
+                                _newAvatarPath != null
+                                    ? CircleAvatar(
+                                        radius: 65,
+                                        backgroundImage:
+                                            Image.file(File(_newAvatarPath))
+                                                .image,
+                                        child: Center(
+                                          child: SizedBox(
+                                              height: 50.0,
+                                              width: 50.0,
+                                              child: _uploadNewAvatar
+                                                  ? CircularProgressIndicator(
+                                                      valueColor:
+                                                          AlwaysStoppedAnimation(
+                                                              Colors.blue),
+                                                      strokeWidth: 6.0,
+                                                    )
+                                                  : SizedBox.shrink()),
                                         ),
-                                      ],
-                                    )
-                                  : SizedBox.shrink(),
-                              !usernameIsAvailable
-                                  ? Row(
-                                      children: [
-                                        Text(
-                                          _appLocalization
-                                              .getTraslateValue("usernameExit"),
+                                      )
+                                    : CircleAvatarWidget(
+                                        _authRepo.currentUserUid,
+                                        65,
+                                        showAsStreamOfAvatar: true,
+                                      ),
+                                // Spacer(),
+                                Container(
+                                  height: 130,
+                                  width: 130,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.grey[500].withOpacity(0.4),
+                                  ),
+                                  child: IconButton(
+                                    color: Colors.white,
+                                    splashRadius: 40,
+                                    iconSize: 40,
+                                    icon: Icon(
+                                      Icons.add_a_photo,
+                                    ),
+                                    onPressed: () => attachFile(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      ]),
+                  SettingsSection(
+                      title: _appLocalization.getTraslateValue("account_info"),
+                      tiles: [
+                        NormalSettingsTitle(
+                            child: Column(
+                          children: [
+                            Form(
+                                key: _formKey,
+                                child: Column(
+                                  children: [
+                                    Form(
+                                      key: _usernameFormKey,
+                                      child: TextFormField(
+                                          minLines: 1,
                                           style: TextStyle(
-                                              fontSize: 10, color: Colors.red),
-                                        ),
-                                      ],
-                                    )
-                                  : SizedBox.shrink(),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              TextFormField(
-                                initialValue: snapshot.data.firstName ?? "",
-                                minLines: 1,
-                                style: TextStyle(
-                                    color: ExtraTheme.of(context).textField),
-                                textInputAction: TextInputAction.send,
-                                onChanged: (str) {
-                                  setState(() {
-                                    _firstName = str;
-                                  });
+                                              color: ExtraTheme.of(context)
+                                                  .textField),
+                                          initialValue: snapshot.data.userName,
+                                          textInputAction: TextInputAction.send,
+                                          onChanged: (str) {
+                                            setState(() {
+                                              _newUsername = str;
+                                              _username = str;
+                                              subject.add(str);
+                                            });
+                                          },
+                                          validator: validateUsername,
+                                          decoration: buildInputDecoration(
+                                              _appLocalization
+                                                  .getTraslateValue("username"),
+                                              true)),
+                                    ),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    _newUsername.isEmpty
+                                        ? Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  _appLocalization
+                                                      .getTraslateValue(
+                                                          "usernameHelper"),
+                                                  textAlign: TextAlign.justify,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 2,
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.blueAccent),
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        : SizedBox.shrink(),
+                                    !usernameIsAvailable
+                                        ? Row(
+                                            children: [
+                                              Text(
+                                                _appLocalization
+                                                    .getTraslateValue(
+                                                        "usernameExit"),
+                                                style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.red),
+                                              ),
+                                            ],
+                                          )
+                                        : SizedBox.shrink(),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    TextFormField(
+                                      initialValue:
+                                          snapshot.data.firstName ?? "",
+                                      minLines: 1,
+                                      style: TextStyle(
+                                          color:
+                                              ExtraTheme.of(context).textField),
+                                      textInputAction: TextInputAction.send,
+                                      onChanged: (str) {
+                                        setState(() {
+                                          _firstName = str;
+                                        });
+                                      },
+                                      validator: validateFirstName,
+                                      decoration: buildInputDecoration(
+                                          _appLocalization
+                                              .getTraslateValue("firstName"),
+                                          true),
+                                    ),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    TextFormField(
+                                        initialValue:
+                                            snapshot.data.lastName ?? "",
+                                        minLines: 1,
+                                        style: TextStyle(
+                                            color: ExtraTheme.of(context)
+                                                .textField),
+                                        textInputAction: TextInputAction.send,
+                                        onChanged: (str) {
+                                          setState(() {
+                                            _lastName = str;
+                                          });
+                                        },
+                                        decoration: buildInputDecoration(
+                                            _appLocalization
+                                                .getTraslateValue("lastName"),
+                                            false)),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    TextFormField(
+                                        initialValue: snapshot.data.email ?? "",
+                                        minLines: 1,
+                                        style: TextStyle(
+                                            color: ExtraTheme.of(context)
+                                                .textField),
+                                        textInputAction: TextInputAction.send,
+                                        onChanged: (str) {
+                                          setState(() {
+                                            _email = str;
+                                          });
+                                        },
+                                        validator: validateEmail,
+                                        decoration: buildInputDecoration(
+                                            _appLocalization
+                                                .getTraslateValue("email"),
+                                            false)),
+                                  ],
+                                )),
+                            SizedBox(height: 8),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                child: Text(
+                                    _appLocalization.getTraslateValue("save")),
+                                onPressed: () async {
+                                  checkAndSend();
                                 },
-                                validator: validateFirstName,
-                                decoration: buildInputDecoration(
-                                    _appLocalization
-                                        .getTraslateValue("firstName"),
-                                    true),
                               ),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              TextFormField(
-                                  initialValue: snapshot.data.lastName ?? "",
-                                  minLines: 1,
-                                  style: TextStyle(
-                                      color: ExtraTheme.of(context).textField),
-                                  textInputAction: TextInputAction.send,
-                                  onChanged: (str) {
-                                    setState(() {
-                                      _lastName = str;
-                                    });
-                                  },
-                                  decoration: buildInputDecoration(
-                                      _appLocalization
-                                          .getTraslateValue("lastName"),
-                                      false)),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              TextFormField(
-                                  initialValue: snapshot.data.email ?? "",
-                                  minLines: 1,
-                                  style: TextStyle(
-                                      color: ExtraTheme.of(context).textField),
-                                  textInputAction: TextInputAction.send,
-                                  onChanged: (str) {
-                                    setState(() {
-                                      _email = str;
-                                    });
-                                  },
-                                  validator: validateEmail,
-                                  decoration: buildInputDecoration(
-                                      _appLocalization
-                                          .getTraslateValue("email"),
-                                      false)),
-                              SizedBox(
-                                height: 40,
-                              ),
-                            ],
-                          )),
-                    ],
-                  );
-                },
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  child: IconButton(
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.all(0),
-                    icon: Icon(Icons.done),
-                    onPressed: () async {
-                      checkAndSend();
-                    },
-                  ),
-                ),
-              ),
-            ],
+                            )
+                          ],
+                        ))
+                      ])
+                ],
+              );
+            },
           ),
         ),
       ),

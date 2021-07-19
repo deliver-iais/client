@@ -13,10 +13,10 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
   final Message message;
   final bool isSender;
   final bool isSeen;
+  final _messageRepo = GetIt.I.get<MessageRepo>();
 
   SharePrivateDataRequestMessageWidget({this.message, this.isSender, this.isSeen});
 
-  var _messageRepo = GetIt.I.get<MessageRepo>();
   AppLocalization _appLocalization;
   SharePrivateDataRequest _sharePrivateDataRequest;
 
@@ -38,7 +38,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
             color: Colors.blueAccent,
             onPressed: () {
               _messageRepo.sendPrivateMessageAccept(
-                  message.from.asUid(), _sharePrivateDataRequest.data);
+                  message.from.asUid(), _sharePrivateDataRequest.data,_sharePrivateDataRequest.token);
             },
             child: Text(_appLocalization.getTraslateValue("ok")),
           ))

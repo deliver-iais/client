@@ -12,6 +12,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 import 'music_play_progress.dart';
 
@@ -28,8 +29,9 @@ class MusicAndAudioUi extends StatefulWidget {
 }
 
 class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
-  var mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
-  var fileRepo = GetIt.I.get<FileRepo>();
+  final _logger = GetIt.I.get<Logger>();
+  final mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
+  final fileRepo = GetIt.I.get<FileRepo>();
 
   download(String uuid, String name) async {
     await GetIt.I.get<FileRepo>().getFile(uuid, name);
@@ -58,8 +60,8 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                     var fileId = jsonDecode(media.data[index].json)["uuid"];
                     var fileName = jsonDecode(media.data[index].json)["name"];
                     var dur = jsonDecode(media.data[index].json)["duration"];
-                    print(media.data[index].json);
-                    print(dur.toString());
+                    _logger.d(media.data[index].json);
+                    _logger.d(dur.toString());
 
                     var messageId = media.data[index].messageId;
                     return FutureBuilder<bool>(

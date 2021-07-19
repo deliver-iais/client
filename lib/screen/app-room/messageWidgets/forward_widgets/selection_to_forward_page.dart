@@ -2,7 +2,7 @@ import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/chat_item_to_forward.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/forward_appbar.dart';
-import 'package:deliver_flutter/screen/navigation_center/widgets/searchBox.dart';
+import 'package:deliver_flutter/screen/navigation_center/widgets/search_box.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -26,57 +26,60 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
 
   @override
   Widget build(BuildContext context) {
-
     var _roomRepo = GetIt.I.get<RoomRepo>();
 
-          return Scaffold(
-            backgroundColor: Theme.of(context).backgroundColor,
-            appBar: PreferredSize(
-              preferredSize: Size.fromHeight( 60),
-              child: ForwardAppbar(),
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60),
+        child: ForwardAppbar(),
+      ),
+      body: Column(
+        children: <Widget>[
+          SearchBox(
+            onChange: (str) {
+              if (str.isNotEmpty) {
+                setState(() {
+                  _searchMode = true;
+                  _query = str;
+                });
+              } else {
+                setState(() {
+                  _searchMode = false;
+                });
+              }
+            },
+            onCancel: (){
+              setState(() {
+                _searchMode = false;
+              });
+            },
+          ),
+          Expanded(
+            child: FutureBuilder<List<Uid>>(
+              future: _searchMode
+                  ? _roomRepo.searchInRoomAndContacts(_query)
+                  : _roomRepo.getAllRooms(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData &&
+                    snapshot.data != null &&
+                    snapshot.data.length > 0) {
+                  return Container(
+                    child: buildListView(snapshot.data),
+                  );
+                } else {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.blue,
+                    ),
+                  );
+                }
+              },
             ),
-            body: Column(
-              children: <Widget>[
-                SearchBox(
-                  onChange: (str) {
-                    if (str.isNotEmpty) {
-                      setState(() {
-                        _searchMode = true;
-                        _query = str;
-                      });
-                    }else{
-                      setState(() {
-                        _searchMode = false;
-                      });
-                    }
-                  },
-                ),
-                Expanded(
-                  child: FutureBuilder<List<Uid>>(
-                    future: _searchMode
-                        ? _roomRepo.searchInRoomAndContacts(_query, true)
-                        : _roomRepo.getAllRooms(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData &&
-                          snapshot.data != null &&
-                          snapshot.data.length > 0) {
-                        return Container(
-                          child: buildListView(snapshot.data),
-                        );
-                      } else {
-                        return Center(
-                          child: CircularProgressIndicator(
-                            backgroundColor: Colors.blue,
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          );
-
+          ),
+        ],
+      ),
+    );
   }
 
   ListView buildListView(List<Uid> uids) {

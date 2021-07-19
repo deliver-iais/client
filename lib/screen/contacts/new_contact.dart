@@ -39,7 +39,7 @@ class _NewContactState extends State<NewContact> {
       appBar: AppBar(
         leading: _routingServices.backButtonLeading(),
         title: Text(
-          _appLocalization.getTraslateValue("newContact"),
+          _appLocalization.getTraslateValue("add_new_contact"),
           style: TextStyle(fontSize: 20),
         ),
         actions: [
@@ -53,7 +53,7 @@ class _NewContactState extends State<NewContact> {
                     return;
                   }
                   PhoneNumber phoneNumber = PhoneNumber()
-                    ..nationalNumber = Int64.parseInt(_phoneNumber.number)
+                    ..nationalNumber = Int64.parseInt(_phoneNumber.nationalNumber)
                     ..countryCode = int.parse(_phoneNumber.countryCode);
                   await _contactRepo.addContact(Contact()
                     ..phoneNumber = phoneNumber
@@ -122,7 +122,8 @@ class _NewContactState extends State<NewContact> {
   }
 
   Future<void> showResult() async {
-    var result = await _contactRepo.contactIsExist(_phoneNumber.number);
+    var result = await _contactRepo.contactIsExist(
+        _phoneNumber.countryCode, _phoneNumber.nationalNumber);
     if (result) {
       Fluttertoast.showToast(
           msg: _appLocalization.getTraslateValue("contactAdd"));

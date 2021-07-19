@@ -49,7 +49,7 @@ class AudioService {
 
   Stream<Duration> get audioCurrentPosition => _audioCurrentPosition.stream;
 
-  AudioPlayer _audioPlayer = AudioPlayer();
+  // AudioPlayer _audioPlayer = AudioPlayer();
 
   AudioCache _fastAudioPlayer = AudioCache(prefix: 'assets/audios/');
 

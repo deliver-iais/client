@@ -1,4 +1,3 @@
-import 'package:deliver_flutter/box/dao/message_dao.dart';
 import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/dao/room_dao.dart';
 import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
@@ -8,9 +7,9 @@ import 'package:deliver_flutter/box/role.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pb.dart' as MucPro;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -21,14 +20,16 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:grpc/grpc.dart';
+import 'package:logger/logger.dart';
 
 class MucRepo {
+  final _logger = GetIt.I.get<Logger>();
   final _mucDao = GetIt.I.get<MucDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _mucServices = GetIt.I.get<MucServices>();
   final _queryServices = GetIt.I.get<QueryServiceClient>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
 
@@ -51,7 +52,7 @@ class MucRepo {
     if (channelUid != null) {
       sendMembers(channelUid, memberUids);
       _mucDao.saveMember(Member(
-          memberUid: _accountRepo.currentUserUid.asString(),
+          memberUid: _authRepo.currentUserUid.asString(),
           mucUid: channelUid.asString(),
           role: MucRole.OWNER));
       _insertToDb(channelUid, channelName, memberUids.length + 1, info,
@@ -65,9 +66,8 @@ class MucRepo {
   }
 
   Future<bool> channelIdIsAvailable(String id) async {
-    var result = await _queryServices.idIsAvailable(IdIsAvailableReq()..id = id,
-        options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()}));
+    var result =
+        await _queryServices.idIsAvailable(IdIsAvailableReq()..id = id);
     return result.isAvailable;
   }
 
@@ -88,7 +88,7 @@ class MucRepo {
                 memberUid: member.uid.asString(),
                 role: getLocalRole(member.role)));
           } catch (e) {
-            debug(e.toString());
+            _logger.e(e);
           }
         }
         finish = result.finished;
@@ -98,7 +98,7 @@ class MucRepo {
       if (len <= membersSize)
         _mucDao.update(Muc(uid: groupUid.asString(), population: membersSize));
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
     }
   }
 
@@ -126,7 +126,7 @@ class MucRepo {
                 memberUid: member.uid.asString(),
                 role: getLocalRole(member.role)));
           } catch (e) {
-            debug(e.toString());
+            _logger.e(e);
           }
         }
 
@@ -138,7 +138,7 @@ class MucRepo {
       }
       insertUserInDb(channelUid, members);
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
     }
   }
 
@@ -179,7 +179,7 @@ class MucRepo {
         _mucDao.save(muc);
         insertUserInDb(mucUid, [
           Member(
-              memberUid: _accountRepo.currentUserUid.asString(),
+              memberUid: _authRepo.currentUserUid.asString(),
               mucUid: mucUid.asString(),
               role: getLocalRole(channel.requesterRole))
         ]);
@@ -193,7 +193,7 @@ class MucRepo {
 
   Future<bool> isMucAdminOrOwner(String memberUid, String mucUid) async {
     var member = await _mucDao.getMember(memberUid, mucUid);
-    if(member == null) return false;
+    if (member == null) return false;
     if (member.role == MucRole.OWNER || member.role == MucRole.ADMIN) {
       return true;
     } else if (mucUid.asUid().category == Categories.CHANNEL) {
@@ -203,7 +203,7 @@ class MucRepo {
     return false;
   }
 
-  Future<bool> mucOwner(userUid, mucUid) async {
+  Future<bool> isMucOwner(userUid, mucUid) async {
     var member = await _mucDao.getMember(userUid, mucUid);
     if (member != null) {
       if (member.role == MucRole.OWNER) {
@@ -227,8 +227,17 @@ class MucRepo {
 
   Stream<Muc> watchMuc(String mucUid) => _mucDao.watch(mucUid);
 
+  Future<bool> removeMuc(Uid mucUid) {
+    if (mucUid.isGroup())
+      return _removeGroup(mucUid);
+    else if (mucUid.isChannel())
+      return _removeChannel(mucUid);
+    else
+      return Future.value(false);
+  }
+
   // TODO there is bugs in delete member, where is memberUid ?!?!?
-  Future<bool> removeGroup(Uid groupUid) async {
+  Future<bool> _removeGroup(Uid groupUid) async {
     var result = await _mucServices.removeGroup(groupUid);
     if (result) {
       _mucDao.delete(groupUid.asString());
@@ -239,7 +248,7 @@ class MucRepo {
     return false;
   }
 
-  Future<bool> removeChannel(Uid channelUid) async {
+  Future<bool> _removeChannel(Uid channelUid) async {
     var result = await _mucServices.removeChannel(channelUid);
     if (result) {
       _mucDao.delete(channelUid.asString());
@@ -276,7 +285,16 @@ class MucRepo {
     }
   }
 
-  Future<bool> leaveGroup(Uid groupUid) async {
+  Future<bool> leaveMuc(Uid mucUid) {
+    if (mucUid.isGroup())
+      return _leaveGroup(mucUid);
+    else if (mucUid.isChannel())
+      return _leaveChannel(mucUid);
+    else
+      return Future.value(false);
+  }
+
+  Future<bool> _leaveGroup(Uid groupUid) async {
     var result = await _mucServices.leaveGroup(groupUid);
     if (result) {
       _mucDao.delete(groupUid.asString());
@@ -286,7 +304,7 @@ class MucRepo {
     return false;
   }
 
-  Future<bool> leaveChannel(Uid channelUid) async {
+  Future<bool> _leaveChannel(Uid channelUid) async {
     var result = await _mucServices.leaveChannel(channelUid);
     if (result) {
       _mucDao.delete(channelUid.asString());
@@ -330,22 +348,21 @@ class MucRepo {
     MucPro.Member member = MucPro.Member()
       ..uid = groupMember.memberUid.asUid()
       ..role = getRole(groupMember.role);
-   if( await _mucServices.banGroupMember(member, groupMember.mucUid.asUid())){
-     _mucDao.deleteMember(groupMember);
-     return true;
-   }
-
+    if (await _mucServices.banGroupMember(member, groupMember.mucUid.asUid())) {
+      _mucDao.deleteMember(groupMember);
+      return true;
+    }
   }
 
   banChannelMember(Member channelMember) async {
     MucPro.Member member = MucPro.Member()
       ..uid = channelMember.memberUid.asUid()
       ..role = getRole(channelMember.role);
-    if(await _mucServices.unbanChannelMember(member, channelMember.mucUid.asUid())){
+    if (await _mucServices.unbanChannelMember(
+        member, channelMember.mucUid.asUid())) {
       _mucDao.deleteMember(channelMember);
       return true;
     }
-
   }
 
   unBanGroupMember(Member groupMember) async {
@@ -364,7 +381,7 @@ class MucRepo {
     //todo change database
   }
 
-  Future<Muc>joinGroup(Uid groupUid, String token) async {
+  Future<Muc> joinGroup(Uid groupUid, String token) async {
     var result = await _mucServices.joinGroup(groupUid, token);
     if (result) {
       return await fetchMucInfo(groupUid);
@@ -372,7 +389,7 @@ class MucRepo {
     return null;
   }
 
- Future<Muc> joinChannel(Uid channelUid, String token) async {
+  Future<Muc> joinChannel(Uid channelUid, String token) async {
     var result = await _mucServices.joinChannel(channelUid, token);
     if (result) {
       return await fetchMucInfo(channelUid);
@@ -448,6 +465,7 @@ class MucRepo {
       }
       return false;
     } catch (e) {
+      _logger.e(e);
       return false;
     }
   }
@@ -510,8 +528,8 @@ class MucRepo {
     List<UidIdName> _filteredMember = [];
 
     var res = await getAllMembers(roomUid);
-   await res.forEach((member) async {
-      if (_accountRepo.isCurrentUser(member.memberUid)) {
+    res.forEach((member) async {
+      if (_authRepo.isCurrentUser(member.memberUid)) {
         var a = await _accountRepo.getAccount();
         _mucMembers.add(UidIdName(
             uid: member.memberUid, id: a.userName, name: a.firstName));

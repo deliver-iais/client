@@ -1,6 +1,5 @@
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/pending_message.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:hive/hive.dart';
 
 abstract class MessageDao {
@@ -74,7 +73,7 @@ class MessageDaoImpl implements MessageDao {
   Stream<List<PendingMessage>> watchPendingMessages(String roomUid) async* {
     var box = await _openPending();
 
-    yield box.values.where((element) => element.roomUid == roomUid).toList();
+    yield box.values.where((element) => element.roomUid == roomUid).toList().reversed.toList();
 
     yield* box
         .watch()

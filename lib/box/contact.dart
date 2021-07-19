@@ -7,20 +7,25 @@ part 'contact.g.dart';
 class Contact {
   // DbId
   @HiveField(0)
-  String phoneNumber;
+  String countryCode;
 
   @HiveField(1)
-  String uid;
+  String nationalNumber;
 
   @HiveField(2)
-  String firstName;
+  String uid;
 
   @HiveField(3)
+  String firstName;
+
+  @HiveField(4)
   String lastName;
 
-  Contact(
-      {this.uid,
-      this.firstName,
-      this.lastName,
-      this.phoneNumber});
+  Contact({
+    this.countryCode,
+    this.nationalNumber,
+    this.uid,
+    this.firstName,
+    this.lastName,
+  });
 }

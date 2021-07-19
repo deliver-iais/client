@@ -1,6 +1,6 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -17,7 +17,7 @@ class PersistentEventMessage extends StatelessWidget {
   final Message message;
   final bool showLastMessage;
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _uxService = GetIt.I.get<UxService>();
 
   PersistentEventMessage({Key key, this.message, this.showLastMessage})
@@ -35,7 +35,7 @@ class PersistentEventMessage extends StatelessWidget {
             : Theme.of(context).primaryColor,
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      child: FutureBuilder(
+      child: FutureBuilder<String>(
         future: getPersistentMessage(context, persistentEventMessage),
         builder: (c, s) {
           if (s.hasData) {
@@ -45,6 +45,9 @@ class PersistentEventMessage extends StatelessWidget {
                     : TextDirection.ltr,
                 child: Text(
                   s.data,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
                   style: TextStyle(
                       color: showLastMessage
                           ? ExtraTheme.of(context).textMessage
@@ -83,7 +86,7 @@ class PersistentEventMessage extends StatelessWidget {
                     message.to.asUid())
                 : "";
         bool isMe = persistentEventMessage.mucSpecificPersistentEvent.issuer
-            .isSameEntity(_accountRepo.currentUserUid.asString());
+            .isSameEntity(_authRepo.currentUserUid.asString());
         switch (persistentEventMessage.mucSpecificPersistentEvent.issue) {
           case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
             return "$issuer ${_appLocalization.getTraslateValue("pin_message")}";
@@ -123,19 +126,18 @@ class PersistentEventMessage extends StatelessWidget {
         return "$user ${_appLocalization.getTraslateValue("new_contact_add")}";
         break;
       case PersistentEvent_Type.notSet:
-        // TODO: Handle this case.
         break;
     }
+    return "";
   }
 
   Future<String> getName(BuildContext context, Uid uid, Uid to) async {
     var _appLocalization = AppLocalization.of(context);
     if (uid == null) return "";
-    if (uid.isSameEntity(_accountRepo.currentUserUid.asString()))
+    if (uid.isSameEntity(_authRepo.currentUserUid.asString()))
       return _appLocalization.getTraslateValue("you");
     else {
-      var name = _roomRepo.getName(uid);
-      return name;
+      return _roomRepo.getName(uid);
     }
   }
 }

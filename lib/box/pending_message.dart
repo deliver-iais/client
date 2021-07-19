@@ -26,7 +26,7 @@ class PendingMessage {
       {this.roomUid,
       this.packetId,
       this.msg,
-      this.failed,
+      this.failed = false,
       this.status});
 
   PendingMessage copy(PendingMessage pm) => PendingMessage(

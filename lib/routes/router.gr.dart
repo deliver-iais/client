@@ -12,7 +12,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
-import '../screen/app-contacts/widgets/new_Contact.dart';
+import '../screen/contacts/new_contact.dart';
 import '../screen/app-room/pages/roomPage.dart';
 import '../screen/app-room/widgets/showImage_Widget.dart';
 import '../screen/home/pages/home_page.dart';
@@ -21,7 +21,7 @@ import '../screen/register/pages/login_page.dart';
 import '../screen/register/pages/verification_page.dart';
 import '../screen/settings/account_settings.dart';
 import '../screen/share_input_file/share_input_file.dart';
-import '../screen/splash/pages/splash_screen.dart';
+import '../screen/splash/splash_screen.dart';
 
 class Routes {
   static const String splashScreen = '/';

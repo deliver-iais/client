@@ -4,14 +4,15 @@ import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/share_uid_message_widget.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
+import 'circleAvatar.dart';
 import 'constants.dart';
 
 bool isOnline(int time) {
@@ -42,12 +43,40 @@ String dateTimeFormat(DateTime time) {
     return DateTimeFormat.format(time, format: 'M j');
 }
 
+/// Darken a color by [percent] amount (100 = black)
+// ........................................................
+Color darken(Color c, [int percent = 10]) {
+  assert(1 <= percent && percent <= 100);
+  var f = 1 - percent / 100;
+  return Color.fromARGB(c.alpha, (c.red * f).round(), (c.green * f).round(),
+      (c.blue * f).round());
+}
+
+/// Lighten a color by [percent] amount (100 = white)
+// ........................................................
+Color lighten(Color c, [int percent = 10]) {
+  assert(1 <= percent && percent <= 100);
+  var p = percent / 100;
+  return Color.fromARGB(
+      c.alpha,
+      c.red + ((255 - c.red) * p).round(),
+      c.green + ((255 - c.green) * p).round(),
+      c.blue + ((255 - c.blue) * p).round());
+}
+
 String buildName(String firstName, String lastName) {
   var res = "";
   if (firstName != null && firstName.isNotEmpty) res += firstName;
   if (lastName != null && lastName.isNotEmpty) res += lastName;
   return res.trim();
 }
+
+String buildPhoneNumber(String countryCode, String nationalNumber) =>
+    "+$countryCode-$nationalNumber";
+
+String buildShareUserUrl(String countryCode, String nationalNumber,
+        String firstName, String lastName) =>
+    "$APPLICATION_DOMAIN/ac?cc=$countryCode&nn=$nationalNumber&fn=$firstName&ln=$lastName";
 
 Future<void> handleUri(String initialLink, BuildContext context) async {
   var _mucDao = GetIt.I.get<MucDao>();
@@ -78,27 +107,30 @@ Future<void> handleUri(String initialLink, BuildContext context) async {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
+              CircleAvatarWidget(mucUid, 40, forceText: "un"),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  ElevatedButton(
+                  MaterialButton(
+                      color: Colors.blueAccent,
                       onPressed: () => Navigator.of(context).pop(),
                       child: Text(AppLocalization.of(context)
                           .getTraslateValue("skip"))),
-                  ElevatedButton(
+                  MaterialButton(
+                    color: Colors.blueAccent,
                     onPressed: () async {
                       if (mucUid.category == Categories.GROUP) {
-                        Muc  muc =
+                        Muc muc =
                             await _mucRepo.joinGroup(mucUid, m[6].toString());
                         if (muc != null) {
-                          _messageRepo.updateNewMuc(mucUid,muc.lastMessageId);
+                          _messageRepo.updateNewMuc(mucUid, muc.lastMessageId);
                           _routingService.openRoom(mucUid.asString());
                           Navigator.of(context).pop();
                         }
                       } else {
                         Muc muc = await _mucRepo.joinChannel(mucUid, m[6]);
                         if (muc != null) {
-                          _messageRepo.updateNewMuc(mucUid,muc.lastMessageId);
+                          _messageRepo.updateNewMuc(mucUid, muc.lastMessageId);
                           _routingService.openRoom(mucUid.asString());
                           Navigator.of(context).pop();
                         }

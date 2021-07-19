@@ -1,5 +1,5 @@
 import 'package:deliver_flutter/box/last_activity.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/lastActivityRepo.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/functions.dart';
@@ -11,12 +11,11 @@ import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class ContactPic extends StatelessWidget {
+  final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final Uid userUid;
 
   ContactPic(this.userUid);
-
-  final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +24,7 @@ class ContactPic extends StatelessWidget {
         CircleAvatarWidget(this.userUid, 24,
             showSavedMessageLogoIfNeeded: true),
         if (userUid.category == Categories.USER &&
-            !_accountRepo.isCurrentUser(userUid.asString()))
+            !_authRepo.isCurrentUser(userUid.asString()))
           StreamBuilder<LastActivity>(
               stream: _lastActivityRepo.watch(userUid.asString()),
               builder: (c, la) {

@@ -1,6 +1,6 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/contact.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 
 import 'package:deliver_flutter/repository/mucRepo.dart';
@@ -45,7 +45,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   var _createMucService = GetIt.I.get<CreateMucService>();
 
-  var _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   List<Contact> contacts = [];
 
@@ -124,7 +124,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                           snapshot.data != null &&
                           snapshot.data.length > 0) {
                         snapshot.data.removeWhere((element) => element.uid
-                            .contains(_accountRepo.currentUserUid.asString()));
+                            .contains(_authRepo.currentUserUid.asString()));
                         contacts = snapshot.data;
                         if (items == null) {
                           items = contacts;
@@ -177,7 +177,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                             onPressed: () async {
                               List<Uid> users = [];
                               for (Contact contact
-                                  in _createMucService.members) {
+                                  in _createMucService.contacts) {
                                 users.add(contact.uid.asUid());
                               }
                               bool usersAdd = await _mucRepo.sendMembers(
@@ -221,10 +221,10 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
         onTap: () {
           if (!members.contains(items[index].uid)) {
             if (!_createMucService.isSelected(items[index])) {
-              _createMucService.addMember(items[index]);
+              _createMucService.addContact(items[index]);
               editingController.clear();
             } else {
-              _createMucService.deleteMember(items[index]);
+              _createMucService.deleteContact(items[index]);
               editingController.clear();
             }
           }

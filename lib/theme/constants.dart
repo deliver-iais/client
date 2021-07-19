@@ -4,9 +4,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 // Constraints
-const double BREAKDOWN_SIZE = 600;
-
-const double MAIN_PADDING = 16;
+const double BREAKDOWN_SIZE = 768;
+const double FLUID_CONTAINER_MAX_WIDTH = 768;
 
 const double FLUID_MAX_WIDTH = 400;
 const double FLUID_MAX_HEIGHT = 540;
@@ -44,4 +43,4 @@ double ANIMATION_SQUARE_SIZE(BuildContext context) => isLarge(context)
 // ignore: non_constant_identifier_names
 double ANIMATION_TOP_PADDING(BuildContext context) => 40;
 
-double navigationPanelSize() => BREAKDOWN_SIZE / 2 + 84;
+double navigationPanelSize() => 384;

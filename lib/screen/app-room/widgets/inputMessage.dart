@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
-import 'package:deliver_flutter/shared/constants.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 
@@ -71,7 +70,7 @@ class _InputMessageWidget extends State<InputMessage> {
   BehaviorSubject<DateTime> recordSubject =
       BehaviorSubject.seeded(DateTime.now());
 
-  double DX = 150.0;
+  double dx = 150.0;
   bool recordAudioPermission = false;
   FlutterSoundRecorder _soundRecorder = FlutterSoundRecorder();
   BehaviorSubject<bool> _showBotCommands = BehaviorSubject.seeded(false);
@@ -88,7 +87,7 @@ class _InputMessageWidget extends State<InputMessage> {
   FocusNode keyboardRawFocusNode;
 
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
-  Subject<ActivityType> NoActivitySubject = BehaviorSubject();
+  Subject<ActivityType> noActivitySubject = BehaviorSubject();
 
   void showButtonSheet() {
     if (isDesktop()) {
@@ -119,14 +118,13 @@ class _InputMessageWidget extends State<InputMessage> {
         .listen((activityType) {
       messageRepo.sendActivity(widget.currentRoom.uid.asUid(), activityType);
     });
-    NoActivitySubject.listen((event) {
+    noActivitySubject.listen((event) {
       messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
     controller = TextEditingController();
     currentRoom = widget.currentRoom;
     controller.addListener(() {
-      if (controller.text.isNotEmpty &&
-          controller.text.length > 0)
+      if (controller.text.isNotEmpty && controller.text.length > 0)
         _showSendIcon.add(true);
       else
         _showSendIcon.add(false);
@@ -143,7 +141,7 @@ class _InputMessageWidget extends State<InputMessage> {
   @override
   Widget build(BuildContext context) {
     AppLocalization appLocalization = AppLocalization.of(context);
-    DX = min(MediaQuery.of(context).size.width / 2, 150.0);
+    dx = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
       children: <Widget>[
         StreamBuilder(
@@ -153,7 +151,7 @@ class _InputMessageWidget extends State<InputMessage> {
                 return ShowMentionList(
                   query: query,
                   onSelected: (s) {
-                    controller.text = "${controller.text}${s} ";
+                    controller.text = "${controller.text}$s ";
                     controller.selection = TextSelection.fromPosition(
                         TextPosition(offset: controller.text.length));
                     _showMentionList.add(false);
@@ -193,7 +191,7 @@ class _InputMessageWidget extends State<InputMessage> {
                         !widget.waitingForForward &&
                         !isDesktop()) {
                       return RecordAudioAnimation(
-                        righPadding: x,
+                        rightPadding: x,
                         size: size,
                       );
                     } else {
@@ -255,8 +253,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                         isTypingActivitySubject
                                             .add(ActivityType.TYPING);
                                       else
-                                        NoActivitySubject.add(
-                                            ActivityType.NO_ACTIVITY);
+                                        noActivitySubject
+                                            .add(ActivityType.NO_ACTIVITY);
                                       onChange(str);
                                     },
                                     decoration: InputDecoration(
@@ -337,7 +335,7 @@ class _InputMessageWidget extends State<InputMessage> {
                       : RecordAudioSlideWidget(
                           opacity: opacity(),
                           time: time,
-                          rinning: startAudioRecorder,
+                          running: startAudioRecorder,
                           streamTime: recordSubject,
                         ),
                   StreamBuilder(
@@ -353,7 +351,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     .checkAudioRecorderPermission();
                               },
                               onLongPressMoveUpdate: (tg) {
-                                if (tg.offsetFromOrigin.dx > -DX && started) {
+                                if (tg.offsetFromOrigin.dx > -dx && started) {
                                   setState(() {
                                     x = -tg.offsetFromOrigin.dx;
                                     startAudioRecorder = true;
@@ -407,7 +405,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 await _soundRecorder.stopRecorder();
                                 _soundRecorder.closeAudioSession();
                                 recordAudioTimer.cancel();
-                                NoActivitySubject.add(ActivityType.NO_ACTIVITY);
+                                noActivitySubject.add(ActivityType.NO_ACTIVITY);
                                 setState(() {
                                   startAudioRecorder = false;
                                   x = 0;
@@ -447,7 +445,7 @@ class _InputMessageWidget extends State<InputMessage> {
               if (back.hasData && back.data) {
                 return Container(
                     height: 270.0,
-                    child: EmojiKeybord(
+                    child: EmojiKeyboard(
                       onTap: (emoji) {
                         controller.text = controller.text + emoji.toString();
                       },
@@ -467,15 +465,13 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   handleKeyPress(event) async {
-    bool sendByEnter = _uxService.sendByEnter == SEND_BY_ENTER;
-
     if (event is RawKeyUpEvent) {
-      if (!sendByEnter &&
+      if (!_uxService.sendByEnter &&
           event.isShiftPressed &&
           (event.logicalKey == LogicalKeyboardKey.enter ||
               event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
         sendMessage();
-      } else if (sendByEnter &&
+      } else if (_uxService.sendByEnter &&
           !event.isShiftPressed &&
           (event.logicalKey == LogicalKeyboardKey.enter ||
               event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
@@ -485,7 +481,7 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void sendMessage() {
-    NoActivitySubject.add(ActivityType.NO_ACTIVITY);
+    noActivitySubject.add(ActivityType.NO_ACTIVITY);
     if (widget.waitingForForward == true) {
       widget.sendForwardMessage();
     }
@@ -556,7 +552,7 @@ class _InputMessageWidget extends State<InputMessage> {
     }
   }
 
-  opacity() => x < 0.0 ? 1.0 : (DX - x) / DX;
+  opacity() => x < 0.0 ? 1.0 : (dx - x) / dx;
 
   _attachFileInWindowsMode() async {
     final typeGroup = XTypeGroup(label: 'images');

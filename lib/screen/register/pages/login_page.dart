@@ -1,18 +1,18 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/register/pages/testing_environment_tokens.dart';
 import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver_flutter/screen/register/widgets/phone_number.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -20,17 +20,18 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  PhoneNumber phoneNumber;
-  AccountRepo accountRepo = GetIt.I.get<AccountRepo>();
+  final _logger = GetIt.I.get<Logger>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _formKey = GlobalKey<FormState>();
+  PhoneNumber phoneNumber;
 
   checkAndGoNext() async {
     AppLocalization appLocalization = AppLocalization.of(context);
     var isValidated = _formKey?.currentState?.validate() ?? false;
     if (isValidated && phoneNumber != null) {
       try {
-        var res = await accountRepo.getVerificationCode(
-            phoneNumber.countryCode, phoneNumber.number);
+        var res = await _authRepo.getVerificationCode(
+            phoneNumber.countryCode, phoneNumber.nationalNumber);
         if (res != null)
           ExtendedNavigator.of(context).push(Routes.verificationPage);
         else
@@ -42,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
               textColor: Colors.white,
               fontSize: 16.0);
       } catch (e) {
-        debug(e);
+        _logger.e(e);
         Fluttertoast.showToast(
 //          TODO more detailed error message needed here.
             msg: appLocalization.getTraslateValue("occurred_Error"),
@@ -55,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _navigateToApplicationInDevelopment() {
-    accountRepo.saveTokens(AccessTokenRes()
+    _authRepo.saveTokens(AccessTokenRes()
       ..accessToken = TESTING_ENVIRONMENT_ACCESS_TOKEN
       ..refreshToken = TESTING_ENVIRONMENT_REFRESH_TOKEN);
     ExtendedNavigator.of(context)
@@ -90,9 +91,13 @@ class _LoginPageState extends State<LoginPage> {
                 Expanded(
                   child: Column(
                     children: <Widget>[
-                      SizedBox(height: 5,),
+                      SizedBox(
+                        height: 5,
+                      ),
                       IntlPhoneField(
-                        initialValue: phoneNumber!= null? phoneNumber.number:"",
+                        initialValue: phoneNumber != null
+                            ? phoneNumber.nationalNumber
+                            : "",
                         validator: (value) => value.length != 10 ||
                                 (value.length > 0 && value[0] == '0')
                             ? appLocalization

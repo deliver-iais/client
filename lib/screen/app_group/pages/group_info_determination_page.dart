@@ -216,7 +216,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                             itemCount: snapshot.data,
                             itemBuilder: (BuildContext context, int index) =>
                                 ContactWidget(
-                                  contact: _createMucService.members[index],
+                                  contact: _createMucService.contacts[index],
                                 ));
                       }),
                 )
@@ -247,10 +247,10 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                             List<Uid> memberUidList = [];
                             Uid micUid;
                             for (var i = 0;
-                                i < _createMucService.members.length;
+                                i < _createMucService.contacts.length;
                                 i++) {
                               memberUidList
-                                  .add(_createMucService.members[i].uid.asUid());
+                                  .add(_createMucService.contacts[i].uid.asUid());
                             }
                             if (widget.isChannel) {
                               bool result =

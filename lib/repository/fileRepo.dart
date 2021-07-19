@@ -1,23 +1,20 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:isolate';
 import 'package:deliver_flutter/box/dao/file_dao.dart';
 import 'package:deliver_flutter/box/file_info.dart';
-import 'package:deliver_flutter/utils/log.dart';
-import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as FileProto;
 
 import 'package:fixnum/fixnum.dart';
-import 'package:image/image.dart';
 import 'package:get_it/get_it.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:logger/logger.dart';
 
 class FileRepo {
-  var _fileDao = GetIt.I.get<FileDao>();
+  final _logger = GetIt.I.get<Logger>();
+  final _fileDao = GetIt.I.get<FileDao>();
   final _fileService = GetIt.I.get<FileService>();
 
   Future<void> cloneFileInLocalDirectory(
@@ -42,7 +39,7 @@ class FileRepo {
       ..height = json["height"] ?? 0
       ..duration = json["duration"] ?? 0;
 
-    debug("^^^^^^^^^^^^^^^^${uploadedFile.toString()}");
+    _logger.v(uploadedFile);
 
     await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
     return uploadedFile;
@@ -161,50 +158,50 @@ class FileRepo {
   }
 }
 
-void decodeIsolate(Map<dynamic, dynamic> param) async {
-  Image largeThumbnail;
-  Image mediumThumbnail;
-  Image smallThumbnail;
-  Directory directory;
-  Map fileMap = Map<dynamic, dynamic>();
-
-  directory = await getApplicationDocumentsDirectory();
-  if (!await Directory('${directory.path}/Deliver').exists())
-    await Directory('${directory.path}//Deliver').create(recursive: true);
-
-  final realLocalFile = File(
-      '${directory.path + "/Deliver"}/${param['uploadKey']}.${param['name']}');
-
-  final largeLocalFile = File(
-      '${directory.path + "/Deliver"}/${param['uploadKey'] + "-large"}.${param['name']}');
-
-
-  final mediumLocalFile = File(
-      '${directory.path + "/Deliver"}/${param['uploadKey'] + "-medium"}.${param['name']}');
-
-  final smallLocalFile = File(
-      '${directory.path + "/Deliver"}/${param['uploadKey'] + "-small"}.${param['name']}');
-  Image image = decodeImage(File(param['file']).readAsBytesSync());
-  if (image.width > image.height) {
-    largeThumbnail = copyResize(image, width: 500);
-    mediumThumbnail = copyResize(image, width: 300);
-    smallThumbnail = copyResize(image, width: 64);
-  } else {
-    largeThumbnail = copyResize(image, height: 500);
-    mediumThumbnail = copyResize(image, height: 300);
-    smallThumbnail = copyResize(image, height: 64);
-  }
-
-  realLocalFile.writeAsBytesSync(File(param['file']).readAsBytesSync());
-  largeLocalFile.writeAsBytesSync(encodeJpg(largeThumbnail));
-  mediumLocalFile.writeAsBytesSync(encodeJpg(mediumThumbnail));
-  smallLocalFile.writeAsBytesSync(encodeJpg(smallThumbnail));
-  fileMap['real'] = realLocalFile.path;
-  fileMap['large'] = largeLocalFile.path;
-  fileMap['medium'] = mediumLocalFile.path;
-  fileMap['small'] = smallLocalFile.path;
-
-  SendPort sendport = param['sendPort'];
-
-  sendport.send(fileMap);
-}
+// void decodeIsolate(Map<dynamic, dynamic> param) async {
+//   Image largeThumbnail;
+//   Image mediumThumbnail;
+//   Image smallThumbnail;
+//   Directory directory;
+//   Map fileMap = Map<dynamic, dynamic>();
+//
+//   directory = await getApplicationDocumentsDirectory();
+//   if (!await Directory('${directory.path}/Deliver').exists())
+//     await Directory('${directory.path}//Deliver').create(recursive: true);
+//
+//   final realLocalFile = File(
+//       '${directory.path + "/Deliver"}/${param['uploadKey']}.${param['name']}');
+//
+//   final largeLocalFile = File(
+//       '${directory.path + "/Deliver"}/${param['uploadKey'] + "-large"}.${param['name']}');
+//
+//
+//   final mediumLocalFile = File(
+//       '${directory.path + "/Deliver"}/${param['uploadKey'] + "-medium"}.${param['name']}');
+//
+//   final smallLocalFile = File(
+//       '${directory.path + "/Deliver"}/${param['uploadKey'] + "-small"}.${param['name']}');
+//   Image image = decodeImage(File(param['file']).readAsBytesSync());
+//   if (image.width > image.height) {
+//     largeThumbnail = copyResize(image, width: 500);
+//     mediumThumbnail = copyResize(image, width: 300);
+//     smallThumbnail = copyResize(image, width: 64);
+//   } else {
+//     largeThumbnail = copyResize(image, height: 500);
+//     mediumThumbnail = copyResize(image, height: 300);
+//     smallThumbnail = copyResize(image, height: 64);
+//   }
+//
+//   realLocalFile.writeAsBytesSync(File(param['file']).readAsBytesSync());
+//   largeLocalFile.writeAsBytesSync(encodeJpg(largeThumbnail));
+//   mediumLocalFile.writeAsBytesSync(encodeJpg(mediumThumbnail));
+//   smallLocalFile.writeAsBytesSync(encodeJpg(smallThumbnail));
+//   fileMap['real'] = realLocalFile.path;
+//   fileMap['large'] = largeLocalFile.path;
+//   fileMap['medium'] = mediumLocalFile.path;
+//   fileMap['small'] = smallLocalFile.path;
+//
+//   SendPort sendport = param['sendPort'];
+//
+//   sendport.send(fileMap);
+// }

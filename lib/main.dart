@@ -29,6 +29,7 @@ import 'package:deliver_flutter/box/sending_status.dart';
 import 'package:deliver_flutter/box/uid_id_name.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -54,16 +55,23 @@ import 'package:deliver_flutter/services/video_player_service.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/utils/log.dart';
+import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
 import 'box/dao/contact_dao.dart';
@@ -75,6 +83,11 @@ import 'box/media.dart';
 import 'repository/mucRepo.dart';
 
 Future<void> setupDI() async {
+  GetIt.I.registerSingleton<DeliverLogFilter>(DeliverLogFilter());
+  GetIt.I.registerSingleton<Logger>(Logger(
+      filter: GetIt.I.get<DeliverLogFilter>(),
+      level: kDebugMode ? Level.info : Level.nothing));
+
   await Hive.initFlutter("db");
 
   Hive.registerAdapter(AvatarAdapter());
@@ -96,63 +109,86 @@ Future<void> setupDI() async {
   Hive.registerAdapter(MediaMetaDataAdapter());
   Hive.registerAdapter(MediaTypeAdapter());
 
-
-  GetIt getIt = GetIt.instance;
-  getIt.registerSingleton<AvatarDao>(AvatarDaoImpl());
-  getIt.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
-  getIt.registerSingleton<SharedDao>(SharedDaoImpl());
-  getIt.registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
-  getIt.registerSingleton<SeenDao>(SeenDaoImpl());
-  getIt.registerSingleton<FileDao>(FileDaoImpl());
-  getIt.registerSingleton<BlockDao>(BlockDaoImpl());
-  getIt.registerSingleton<MuteDao>(MuteDaoImpl());
-  getIt.registerSingleton<MucDao>(MucDaoImpl());
-  getIt.registerSingleton<BotDao>(BotDaoImpl());
-  getIt.registerSingleton<ContactDao>(ContactDaoImpl());
-  getIt.registerSingleton<MessageDao>(MessageDaoImpl());
-  getIt.registerSingleton<RoomDao>(RoomDaoImpl());
-  getIt.registerSingleton<MediaDao>(MediaDaoImpl());
-  getIt.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
-
-
-
+  GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
+  GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
+  GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
+  GetIt.I.registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
+  GetIt.I.registerSingleton<SeenDao>(SeenDaoImpl());
+  GetIt.I.registerSingleton<FileDao>(FileDaoImpl());
+  GetIt.I.registerSingleton<BlockDao>(BlockDaoImpl());
+  GetIt.I.registerSingleton<MuteDao>(MuteDaoImpl());
+  GetIt.I.registerSingleton<MucDao>(MucDaoImpl());
+  GetIt.I.registerSingleton<BotDao>(BotDaoImpl());
+  GetIt.I.registerSingleton<ContactDao>(ContactDaoImpl());
+  GetIt.I.registerSingleton<MessageDao>(MessageDaoImpl());
+  GetIt.I.registerSingleton<RoomDao>(RoomDaoImpl());
+  GetIt.I.registerSingleton<MediaDao>(MediaDaoImpl());
+  GetIt.I.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
 
   // Order is important, don't change it!
-  getIt.registerSingleton<UxService>(UxService());
-  getIt.registerSingleton<QueryServiceClient>(
-      QueryServiceClient(QueryClientChannel));
-  getIt.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel));
-  getIt.registerSingleton<StickerServiceClient>(
-      StickerServiceClient(StickerClientChannel));
+  GetIt.I.registerSingleton<AuthServiceClient>(
+      AuthServiceClient(ProfileServicesClientChannel));
+  GetIt.I.registerSingleton<AuthRepo>(AuthRepo());
+  GetIt.I
+      .registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
 
-  getIt.registerSingleton<AccountRepo>(AccountRepo());
-  getIt.registerSingleton<BotRepo>(BotRepo());
+  GetIt.I.registerSingleton<UserServiceClient>(UserServiceClient(
+      ProfileServicesClientChannel,
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<ContactServiceClient>(ContactServiceClient(
+      ProfileServicesClientChannel,
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<QueryServiceClient>(QueryServiceClient(
+      QueryClientChannel,
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<CoreServiceClient>(CoreServiceClient(
+      CoreServicesClientChannel,
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<BotServiceClient>(BotServiceClient(BotClientChannel,
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<StickerServiceClient>(StickerServiceClient(
+      StickerClientChannel,
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<GroupServiceClient>(GroupServiceClient(
+      MucServicesClientChannel,
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<ChannelServiceClient>(ChannelServiceClient(
+      MucServicesClientChannel,
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<AvatarServiceClient>(AvatarServiceClient(
+      AvatarServicesClientChannel,
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<FirebaseServiceClient>(FirebaseServiceClient(
+      FirebaseServicesClientChannel,
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
 
-  getIt.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
-  getIt.registerSingleton<FileService>(FileService());
-  getIt.registerSingleton<StickerRepo>(StickerRepo());
-  getIt.registerSingleton<FileRepo>(FileRepo());
-  getIt.registerSingleton<ContactRepo>(ContactRepo());
-  getIt.registerSingleton<MucServices>(MucServices());
-  getIt.registerSingleton<AvatarRepo>(AvatarRepo());
-  getIt.registerSingleton<CreateMucService>(CreateMucService());
-  getIt.registerSingleton<RoutingService>(RoutingService());
-  getIt.registerSingleton<NotificationServices>(NotificationServices());
-  getIt.registerSingleton<MucRepo>(MucRepo());
-  getIt.registerSingleton<RoomRepo>(RoomRepo());
-  getIt.registerSingleton<CoreServiceClient>(
-      CoreServiceClient(CoreServicesClientChannel));
-  getIt.registerSingleton<CoreServices>(CoreServices());
+  GetIt.I.registerSingleton<SessionServiceClient>(SessionServiceClient(
+      ProfileServicesClientChannel,
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
 
-  getIt.registerSingleton<MessageRepo>(MessageRepo());
+  GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
+  GetIt.I.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
+  GetIt.I.registerSingleton<UxService>(UxService());
+  GetIt.I.registerSingleton<FileService>(FileService());
+  GetIt.I.registerSingleton<MucServices>(MucServices());
+  GetIt.I.registerSingleton<CreateMucService>(CreateMucService());
 
-  getIt.registerSingleton<AudioPlayerService>(AudioPlayerService());
-  getIt.registerSingleton<VideoPlayerService>(VideoPlayerService());
-
-  getIt.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
-
-  getIt.registerSingleton<FireBaseServices>(FireBaseServices());
-  getIt.registerSingleton<LastActivityRepo>(LastActivityRepo());
+  GetIt.I.registerSingleton<BotRepo>(BotRepo());
+  GetIt.I.registerSingleton<StickerRepo>(StickerRepo());
+  GetIt.I.registerSingleton<FileRepo>(FileRepo());
+  GetIt.I.registerSingleton<ContactRepo>(ContactRepo());
+  GetIt.I.registerSingleton<AvatarRepo>(AvatarRepo());
+  GetIt.I.registerSingleton<RoutingService>(RoutingService());
+  GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
+  GetIt.I.registerSingleton<MucRepo>(MucRepo());
+  GetIt.I.registerSingleton<RoomRepo>(RoomRepo());
+  GetIt.I.registerSingleton<CoreServices>(CoreServices());
+  GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
+  GetIt.I.registerSingleton<AudioPlayerService>(AudioPlayerService());
+  GetIt.I.registerSingleton<VideoPlayerService>(VideoPlayerService());
+  GetIt.I.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
+  GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
+  GetIt.I.registerSingleton<LastActivityRepo>(LastActivityRepo());
 }
 
 Future setupFlutterNotification() async {
@@ -163,21 +199,19 @@ void setupDIAndRunApp() async {
   if (isAndroid()) {
     await setupFlutterNotification();
   }
-  try{
+
+  try {
     await setupDI();
-  } catch(e){
-    debug(e);
+  } catch (e) {
+    Logger().e(e);
   }
-
-
-  // TODO: Android just now is available
 
   runApp(MyApp());
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  debug("Application has been started");
+  Logger().i("Application has been started");
 
   if (isDesktop()) {
     _setWindowSize();
@@ -207,35 +241,42 @@ class MyApp extends StatelessWidget {
       builder: (context, snapshot) {
         return ExtraTheme(
           extraThemeData: uxService.extraTheme,
-          child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'Deliver',
-            locale: uxService.locale,
-            theme: uxService.theme,
-            supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],
-            localizationsDelegates: [
-              AppLocalization.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate
-            ],
-            localeResolutionCallback: (deviceLocale, supportedLocale) {
-              for (var locale in supportedLocale) {
-                if (locale.languageCode == deviceLocale.languageCode &&
-                    locale.countryCode == deviceLocale.countryCode) {
-                  return deviceLocale;
-                }
-              }
-              return supportedLocale.first;
-            },
-            onGenerateRoute: R.Router(),
-            builder: (x, c) => Directionality(
-              textDirection: TextDirection.ltr,
-              child: ExtendedNavigator<R.Router>(
-                router: R.Router(),
-              ),
-            ),
-          ),
+          child: Focus(
+              focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
+              onKey: (_, RawKeyEvent event) {
+                return event.physicalKey == PhysicalKeyboardKey.shiftRight
+                    ? KeyEventResult.handled
+                    : KeyEventResult.ignored;
+              },
+              child: MaterialApp(
+                debugShowCheckedModeBanner: false,
+                title: 'Deliver',
+                locale: uxService.locale,
+                theme: uxService.theme,
+                supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],
+                localizationsDelegates: [
+                  AppLocalization.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate
+                ],
+                localeResolutionCallback: (deviceLocale, supportedLocale) {
+                  for (var locale in supportedLocale) {
+                    if (locale.languageCode == deviceLocale.languageCode &&
+                        locale.countryCode == deviceLocale.countryCode) {
+                      return deviceLocale;
+                    }
+                  }
+                  return supportedLocale.first;
+                },
+                onGenerateRoute: R.Router(),
+                builder: (x, c) => Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: ExtendedNavigator<R.Router>(
+                    router: R.Router(),
+                  ),
+                ),
+              )),
         );
       },
     );

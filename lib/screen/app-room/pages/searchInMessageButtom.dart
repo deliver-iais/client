@@ -1,13 +1,11 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
 
-class searchInMessageButtom extends StatefulWidget {
+class SearchInMessageButton extends StatefulWidget {
   @override
-  _searchInMessageButtomState createState() => _searchInMessageButtomState();
+  _SearchInMessageButtonState createState() => _SearchInMessageButtonState();
 
   final String roomId;
   final Function scrollDown;
@@ -18,7 +16,7 @@ class searchInMessageButtom extends StatefulWidget {
   final List<Message> searchResult;
   final Message currentSearchResultMessage;
 
-  searchInMessageButtom(
+  SearchInMessageButton(
       {this.roomId,
       this.scrollDown,
       this.scrollUp,
@@ -28,7 +26,7 @@ class searchInMessageButtom extends StatefulWidget {
       this.keyboardWidget});
 }
 
-class _searchInMessageButtomState extends State<searchInMessageButtom> {
+class _SearchInMessageButtonState extends State<SearchInMessageButton> {
   @override
   Widget build(BuildContext context) {
     var _appLocalization = AppLocalization.of(context);

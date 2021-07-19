@@ -40,7 +40,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
                   builder: (context, snapshot) {
                     if (snapshot.data == AudioPlayerState.PLAYING) {
                    return StreamBuilder(
-                          stream: audioPlayerService.CURRENT_AUDIO_ID.stream,
+                          stream: audioPlayerService.currentAudioId.stream,
                           builder: (context, uuid) {
                             if (uuid.hasData && uuid.data.toString().isNotEmpty && uuid.data.toString().contains(widget.fileId))
                               return IconButton(

@@ -9,18 +9,18 @@ import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/dao/seen_dao.dart';
 import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/box/member.dart';
-import 'package:deliver_flutter/box/pending_message.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -34,17 +34,38 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
+import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:fixnum/fixnum.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
-const MIN_BACKOFF_TIME = 2;
+const MIN_BACKOFF_TIME = 4;
 const MAX_BACKOFF_TIME = 8;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 // TODO Change to StreamRepo, it is not a service, it is repo now!!!
 class CoreServices {
+  final _logger = GetIt.I.get<Logger>();
+  final _grpcCoreService = GetIt.I.get<CoreServiceClient>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _uxService = GetIt.I.get<UxService>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
+  final _messageDao = GetIt.I.get<MessageDao>();
+  final _roomDao = GetIt.I.get<RoomDao>();
+  final _seenDao = GetIt.I.get<SeenDao>();
+  final _routingServices = GetIt.I.get<RoutingService>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _notificationServices = GetIt.I.get<NotificationServices>();
+  final _lastActivityDao = GetIt.I.get<LastActivityDao>();
+  final _mucDao = GetIt.I.get<MucDao>();
+
+  Timer _connectionTimer;
+  var _lastPongTime = 0;
+
+  @visibleForTesting
+  bool responseChecked = false;
+
   StreamController<ClientPacket> _clientPacketStream;
 
   ResponseStream<ServerPacket> _responseStream;
@@ -56,23 +77,6 @@ class CoreServices {
 
   BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
-
-  @visibleForTesting
-  bool responseChecked = false;
-
-  var _grpcCoreService = GetIt.I.get<CoreServiceClient>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
-  var _messageDao = GetIt.I.get<MessageDao>();
-  var _roomDao = GetIt.I.get<RoomDao>();
-  var _seenDao = GetIt.I.get<SeenDao>();
-  var _routingServices = GetIt.I.get<RoutingService>();
-  var _roomRepo = GetIt.I.get<RoomRepo>();
-  var _notificationServices = GetIt.I.get<NotificationServices>();
-  var _lastActivityDao = GetIt.I.get<LastActivityDao>();
-
-  Timer _connectionTimer;
-  var _lastPongTime = 0;
-  var _mucDao = GetIt.I.get<MucDao>();
 
   //TODO test
   initStreamConnection() async {
@@ -127,12 +131,9 @@ class CoreServices {
     try {
       _clientPacketStream = StreamController<ClientPacket>();
       _responseStream =
-          _grpcCoreService.establishStream(_clientPacketStream.stream,
-              options: CallOptions(
-                metadata: {'access_token': await _accountRepo.getAccessToken()},
-              ));
+          _grpcCoreService.establishStream(_clientPacketStream.stream);
       _responseStream.listen((serverPacket) async {
-        debug(serverPacket.toString());
+        _logger.d(serverPacket);
         gotResponse();
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:
@@ -161,8 +162,7 @@ class CoreServices {
       });
     } catch (e) {
       startStream();
-      debug(e.toString());
-      debug("core service error");
+      _logger.e(e);
     }
   }
 
@@ -212,7 +212,7 @@ class CoreServices {
 
   sendActivity(ActivityByClient activity, String id) {
     if (!_clientPacketStream.isClosed &&
-        !_accountRepo.isCurrentUser(activity.to.asString()))
+        !_authRepo.isCurrentUser(activity.to.asString()))
       _clientPacketStream.add(ClientPacket()
         ..activity = activity
         ..id = id);
@@ -225,7 +225,7 @@ class CoreServices {
     Uid roomId;
     switch (seen.to.category) {
       case Categories.USER:
-        seen.to.asString() == _accountRepo.currentUserUid.asString()
+        seen.to.asString() == _authRepo.currentUserUid.asString()
             ? roomId = seen.from
             : roomId = seen.to;
         break;
@@ -237,7 +237,7 @@ class CoreServices {
         roomId = seen.to;
         break;
     }
-    if (_accountRepo.isCurrentUser(seen.from.asString())) {
+    if (_authRepo.isCurrentUser(seen.from.asString())) {
       _seenDao.saveMySeen(
         Seen(uid: roomId.asString(), messageId: seen.id.toInt()),
       );
@@ -279,18 +279,16 @@ class CoreServices {
   }
 
   _saveIncomingMessage(Message message) async {
-    Uid roomUid = getRoomId(_accountRepo, message);
+    Uid roomUid = getRoomId(_authRepo, message);
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
       return;
     }
-    saveMessage(_accountRepo, _messageDao, _roomDao, message, roomUid);
     if (message.whichType() == Message_Type.persistEvent) {
       switch (message.persistEvent.whichType()) {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
           switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
             case MucSpecificPersistentEvent_Issue.DELETED:
-              _roomDao.updateRoom(
-                  Room(uid: message.from.asString(), deleted: true));
+              _roomDao.deleteRoom(Room(uid: roomUid.asString()));
               return;
               break;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
@@ -306,48 +304,53 @@ class CoreServices {
 
             case MucSpecificPersistentEvent_Issue.KICK_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                  .isSameEntity(_accountRepo.currentUserUid.asString())) {
-                _roomDao.updateRoom(
-                    Room(uid: message.from.asString(), deleted: true));
+                  .isSameEntity(_authRepo.currentUserUid.asString())) {
+                _roomDao.deleteRoom(Room(uid: roomUid.asString()));
                 return;
               }
               break;
             case MucSpecificPersistentEvent_Issue.JOINED_USER:
             case MucSpecificPersistentEvent_Issue.ADD_USER:
               if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                  .isSameEntity(_accountRepo.currentUserUid.asString())) {
+                  .isSameEntity(_authRepo.currentUserUid.asString())) {
                 _roomDao.updateRoom(
                     Room(uid: message.from.asString(), deleted: false));
               }
               break;
 
             case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-              {
-                _mucDao.deleteMember(Member(
-                  memberUid: message
-                      .persistEvent.mucSpecificPersistentEvent.issuer
-                      .asString(),
-                  mucUid: roomUid.asString(),
-                ));
+              if (message.persistEvent.mucSpecificPersistentEvent.assignee
+                  .isSameEntity(_authRepo.currentUserUid.asString())) {
+                _roomDao.deleteRoom(Room(uid: roomUid.asString()));
+                return;
               }
+
+              _mucDao.deleteMember(Member(
+                memberUid: message
+                    .persistEvent.mucSpecificPersistentEvent.issuer
+                    .asString(),
+                mucUid: roomUid.asString(),
+              ));
           }
           break;
         case PersistentEvent_Type.messageManipulationPersistentEvent:
-          // TODO: Handle this case.
+        // TODO: Handle this case.
           break;
         case PersistentEvent_Type.adminSpecificPersistentEvent:
-          // TODO: Handle this case.
+        // TODO: Handle this case.
           break;
         case PersistentEvent_Type.notSet:
-          // TODO: Handle this case.
+        // TODO: Handle this case.
           break;
       }
     }
+    saveMessage(
+        _authRepo, _accountRepo, _messageDao, _roomDao, message, roomUid);
 
-    if (!_accountRepo.isCurrentUser(message.from.asString()) &&
-        ((await _accountRepo.notification) == null ||
-            (await _accountRepo.notification).contains("true") &&
-                ( ! await _roomRepo.isRoomMuted(roomUid.asString())))) {
+
+    if (!_authRepo.isCurrentUser(message.from.asString()) &&
+        !_uxService.isAllNotificationDisabled &&
+        (!await _roomRepo.isRoomMuted(roomUid.asString()))) {
       showNotification(roomUid, message);
     }
     if (message.from.category == Categories.USER)
@@ -365,9 +368,14 @@ class CoreServices {
     }
   }
 
-  static Future<Uid> saveMessage(AccountRepo accountRepo, MessageDao messageDao,
-      RoomDao roomDao, Message message, Uid roomUid) async {
-    var msg = await saveMessageInMessagesDB(accountRepo, messageDao, message);
+  static Future<Uid> saveMessage(
+      AuthRepo authRepo,
+      AccountRepo accountRepo,
+      MessageDao messageDao,
+      RoomDao roomDao,
+      Message message,
+      Uid roomUid) async {
+    var msg = await saveMessageInMessagesDB(authRepo, messageDao, message);
 
     bool isMention = false;
     if (roomUid.category == Categories.GROUP) {
@@ -397,13 +405,13 @@ Future<bool> checkMention(String text, AccountRepo accountRepo) async {
 }
 
 Future<DB.Message> saveMessageInMessagesDB(
-    AccountRepo accountRepo, MessageDao messageDao, Message message) async {
-  var msg = extractMessage(accountRepo, message);
+    AuthRepo authRepo, MessageDao messageDao, Message message) async {
+  var msg = extractMessage(authRepo, message);
   await messageDao.saveMessage(msg);
   return msg;
 }
 
-DB.Message extractMessage(AccountRepo accountRepo, Message message) {
+DB.Message extractMessage(AuthRepo authRepo, Message message) {
   var json = "";
 
   try {
@@ -414,7 +422,7 @@ DB.Message extractMessage(AccountRepo accountRepo, Message message) {
       id: message.id.toInt(),
       roomUid: message.whichType() == Message_Type.persistEvent
           ? message.from.asString()
-          : message.from.node.contains(accountRepo.currentUserUid.node)
+          : message.from.node.contains(authRepo.currentUserUid.node)
               ? message.to.asString()
               : message.to.category == Categories.USER
                   ? message.from.asString()
@@ -431,9 +439,8 @@ DB.Message extractMessage(AccountRepo accountRepo, Message message) {
       type: getMessageType(message.whichType()));
 }
 
-Uid getRoomId(AccountRepo accountRepo, Message message) {
-  bool isCurrentUser =
-      message.from.node.contains(accountRepo.currentUserUid.node);
+Uid getRoomId(AuthRepo authRepo, Message message) {
+  bool isCurrentUser = message.from.node.contains(authRepo.currentUserUid.node);
   var roomUid = isCurrentUser
       ? message.to
       : (message.to.category == Categories.USER ? message.from : message.to);

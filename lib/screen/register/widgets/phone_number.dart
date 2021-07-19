@@ -3,15 +3,15 @@ import 'package:flutter/foundation.dart';
 class PhoneNumber {
   String countryISOCode;
   String countryCode;
-  String number;
+  String nationalNumber;
 
   PhoneNumber({
     @required this.countryISOCode,
     @required this.countryCode,
-    @required this.number,
+    @required this.nationalNumber,
   });
 
   String get completeNumber {
-    return countryCode + number;
+    return countryCode + nationalNumber;
   }
 }

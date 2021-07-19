@@ -5,20 +5,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/subjects.dart';
 
-
-class RecordAudioSlideWidget extends  StatelessWidget{
+class RecordAudioSlideWidget extends StatelessWidget {
   final double opacity;
   final DateTime time;
-  final bool rinning;
-  BehaviorSubject<DateTime> streamTime;
-  RecordAudioSlideWidget({this.opacity,this.time,this.rinning,this.streamTime});
-  AppLocalization _appLocalization;
+  final bool running;
+  final BehaviorSubject<DateTime> streamTime;
+  final BehaviorSubject<bool> _show = BehaviorSubject.seeded(true);
 
-  BehaviorSubject<bool> _show = BehaviorSubject.seeded(true);
+  RecordAudioSlideWidget(
+      {this.opacity, this.time, this.running, this.streamTime});
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    var _appLocalization = AppLocalization.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -35,50 +34,53 @@ class RecordAudioSlideWidget extends  StatelessWidget{
               ),
               Opacity(
                 opacity: opacity,
-                child: StreamBuilder(stream:_show.stream,builder: (c,s){
-                  if(s.hasData && s.data){
-                    return Opacity(
-                      opacity: 0,
-                      child: Icon(
-                        Icons.fiber_manual_record,
-                        color: Colors.red,
-                      ),
-                    );
-                  } else
-                    return Opacity(
-                      opacity: 1,
-                      child: Icon(
-                        Icons.fiber_manual_record,
-                        color: Colors.red,
-                      ),
-                    );
-                }),
+                child: StreamBuilder(
+                    stream: _show.stream,
+                    builder: (c, s) {
+                      if (s.hasData && s.data) {
+                        return Opacity(
+                          opacity: 0,
+                          child: Icon(
+                            Icons.fiber_manual_record,
+                            color: Colors.red,
+                          ),
+                        );
+                      } else
+                        return Opacity(
+                          opacity: 1,
+                          child: Icon(
+                            Icons.fiber_manual_record,
+                            color: Colors.red,
+                          ),
+                        );
+                    }),
               )
-
-
             ],
           ),
         ),
-        StreamBuilder<DateTime>(stream:streamTime.stream ,builder:(c,t){
-          _show.add(!_show.valueWrapper.value);
-          if(t.hasData && t.data != null && t.data.isAfter(time))
-            return Text("${durationTimeFormat(t.data.difference(time))}",style: TextStyle(color: ExtraTheme.of(context).textField),);
-          else
-            return SizedBox.shrink();
-        }),
-
+        StreamBuilder<DateTime>(
+            stream: streamTime.stream,
+            builder: (c, t) {
+              _show.add(!_show.valueWrapper.value);
+              if (t.hasData && t.data != null && t.data.isAfter(time))
+                return Text(
+                  "${durationTimeFormat(t.data.difference(time))}",
+                  style: TextStyle(color: ExtraTheme.of(context).textField),
+                );
+              else
+                return SizedBox.shrink();
+            }),
         Opacity(
           opacity: opacity,
           child: Row(
             children: <Widget>[
               Icon(Icons.chevron_left),
               Text(
-                  _appLocalization
-                      .getTraslateValue("slideToCancel"),
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: ExtraTheme.of(context).textField,
-                  ),
+                _appLocalization.getTraslateValue("slideToCancel"),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: ExtraTheme.of(context).textField,
+                ),
               ),
             ],
           ),
@@ -86,7 +88,4 @@ class RecordAudioSlideWidget extends  StatelessWidget{
       ],
     );
   }
-
-
-
 }

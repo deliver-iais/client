@@ -176,7 +176,7 @@ AppLocalization appLocalization;
                   PhoneNumber(
                     countryISOCode: _selectedCountry['code'],
                     countryCode: _selectedCountry['dial_code'],
-                    number: s,
+                    nationalNumber: s,
                   ),
                 );
             },
@@ -214,7 +214,7 @@ AppLocalization appLocalization;
                   PhoneNumber(
                     countryISOCode: _selectedCountry['code'],
                     countryCode: _selectedCountry['dial_code'],
-                    number: value,
+                    nationalNumber: value,
                   ),
                 );
             },
@@ -224,7 +224,7 @@ AppLocalization appLocalization;
                   PhoneNumber(
                     countryISOCode: _selectedCountry['code'],
                     countryCode: _selectedCountry['dial_code'],
-                    number: value,
+                    nationalNumber: value,
                   ),
                 );
             },

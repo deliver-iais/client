@@ -1,18 +1,20 @@
 import 'dart:math';
 
 import 'package:deliver_flutter/box/avatar.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/shared/methods/colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:deliver_flutter/shared/methods/isPersian.dart';
 
 class CircleAvatarWidget extends StatelessWidget {
   final Uid contactUid;
@@ -25,7 +27,7 @@ class CircleAvatarWidget extends StatelessWidget {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   CircleAvatarWidget(this.contactUid, this.radius,
       {this.forceToUpdate = false,
@@ -55,55 +57,66 @@ class CircleAvatarWidget extends StatelessWidget {
 
   bool isSavedMessage() =>
       showSavedMessageLogoIfNeeded &&
-      _accountRepo.isCurrentUser(contactUid.asString());
+      _authRepo.isCurrentUser(contactUid.asString());
 
   @override
   Widget build(BuildContext context) {
     var color = colorFor(context, contactUid.asString());
+
+    if (isSavedMessage()) color = Colors.blue;
+    if (contactUid.category == Categories.SYSTEM) color = Colors.grey[300];
+
     var textColor =
         color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
 
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor: isSavedMessage()
-          ? Colors.blue
-          : contactUid.category == Categories.SYSTEM
-              ? Colors.black12
-              : color,
-      child: contactUid.category == Categories.SYSTEM
-          ? Image(
-            image: AssetImage(
-                'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
-          )
-          : isSavedMessage()
-              ? Icon(
-                  Icons.bookmark,
-                  size: radius,
-                  color: Colors.white,
-                )
-              : showAsStreamOfAvatar
-                  ? StreamBuilder<Avatar>(
-                      stream: _avatarRepo.getLastAvatarStream(
-                          contactUid, forceToUpdate),
-                      builder: (context, snapshot) =>
-                          this.builder(context, snapshot, textColor))
-                  : FutureBuilder<Avatar>(
-                      future:
-                          _avatarRepo.getLastAvatar(contactUid, forceToUpdate),
-                      builder: (context, snapshot) =>
-                          this.builder(context, snapshot, textColor)),
+    return Container(
+      decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(colors: [
+            darken(color,
+                Theme.of(context).brightness == Brightness.dark ? 35 : 30),
+            color,
+            lighten(color,
+                Theme.of(context).brightness == Brightness.dark ? 25 : 30),
+          ], begin: Alignment.bottomCenter, end: Alignment.topCenter)),
+      child: CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.transparent,
+        child: contactUid.category == Categories.SYSTEM
+            ? Image(
+                image: AssetImage(
+                    'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
+              )
+            : isSavedMessage()
+                ? Icon(
+                    Icons.bookmark,
+                    size: radius,
+                    color: Colors.white,
+                  )
+                : showAsStreamOfAvatar
+                    ? StreamBuilder<Avatar>(
+                        stream: _avatarRepo.getLastAvatarStream(
+                            contactUid, forceToUpdate),
+                        builder: (context, snapshot) =>
+                            this.builder(context, snapshot, textColor))
+                    : FutureBuilder<Avatar>(
+                        future: _avatarRepo.getLastAvatar(
+                            contactUid, forceToUpdate),
+                        builder: (context, snapshot) =>
+                            this.builder(context, snapshot, textColor)),
+      ),
     );
   }
 
-  Widget builder(BuildContext context, AsyncSnapshot<Avatar> snapshot,
-      Color textColor) {
+  Widget builder(
+      BuildContext context, AsyncSnapshot<Avatar> snapshot, Color textColor) {
     if (snapshot.hasData &&
         snapshot.data != null &&
         snapshot.data.fileId != null &&
         snapshot.data.fileName != null) {
       return FutureBuilder(
         future: _fileRepo.getFile(snapshot.data.fileId, snapshot.data.fileName,
-            thumbnailSize: contactUid == _accountRepo.currentUserUid
+            thumbnailSize: contactUid == _authRepo.currentUserUid
                 ? ThumbnailSize.large
                 : ThumbnailSize.medium),
         builder: (BuildContext c, AsyncSnapshot snaps) {
@@ -126,14 +139,14 @@ class CircleAvatarWidget extends StatelessWidget {
 
   Widget showDisplayName(Color textColor) {
     if (this.forceText.isNotEmpty) {
-      return avatarAlt(this.forceText, textColor);
+      return avatarAlt(this.forceText.trim(), textColor);
     }
     return FutureBuilder<String>(
       future: _roomRepo.getName(contactUid),
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
         if (snapshot.data != null) {
-          String name = snapshot.data.replaceAll(' ', '');
-          return avatarAlt(name, textColor);
+          String name = snapshot.data.trim();
+          return avatarAlt(name.trim(), textColor);
         } else {
           return Icon(
             Icons.person,
@@ -147,11 +160,15 @@ class CircleAvatarWidget extends StatelessWidget {
 
   Center avatarAlt(String name, Color textColor) {
     return Center(
-      child: Text(name.length > 2 ? name.substring(0, 2) : name,
+      child: Text(
+          name.length > 1
+              ? name.substring(0, 1).toUpperCase()
+              : name.toUpperCase(),
+          maxLines: null,
           style: TextStyle(
               color: textColor,
-              fontSize: (radius * 0.6).toInt().toDouble(),
-              height: 2)),
+              fontSize: (radius * 0.8).toInt().toDouble(),
+              height: name.isPersian() ? 0.6 : 2)),
     );
   }
 }

@@ -35,7 +35,6 @@ class _FormListWidgetState extends State<FormListWidget> {
             Form(
               key: widget.formValidator,
               child: DropdownButtonFormField(
-                  autovalidate: false,
                   decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.blue),

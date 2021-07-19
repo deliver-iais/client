@@ -90,7 +90,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
       height: widget.hasPermissionInChannel ? 150 : 100,
       child: Column(
         children: [
-          if (widget.hasPermissionInChannel)
+          if (widget.hasPermissionInChannel && widget.message.id != null)
             Expanded(
               child: FlatButton(
                   onPressed: () {
@@ -181,25 +181,29 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     return SizedBox.shrink();
                 }),
 
-          Expanded(
-            child: FlatButton(
-                onPressed: () {
-                  onForward();
-                },
-                child: Row(children: [
-                  Icon(
-                    Icons.forward,
-                    size: 20,
-                  ),
-                  SizedBox(width: 8),
-                  Text(appLocalization.getTraslateValue("Forward")),
-                ])),
-          ),
+          if (widget.message.id != null)
+            Expanded(
+              child: FlatButton(
+                  onPressed: () {
+                    onForward();
+                  },
+                  child: Row(children: [
+                    Icon(
+                      Icons.forward,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(appLocalization.getTraslateValue("Forward")),
+                  ])),
+            ),
           if (widget.message.id == null)
             FutureBuilder<PendingMessage>(
                 future: _messageRepo.getPendingMessage(widget.message.packetId),
                 builder: (context, snapshot) {
-                  if (snapshot.hasData && snapshot.data != null) {
+                  if (snapshot.hasData &&
+                      snapshot.data != null &&
+                      snapshot.data.failed != null &&
+                      snapshot.data.failed) {
                     return Expanded(
                       child: FlatButton(
                           onPressed: () {
@@ -222,7 +226,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             FutureBuilder<PendingMessage>(
                 future: _messageRepo.getPendingMessage(widget.message.packetId),
                 builder: (context, snapshot) {
-                  if (snapshot.hasData && snapshot.data != null) {
+                  if (snapshot.hasData &&
+                      snapshot.data != null &&
+                      snapshot.data.failed != null &&
+                      snapshot.data.failed) {
                     return Expanded(
                       child: FlatButton(
                           onPressed: () {

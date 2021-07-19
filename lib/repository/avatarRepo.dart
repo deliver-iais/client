@@ -2,11 +2,8 @@ import 'dart:io';
 
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/dao/avatar_dao.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
-import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart'
     as ProtocolAvatar;
@@ -15,23 +12,24 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 import 'package:get_it/get_it.dart';
-import 'package:grpc/grpc.dart';
 
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 import 'package:dcache/dcache.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:logger/logger.dart';
+
+import 'authRepo.dart';
 
 class AvatarRepo {
-  var _avatarDao = GetIt.I.get<AvatarDao>();
-  var _mucServices = GetIt.I.get<MucServices>();
-  var _fileRepo = GetIt.I.get<FileRepo>();
-  var _accountRepo = GetIt.I.get<AccountRepo>();
-
-  Cache avatarCache =
+  final _logger = GetIt.I.get<Logger>();
+  final _avatarDao = GetIt.I.get<AvatarDao>();
+  final _mucServices = GetIt.I.get<MucServices>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
+  final _avatarServices = GetIt.I.get<AvatarServiceClient>();
+  final Cache<String, Avatar> _avatarCache =
       LruCache<String, Avatar>(storage: SimpleStorage(size: 40));
-
-  var avatarServices = AvatarServiceClient(AvatarServicesClientChannel);
 
   Future<void> fetchAvatar(Uid userUid, bool forceToUpdate) async {
     if (forceToUpdate || await needsUpdate(userUid)) {
@@ -43,9 +41,7 @@ class AvatarRepo {
     try {
       var getAvatarReq = GetAvatarReq();
       getAvatarReq.uidList.add(userUid);
-      var getAvatars = await avatarServices.getAvatar(getAvatarReq,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+      var getAvatars = await _avatarServices.getAvatar(getAvatarReq);
       var avatars = getAvatars.avatar
           .map((e) => Avatar(
                 uid: userUid.asString(),
@@ -57,23 +53,23 @@ class AvatarRepo {
 
       _avatarDao.saveAvatars(userUid.asString(), avatars);
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
     }
   }
 
   Future<bool> needsUpdate(Uid userUid) async {
-    if (userUid == _accountRepo.currentUserUid) {
-      trace("current user avatar update needed");
+    if (userUid == _authRepo.currentUserUid) {
+      _logger.v("current user avatar update needed");
       return true;
     }
     int nowTime = DateTime.now().millisecondsSinceEpoch;
 
     var key = "${userUid.category}-${userUid.node}";
 
-    Avatar ac = avatarCache.get(key);
+    Avatar ac = _avatarCache.get(key);
 
     if (ac != null && (nowTime - ac.lastUpdate) > 1800000) {
-      trace("exceeded from 24 hours in cache - $nowTime ${ac.lastUpdate}");
+      _logger.v("exceeded from 24 hours in cache - $nowTime ${ac.lastUpdate}");
       return true;
     } else if (ac != null) {
       return false;
@@ -82,14 +78,14 @@ class AvatarRepo {
     Avatar lastAvatar = await _avatarDao.getLastAvatar(userUid.asString());
 
     if (lastAvatar == null) {
-      trace("last avatar is null - $userUid");
+      _logger.v("last avatar is null - $userUid");
       return true;
     } else if ((nowTime - lastAvatar.lastUpdate) > 1800000) {
       // 24 hours
-      trace("exceeded from 24 hours - $userUid");
+      _logger.v("exceeded from 24 hours - $userUid");
       return true;
     } else {
-      avatarCache.set(key, lastAvatar);
+      _avatarCache.set(key, lastAvatar);
       return false;
     }
   }
@@ -104,13 +100,13 @@ class AvatarRepo {
     fetchAvatar(userUid, forceToUpdate);
     var key = "${userUid.category}-${userUid.node}";
 
-    var ac = avatarCache.get(key);
+    var ac = _avatarCache.get(key);
     if (ac != null) {
       return ac;
     }
 
     ac = await _avatarDao.getLastAvatar(userUid.asString());
-    avatarCache.set(key, ac);
+    _avatarCache.set(key, ac);
     return ac;
   }
 
@@ -124,7 +120,7 @@ class AvatarRepo {
     var key = "${userUid.category}-${userUid.node}";
 
     return _avatarDao.watchLastAvatar(userUid.asString()).map((la) {
-      avatarCache.set(key, la);
+      _avatarCache.set(key, la);
       return la;
     });
   }
@@ -162,18 +158,16 @@ class AvatarRepo {
     }
 
     try {
-      await avatarServices.addAvatar(addAvatarReq,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
-      await _avatarDao.saveAvatars(_accountRepo.currentUserUid.asString(), [
+      await _avatarServices.addAvatar(addAvatarReq);
+      await _avatarDao.saveAvatars(_authRepo.currentUserUid.asString(), [
         Avatar(
-            uid: _accountRepo.currentUserUid.asString(),
+            uid: _authRepo.currentUserUid.asString(),
             createdOn: createOn,
             fileId: fileInfo.uuid,
             fileName: fileInfo.name)
       ]);
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
     }
   }
 
@@ -181,14 +175,12 @@ class AvatarRepo {
     ProtocolAvatar.Avatar deleteAvatar = ProtocolAvatar.Avatar();
     deleteAvatar..fileUuid = avatar.fileId;
     deleteAvatar..fileName = avatar.fileName;
-    deleteAvatar..node = _accountRepo.currentUserUid.node;
+    deleteAvatar..node = _authRepo.currentUserUid.node;
     deleteAvatar
       ..createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10));
-    deleteAvatar..category = _accountRepo.currentUserUid.category;
+    deleteAvatar..category = _authRepo.currentUserUid.category;
     var removeAvatarReq = RemoveAvatarReq()..avatar = deleteAvatar;
-    await avatarServices.removeAvatar(removeAvatarReq,
-        options: CallOptions(
-            metadata: {'access_token': await _accountRepo.getAccessToken()}));
+    await _avatarServices.removeAvatar(removeAvatarReq);
     await _avatarDao.removeAvatar(avatar);
   }
 }

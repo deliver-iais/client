@@ -13,13 +13,12 @@ import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/box/sending_status.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/muc_services.dart';
 import 'package:deliver_flutter/shared/constants.dart';
-import 'package:deliver_flutter/utils/log.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -49,6 +48,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
+import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
@@ -57,12 +57,13 @@ import 'package:flutter/foundation.dart';
 enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
 class MessageRepo {
+  final _logger = GetIt.I.get<Logger>();
   final _messageDao = GetIt.I.get<MessageDao>();
 
   // migrate to room repo
   final _roomDao = GetIt.I.get<RoomDao>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _seenDao = GetIt.I.get<SeenDao>();
   final _mucServices = GetIt.I.get<MucServices>();
@@ -77,7 +78,7 @@ class MessageRepo {
     _coreServices.connectionStatus.listen((mode) async {
       switch (mode) {
         case ConnectionStatus.Connected:
-          debug('updating -----------------');
+          _logger.i('updating -----------------');
 
           updatingStatus.add(TitleStatusConditions.Updating);
           await updatingMessages();
@@ -102,15 +103,12 @@ class MessageRepo {
 
   updateNewMuc(Uid roomUid, int lastMessageId) async {
     try {
-      var fetchMessagesRes = await _queryServiceClient.fetchMessages(
-          FetchMessagesReq()
+      var fetchMessagesRes =
+          await _queryServiceClient.fetchMessages(FetchMessagesReq()
             ..roomUid = roomUid
             ..pointer = Int64(lastMessageId)
             ..type = FetchMessagesReq_Type.BACKWARD_FETCH
-            ..limit = 2,
-          options: CallOptions(
-              timeout: Duration(seconds: 3),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+            ..limit = 2);
       List<Message> messages =
           await _saveFetchMessages(fetchMessagesRes.messages);
 
@@ -122,7 +120,7 @@ class MessageRepo {
         ));
       }
     } catch (e) {
-      debug(e);
+      _logger.e(e);
     }
   }
 
@@ -135,13 +133,9 @@ class MessageRepo {
     while (!finished && pointer < 10000) {
       try {
         var getAllUserRoomMetaRes =
-            await _queryServiceClient.getAllUserRoomMeta(
-                GetAllUserRoomMetaReq()
-                  ..pointer = pointer
-                  ..limit = 10,
-                options: CallOptions(metadata: {
-                  'access_token': await _accountRepo.getAccessToken()
-                }));
+            await _queryServiceClient.getAllUserRoomMeta(GetAllUserRoomMetaReq()
+              ..pointer = pointer
+              ..limit = 10);
 
         finished = getAllUserRoomMetaRes.finished;
         if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
@@ -160,7 +154,7 @@ class MessageRepo {
           fetchLastMessages(roomMetadata, room);
         }
       } catch (e) {
-        debug(e);
+        _logger.e(e);
       }
       pointer += 10;
     }
@@ -171,15 +165,13 @@ class MessageRepo {
 
     rooms.forEach((r) async {
       var category = r.lastMessage.to.asUid().category;
-      if (_accountRepo.isCurrentUser(r.lastMessage.from) &&
+      if (r.lastMessage.id == null) return;
+      if (_authRepo.isCurrentUser(r.lastMessage.from) &&
           (category == Categories.GROUP || category == Categories.USER)) {
         var othersSeen = await _seenDao.getOthersSeen(r.lastMessage.to);
         if (othersSeen == null || othersSeen.messageId < r.lastMessage.id) {
           var rm = await _queryServiceClient.getUserRoomMeta(
-              GetUserRoomMetaReq()..roomUid = r.lastMessage.to.asUid(),
-              options: CallOptions(metadata: {
-                'access_token': await _accountRepo.getAccessToken()
-              }));
+              GetUserRoomMetaReq()..roomUid = r.lastMessage.to.asUid());
           fetchLastSeen(rm.roomMeta);
         }
       }
@@ -195,9 +187,7 @@ class MessageRepo {
             ..pointer = roomMetadata.lastMessageId
             ..type = FetchMessagesReq_Type.FORWARD_FETCH
             ..limit = 2,
-          options: CallOptions(
-              timeout: Duration(seconds: 3),
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+          options: CallOptions(timeout: Duration(seconds: 3)));
       List<Message> messages =
           await _saveFetchMessages(fetchMessagesRes.messages);
 
@@ -212,8 +202,8 @@ class MessageRepo {
         getMentions(room);
       }
     } catch (e) {
+      _logger.e(e);
       if (retry) fetchLastMessages(roomMetadata, room, retry: false);
-      debug(e);
     }
   }
 
@@ -221,10 +211,7 @@ class MessageRepo {
     try {
       var fetchCurrentUserSeenData =
           await _queryServiceClient.fetchCurrentUserSeenData(
-              FetchCurrentUserSeenDataReq()..roomUid = room.roomUid,
-              options: CallOptions(metadata: {
-                "access_token": await _accountRepo.getAccessToken()
-              }));
+              FetchCurrentUserSeenDataReq()..roomUid = room.roomUid);
 
       var lastSeen = await _seenDao.getMySeen(room.roomUid.asString());
       if (lastSeen != null &&
@@ -236,7 +223,7 @@ class MessageRepo {
           messageId: max(fetchCurrentUserSeenData.seen.id.toInt(),
               room.lastCurrentUserSentMessageId.toInt())));
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
     }
 
     try {
@@ -244,32 +231,27 @@ class MessageRepo {
           room.roomUid.category == Categories.GROUP) {
         var fetchLastOtherUserSeenData =
             await _queryServiceClient.fetchLastOtherUserSeenData(
-                FetchLastOtherUserSeenDataReq()..roomUid = room.roomUid,
-                options: CallOptions(metadata: {
-                  "access_token": await _accountRepo.getAccessToken()
-                }));
+                FetchLastOtherUserSeenDataReq()..roomUid = room.roomUid);
         _seenDao.saveOthersSeen(Seen(
             uid: room.roomUid.asString(),
             messageId: fetchLastOtherUserSeenData.seen.id.toInt()));
       }
     } catch (e) {
-      debug(e.toString());
+      _logger.e(e);
     }
   }
 
   Future getMentions(Room room) async {
     try {
-      var mentionResult = await _queryServiceClient.fetchMentionList(
-          FetchMentionListReq()
+      var mentionResult =
+          await _queryServiceClient.fetchMentionList(FetchMentionListReq()
             ..group = room.uid.asUid()
-            ..afterId = Int64.parseInt(room.lastMessage.id.toString()),
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+            ..afterId = Int64.parseInt(room.lastMessage.id.toString()));
       if (mentionResult.idList != null && mentionResult.idList.length > 0) {
         _roomDao.updateRoom(Room(uid: room.uid, mentioned: true));
       }
     } catch (e) {
-      e.toString();
+      _logger.e(e);
     }
   }
 
@@ -342,13 +324,14 @@ class MessageRepo {
       ..name = path.split(".").last
       ..duration = 0;
 
-    await _fileRepo.cloneFileInLocalDirectory(
-        file, packetId, path.split('.').last);
-
     Message msg = _createMessage(room, replyId: replyToId).copyWith(
         packetId: packetId,
         type: MessageType.FILE,
         json: sendingFakeFile.writeToJson());
+
+    await _fileRepo.cloneFileInLocalDirectory(
+        file, packetId, path.split('.').last);
+
 
     var pm = _createPendingMessage(msg, SendingStatus.SENDING_FILE);
 
@@ -460,15 +443,16 @@ class MessageRepo {
     List<PendingMessage> pendingMessages =
         await _messageDao.getAllPendingMessages();
     for (var pendingMessage in pendingMessages) {
-      switch (pendingMessage.status) {
-        case SendingStatus.SENDING_FILE:
-          await _sendFileToServerOfPendingMessage(pendingMessage);
-          await _sendMessageToServer(pendingMessage);
-          break;
-        case SendingStatus.PENDING:
-          await _sendMessageToServer(pendingMessage);
-          break;
-      }
+      if (!pendingMessage.failed)
+        switch (pendingMessage.status) {
+          case SendingStatus.SENDING_FILE:
+            await _sendFileToServerOfPendingMessage(pendingMessage);
+            await _sendMessageToServer(pendingMessage);
+            break;
+          case SendingStatus.PENDING:
+            await _sendMessageToServer(pendingMessage);
+            break;
+        }
     }
   }
 
@@ -511,7 +495,7 @@ class MessageRepo {
       roomUid: room.asString(),
       packetId: _getPacketId(),
       time: DateTime.now().millisecondsSinceEpoch,
-      from: _accountRepo.currentUserUid.asString(),
+      from: _authRepo.currentUserUid.asString(),
       to: room.asString(),
       replyToId: replyId,
       forwardedFrom: forwardedFrom,
@@ -547,16 +531,15 @@ class MessageRepo {
       String roomId, int page, int pageSize, Completer<List<Message>> completer,
       {bool retry = true}) async {
     try {
-      var fetchMessagesRes = await _queryServiceClient.fetchMessages(
-          FetchMessagesReq()
+      var fetchMessagesRes =
+          await _queryServiceClient.fetchMessages(FetchMessagesReq()
             ..roomUid = roomId.asUid()
             ..pointer = Int64(page * pageSize)
             ..type = FetchMessagesReq_Type.FORWARD_FETCH
-            ..limit = pageSize,
-          options: CallOptions(
-              metadata: {'access_token': await _accountRepo.getAccessToken()}));
+            ..limit = pageSize);
       completer.complete(await _saveFetchMessages(fetchMessagesRes.messages));
     } catch (e) {
+      _logger.e(e);
       if (retry)
         getMessages(roomId, page, pageSize, completer, retry: false);
       else
@@ -581,7 +564,7 @@ class MessageRepo {
                   break;
                 case MucSpecificPersistentEvent_Issue.KICK_USER:
                   if (message.persistEvent.mucSpecificPersistentEvent.assignee
-                      .isSameEntity(_accountRepo.currentUserUid.asString())) {
+                      .isSameEntity(_authRepo.currentUserUid.asString())) {
                     _roomDao.updateRoom(
                         Room(uid: message.from.asString(), deleted: true));
                     continue;
@@ -594,10 +577,10 @@ class MessageRepo {
           }
         } else {}
       } catch (e) {
-        debug(e.toString());
+        _logger.e(e);
       }
-      msgList.add(
-          await saveMessageInMessagesDB(_accountRepo, _messageDao, message));
+      msgList
+          .add(await saveMessageInMessagesDB(_authRepo, _messageDao, message));
     }
     return msgList;
   }
@@ -647,9 +630,9 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  void sendPrivateMessageAccept(Uid to, PrivateDataType privateDataType) async {
+  void sendPrivateMessageAccept(Uid to, PrivateDataType privateDataType,String token) async {
     SharePrivateDataAcceptance sharePrivateDataAcceptance =
-        SharePrivateDataAcceptance()..data = privateDataType;
+        SharePrivateDataAcceptance()..data = privateDataType..token = token;
     String json = sharePrivateDataAcceptance.writeToJson();
 
     Message msg = _createMessage(to)
@@ -689,6 +672,7 @@ class MessageRepo {
     try {
       return await _mucServices.pinMessage(message);
     } catch (e) {
+      _logger.e(e);
       return false;
     }
   }
@@ -697,15 +681,8 @@ class MessageRepo {
     try {
       return await _mucServices.unpinMessage(message);
     } catch (e) {
+      _logger.e(e);
       return false;
     }
-  }
-
-  void sendErrorMessage_DEBUG_MODE_(String s) {
-    sendTextMessage(
-        Uid.create()
-          ..category = Categories.USER
-          ..node = "db8ab0da-d0cb-4aaf-b642-2419ef59f05d",
-        s);
   }
 }
