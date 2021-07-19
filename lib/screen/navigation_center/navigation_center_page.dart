@@ -187,25 +187,22 @@ class _NavigationCenterState extends State<NavigationCenter> {
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: SearchBox(
-              onChange: (str) {
-                if (str.length > 0) {
-                  setState(() {
-                    _searchMode = true;
-                  });
-                  subject.add(str);
-                } else {
-                  setState(() {
-                    _searchMode = false;
-                  });
-                }
-              },
-              onCancel:(){
+            child: SearchBox(onChange: (str) {
+              if (str.length > 0) {
+                setState(() {
+                  _searchMode = true;
+                });
+                subject.add(str);
+              } else {
                 setState(() {
                   _searchMode = false;
                 });
               }
-            ),
+            }, onCancel: () {
+              setState(() {
+                _searchMode = false;
+              });
+            }),
           ),
           AudioPlayerAppBar(),
           _searchMode
@@ -326,8 +323,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                             child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          Text(
-                              _appLocalization.getTraslateValue("global_search")),
+                          Text(_appLocalization
+                              .getTraslateValue("global_search")),
                           //    searchResultWidget(snaps, c),
                           SizedBox(
                             height: 10,
@@ -346,7 +343,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     return Column(
                       children: [
                         Text(_appLocalization.getTraslateValue("bots")),
-                        Container(height: 200, child: searchResultWidget(bot, c))
+                        Container(
+                            height: 200, child: searchResultWidget(bot, c))
                       ],
                     );
                   } else {

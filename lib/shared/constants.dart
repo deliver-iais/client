@@ -24,6 +24,8 @@ const SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED =
 
 const ONLINE_TIME = 60000;
 
+const SUPPORTED_IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif'];
+
 const AVATAR_TRACK_ID = 1;
 const LAST_ACTIVITY_TRACK_ID = 2;
 const CONTACT_TRACK_ID = 3;

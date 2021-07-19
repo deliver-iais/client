@@ -8,8 +8,6 @@ const LightThemeName = "Light";
 ThemeData LightTheme =
     ThemeData(brightness: Brightness.light, fontFamily: "Vazir").copyWith(
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        // primaryColor: Color(0xFF2699FB),
-        // accentColor: Color(0x8bc1e0FF),
         primaryColor: Color(0xFF2699FB),
         accentColor: Color(0xff002121),
         scaffoldBackgroundColor: Colors.white,
@@ -18,7 +16,9 @@ ThemeData LightTheme =
         dividerTheme: DividerThemeData(
             space: 1.0, thickness: 1.0, color: Color(0xFFf0f0f0)),
         focusColor: Colors.lightBlue[300].withOpacity(0.6),
-        cardColor: Color(0xff489088),
+        cardColor: Colors.white,
+        popupMenuTheme: PopupMenuThemeData(
+            textStyle: TextStyle(color: Colors.black, fontSize: 14)),
         textTheme: TextTheme(
           headline1: TextStyle(color: Colors.black, fontSize: 40),
           headline2: TextStyle(color: Colors.black, fontSize: 25),
@@ -34,19 +34,19 @@ ThemeData LightTheme =
             elevation: 0,
             iconTheme: IconThemeData(color: Color(0xff002121))),
         sliderTheme: SliderThemeData(
-          thumbColor: Color(0xff4bd5af),
+          thumbColor: Color(0xFF2699FB),
           trackHeight: 2.25,
-          activeTrackColor: Color(0xff4bd5af),
-          inactiveTrackColor: Color(0xff179c96),
+          activeTrackColor: Color(0xFF2699FB),
+          inactiveTrackColor: Colors.white,
           thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
         ),
         iconTheme: IconThemeData(color: Color(0xff002121)),
         tabBarTheme: TabBarTheme(
           indicator: UnderlineTabIndicator(
-              borderSide: BorderSide(width: 2.0, color: Colors.blue),
+              borderSide: BorderSide(width: 2.0, color: Color(0xFF2699FB)),
               insets: EdgeInsets.zero),
-          labelColor: Color(0xff179c96),
-          unselectedLabelColor: Color(0xff002121),
+          labelColor: Color(0xFF2699FB),
+          unselectedLabelColor: Color(0xbb002121),
         ));
 
 // ignore: non_constant_identifier_names
@@ -54,7 +54,7 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   centerPageDetails: Color(0xff0b796c),
   circleAvatarIcon: Color(0xFF2699FB),
   boxDetails: Color(0xff15786c),
-  boxOuterBackground: Colors.white ,
+  boxOuterBackground: Colors.white,
   boxBackground: Color(0xFFEFEFF4),
   activeSwitch: Color(0xff15786c),
   textDetails: Colors.black,

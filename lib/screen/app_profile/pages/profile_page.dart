@@ -1,25 +1,19 @@
 import 'dart:convert';
-import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/media_meta_data.dart';
 import 'package:deliver_flutter/box/media.dart';
 import 'package:deliver_flutter/box/media_type.dart';
 import 'package:deliver_flutter/box/muc.dart';
-import 'package:deliver_flutter/models/muc_type.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/repository/avatarRepo.dart';
-
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/mediaQueryRepo.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/share_box/helper_classes.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/document_and_File_ui.dart';
-import 'package:deliver_flutter/screen/app_profile/widgets/group_Ui_widget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/image_tab_ui.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/memberWidget.dart';
 import 'package:deliver_flutter/screen/app_profile/widgets/music_and_audio_ui.dart';
@@ -27,7 +21,7 @@ import 'package:deliver_flutter/screen/app_profile/widgets/video_tab_ui.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/box.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/theme/constants.dart';
@@ -36,8 +30,6 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -46,8 +38,10 @@ import 'package:flutter_link_preview/flutter_link_preview.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:logger/logger.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:settings_ui/settings_ui.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
@@ -62,6 +56,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
+  final _logger = GetIt.I.get<Logger>();
   final _mediaQueryRepo = GetIt.I.get<MediaQueryRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
@@ -69,27 +64,24 @@ class _ProfilePageState extends State<ProfilePage>
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _selectedImages = Map<int, bool>();
-  final _avatarRepo = GetIt.I.get<AvatarRepo>();
-  final showChannelIdError = BehaviorSubject.seeded(false);
+  final _showChannelIdError = BehaviorSubject.seeded(false);
+
   TabController _tabController;
-  String _uploadAvatarPath;
-  bool showProgressBar = false;
-  bool _setAvatarPermission = false;
-  bool _modifyMUc = false;
-  String mucName = "";
-  AppLocalization _appLocalization;
-  int tabsCount;
+  int _tabsCount;
+
+  AppLocalization _locale;
+
+  bool _isMucAdminOrOwner = false;
+  bool _isMucOwner = false;
 
   @override
   void initState() {
-    fetchMedia();
-    if (widget.roomUid.isMuc()) {
-      _checkPermissions();
-    }
+    _setupRoomSettings();
+
     if (_uxService.getTabIndex(widget.roomUid.asString()) == null) {
       _uxService.setTabIndex(widget.roomUid.asString(), 0);
     }
+
     super.initState();
   }
 
@@ -100,254 +92,47 @@ class _ProfilePageState extends State<ProfilePage>
     super.dispose();
   }
 
-  _checkPermissions() async {
-    final settingAvatarPermission = await _mucRepo.isMucAdminOrOwner(
-        _authRepo.currentUserUid.asString(), widget.roomUid.asString());
-    final mucOwner = await _mucRepo.mucOwner(
-        _authRepo.currentUserUid.asString(), widget.roomUid.asString());
-    setState(() {
-      _setAvatarPermission = settingAvatarPermission;
-      _modifyMUc = mucOwner;
-    });
-  }
-
-  void fetchMedia() async {
-    await _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
-    this._appLocalization = AppLocalization.of(context);
-    var style =
-        TextStyle(fontSize: 14, color: ExtraTheme.of(context).textField);
+    this._locale = AppLocalization.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-          elevation: 0,
-          title: Align(
-            alignment: Alignment.centerLeft,
-            child: FutureBuilder<String>(
-              future: _roomRepo.getName(widget.roomUid),
-              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                var name = snapshot.data ?? "Loading...";
-                return Text(name, style: Theme.of(context).textTheme.headline2);
-              },
-            ),
-          ),
-          actions: <Widget>[
-            if (widget.roomUid.category != Categories.SYSTEM)
-              widget.roomUid.category != Categories.USER &&
-                      widget.roomUid.category != Categories.BOT
-                  ? PopupMenuButton(
-                      color: ExtraTheme.of(context).popupMenuButton,
-                      icon: Icon(Icons.more_vert),
-                      itemBuilder: (_) => <PopupMenuItem<String>>[
-                        if (_setAvatarPermission)
-                          new PopupMenuItem<String>(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.add_a_photo_rounded,
-                                    color: Colors.blue,
-                                    size: 23,
-                                  ),
-                                  SizedBox(
-                                    width: 6,
-                                  ),
-                                  Text(
-                                      _appLocalization
-                                          .getTraslateValue("set_avatar"),
-                                      style: style),
-                                ],
-                              ),
-                              value: "select"),
-                        if (_modifyMUc)
-                          new PopupMenuItem<String>(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.add_link_outlined,
-                                    color: Colors.blue,
-                                    size: 23,
-                                  ),
-                                  SizedBox(
-                                    width: 6,
-                                  ),
-                                  Text(
-                                    widget.roomUid.isGroup()
-                                        ? _appLocalization.getTraslateValue(
-                                            "create_invite_link")
-                                        : _appLocalization.getTraslateValue(
-                                            "create_invite_link"),
-                                    style: style,
-                                  )
-                                ],
-                              ),
-                              value: "invite_link"),
-                        if (_modifyMUc &&
-                            (widget.roomUid.category == Categories.GROUP ||
-                                widget.roomUid.category == Categories.CHANNEL))
-                          new PopupMenuItem<String>(
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.settings,
-                                    color: Colors.blue,
-                                    size: 23,
-                                  ),
-                                  SizedBox(
-                                    width: 6,
-                                  ),
-                                  Text(
-                                      widget.roomUid.category ==
-                                              Categories.GROUP
-                                          ? _appLocalization
-                                              .getTraslateValue("manage_group")
-                                          : _appLocalization.getTraslateValue(
-                                              "manage_channel"),
-                                      style: style),
-                                ],
-                              ),
-                              value: "manage"),
-                        if (!_modifyMUc)
-                          new PopupMenuItem<String>(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.arrow_back_outlined,
-                                    color: Colors.blue,
-                                    size: 23,
-                                  ),
-                                  SizedBox(
-                                    width: 6,
-                                  ),
-                                  Text(
-                                    widget.roomUid.isGroup()
-                                        ? _appLocalization
-                                            .getTraslateValue("leftGroup")
-                                        : _appLocalization
-                                            .getTraslateValue("leftChannel"),
-                                    style: style,
-                                  ),
-                                ],
-                              ),
-                              value: "leftMuc"),
-                        new PopupMenuItem<String>(
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.report,
-                                  color: Colors.blue,
-                                  size: 23,
-                                ),
-                                SizedBox(
-                                  width: 6,
-                                ),
-                                Text(
-                                    _appLocalization.getTraslateValue("report"),
-                                    style: style),
-                              ],
-                            ),
-                            value: "report"),
-                        if (_modifyMUc)
-                          new PopupMenuItem<String>(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.delete,
-                                    color: Colors.blue,
-                                    size: 23,
-                                  ),
-                                  SizedBox(
-                                    width: 6,
-                                  ),
-                                  Text(
-                                    widget.roomUid.isGroup()
-                                        ? _appLocalization
-                                            .getTraslateValue("deleteGroup")
-                                        : _appLocalization
-                                            .getTraslateValue("deleteChannel"),
-                                    style: style,
-                                  )
-                                ],
-                              ),
-                              value: "deleteMuc"),
-                      ],
-                      onSelected: onSelected,
-                    )
-                  : StreamBuilder<bool>(
-                      stream: _roomRepo
-                          .watchIsRoomBlocked(widget.roomUid.asString()),
-                      builder: (c, room) {
-                        if (room.hasData && room.data != null) {
-                          return PopupMenuButton(
-                            color: ExtraTheme.of(context).popupMenuButton,
-                            icon: Icon(Icons.more_vert),
-                            itemBuilder: (_) => <PopupMenuItem<String>>[
-                              new PopupMenuItem<String>(
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.report, color: Colors.blue),
-                                      SizedBox(
-                                        width: 15,
-                                      ),
-                                      Text(
-                                        _appLocalization
-                                            .getTraslateValue("report"),
-                                        style: style,
-                                      ),
-                                    ],
-                                  ),
-                                  value: "report"),
-                            ],
-                            onSelected: onSelected,
-                          );
-                        } else {
-                          return SizedBox.shrink();
-                        }
-                      }),
-          ],
-          leading: _routingService.backButtonLeading()),
+      appBar: _buildAppBar(context),
       body: FluidContainerWidget(
         child: StreamBuilder<MediaMetaData>(
             stream:
                 _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
             builder: (context, AsyncSnapshot<MediaMetaData> snapshot) {
-              tabsCount = 0;
+              _tabsCount = 0;
               if (snapshot.hasData && snapshot.data != null) {
                 if (snapshot.data.imagesCount != 0) {
-                  tabsCount = tabsCount + 1;
+                  _tabsCount = _tabsCount + 1;
                 }
                 if (snapshot.data.videosCount != 0) {
-                  tabsCount = tabsCount + 1;
+                  _tabsCount = _tabsCount + 1;
                 }
                 if (snapshot.data.linkCount != 0) {
-                  tabsCount = tabsCount + 1;
+                  _tabsCount = _tabsCount + 1;
                 }
                 if (snapshot.data.filesCount != 0) {
-                  tabsCount = tabsCount + 1;
+                  _tabsCount = _tabsCount + 1;
                 }
                 if (snapshot.data.documentsCount != 0) {
-                  tabsCount = tabsCount + 1;
+                  _tabsCount = _tabsCount + 1;
                 }
                 if (snapshot.data.musicsCount != 0) {
-                  tabsCount = tabsCount + 1;
+                  _tabsCount = _tabsCount + 1;
                 }
                 if (snapshot.data.audiosCount != 0) {
-                  tabsCount = tabsCount + 1;
+                  _tabsCount = _tabsCount + 1;
                 }
               }
 
               _tabController = TabController(
                   length: (widget.roomUid.category == Categories.GROUP ||
                           widget.roomUid.category == Categories.CHANNEL)
-                      ? tabsCount + 1
-                      : tabsCount,
+                      ? _tabsCount + 1
+                      : _tabsCount,
                   vsync: this,
                   initialIndex:
                       _uxService.getTabIndex(widget.roomUid.asString()));
@@ -357,297 +142,20 @@ class _ProfilePageState extends State<ProfilePage>
               });
 
               return DefaultTabController(
-                  length: (widget.roomUid.category == Categories.USER ||
-                          widget.roomUid.category == Categories.SYSTEM ||
-                          widget.roomUid.category == Categories.BOT)
-                      ? tabsCount
-                      : tabsCount + 1,
+                  length:
+                      (widget.roomUid.isMuc()) ? _tabsCount + 1 : _tabsCount,
                   child: NestedScrollView(
                       headerSliverBuilder:
                           (BuildContext context, bool innerBoxIsScrolled) {
                         return <Widget>[
-                          ProfileAvatar(
-                            innerBoxIsScrolled: innerBoxIsScrolled,
-                            roomUid: widget.roomUid,
-                            setAvatarPermission: _setAvatarPermission,
-                          ),
-                          widget.roomUid.category == Categories.USER ||
-                                  widget.roomUid.category ==
-                                      Categories.SYSTEM ||
-                                  widget.roomUid.category == Categories.BOT
-                              ? SliverList(
-                                  delegate: SliverChildListDelegate([
-                                  Container(
-                                    height: 80,
-                                    child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Wrap(
-                                          direction: Axis.vertical,
-                                          runSpacing: 40,
-                                          children: <Widget>[
-                                            Padding(
-                                              padding: EdgeInsets.fromLTRB(
-                                                  20, 0, 0, 0),
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    _appLocalization
-                                                        .getTraslateValue(
-                                                            "info"),
-                                                    style: TextStyle(
-                                                      color:
-                                                          ExtraTheme.of(context)
-                                                              .textField,
-                                                      fontSize: 16.0,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(height: 5),
-                                            widget.roomUid.category ==
-                                                    Categories.SYSTEM
-                                                ? Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 25),
-                                                    child: Text(
-                                                      "@ Deliver",
-                                                      style: TextStyle(
-                                                          color: Colors.blue),
-                                                    ))
-                                                : widget.roomUid.category ==
-                                                        Categories.BOT
-                                                    ? _showUsername(
-                                                        widget.roomUid.node,
-                                                        widget.roomUid,
-                                                        _appLocalization,
-                                                        context)
-                                                    : FutureBuilder<String>(
-                                                        future: _roomRepo.getId(
-                                                            widget.roomUid),
-                                                        builder: (BuildContext
-                                                                context,
-                                                            AsyncSnapshot<
-                                                                    String>
-                                                                snapshot) {
-                                                          if (snapshot.data !=
-                                                              null) {
-                                                            return _showUsername(
-                                                                snapshot.data,
-                                                                widget.roomUid,
-                                                                _appLocalization,
-                                                                context);
-                                                          } else {
-                                                            return SizedBox
-                                                                .shrink();
-                                                          }
-                                                        },
-                                                      ),
-                                          ]),
-                                    ),
-                                  ),
-                                  SizedBox(height: 20),
-                                  if (widget.roomUid.category !=
-                                      Categories.SYSTEM)
-                                    Container(
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: ExtraTheme.of(context)
-                                                  .borderOfProfilePage),
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          color: ExtraTheme.of(context)
-                                              .boxBackground),
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                              ),
-                                              height: 50,
-                                              padding:
-                                                  const EdgeInsetsDirectional
-                                                      .only(start: 5, end: 15),
-                                              child: GestureDetector(
-                                                child: Row(children: <Widget>[
-                                                  IconButton(
-                                                    icon: Icon(Icons.message,
-                                                        color: Colors.blue),
-                                                    onPressed: () {},
-                                                  ),
-                                                  Text(
-                                                    _appLocalization
-                                                        .getTraslateValue(
-                                                            "sendMessage"),
-                                                    style: TextStyle(
-                                                      color:
-                                                          ExtraTheme.of(context)
-                                                              .textField,
-                                                    ),
-                                                  ),
-                                                ]),
-                                                onTap: () {
-                                                  _routingService.openRoom(
-                                                      widget.roomUid
-                                                          .asString());
-                                                },
-                                              )),
-                                          Container(
-                                              height: 50,
-                                              padding:
-                                                  const EdgeInsetsDirectional
-                                                      .only(start: 7, end: 15),
-                                              child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: <Widget>[
-                                                    Container(
-                                                      child: Row(
-                                                        children: <Widget>[
-                                                          IconButton(
-                                                            icon: Icon(
-                                                                Icons
-                                                                    .notifications_active,
-                                                                color: Colors
-                                                                    .blue),
-                                                            onPressed: () {},
-                                                          ),
-                                                          Text(
-                                                            _appLocalization
-                                                                .getTraslateValue(
-                                                                    "notification"),
-                                                            style: TextStyle(
-                                                              color: ExtraTheme
-                                                                      .of(context)
-                                                                  .textField,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    StreamBuilder<bool>(
-                                                      stream: _roomRepo
-                                                          .watchIsRoomMuted(
-                                                              widget.roomUid
-                                                                  .asString()),
-                                                      builder: (BuildContext
-                                                              context,
-                                                          AsyncSnapshot<bool>
-                                                              snapshot) {
-                                                        if (snapshot.hasData &&
-                                                            snapshot.data !=
-                                                                null) {
-                                                          return Switch(
-                                                            activeColor:
-                                                                ExtraTheme.of(
-                                                                        context)
-                                                                    .activeSwitch,
-                                                            value:
-                                                                !snapshot.data,
-                                                            onChanged: (state) {
-                                                              if (state) {
-                                                                _roomRepo.unmute(
-                                                                    widget
-                                                                        .roomUid
-                                                                        .asString());
-                                                              } else {
-                                                                _roomRepo.mute(
-                                                                    widget
-                                                                        .roomUid
-                                                                        .asString());
-                                                              }
-                                                            },
-                                                          );
-                                                        } else {
-                                                          return SizedBox
-                                                              .shrink();
-                                                        }
-                                                      },
-                                                    )
-                                                  ])),
-                                          if (widget.roomUid.category !=
-                                                  Categories.SYSTEM &&
-                                              widget.roomUid.category !=
-                                                  Categories.BOT)
-                                            FutureBuilder<Contact>(
-                                              future: _contactRepo
-                                                  .getContact(widget.roomUid),
-                                              builder: (BuildContext context,
-                                                  AsyncSnapshot<Contact>
-                                                      snapshot) {
-                                                if (snapshot.data != null) {
-                                                  return Container(
-                                                    height: 50,
-                                                    padding:
-                                                        const EdgeInsetsDirectional
-                                                                .only(
-                                                            start: 7, end: 15),
-                                                    child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: <Widget>[
-                                                          Row(
-                                                            children: [
-                                                              IconButton(
-                                                                icon: Icon(
-                                                                    Icons.phone,
-                                                                    color: Colors
-                                                                        .blue),
-                                                                onPressed:
-                                                                    () {},
-                                                              ),
-                                                              Text(
-                                                                  _appLocalization
-                                                                      .getTraslateValue(
-                                                                          "phone"),
-                                                                  style: TextStyle(
-                                                                      color: ExtraTheme.of(
-                                                                              context)
-                                                                          .textField)),
-                                                            ],
-                                                          ),
-                                                          MaterialButton(
-                                                            onPressed: () => launch(
-                                                                "tel:${snapshot.data.countryCode}${snapshot.data.nationalNumber}"),
-                                                            child: Text(
-                                                              buildPhoneNumber(
-                                                                  snapshot.data
-                                                                      .countryCode,
-                                                                  snapshot.data
-                                                                      .nationalNumber),
-                                                              style: TextStyle(
-                                                                  color: ExtraTheme.of(
-                                                                          context)
-                                                                      .username),
-                                                            ),
-                                                          )
-                                                        ]),
-                                                  );
-                                                } else {
-                                                  return SizedBox.shrink();
-                                                }
-                                              },
-                                            )
-                                        ],
-                                      ),
-                                    ),
-                                  SizedBox(
-                                    height: 40,
-                                  )
-                                ]))
-                              : GroupUiWidget(
-                                  mucUid: widget.roomUid,
-                                ),
+                          _buildInfo(context),
                           SliverPersistentHeader(
                             pinned: true,
                             delegate: _SliverAppBarDelegate(
-                                maxHeight: 60,
-                                minHeight: 60,
-                                child: Container(
-                                  color: Theme.of(context).backgroundColor,
+                                maxHeight: 45,
+                                minHeight: 45,
+                                child: Box(
+                                  borderRadius: BorderRadius.zero,
                                   child: TabBar(
                                     onTap: (index) {
                                       _uxService.setTabIndex(
@@ -659,46 +167,46 @@ class _ProfilePageState extends State<ProfilePage>
                                           widget.roomUid.category ==
                                               Categories.CHANNEL)
                                         Tab(
-                                          text: _appLocalization
+                                          text: _locale
                                               .getTraslateValue("members"),
                                         ),
                                       if (snapshot.hasData &&
                                           snapshot.data.imagesCount != 0)
                                         Tab(
-                                          text: _appLocalization
+                                          text: _locale
                                               .getTraslateValue("images"),
                                         ),
                                       if (snapshot.hasData &&
                                           snapshot.data.videosCount != 0)
                                         Tab(
-                                          text: _appLocalization
+                                          text: _locale
                                               .getTraslateValue("videos"),
                                         ),
                                       if (snapshot.hasData &&
                                           snapshot.data.filesCount != 0)
                                         Tab(
-                                          text: _appLocalization
-                                              .getTraslateValue("file"),
+                                          text:
+                                              _locale.getTraslateValue("file"),
                                         ),
                                       if (snapshot.hasData &&
                                           snapshot.data.linkCount != 0)
                                         Tab(
-                                            text: _appLocalization
+                                            text: _locale
                                                 .getTraslateValue("links")),
                                       if (snapshot.hasData &&
                                           snapshot.data.documentsCount != 0)
                                         Tab(
-                                            text: _appLocalization
+                                            text: _locale
                                                 .getTraslateValue("documents")),
                                       if (snapshot.hasData &&
                                           snapshot.data.musicsCount != 0)
                                         Tab(
-                                            text: _appLocalization
+                                            text: _locale
                                                 .getTraslateValue("musics")),
                                       if (snapshot.hasData &&
                                           snapshot.data.audiosCount != 0)
                                         Tab(
-                                            text: _appLocalization
+                                            text: _locale
                                                 .getTraslateValue("audios")),
                                     ],
                                     controller: _tabController,
@@ -707,62 +215,305 @@ class _ProfilePageState extends State<ProfilePage>
                           ),
                         ];
                       },
-                      body: Container(
-                          child: TabBarView(
-                        children: [
-                          if (widget.roomUid.category != Categories.USER &&
-                              widget.roomUid.category != Categories.SYSTEM &&
-                              widget.roomUid.category != Categories.BOT)
-                            SingleChildScrollView(
-                              child: Column(children: [
-                                MucMemberWidget(
+                      body: Box(
+                        borderRadius: BorderRadius.zero,
+                        child: TabBarView(
+                          physics: NeverScrollableScrollPhysics(),
+                          children: [
+                            if (widget.roomUid.isMuc())
+                              SingleChildScrollView(
+                                child: MucMemberWidget(
                                   mucUid: widget.roomUid,
                                 ),
-                              ]),
-                            ),
-                          if (snapshot.hasData &&
-                              snapshot.data.imagesCount != 0)
-                            ImageTabUi(
-                                snapshot.data.imagesCount, widget.roomUid),
-                          if (snapshot.hasData &&
-                              snapshot.data.videosCount != 0)
-                            VideoTabUi(
-                                userUid: widget.roomUid,
-                                videoCount: snapshot.data.videosCount),
-                          if (snapshot.hasData && snapshot.data.filesCount != 0)
-                            DocumentAndFileUi(
-                              roomUid: widget.roomUid,
-                              documentCount: snapshot.data.filesCount,
-                              type: MediaType.FILE,
-                            ),
-                          if (snapshot.hasData && snapshot.data.linkCount != 0)
-                            linkWidget(widget.roomUid, _mediaQueryRepo,
-                                snapshot.data.linkCount),
-                          if (snapshot.hasData &&
-                              snapshot.data.documentsCount != 0)
-                            DocumentAndFileUi(
-                              roomUid: widget.roomUid,
-                              documentCount: snapshot.data.documentsCount,
-                              type: MediaType.DOCUMENT,
-                            ),
-                          if (snapshot.hasData &&
-                              snapshot.data.musicsCount != 0)
-                            MusicAndAudioUi(
-                                userUid: widget.roomUid,
-                                type: FetchMediasReq_MediaType.MUSICS,
-                                mediaCount: snapshot.data.musicsCount),
-                          if (snapshot.hasData &&
-                              snapshot.data.audiosCount != 0)
-                            MusicAndAudioUi(
-                                userUid: widget.roomUid,
-                                type: FetchMediasReq_MediaType.AUDIOS,
-                                mediaCount: snapshot.data.audiosCount),
-                        ],
-                        controller: _tabController,
-                      ))));
+                              ),
+                            if (snapshot.hasData &&
+                                snapshot.data.imagesCount != 0)
+                              ImageTabUi(
+                                  snapshot.data.imagesCount, widget.roomUid),
+                            if (snapshot.hasData &&
+                                snapshot.data.videosCount != 0)
+                              VideoTabUi(
+                                  userUid: widget.roomUid,
+                                  videoCount: snapshot.data.videosCount),
+                            if (snapshot.hasData &&
+                                snapshot.data.filesCount != 0)
+                              DocumentAndFileUi(
+                                roomUid: widget.roomUid,
+                                documentCount: snapshot.data.filesCount,
+                                type: MediaType.FILE,
+                              ),
+                            if (snapshot.hasData &&
+                                snapshot.data.linkCount != 0)
+                              linkWidget(widget.roomUid, _mediaQueryRepo,
+                                  snapshot.data.linkCount),
+                            if (snapshot.hasData &&
+                                snapshot.data.documentsCount != 0)
+                              DocumentAndFileUi(
+                                roomUid: widget.roomUid,
+                                documentCount: snapshot.data.documentsCount,
+                                type: MediaType.DOCUMENT,
+                              ),
+                            if (snapshot.hasData &&
+                                snapshot.data.musicsCount != 0)
+                              MusicAndAudioUi(
+                                  userUid: widget.roomUid,
+                                  type: FetchMediasReq_MediaType.MUSICS,
+                                  mediaCount: snapshot.data.musicsCount),
+                            if (snapshot.hasData &&
+                                snapshot.data.audiosCount != 0)
+                              MusicAndAudioUi(
+                                  userUid: widget.roomUid,
+                                  type: FetchMediasReq_MediaType.AUDIOS,
+                                  mediaCount: snapshot.data.audiosCount),
+                          ],
+                          controller: _tabController,
+                        ),
+                      )));
             }),
       ),
     );
+  }
+
+  Widget _buildInfo(BuildContext context) {
+    return SliverList(
+        delegate: SliverChildListDelegate([
+      BoxList(
+          largePageBorderRadius: BorderRadius.only(
+              topRight: Radius.circular(24), topLeft: Radius.circular(24)),
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ProfileAvatar(
+                  roomUid: widget.roomUid,
+                  canSetAvatar: _isMucAdminOrOwner,
+                ),
+                // _buildMenu(context)
+              ],
+            ),
+            if (!widget.roomUid.isGroup())
+              FutureBuilder<String>(
+                future: _roomRepo.getId(widget.roomUid),
+                builder:
+                    (BuildContext context, AsyncSnapshot<String> snapshot) {
+                  if (snapshot.data != null) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: SettingsTile(
+                        title: _locale.getTraslateValue("username"),
+                        subtitle: "${snapshot.data}",
+                        leading: Icon(Icons.alternate_email),
+                        trailing: Icon(Icons.copy),
+                        onPressed: (_) => Clipboard.setData(
+                            ClipboardData(text: "@${snapshot.data}")),
+                      ),
+                    );
+                  } else {
+                    return SizedBox.shrink();
+                  }
+                },
+              ),
+            if (widget.roomUid.isUser())
+              FutureBuilder<Contact>(
+                future: _contactRepo.getContact(widget.roomUid),
+                builder:
+                    (BuildContext context, AsyncSnapshot<Contact> snapshot) {
+                  if (snapshot.data != null) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: SettingsTile(
+                        title: _locale.getTraslateValue("phone"),
+                        subtitle: buildPhoneNumber(snapshot.data.countryCode,
+                            snapshot.data.nationalNumber),
+                        leading: Icon(Icons.phone),
+                        trailing: Icon(Icons.call),
+                        onPressed: (_) => launch(
+                            "tel:${snapshot.data.countryCode}${snapshot.data.nationalNumber}"),
+                      ),
+                    );
+                  } else {
+                    return SizedBox.shrink();
+                  }
+                },
+              ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: SettingsTile(
+                  title: _locale.getTraslateValue("sendMessage"),
+                  leading: Icon(Icons.message),
+                  onPressed: (_) =>
+                      _routingService.openRoom(widget.roomUid.asString())),
+            ),
+            StreamBuilder<bool>(
+              stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
+              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  return SettingsTile.switchTile(
+                      title: _locale.getTraslateValue("notification"),
+                      leading: Icon(Icons.notifications_active),
+                      switchValue: !snapshot.data,
+                      onToggle: (state) {
+                        if (state) {
+                          _roomRepo.unmute(widget.roomUid.asString());
+                        } else {
+                          _roomRepo.mute(widget.roomUid.asString());
+                        }
+                      });
+                } else {
+                  return SizedBox.shrink();
+                }
+              },
+            ),
+            if (widget.roomUid.isMuc())
+              StreamBuilder<Muc>(
+                  stream: _mucRepo.watchMuc(widget.roomUid.asString()),
+                  builder: (c, muc) {
+                    if (muc.hasData &&
+                        muc.data != null &&
+                        muc.data.info.isNotEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top:8.0),
+                        child: SettingsTile(
+                            title: _locale.getTraslateValue("description"),
+                            subtitle: muc.data.info,
+                            leading: Icon(Icons.info),
+                            trailing: SizedBox.shrink()),
+                      );
+                    } else
+                      return SizedBox.shrink();
+                  }),
+            if (widget.roomUid.isMuc())
+              Padding(
+                padding: const EdgeInsets.only(top:8.0),
+                child: SettingsTile(
+                  title: _locale.getTraslateValue("AddMember"),
+                  leading: Icon(Icons.person_add),
+                  onPressed: (_) => _routingService.openMemberSelection(
+                      isChannel: true, mucUid: widget.roomUid),
+                ),
+              ),
+            Divider(height: 4, thickness: 4)
+          ])
+    ]));
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(60.0),
+      child: FluidContainerWidget(
+        child: AppBar(
+          backgroundColor: ExtraTheme.of(context).boxBackground,
+          titleSpacing: 8,
+          title: Align(
+            alignment: Alignment.centerLeft,
+            child: FutureBuilder<String>(
+              future: _roomRepo.getName(widget.roomUid),
+              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                var name = snapshot.data ?? "Loading...";
+                return Text(name, style: Theme.of(context).textTheme.headline2);
+              },
+            ),
+          ),
+          actions: <Widget>[
+            _buildMenu(context),
+          ],
+          leading: _routingService.backButtonLeading(),
+        ),
+      ),
+    );
+  }
+
+  PopupMenuButton<String> _buildMenu(BuildContext context) {
+    return PopupMenuButton(
+      color: ExtraTheme.of(context).popupMenuButton,
+      icon: Icon(Icons.more_vert),
+      itemBuilder: (_) => <PopupMenuItem<String>>[
+        if (widget.roomUid.isMuc() && _isMucOwner)
+          PopupMenuItem<String>(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.add_link_outlined),
+                  SizedBox(width: 8),
+                  Text(_locale.getTraslateValue("create_invite_link"))
+                ],
+              ),
+              value: "invite_link"),
+        if (widget.roomUid.isMuc() && _isMucOwner)
+          PopupMenuItem<String>(
+              child: Row(
+                children: [
+                  Icon(Icons.settings),
+                  SizedBox(width: 8),
+                  Text(widget.roomUid.category == Categories.GROUP
+                      ? _locale.getTraslateValue("manage_group")
+                      : _locale.getTraslateValue("manage_channel")),
+                ],
+              ),
+              value: "manage"),
+        if (widget.roomUid.isMuc() && !_isMucOwner)
+          PopupMenuItem<String>(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.arrow_back_outlined),
+                  SizedBox(width: 8),
+                  Text(
+                    widget.roomUid.isGroup()
+                        ? _locale.getTraslateValue("leftGroup")
+                        : _locale.getTraslateValue("leftChannel"),
+                  ),
+                ],
+              ),
+              value: "leftMuc"),
+        if (widget.roomUid.isMuc() && _isMucOwner)
+          PopupMenuItem<String>(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.delete),
+                  SizedBox(width: 8),
+                  Text(widget.roomUid.isGroup()
+                      ? _locale.getTraslateValue("deleteGroup")
+                      : _locale.getTraslateValue("deleteChannel"))
+                ],
+              ),
+              value: "deleteMuc"),
+        if (!widget.roomUid.isMuc())
+          PopupMenuItem<String>(
+              child: Row(
+                children: [
+                  Icon(Icons.report),
+                  SizedBox(width: 8),
+                  Text(_locale.getTraslateValue("report")),
+                ],
+              ),
+              value: "report")
+      ],
+      onSelected: onSelected,
+    );
+  }
+
+  Future<void> _setupRoomSettings() async {
+    try {
+      await _mediaQueryRepo.getMediaMetaDataReq(widget.roomUid);
+    } catch (e) {
+      _logger.e(e);
+    }
+
+    if (widget.roomUid.isMuc()) {
+      try {
+        final settingAvatarPermission = await _mucRepo.isMucAdminOrOwner(
+            _authRepo.currentUserUid.asString(), widget.roomUid.asString());
+        final mucOwner = await _mucRepo.isMucOwner(
+            _authRepo.currentUserUid.asString(), widget.roomUid.asString());
+        _isMucAdminOrOwner = settingAvatarPermission;
+        _isMucOwner = mucOwner;
+      } catch (e) {
+        _logger.e(e);
+      }
+    }
+    setState(() {});
   }
 
   _navigateHomePage() {
@@ -773,23 +524,13 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  _leftGroup() async {
-    var result = await _mucRepo.leaveGroup(widget.roomUid);
+  _leftMuc() async {
+    var result = await _mucRepo.leaveMuc(widget.roomUid);
     if (result) _navigateHomePage();
   }
 
-  _leftChannel() async {
-    bool result = await _mucRepo.leaveChannel(widget.roomUid);
-    if (result) _navigateHomePage();
-  }
-
-  _deleteGroup() async {
-    var result = await _mucRepo.removeGroup(widget.roomUid);
-    if (result) _navigateHomePage();
-  }
-
-  _deleteChannel() async {
-    bool result = await _mucRepo.removeChannel(widget.roomUid);
+  _deleteMuc() async {
+    var result = await _mucRepo.removeMuc(widget.roomUid);
     if (result) _navigateHomePage();
   }
 
@@ -806,8 +547,7 @@ class _ProfilePageState extends State<ProfilePage>
     if (token != null && token.isNotEmpty) {
       _showInviteLinkDialog(token);
     } else {
-      Fluttertoast.showToast(
-          msg: _appLocalization.getTraslateValue("occurred_Error"));
+      Fluttertoast.showToast(msg: _locale.getTraslateValue("occurred_Error"));
     }
   }
 
@@ -842,25 +582,26 @@ class _ProfilePageState extends State<ProfilePage>
                         Clipboard.setData(
                             ClipboardData(text: generateInviteLink(token)));
                         Fluttertoast.showToast(
-                            msg: _appLocalization.getTraslateValue("Copied"));
+                            msg: _locale.getTraslateValue("Copied"));
                         Navigator.pop(context);
                       },
                       child: Text(
-                        _appLocalization.getTraslateValue("Copy"),
+                        _locale.getTraslateValue("Copy"),
                         style: TextStyle(fontSize: 16),
                       )),
                   ElevatedButton(
                     onPressed: () {
+                      // TODO set name for share uid
                       _routingService.openSelectForwardMessage(
                           sharedUid: proto.ShareUid()
-                            ..name = mucName
+                            ..name = ""
                             ..joinToken = token
                             ..uid = widget.roomUid);
 
                       Navigator.pop(context);
                     },
                     child: Text(
-                      _appLocalization.getTraslateValue("share"),
+                      _locale.getTraslateValue("share"),
                       style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
@@ -873,48 +614,6 @@ class _ProfilePageState extends State<ProfilePage>
 
   generateInviteLink(String token) {
     return "https://deliver-co.ir/join/${widget.roomUid.category}/${widget.roomUid.node}/$token";
-  }
-
-  showAvatar() {
-    return Container(
-      // padding: const EdgeInsets.only(top: 40, bottom: 60),
-      child: showProgressBar
-          ? CircleAvatar(
-              radius: 80,
-              backgroundImage: Image.file(File(_uploadAvatarPath)).image,
-              child: Center(
-                child: SizedBox(
-                    height: 70.0,
-                    width: 70.0,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(Colors.blue),
-                      strokeWidth: 6.0,
-                    )),
-              ),
-            )
-          : Center(
-              child: Container(
-                child: GestureDetector(
-                  child: CircleAvatarWidget(
-                    widget.roomUid,
-                    80,
-                    showAsStreamOfAvatar: true,
-                    showSavedMessageLogoIfNeeded: true,
-                  ),
-                  onTap: () async {
-                    var lastAvatar =
-                        await _avatarRepo.getLastAvatar(widget.roomUid, false);
-                    if (lastAvatar.createdOn != null) {
-                      _routingService.openShowAllAvatars(
-                          uid: widget.roomUid,
-                          hasPermissionToDeleteAvatar: _setAvatarPermission,
-                          heroTag: "avatar");
-                    }
-                  },
-                ),
-              ),
-            ),
-    );
   }
 
   showQrCode() {
@@ -952,25 +651,6 @@ class _ProfilePageState extends State<ProfilePage>
         });
   }
 
-  _setAvatar(String avatarPath) async {
-    setState(() {
-      showProgressBar = true;
-      _uploadAvatarPath = avatarPath;
-    });
-    if (await _avatarRepo.setMucAvatar(widget.roomUid, File(avatarPath)) !=
-        null) {
-      setState(() {
-        showProgressBar = false;
-      });
-    } else {
-      setState(() {
-        showProgressBar = false;
-      });
-      Fluttertoast.showToast(
-          msg: _appLocalization.getTraslateValue("occurred_Error"));
-    }
-  }
-
   void _showDeleteMucDialog() async {
     showDialog(
         context: context,
@@ -994,10 +674,8 @@ class _ProfilePageState extends State<ProfilePage>
                 children: [
                   Text(
                       widget.roomUid.isGroup()
-                          ? _appLocalization
-                              .getTraslateValue("sure_delete_group")
-                          : _appLocalization
-                              .getTraslateValue("sure_delete_channel"),
+                          ? _locale.getTraslateValue("sure_delete_group")
+                          : _locale.getTraslateValue("sure_delete_channel"),
                       style: TextStyle(color: Colors.black, fontSize: 18)),
                 ],
               ),
@@ -1008,7 +686,7 @@ class _ProfilePageState extends State<ProfilePage>
                 children: [
                   GestureDetector(
                     child: Text(
-                      _appLocalization.getTraslateValue("cancel"),
+                      _locale.getTraslateValue("cancel"),
                       style: TextStyle(fontSize: 16, color: Colors.blue),
                     ),
                     onTap: () {
@@ -1020,14 +698,10 @@ class _ProfilePageState extends State<ProfilePage>
                   ),
                   GestureDetector(
                     child: Text(
-                      _appLocalization.getTraslateValue("ok"),
+                      _locale.getTraslateValue("ok"),
                       style: TextStyle(fontSize: 16, color: Colors.red),
                     ),
-                    onTap: () {
-                      widget.roomUid.isGroup()
-                          ? _deleteGroup()
-                          : _deleteChannel();
-                    },
+                    onTap: () => _deleteMuc(),
                   ),
                   SizedBox(
                     width: 10,
@@ -1037,63 +711,6 @@ class _ProfilePageState extends State<ProfilePage>
             ],
           );
         });
-  }
-
-  selectAvatar() async {
-    if (isDesktop()) {
-      final typeGroup = XTypeGroup(label: 'images', extensions: [
-        'png',
-        'jpg',
-        'jpeg',
-      ]);
-      final result = await openFile(acceptedTypeGroups: [typeGroup]);
-      if (result.path.isNotEmpty) {
-        _setAvatar(result.path);
-      }
-    } else if ((await ImageItem.getImages()) == null ||
-        (await ImageItem.getImages()).length < 1) {
-      FilePickerResult result = await FilePicker.platform.pickFiles(
-        allowMultiple: true,
-        type: FileType.custom,
-      );
-      if (result != null) {
-        for (var path in result.paths) {
-          _setAvatar(path);
-        }
-      }
-    } else {
-      showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          isDismissible: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) {
-            return DraggableScrollableSheet(
-              initialChildSize: 0.3,
-              minChildSize: 0.2,
-              maxChildSize: 1,
-              expand: false,
-              builder: (context, scrollController) {
-                return Container(
-                    color: Colors.white,
-                    child: Stack(children: <Widget>[
-                      Container(
-                        padding: const EdgeInsets.all(0),
-                        child: ShareBoxGallery(
-                          scrollController: scrollController,
-                          onClick: (File croppedFile) async {
-                            _setAvatar(croppedFile.path);
-                          },
-                          selectedImages: _selectedImages,
-                          selectGallery: false,
-                          roomUid: widget.roomUid,
-                        ),
-                      ),
-                    ]));
-              },
-            );
-          });
-    }
   }
 
   InputDecoration buildInputDecoration(String label) {
@@ -1140,9 +757,8 @@ class _ProfilePageState extends State<ProfilePage>
                 children: [
                   Text(
                       widget.roomUid.isGroup()
-                          ? _appLocalization.getTraslateValue("sure_left_group")
-                          : _appLocalization
-                              .getTraslateValue("sure_left_channel"),
+                          ? _locale.getTraslateValue("sure_left_group")
+                          : _locale.getTraslateValue("sure_left_channel"),
                       style: TextStyle(color: Colors.black, fontSize: 18)),
                 ],
               ),
@@ -1153,7 +769,7 @@ class _ProfilePageState extends State<ProfilePage>
                 children: [
                   GestureDetector(
                     child: Text(
-                      _appLocalization.getTraslateValue("cancel"),
+                      _locale.getTraslateValue("cancel"),
                       style: TextStyle(fontSize: 16, color: Colors.blue),
                     ),
                     onTap: () {
@@ -1165,12 +781,10 @@ class _ProfilePageState extends State<ProfilePage>
                   ),
                   GestureDetector(
                     child: Text(
-                      _appLocalization.getTraslateValue("ok"),
+                      _locale.getTraslateValue("ok"),
                       style: TextStyle(fontSize: 16, color: Colors.red),
                     ),
-                    onTap: () {
-                      widget.roomUid.isGroup() ? _leftGroup() : _leftChannel();
-                    },
+                    onTap: () => _leftMuc(),
                   ),
                   SizedBox(
                     width: 10,
@@ -1232,7 +846,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 initialValue: name.data,
                                 validator: (s) {
                                   if (s.isEmpty) {
-                                    return _appLocalization
+                                    return _locale
                                         .getTraslateValue("name_not_empty");
                                   } else {
                                     return null;
@@ -1248,9 +862,8 @@ class _ProfilePageState extends State<ProfilePage>
                                 keyboardType: TextInputType.text,
                                 decoration: buildInputDecoration(
                                   widget.roomUid.category == Categories.GROUP
-                                      ? _appLocalization
-                                          .getTraslateValue("group_name")
-                                      : _appLocalization
+                                      ? _locale.getTraslateValue("group_name")
+                                      : _locale
                                           .getTraslateValue("channel_name"),
                                 ),
                               )),
@@ -1287,16 +900,15 @@ class _ProfilePageState extends State<ProfilePage>
                                         }
                                       },
                                       keyboardType: TextInputType.text,
-                                      decoration: buildInputDecoration(
-                                          _appLocalization
-                                              .getTraslateValue("channel_Id")),
+                                      decoration: buildInputDecoration(_locale
+                                          .getTraslateValue("channel_Id")),
                                     )),
                                 StreamBuilder(
-                                    stream: showChannelIdError.stream,
+                                    stream: _showChannelIdError.stream,
                                     builder: (c, e) {
                                       if (e.hasData && e.data) {
                                         return Text(
-                                          _appLocalization.getTraslateValue(
+                                          _locale.getTraslateValue(
                                               "channel_id_isExist"),
                                           style: TextStyle(color: Colors.red),
                                         );
@@ -1333,9 +945,8 @@ class _ProfilePageState extends State<ProfilePage>
                           keyboardType: TextInputType.multiline,
                           decoration: buildInputDecoration(
                             widget.roomUid.category == Categories.GROUP
-                                ? _appLocalization
-                                    .getTraslateValue("enter-group-desc")
-                                : _appLocalization
+                                ? _locale.getTraslateValue("enter-group-desc")
+                                : _locale
                                     .getTraslateValue("enter-channel-desc"),
                           ),
                         );
@@ -1405,7 +1016,7 @@ class _ProfilePageState extends State<ProfilePage>
                                   }
                                 : () {},
                             child: Text(
-                              _appLocalization.getTraslateValue("set"),
+                              _locale.getTraslateValue("set"),
                               style: TextStyle(
                                   fontSize: 25,
                                   color: change.data
@@ -1431,10 +1042,10 @@ class _ProfilePageState extends State<ProfilePage>
   Future<bool> checkChannelD(String id) async {
     var res = await _mucRepo.channelIdIsAvailable(id);
     if (res != null && res) {
-      showChannelIdError.add(false);
+      _showChannelIdError.add(false);
       return res;
     } else
-      showChannelIdError.add(true);
+      _showChannelIdError.add(true);
     return false;
   }
 
@@ -1442,18 +1053,15 @@ class _ProfilePageState extends State<ProfilePage>
     Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
     RegExp regex = new RegExp(pattern);
     if (value.isEmpty) {
-      return _appLocalization.getTraslateValue("channelId_not_empty");
+      return _locale.getTraslateValue("channelId_not_empty");
     } else if (!regex.hasMatch(value)) {
-      return _appLocalization.getTraslateValue("channel_id_length");
+      return _locale.getTraslateValue("channel_id_length");
     } else
       return null;
   }
 
   onSelected(String selected) {
     switch (selected) {
-      case "select":
-        selectAvatar();
-        break;
       case "leftMuc":
         _showLeftMucDialog();
         break;
@@ -1468,8 +1076,7 @@ class _ProfilePageState extends State<ProfilePage>
         break;
       case "report":
         _roomRepo.reportRoom(widget.roomUid);
-        Fluttertoast.showToast(
-            msg: _appLocalization.getTraslateValue("report_result"));
+        Fluttertoast.showToast(msg: _locale.getTraslateValue("report_result"));
         break;
       case "manage":
         showManageDialog();
@@ -1518,45 +1125,6 @@ Widget linkWidget(Uid userUid, MediaQueryRepo mediaQueryRepo, int linksCount) {
           );
         }
       });
-}
-
-Widget _showUsername(String username, Uid currentUid,
-    AppLocalization _appLocalization, BuildContext context) {
-  var routingServices = GetIt.I.get<RoutingService>();
-  return Padding(
-    padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        GestureDetector(
-          child: Text(
-            username != null ? "@$username" : '',
-            style: TextStyle(fontSize: 18.0, color: Colors.blue),
-          ),
-          onLongPress: () {
-            Clipboard.setData(ClipboardData(text: "@$username"));
-            Fluttertoast.showToast(
-                msg: _appLocalization.getTraslateValue("Copied"));
-          },
-        ),
-        // SizedBox(
-        //   width: 150,
-        // ),
-        IconButton(
-            icon: Icon(
-              Icons.share,
-              size: 22,
-              color: Colors.blue,
-            ),
-            onPressed: () {
-              routingServices.openSelectForwardMessage(
-                  sharedUid: proto.ShareUid()
-                    ..name = username
-                    ..uid = currentUid);
-            })
-      ],
-    ),
-  );
 }
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {

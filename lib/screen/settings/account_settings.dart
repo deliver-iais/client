@@ -9,6 +9,7 @@ import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/screen/settings/settings_page.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -56,7 +57,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     String path;
     if (isDesktop()) {
       final typeGroup = XTypeGroup(
-          label: 'images', extensions: ['png', 'jpg', 'jpeg', 'gif']);
+          label: 'images', extensions: SUPPORTED_IMAGE_EXTENSIONS);
       final result = await openFile(acceptedTypeGroups: [typeGroup]);
       path = result.path;
     } else {
@@ -142,10 +143,8 @@ class _AccountSettingsState extends State<AccountSettings> {
               }
               _account = snapshot.data;
               _lastUserName = snapshot.data.userName;
-              return SettingsList(
-                lightBackgroundColor: ExtraTheme.of(context).boxBackground,
-                darkBackgroundColor: ExtraTheme.of(context).boxBackground,
-                sections: [
+              return ListView(
+                children: [
                   SettingsSection(
                       title: _appLocalization.getTraslateValue("avatar"),
                       tiles: [
@@ -184,8 +183,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   width: 130,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color:
-                                        Colors.grey[500].withOpacity(0.4),
+                                    color: Colors.grey[500].withOpacity(0.4),
                                   ),
                                   child: IconButton(
                                     color: Colors.white,
@@ -203,160 +201,151 @@ class _AccountSettingsState extends State<AccountSettings> {
                         )
                       ]),
                   SettingsSection(
-                      title:
-                          _appLocalization.getTraslateValue("account_info"),
+                      title: _appLocalization.getTraslateValue("account_info"),
                       tiles: [
                         NormalSettingsTitle(
                             child: Column(
-                              children: [
-                                Form(
-                                    key: _formKey,
-                                    child: Column(
-                                      children: [
-                                        Form(
-                                          key: _usernameFormKey,
-                                          child: TextFormField(
-                                              minLines: 1,
-                                              style: TextStyle(
-                                                  color: ExtraTheme.of(context)
-                                                      .textField),
-                                              initialValue:
-                                                  snapshot.data.userName,
-                                              textInputAction:
-                                                  TextInputAction.send,
-                                              onChanged: (str) {
-                                                setState(() {
-                                                  _newUsername = str;
-                                                  _username = str;
-                                                  subject.add(str);
-                                                });
-                                              },
-                                              validator: validateUsername,
-                                              decoration: buildInputDecoration(
-                                                  _appLocalization
-                                                      .getTraslateValue(
-                                                          "username"),
-                                                  true)),
-                                        ),
-                                        SizedBox(
-                                          height: 5,
-                                        ),
-                                        _newUsername.isEmpty
-                                            ? Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      _appLocalization
-                                                          .getTraslateValue(
-                                                              "usernameHelper"),
-                                                      textAlign:
-                                                          TextAlign.justify,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 2,
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: Colors
-                                                              .blueAccent),
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            : SizedBox.shrink(),
-                                        !usernameIsAvailable
-                                            ? Row(
-                                                children: [
-                                                  Text(
-                                                    _appLocalization
-                                                        .getTraslateValue(
-                                                            "usernameExit"),
-                                                    style: TextStyle(
-                                                        fontSize: 10,
-                                                        color: Colors.red),
-                                                  ),
-                                                ],
-                                              )
-                                            : SizedBox.shrink(),
-                                        SizedBox(
-                                          height: 20,
-                                        ),
-                                        TextFormField(
-                                          initialValue:
-                                              snapshot.data.firstName ?? "",
+                          children: [
+                            Form(
+                                key: _formKey,
+                                child: Column(
+                                  children: [
+                                    Form(
+                                      key: _usernameFormKey,
+                                      child: TextFormField(
                                           minLines: 1,
                                           style: TextStyle(
                                               color: ExtraTheme.of(context)
                                                   .textField),
+                                          initialValue: snapshot.data.userName,
                                           textInputAction: TextInputAction.send,
                                           onChanged: (str) {
                                             setState(() {
-                                              _firstName = str;
+                                              _newUsername = str;
+                                              _username = str;
+                                              subject.add(str);
                                             });
                                           },
-                                          validator: validateFirstName,
+                                          validator: validateUsername,
                                           decoration: buildInputDecoration(
-                                              _appLocalization.getTraslateValue(
-                                                  "firstName"),
-                                              true),
-                                        ),
-                                        SizedBox(
-                                          height: 20,
-                                        ),
-                                        TextFormField(
-                                            initialValue:
-                                                snapshot.data.lastName ?? "",
-                                            minLines: 1,
-                                            style: TextStyle(
-                                                color: ExtraTheme.of(context)
-                                                    .textField),
-                                            textInputAction:
-                                                TextInputAction.send,
-                                            onChanged: (str) {
-                                              setState(() {
-                                                _lastName = str;
-                                              });
-                                            },
-                                            decoration: buildInputDecoration(
+                                              _appLocalization
+                                                  .getTraslateValue("username"),
+                                              true)),
+                                    ),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    _newUsername.isEmpty
+                                        ? Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  _appLocalization
+                                                      .getTraslateValue(
+                                                          "usernameHelper"),
+                                                  textAlign: TextAlign.justify,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 2,
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.blueAccent),
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        : SizedBox.shrink(),
+                                    !usernameIsAvailable
+                                        ? Row(
+                                            children: [
+                                              Text(
                                                 _appLocalization
                                                     .getTraslateValue(
-                                                        "lastName"),
-                                                false)),
-                                        SizedBox(
-                                          height: 20,
-                                        ),
-                                        TextFormField(
-                                            initialValue:
-                                                snapshot.data.email ?? "",
-                                            minLines: 1,
-                                            style: TextStyle(
-                                                color: ExtraTheme.of(context)
-                                                    .textField),
-                                            textInputAction:
-                                                TextInputAction.send,
-                                            onChanged: (str) {
-                                              setState(() {
-                                                _email = str;
-                                              });
-                                            },
-                                            validator: validateEmail,
-                                            decoration: buildInputDecoration(
-                                                _appLocalization
-                                                    .getTraslateValue("email"),
-                                                false)),
-                                      ],
-                                    )),
-                                SizedBox(height: 8),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: TextButton(
-                                    child: Text(_appLocalization.getTraslateValue("save")),
-                                    onPressed: () async {
-                                      checkAndSend();
-                                    },
-                                  ),
-                                )
-                              ],
-                            ))
+                                                        "usernameExit"),
+                                                style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.red),
+                                              ),
+                                            ],
+                                          )
+                                        : SizedBox.shrink(),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    TextFormField(
+                                      initialValue:
+                                          snapshot.data.firstName ?? "",
+                                      minLines: 1,
+                                      style: TextStyle(
+                                          color:
+                                              ExtraTheme.of(context).textField),
+                                      textInputAction: TextInputAction.send,
+                                      onChanged: (str) {
+                                        setState(() {
+                                          _firstName = str;
+                                        });
+                                      },
+                                      validator: validateFirstName,
+                                      decoration: buildInputDecoration(
+                                          _appLocalization
+                                              .getTraslateValue("firstName"),
+                                          true),
+                                    ),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    TextFormField(
+                                        initialValue:
+                                            snapshot.data.lastName ?? "",
+                                        minLines: 1,
+                                        style: TextStyle(
+                                            color: ExtraTheme.of(context)
+                                                .textField),
+                                        textInputAction: TextInputAction.send,
+                                        onChanged: (str) {
+                                          setState(() {
+                                            _lastName = str;
+                                          });
+                                        },
+                                        decoration: buildInputDecoration(
+                                            _appLocalization
+                                                .getTraslateValue("lastName"),
+                                            false)),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    TextFormField(
+                                        initialValue: snapshot.data.email ?? "",
+                                        minLines: 1,
+                                        style: TextStyle(
+                                            color: ExtraTheme.of(context)
+                                                .textField),
+                                        textInputAction: TextInputAction.send,
+                                        onChanged: (str) {
+                                          setState(() {
+                                            _email = str;
+                                          });
+                                        },
+                                        validator: validateEmail,
+                                        decoration: buildInputDecoration(
+                                            _appLocalization
+                                                .getTraslateValue("email"),
+                                            false)),
+                                  ],
+                                )),
+                            SizedBox(height: 8),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                child: Text(
+                                    _appLocalization.getTraslateValue("save")),
+                                onPressed: () async {
+                                  checkAndSend();
+                                },
+                              ),
+                            )
+                          ],
+                        ))
                       ])
                 ],
               );
