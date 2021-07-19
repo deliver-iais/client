@@ -59,7 +59,8 @@ class _DevicesPageState extends State<DevicesPage> {
 
             return ListView.separated(
                 itemBuilder: (c, index) {
-                  return sessionWidget(sessions[index], index == 0);
+                  return sessionWidget(
+                      sessions[index], sessions[index] == currentSession);
                 },
                 separatorBuilder: (c, i) {
                   if (i == 0) {
@@ -186,52 +187,53 @@ class _DevicesPageState extends State<DevicesPage> {
   Widget sessionWidget(Session session, bool currentDevices) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Expanded(
-        child: Container(
-          height: currentDevices ? 80 : 60,
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () {
-              if (!currentDevices) {
-                _showTerminateSession([session], context);
-              }
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (currentDevices)
-                      Text(
-                        _appLocalization.getTraslateValue("this_device"),
-                        style: TextStyle(color: Colors.blueAccent),
-                      ),
-                    Text(session.ip),
-                    Expanded(
-                      child: Text(
-                        session.device,
+      child: Container(
+        height: currentDevices ? 80 : 60,
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            if (!currentDevices) {
+              _showTerminateSession([session], context);
+            }
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (currentDevices)
+                    Text(
+                      _appLocalization.getTraslateValue("this_device"),
+                      style: TextStyle(color: Colors.blueAccent),
+                    ),
+                  Text(
+                    session.ip,
+                    style: TextStyle(color: ExtraTheme.of(context).textField),
+                  ),
+                  Expanded(
+                    child: Text(session.device,
                         maxLines: 1,
                         overflow: TextOverflow.fade,
                         softWrap: false,
-                      ),
-                    ),
-                    Text(session.sessionId),
-                  ],
-                ),
-                if (currentDevices)
-                  Text(
-                    "online",
-                    style: TextStyle(color: Colors.blueAccent),
-                  )
-                else
-                  Text(
+                        style: TextStyle(
+                            color: ExtraTheme.of(context).textField)),
+                  ),
+                  Text(session.sessionId),
+                ],
+              ),
+              if (currentDevices)
+                Text(
+                  "online",
+                  style: TextStyle(color: Colors.blueAccent),
+                )
+              else
+                Text(
                     DateTime.fromMillisecondsSinceEpoch(
                             session.createdOn.toInt())
                         .dateTimeFormat(),
-                  )
-              ],
-            ),
+                    style: TextStyle(color: ExtraTheme.of(context).textField))
+            ],
           ),
         ),
       ),

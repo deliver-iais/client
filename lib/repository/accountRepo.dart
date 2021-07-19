@@ -132,7 +132,6 @@ class AccountRepo {
   }
    Future<List<Session>> getSessions ()async{
     var res = await _sessionServicesClient.getMySessions(GetMySessionsReq());
-    print(res.sessions.length.toString());
     return res.sessions;
 
   }
