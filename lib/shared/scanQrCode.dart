@@ -135,7 +135,7 @@ class _ScanQrCode extends State<ScanQrCode> {
   Widget _buildQrView(BuildContext context) {
     var scanArea = (MediaQuery.of(context).size.width < 400 ||
             MediaQuery.of(context).size.height < 400)
-        ? 250
+        ? 250.0
         : 350.0;
 
     return QRView(

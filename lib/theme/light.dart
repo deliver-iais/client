@@ -34,10 +34,10 @@ ThemeData LightTheme =
             elevation: 0,
             iconTheme: IconThemeData(color: Color(0xff002121))),
         sliderTheme: SliderThemeData(
-          thumbColor: Color(0xff4bd5af),
+          thumbColor: Color(0xFF2699FB),
           trackHeight: 2.25,
-          activeTrackColor: Color(0xff4bd5af),
-          inactiveTrackColor: Color(0xff179c96),
+          activeTrackColor: Color(0xFF2699FB),
+          inactiveTrackColor: Colors.white,
           thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
         ),
         iconTheme: IconThemeData(color: Color(0xff002121)),

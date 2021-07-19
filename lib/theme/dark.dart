@@ -28,7 +28,7 @@ ThemeData DarkTheme =
         dialogTheme: DialogTheme(
             titleTextStyle: TextStyle(color: Colors.white, fontSize: 18)),
         appBarTheme: AppBarTheme(
-          color: Colors.white,
+          color: Color(0xFF03151d),
           elevation: 0,
         ),
         sliderTheme: SliderThemeData(
