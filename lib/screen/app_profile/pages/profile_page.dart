@@ -152,8 +152,8 @@ class _ProfilePageState extends State<ProfilePage>
                           SliverPersistentHeader(
                             pinned: true,
                             delegate: _SliverAppBarDelegate(
-                                maxHeight: 60,
-                                minHeight: 60,
+                                maxHeight: 45,
+                                minHeight: 45,
                                 child: Box(
                                   borderRadius: BorderRadius.zero,
                                   child: TabBar(
@@ -218,16 +218,13 @@ class _ProfilePageState extends State<ProfilePage>
                       body: Box(
                         borderRadius: BorderRadius.zero,
                         child: TabBarView(
+                          physics: NeverScrollableScrollPhysics(),
                           children: [
-                            if (widget.roomUid.category != Categories.USER &&
-                                widget.roomUid.category != Categories.SYSTEM &&
-                                widget.roomUid.category != Categories.BOT)
+                            if (widget.roomUid.isMuc())
                               SingleChildScrollView(
-                                child: Column(children: [
-                                  MucMemberWidget(
-                                    mucUid: widget.roomUid,
-                                  ),
-                                ]),
+                                child: MucMemberWidget(
+                                  mucUid: widget.roomUid,
+                                ),
                               ),
                             if (snapshot.hasData &&
                                 snapshot.data.imagesCount != 0)
@@ -281,7 +278,7 @@ class _ProfilePageState extends State<ProfilePage>
     return SliverList(
         delegate: SliverChildListDelegate([
       Padding(
-        padding: EdgeInsets.only(bottom: 4),
+        padding: EdgeInsets.only(bottom: 2),
         child: BoxList(
             largePageBorderRadius: BorderRadius.only(
                 topRight: Radius.circular(24), topLeft: Radius.circular(24)),

@@ -64,6 +64,8 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
             obtainMyRole(snapshot.data);
             List<Widget> widgets = [];
 
+            widgets.add(Divider());
+
             snapshot.data.forEach((member) {
               widgets.add(GestureDetector(
                   onTap: () {

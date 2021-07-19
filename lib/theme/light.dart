@@ -43,10 +43,10 @@ ThemeData LightTheme =
         iconTheme: IconThemeData(color: Color(0xff002121)),
         tabBarTheme: TabBarTheme(
           indicator: UnderlineTabIndicator(
-              borderSide: BorderSide(width: 2.0, color: Colors.blue),
+              borderSide: BorderSide(width: 2.0, color: Color(0xFF2699FB)),
               insets: EdgeInsets.zero),
-          labelColor: Color(0xff179c96),
-          unselectedLabelColor: Color(0xff002121),
+          labelColor: Color(0xFF2699FB),
+          unselectedLabelColor: Color(0xbb002121),
         ));
 
 // ignore: non_constant_identifier_names
