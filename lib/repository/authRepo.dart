@@ -137,7 +137,8 @@ class AuthRepo {
     if (decodedToken != null) {
       currentUserUid = Uid()
         ..category = Categories.USER
-        ..node = decodedToken["sub"];
+        ..node = decodedToken["sub"]
+        ..sessionId = decodedToken["jti"];
       _logger.d(currentUserUid);
       _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, currentUserUid.asString());
     }
