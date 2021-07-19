@@ -810,6 +810,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 }
               }),
         ],
+        bottom: PreferredSize(
+          child: Divider(),
+          preferredSize: Size.fromHeight(1),
+        ),
       ),
     );
   }

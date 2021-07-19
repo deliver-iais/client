@@ -5,6 +5,7 @@ import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
@@ -152,6 +153,10 @@ class AuthRepo {
   }
 
   bool isCurrentUser(String uid) => uid.isSameEntity(currentUserUid);
+
+  bool isCurrentSession(Session session) =>
+      currentUserUid.sessionId == session.sessionId &&
+      currentUserUid.node == session.node;
 }
 
 class DeliverClientInterceptor implements ClientInterceptor {

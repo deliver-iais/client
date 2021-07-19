@@ -204,6 +204,6 @@
   "devices": "Devices",
   "this_device": "This device",
   "delete_session": "delete session",
-  "active_devices": "Active Devices",
-  "delete_all_session": "Delete All Devices"
+  "active_sessions": "Active Sessions",
+  "terminate_all_other_sessions": "Terminate all other sessions"
 }

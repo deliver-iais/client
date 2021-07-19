@@ -205,6 +205,6 @@
   "devices": "دستگاه ها",
   "this_device": "دستگاته کنونی",
   "delete_session": "حذف  دستگاه",
-  "active_devices": "دستگاه های فعال",
-  "delete_all_session": "حذف همه دستگاه ها"
+  "active_sessions": "حساب‌های فعال",
+  "terminate_all_other_sessions": "حذف دیگر حساب های فعال"
 }

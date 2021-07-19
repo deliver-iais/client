@@ -2,6 +2,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
+import 'package:deliver_flutter/shared/box.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
@@ -47,58 +48,92 @@ class _DevicesPageState extends State<DevicesPage> {
         future: _accountRepo.getSessions(),
         builder: (c, sessionData) {
           if (sessionData.hasData && sessionData.data != null) {
-            Session currentSession = sessionData.data
-                .where((element) => element.sessionId
-                    .contains(_authRepo.currentUserUid.sessionId))
-                .first;
-            sessionData.data.remove(currentSession);
-            List<Session> se = sessionData.data;
-            List<Session> otherSession = se;
-            se.add(currentSession);
-            List<Session> sessions = se.reversed.toList();
+            Session currentSession = sessionData.data.firstWhere(
+                (s) => s.sessionId == _authRepo.currentUserUid.sessionId,
+                orElse: () => Session()
+                  ..node = _authRepo.currentUserUid.node
+                  ..sessionId = _authRepo.currentUserUid.sessionId);
 
-            return ListView.separated(
-                itemBuilder: (c, index) {
-                  return sessionWidget(
-                      sessions[index], sessions[index].sessionId.contains(currentSession.sessionId));
-                },
-                separatorBuilder: (c, i) {
-                  if (i == 0) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Divider(
-                            color: Colors.blueAccent,
-                          ),
-                          Text(
-                            _appLocalization.getTraslateValue("active_devices"),
+            List<Session> otherSessions = sessionData.data
+                .where((s) => s.sessionId != _authRepo.currentUserUid.sessionId)
+                .toList();
+
+            return FluidContainerWidget(
+                child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Box(
+                  child: Container(
+                    padding: const EdgeInsets.all(8.0),
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            _appLocalization.getTraslateValue("this_device"),
                             style: TextStyle(color: Colors.blueAccent),
                           ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          GestureDetector(
-                            child: Text(
-                              _appLocalization
-                                  .getTraslateValue("delete_all_session"),
-                              style: TextStyle(color: Colors.red, fontSize: 18),
-                            ),
-                            onTap: () {
-                              _showTerminateSession(otherSession, context);
-                            },
-                          )
-                        ],
+                        ),
+                        sessionWidget(currentSession),
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.only(
+                      top: 16.0, left: 24.0, right: 24.0, bottom: 8.0),
+                  width: double.infinity,
+                  child: TextButton(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        _appLocalization
+                            .getTraslateValue("terminate_all_other_sessions"),
+                        style: TextStyle(color: Colors.red, fontSize: 15),
                       ),
-                    );
-                  } else
-                    return Divider(
-                      color: Colors.blueAccent,
-                    );
-                },
-                itemCount: sessions.length);
+                    ),
+                    onPressed: () {
+                      _showTerminateSession(otherSessions, context);
+                    },
+                  ),
+                ),
+                Divider(),
+                if (otherSessions.length > 0)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 16.0, horizontal: 24.0),
+                    child: Center(
+                      child: Text(
+                        _appLocalization.getTraslateValue("active_sessions"),
+                        style: TextStyle(
+                            color: Colors.blueAccent,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 15),
+                      ),
+                    ),
+                  ),
+                if (otherSessions.length > 0)
+                  Expanded(
+                    child: ListView.separated(
+                      itemBuilder: (c, index) {
+                        return Box(
+                            child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: sessionWidget(otherSessions[index]),
+                        ));
+                      },
+                      itemCount: otherSessions.length,
+                      separatorBuilder: (c, i) {
+                        return SizedBox(
+                          height: 8,
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ));
           } else {
             return Center(
               child: CircularProgressIndicator(
@@ -107,6 +142,54 @@ class _DevicesPageState extends State<DevicesPage> {
             );
           }
         },
+      ),
+    );
+  }
+
+  Widget sessionWidget(Session session) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            if (!_authRepo.isCurrentSession(session)) {
+              _showTerminateSession([session], context);
+            }
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(session.device,
+                  maxLines: 1,
+                  overflow: TextOverflow.fade,
+                  softWrap: false,
+                  style: TextStyle(color: ExtraTheme.of(context).textField)),
+              // Text(session.sessionId),
+              Text(
+                session.ip.isEmpty
+                    ? "No IP Provided"
+                    : session.ip ?? "No IP Provided",
+                style: TextStyle(
+                    color: ExtraTheme.of(context).textField.withOpacity(0.5)),
+              ),
+              DefaultTextStyle(
+                style: TextStyle(
+                    color: ExtraTheme.of(context).textField.withOpacity(0.5)),
+                child: Row(
+                  children: [
+                    Text("Created On: "),
+                    Text(session.createdOn.toInt() == 0
+                        ? "No Time Provided"
+                        : DateTime.fromMillisecondsSinceEpoch(
+                                session.createdOn.toInt())
+                            .dateTimeFormat()),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -135,7 +218,7 @@ class _DevicesPageState extends State<DevicesPage> {
                   Text(
                       sessions.length > 1
                           ? _appLocalization
-                              .getTraslateValue("delete_all_session")
+                              .getTraslateValue("terminate_all_other_sessions")
                           : _appLocalization.getTraslateValue("delete_session"),
                       style: TextStyle(color: Colors.black, fontSize: 18)),
                 ],
@@ -182,61 +265,5 @@ class _DevicesPageState extends State<DevicesPage> {
             ],
           );
         });
-  }
-
-  Widget sessionWidget(Session session, bool currentDevices) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        height: currentDevices ? 80 : 60,
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            if (!currentDevices) {
-              _showTerminateSession([session], context);
-            }
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (currentDevices)
-                    Text(
-                      _appLocalization.getTraslateValue("this_device"),
-                      style: TextStyle(color: Colors.blueAccent),
-                    ),
-                  Text(
-                    session.ip,
-                    style: TextStyle(color: ExtraTheme.of(context).textField),
-                  ),
-                  Expanded(
-                    child: Text(session.device,
-                        maxLines: 1,
-                        overflow: TextOverflow.fade,
-                        softWrap: false,
-                        style: TextStyle(
-                            color: ExtraTheme.of(context).textField)),
-                  ),
-                  Text(session.sessionId),
-                ],
-              ),
-              if (currentDevices)
-                Text(
-                  "online",
-                  style: TextStyle(color: Colors.blueAccent),
-                )
-              else
-                Text(
-                    DateTime.fromMillisecondsSinceEpoch(
-                            session.createdOn.toInt())
-                        .dateTimeFormat(),
-                    style: TextStyle(color: ExtraTheme.of(context).textField))
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

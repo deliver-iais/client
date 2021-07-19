@@ -14,7 +14,7 @@ ThemeData DarkTheme =
         backgroundColor: Color(0xFF032738),
         buttonColor: Color(0xFF2699FB),
         dividerTheme: DividerThemeData(
-            space: 1.0, thickness: 1.0, color: Color(0xFF1b1b1b)),
+            space: 1.0, thickness: 1.0, color: Color(0xFF3b3b3b)),
         focusColor: Color(0xFF2699FB).withOpacity(0.5),
         cardColor: Color(0xFF2699FB),
         textTheme: TextTheme(
