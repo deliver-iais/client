@@ -201,5 +201,7 @@
   "contact_add": " Add in Contacts",
   "qr_share": "Share by QR Code",
   "about": "About",
-  "user_experience": "User Experience"
+  "user_experience": "User Experience",
+  "send_msg_to_bot": "send Message To Bot",
+  "get_Private_date_access": "get Private date Access"
 }

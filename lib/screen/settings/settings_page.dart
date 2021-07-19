@@ -174,7 +174,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: appLocalization.getTraslateValue("saved_message"),
                     titleTextStyle:
-                    TextStyle(color: ExtraTheme.of(context).textField),
+                        TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.bookmark),
                     onPressed: (BuildContext context) {
                       _routingService
@@ -184,7 +184,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: appLocalization.getTraslateValue("contacts"),
                     titleTextStyle:
-                    TextStyle(color: ExtraTheme.of(context).textField),
+                        TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.contacts),
                     onPressed: (BuildContext context) {
                       _routingService.openContacts();
@@ -195,11 +195,11 @@ class _SettingsPageState extends State<SettingsPage> {
               SettingsSection(
                 title: appLocalization.getTraslateValue("user_experience"),
                 titleTextStyle:
-                TextStyle(color: ExtraTheme.of(context).textField),
+                    TextStyle(color: ExtraTheme.of(context).textField),
                 tiles: [
                   SettingsTile.switchTile(
                     titleTextStyle:
-                    TextStyle(color: ExtraTheme.of(context).textField),
+                        TextStyle(color: ExtraTheme.of(context).textField),
                     title: appLocalization.getTraslateValue("notification"),
                     leading: Icon(Icons.notifications_active),
                     switchValue: _uxService.isAllNotificationDisabled,
@@ -209,7 +209,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: appLocalization.getTraslateValue("language"),
                     titleTextStyle:
-                    TextStyle(color: ExtraTheme.of(context).textField),
+                        TextStyle(color: ExtraTheme.of(context).textField),
                     subtitle: _uxService.locale.language().name,
                     leading: Icon(Icons.language),
                     onPressed: (BuildContext context) {
@@ -220,10 +220,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: appLocalization.getTraslateValue("dark_mode"),
                     leading: Icon(Icons.brightness_2),
                     titleTextStyle:
-                    TextStyle(color: ExtraTheme.of(context).textField),
+                        TextStyle(color: ExtraTheme.of(context).textField),
                     switchValue: _uxService.theme == DarkTheme,
                     onToggle: (value) {
-                      _uxService.toggleTheme();
+                      setState(() {
+                        _uxService.toggleTheme();
+                      });
                     },
                   ),
                   if (isDesktop())
@@ -231,7 +233,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       title: appLocalization
                           .getTraslateValue("send_by_shift_enter"),
                       titleTextStyle:
-                      TextStyle(color: ExtraTheme.of(context).textField),
+                          TextStyle(color: ExtraTheme.of(context).textField),
                       leading: Icon(Icons.keyboard),
                       switchValue: !_uxService.sendByEnter,
                       onToggle: (bool value) {
@@ -247,7 +249,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     SettingsTile(
                       title: 'Log Level',
                       titleTextStyle:
-                      TextStyle(color: ExtraTheme.of(context).textField),
+                          TextStyle(color: ExtraTheme.of(context).textField),
                       subtitle: LogLevelHelper.levelToString(
                           GetIt.I.get<DeliverLogFilter>().level),
                       leading: Icon(Icons.bug_report_rounded),
@@ -257,86 +259,86 @@ class _SettingsPageState extends State<SettingsPage> {
                     )
                   ],
                 ),
-              // SettingsSection(
-              //   tiles: [
-              //     SettingsTile(
-              //         title: appLocalization.getTraslateValue("version"),
-              //         trailing: Padding(
-              //           padding: const EdgeInsets.only(right: 8.0),
-              //           child: Row(
-              //             children: <Widget>[
-              //               if (isDeveloperMode)
-              //                 FutureBuilder(
-              //                   future: SmsAutoFill().getAppSignature,
-              //                   builder: (context, snapshot) {
-              //                     if (snapshot.data != null) {
-              //                       return GestureDetector(
-              //                         onTap: () => Clipboard.setData(
-              //                             ClipboardData(
-              //                                 text: snapshot.data ??
-              //                                     "No Hashcode" + " - ")),
-              //                         child: Text(
-              //                           snapshot.data ?? "No Hashcode" + " - ",
-              //                           style: TextStyle(
-              //                               color: ExtraTheme.of(context)
-              //                                   .textField,
-              //                               fontSize: 16),
-              //                         ),
-              //                       );
-              //                     } else {
-              //                       return GestureDetector(
-              //                         onTap: () => Clipboard.setData(
-              //                             ClipboardData(
-              //                                 text: snapshot.data ??
-              //                                     "No Hashcode - ")),
-              //                         child: Text(
-              //                           "No Hashcode - ",
-              //                           style: TextStyle(
-              //                               color: ExtraTheme.of(context)
-              //                                   .textField,
-              //                               fontSize: 16),
-              //                         ),
-              //                       );
-              //                     }
-              //                   },
-              //                 ),
-              //               FutureBuilder(
-              //                 future: PackageInfo.fromPlatform(),
-              //                 builder: (context, snapshot) {
-              //                   if (snapshot.data != null) {
-              //                     return Text(
-              //                       snapshot.data.version ?? "",
-              //                       style: TextStyle(
-              //                           // color: ExtraTheme.of(context).textField,
-              //                           // fontWeight: FontWeight.bold,
-              //                           fontSize: 16),
-              //                     );
-              //                   } else {
-              //                     return SizedBox.shrink();
-              //                   }
-              //                 },
-              //               )
-              //             ],
-              //           ),
-              //         ),
-              //         onPressed: (_) async {
-              //           _logger.d(developerModeCounterCountDown);
-              //           developerModeCounterCountDown--;
-              //           if (developerModeCounterCountDown < 1) {
-              //             setState(() {
-              //               isDeveloperMode = true;
-              //             });
-              //           }
-              //         }),
-              //     SettingsTile(
-              //       title: appLocalization.getTraslateValue("logout"),
-              //       leading: Icon(Icons.exit_to_app),
-              //       onPressed: (BuildContext context) =>
-              //           openLogoutAlertDialog(context, appLocalization),
-              //       trailing: SizedBox.shrink(),
-              //     ),
-              //   ],
-              // ),
+              SettingsSection(
+                tiles: [
+                  SettingsTile(
+                      title: appLocalization.getTraslateValue("version"),
+                      trailing: Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Row(
+                          children: <Widget>[
+                            if (isDeveloperMode)
+                              FutureBuilder(
+                                future: SmsAutoFill().getAppSignature,
+                                builder: (context, snapshot) {
+                                  if (snapshot.data != null) {
+                                    return GestureDetector(
+                                      onTap: () => Clipboard.setData(
+                                          ClipboardData(
+                                              text: snapshot.data ??
+                                                  "No Hashcode" + " - ")),
+                                      child: Text(
+                                        snapshot.data ?? "No Hashcode" + " - ",
+                                        style: TextStyle(
+                                            color: ExtraTheme.of(context)
+                                                .textField,
+                                            fontSize: 16),
+                                      ),
+                                    );
+                                  } else {
+                                    return GestureDetector(
+                                      onTap: () => Clipboard.setData(
+                                          ClipboardData(
+                                              text: snapshot.data ??
+                                                  "No Hashcode - ")),
+                                      child: Text(
+                                        "No Hashcode - ",
+                                        style: TextStyle(
+                                            color: ExtraTheme.of(context)
+                                                .textField,
+                                            fontSize: 16),
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            FutureBuilder(
+                              future: PackageInfo.fromPlatform(),
+                              builder: (context, snapshot) {
+                                if (snapshot.data != null) {
+                                  return Text(
+                                    snapshot.data.version ?? "",
+                                    style: TextStyle(
+                                        // color: ExtraTheme.of(context).textField,
+                                        // fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  );
+                                } else {
+                                  return SizedBox.shrink();
+                                }
+                              },
+                            )
+                          ],
+                        ),
+                      ),
+                      onPressed: (_) async {
+                        _logger.d(developerModeCounterCountDown);
+                        developerModeCounterCountDown--;
+                        if (developerModeCounterCountDown < 1) {
+                          setState(() {
+                            isDeveloperMode = true;
+                          });
+                        }
+                      }),
+                  SettingsTile(
+                    title: appLocalization.getTraslateValue("logout"),
+                    leading: Icon(Icons.exit_to_app),
+                    onPressed: (BuildContext context) =>
+                        openLogoutAlertDialog(context, appLocalization),
+                    trailing: SizedBox.shrink(),
+                  ),
+                ],
+              ),
             ],
           ),
         ));

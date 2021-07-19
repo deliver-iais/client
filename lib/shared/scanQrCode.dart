@@ -2,12 +2,17 @@ import 'dart:io';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
+import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as C;
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +36,7 @@ class _ScanQrCode extends State<ScanQrCode> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   var _routingServices = GetIt.I.get<RoutingService>();
   var _contactRepo = GetIt.I.get<ContactRepo>();
+  var _messageRepo = GetIt.I.get<MessageRepo>();
 
   @override
   void reassemble() {
@@ -42,8 +48,8 @@ class _ScanQrCode extends State<ScanQrCode> {
   }
 
   String _decodedData = "";
-  Map<String,String> _contactDetails = Map();
-  Map<String,String> _map = Map();
+  Map<String,String> _parsedMsg = Map();
+
 
   BehaviorSubject<bool> _mucJoinQrCode = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> _sendMessageToBotQrCode = BehaviorSubject.seeded(false);
@@ -87,7 +93,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                     stream: _sendMessageToBotQrCode.stream,
                     builder: (c, s) {
                       if (s.hasData && s.data) {
-                        //   handleUri(mucJoinUrl, context);
+                       handleSendMsgToBot(context);
                         return SizedBox.shrink();
                       } else {
                         return SizedBox.shrink();
@@ -97,7 +103,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                     stream: _sendAccessPrivateDataQrCode.stream,
                     builder: (c, s) {
                       if (s.hasData && s.data) {
-                        //    handleUri(mucJoinUrl, context);
+                       handleSendPrivateDateAccestance();
                         return SizedBox.shrink();
                       } else {
                         return SizedBox.shrink();
@@ -109,10 +115,10 @@ class _ScanQrCode extends State<ScanQrCode> {
                       if (s.hasData && s.data) {
                         handleAddContact(
                             context: context,
-                            countryCode: _contactDetails["cc"],
-                            nationalNumber: _contactDetails["nn"],
-                            firstName: _contactDetails["fn"],
-                            lastName: _contactDetails["ln"]);
+                            countryCode: _parsedMsg["cc"],
+                            nationalNumber: _parsedMsg["nn"],
+                            firstName: _parsedMsg["fn"],
+                            lastName: _parsedMsg["ln"]);
                         return SizedBox.shrink();
                       } else {
                         return SizedBox.shrink();
@@ -164,18 +170,22 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   void _parsQrCode(String scanData) {
     Uri uri = Uri.parse(scanData);
+    uri.queryParameters.forEach((key, value) {
+      _parsedMsg[key] = value;
+    });
     List<String> pathSegments = uri.pathSegments;
     _decodedData = scanData;
     if(pathSegments.last.contains("ac")){
       _addContact.add(true);
-      uri.queryParameters.forEach((key, value) {
-        _contactDetails[key] = value;
-      });
-    }else{
-      if(pathSegments[0].contains("join")){
+    } else if(pathSegments.last.contains("spda")){
+      _sendAccessPrivateDataQrCode.add(true);
+    }else if(pathSegments.last.contains("text")){
+      _sendMessageToBotQrCode.add(true);
+    }
+    else if (pathSegments[0].contains("join")){
         _mucJoinQrCode.add(true);
       }
-    }
+
 
 
   }
@@ -255,4 +265,128 @@ class _ScanQrCode extends State<ScanQrCode> {
       );
     }
   }
+
+  void handleSendMsgToBot(BuildContext context) {
+    showFloatingModalBottomSheet(
+      context: context,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              AppLocalization.of(context)
+                  .getTraslateValue("send_msg_to_bot"),
+              style: TextStyle(
+                color: ExtraTheme.of(context).textField,
+                fontSize: 20,
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Text(
+              "${_parsedMsg["text"]}",
+              style: TextStyle(
+                  color: ExtraTheme.of(context).username, fontSize: 25),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                MaterialButton(
+                    color: Colors.blueAccent,
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(AppLocalization.of(context)
+                        .getTraslateValue("skip"))),
+                MaterialButton(
+                  color: Colors.blueAccent,
+                  onPressed: () async {
+                    _messageRepo.sendTextMessage(Uid()..category = Categories.BOT..node = _parsedMsg["botId"],_parsedMsg["text"] );
+
+                  },
+                  child: Text(AppLocalization.of(context)
+                      .getTraslateValue("send")),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+  }
+
+  void handleSendPrivateDateAccestance() {
+    PrivateDataType  privateDataType;
+    switch(_parsedMsg["type"]){
+      case "PHONE_NUMBER":
+        privateDataType = PrivateDataType.PHONE_NUMBER;
+        break;
+      case "USERNAME":
+        privateDataType = PrivateDataType.USERNAME;
+        break;
+      case "EMAIL":
+        privateDataType = PrivateDataType.EMAIL;
+        break;
+      case "NAME":
+        privateDataType = PrivateDataType.NAME;
+        break;
+
+
+
+    }
+
+    showFloatingModalBottomSheet(
+      context: context,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              AppLocalization.of(context)
+                  .getTraslateValue("get_Private_date_access"),
+              style: TextStyle(
+                color: ExtraTheme.of(context).textField,
+                fontSize: 20,
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Text(
+              "${_parsedMsg["type"]}",
+              style: TextStyle(
+                  color: ExtraTheme.of(context).username, fontSize: 25),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                MaterialButton(
+                    color: Colors.blueAccent,
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(AppLocalization.of(context)
+                        .getTraslateValue("skip"))),
+                MaterialButton(
+                  color: Colors.blueAccent,
+                  onPressed: () async {
+                    _messageRepo.sendPrivateMessageAccept(Uid()..category = Categories.BOT..node = _parsedMsg["botId"],privateDataType,_parsedMsg["token"] );
+                  },
+                  child: Text(AppLocalization.of(context)
+                      .getTraslateValue("ok")),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 }

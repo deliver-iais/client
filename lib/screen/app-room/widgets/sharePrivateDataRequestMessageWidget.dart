@@ -38,7 +38,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
             color: Colors.blueAccent,
             onPressed: () {
               _messageRepo.sendPrivateMessageAccept(
-                  message.from.asUid(), _sharePrivateDataRequest.data);
+                  message.from.asUid(), _sharePrivateDataRequest.data,_sharePrivateDataRequest.token);
             },
             child: Text(_appLocalization.getTraslateValue("ok")),
           ))

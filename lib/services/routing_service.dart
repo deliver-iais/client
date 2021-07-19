@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:io';
 
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/screen/contacts/contacts_page.dart';
@@ -18,6 +19,7 @@ import 'package:deliver_flutter/screen/settings/pages/log_settings.dart';
 import 'package:deliver_flutter/screen/settings/settings_page.dart';
 import 'package:deliver_flutter/screen/share_input_file/share_input_file.dart';
 import 'package:deliver_flutter/services/core_services.dart';
+import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/shared/scanQrCode.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
@@ -29,6 +31,7 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/subjects.dart';
 
 class Page {
@@ -49,6 +52,7 @@ class Page {
 }
 
 BehaviorSubject<bool> backSubject = BehaviorSubject.seeded(false);
+FireBaseServices fireBaseServices = GetIt.I.get<FireBaseServices>();
 
 class RoutingService {
   BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
@@ -355,6 +359,8 @@ class RoutingService {
 
   logout(BuildContext context) {
     CoreServices coreServices = GetIt.I.get<CoreServices>();
+
+    if (!isDesktop()) fireBaseServices.deleteToken();
     coreServices.closeConnection();
     deleteDb();
     reset();

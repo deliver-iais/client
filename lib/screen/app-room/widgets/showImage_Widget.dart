@@ -78,10 +78,11 @@ class _ImageWidget extends State<ShowImagePage> {
                   child: TextField(
                     minLines: 2,
                     autofocus: true,
+                    style: TextStyle(color: Colors.black),
                     maxLines: 15,
                     textInputAction: TextInputAction.newline,
                     controller: _controller,
-                    decoration: InputDecoration.collapsed(
+                    decoration: InputDecoration(
                         hintText:
                             appLocalization.getTraslateValue("typeSomeThing")),
                   ),
