@@ -277,48 +277,51 @@ class _ProfilePageState extends State<ProfilePage>
   Widget _buildInfo(BuildContext context) {
     return SliverList(
         delegate: SliverChildListDelegate([
-      Padding(
-        padding: EdgeInsets.only(bottom: 2),
-        child: BoxList(
-            largePageBorderRadius: BorderRadius.only(
-                topRight: Radius.circular(24), topLeft: Radius.circular(24)),
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ProfileAvatar(
-                    roomUid: widget.roomUid,
-                    canSetAvatar: _isMucAdminOrOwner,
-                  ),
-                  // _buildMenu(context)
-                ],
-              ),
-              if (!widget.roomUid.isGroup())
-                FutureBuilder<String>(
-                  future: _roomRepo.getId(widget.roomUid),
-                  builder:
-                      (BuildContext context, AsyncSnapshot<String> snapshot) {
-                    if (snapshot.data != null) {
-                      return SettingsTile(
+      BoxList(
+          largePageBorderRadius: BorderRadius.only(
+              topRight: Radius.circular(24), topLeft: Radius.circular(24)),
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ProfileAvatar(
+                  roomUid: widget.roomUid,
+                  canSetAvatar: _isMucAdminOrOwner,
+                ),
+                // _buildMenu(context)
+              ],
+            ),
+            if (!widget.roomUid.isGroup())
+              FutureBuilder<String>(
+                future: _roomRepo.getId(widget.roomUid),
+                builder:
+                    (BuildContext context, AsyncSnapshot<String> snapshot) {
+                  if (snapshot.data != null) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: SettingsTile(
                         title: _locale.getTraslateValue("username"),
                         subtitle: "${snapshot.data}",
                         leading: Icon(Icons.alternate_email),
                         trailing: Icon(Icons.copy),
                         onPressed: (_) => Clipboard.setData(
                             ClipboardData(text: "@${snapshot.data}")),
-                      );
-                    } else {
-                      return SizedBox.shrink();
-                    }
-                  },
-                ),
-              if (widget.roomUid.isUser())
-                FutureBuilder<Contact>(
-                  future: _contactRepo.getContact(widget.roomUid),
-                  builder:
-                      (BuildContext context, AsyncSnapshot<Contact> snapshot) {
-                    if (snapshot.data != null) {
-                      return SettingsTile(
+                      ),
+                    );
+                  } else {
+                    return SizedBox.shrink();
+                  }
+                },
+              ),
+            if (widget.roomUid.isUser())
+              FutureBuilder<Contact>(
+                future: _contactRepo.getContact(widget.roomUid),
+                builder:
+                    (BuildContext context, AsyncSnapshot<Contact> snapshot) {
+                  if (snapshot.data != null) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: SettingsTile(
                         title: _locale.getTraslateValue("phone"),
                         subtitle: buildPhoneNumber(snapshot.data.countryCode,
                             snapshot.data.nationalNumber),
@@ -326,61 +329,71 @@ class _ProfilePageState extends State<ProfilePage>
                         trailing: Icon(Icons.call),
                         onPressed: (_) => launch(
                             "tel:${snapshot.data.countryCode}${snapshot.data.nationalNumber}"),
-                      );
-                    } else {
-                      return SizedBox.shrink();
-                    }
-                  },
-                ),
-              SettingsTile(
-                  title: _locale.getTraslateValue("sendMessage"),
-                  leading: Icon(Icons.message),
-                  onPressed: (_) =>
-                      _routingService.openRoom(widget.roomUid.asString())),
-              StreamBuilder<bool>(
-                stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
-                builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                  if (snapshot.hasData && snapshot.data != null) {
-                    return SettingsTile.switchTile(
-                        title: _locale.getTraslateValue("notification"),
-                        leading: Icon(Icons.notifications_active),
-                        switchValue: !snapshot.data,
-                        onToggle: (state) {
-                          if (state) {
-                            _roomRepo.unmute(widget.roomUid.asString());
-                          } else {
-                            _roomRepo.mute(widget.roomUid.asString());
-                          }
-                        });
+                      ),
+                    );
                   } else {
                     return SizedBox.shrink();
                   }
                 },
               ),
-              if (widget.roomUid.isMuc())
-                StreamBuilder<Muc>(
-                    stream: _mucRepo.watchMuc(widget.roomUid.asString()),
-                    builder: (c, muc) {
-                      if (muc.hasData &&
-                          muc.data != null &&
-                          muc.data.info.isNotEmpty) {
-                        return SettingsTile(
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: SettingsTile(
+                  title: _locale.getTraslateValue("sendMessage"),
+                  leading: Icon(Icons.message),
+                  onPressed: (_) =>
+                      _routingService.openRoom(widget.roomUid.asString())),
+            ),
+            StreamBuilder<bool>(
+              stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
+              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  return SettingsTile.switchTile(
+                      title: _locale.getTraslateValue("notification"),
+                      leading: Icon(Icons.notifications_active),
+                      switchValue: !snapshot.data,
+                      onToggle: (state) {
+                        if (state) {
+                          _roomRepo.unmute(widget.roomUid.asString());
+                        } else {
+                          _roomRepo.mute(widget.roomUid.asString());
+                        }
+                      });
+                } else {
+                  return SizedBox.shrink();
+                }
+              },
+            ),
+            if (widget.roomUid.isMuc())
+              StreamBuilder<Muc>(
+                  stream: _mucRepo.watchMuc(widget.roomUid.asString()),
+                  builder: (c, muc) {
+                    if (muc.hasData &&
+                        muc.data != null &&
+                        muc.data.info.isNotEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top:8.0),
+                        child: SettingsTile(
                             title: _locale.getTraslateValue("description"),
                             subtitle: muc.data.info,
                             leading: Icon(Icons.info),
-                            trailing: SizedBox.shrink());
-                      } else
-                        return SizedBox.shrink();
-                    }),
-              if (widget.roomUid.isMuc())
-                SettingsTile(
+                            trailing: SizedBox.shrink()),
+                      );
+                    } else
+                      return SizedBox.shrink();
+                  }),
+            if (widget.roomUid.isMuc())
+              Padding(
+                padding: const EdgeInsets.only(top:8.0),
+                child: SettingsTile(
                   title: _locale.getTraslateValue("AddMember"),
                   leading: Icon(Icons.person_add),
                   onPressed: (_) => _routingService.openMemberSelection(
                       isChannel: true, mucUid: widget.roomUid),
                 ),
-            ]),
-      )
+              ),
+            Divider(height: 4, thickness: 4)
+          ])
     ]));
   }
 

@@ -274,7 +274,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     future: SmsAutoFill().getAppSignature,
                                     builder: (c, sms) {
                                       return Text(
-                                        sms.data ?? "",
+                                        sms.data ?? snapshot.data.version ?? "",
                                         style: TextStyle(
                                             color: ExtraTheme.of(context)
                                                 .textField,

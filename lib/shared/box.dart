@@ -57,9 +57,6 @@ class BoxList extends StatelessWidget {
         largePagePadding: largePagePadding,
         borderRadius: borderRadius,
         largePageBorderRadius: largePageBorderRadius,
-        child: Column(children: [
-          for (int i = 0; i < (2 * children.length - 1); i++)
-            i % 2 == 0 ? children[i ~/ 2] : Divider(height: 2, thickness: 2,)
-        ]));
+        child: Column(children: children));
   }
 }
