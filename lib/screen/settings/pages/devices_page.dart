@@ -51,8 +51,6 @@ class _DevicesPageState extends State<DevicesPage> {
                 .where((element) => element.sessionId
                     .contains(_authRepo.currentUserUid.sessionId))
                 .first;
-            print("^^^^^^"+_authRepo.currentUserUid.toString());
-         //   print("^^^^^^"+currentSession.sessionId);
             sessionData.data.remove(currentSession);
             List<Session> se = sessionData.data;
             List<Session> otherSession = se;
