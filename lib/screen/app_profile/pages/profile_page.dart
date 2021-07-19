@@ -293,24 +293,25 @@ class _ProfilePageState extends State<ProfilePage>
                   // _buildMenu(context)
                 ],
               ),
-              FutureBuilder<String>(
-                future: _roomRepo.getId(widget.roomUid),
-                builder:
-                    (BuildContext context, AsyncSnapshot<String> snapshot) {
-                  if (snapshot.data != null) {
-                    return SettingsTile(
-                      title: _locale.getTraslateValue("username"),
-                      subtitle: "${snapshot.data}",
-                      leading: Icon(Icons.alternate_email),
-                      trailing: Icon(Icons.copy),
-                      onPressed: (_) => Clipboard.setData(
-                          ClipboardData(text: "@${snapshot.data}")),
-                    );
-                  } else {
-                    return SizedBox.shrink();
-                  }
-                },
-              ),
+              if (!widget.roomUid.isGroup())
+                FutureBuilder<String>(
+                  future: _roomRepo.getId(widget.roomUid),
+                  builder:
+                      (BuildContext context, AsyncSnapshot<String> snapshot) {
+                    if (snapshot.data != null) {
+                      return SettingsTile(
+                        title: _locale.getTraslateValue("username"),
+                        subtitle: "${snapshot.data}",
+                        leading: Icon(Icons.alternate_email),
+                        trailing: Icon(Icons.copy),
+                        onPressed: (_) => Clipboard.setData(
+                            ClipboardData(text: "@${snapshot.data}")),
+                      );
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  },
+                ),
               if (widget.roomUid.isUser())
                 FutureBuilder<Contact>(
                   future: _contactRepo.getContact(widget.roomUid),

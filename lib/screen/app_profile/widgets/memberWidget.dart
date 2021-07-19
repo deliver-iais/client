@@ -36,18 +36,8 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   static const String DELETE = "delete";
   static const String BAN = "ban";
 
-  Uid _mucUid;
   AppLocalization _appLocalization;
   MucRole _myRoleInThisRoom;
-
-  @override
-  void initState() {
-    _mucUid = widget.mucUid;
-    // _mucUid.category == Categories.GROUP
-    //     ? _mucRepo.getGroupMembers(_mucUid)
-    //     : _mucRepo.getChannelMembers(_mucUid);
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +46,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
         TextStyle(fontSize: 14, color: ExtraTheme.of(context).textField);
 
     return StreamBuilder<List<Member>>(
-        stream: _mucRepo.watchAllMembers(_mucUid.asString()),
+        stream: _mucRepo.watchAllMembers(widget.mucUid.asString()),
         builder: (BuildContext context, AsyncSnapshot<List<Member>> snapshot) {
           if (snapshot.hasData &&
               snapshot.data != null &&
@@ -224,7 +214,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
               width: 8,
             ),
             Text(
-              _appLocalization.getTraslateValue("Owner"),
+              _appLocalization.getTraslateValue("owner"),
               style: TextStyle(color: Colors.blue),
             ),
           ],
@@ -232,12 +222,12 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
       case MucRole.ADMIN:
         return Row(
           children: [
-            Text(_appLocalization.getTraslateValue("Admin"),
+            Text(_appLocalization.getTraslateValue("admin"),
                 style: TextStyle(color: Colors.blue)),
           ],
         );
       case MucRole.MEMBER:
-        return Text(_appLocalization.getTraslateValue("Member"),
+        return Text(_appLocalization.getTraslateValue("member"),
             style: TextStyle(color: Colors.blue));
       default:
         return Text("");
@@ -262,17 +252,17 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
           );
         }
 
-        _mucUid.category == Categories.GROUP
+        widget.mucUid.isGroup()
             ? _mucRepo.changeGroupMemberRole(m)
             : _mucRepo.changeChannelMemberRole(m);
         break;
       case DELETE:
-        _mucUid.category == Categories.GROUP
+        widget.mucUid.isGroup()
             ? _mucRepo.kickGroupMembers([member])
             : _mucRepo.kickChannelMembers([member]);
         break;
       case BAN:
-        _mucUid.category == Categories.GROUP
+        widget.mucUid.isGroup()
             ? _mucRepo.banGroupMember(member)
             : _mucRepo.banChannelMember(member);
         break;
