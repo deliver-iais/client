@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -18,8 +19,8 @@ class DevicesPage extends StatefulWidget {
 
 class _DevicesPageState extends State<DevicesPage> {
   var _routingService = GetIt.I.get<RoutingService>();
-
   var _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   AppLocalization _appLocalization;
 
@@ -44,9 +45,18 @@ class _DevicesPageState extends State<DevicesPage> {
       ),
       body: FutureBuilder<List<Session>>(
         future: _accountRepo.getSessions(),
-        builder: (c, ses) {
-          if (ses.hasData && ses.data != null) {
-            List<Session> sessions = ses.data.reversed.toList();
+        builder: (c, sessionData) {
+          if (sessionData.hasData && sessionData.data != null) {
+            Session currentSession = sessionData.data
+                .where((element) => element.sessionId
+                    .contains(_authRepo.currentUserUid.sessionId))
+                .first;
+            sessionData.data.remove(currentSession);
+            List<Session> se = sessionData.data;
+            List<Session> otherSession = se;
+            se.add(currentSession);
+            List<Session> sessions = se.reversed.toList();
+
             return ListView.separated(
                 itemBuilder: (c, index) {
                   return sessionWidget(sessions[index], index == 0);
@@ -76,9 +86,7 @@ class _DevicesPageState extends State<DevicesPage> {
                               style: TextStyle(color: Colors.red, fontSize: 18),
                             ),
                             onTap: () {
-                              _accountRepo.deleteSessions(sessions
-                                  .sublist(1)
-                                  .map((session) => session.sessionId));
+                              _showTerminateSession(otherSession, context);
                             },
                           )
                         ],
@@ -123,7 +131,11 @@ class _DevicesPageState extends State<DevicesPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(se_appLocalization.getTraslateValue("delete_session"),
+                  Text(
+                      sessions.length > 1
+                          ? _appLocalization
+                              .getTraslateValue("delete_all_session")
+                          : _appLocalization.getTraslateValue("delete_session"),
                       style: TextStyle(color: Colors.black, fontSize: 18)),
                 ],
               ),
@@ -150,8 +162,11 @@ class _DevicesPageState extends State<DevicesPage> {
                       style: TextStyle(fontSize: 16, color: Colors.red),
                     ),
                     onTap: () async {
-                      var res =
-                          await _accountRepo.deleteSessions(sessions.map((e) => e.sessionId));
+                      List<String> sessionIds = [];
+                      sessions.forEach((element) {
+                        sessionIds.add(element.sessionId.toString());
+                      });
+                      var res = await _accountRepo.deleteSessions(sessionIds);
                       Navigator.pop(context);
                       if (res) {
                         setState(() {});
@@ -172,21 +187,26 @@ class _DevicesPageState extends State<DevicesPage> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Expanded(
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            if (!currentDevices) {
-              _showTerminateSession([session], context);
-            }
-          },
-          child: Container(
-            height: 60,
+        child: Container(
+          height: currentDevices ? 80 : 60,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              if (!currentDevices) {
+                _showTerminateSession([session], context);
+              }
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (currentDevices)
+                      Text(
+                        _appLocalization.getTraslateValue("this_device"),
+                        style: TextStyle(color: Colors.blueAccent),
+                      ),
                     Text(session.ip),
                     Expanded(
                       child: Text(
