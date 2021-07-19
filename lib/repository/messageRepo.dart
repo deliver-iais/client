@@ -324,13 +324,14 @@ class MessageRepo {
       ..name = path.split(".").last
       ..duration = 0;
 
-    await _fileRepo.cloneFileInLocalDirectory(
-        file, packetId, path.split('.').last);
-
     Message msg = _createMessage(room, replyId: replyToId).copyWith(
         packetId: packetId,
         type: MessageType.FILE,
         json: sendingFakeFile.writeToJson());
+
+    await _fileRepo.cloneFileInLocalDirectory(
+        file, packetId, path.split('.').last);
+
 
     var pm = _createPendingMessage(msg, SendingStatus.SENDING_FILE);
 
