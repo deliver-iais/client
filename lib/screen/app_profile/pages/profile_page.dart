@@ -281,7 +281,7 @@ class _ProfilePageState extends State<ProfilePage>
     return SliverList(
         delegate: SliverChildListDelegate([
       Padding(
-        padding: EdgeInsets.only(top: isLarge(context) ? 24 : 8, bottom: 4),
+        padding: EdgeInsets.only(bottom: 4),
         child: BoxList(
             largePageBorderRadius: BorderRadius.only(
                 topRight: Radius.circular(24), topLeft: Radius.circular(24)),
@@ -386,23 +386,30 @@ class _ProfilePageState extends State<ProfilePage>
     ]));
   }
 
-  AppBar _buildAppBar(BuildContext context) {
-    return AppBar(
-        elevation: 0,
-        title: Align(
-          alignment: Alignment.centerLeft,
-          child: FutureBuilder<String>(
-            future: _roomRepo.getName(widget.roomUid),
-            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-              var name = snapshot.data ?? "Loading...";
-              return Text(name, style: Theme.of(context).textTheme.headline2);
-            },
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(60.0),
+      child: FluidContainerWidget(
+        child: AppBar(
+          backgroundColor: ExtraTheme.of(context).boxBackground,
+          titleSpacing: 8,
+          title: Align(
+            alignment: Alignment.centerLeft,
+            child: FutureBuilder<String>(
+              future: _roomRepo.getName(widget.roomUid),
+              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                var name = snapshot.data ?? "Loading...";
+                return Text(name, style: Theme.of(context).textTheme.headline2);
+              },
+            ),
           ),
+          actions: <Widget>[
+            _buildMenu(context),
+          ],
+          leading: _routingService.backButtonLeading(),
         ),
-        actions: <Widget>[
-          _buildMenu(context),
-        ],
-        leading: _routingService.backButtonLeading());
+      ),
+    );
   }
 
   PopupMenuButton<String> _buildMenu(BuildContext context) {
