@@ -201,5 +201,10 @@
   "about": "درباره ما...",
   "user_experience": "رابط کاربری",
   "send_msg_to_bot": "فرستادن پیام به بات ",
-  "get_Private_date_access": "اجازه دسترسی به اطلاعات  شخصی "
+  "get_Private_date_access": "اجازه دسترسی به اطلاعات  شخصی ",
+  "devices": "دستگاه ها",
+  "this_device": "دستگاته کنونی",
+  "delete_session": "حذف  دستگاه",
+  "active_devices": "دستگاه های فعال",
+  "delete_all_session": "حذف همه دستگاه ها"
 }

@@ -200,5 +200,10 @@
   "about": "About",
   "user_experience": "User Experience",
   "send_msg_to_bot": "send Message To Bot",
-  "get_Private_date_access": "get Private date Access"
+  "get_Private_date_access": "get Private date Access",
+  "devices": "Devices",
+  "this_device": "This device",
+  "delete_session": "delete session",
+  "active_devices": "Active Devices",
+  "delete_all_session": "Delete All Devices"
 }

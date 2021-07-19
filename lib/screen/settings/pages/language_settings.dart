@@ -54,6 +54,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                           _uxService.locale.languageCode == English.languageCode
                               ? Icon(Icons.done)
                               : SizedBox.shrink(),
+                      titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                       onPressed: (BuildContext context) {
                         setState(() {
                           _uxService.changeLanguage(English);
@@ -67,6 +68,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                           _uxService.locale.languageCode == Farsi.languageCode
                               ? Icon(Icons.done)
                               : SizedBox.shrink(),
+                      titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                       onPressed: (BuildContext context) {
                         setState(() {
                           _uxService.changeLanguage(Farsi);

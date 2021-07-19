@@ -162,6 +162,10 @@ Future<void> setupDI() async {
       FirebaseServicesClientChannel,
       interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
 
+  GetIt.I.registerSingleton<SessionServiceClient>(SessionServiceClient(
+      ProfileServicesClientChannel,
+      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+
   GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
   GetIt.I.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   GetIt.I.registerSingleton<UxService>(UxService());
