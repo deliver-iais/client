@@ -14,6 +14,7 @@ import 'package:deliver_flutter/screen/app_profile/pages/profile_page.dart';
 import 'package:deliver_flutter/screen/intro/pages/intro_page.dart';
 import 'package:deliver_flutter/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver_flutter/screen/settings/account_settings.dart';
+import 'package:deliver_flutter/screen/settings/pages/devices_page.dart';
 import 'package:deliver_flutter/screen/settings/pages/language_settings.dart';
 import 'package:deliver_flutter/screen/settings/pages/log_settings.dart';
 import 'package:deliver_flutter/screen/settings/settings_page.dart';
@@ -125,6 +126,14 @@ class RoutingService {
 
   void openLanguageSettings() {
     var widget = LanguageSettingsPage(key: ValueKey("/language_settings"));
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/language_settings"));
+  }
+  void openDevicesPage() {
+    var widget = DevicesPage(key: ValueKey("/devices_page"));
     _push(Page(
         largePageNavigator: _navigationCenter,
         largePageMain: widget,

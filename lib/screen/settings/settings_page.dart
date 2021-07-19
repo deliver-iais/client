@@ -19,7 +19,6 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -226,6 +225,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       setState(() {
                         _uxService.toggleTheme();
                       });
+                    },
+                  ),
+                  SettingsTile(
+                    title: appLocalization.getTraslateValue("devices"),
+                    leading: Icon(Icons.devices),
+                    titleTextStyle:
+                    TextStyle(color: ExtraTheme.of(context).textField),
+                    onPressed: (c){
+                      _routingService.openDevicesPage();
                     },
                   ),
                   if (isDesktop())

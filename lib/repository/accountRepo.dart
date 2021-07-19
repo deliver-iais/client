@@ -3,6 +3,7 @@ import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/functions.dart';
+import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -16,6 +17,7 @@ class AccountRepo {
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _profileServiceClient = GetIt.I.get<UserServiceClient>();
+  final _sessionServicesClient = GetIt.I.get<SessionServiceClient>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
   Future<bool> getProfile({bool retry = false}) async {
@@ -128,10 +130,28 @@ class AccountRepo {
       await getProfile(retry: true);
     }
   }
+   Future<List<Session>> getSessions ()async{
+    var res = await _sessionServicesClient.getMySessions(GetMySessionsReq());
+    print(res.sessions.length.toString());
+    return res.sessions;
+
+  }
+  Future<bool> deleteSessions(List<String> sessions)async {
+    try{
+      await _sessionServicesClient.revokeSession(RevokeSessionReq(sessionIds:sessions) );
+      return true;
+    }
+     catch(e){
+      return false;
+     }
+
+  }
 
   Future<String> getName() async {
     final account = await getAccount();
 
     return buildName(account.firstName, account.lastName);
   }
+
+
 }
