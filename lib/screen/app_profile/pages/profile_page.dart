@@ -24,6 +24,7 @@ import 'package:deliver_flutter/shared/Widget/profileAvatar.dart';
 import 'package:deliver_flutter/shared/box.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
 import 'package:deliver_flutter/shared/functions.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
@@ -64,7 +65,6 @@ class _ProfilePageState extends State<ProfilePage>
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _showChannelIdError = BehaviorSubject.seeded(false);
-  final _routingServices = GetIt.I.get<RoutingService>();
 
   TabController _tabController;
   int _tabsCount;
@@ -281,14 +281,20 @@ class _ProfilePageState extends State<ProfilePage>
     return SliverList(
         delegate: SliverChildListDelegate([
       Padding(
-        padding: const EdgeInsets.only(top: 24.0, bottom: 8.0),
+        padding: EdgeInsets.only(top: isLarge(context) ? 24 : 8, bottom: 4),
         child: BoxList(
-            borderRadius: BorderRadius.only(
+            largePageBorderRadius: BorderRadius.only(
                 topRight: Radius.circular(24), topLeft: Radius.circular(24)),
             children: [
-              ProfileAvatar(
-                roomUid: widget.roomUid,
-                canSetAvatar: _isMucAdminOrOwner,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ProfileAvatar(
+                    roomUid: widget.roomUid,
+                    canSetAvatar: _isMucAdminOrOwner,
+                  ),
+                  // _buildMenu(context)
+                ],
               ),
               FutureBuilder<String>(
                 future: _roomRepo.getId(widget.roomUid),
@@ -360,46 +366,21 @@ class _ProfilePageState extends State<ProfilePage>
                       if (muc.hasData &&
                           muc.data != null &&
                           muc.data.info.isNotEmpty) {
-                        return Padding(
-                            padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-                            child: Container(
-                              child: Text(
-                                muc.data.info,
-                                style:
-                                    TextStyle(fontSize: 15, color: Colors.blue),
-                              ),
-                            ));
+                        return SettingsTile(
+                            title: _locale.getTraslateValue("description"),
+                            subtitle: muc.data.info,
+                            leading: Icon(Icons.info),
+                            trailing: SizedBox.shrink());
                       } else
                         return SizedBox.shrink();
                     }),
               if (widget.roomUid.isMuc())
-                GestureDetector(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.person_add),
-                          disabledColor: Colors.blue,
-                          onPressed: null,
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          _locale.getTraslateValue("AddMember"),
-                          style: TextStyle(
-                              color: ExtraTheme.of(context).textField,
-                              fontSize: 17),
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: () {
-                    _routingService.openMemberSelection(
-                        isChannel: true, mucUid: widget.roomUid);
-                  },
-                )
+                SettingsTile(
+                  title: _locale.getTraslateValue("AddMember"),
+                  leading: Icon(Icons.person_add),
+                  onPressed: (_) => _routingService.openMemberSelection(
+                      isChannel: true, mucUid: widget.roomUid),
+                ),
             ]),
       )
     ]));
@@ -419,88 +400,91 @@ class _ProfilePageState extends State<ProfilePage>
           ),
         ),
         actions: <Widget>[
-          if (!widget.roomUid.isSystem())
-            PopupMenuButton(
-              color: ExtraTheme.of(context).popupMenuButton,
-              icon: Icon(Icons.more_vert),
-              itemBuilder: (_) => <PopupMenuItem<String>>[
-                if (widget.roomUid.isMuc() && _isMucAdminOrOwner)
-                  PopupMenuItem<String>(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Icon(Icons.add_a_photo_rounded),
-                          SizedBox(width: 8),
-                          Text(_locale.getTraslateValue("set_avatar")),
-                        ],
-                      ),
-                      value: "select"),
-                if (widget.roomUid.isMuc() && _isMucOwner)
-                  PopupMenuItem<String>(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Icon(Icons.add_link_outlined),
-                          SizedBox(width: 8),
-                          Text(_locale.getTraslateValue("create_invite_link"))
-                        ],
-                      ),
-                      value: "invite_link"),
-                if (widget.roomUid.isMuc() && _isMucOwner)
-                  PopupMenuItem<String>(
-                      child: Row(
-                        children: [
-                          Icon(Icons.settings),
-                          SizedBox(width: 8),
-                          Text(widget.roomUid.category == Categories.GROUP
-                              ? _locale.getTraslateValue("manage_group")
-                              : _locale.getTraslateValue("manage_channel")),
-                        ],
-                      ),
-                      value: "manage"),
-                if (widget.roomUid.isMuc() && !_isMucOwner)
-                  PopupMenuItem<String>(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Icon(Icons.arrow_back_outlined),
-                          SizedBox(width: 8),
-                          Text(
-                            widget.roomUid.isGroup()
-                                ? _locale.getTraslateValue("leftGroup")
-                                : _locale.getTraslateValue("leftChannel"),
-                          ),
-                        ],
-                      ),
-                      value: "leftMuc"),
-                if (widget.roomUid.isMuc() && _isMucOwner)
-                  PopupMenuItem<String>(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Icon(Icons.delete),
-                          SizedBox(width: 8),
-                          Text(widget.roomUid.isGroup()
-                              ? _locale.getTraslateValue("deleteGroup")
-                              : _locale.getTraslateValue("deleteChannel"))
-                        ],
-                      ),
-                      value: "deleteMuc"),
-                if (!widget.roomUid.isMuc())
-                  PopupMenuItem<String>(
-                      child: Row(
-                        children: [
-                          Icon(Icons.report),
-                          SizedBox(width: 8),
-                          Text(_locale.getTraslateValue("report")),
-                        ],
-                      ),
-                      value: "report")
-              ],
-              onSelected: onSelected,
-            ),
+          _buildMenu(context),
         ],
         leading: _routingService.backButtonLeading());
+  }
+
+  PopupMenuButton<String> _buildMenu(BuildContext context) {
+    return PopupMenuButton(
+      color: ExtraTheme.of(context).popupMenuButton,
+      icon: Icon(Icons.more_vert),
+      itemBuilder: (_) => <PopupMenuItem<String>>[
+        if (widget.roomUid.isMuc() && _isMucAdminOrOwner)
+          PopupMenuItem<String>(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.add_a_photo_rounded),
+                  SizedBox(width: 8),
+                  Text(_locale.getTraslateValue("set_avatar")),
+                ],
+              ),
+              value: "select"),
+        if (widget.roomUid.isMuc() && _isMucOwner)
+          PopupMenuItem<String>(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.add_link_outlined),
+                  SizedBox(width: 8),
+                  Text(_locale.getTraslateValue("create_invite_link"))
+                ],
+              ),
+              value: "invite_link"),
+        if (widget.roomUid.isMuc() && _isMucOwner)
+          PopupMenuItem<String>(
+              child: Row(
+                children: [
+                  Icon(Icons.settings),
+                  SizedBox(width: 8),
+                  Text(widget.roomUid.category == Categories.GROUP
+                      ? _locale.getTraslateValue("manage_group")
+                      : _locale.getTraslateValue("manage_channel")),
+                ],
+              ),
+              value: "manage"),
+        if (widget.roomUid.isMuc() && !_isMucOwner)
+          PopupMenuItem<String>(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.arrow_back_outlined),
+                  SizedBox(width: 8),
+                  Text(
+                    widget.roomUid.isGroup()
+                        ? _locale.getTraslateValue("leftGroup")
+                        : _locale.getTraslateValue("leftChannel"),
+                  ),
+                ],
+              ),
+              value: "leftMuc"),
+        if (widget.roomUid.isMuc() && _isMucOwner)
+          PopupMenuItem<String>(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.delete),
+                  SizedBox(width: 8),
+                  Text(widget.roomUid.isGroup()
+                      ? _locale.getTraslateValue("deleteGroup")
+                      : _locale.getTraslateValue("deleteChannel"))
+                ],
+              ),
+              value: "deleteMuc"),
+        if (!widget.roomUid.isMuc())
+          PopupMenuItem<String>(
+              child: Row(
+                children: [
+                  Icon(Icons.report),
+                  SizedBox(width: 8),
+                  Text(_locale.getTraslateValue("report")),
+                ],
+              ),
+              value: "report")
+      ],
+      onSelected: onSelected,
+    );
   }
 
   Future<void> _setupRoomSettings() async {
