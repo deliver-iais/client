@@ -2,6 +2,8 @@ import 'dart:collection';
 import 'dart:io';
 
 import 'package:deliver_flutter/box/message.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
+import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/screen/contacts/contacts_page.dart';
 import 'package:deliver_flutter/screen/contacts/new_contact.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
@@ -54,6 +56,8 @@ class Page {
 
 BehaviorSubject<bool> backSubject = BehaviorSubject.seeded(false);
 FireBaseServices fireBaseServices = GetIt.I.get<FireBaseServices>();
+var _accountRepo = GetIt.I.get<AccountRepo>();
+var _autRepo = GetIt.I.get<AuthRepo>();
 
 class RoutingService {
   BehaviorSubject<String> _route = BehaviorSubject.seeded("/");
@@ -368,9 +372,10 @@ class RoutingService {
 
   logout(BuildContext context) {
     CoreServices coreServices = GetIt.I.get<CoreServices>();
-
+    _accountRepo.deleteSessions([_autRepo.currentUserUid.sessionId]);
     if (!isDesktop()) fireBaseServices.deleteToken();
     coreServices.closeConnection();
+
     deleteDb();
     reset();
 

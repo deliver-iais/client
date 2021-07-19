@@ -60,7 +60,7 @@ class _DevicesPageState extends State<DevicesPage> {
             return ListView.separated(
                 itemBuilder: (c, index) {
                   return sessionWidget(
-                      sessions[index], sessions[index] == currentSession);
+                      sessions[index], sessions[index].sessionId.contains(currentSession.sessionId));
                 },
                 separatorBuilder: (c, i) {
                   if (i == 0) {
