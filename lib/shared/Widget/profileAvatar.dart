@@ -8,6 +8,7 @@ import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/shared/box.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
@@ -33,13 +34,10 @@ import '../constants.dart';
 
 class ProfileAvatar extends StatefulWidget {
   @required
-  final bool innerBoxIsScrolled;
-  @required
   final Uid roomUid;
   final bool canSetAvatar;
 
-  ProfileAvatar(
-      {this.innerBoxIsScrolled, this.roomUid, this.canSetAvatar = false});
+  ProfileAvatar({this.roomUid, this.canSetAvatar = false});
 
   @override
   _ProfileAvatarState createState() => _ProfileAvatarState();
@@ -48,37 +46,14 @@ class ProfileAvatar extends StatefulWidget {
 class _ProfileAvatarState extends State<ProfileAvatar> {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
-  double currentAvatarIndex = 0;
   String _uploadAvatarPath;
   bool _showProgressBar = false;
   final _selectedImages = Map<int, bool>();
 
   @override
   Widget build(BuildContext context) {
-    return SliverAppBar(
-        forceElevated: widget.innerBoxIsScrolled,
-        expandedHeight: 100,
-        flexibleSpace: FlexibleSpaceBar(
-          background: _showAvatar(),
-        ));
-  }
-
-  _setAvatar(String avatarPath) async {
-    setState(() {
-      _showProgressBar = true;
-      _uploadAvatarPath = avatarPath;
-    });
-    if (await _avatarRepo.setMucAvatar(widget.roomUid, File(avatarPath)) !=
-        null) {
-      setState(() => _showProgressBar = false);
-    } else {
-      setState(() => _showProgressBar = false);
-    }
-  }
-
-  _showAvatar() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
       child: _showProgressBar
           ? CircleAvatar(
               radius: 40,
@@ -123,11 +98,25 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                   Align(
                     // alignment: Alignment.bottomRight,
                     child: TextButton(
-                        onPressed: () => selectAvatar(), child: Text("select an image")),
+                        onPressed: () => selectAvatar(),
+                        child: Text("select an image")),
                   )
               ],
             ),
     );
+  }
+
+  _setAvatar(String avatarPath) async {
+    setState(() {
+      _showProgressBar = true;
+      _uploadAvatarPath = avatarPath;
+    });
+    if (await _avatarRepo.setMucAvatar(widget.roomUid, File(avatarPath)) !=
+        null) {
+      setState(() => _showProgressBar = false);
+    } else {
+      setState(() => _showProgressBar = false);
+    }
   }
 
   selectAvatar() async {

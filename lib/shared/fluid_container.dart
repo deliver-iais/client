@@ -18,8 +18,7 @@ class FluidContainerWidget extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(0),
           color: ExtraTheme.of(context).boxBackground,
-          constraints:
-          BoxConstraints(maxWidth: FLUID_CONTAINER_MAX_WIDTH),
+          constraints: BoxConstraints(maxWidth: FLUID_CONTAINER_MAX_WIDTH),
           child: child,
         ),
       ),
