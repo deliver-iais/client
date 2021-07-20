@@ -359,7 +359,7 @@ class _ScanQrCode extends State<ScanQrCode> {
               SizedBox(
                 height: 20,
               ),
-              Text(appLocalization.getTraslateValue(privateDataType.name),
+              Text("${appLocalization.getTraslateValue("private_data")} : ${appLocalization.getTraslateValue(privateDataType.name)}",
                 style: TextStyle(
                     color: ExtraTheme.of(context).username, fontSize: 25),
               ),

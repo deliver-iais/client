@@ -210,6 +210,7 @@
   "PHONE_NUMBER": "Phone number",
   "USERNAME": "username",
   "EMAIL": "email",
-  "send": "send message"
+  "send": "send message",
+  "private_data": "Private Data"
 
 }
