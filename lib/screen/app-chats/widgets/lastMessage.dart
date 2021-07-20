@@ -120,10 +120,11 @@ class LastMessage extends StatelessWidget {
               size: 15,
             ),
           ),
-        Padding(
-          padding: const EdgeInsets.only(left: 4.0),
-          child: UnreadMessageCounterWidget(message.roomUid, lastMessageId),
-        )
+        if (!_authRepo.isCurrentUser(message.from))
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: UnreadMessageCounterWidget(message.roomUid, lastMessageId),
+          )
       ],
     );
   }

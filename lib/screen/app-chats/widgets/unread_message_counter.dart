@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/seen.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:flutter/material.dart';
