@@ -197,6 +197,73 @@ class _ScanQrCode extends State<ScanQrCode> {
           msg:
               "$firstName $lastName ${AppLocalization.of(context).getTraslateValue("contact_exist")}");
     } else {
+      Future.delayed(Duration.zero, () {
+        showFloatingModalBottomSheet(
+          context: context,
+          builder: (context) => Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  AppLocalization.of(context)
+                      .getTraslateValue("sure_add_contact"),
+                  style: TextStyle(
+                    color: ExtraTheme.of(context).textField,
+                    fontSize: 20,
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  "$firstName$lastName ",
+                  style: TextStyle(
+                      color: ExtraTheme.of(context).username, fontSize: 25),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    MaterialButton(
+                        color: Colors.blueAccent,
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(AppLocalization.of(context)
+                            .getTraslateValue("skip"))),
+                    MaterialButton(
+                      color: Colors.blueAccent,
+                      onPressed: () async {
+                        var res = await _contactRepo.addContact(C.Contact()
+                          ..firstName = firstName
+                          ..lastName = lastName
+                          ..phoneNumber = PhoneNumber(
+                              countryCode: int.parse(countryCode),
+                              nationalNumber:
+                                  Int64(int.parse(nationalNumber))));
+                        if (res) {
+                          Fluttertoast.showToast(
+                              msg:
+                                  "$firstName$lastName ${AppLocalization.of(context).getTraslateValue("contact_add")}");
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: Text(AppLocalization.of(context)
+                          .getTraslateValue("add_contact")),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      });
+    }
+  }
+
+  void handleSendMsgToBot(BuildContext context) async {
+    Future.delayed(Duration.zero, () {
       showFloatingModalBottomSheet(
         context: context,
         builder: (context) => Padding(
@@ -205,8 +272,7 @@ class _ScanQrCode extends State<ScanQrCode> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Text(
-                AppLocalization.of(context)
-                    .getTraslateValue("sure_add_contact"),
+                "${AppLocalization.of(context).getTraslateValue("send_msg_to")} ${_parsedMsg["botId"]}",
                 style: TextStyle(
                   color: ExtraTheme.of(context).textField,
                   fontSize: 20,
@@ -215,10 +281,8 @@ class _ScanQrCode extends State<ScanQrCode> {
               SizedBox(
                 height: 20,
               ),
-              // CircleAvatarWidget(, 40,
-              //     forceText: fm),
               Text(
-                "$firstName$lastName ",
+                "${_parsedMsg["text"]}",
                 style: TextStyle(
                     color: ExtraTheme.of(context).username, fontSize: 25),
               ),
@@ -236,21 +300,17 @@ class _ScanQrCode extends State<ScanQrCode> {
                   MaterialButton(
                     color: Colors.blueAccent,
                     onPressed: () async {
-                      var res = await _contactRepo.addContact(C.Contact()
-                        ..firstName = firstName
-                        ..lastName = lastName
-                        ..phoneNumber = PhoneNumber(
-                            countryCode: int.parse(countryCode),
-                            nationalNumber: Int64(int.parse(nationalNumber))));
-                      if (res) {
-                        Fluttertoast.showToast(
-                            msg:
-                                "$firstName$lastName ${AppLocalization.of(context).getTraslateValue("contact_add")}");
-                        Navigator.of(context).pop();
-                      }
+                      Navigator.of(context).pop();
+                      _routingServices.openRoom((Uid.create()..node = _parsedMsg["botId"]..category = Categories.BOT).asString());
+                      _messageRepo.sendTextMessage(
+                          Uid()
+                            ..category = Categories.BOT
+                            ..node = _parsedMsg["botId"],
+                          _parsedMsg["text"]);
+
                     },
-                    child: Text(AppLocalization.of(context)
-                        .getTraslateValue("add_contact")),
+                    child: Text(
+                        AppLocalization.of(context).getTraslateValue("send")),
                   ),
                 ],
               ),
@@ -258,134 +318,83 @@ class _ScanQrCode extends State<ScanQrCode> {
           ),
         ),
       );
-    }
-  }
-
-  void handleSendMsgToBot(BuildContext context) async {
-    showFloatingModalBottomSheet(
-      context: context,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(
-              AppLocalization.of(context).getTraslateValue("send_msg_to_bot"),
-              style: TextStyle(
-                color: ExtraTheme.of(context).textField,
-                fontSize: 20,
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Text(
-              "${_parsedMsg["text"]}",
-              style: TextStyle(
-                  color: ExtraTheme.of(context).username, fontSize: 25),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                MaterialButton(
-                    color: Colors.blueAccent,
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(
-                        AppLocalization.of(context).getTraslateValue("skip"))),
-                MaterialButton(
-                  color: Colors.blueAccent,
-                  onPressed: () async {
-                    _messageRepo.sendTextMessage(
-                        Uid()
-                          ..category = Categories.BOT
-                          ..node = _parsedMsg["botId"],
-                        _parsedMsg["text"]);
-                  },
-                  child: Text(
-                      AppLocalization.of(context).getTraslateValue("send")),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+    });
   }
 
   Future<void> handleSendPrivateDateAccestance(BuildContext context) async {
+    AppLocalization appLocalization = AppLocalization.of(context);
     PrivateDataType privateDataType;
-    switch (_parsedMsg["type"]) {
-      case "PHONE_NUMBER":
-        privateDataType = PrivateDataType.PHONE_NUMBER;
-        break;
-      case "USERNAME":
-        privateDataType = PrivateDataType.USERNAME;
-        break;
-      case "EMAIL":
-        privateDataType = PrivateDataType.EMAIL;
-        break;
-      case "NAME":
-        privateDataType = PrivateDataType.NAME;
-        break;
-      default:
-        privateDataType = PrivateDataType.PHONE_NUMBER;
-    }
+    String type = _parsedMsg["type"];
+    print(type);
+    type.contains("PHONE_NUMBER")
+        ? privateDataType = PrivateDataType.PHONE_NUMBER
+        : type.contains("USERNAME")
+            ? privateDataType = PrivateDataType.USERNAME
+            : type.contains("EMAIL")
+                ? privateDataType = PrivateDataType.EMAIL
+                : privateDataType = PrivateDataType.NAME;
 
-    showFloatingModalBottomSheet(
-      context: context,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(
-              AppLocalization.of(context)
-                  .getTraslateValue("get_Private_date_access"),
-              style: TextStyle(
-                color: ExtraTheme.of(context).textField,
-                fontSize: 20,
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Text(
-              "${_parsedMsg["type"]}",
-              style: TextStyle(
-                  color: ExtraTheme.of(context).username, fontSize: 25),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                MaterialButton(
-                    color: Colors.blueAccent,
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(
-                        AppLocalization.of(context).getTraslateValue("skip"))),
-                MaterialButton(
-                  color: Colors.blueAccent,
-                  onPressed: () async {
-                    _messageRepo.sendPrivateMessageAccept(
-                        Uid()
-                          ..category = Categories.BOT
-                          ..node = _parsedMsg["botId"],
-                        privateDataType,
-                        _parsedMsg["token"]);
-                  },
-                  child:
-                      Text(AppLocalization.of(context).getTraslateValue("ok")),
+    Future.delayed(Duration.zero, () {
+      showFloatingModalBottomSheet(
+        context: context,
+        builder: (context) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(_parsedMsg["botId"],
+                style: TextStyle(
+                  color: ExtraTheme.of(context).textField,
+                  fontSize: 20,
                 ),
-              ],
-            ),
-          ],
+              ),
+              Text(
+                appLocalization
+                    .getTraslateValue("get_Private_date_access"),
+                style: TextStyle(
+                  color: ExtraTheme.of(context).textField,
+                  fontSize: 20,
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Text(appLocalization.getTraslateValue(privateDataType.name),
+                style: TextStyle(
+                    color: ExtraTheme.of(context).username, fontSize: 25),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  MaterialButton(
+                      color: Colors.blueAccent,
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(AppLocalization.of(context)
+                          .getTraslateValue("skip"))),
+                  MaterialButton(
+                    color: Colors.blueAccent,
+                    onPressed: () async {
+                      _messageRepo.sendPrivateMessageAccept(
+                          Uid()
+                            ..category = Categories.BOT
+                            ..node = _parsedMsg["botId"],
+                          privateDataType,
+                          _parsedMsg["token"]);
+                      _routingServices.openRoom((Uid.create()..node = _parsedMsg["botId"]..category = Categories.BOT).asString());
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                        AppLocalization.of(context).getTraslateValue("ok")),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

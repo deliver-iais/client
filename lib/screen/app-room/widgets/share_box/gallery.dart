@@ -98,6 +98,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                             color: Colors.white, size: 40),
                         onPressed: () async {
                           try {
+                            Navigator.pop(context);
                             final picker = ImagePicker();
                             final pickedFile = await picker.getImage(
                                 source: ImageSource.camera);
@@ -117,6 +118,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                             ? () {
                                 if (!widget.selectedImages
                                     .containsValue(true)) {
+                                  Navigator.pop(context);
                                   _routingServices.openImagePage(
                                       roomUid: widget.roomUid,
                                       file: File(image.path));

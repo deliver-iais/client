@@ -64,6 +64,7 @@ class _ImageWidget extends State<ShowImagePage> {
               }
             },
           ),
+          leading: _routingServices.backButtonLeading(),
           backgroundColor: Colors.blue,
         ),
         backgroundColor: Theme.of(context).backgroundColor,
