@@ -205,7 +205,7 @@
   "this_device": "This device",
   "delete_session": "delete session",
   "active_sessions": "Active Sessions",
-  "terminate_all_other_sessions": "Terminate all other sessions"
+  "terminate_all_other_sessions": "Terminate all other sessions",
   "NAME": "name",
   "PHONE_NUMBER": "Phone number",
   "USERNAME": "username",
