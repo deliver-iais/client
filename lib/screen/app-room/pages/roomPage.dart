@@ -45,6 +45,7 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -225,13 +226,21 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               break;
             }
           }
-
           break;
         case OperationOnMessage.SAVE_TO_GALLERY:
-          // TODO: Handle this case.
+          var file = message.json.toFile();
+          _fileRepo.saveFileInDownloadDir(
+              file.uuid, file.name, ExtStorage.DIRECTORY_PICTURES);
           break;
         case OperationOnMessage.SAVE_TO_DOWNLOADS:
-          // TODO: Handle this case.
+          var file = message.json.toFile();
+          _fileRepo.saveFileInDownloadDir(
+              file.uuid, file.name, ExtStorage.DIRECTORY_DOWNLOADS);
+          break;
+        case OperationOnMessage.SAVE_TO_MUSIC:
+          var file = message.json.toFile();
+          _fileRepo.saveFileInDownloadDir(
+              file.uuid, file.name, ExtStorage.DIRECTORY_MUSIC);
           break;
         case OperationOnMessage.RESEND:
           _messageRepo.resendMessage(message);
@@ -372,26 +381,25 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Future<void> watchPinMessages() async {
-
-      _mucRepo.watchMuc(widget.roomId).listen((muc) {
-        if (muc != null && (muc.showPinMessage == null || muc.showPinMessage)) {
-          List<int> pm = muc.pinMessagesIdList;
-          if (pm != null)
-            pm.forEach((element) async {
-              if (element != null) {
-                try {
-                  var m = await _getMessage(element, widget.roomId);
-                  _pinMessages.add(m);
-                  _lastPinedMessage.add(_pinMessages.last.id);
-                } catch (e) {
-                  print(e.toString());
-                  _logger.e(e);
-                  _logger.d(element);
-                }
+    _mucRepo.watchMuc(widget.roomId).listen((muc) {
+      if (muc != null && (muc.showPinMessage == null || muc.showPinMessage)) {
+        List<int> pm = muc.pinMessagesIdList;
+        if (pm != null)
+          pm.forEach((element) async {
+            if (element != null) {
+              try {
+                var m = await _getMessage(element, widget.roomId);
+                _pinMessages.add(m);
+                _lastPinedMessage.add(_pinMessages.last.id);
+              } catch (e) {
+                print(e.toString());
+                _logger.e(e);
+                _logger.d(element);
               }
-            });
-        }
-      });
+            }
+          });
+      }
+    });
   }
 
   Future checkRole() async {
@@ -933,9 +941,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     ],
                   ),
                 ),
-              if (_upTimeMap.containsKey(messages[0].packetId) &&
-                  !_downTimeMap.containsKey(messages[0].packetId))
-                ChatTime(currentMessageTime: _upTimeMap[messages[0].packetId]),
+              if (messages[0].id == 1 ||
+                  _upTimeMap.containsKey(messages[0].packetId) &&
+                      !_downTimeMap.containsValue(messages[0].time) &&
+                      !_downTimeMap.containsKey(messages[0].packetId))
+                ChatTime(
+                    currentMessageTime: _upTimeMap[messages[0].packetId] ??
+                        date(messages[0].time)),
               messages[0].packetId == null
                   ? SizedBox.shrink()
                   : messages[0].type != MessageType.PERSISTENT_EVENT
@@ -967,6 +979,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           ],
                         ),
               if (_downTimeMap.containsKey(messages[0].packetId) &&
+                  !_upTimeMap.containsValue(messages[0].time) &&
                   !_upTimeMap.containsKey(messages[0].packetId))
                 ChatTime(
                     currentMessageTime: _downTimeMap[messages[0].packetId]),
@@ -1019,17 +1032,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         showTimeDown = false;
       }
 
-      if (newTime &&
-          showTimeDown &&
-          _currentMessageForCheckTime != null &&
-          !_upTimeMap.containsValue(_currentMessageForCheckTime.time)) {
+      if (newTime && showTimeDown && _currentMessageForCheckTime != null) {
         _downTimeMap[messages[0].packetId] =
             date(_currentMessageForCheckTime.time);
       }
-      if (newTime &&
-          !showTimeDown &&
-          !_downTimeMap.containsValue(messages[0].time)) {
-        _upTimeMap[messages[0].packetId] = date(messages[0].time);
+      if (newTime && !showTimeDown) {
+        _upTimeMap[messages[0].packetId] =
+            date(currentSearchResultMessage.time);
       }
     } catch (e) {
       _logger.e(e);

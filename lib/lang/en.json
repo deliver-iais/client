@@ -211,6 +211,14 @@
   "USERNAME": "username",
   "EMAIL": "email",
   "send": "send message",
-  "private_data": "Private Data"
+  "private_data": "Private Data",
+  "phone_number_granted": "Access to phone number granted",
+  "name_granted": "Access to name granted",
+  "username_granted": "Access to username granted",
+  "email_granted": "Access to email granted",
+  "private_data_granted": "Access to private data granted",
+  "save_to_gallery": "Save in Gallery",
+  "save_to_downloads": "Save in Downloads",
+  "save_in_music": "Save in Music"
 
 }

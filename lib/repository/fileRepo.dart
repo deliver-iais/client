@@ -156,6 +156,11 @@ class FileRepo {
   void initUploadProgress(String uploadId) {
     _fileService.initUpoadProgrss(uploadId);
   }
+
+  void saveFileInDownloadDir( String uuid, String name,String dir) async {
+    var file = await getFileIfExist(uuid, name);
+    _fileService.saveFileInDownloadFolder(file, name, dir);
+  }
 }
 
 // void decodeIsolate(Map<dynamic, dynamic> param) async {
