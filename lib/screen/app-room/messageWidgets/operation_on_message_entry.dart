@@ -88,7 +88,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     Navigator.pop<OperationOnMessage>(
         context, OperationOnMessage.SAVE_TO_DOWNLOADS);
   }
-  onSaveToMusic(){
+
+  onSaveToMusic() {
     Navigator.pop<OperationOnMessage>(
         context, OperationOnMessage.SAVE_TO_MUSIC);
   }
@@ -175,19 +176,23 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   ])),
             ),
           if (widget.message.type == MessageType.FILE)
-            StreamBuilder(
-                stream: _fileIsExist.stream,
+            FutureBuilder(
+                future: _fileRepo.getFileIfExist(
+                    widget.message.json.toFile().uuid,
+                    widget.message.json.toFile().name),
                 builder: (c, fe) {
-                  if (fe.hasData && fe.data) {
+                  if (fe.hasData && fe.data != null) {
+                    _fileIsExist.add(true);
                     model.File f = widget.message.json.toFile();
                     return Expanded(
                       child: FlatButton(
                           onPressed: () {
                             if (f.type.contains("image")) {
                               onSaveTOGallery();
-                            } else if( f.type.contains("audio")||  f.type.contains("mp3")){
+                            } else if (f.type.contains("audio") ||
+                                f.type.contains("mp3")) {
                               onSaveToMusic();
-                            }else{
+                            } else {
                               onSaveTODownloads();
                             }
                           },
@@ -195,15 +200,22 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                             Icon(
                               f.type.contains("image")
                                   ? Icons.image
-                                  : f.type.contains("audio")||  f.type.contains("mp3")?Icons.queue_music_rounded: Icons.download_rounded,
+                                  : f.type.contains("audio") ||
+                                          f.type.contains("mp3")
+                                      ? Icons.queue_music_rounded
+                                      : Icons.download_rounded,
                               size: 20,
                             ),
                             SizedBox(width: 8),
                             f.type.contains("image")
                                 ? Text(appLocalization
                                     .getTraslateValue("save_to_gallery"))
-                                : f.type.contains("audio")||  f.type.contains("mp3")? Text(appLocalization.getTraslateValue("save_in_music")) :Text(appLocalization
-                                    .getTraslateValue("save_to_downloads")),
+                                : f.type.contains("audio") ||
+                                        f.type.contains("mp3")
+                                    ? Text(appLocalization
+                                        .getTraslateValue("save_in_music"))
+                                    : Text(appLocalization
+                                        .getTraslateValue("save_to_downloads")),
                           ])),
                     );
                   } else {
@@ -212,12 +224,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 }),
 
           if (widget.message.type == MessageType.FILE && !isDesktop())
-            FutureBuilder<File>(
-                future: _fileRepo.getFileIfExist(
-                    widget.message.json.toFile().uuid,
-                    widget.message.json.toFile().name),
+            StreamBuilder<bool>(
+                stream: _fileIsExist.stream,
                 builder: (c, s) {
-                  if (s.hasData && s.data != null) {
+                  if (s.hasData && s.data) {
                     _fileIsExist.add(true);
                     return Expanded(
                       child: FlatButton(
