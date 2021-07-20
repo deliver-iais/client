@@ -5,6 +5,7 @@ import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/message.dart';
+import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/box/pending_message.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
@@ -371,24 +372,26 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   }
 
   Future<void> watchPinMessages() async {
-    _mucRepo.watchMuc(widget.roomId).listen((muc) {
-      if (muc != null) {
-        List<int> pm = muc.pinMessagesIdList;
-        if (pm != null)
-          pm.forEach((element) async {
-            if (element != null) {
-              try {
-                var m = await _getMessage(element, widget.roomId);
-                _pinMessages.add(m);
-                _lastPinedMessage.add(_pinMessages.last.id);
-              } catch (e) {
-                _logger.e(e);
-                _logger.d(element);
+
+      _mucRepo.watchMuc(widget.roomId).listen((muc) {
+        if (muc != null && (muc.showPinMessage == null || muc.showPinMessage)) {
+          List<int> pm = muc.pinMessagesIdList;
+          if (pm != null)
+            pm.forEach((element) async {
+              if (element != null) {
+                try {
+                  var m = await _getMessage(element, widget.roomId);
+                  _pinMessages.add(m);
+                  _lastPinedMessage.add(_pinMessages.last.id);
+                } catch (e) {
+                  print(e.toString());
+                  _logger.e(e);
+                  _logger.d(element);
+                }
               }
-            }
-          });
-      }
-    });
+            });
+        }
+      });
   }
 
   Future checkRole() async {
@@ -1069,7 +1072,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         onSecondaryTap: !isDesktop()
             ? null
             : () {
-                if (!_selectMultiMessageSubject.stream.value )
+                if (!_selectMultiMessageSubject.stream.value)
                   _showCustomMenu(message);
               },
         onDoubleTap: !isDesktop() ? null : () => onReply(message),
@@ -1254,19 +1257,24 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget pinMessageWidget() {
     return PinMessageAppBar(
-      lastPinedMessage: _lastPinedMessage,
-      pinMessages: _pinMessages,
-      onTap: (int id, Message mes) {
-        _itemScrollController.scrollTo(
-            index: _lastPinedMessage.valueWrapper.value,
-            duration: Duration(microseconds: 1));
-        setState(() {
-          _replayMessageId = id;
+        lastPinedMessage: _lastPinedMessage,
+        pinMessages: _pinMessages,
+        onTap: (int id, Message mes) {
+          _itemScrollController.scrollTo(
+              index: _lastPinedMessage.valueWrapper.value,
+              duration: Duration(microseconds: 1));
+          setState(() {
+            _replayMessageId = id;
+          });
+          if (_pinMessages.length > 1) {
+            _lastPinedMessage
+                .add(_pinMessages[_pinMessages.indexOf(mes) - 1].id);
+          }
+        },
+        onCancel: () {
+          _lastPinedMessage.add(0);
+          _mucRepo.updateMuc(
+              Muc().copyWith(uid: widget.roomId, showPinMessage: false));
         });
-        if (_pinMessages.length > 1) {
-          _lastPinedMessage.add(_pinMessages[_pinMessages.indexOf(mes) - 1].id);
-        }
-      },
-    );
   }
 }

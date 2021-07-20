@@ -145,6 +145,7 @@ class MucRepo {
   Future<Muc> fetchMucInfo(Uid mucUid) async {
     if (mucUid.category == Categories.GROUP) {
       MucPro.GetGroupRes group = await _mucServices.getGroup(mucUid);
+      var m = await _mucDao.get(mucUid.asString());
       if (group != null) {
         var muc = Muc(
           name: group.info.name,
@@ -152,6 +153,7 @@ class MucRepo {
           uid: mucUid.asString(),
           info: group.info.info,
           token: group.token,
+          showPinMessage: m != null ? m.showPinMessage : true,
           lastMessageId: group.lastMessageId.toInt(),
           pinMessagesIdList: group.pinMessages.map((e) => e.toInt()).toList(),
         );
@@ -159,11 +161,14 @@ class MucRepo {
         _mucDao.save(muc);
 
         fetchGroupMembers(mucUid, group.population.toInt());
+        if (m != null)
+          _checkShowPin(mucUid, group.pinMessages, m.pinMessagesIdList??[]);
         return muc;
       }
       return null;
     } else {
       GetChannelRes channel = await getChannelInfo(mucUid);
+      var c = await _mucDao.get(mucUid.asString());
       if (channel != null) {
         var muc = Muc(
             name: channel.info.name,
@@ -172,6 +177,7 @@ class MucRepo {
             lastMessageId: channel.lastMessageId.toInt(),
             info: channel.info.info,
             token: channel.token,
+            showPinMessage: c!= null ? c.showPinMessage:true,
             pinMessagesIdList:
                 channel.pinMessages.map((e) => e.toInt()).toList(),
             id: channel.info.id);
@@ -183,6 +189,8 @@ class MucRepo {
               mucUid: mucUid.asString(),
               role: getLocalRole(channel.requesterRole))
         ]);
+        if(c!=null)
+          _checkShowPin(mucUid, channel.pinMessages,c.pinMessagesIdList??[]);
         if (channel.requesterRole != MucPro.Role.NONE)
           fetchChannelMembers(mucUid, channel.population.toInt());
         return muc;
@@ -211,6 +219,10 @@ class MucRepo {
       }
     }
     return false;
+  }
+
+  updateMuc(Muc muc) async {
+    _mucDao.update(muc);
   }
 
   Future<List<Member>> searchMemberByNameOrId(String mucUid) async {
@@ -548,5 +560,12 @@ class MucRepo {
       return _filteredMember;
     } else
       return _mucMembers;
+  }
+
+  _checkShowPin(Uid mucUid, List<Int64> pinMessages, List<int> pm) async {
+    bool showPin = pinMessages.last.toInt() > pm.last;
+    if (showPin)
+      _mucDao
+          .update(Muc().copyWith(uid: mucUid.asString(), showPinMessage: true));
   }
 }

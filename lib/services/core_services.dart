@@ -298,7 +298,7 @@ class CoreServices {
                 pinMessages.add(message
                     .persistEvent.mucSpecificPersistentEvent.messageId
                     .toInt());
-                _mucDao.update(muc.copyWith(pinMessagesIdList: pinMessages));
+                _mucDao.update(muc.copyWith(pinMessagesIdList: pinMessages,showPinMessage: true));
                 break;
               }
 
