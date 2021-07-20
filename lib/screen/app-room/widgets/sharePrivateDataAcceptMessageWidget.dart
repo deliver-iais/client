@@ -51,7 +51,3 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
     );
   }
 }
-
-//  Text(spda.data == PrivateDataType.PHONE_NUMBER
-//                 ? "اجازه دسترسی به شماره تلفن شما داده شد."
-//                 : "اجازه دسترسی به نام کاربری شما داده شده است.")
