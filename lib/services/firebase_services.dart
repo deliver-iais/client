@@ -56,7 +56,7 @@ class FireBaseServices {
   }
 
   _sendFireBaseToken(String fireBaseToken) async {
-    if (await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
+    if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
       try {
         await _firebaseServices
             .registration(RegistrationReq()..tokenId = fireBaseToken);

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
+import 'package:deliver_flutter/screen/app-room/widgets/showImage_Widget.dart';
 import 'package:deliver_flutter/screen/contacts/contacts_page.dart';
 import 'package:deliver_flutter/screen/contacts/new_contact.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
@@ -304,6 +305,18 @@ class RoutingService {
   void openScanQrCode() {
     var widget = ScanQrCode(
       key: ValueKey("/scan_qr_code"),
+    );
+    _push(Page(
+        largePageNavigator: _navigationCenter,
+        largePageMain: widget,
+        smallPageMain: widget,
+        path: "/scan_qr_code"));
+  }
+  void openImagePage({Uid roomUid,File file}) {
+    var widget = ShowImagePage(
+      roomUid: roomUid,
+      imageFile: file,
+      key: ValueKey("/show_image_page"),
     );
     _push(Page(
         largePageNavigator: _navigationCenter,

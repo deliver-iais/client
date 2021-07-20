@@ -199,11 +199,17 @@
   "qr_share": "Share by QR Code",
   "about": "About",
   "user_experience": "User Experience",
-  "send_msg_to_bot": "send Message To Bot",
+  "send_msg_to": "send Message To ",
   "get_Private_date_access": "get Private date Access",
   "devices": "Devices",
   "this_device": "This device",
   "delete_session": "delete session",
   "active_sessions": "Active Sessions",
   "terminate_all_other_sessions": "Terminate all other sessions"
+  "NAME": "name",
+  "PHONE_NUMBER": "Phone number",
+  "USERNAME": "username",
+  "EMAIL": "email",
+  "send": "send message",
+  "private_data": "Private Data"
 }

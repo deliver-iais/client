@@ -200,11 +200,17 @@
   "qr_share": "اشتراک گذاری با کد QR",
   "about": "درباره ما...",
   "user_experience": "رابط کاربری",
-  "send_msg_to_bot": "فرستادن پیام به بات ",
+  "send_msg_to": "فرستادن پیام به  ",
   "get_Private_date_access": "اجازه دسترسی به اطلاعات  شخصی ",
   "devices": "دستگاه ها",
   "this_device": "دستگاته کنونی",
   "delete_session": "حذف  دستگاه",
   "active_sessions": "حساب‌های فعال",
   "terminate_all_other_sessions": "حذف دیگر حساب های فعال"
+  "NAME": "نام",
+  "PHONE_NUMBER": "شماره تلفن",
+  "USERNAME": "نام کاربری",
+  "EMAIL": "ایمیل",
+  "send": "ارسال پیام",
+  "private_data": "اطلاعات شخصی"
 }
