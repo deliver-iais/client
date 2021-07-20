@@ -166,12 +166,12 @@ class MessageRepo {
     rooms.forEach((r) async {
       var category = r.lastMessage.to.asUid().category;
       if (r.lastMessage.id == null) return;
-      if (_authRepo.isCurrentUser(r.lastMessage.from) &&
+      if (!_authRepo.isCurrentUser(r.lastMessage.from) &&
           (category == Categories.GROUP || category == Categories.USER)) {
         var othersSeen = await _seenDao.getOthersSeen(r.lastMessage.to);
         if (othersSeen == null || othersSeen.messageId < r.lastMessage.id) {
           var rm = await _queryServiceClient.getUserRoomMeta(
-              GetUserRoomMetaReq()..roomUid = r.lastMessage.to.asUid());
+              GetUserRoomMetaReq()..roomUid = r.uid.asUid());
           fetchLastSeen(rm.roomMeta);
         }
       }
