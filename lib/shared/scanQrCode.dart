@@ -48,8 +48,7 @@ class _ScanQrCode extends State<ScanQrCode> {
   }
 
   String _decodedData = "";
-  Map<String,String> _parsedMsg = Map();
-
+  Map<String, String> _parsedMsg = Map();
 
   BehaviorSubject<bool> _mucJoinQrCode = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> _sendMessageToBotQrCode = BehaviorSubject.seeded(false);
@@ -93,7 +92,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                     stream: _sendMessageToBotQrCode.stream,
                     builder: (c, s) {
                       if (s.hasData && s.data) {
-                       handleSendMsgToBot(context);
+                        handleSendMsgToBot(context);
                         return SizedBox.shrink();
                       } else {
                         return SizedBox.shrink();
@@ -103,7 +102,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                     stream: _sendAccessPrivateDataQrCode.stream,
                     builder: (c, s) {
                       if (s.hasData && s.data) {
-                       handleSendPrivateDateAccestance(context);
+                        handleSendPrivateDateAccestance(context);
                         return SizedBox.shrink();
                       } else {
                         return SizedBox.shrink();
@@ -175,19 +174,15 @@ class _ScanQrCode extends State<ScanQrCode> {
     });
     List<String> pathSegments = uri.pathSegments;
     _decodedData = scanData;
-    if(pathSegments.last.contains("ac")){
+    if (pathSegments.last.contains("ac")) {
       _addContact.add(true);
-    } else if(pathSegments.last.contains("spda")){
+    } else if (pathSegments.last.contains("spda")) {
       _sendAccessPrivateDataQrCode.add(true);
-    }else if(pathSegments.last.contains("text")){
+    } else if (pathSegments.last.contains("text")) {
       _sendMessageToBotQrCode.add(true);
+    } else if (pathSegments[0].contains("join")) {
+      _mucJoinQrCode.add(true);
     }
-    else if (pathSegments[0].contains("join")){
-        _mucJoinQrCode.add(true);
-      }
-
-
-
   }
 
   Future<void> handleAddContact(
@@ -266,7 +261,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     }
   }
 
-  void handleSendMsgToBot(BuildContext context) async{
+  void handleSendMsgToBot(BuildContext context) async {
     showFloatingModalBottomSheet(
       context: context,
       builder: (context) => Padding(
@@ -275,8 +270,7 @@ class _ScanQrCode extends State<ScanQrCode> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Text(
-              AppLocalization.of(context)
-                  .getTraslateValue("send_msg_to_bot"),
+              AppLocalization.of(context).getTraslateValue("send_msg_to_bot"),
               style: TextStyle(
                 color: ExtraTheme.of(context).textField,
                 fontSize: 20,
@@ -299,16 +293,19 @@ class _ScanQrCode extends State<ScanQrCode> {
                 MaterialButton(
                     color: Colors.blueAccent,
                     onPressed: () => Navigator.of(context).pop(),
-                    child: Text(AppLocalization.of(context)
-                        .getTraslateValue("skip"))),
+                    child: Text(
+                        AppLocalization.of(context).getTraslateValue("skip"))),
                 MaterialButton(
                   color: Colors.blueAccent,
                   onPressed: () async {
-                    _messageRepo.sendTextMessage(Uid()..category = Categories.BOT..node = _parsedMsg["botId"],_parsedMsg["text"] );
-
+                    _messageRepo.sendTextMessage(
+                        Uid()
+                          ..category = Categories.BOT
+                          ..node = _parsedMsg["botId"],
+                        _parsedMsg["text"]);
                   },
-                  child: Text(AppLocalization.of(context)
-                      .getTraslateValue("send")),
+                  child: Text(
+                      AppLocalization.of(context).getTraslateValue("send")),
                 ),
               ],
             ),
@@ -316,12 +313,11 @@ class _ScanQrCode extends State<ScanQrCode> {
         ),
       ),
     );
-
   }
 
-  Future<void> handleSendPrivateDateAccestance(BuildContext context)async {
-    PrivateDataType  privateDataType;
-    switch(_parsedMsg["type"]){
+  Future<void> handleSendPrivateDateAccestance(BuildContext context) async {
+    PrivateDataType privateDataType;
+    switch (_parsedMsg["type"]) {
       case "PHONE_NUMBER":
         privateDataType = PrivateDataType.PHONE_NUMBER;
         break;
@@ -334,13 +330,11 @@ class _ScanQrCode extends State<ScanQrCode> {
       case "NAME":
         privateDataType = PrivateDataType.NAME;
         break;
-
-
-
+      default:
+        privateDataType = PrivateDataType.PHONE_NUMBER;
     }
 
-
-   showFloatingModalBottomSheet(
+    showFloatingModalBottomSheet(
       context: context,
       builder: (context) => Padding(
         padding: const EdgeInsets.all(8.0),
@@ -372,15 +366,20 @@ class _ScanQrCode extends State<ScanQrCode> {
                 MaterialButton(
                     color: Colors.blueAccent,
                     onPressed: () => Navigator.of(context).pop(),
-                    child: Text(AppLocalization.of(context)
-                        .getTraslateValue("skip"))),
+                    child: Text(
+                        AppLocalization.of(context).getTraslateValue("skip"))),
                 MaterialButton(
                   color: Colors.blueAccent,
                   onPressed: () async {
-                    _messageRepo.sendPrivateMessageAccept(Uid()..category = Categories.BOT..node = _parsedMsg["botId"],privateDataType,_parsedMsg["token"] );
+                    _messageRepo.sendPrivateMessageAccept(
+                        Uid()
+                          ..category = Categories.BOT
+                          ..node = _parsedMsg["botId"],
+                        privateDataType,
+                        _parsedMsg["token"]);
                   },
-                  child: Text(AppLocalization.of(context)
-                      .getTraslateValue("ok")),
+                  child:
+                      Text(AppLocalization.of(context).getTraslateValue("ok")),
                 ),
               ],
             ),
@@ -389,5 +388,4 @@ class _ScanQrCode extends State<ScanQrCode> {
       ),
     );
   }
-
 }
