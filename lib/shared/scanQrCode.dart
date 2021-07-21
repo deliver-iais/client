@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
@@ -67,64 +68,48 @@ class _ScanQrCode extends State<ScanQrCode> {
         ),
         leading: _routingServices.backButtonLeading(),
       ),
-      body: Column(
+      body: Stack(
         children: <Widget>[
           Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height / 2,
-              child: _buildQrView(context)),
-          Expanded(
-            flex: 1,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                StreamBuilder<bool>(
-                    stream: _mucJoinQrCode.stream,
-                    builder: (c, s) {
-                      if (s.hasData && s.data) {
-                        handleUri(_decodedData, context);
-                        return SizedBox.shrink();
-                      } else {
-                        return SizedBox.shrink();
-                      }
-                    }),
-                StreamBuilder<bool>(
-                    stream: _sendMessageToBotQrCode.stream,
-                    builder: (c, s) {
-                      if (s.hasData && s.data) {
-                        handleSendMsgToBot(context);
-                        return SizedBox.shrink();
-                      } else {
-                        return SizedBox.shrink();
-                      }
-                    }),
-                StreamBuilder<bool>(
-                    stream: _sendAccessPrivateDataQrCode.stream,
-                    builder: (c, s) {
-                      if (s.hasData && s.data) {
-                        handleSendPrivateDateAccestance(context);
-                        return SizedBox.shrink();
-                      } else {
-                        return SizedBox.shrink();
-                      }
-                    }),
-                StreamBuilder<bool>(
-                    stream: _addContact.stream,
-                    builder: (c, s) {
-                      if (s.hasData && s.data) {
-                        handleAddContact(
-                            context: context,
-                            countryCode: _parsedMsg["cc"],
-                            nationalNumber: _parsedMsg["nn"],
-                            firstName: _parsedMsg["fn"],
-                            lastName: _parsedMsg["ln"]);
-                        return SizedBox.shrink();
-                      } else {
-                        return SizedBox.shrink();
-                      }
-                    }),
-              ],
-            ),
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            color: Colors.black,
+            child: _buildQrView(context),
+          ),
+          Column(
+            children: <Widget>[
+              StreamBuilder<bool>(
+                  stream: _mucJoinQrCode.stream,
+                  builder: (c, s) {
+                    if (s.hasData && s.data) handleUri(_decodedData, context);
+                    return SizedBox.shrink();
+                  }),
+              StreamBuilder<bool>(
+                  stream: _sendMessageToBotQrCode.stream,
+                  builder: (c, s) {
+                    if (s.hasData && s.data) handleSendMsgToBot(context);
+                    return SizedBox.shrink();
+                  }),
+              StreamBuilder<bool>(
+                  stream: _sendAccessPrivateDataQrCode.stream,
+                  builder: (c, s) {
+                    if (s.hasData && s.data)
+                      handleSendPrivateDateAccestance(context);
+                    return SizedBox.shrink();
+                  }),
+              StreamBuilder<bool>(
+                  stream: _addContact.stream,
+                  builder: (c, s) {
+                    if (s.hasData && s.data)
+                      handleAddContact(
+                          context: context,
+                          countryCode: _parsedMsg["cc"],
+                          nationalNumber: _parsedMsg["nn"],
+                          firstName: _parsedMsg["fn"],
+                          lastName: _parsedMsg["ln"]);
+                    return SizedBox.shrink();
+                  }),
+            ],
           )
         ],
       ),
@@ -139,9 +124,10 @@ class _ScanQrCode extends State<ScanQrCode> {
 
     return QRView(
       key: qrKey,
+      overlayMargin: const EdgeInsets.all(24.0).copyWith(bottom: 100),
       onQRViewCreated: _onQRViewCreated,
       overlay: QrScannerOverlayShape(
-          borderColor: Colors.red,
+          borderColor: Theme.of(context).primaryColor,
           borderRadius: 10,
           borderLength: 30,
           borderWidth: 10,
@@ -192,7 +178,7 @@ class _ScanQrCode extends State<ScanQrCode> {
       String nationalNumber,
       BuildContext context}) async {
     var res = await _contactRepo.contactIsExist(countryCode, nationalNumber);
-    if (res) {
+    if (!res) {
       Fluttertoast.showToast(
           msg:
               "$firstName $lastName ${AppLocalization.of(context).getTraslateValue("contact_exist")}");
@@ -201,7 +187,7 @@ class _ScanQrCode extends State<ScanQrCode> {
         showFloatingModalBottomSheet(
           context: context,
           builder: (context) => Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
@@ -210,30 +196,34 @@ class _ScanQrCode extends State<ScanQrCode> {
                       .getTraslateValue("sure_add_contact"),
                   style: TextStyle(
                     color: ExtraTheme.of(context).textField,
+                    fontWeight: FontWeight.w600,
                     fontSize: 20,
                   ),
                 ),
                 SizedBox(
-                  height: 20,
+                  height: 30,
                 ),
                 Text(
-                  "$firstName$lastName ",
+                  buildName(firstName, lastName),
                   style: TextStyle(
-                      color: ExtraTheme.of(context).username, fontSize: 25),
+                      color: ExtraTheme.of(context).username, fontSize: 20),
+                ),
+                Text(
+                  buildPhoneNumber(countryCode, nationalNumber),
+                  style: TextStyle(
+                      color: ExtraTheme.of(context).textField, fontSize: 20),
                 ),
                 SizedBox(
-                  height: 20,
+                  height: 40,
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    MaterialButton(
-                        color: Colors.blueAccent,
+                    TextButton(
                         onPressed: () => Navigator.of(context).pop(),
                         child: Text(AppLocalization.of(context)
                             .getTraslateValue("skip"))),
-                    MaterialButton(
-                      color: Colors.blueAccent,
+                    TextButton(
                       onPressed: () async {
                         var res = await _contactRepo.addContact(C.Contact()
                           ..firstName = firstName
@@ -301,13 +291,15 @@ class _ScanQrCode extends State<ScanQrCode> {
                     color: Colors.blueAccent,
                     onPressed: () async {
                       Navigator.of(context).pop();
-                      _routingServices.openRoom((Uid.create()..node = _parsedMsg["botId"]..category = Categories.BOT).asString());
+                      _routingServices.openRoom((Uid.create()
+                            ..node = _parsedMsg["botId"]
+                            ..category = Categories.BOT)
+                          .asString());
                       _messageRepo.sendTextMessage(
                           Uid()
                             ..category = Categories.BOT
                             ..node = _parsedMsg["botId"],
                           _parsedMsg["text"]);
-
                     },
                     child: Text(
                         AppLocalization.of(context).getTraslateValue("send")),
@@ -342,15 +334,15 @@ class _ScanQrCode extends State<ScanQrCode> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text(_parsedMsg["botId"],
+              Text(
+                _parsedMsg["botId"],
                 style: TextStyle(
                   color: ExtraTheme.of(context).textField,
                   fontSize: 20,
                 ),
               ),
               Text(
-                appLocalization
-                    .getTraslateValue("get_Private_date_access"),
+                appLocalization.getTraslateValue("get_Private_date_access"),
                 style: TextStyle(
                   color: ExtraTheme.of(context).textField,
                   fontSize: 20,
@@ -359,7 +351,8 @@ class _ScanQrCode extends State<ScanQrCode> {
               SizedBox(
                 height: 20,
               ),
-              Text("${appLocalization.getTraslateValue("private_data")} : ${appLocalization.getTraslateValue(privateDataType.name)}",
+              Text(
+                "${appLocalization.getTraslateValue("private_data")} : ${appLocalization.getTraslateValue(privateDataType.name)}",
                 style: TextStyle(
                     color: ExtraTheme.of(context).username, fontSize: 25),
               ),
@@ -383,7 +376,10 @@ class _ScanQrCode extends State<ScanQrCode> {
                             ..node = _parsedMsg["botId"],
                           privateDataType,
                           _parsedMsg["token"]);
-                      _routingServices.openRoom((Uid.create()..node = _parsedMsg["botId"]..category = Categories.BOT).asString());
+                      _routingServices.openRoom((Uid.create()
+                            ..node = _parsedMsg["botId"]
+                            ..category = Categories.BOT)
+                          .asString());
                       Navigator.of(context).pop();
                     },
                     child: Text(

@@ -52,33 +52,31 @@ void showQrCode(BuildContext context, String url) {
   print(url);
   showFloatingModalBottomSheet(
     context: context,
-    builder: (context) =>
-        Padding(
-          padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              QrImage(
-                data: url,
-                version: QrVersions.auto,
-                padding: EdgeInsets.zero,
-                foregroundColor: Theme
-                    .of(context)
-                    .brightness == Brightness.dark
-                    ? Colors.white
-                    : Colors.black,
-              ),
-              Container(
-                width: double.infinity,
-                height: 60,
-                padding: const EdgeInsets.only(top: 10.0),
-                child: TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(
-                        AppLocalization.of(context).getTraslateValue("skip"))),
-              ),
-            ],
+    builder: (context) => Padding(
+      padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Container(
+            color: Colors.white,
+            child: QrImage(
+              data: url,
+              version: QrVersions.auto,
+              padding: EdgeInsets.zero,
+              foregroundColor: Colors.black,
+            ),
           ),
-        ),
+          Container(
+            width: double.infinity,
+            height: 60,
+            padding: const EdgeInsets.only(top: 10.0),
+            child: TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child:
+                    Text(AppLocalization.of(context).getTraslateValue("skip"))),
+          ),
+        ],
+      ),
+    ),
   );
 }
