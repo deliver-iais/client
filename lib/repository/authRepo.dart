@@ -47,6 +47,8 @@ class AuthRepo {
   String platformVersion;
 
   Future getVerificationCode(String countryCode, String nationalNumber) async {
+    Pb.Platform platform = await getPlatformDetails();
+
     try {
       PhoneNumber phone = PhoneNumber()
         ..countryCode = int.parse(countryCode)
@@ -56,7 +58,8 @@ class AuthRepo {
       var verificationCode =
           await _authServiceClient.getVerificationCode(GetVerificationCodeReq()
             ..phoneNumber = phone
-            ..type = VerificationType.SMS);
+            ..type = VerificationType.SMS
+            ..platform = platform);
       return verificationCode;
     } catch (e) {
       _logger.e(e);
@@ -64,9 +67,7 @@ class AuthRepo {
     }
   }
 
-  Future sendVerificationCode(String code) async {
-    String device;
-
+  Future<Pb.Platform> getPlatformDetails() async {
     var pInfo = await PackageInfo.fromPlatform();
 
     Pb.Platform platform = Pb.Platform()..clientVersion = pInfo.version;
@@ -77,39 +78,50 @@ class AuthRepo {
       platform
         ..platformType = Pb.PlatformsType.ANDROID
         ..osVersion = androidInfo.version.release;
-
-      device = androidInfo.model;
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
 
       platform
         ..platformType = Pb.PlatformsType.IOS
         ..osVersion = iosInfo.systemVersion;
-
-      device = iosInfo.model;
     } else if (Platform.isLinux) {
       platform
         ..platformType = Pb.PlatformsType.LINUX
         ..osVersion = Platform.operatingSystemVersion;
-
-      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     } else if (Platform.isMacOS) {
       platform
         ..platformType = Pb.PlatformsType.MAC_OS
         ..osVersion = Platform.operatingSystemVersion;
-
-      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     } else if (Platform.isWindows) {
       platform
         ..platformType = Pb.PlatformsType.WINDOWS
         ..osVersion = Platform.operatingSystemVersion;
-
-      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     } else {
       platform
         ..platformType = Pb.PlatformsType.ANDROID
         ..osVersion = Platform.operatingSystemVersion;
+    }
+    return platform;
+  }
 
+  Future sendVerificationCode(String code) async {
+    Pb.Platform platform = await getPlatformDetails();
+
+    String device;
+
+    if (Platform.isAndroid) {
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      device = androidInfo.model;
+    } else if (Platform.isIOS) {
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      device = iosInfo.model;
+    } else if (Platform.isLinux) {
+      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
+    } else if (Platform.isMacOS) {
+      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
+    } else if (Platform.isWindows) {
+      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
+    } else {
       device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     }
 
@@ -124,8 +136,9 @@ class AuthRepo {
 
   Future _getAccessToken(String refreshToken) async {
     try {
-      return await _authServiceClient
-          .renewAccessToken(RenewAccessTokenReq()..refreshToken = refreshToken);
+      return await _authServiceClient.renewAccessToken(RenewAccessTokenReq()
+        ..refreshToken = refreshToken
+        ..platform = await getPlatformDetails());
     } catch (e) {
       _logger.e(e);
     }
