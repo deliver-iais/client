@@ -343,7 +343,7 @@ class _ProfilePageState extends State<ProfilePage>
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: SettingsTile(
-                  title: _locale.getTraslateValue("sendMessage"),
+                  title: _locale.getTraslateValue("send_message"),
                   titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                   leading: Icon(Icons.message),
                   onPressed: (_) =>
@@ -394,7 +394,7 @@ class _ProfilePageState extends State<ProfilePage>
               Padding(
                 padding: const EdgeInsets.only(top:8.0),
                 child: SettingsTile(
-                  title: _locale.getTraslateValue("AddMember"),
+                  title: _locale.getTraslateValue("add_member"),
                   titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                   leading: Icon(Icons.person_add),
                   onPressed: (_) => _routingService.openMemberSelection(
@@ -556,7 +556,7 @@ class _ProfilePageState extends State<ProfilePage>
     if (token != null && token.isNotEmpty) {
       _showInviteLinkDialog(token);
     } else {
-      Fluttertoast.showToast(msg: _locale.getTraslateValue("occurred_Error"));
+      Fluttertoast.showToast(msg: _locale.getTraslateValue("error_occurred"));
     }
   }
 
@@ -595,7 +595,7 @@ class _ProfilePageState extends State<ProfilePage>
                         Navigator.pop(context);
                       },
                       child: Text(
-                        _locale.getTraslateValue("Copy"),
+                        _locale.getTraslateValue("copy"),
                         style: TextStyle(fontSize: 16),
                       )),
                   ElevatedButton(
@@ -954,9 +954,9 @@ class _ProfilePageState extends State<ProfilePage>
                           keyboardType: TextInputType.multiline,
                           decoration: buildInputDecoration(
                             widget.roomUid.category == Categories.GROUP
-                                ? _locale.getTraslateValue("enter-group-desc")
+                                ? _locale.getTraslateValue("enter_group_desc")
                                 : _locale
-                                    .getTraslateValue("enter-channel-desc"),
+                                    .getTraslateValue("enter_channel_desc"),
                           ),
                         );
                       } else {

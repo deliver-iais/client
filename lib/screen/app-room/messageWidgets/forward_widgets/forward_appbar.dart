@@ -12,7 +12,7 @@ class ForwardAppbar extends StatelessWidget {
     return AppBar(
       leading: _routingServices.backButtonLeading(),
       title: Text(
-        appLocalization.getTraslateValue("ForwardTo"),
+        appLocalization.getTraslateValue("forward_to"),
         style: Theme.of(context).textTheme.headline2,
       ),
     );

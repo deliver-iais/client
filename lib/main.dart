@@ -52,6 +52,7 @@ import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/services/video_player_service.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_flutter/theme/constants.dart';
@@ -83,6 +84,7 @@ import 'box/media.dart';
 import 'repository/mucRepo.dart';
 
 Future<void> setupDI() async {
+  // Setup Logger
   GetIt.I.registerSingleton<DeliverLogFilter>(DeliverLogFilter());
   GetIt.I.registerSingleton<Logger>(Logger(
       filter: GetIt.I.get<DeliverLogFilter>(),
@@ -195,10 +197,27 @@ Future setupFlutterNotification() async {
   await Firebase.initializeApp();
 }
 
-void setupDIAndRunApp() async {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  Logger().i("Application has been started.");
+
+  if (isDesktop()) {
+    try {
+      _setWindowSize();
+
+      setWindowTitle(APPLICATION_NAME);
+    } catch (e) {
+      Logger().e(e);
+    }
+  }
+
+  // TODO add IOS and MacOS too
   if (isAndroid()) {
     await setupFlutterNotification();
   }
+
+  Logger().i("OS based setups done.");
 
   try {
     await setupDI();
@@ -206,20 +225,9 @@ void setupDIAndRunApp() async {
     Logger().e(e);
   }
 
+  Logger().i("Dependency Injection setup done.");
+
   runApp(MyApp());
-}
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  Logger().i("Application has been started");
-
-  if (isDesktop()) {
-    _setWindowSize();
-
-    setWindowTitle("Deliver");
-  }
-
-  setupDIAndRunApp();
 }
 
 _setWindowSize() async {

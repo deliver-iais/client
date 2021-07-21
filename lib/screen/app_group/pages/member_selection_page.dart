@@ -39,7 +39,7 @@ class MemberSelectionPage extends StatelessWidget {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   );
                 }else{
-                  return Text(appLocalization.getTraslateValue("AddMember"));
+                  return Text(appLocalization.getTraslateValue("add_member"));
                 }
               },):
             Text(
@@ -69,8 +69,8 @@ class MemberSelectionPage extends StatelessWidget {
                     child: Text(
                       members >= 1
                           ? '$members ${appLocalization.getTraslateValue(
-                          "ofMaxMember")}'
-                          : appLocalization.getTraslateValue("maxMember"),style: TextStyle(color: ExtraTheme.of(context).titleStatus),
+                          "of_max_member")}'
+                          : appLocalization.getTraslateValue("max_member"),style: TextStyle(color: ExtraTheme.of(context).titleStatus),
                     ),
                   );
                 })

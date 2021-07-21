@@ -188,7 +188,7 @@ AppLocalization appLocalization;
               ),
               prefix: Text("${_selectedCountry['dial_code']}  " ,style: TextStyle(color: ExtraTheme.of(context).textField),),
               // fillColor: ExtraTheme.of(context).secondColor,
-              labelText: appLocalization.getTraslateValue("phoneNumber"),
+              labelText: appLocalization.getTraslateValue("phone_number"),
 //                        filled: true,
               labelStyle: TextStyle(
                   color: ExtraTheme.of(context).textField),

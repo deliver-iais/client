@@ -37,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
         else
           Fluttertoast.showToast(
 //          TODO more detailed error message needed here.
-              msg: appLocalization.getTraslateValue("occurred_Error"),
+              msg: appLocalization.getTraslateValue("error_occurred"),
               toastLength: Toast.LENGTH_SHORT,
               backgroundColor: Colors.black,
               textColor: Colors.white,
@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
         _logger.e(e);
         Fluttertoast.showToast(
 //          TODO more detailed error message needed here.
-            msg: appLocalization.getTraslateValue("occurred_Error"),
+            msg: appLocalization.getTraslateValue("error_occurred"),
             toastLength: Toast.LENGTH_SHORT,
             backgroundColor: Colors.black,
             textColor: Colors.white,
@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       SizedBox(height: 15),
                       Text(
-                        appLocalization.getTraslateValue("insertPhoneAndCode"),
+                        appLocalization.getTraslateValue("insert_phone_and_code"),
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
                           color: Theme.of(context).primaryColor,

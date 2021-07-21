@@ -172,7 +172,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       size: 20,
                     ),
                     SizedBox(width: 8),
-                    Text(appLocalization.getTraslateValue("Copy")),
+                    Text(appLocalization.getTraslateValue("copy")),
                   ])),
             ),
           if (widget.message.type == MessageType.FILE)
@@ -259,7 +259,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       size: 20,
                     ),
                     SizedBox(width: 8),
-                    Text(appLocalization.getTraslateValue("Forward")),
+                    Text(appLocalization.getTraslateValue("forward")),
                   ])),
             ),
           if (widget.message.id == null)
@@ -327,7 +327,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
           //                 size: 20,
           //               ),
           //               SizedBox(width: 8),
-          //               Text(appLocalization.getTraslateValue("Edit")),
+          //               Text(appLocalization.getTraslateValue("edit")),
           //             ])),
           //       )
           //     : Container(),
@@ -342,7 +342,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
           //           size: 20,
           //         ),
           //         SizedBox(width: 8),
-          //         Text(appLocalization.getTraslateValue("Delete")),
+          //         Text(appLocalization.getTraslateValue("delete")),
           //       ])),
           // ),
         ],

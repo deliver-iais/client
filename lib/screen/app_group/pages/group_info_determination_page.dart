@@ -101,9 +101,9 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                             decoration: buildInputDecoration(
                                 widget.isChannel
                                     ? _appLocalization
-                                        .getTraslateValue("enter-channel-name")
+                                        .getTraslateValue("enter_channel_name")
                                     : _appLocalization
-                                        .getTraslateValue("enter-group-name"),
+                                        .getTraslateValue("enter_group_name"),
                                 true, context)),
                       ),
                     ),
@@ -134,7 +134,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                               },
                               decoration: buildInputDecoration(
                                   _appLocalization
-                                      .getTraslateValue("enter-channel-id"),
+                                      .getTraslateValue("enter_channel_id"),
                                   true, context),
                             ),
                           )),
@@ -165,9 +165,9 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           decoration: buildInputDecoration(
                               widget.isChannel
                                   ? _appLocalization
-                                      .getTraslateValue("enter-channel-desc")
+                                      .getTraslateValue("enter_channel_desc")
                                   : _appLocalization
-                                      .getTraslateValue("enter-group-desc"),
+                                      .getTraslateValue("enter_group_desc"),
                               false, context)),
                     )),
                   ],

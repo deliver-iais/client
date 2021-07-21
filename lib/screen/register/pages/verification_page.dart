@@ -132,7 +132,7 @@ class _VerificationPageState extends State<VerificationPage> {
                     height: 30,
                   ),
                   Text(
-                    _appLocalization.getTraslateValue("sendCode"),
+                    _appLocalization.getTraslateValue("we_have_send_a_code"),
                     style: TextStyle(
                         fontSize: 17, color: ExtraTheme.of(context).textField),
                   ),
@@ -171,7 +171,7 @@ class _VerificationPageState extends State<VerificationPage> {
                   ),
                   _showError
                       ? Text(
-                          _appLocalization.getTraslateValue("wrongCode"),
+                          _appLocalization.getTraslateValue("wrong_code"),
                           style: Theme.of(context)
                               .primaryTextTheme
                               .subtitle1

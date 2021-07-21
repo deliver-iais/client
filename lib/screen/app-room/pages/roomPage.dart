@@ -255,7 +255,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _lastPinedMessage.add(_pinMessages.last.id);
           } else {
             Fluttertoast.showToast(
-                msg: _appLocalization.getTraslateValue("occurred_Error"));
+                msg: _appLocalization.getTraslateValue("error_occurred"));
           }
           break;
         case OperationOnMessage.UN_PIN_MESSAGE:
@@ -1167,7 +1167,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         ),
         SizedBox(width: 10),
         Tooltip(
-          message: _appLocalization.getTraslateValue("Forward"),
+          message: _appLocalization.getTraslateValue("forward"),
           child: Badge(
             animationType: BadgeAnimationType.fade,
             badgeColor: Theme.of(context).primaryColor,

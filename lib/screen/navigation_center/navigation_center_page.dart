@@ -292,9 +292,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   selectChatMenu(String key) {
     switch (key) {
-      case "newChat":
-        initialDataBase();
-        break;
       case "newGroup":
         _routingService.openMemberSelection(isChannel: false);
         break;

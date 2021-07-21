@@ -144,7 +144,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                       } else {
                         return Center(
                           child: Text(
-                            appLocalization.getTraslateValue("NoResults"),
+                            appLocalization.getTraslateValue("no_results"),
                             style: TextStyle(fontSize: 18),
                           ),
                         );
@@ -191,7 +191,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                               } else {
                                 Fluttertoast.showToast(
                                     msg: appLocalization
-                                        .getTraslateValue("occurred_Error"));
+                                        .getTraslateValue("error_occurred"));
                                 // _routingService.pop();
                               }
                             })

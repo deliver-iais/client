@@ -41,7 +41,7 @@ class SenderAndContent extends StatelessWidget {
     var appLocalization = AppLocalization.of(context);
     String content = messages.length > 1
         ? '${messages.length} ' +
-            appLocalization.getTraslateValue("ForwardedMessages")
+            appLocalization.getTraslateValue("forwarded_messages")
         : getContent(context, messages[0]);
 
     return Container(
