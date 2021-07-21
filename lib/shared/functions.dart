@@ -76,9 +76,9 @@ String buildPhoneNumber(String countryCode, String nationalNumber) =>
 
 String buildShareUserUrl(String countryCode, String nationalNumber,
         String firstName, String lastName) =>
-    "$APPLICATION_DOMAIN/ac?cc=$countryCode&nn=$nationalNumber&fn=$firstName&ln=$lastName";
+    "https://$APPLICATION_DOMAIN/ac?cc=$countryCode&nn=$nationalNumber&fn=$firstName&ln=$lastName";
 
-Future<void> handleUri(String initialLink, BuildContext context) async {
+Future<void> handleJoinUri(BuildContext context, String initialLink) async {
   var _mucDao = GetIt.I.get<MucDao>();
   var _messageRepo = GetIt.I.get<MessageRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
