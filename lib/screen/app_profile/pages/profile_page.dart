@@ -301,9 +301,11 @@ class _ProfilePageState extends State<ProfilePage>
                       padding: const EdgeInsets.only(top: 8.0),
                       child: SettingsTile(
                         title: _locale.getTraslateValue("username"),
+                        titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                         subtitle: "${snapshot.data}",
                         leading: Icon(Icons.alternate_email),
                         trailing: Icon(Icons.copy),
+                        subtitleTextStyle: TextStyle(color: ExtraTheme.of(context).username),
                         onPressed: (_) => Clipboard.setData(
                             ClipboardData(text: "@${snapshot.data}")),
                       ),
@@ -323,8 +325,10 @@ class _ProfilePageState extends State<ProfilePage>
                       padding: const EdgeInsets.only(top: 8.0),
                       child: SettingsTile(
                         title: _locale.getTraslateValue("phone"),
+                        titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                         subtitle: buildPhoneNumber(snapshot.data.countryCode,
                             snapshot.data.nationalNumber),
+                        subtitleTextStyle: TextStyle(color: ExtraTheme.of(context).username),
                         leading: Icon(Icons.phone),
                         trailing: Icon(Icons.call),
                         onPressed: (_) => launch(
@@ -340,6 +344,7 @@ class _ProfilePageState extends State<ProfilePage>
               padding: const EdgeInsets.only(top: 8.0),
               child: SettingsTile(
                   title: _locale.getTraslateValue("sendMessage"),
+                  titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                   leading: Icon(Icons.message),
                   onPressed: (_) =>
                       _routingService.openRoom(widget.roomUid.asString())),
@@ -350,6 +355,7 @@ class _ProfilePageState extends State<ProfilePage>
                 if (snapshot.hasData && snapshot.data != null) {
                   return SettingsTile.switchTile(
                       title: _locale.getTraslateValue("notification"),
+                      titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                       leading: Icon(Icons.notifications_active),
                       switchValue: !snapshot.data,
                       onToggle: (state) {
@@ -375,7 +381,9 @@ class _ProfilePageState extends State<ProfilePage>
                         padding: const EdgeInsets.only(top:8.0),
                         child: SettingsTile(
                             title: _locale.getTraslateValue("description"),
+                            titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                             subtitle: muc.data.info,
+                            subtitleTextStyle: TextStyle(color: ExtraTheme.of(context).username,fontSize: 16),
                             leading: Icon(Icons.info),
                             trailing: SizedBox.shrink()),
                       );
@@ -387,6 +395,7 @@ class _ProfilePageState extends State<ProfilePage>
                 padding: const EdgeInsets.only(top:8.0),
                 child: SettingsTile(
                   title: _locale.getTraslateValue("AddMember"),
+                  titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
                   leading: Icon(Icons.person_add),
                   onPressed: (_) => _routingService.openMemberSelection(
                       isChannel: true, mucUid: widget.roomUid),

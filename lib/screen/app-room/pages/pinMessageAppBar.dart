@@ -13,9 +13,10 @@ class PinMessageAppBar extends StatelessWidget {
   final BehaviorSubject<int> lastPinedMessage;
   final SortedList pinMessages;
   final Function onTap;
+  final Function onCancel;
 
   PinMessageAppBar(
-      {Key key, this.lastPinedMessage, this.pinMessages, this.onTap})
+      {Key key, this.lastPinedMessage, this.pinMessages, this.onTap,this.onCancel})
       : super(key: key);
 
   @override
@@ -97,7 +98,7 @@ class PinMessageAppBar extends StatelessWidget {
                         ),
                         IconButton(
                             onPressed: () {
-                              lastPinedMessage.add(0);
+                              onCancel();
                             },
                             icon: Icon(
                               Icons.close,

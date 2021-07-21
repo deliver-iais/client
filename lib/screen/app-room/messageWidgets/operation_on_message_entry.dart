@@ -9,10 +9,12 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as model;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:rxdart/rxdart.dart';
 
 class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   final Message message;
@@ -77,10 +79,27 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
         context, OperationOnMessage.UN_PIN_MESSAGE);
   }
 
+  onSaveTOGallery() {
+    Navigator.pop<OperationOnMessage>(
+        context, OperationOnMessage.SAVE_TO_GALLERY);
+  }
+
+  onSaveTODownloads() {
+    Navigator.pop<OperationOnMessage>(
+        context, OperationOnMessage.SAVE_TO_DOWNLOADS);
+  }
+
+  onSaveToMusic() {
+    Navigator.pop<OperationOnMessage>(
+        context, OperationOnMessage.SAVE_TO_MUSIC);
+  }
+
   onDeletePendingMessage() {
     Navigator.pop<OperationOnMessage>(
         context, OperationOnMessage.DELETE_PENDING_MESSAGE);
   }
+
+  BehaviorSubject<bool> _fileIsExist = BehaviorSubject.seeded(false);
 
   @override
   Widget build(BuildContext context) {
@@ -156,13 +175,60 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     Text(appLocalization.getTraslateValue("Copy")),
                   ])),
             ),
-          if (widget.message.type == MessageType.FILE && !isDesktop())
-            FutureBuilder<File>(
+          if (widget.message.type == MessageType.FILE)
+            FutureBuilder(
                 future: _fileRepo.getFileIfExist(
                     widget.message.json.toFile().uuid,
                     widget.message.json.toFile().name),
+                builder: (c, fe) {
+                  if (fe.hasData && fe.data != null) {
+                    _fileIsExist.add(true);
+                    model.File f = widget.message.json.toFile();
+                    return Expanded(
+                      child: FlatButton(
+                          onPressed: () {
+                            if (f.type.contains("image")) {
+                              onSaveTOGallery();
+                            } else if (f.type.contains("audio") ||
+                                f.type.contains("mp3")) {
+                              onSaveToMusic();
+                            } else {
+                              onSaveTODownloads();
+                            }
+                          },
+                          child: Row(children: [
+                            Icon(
+                              f.type.contains("image")
+                                  ? Icons.image
+                                  : f.type.contains("audio") ||
+                                          f.type.contains("mp3")
+                                      ? Icons.queue_music_rounded
+                                      : Icons.download_rounded,
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            f.type.contains("image")
+                                ? Text(appLocalization
+                                    .getTraslateValue("save_to_gallery"))
+                                : f.type.contains("audio") ||
+                                        f.type.contains("mp3")
+                                    ? Text(appLocalization
+                                        .getTraslateValue("save_in_music"))
+                                    : Text(appLocalization
+                                        .getTraslateValue("save_to_downloads")),
+                          ])),
+                    );
+                  } else {
+                    return SizedBox.shrink();
+                  }
+                }),
+
+          if (widget.message.type == MessageType.FILE && !isDesktop())
+            StreamBuilder<bool>(
+                stream: _fileIsExist.stream,
                 builder: (c, s) {
-                  if (s.hasData && s.data != null)
+                  if (s.hasData && s.data) {
+                    _fileIsExist.add(true);
                     return Expanded(
                       child: FlatButton(
                           onPressed: () {
@@ -177,7 +243,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                             Text(appLocalization.getTraslateValue("share")),
                           ])),
                     );
-                  else
+                  } else
                     return SizedBox.shrink();
                 }),
 
