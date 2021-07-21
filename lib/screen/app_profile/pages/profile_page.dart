@@ -483,8 +483,8 @@ class _ProfilePageState extends State<ProfilePage>
                   Icon(Icons.delete),
                   SizedBox(width: 8),
                   Text(widget.roomUid.isGroup()
-                      ? _locale.getTraslateValue("deleteGroup")
-                      : _locale.getTraslateValue("deleteChannel"))
+                      ? _locale.getTraslateValue("delete_group")
+                      : _locale.getTraslateValue("delete_channel"))
                 ],
               ),
               value: "deleteMuc"),
@@ -910,7 +910,7 @@ class _ProfilePageState extends State<ProfilePage>
                                       },
                                       keyboardType: TextInputType.text,
                                       decoration: buildInputDecoration(_locale
-                                          .getTraslateValue("channel_Id")),
+                                          .getTraslateValue("channel_id")),
                                     )),
                                 StreamBuilder(
                                     stream: _showChannelIdError.stream,
@@ -918,7 +918,7 @@ class _ProfilePageState extends State<ProfilePage>
                                       if (e.hasData && e.data) {
                                         return Text(
                                           _locale.getTraslateValue(
-                                              "channel_id_isExist"),
+                                              "channel_id_is_exist"),
                                           style: TextStyle(color: Colors.red),
                                         );
                                       } else {

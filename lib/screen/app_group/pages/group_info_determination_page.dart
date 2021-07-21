@@ -178,7 +178,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                       if (e.hasData && e.data) {
                         return Text(
                           _appLocalization
-                              .getTraslateValue("channel_id_isExist"),
+                              .getTraslateValue("channel_id_is_exist"),
                           style: TextStyle(color: Colors.red),
                         );
                       } else {
