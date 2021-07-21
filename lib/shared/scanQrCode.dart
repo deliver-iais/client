@@ -306,20 +306,13 @@ class _ScanQrCode extends State<ScanQrCode> {
                 ),
               ),
               Text(
-                appLocalization.getTraslateValue("get_private_data_access"),
+                appLocalization.getTraslateValue(
+                    "get_private_data_access_${privateDataType.name}"),
                 style: TextStyle(
                   color: ExtraTheme.of(context).textField,
                   fontWeight: FontWeight.w600,
                   fontSize: 20,
                 ),
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              Text(
-                "${appLocalization.getTraslateValue("private_data")} : ${appLocalization.getTraslateValue(privateDataType.name)}",
-                style: TextStyle(
-                    color: ExtraTheme.of(context).username, fontSize: 25),
               ),
               SizedBox(
                 height: 40,
