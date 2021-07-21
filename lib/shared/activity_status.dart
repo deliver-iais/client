@@ -34,14 +34,14 @@ class ActivityStatus extends StatelessWidget {
                 );
               } else {
                 return Text(
-                  "unKnown ${appLocalization.getTraslateValue("isTyping")}",
+                  "unKnown ${appLocalization.getTraslateValue("is_typing")}",
                   style: textStyle(context),
                 );
               }
             });
       } else {
         return Text(
-          appLocalization.getTraslateValue("isTyping"),
+          appLocalization.getTraslateValue("is_typing"),
           style: textStyle(context),
         );
       }
@@ -57,14 +57,14 @@ class ActivityStatus extends StatelessWidget {
                 );
               } else {
                 return Text(
-                  "unKnown ${appLocalization.getTraslateValue("recordAudioActivity")}",
+                  "unKnown ${appLocalization.getTraslateValue("record_audio_activity")}",
                   style: textStyle(context),
                 );
               }
             });
       }
       return Text(
-        appLocalization.getTraslateValue("recordAudioActivity"),
+        appLocalization.getTraslateValue("record_audio_activity"),
         style: textStyle(context),
       );
     } else if (activity.typeOfActivity == ActivityType.SENDING_FILE) {
@@ -79,14 +79,14 @@ class ActivityStatus extends StatelessWidget {
                 );
               } else {
                 return Text(
-                  "unKnown ${appLocalization.getTraslateValue("sendingFileActivity")}",
+                  "unKnown ${appLocalization.getTraslateValue("sending_file_activity")}",
                   style: textStyle(context),
                 );
               }
             });
       } else {
         return Text(
-          appLocalization.getTraslateValue("sendingFileActivity"),
+          appLocalization.getTraslateValue("sending_file_activity"),
           style: textStyle(context),
         );
       }

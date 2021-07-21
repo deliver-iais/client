@@ -43,7 +43,7 @@ class LastMessage extends StatelessWidget {
         if (message.json.toShareUid().uid.category == Categories.USER)
           return message.json.toShareUid().name;
         else
-          return _appLocalization.getTraslateValue("inviteLink") +
+          return _appLocalization.getTraslateValue("invite_link") +
               " " +
               message.json.toShareUid().name;
         break;

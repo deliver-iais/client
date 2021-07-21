@@ -346,7 +346,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
 
   String checkMucNameIsSet(String value) {
     if (value.length < 1) {
-      return _appLocalization.getTraslateValue("inter_Muc_Name");
+      return _appLocalization.getTraslateValue("inter_muc_name");
     } else {
       return null;
     }
@@ -356,7 +356,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
     Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
     RegExp regex = new RegExp(pattern);
     if (value.isEmpty) {
-      return _appLocalization.getTraslateValue("channelId_not_empty");
+      return _appLocalization.getTraslateValue("channel_id_not_empty");
     } else if (!regex.hasMatch(value)) {
       return _appLocalization.getTraslateValue("channel_id_length");
     }

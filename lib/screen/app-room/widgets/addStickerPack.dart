@@ -30,7 +30,7 @@
 //             title: Align(
 //               alignment: Alignment.centerLeft,
 //               child: Text(
-//                 _appLocalization.getTraslateValue("add_sticker_Pack"),
+//                 _appLocalization.getTraslateValue("add_sticker_pack"),
 //                 style: Theme.of(context).textTheme.headline3,
 //               ),
 //             ),

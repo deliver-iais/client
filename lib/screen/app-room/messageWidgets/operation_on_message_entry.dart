@@ -155,7 +155,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         size: 20,
                       ),
                       SizedBox(width: 8),
-                      Text(appLocalization.getTraslateValue("Unpin")),
+                      Text(appLocalization.getTraslateValue("unpin")),
                     ])),
               ),
 
@@ -281,7 +281,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               size: 20,
                             ),
                             SizedBox(width: 8),
-                            Text(appLocalization.getTraslateValue("Resend")),
+                            Text(appLocalization.getTraslateValue("resend")),
                           ])),
                     );
                   } else {

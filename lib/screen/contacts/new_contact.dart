@@ -129,7 +129,7 @@ class _NewContactState extends State<NewContact> {
           msg: _appLocalization.getTraslateValue("contactAdd"));
     } else {
       Fluttertoast.showToast(
-          msg: _appLocalization.getTraslateValue("contactNotExit"));
+          msg: _appLocalization.getTraslateValue("contact_not_exist"));
     }
   }
 }

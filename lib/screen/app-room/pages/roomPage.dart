@@ -197,7 +197,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             Clipboard.setData(
                 ClipboardData(text: message.json.toFile().caption ?? ""));
           Fluttertoast.showToast(
-              msg: _appLocalization.getTraslateValue("Copied"));
+              msg: _appLocalization.getTraslateValue("copied"));
           break;
         case OperationOnMessage.FORWARD:
           _repliedMessage.add(null);
@@ -939,7 +939,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       Icon(Icons.keyboard_arrow_down,
                           color: Theme.of(context).primaryColor),
                       Text(
-                        _appLocalization.getTraslateValue("UnreadMessages"),
+                        _appLocalization.getTraslateValue("unread_messages"),
                         style: TextStyle(color: Theme.of(context).primaryColor),
                       ),
                     ],

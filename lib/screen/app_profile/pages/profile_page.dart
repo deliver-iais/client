@@ -469,8 +469,8 @@ class _ProfilePageState extends State<ProfilePage>
                   SizedBox(width: 8),
                   Text(
                     widget.roomUid.isGroup()
-                        ? _locale.getTraslateValue("leftGroup")
-                        : _locale.getTraslateValue("leftChannel"),
+                        ? _locale.getTraslateValue("left_group")
+                        : _locale.getTraslateValue("left_channel"),
                   ),
                 ],
               ),
@@ -591,7 +591,7 @@ class _ProfilePageState extends State<ProfilePage>
                         Clipboard.setData(
                             ClipboardData(text: generateInviteLink(token)));
                         Fluttertoast.showToast(
-                            msg: _locale.getTraslateValue("Copied"));
+                            msg: _locale.getTraslateValue("copied"));
                         Navigator.pop(context);
                       },
                       child: Text(
@@ -1062,7 +1062,7 @@ class _ProfilePageState extends State<ProfilePage>
     Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
     RegExp regex = new RegExp(pattern);
     if (value.isEmpty) {
-      return _locale.getTraslateValue("channelId_not_empty");
+      return _locale.getTraslateValue("channel_id_not_empty");
     } else if (!regex.hasMatch(value)) {
       return _locale.getTraslateValue("channel_id_length");
     } else
@@ -1077,7 +1077,7 @@ class _ProfilePageState extends State<ProfilePage>
       case "deleteMuc":
         _showDeleteMucDialog();
         break;
-      case "unBlockRoom":
+      case "unblock_room":
         _roomRepo.unblock(widget.roomUid.asString());
         break;
       case "blockRoom":

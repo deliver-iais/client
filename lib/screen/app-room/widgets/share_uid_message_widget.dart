@@ -72,7 +72,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                           child: Text(
                             _shareUid.name +
                                 (_shareUid.uid.category != Categories.USER
-                                    ? " ${AppLocalization.of(context).getTraslateValue("inviteLink")}"
+                                    ? " ${AppLocalization.of(context).getTraslateValue("invite_link")}"
                                     : ""),
                             style: TextStyle(
                               fontSize: 16,
