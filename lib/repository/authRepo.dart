@@ -5,6 +5,7 @@ import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart' as Pb;
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
@@ -12,6 +13,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:device_info/device_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:get_it/get_it.dart';
 
@@ -65,13 +67,49 @@ class AuthRepo {
   Future sendVerificationCode(String code) async {
     String device;
 
+    var pInfo = await PackageInfo.fromPlatform();
+
+    Pb.Platform platform = Pb.Platform()..clientVersion = pInfo.version;
+
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      device = "Android/${androidInfo.model}";
+
+      platform
+        ..platformType = Pb.PlatformsType.ANDROID
+        ..osVersion = androidInfo.version.release;
+
+      device = androidInfo.model;
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-      device = "iOS/${iosInfo.identifierForVendor}";
+
+      platform
+        ..platformType = Pb.PlatformsType.IOS
+        ..osVersion = iosInfo.systemVersion;
+
+      device = iosInfo.model;
+    } else if (Platform.isLinux) {
+      platform
+        ..platformType = Pb.PlatformsType.LINUX
+        ..osVersion = Platform.operatingSystemVersion;
+
+      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
+    } else if (Platform.isMacOS) {
+      platform
+        ..platformType = Pb.PlatformsType.MAC_OS
+        ..osVersion = Platform.operatingSystemVersion;
+
+      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
+    } else if (Platform.isWindows) {
+      platform
+        ..platformType = Pb.PlatformsType.WINDOWS
+        ..osVersion = Platform.operatingSystemVersion;
+
+      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     } else {
+      platform
+        ..platformType = Pb.PlatformsType.ANDROID
+        ..osVersion = Platform.operatingSystemVersion;
+
       device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     }
 
@@ -79,6 +117,7 @@ class AuthRepo {
       ..phoneNumber = this.phoneNumber
       ..code = code
       ..device = device
+      ..platform = platform
       //  TODO add password mechanism
       ..password = "");
   }
