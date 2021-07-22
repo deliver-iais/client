@@ -2,12 +2,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/screen/register/pages/testing_environment_tokens.dart';
 import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver_flutter/screen/register/widgets/phone_number.dart';
 import 'package:deliver_flutter/shared/fluid.dart';
-import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
-import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -55,14 +52,6 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _navigateToApplicationInDevelopment() {
-    _authRepo.saveTokens(AccessTokenRes()
-      ..accessToken = TESTING_ENVIRONMENT_ACCESS_TOKEN
-      ..refreshToken = TESTING_ENVIRONMENT_REFRESH_TOKEN);
-    ExtendedNavigator.of(context)
-        .pushAndRemoveUntil(Routes.homePage, (_) => false);
-  }
-
   @override
   Widget build(BuildContext context) {
     I18N i18n = I18N.of(context);
@@ -100,8 +89,7 @@ class _LoginPageState extends State<LoginPage> {
                             : "",
                         validator: (value) => value.length != 10 ||
                                 (value.length > 0 && value[0] == '0')
-                            ? i18n
-                                .get("invalid_mobile_number")
+                            ? i18n.get("invalid_mobile_number")
                             : null,
                         onChanged: (p) {
                           phoneNumber = p;
@@ -120,16 +108,6 @@ class _LoginPageState extends State<LoginPage> {
                           fontSize: 15,
                         ),
                       ),
-                      kDebugMode
-                          ? MaterialButton(
-                              color: Colors.yellow,
-                              onPressed: _navigateToApplicationInDevelopment,
-                              child: Text(
-                                "Login In Debug Mode",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            )
-                          : SizedBox.shrink(),
                     ],
                   ),
                 ),
