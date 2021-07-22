@@ -99,7 +99,9 @@ class _ChatItemState extends State<ChatItem> {
                             Expanded(
                                 flex: 50,
                                 child: Padding(
-                                    padding: (widget.room.uid.asUid().category ==
+                                    padding: (widget.room.uid
+                                                    .asUid()
+                                                    .category ==
                                                 Categories.GROUP) ||
                                             (widget.room.uid.asUid().category ==
                                                 Categories.CHANNEL) ||
@@ -107,8 +109,8 @@ class _ChatItemState extends State<ChatItem> {
                                                 Categories.BOT)
                                         ? const EdgeInsets.only(left: 16.0)
                                         : EdgeInsets.zero,
-                                    child: widget.room.uid.asUid().toString().contains(
-                                            _authRepo.currentUserUid.toString())
+                                    child: _authRepo
+                                            .isCurrentUser(widget.room.uid)
                                         ? _showDisplayName(
                                             widget.room.uid.asUid(),
                                             _appLocalization.getTraslateValue(
