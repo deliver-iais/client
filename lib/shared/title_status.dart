@@ -136,7 +136,7 @@ class _TitleStatusState extends State<TitleStatus> {
                 userInfo.data.time != null) {
               if (isOnline(userInfo.data.time)) {
                 return Text(
-                  appLocalization.getTraslateValue('online'),
+                  appLocalization.getTraslateValue("online"),
                   style: TextStyle(
                       fontSize: 14, color: ExtraTheme.of(context).titleStatus),
                 );
@@ -144,7 +144,7 @@ class _TitleStatusState extends State<TitleStatus> {
                 String lastActivityTime =
                     dateTimeFormat(date(userInfo.data.time));
                 return Text(
-                  "${appLocalization.getTraslateValue('lastSeen')} ${lastActivityTime.contains("just now") ? appLocalization.getTraslateValue("just_now") : lastActivityTime} ",
+                  "${appLocalization.getTraslateValue("last_seen")} ${lastActivityTime.contains("just now") ? appLocalization.getTraslateValue("just_now") : lastActivityTime} ",
                   style: TextStyle(
                       fontSize: 12, color: ExtraTheme.of(context).titleStatus),
                 );

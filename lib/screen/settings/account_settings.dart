@@ -242,7 +242,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                                 child: Text(
                                                   _appLocalization
                                                       .getTraslateValue(
-                                                          "usernameHelper"),
+                                                          "username_helper"),
                                                   textAlign: TextAlign.justify,
                                                   overflow:
                                                       TextOverflow.ellipsis,
@@ -261,7 +261,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                               Text(
                                                 _appLocalization
                                                     .getTraslateValue(
-                                                        "usernameExit"),
+                                                        "username_already_exist"),
                                                 style: TextStyle(
                                                     fontSize: 10,
                                                     color: Colors.red),
