@@ -19,18 +19,18 @@
 //     Key key,
 //   }) : super(key: key);
 //
-//   AppLocalization _appLocalization;
+//   AppLocalization _i18n;
 //
 //   @override
 //   Widget build(BuildContext context) {
-//     _appLocalization = AppLocalization.of(context);
+//     _i18n = AppLocalization.of(context);
 //     return Scaffold(
 //         appBar: AppBar(
 //             elevation: 0,
 //             title: Align(
 //               alignment: Alignment.centerLeft,
 //               child: Text(
-//                 _appLocalization.getTraslateValue("add_sticker_pack"),
+//                 _i18n.getTraslateValue("add_sticker_pack"),
 //                 style: Theme.of(context).textTheme.headline3,
 //               ),
 //             ),
@@ -59,7 +59,7 @@
 //                                               children: [
 //                                                 Text(stickerPck.data.name),
 //                                                 RaisedButton(
-//                                                     child: Text(_appLocalization
+//                                                     child: Text(_i18n
 //                                                         .getTraslateValue(
 //                                                             "add")),
 //                                                     onPressed: () {

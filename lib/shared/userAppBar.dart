@@ -22,7 +22,7 @@ class UserAppbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization i18n = AppLocalization.of(context);
+    I18N i18n = I18N.of(context);
     return Expanded(
       child: Container(
           color: Theme.of(context).appBarTheme.color,
@@ -41,7 +41,7 @@ class UserAppbar extends StatelessWidget {
                 _authRepo.isCurrentUser(userUid.asString())
                     ? Expanded(
                       child: Text(
-                          i18n.getTraslateValue("saved_message"),
+                          i18n.get("saved_message"),
                           maxLines: 1,
                           overflow: TextOverflow.fade,
                           softWrap: false,

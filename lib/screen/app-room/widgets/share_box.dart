@@ -74,7 +74,7 @@ class _ShareBoxState extends State<ShareBox> {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N appLocalization = I18N.of(context);
     return DraggableScrollableSheet(
       initialChildSize: 0.3,
       minChildSize: 0.2,
@@ -259,7 +259,7 @@ class _ShareBoxState extends State<ShareBox> {
                                 });
                               },
                                   Icons.insert_drive_file,
-                                  appLocalization.getTraslateValue("gallery"),
+                                  appLocalization.get("gallery"),
                                   40,
                                   context: context),
                               CircleButton(() async {
@@ -286,7 +286,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   }
                                 }
                               }, Icons.file_upload,
-                                  appLocalization.getTraslateValue("file"), 40,
+                                  appLocalization.get("file"), 40,
                                   context: context),
                               CircleButton(() async {
                                 if (await _checkPermissionsService
@@ -316,7 +316,7 @@ class _ShareBoxState extends State<ShareBox> {
                                 }
                               },
                                   Icons.location_on,
-                                  appLocalization.getTraslateValue("location"),
+                                  appLocalization.get("location"),
                                   40,
                                   context: context),
                               CircleButton(() async {
@@ -333,7 +333,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   }
                                 }
                               }, Icons.music_note,
-                                  appLocalization.getTraslateValue("music"), 40,
+                                  appLocalization.get("music"), 40,
                                   context: context),
                             ],
                           ),

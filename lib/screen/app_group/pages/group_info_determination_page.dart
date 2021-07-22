@@ -39,7 +39,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   var _createMucService = GetIt.I.get<CreateMucService>();
   MucRepo _mucRepo = GetIt.I.get<MucRepo>();
   bool idIsAvailable = false;
-  AppLocalization _appLocalization;
+  I18N _i18n;
   final mucNameKey = GlobalKey<FormState>();
   final _channelIdKey = GlobalKey<FormState>();
   BehaviorSubject<bool> showChannelIdError = BehaviorSubject.seeded(false);
@@ -64,13 +64,13 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    _i18n = I18N.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: _routingService.backButtonLeading(),
         title: Text(widget.isChannel
-            ? _appLocalization.getTraslateValue("newChannel")
-            : _appLocalization.getTraslateValue("newGroup")),
+            ? _i18n.get("newChannel")
+            : _i18n.get("newGroup")),
       ),
       body: FluidContainerWidget(
         child: Stack(
@@ -100,10 +100,10 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                             },
                             decoration: buildInputDecoration(
                                 widget.isChannel
-                                    ? _appLocalization
-                                        .getTraslateValue("enter_channel_name")
-                                    : _appLocalization
-                                        .getTraslateValue("enter_group_name"),
+                                    ? _i18n
+                                        .get("enter_channel_name")
+                                    : _i18n
+                                        .get("enter_group_name"),
                                 true, context)),
                       ),
                     ),
@@ -133,8 +133,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                 });
                               },
                               decoration: buildInputDecoration(
-                                  _appLocalization
-                                      .getTraslateValue("enter_channel_id"),
+                                  _i18n
+                                      .get("enter_channel_id"),
                                   true, context),
                             ),
                           )),
@@ -164,10 +164,10 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           },
                           decoration: buildInputDecoration(
                               widget.isChannel
-                                  ? _appLocalization
-                                      .getTraslateValue("enter_channel_desc")
-                                  : _appLocalization
-                                      .getTraslateValue("enter_group_desc"),
+                                  ? _i18n
+                                      .get("enter_channel_desc")
+                                  : _i18n
+                                      .get("enter_group_desc"),
                               false, context)),
                     )),
                   ],
@@ -177,8 +177,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                     builder: (c, e) {
                       if (e.hasData && e.data) {
                         return Text(
-                          _appLocalization
-                              .getTraslateValue("channel_id_is_exist"),
+                          _i18n
+                              .get("channel_id_is_exist"),
                           style: TextStyle(color: Colors.red),
                         );
                       } else {
@@ -195,7 +195,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         return SizedBox.shrink();
                       }
                       return Text(
-                        '${snapshot.data} ${_appLocalization.getTraslateValue("members")}',
+                        '${snapshot.data} ${_i18n.get("members")}',
                         style: TextStyle(
                             color: Theme.of(context).primaryColor,
                             fontWeight: FontWeight.bold,
@@ -276,8 +276,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                               _routingService.openRoom(micUid.asString());
                             } else {
                               Fluttertoast.showToast(
-                                  msg: _appLocalization
-                                      .getTraslateValue("error_occurred"));
+                                  msg: _i18n
+                                      .get("error_occurred"));
                               setState(() {
                                 _showIcon = true;
                               });
@@ -346,7 +346,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
 
   String checkMucNameIsSet(String value) {
     if (value.length < 1) {
-      return _appLocalization.getTraslateValue("inter_muc_name");
+      return _i18n.get("inter_muc_name");
     } else {
       return null;
     }
@@ -356,9 +356,9 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
     Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
     RegExp regex = new RegExp(pattern);
     if (value.isEmpty) {
-      return _appLocalization.getTraslateValue("channel_id_not_empty");
+      return _i18n.get("channel_id_not_empty");
     } else if (!regex.hasMatch(value)) {
-      return _appLocalization.getTraslateValue("channel_id_length");
+      return _i18n.get("channel_id_length");
     }
     return null;
   }

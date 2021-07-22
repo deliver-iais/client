@@ -48,7 +48,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N appLocalization = I18N.of(context);
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
@@ -58,7 +58,7 @@ class _SettingsPageState extends State<SettingsPage> {
               // elevation: 0,
               titleSpacing: 8,
               title: Text(
-                appLocalization.getTraslateValue("settings"),
+                appLocalization.get("settings"),
                 style: Theme.of(context).textTheme.headline2,
               ),
               leading: _routingService.backButtonLeading(),
@@ -155,7 +155,7 @@ class _SettingsPageState extends State<SettingsPage> {
               SettingsSection(
                 tiles: [
                   SettingsTile(
-                    title: appLocalization.getTraslateValue("qr_share"),
+                    title: appLocalization.get("qr_share"),
                     titleTextStyle:
                         TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.qr_code),
@@ -171,7 +171,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   SettingsTile(
-                    title: appLocalization.getTraslateValue("saved_message"),
+                    title: appLocalization.get("saved_message"),
                     titleTextStyle:
                         TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.bookmark),
@@ -181,7 +181,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   SettingsTile(
-                    title: appLocalization.getTraslateValue("contacts"),
+                    title: appLocalization.get("contacts"),
                     titleTextStyle:
                         TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.contacts),
@@ -192,21 +192,21 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
               SettingsSection(
-                title: appLocalization.getTraslateValue("user_experience"),
+                title: appLocalization.get("user_experience"),
                 titleTextStyle:
                     TextStyle(color: ExtraTheme.of(context).textField),
                 tiles: [
                   SettingsTile.switchTile(
                     titleTextStyle:
                         TextStyle(color: ExtraTheme.of(context).textField),
-                    title: appLocalization.getTraslateValue("notification"),
+                    title: appLocalization.get("notification"),
                     leading: Icon(Icons.notifications_active),
                     switchValue: _uxService.isAllNotificationDisabled,
                     onToggle: (value) => setState(
                         () => _uxService.toggleIsAllNotificationDisabled()),
                   ),
                   SettingsTile(
-                    title: appLocalization.getTraslateValue("language"),
+                    title: appLocalization.get("language"),
                     titleTextStyle:
                         TextStyle(color: ExtraTheme.of(context).textField),
                     subtitle: _uxService.locale.language().name,
@@ -216,7 +216,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   SettingsTile.switchTile(
-                    title: appLocalization.getTraslateValue("dark_mode"),
+                    title: appLocalization.get("dark_mode"),
                     leading: Icon(Icons.brightness_2),
                     titleTextStyle:
                         TextStyle(color: ExtraTheme.of(context).textField),
@@ -228,7 +228,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   SettingsTile(
-                    title: appLocalization.getTraslateValue("devices"),
+                    title: appLocalization.get("devices"),
                     leading: Icon(Icons.devices),
                     titleTextStyle:
                     TextStyle(color: ExtraTheme.of(context).textField),
@@ -239,7 +239,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   if (isDesktop())
                     SettingsTile.switchTile(
                       title: appLocalization
-                          .getTraslateValue("send_by_shift_enter"),
+                          .get("send_by_shift_enter"),
                       titleTextStyle:
                           TextStyle(color: ExtraTheme.of(context).textField),
                       leading: Icon(Icons.keyboard),
@@ -270,7 +270,7 @@ class _SettingsPageState extends State<SettingsPage> {
               SettingsSection(
                 tiles: [
                   SettingsTile(
-                      title: appLocalization.getTraslateValue("version"),
+                      title: appLocalization.get("version"),
                       titleTextStyle:
                           TextStyle(color: ExtraTheme.of(context).textField),
                       trailing: FutureBuilder(
@@ -311,7 +311,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         }
                       }),
                   SettingsTile(
-                    title: appLocalization.getTraslateValue("logout"),
+                    title: appLocalization.get("logout"),
                     titleTextStyle:
                         TextStyle(color: ExtraTheme.of(context).textField),
                     leading: Icon(Icons.exit_to_app),
@@ -327,7 +327,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void openLogoutAlertDialog(
-      BuildContext context, AppLocalization appLocalization) {
+      BuildContext context, I18N appLocalization) {
     showDialog(
         context: context,
         builder: (context) {
@@ -336,20 +336,20 @@ class _SettingsPageState extends State<SettingsPage> {
             actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
             // backgroundColor: Colors.white,
             content: Container(
-              child: Text(appLocalization.getTraslateValue("sure_exit_app"),
+              child: Text(appLocalization.get("sure_exit_app"),
                   style: Theme.of(context).dialogTheme.titleTextStyle),
             ),
             actions: <Widget>[
               TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(appLocalization.getTraslateValue("cancel"))),
+                  child: Text(appLocalization.get("cancel"))),
               SizedBox(
                 width: 15,
               ),
               TextButton(
                   onPressed: () => _routingService.logout(context),
                   child: Text(
-                    appLocalization.getTraslateValue("logout"),
+                    appLocalization.get("logout"),
                     style: TextStyle(fontSize: 16, color: Colors.red),
                   ))
             ],

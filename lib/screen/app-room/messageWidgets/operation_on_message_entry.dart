@@ -103,7 +103,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N appLocalization = I18N.of(context);
 
     return Container(
       height: widget.hasPermissionInChannel ? 150 : 100,
@@ -121,7 +121,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       size: 20,
                     ),
                     SizedBox(width: 8),
-                    Text(appLocalization.getTraslateValue("Reply")),
+                    Text(appLocalization.get("Reply")),
                   ])),
             ),
           if ((widget.message.roomUid.asUid().category == Categories.GROUP &&
@@ -140,7 +140,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         size: 20,
                       ),
                       SizedBox(width: 8),
-                      Text(appLocalization.getTraslateValue("pin")),
+                      Text(appLocalization.get("pin")),
                     ])),
               )
             else
@@ -155,7 +155,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         size: 20,
                       ),
                       SizedBox(width: 8),
-                      Text(appLocalization.getTraslateValue("unpin")),
+                      Text(appLocalization.get("unpin")),
                     ])),
               ),
 
@@ -172,7 +172,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       size: 20,
                     ),
                     SizedBox(width: 8),
-                    Text(appLocalization.getTraslateValue("copy")),
+                    Text(appLocalization.get("copy")),
                   ])),
             ),
           if (widget.message.type == MessageType.FILE)
@@ -209,13 +209,13 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                             SizedBox(width: 8),
                             f.type.contains("image")
                                 ? Text(appLocalization
-                                    .getTraslateValue("save_to_gallery"))
+                                    .get("save_to_gallery"))
                                 : f.type.contains("audio") ||
                                         f.type.contains("mp3")
                                     ? Text(appLocalization
-                                        .getTraslateValue("save_in_music"))
+                                        .get("save_in_music"))
                                     : Text(appLocalization
-                                        .getTraslateValue("save_to_downloads")),
+                                        .get("save_to_downloads")),
                           ])),
                     );
                   } else {
@@ -240,7 +240,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               size: 20,
                             ),
                             SizedBox(width: 8),
-                            Text(appLocalization.getTraslateValue("share")),
+                            Text(appLocalization.get("share")),
                           ])),
                     );
                   } else
@@ -259,7 +259,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       size: 20,
                     ),
                     SizedBox(width: 8),
-                    Text(appLocalization.getTraslateValue("forward")),
+                    Text(appLocalization.get("forward")),
                   ])),
             ),
           if (widget.message.id == null)
@@ -281,7 +281,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               size: 20,
                             ),
                             SizedBox(width: 8),
-                            Text(appLocalization.getTraslateValue("resend")),
+                            Text(appLocalization.get("resend")),
                           ])),
                     );
                   } else {
@@ -307,7 +307,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               size: 20,
                             ),
                             SizedBox(width: 8),
-                            Text(appLocalization.getTraslateValue("delete")),
+                            Text(appLocalization.get("delete")),
                           ])),
                     );
                   } else {

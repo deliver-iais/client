@@ -73,7 +73,7 @@ void showQrCode(BuildContext context, String url) {
             child: TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child:
-                    Text(AppLocalization.of(context).getTraslateValue("skip"))),
+                    Text(I18N.of(context).get("skip"))),
           ),
         ],
       ),

@@ -21,7 +21,7 @@ class PinMessageAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N appLocalization = I18N.of(context);
     return StreamBuilder<int>(
         stream: lastPinedMessage.stream,
         builder: (c, id) {
@@ -93,7 +93,7 @@ class PinMessageAppBar extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          appLocalization.getTraslateValue("pinned_message"),
+                          appLocalization.get("pinned_message"),
                           style: TextStyle(color: Colors.blue, fontSize: 13),
                         ),
                         IconButton(

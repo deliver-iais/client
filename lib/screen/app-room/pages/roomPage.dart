@@ -94,7 +94,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   String _searchMessagePattern;
   int _lastSeenMessageId = -1;
   bool _isMuc;
-  AppLocalization _appLocalization;
+  I18N _i18n;
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
   bool _scrollToNewMessage = true;
@@ -197,7 +197,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             Clipboard.setData(
                 ClipboardData(text: message.json.toFile().caption ?? ""));
           Fluttertoast.showToast(
-              msg: _appLocalization.getTraslateValue("copied"));
+              msg: _i18n.get("copied"));
           break;
         case OperationOnMessage.FORWARD:
           _repliedMessage.add(null);
@@ -255,7 +255,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _lastPinedMessage.add(_pinMessages.last.id);
           } else {
             Fluttertoast.showToast(
-                msg: _appLocalization.getTraslateValue("error_occurred"));
+                msg: _i18n.get("error_occurred"));
           }
           break;
         case OperationOnMessage.UN_PIN_MESSAGE:
@@ -423,7 +423,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    _i18n = I18N.of(context);
     double _maxWidth = MediaQuery.of(context).size.width * 0.7;
     _menuColor = ExtraTheme.of(context).popupMenuButton;
     if (isLarge(context)) {
@@ -749,13 +749,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                         },
                         decoration: InputDecoration(
                             hintText:
-                                _appLocalization.getTraslateValue("search"),
+                                _i18n.get("search"),
                             suffix: StreamBuilder(
                               stream: checkSearchResult.stream,
                               builder: (c, s) {
                                 if (s.hasData && s.data) {
-                                  return Text(_appLocalization
-                                      .getTraslateValue("not_found"));
+                                  return Text(_i18n
+                                      .get("not_found"));
                                 } else {
                                   return SizedBox.shrink();
                                 }
@@ -806,7 +806,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
                           child: Text(
-                            _appLocalization.getTraslateValue("search"),
+                            _i18n.get("search"),
                             style: TextStyle(
                               color:
                                   ExtraTheme.of(context).popupMenuButtonDetails,
@@ -939,7 +939,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       Icon(Icons.keyboard_arrow_down,
                           color: Theme.of(context).primaryColor),
                       Text(
-                        _appLocalization.getTraslateValue("unread_messages"),
+                        _i18n.get("unread_messages"),
                         style: TextStyle(color: Theme.of(context).primaryColor),
                       ),
                     ],
@@ -1149,7 +1149,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Tooltip(
-          message: _appLocalization.getTraslateValue("cancel"),
+          message: _i18n.get("cancel"),
           child: Badge(
             animationType: BadgeAnimationType.fade,
             badgeColor: Theme.of(context).primaryColor,
@@ -1167,7 +1167,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         ),
         SizedBox(width: 10),
         Tooltip(
-          message: _appLocalization.getTraslateValue("forward"),
+          message: _i18n.get("forward"),
           child: Badge(
             animationType: BadgeAnimationType.fade,
             badgeColor: Theme.of(context).primaryColor,

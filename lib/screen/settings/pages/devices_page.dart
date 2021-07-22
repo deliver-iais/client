@@ -23,11 +23,11 @@ class _DevicesPageState extends State<DevicesPage> {
   var _accountRepo = GetIt.I.get<AccountRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
-  AppLocalization _appLocalization;
+  I18N _i18n;
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    _i18n = I18N.of(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
@@ -37,7 +37,7 @@ class _DevicesPageState extends State<DevicesPage> {
             // elevation: 0,
             titleSpacing: 8,
             title: Text(
-              _appLocalization.getTraslateValue("devices"),
+              _i18n.get("devices"),
               style: Theme.of(context).textTheme.headline2,
             ),
             leading: _routingService.backButtonLeading(),
@@ -72,7 +72,7 @@ class _DevicesPageState extends State<DevicesPage> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            _appLocalization.getTraslateValue("this_device"),
+                            _i18n.get("this_device"),
                             style: TextStyle(color: Colors.blueAccent),
                           ),
                         ),
@@ -89,8 +89,8 @@ class _DevicesPageState extends State<DevicesPage> {
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        _appLocalization
-                            .getTraslateValue("terminate_all_other_sessions"),
+                        _i18n
+                            .get("terminate_all_other_sessions"),
                         style: TextStyle(color: Colors.red, fontSize: 15),
                       ),
                     ),
@@ -106,7 +106,7 @@ class _DevicesPageState extends State<DevicesPage> {
                         vertical: 16.0, horizontal: 24.0),
                     child: Center(
                       child: Text(
-                        _appLocalization.getTraslateValue("active_sessions"),
+                        _i18n.get("active_sessions"),
                         style: TextStyle(
                             color: Colors.blueAccent,
                             fontWeight: FontWeight.w800,
@@ -217,9 +217,9 @@ class _DevicesPageState extends State<DevicesPage> {
                 children: [
                   Text(
                       sessions.length > 1
-                          ? _appLocalization
-                              .getTraslateValue("terminate_all_other_sessions")
-                          : _appLocalization.getTraslateValue("delete_session"),
+                          ? _i18n
+                              .get("terminate_all_other_sessions")
+                          : _i18n.get("delete_session"),
                       style: TextStyle(color: Colors.black, fontSize: 18)),
                 ],
               ),
@@ -230,7 +230,7 @@ class _DevicesPageState extends State<DevicesPage> {
                 children: [
                   GestureDetector(
                     child: Text(
-                      _appLocalization.getTraslateValue("cancel"),
+                      _i18n.get("cancel"),
                       style: TextStyle(fontSize: 16, color: Colors.blue),
                     ),
                     onTap: () {
@@ -242,7 +242,7 @@ class _DevicesPageState extends State<DevicesPage> {
                   ),
                   GestureDetector(
                     child: Text(
-                      _appLocalization.getTraslateValue("delete"),
+                      _i18n.get("delete"),
                       style: TextStyle(fontSize: 16, color: Colors.red),
                     ),
                     onTap: () async {

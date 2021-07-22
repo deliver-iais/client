@@ -14,14 +14,14 @@ class BotStartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N appLocalization = I18N.of(context);
     return Container(
       height: 45,
       color: Theme.of(context).primaryColor,
       child: Center(
         child: GestureDetector(
           child: Text(
-            appLocalization.getTraslateValue("start"),
+            appLocalization.get("start"),
             style: TextStyle(
               fontSize: 18,
             ),

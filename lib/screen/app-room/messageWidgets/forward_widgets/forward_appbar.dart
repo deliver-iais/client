@@ -8,11 +8,11 @@ class ForwardAppbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N appLocalization = I18N.of(context);
     return AppBar(
       leading: _routingServices.backButtonLeading(),
       title: Text(
-        appLocalization.getTraslateValue("forward_to"),
+        appLocalization.get("forward_to"),
         style: Theme.of(context).textTheme.headline2,
       ),
     );

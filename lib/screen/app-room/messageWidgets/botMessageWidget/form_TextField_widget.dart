@@ -12,13 +12,13 @@ class FormInputTextFieldWidget extends StatelessWidget {
   FormInputTextFieldWidget(
       {this.formField, this.setResult, this.formValidator});
 
-  AppLocalization _appLocalization;
+  I18N _i18n;
   formModel.Form_Field_Type formFieldType;
 
   @override
   Widget build(BuildContext context) {
     formFieldType = formField.whichType();
-    _appLocalization = AppLocalization.of(context);
+    _i18n = I18N.of(context);
     return Column(
       children: [
         SizedBox(
@@ -111,9 +111,9 @@ class FormInputTextFieldWidget extends StatelessWidget {
     if (value.isEmpty && !formField.isOptional) {
       return null;
     } else if (value != null && value.length > max) {
-      return "${_appLocalization.getTraslateValue("max_length")}  $max";
+      return "${_i18n.get("max_length")}  $max";
     } else if (value == null || value.length < min) {
-      return " ${_appLocalization.getTraslateValue("min_length")} $min";
+      return " ${_i18n.get("min_length")} $min";
     } else {
       return null;
     }

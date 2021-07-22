@@ -18,7 +18,7 @@ class StickerMessageWidget extends StatefulWidget {
 
 class _StickerMessageWidgetState extends State<StickerMessageWidget> {
   var fileRepo = GetIt.I.get<FileRepo>();
-  AppLocalization appLocalization;
+  I18N appLocalization;
 
   @override
   Widget build(BuildContext context) {

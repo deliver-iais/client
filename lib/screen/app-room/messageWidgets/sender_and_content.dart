@@ -38,10 +38,10 @@ class SenderAndContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var appLocalization = AppLocalization.of(context);
+    var appLocalization = I18N.of(context);
     String content = messages.length > 1
         ? '${messages.length} ' +
-            appLocalization.getTraslateValue("forwarded_messages")
+            appLocalization.get("forwarded_messages")
         : getContent(context, messages[0]);
 
     return Container(
@@ -104,17 +104,17 @@ class SenderAndContent extends StatelessWidget {
   }
 
   getContent(BuildContext context, Message message) {
-    var appLocalization = AppLocalization.of(context);
+    var appLocalization = I18N.of(context);
 
     switch (message.type) {
       case MessageType.TEXT:
         return message.json.toText().text;
         break;
       case MessageType.FILE:
-        return appLocalization.getTraslateValue("file");
+        return appLocalization.get("file");
         break;
       case MessageType.STICKER:
-        return appLocalization.getTraslateValue("Sticker");
+        return appLocalization.get("Sticker");
         break;
       case MessageType.LOCATION:
         return "Location";

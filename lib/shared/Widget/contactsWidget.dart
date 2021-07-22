@@ -28,7 +28,7 @@ class ContactWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var _appLocalization = AppLocalization.of(context);
+    var _i18n = I18N.of(context);
     return Container(
       decoration: BoxDecoration(
           color: currentMember
@@ -60,7 +60,7 @@ class ContactWidget extends StatelessWidget {
           Expanded(
             child: Text(
               _authRepo.isCurrentUser(contact.uid)
-                  ? _appLocalization.getTraslateValue("saved_message")
+                  ? _i18n.get("saved_message")
                   : buildName(contact.firstName, contact.lastName),
               overflow: TextOverflow.fade,
               maxLines: 1,

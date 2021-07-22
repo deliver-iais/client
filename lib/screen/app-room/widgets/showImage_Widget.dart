@@ -30,7 +30,7 @@ class _ImageWidget extends State<ShowImagePage> {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N appLocalization = I18N.of(context);
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.blue,
@@ -87,7 +87,7 @@ class _ImageWidget extends State<ShowImagePage> {
                     controller: _controller,
                     decoration: InputDecoration(
                         hintText:
-                            appLocalization.getTraslateValue("typeSomeThing")),
+                            appLocalization.get("typeSomeThing")),
                   ),
                 ),
                 SizedBox(height: 40,)

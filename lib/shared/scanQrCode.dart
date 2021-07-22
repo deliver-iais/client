@@ -51,11 +51,11 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N appLocalization = I18N.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          appLocalization.getTraslateValue("scan_qr_code"),
+          appLocalization.get("scan_qr_code"),
           style: TextStyle(color: ExtraTheme.of(context).textField),
         ),
         leading: _routingServices.backButtonLeading(),
@@ -145,7 +145,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     if (!res) {
       Fluttertoast.showToast(
           msg:
-              "$firstName $lastName ${AppLocalization.of(context).getTraslateValue("contact_exist")}");
+              "$firstName $lastName ${I18N.of(context).get("contact_exist")}");
     } else {
       showFloatingModalBottomSheet(
         context: context,
@@ -155,8 +155,8 @@ class _ScanQrCode extends State<ScanQrCode> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Text(
-                AppLocalization.of(context)
-                    .getTraslateValue("sure_add_contact"),
+                I18N.of(context)
+                    .get("sure_add_contact"),
                 style: TextStyle(
                   color: ExtraTheme.of(context).textField,
                   fontWeight: FontWeight.w600,
@@ -184,8 +184,8 @@ class _ScanQrCode extends State<ScanQrCode> {
                 children: [
                   TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: Text(AppLocalization.of(context)
-                          .getTraslateValue("skip"))),
+                      child: Text(I18N.of(context)
+                          .get("skip"))),
                   TextButton(
                     onPressed: () async {
                       var res = await _contactRepo.addContact(C.Contact()
@@ -197,12 +197,12 @@ class _ScanQrCode extends State<ScanQrCode> {
                       if (res) {
                         Fluttertoast.showToast(
                             msg:
-                                "$firstName$lastName ${AppLocalization.of(context).getTraslateValue("contact_add")}");
+                                "$firstName$lastName ${I18N.of(context).get("contact_add")}");
                         Navigator.of(context).pop();
                       }
                     },
-                    child: Text(AppLocalization.of(context)
-                        .getTraslateValue("add_contact")),
+                    child: Text(I18N.of(context)
+                        .get("add_contact")),
                   ),
                 ],
               ),
@@ -223,7 +223,7 @@ class _ScanQrCode extends State<ScanQrCode> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Text(
-              "${AppLocalization.of(context).getTraslateValue("send_msg_to")} $botId",
+              "${I18N.of(context).get("send_msg_to")} $botId",
               style: TextStyle(
                 color: ExtraTheme.of(context).textField,
                 fontWeight: FontWeight.w600,
@@ -247,7 +247,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                 TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(
-                        AppLocalization.of(context).getTraslateValue("skip"))),
+                        I18N.of(context).get("skip"))),
                 TextButton(
                   onPressed: () async {
                     Navigator.of(context).pop();
@@ -262,7 +262,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                         text);
                   },
                   child: Text(
-                      AppLocalization.of(context).getTraslateValue("send")),
+                      I18N.of(context).get("send")),
                 ),
               ],
             ),
@@ -278,7 +278,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     String botId,
     String token,
   ) async {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N appLocalization = I18N.of(context);
     PrivateDataType privateDataType;
     String type = pdType;
     type.contains("PHONE_NUMBER")
@@ -306,7 +306,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                 ),
               ),
               Text(
-                appLocalization.getTraslateValue(
+                appLocalization.get(
                     "get_private_data_access_${privateDataType.name}"),
                 style: TextStyle(
                   color: ExtraTheme.of(context).textField,
@@ -322,8 +322,8 @@ class _ScanQrCode extends State<ScanQrCode> {
                 children: [
                   TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: Text(AppLocalization.of(context)
-                          .getTraslateValue("skip"))),
+                      child: Text(I18N.of(context)
+                          .get("skip"))),
                   TextButton(
                     onPressed: () async {
                       _messageRepo.sendPrivateMessageAccept(
@@ -339,7 +339,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                       Navigator.of(context).pop();
                     },
                     child: Text(
-                        AppLocalization.of(context).getTraslateValue("ok")),
+                        I18N.of(context).get("ok")),
                   ),
                 ],
               ),

@@ -35,7 +35,7 @@ class ShareBoxGallery extends StatefulWidget {
 }
 
 class _ShareBoxGalleryState extends State<ShareBoxGallery> {
-  AppLocalization appLocalization;
+  I18N appLocalization;
   var _routingServices = GetIt.I.get<RoutingService>();
   var _future;
 
@@ -55,7 +55,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
               ],
         cropStyle: CropStyle.rectangle,
         androidUiSettings: AndroidUiSettings(
-            toolbarTitle: appLocalization.getTraslateValue("avatar"),
+            toolbarTitle: appLocalization.get("avatar"),
             toolbarColor: Colors.blueAccent,
             hideBottomControls: true,
             showCropGrid: false,
@@ -63,7 +63,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
             initAspectRatio: CropAspectRatioPreset.original,
             lockAspectRatio: false),
         iosUiSettings: IOSUiSettings(
-          title: appLocalization.getTraslateValue("avatar"),
+          title: appLocalization.get("avatar"),
         ));
     if (croppedFile != null) {
       widget.onClick(croppedFile);
@@ -72,7 +72,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
 
   @override
   Widget build(BuildContext context) {
-    appLocalization = AppLocalization.of(context);
+    appLocalization = I18N.of(context);
     return FutureBuilder<List<ImageItem>>(
         future: _future,
         builder: (context, images) {

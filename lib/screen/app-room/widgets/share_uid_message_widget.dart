@@ -72,7 +72,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                           child: Text(
                             _shareUid.name +
                                 (_shareUid.uid.category != Categories.USER
-                                    ? " ${AppLocalization.of(context).getTraslateValue("invite_link")}"
+                                    ? " ${I18N.of(context).get("invite_link")}"
                                     : ""),
                             style: TextStyle(
                               fontSize: 16,
@@ -111,8 +111,8 @@ class ShareUidMessageWidget extends StatelessWidget {
                                     MaterialButton(
                                         onPressed: () =>
                                             Navigator.of(context).pop(),
-                                        child: Text(AppLocalization.of(context)
-                                            .getTraslateValue("skip"))),
+                                        child: Text(I18N.of(context)
+                                            .get("skip"))),
                                     MaterialButton(
                                         onPressed: () async {
                                           // Navigator.of(context).pop();
@@ -158,8 +158,8 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                 _shareUid.uid.asString());
                                           }
                                         },
-                                        child: Text(AppLocalization.of(context)
-                                            .getTraslateValue("join")))
+                                        child: Text(I18N.of(context)
+                                            .get("join")))
                                   ],
                                 ),
                               ],

@@ -29,7 +29,7 @@ class _VerificationPageState extends State<VerificationPage> {
   String _verificationCode;
 
   // TODO ???
-  AppLocalization _appLocalization;
+  I18N _i18n;
 
   _sendVerificationCode() {
     if ((_verificationCode?.length ?? 0) < 5) {
@@ -54,8 +54,8 @@ class _VerificationPageState extends State<VerificationPage> {
         // TODO navigate to password validation page
       } else {
         Fluttertoast.showToast(
-            msg: _appLocalization
-                .getTraslateValue("verification_Code_Not_Valid"));
+            msg: _i18n
+                .get("verification_Code_Not_Valid"));
         _setErrorAndResetCode();
       }
     }).catchError((e) {
@@ -82,7 +82,7 @@ class _VerificationPageState extends State<VerificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    _i18n = I18N.of(context);
     return FluidWidget(
       child: Scaffold(
         primary: true,
@@ -98,7 +98,7 @@ class _VerificationPageState extends State<VerificationPage> {
         appBar: AppBar(
           backgroundColor: Theme.of(context).backgroundColor,
           title: Text(
-            _appLocalization.getTraslateValue("verification"),
+            _i18n.get("verification"),
             style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).primaryColor),
@@ -124,7 +124,7 @@ class _VerificationPageState extends State<VerificationPage> {
                     height: 10,
                   ),
                   Text(
-                    _appLocalization.getTraslateValue("enter_code"),
+                    _i18n.get("enter_code"),
                     style: TextStyle(
                         fontSize: 17, color: ExtraTheme.of(context).textField),
                   ),
@@ -132,7 +132,7 @@ class _VerificationPageState extends State<VerificationPage> {
                     height: 30,
                   ),
                   Text(
-                    _appLocalization.getTraslateValue("we_have_send_a_code"),
+                    _i18n.get("we_have_send_a_code"),
                     style: TextStyle(
                         fontSize: 17, color: ExtraTheme.of(context).textField),
                   ),
@@ -171,7 +171,7 @@ class _VerificationPageState extends State<VerificationPage> {
                   ),
                   _showError
                       ? Text(
-                          _appLocalization.getTraslateValue("wrong_code"),
+                          _i18n.get("wrong_code"),
                           style: Theme.of(context)
                               .primaryTextTheme
                               .subtitle1

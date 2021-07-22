@@ -115,8 +115,8 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                     MaterialButton(
                         color: Colors.blueAccent,
                         onPressed: () => Navigator.of(context).pop(),
-                        child: Text(AppLocalization.of(context)
-                            .getTraslateValue("skip"))),
+                        child: Text(I18N.of(context)
+                            .get("skip"))),
                     MaterialButton(
                       color: Colors.blueAccent,
                       onPressed: () async {
@@ -140,7 +140,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                         }
                       },
                       child: Text(
-                          AppLocalization.of(context).getTraslateValue("join")),
+                          I18N.of(context).get("join")),
                     ),
                   ],
                 ),

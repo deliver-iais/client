@@ -263,7 +263,7 @@ class MyApp extends StatelessWidget {
                 theme: uxService.theme,
                 supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],
                 localizationsDelegates: [
-                  AppLocalization.delegate,
+                  I18N.delegate,
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate

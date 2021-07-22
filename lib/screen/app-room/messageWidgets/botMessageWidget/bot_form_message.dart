@@ -169,7 +169,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                 }
               },
               child: Text(
-                AppLocalization.of(context).getTraslateValue("submit"),
+                I18N.of(context).get("submit"),
                 style: TextStyle(color: Colors.white),
               ),
             ),

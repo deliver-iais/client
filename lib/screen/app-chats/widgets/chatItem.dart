@@ -44,7 +44,7 @@ class _ChatItemState extends State<ChatItem> {
   @override
   Widget build(BuildContext context) {
     _roomRepo.initActivity(widget.room.uid.asUid().node);
-    AppLocalization _appLocalization = AppLocalization.of(context);
+    I18N _i18n = I18N.of(context);
 
     return FutureBuilder<String>(
         future: _roomRepo.getName(widget.room.uid.asUid()),
@@ -113,7 +113,7 @@ class _ChatItemState extends State<ChatItem> {
                                             .isCurrentUser(widget.room.uid)
                                         ? _showDisplayName(
                                             widget.room.uid.asUid(),
-                                            _appLocalization.getTraslateValue(
+                                            _i18n.get(
                                                 "saved_message"),
                                             context)
                                         : _showDisplayName(

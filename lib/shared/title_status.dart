@@ -34,7 +34,7 @@ class _TitleStatusState extends State<TitleStatus> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
 
-  AppLocalization appLocalization;
+  I18N appLocalization;
 
   @override
   void initState() {
@@ -46,7 +46,7 @@ class _TitleStatusState extends State<TitleStatus> {
 
   @override
   Widget build(BuildContext context) {
-    appLocalization = AppLocalization.of(context);
+    appLocalization = I18N.of(context);
     return StreamBuilder<TitleStatusConditions>(
         stream: _messageRepo.updatingStatus.stream,
         builder: (context, snapshot) {
@@ -92,18 +92,18 @@ class _TitleStatusState extends State<TitleStatus> {
   }
 
   title(
-      AppLocalization appLocalization, TitleStatusConditions statusConditions) {
+      I18N appLocalization, TitleStatusConditions statusConditions) {
     switch (statusConditions) {
       case TitleStatusConditions.Disconnected:
-        return appLocalization.getTraslateValue("disconnected").inCaps;
+        return appLocalization.get("disconnected").inCaps;
       case TitleStatusConditions.Connecting:
-        return appLocalization.getTraslateValue("connecting").inCaps;
+        return appLocalization.get("connecting").inCaps;
       case TitleStatusConditions.Updating:
-        return appLocalization.getTraslateValue("updating").inCaps;
+        return appLocalization.get("updating").inCaps;
       case TitleStatusConditions.Normal:
         if (widget.currentRoomUid.category == Categories.BOT)
-          return appLocalization.getTraslateValue("bot").inCaps;
-        return appLocalization.getTraslateValue("connected");
+          return appLocalization.get("bot").inCaps;
+        return appLocalization.get("connected");
     }
   }
 
@@ -136,7 +136,7 @@ class _TitleStatusState extends State<TitleStatus> {
                 userInfo.data.time != null) {
               if (isOnline(userInfo.data.time)) {
                 return Text(
-                  appLocalization.getTraslateValue("online"),
+                  appLocalization.get("online"),
                   style: TextStyle(
                       fontSize: 14, color: ExtraTheme.of(context).titleStatus),
                 );
@@ -144,7 +144,7 @@ class _TitleStatusState extends State<TitleStatus> {
                 String lastActivityTime =
                     dateTimeFormat(date(userInfo.data.time));
                 return Text(
-                  "${appLocalization.getTraslateValue("last_seen")} ${lastActivityTime.contains("just now") ? appLocalization.getTraslateValue("just_now") : lastActivityTime} ",
+                  "${appLocalization.get("last_seen")} ${lastActivityTime.contains("just now") ? appLocalization.get("just_now") : lastActivityTime} ",
                   style: TextStyle(
                       fontSize: 12, color: ExtraTheme.of(context).titleStatus),
                 );

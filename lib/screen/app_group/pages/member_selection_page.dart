@@ -23,7 +23,7 @@ class MemberSelectionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N appLocalization = I18N.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: _routingService.backButtonLeading(),
@@ -39,13 +39,13 @@ class MemberSelectionPage extends StatelessWidget {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   );
                 }else{
-                  return Text(appLocalization.getTraslateValue("add_member"));
+                  return Text(appLocalization.get("add_member"));
                 }
               },):
             Text(
               isChannel
-                  ? appLocalization.getTraslateValue("newChannel")
-                  : appLocalization.getTraslateValue("newGroup"),
+                  ? appLocalization.get("newChannel")
+                  : appLocalization.get("newGroup"),
               style: TextStyle(fontSize: 18,color: ExtraTheme.of(context).textField, fontWeight: FontWeight.bold),
             ),
 
@@ -68,9 +68,9 @@ class MemberSelectionPage extends StatelessWidget {
                     curve: Curves.easeIn,
                     child: Text(
                       members >= 1
-                          ? '$members ${appLocalization.getTraslateValue(
+                          ? '$members ${appLocalization.get(
                           "of_max_member")}'
-                          : appLocalization.getTraslateValue("max_member"),style: TextStyle(color: ExtraTheme.of(context).titleStatus),
+                          : appLocalization.get("max_member"),style: TextStyle(color: ExtraTheme.of(context).titleStatus),
                     ),
                   );
                 })

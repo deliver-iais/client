@@ -20,7 +20,7 @@ class _SearchBoxState extends State<SearchBox> {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N appLocalization = I18N.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: TextField(
@@ -83,7 +83,7 @@ class _SearchBoxState extends State<SearchBox> {
                 return SizedBox.shrink();
             },
           ),
-          hintText: appLocalization.getTraslateValue("search"),
+          hintText: appLocalization.get("search"),
         ),
       ),
     );

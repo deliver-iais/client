@@ -24,7 +24,7 @@ class NewContact extends StatefulWidget {
 class _NewContactState extends State<NewContact> {
   p.PhoneNumber _phoneNumber;
 
-  AppLocalization _appLocalization;
+  I18N _i18n;
   var _routingServices = GetIt.I.get<RoutingService>();
 
   var _contactRepo = GetIt.I.get<ContactRepo>();
@@ -34,12 +34,12 @@ class _NewContactState extends State<NewContact> {
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    _i18n = I18N.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: _routingServices.backButtonLeading(),
         title: Text(
-          _appLocalization.getTraslateValue("add_new_contact"),
+          _i18n.get("add_new_contact"),
           style: TextStyle(fontSize: 20),
         ),
         actions: [
@@ -80,7 +80,7 @@ class _NewContactState extends State<NewContact> {
                 style: TextStyle(color: ExtraTheme.of(context).textField),
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: _appLocalization.getTraslateValue("firstName")),
+                    labelText: _i18n.get("firstName")),
               ),
             ),
             SizedBox(
@@ -95,7 +95,7 @@ class _NewContactState extends State<NewContact> {
                 style: TextStyle(color: ExtraTheme.of(context).textField),
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: _appLocalization.getTraslateValue("lastName")),
+                    labelText: _i18n.get("lastName")),
               ),
             ),
             SizedBox(
@@ -104,7 +104,7 @@ class _NewContactState extends State<NewContact> {
             IntlPhoneField(
               validator: (value) => value.length != 10 ||
                       (value.length > 0 && value[0] == '0')
-                  ? _appLocalization.getTraslateValue("invalid_mobile_number")
+                  ? _i18n.get("invalid_mobile_number")
                   : null,
               style: TextStyle(color: ExtraTheme.of(context).textField),
               onChanged: (ph) {
@@ -126,10 +126,10 @@ class _NewContactState extends State<NewContact> {
         _phoneNumber.countryCode, _phoneNumber.nationalNumber);
     if (result) {
       Fluttertoast.showToast(
-          msg: _appLocalization.getTraslateValue("contactAdd"));
+          msg: _i18n.get("contactAdd"));
     } else {
       Fluttertoast.showToast(
-          msg: _appLocalization.getTraslateValue("contact_not_exist"));
+          msg: _i18n.get("contact_not_exist"));
     }
   }
 }
