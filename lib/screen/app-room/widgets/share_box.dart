@@ -74,7 +74,7 @@ class _ShareBoxState extends State<ShareBox> {
 
   @override
   Widget build(BuildContext context) {
-    I18N appLocalization = I18N.of(context);
+    I18N i18n = I18N.of(context);
     return DraggableScrollableSheet(
       initialChildSize: 0.3,
       minChildSize: 0.2,
@@ -259,7 +259,7 @@ class _ShareBoxState extends State<ShareBox> {
                                 });
                               },
                                   Icons.insert_drive_file,
-                                  appLocalization.get("gallery"),
+                                  i18n.get("gallery"),
                                   40,
                                   context: context),
                               CircleButton(() async {
@@ -286,7 +286,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   }
                                 }
                               }, Icons.file_upload,
-                                  appLocalization.get("file"), 40,
+                                  i18n.get("file"), 40,
                                   context: context),
                               CircleButton(() async {
                                 if (await _checkPermissionsService
@@ -316,7 +316,7 @@ class _ShareBoxState extends State<ShareBox> {
                                 }
                               },
                                   Icons.location_on,
-                                  appLocalization.get("location"),
+                                  i18n.get("location"),
                                   40,
                                   context: context),
                               CircleButton(() async {
@@ -333,7 +333,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   }
                                 }
                               }, Icons.music_note,
-                                  appLocalization.get("music"), 40,
+                                  i18n.get("music"), 40,
                                   context: context),
                             ],
                           ),

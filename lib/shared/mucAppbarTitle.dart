@@ -18,7 +18,7 @@ class MucAppbarTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    I18N appLocalization = I18N.of(context);
+    I18N i18n = I18N.of(context);
     return Container(
         color: Theme.of(context).appBarTheme.color,
         child: GestureDetector(
@@ -46,7 +46,7 @@ class MucAppbarTitle extends StatelessWidget {
                             ),
                             TitleStatus(
                               normalConditionWidget: Text(
-                                "${snapshot.data.population} ${appLocalization.get("members")}",
+                                "${snapshot.data.population} ${i18n.get("members")}",
                                 maxLines: 1,
                                 overflow: TextOverflow.fade,
                                 softWrap: false,

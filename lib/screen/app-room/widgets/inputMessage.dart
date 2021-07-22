@@ -140,7 +140,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   Widget build(BuildContext context) {
-    I18N appLocalization = I18N.of(context);
+    I18N i18n = I18N.of(context);
     dx = min(MediaQuery.of(context).size.width / 2, 150.0);
     return Column(
       children: <Widget>[
@@ -262,7 +262,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                           const EdgeInsets.symmetric(
                                               vertical: 15, horizontal: 5),
                                       border: InputBorder.none,
-                                      hintText: appLocalization
+                                      hintText: i18n
                                           .get("message"),
                                     ),
                                   ),

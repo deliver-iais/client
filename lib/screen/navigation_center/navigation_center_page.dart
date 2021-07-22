@@ -221,7 +221,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   }
 
   Widget buildMenu(BuildContext context) {
-    I18N appLocalization = I18N.of(context);
+    I18N i18n = I18N.of(context);
     return Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -252,7 +252,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                             width: 15,
                           ),
                           Text(
-                            appLocalization.get("newGroup"),
+                            i18n.get("newGroup"),
                             style: TextStyle(
                                 fontSize: 15,
                                 color: ExtraTheme.of(context)
@@ -277,7 +277,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           width: 15,
                         ),
                         Text(
-                          appLocalization.get("newChannel"),
+                          i18n.get("newChannel"),
                           style: TextStyle(
                               fontSize: 15,
                               color: ExtraTheme.of(context)

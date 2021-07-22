@@ -101,14 +101,14 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   @override
   Widget build(BuildContext context) {
-    I18N appLocalization = I18N.of(context);
+    I18N i18n = I18N.of(context);
     return Stack(
       children: [
         Column(
           children: [
             TextField(
                 decoration: InputDecoration(
-                  hintText: appLocalization.get("search"),
+                  hintText: i18n.get("search"),
                 ),
                 onChanged: (value) {
                   filterSearchResults(value);
@@ -144,7 +144,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                       } else {
                         return Center(
                           child: Text(
-                            appLocalization.get("no_results"),
+                            i18n.get("no_results"),
                             style: TextStyle(fontSize: 18),
                           ),
                         );
@@ -190,7 +190,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
                               } else {
                                 Fluttertoast.showToast(
-                                    msg: appLocalization
+                                    msg: i18n
                                         .get("error_occurred"));
                                 // _routingService.pop();
                               }

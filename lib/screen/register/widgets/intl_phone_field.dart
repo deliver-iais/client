@@ -82,7 +82,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
 
   Future<void> _changeCountry(BuildContext context) async {
     filteredCountries = countries;
-    I18N appLocalization = I18N.of(context);
+    I18N i18n = I18N.of(context);
     await showDialog(
       context: context,
       builder: (c) {
@@ -95,7 +95,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                   TextField(
                     decoration: InputDecoration(
                       suffixIcon: Icon(Icons.search),
-                      labelText: appLocalization
+                      labelText: i18n
                           .get("search_by_country_name"),
                     ),
                     style: TextStyle(color: ExtraTheme.of(context).textField),
@@ -148,10 +148,10 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
     );
     setState(() {});
   }
-I18N appLocalization;
+I18N i18n;
   @override
   Widget build(BuildContext context) {
-    appLocalization = I18N.of(context);
+    i18n = I18N.of(context);
     //  widget.decoration.prefix = _selectedCountry['dial_code'];
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,7 +188,7 @@ I18N appLocalization;
               ),
               prefix: Text("${_selectedCountry['dial_code']}  " ,style: TextStyle(color: ExtraTheme.of(context).textField),),
               // fillColor: ExtraTheme.of(context).secondColor,
-              labelText: appLocalization.get("phone_number"),
+              labelText: i18n.get("phone_number"),
 //                        filled: true,
               labelStyle: TextStyle(
                   color: ExtraTheme.of(context).textField),

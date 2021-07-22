@@ -21,7 +21,7 @@ class ActivityStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var appLocalization = I18N.of(context);
+    var i18n = I18N.of(context);
     if (activity.typeOfActivity == ActivityType.TYPING) {
       if (roomUid.category == Categories.GROUP) {
         return FutureBuilder<String>(
@@ -29,19 +29,19 @@ class ActivityStatus extends StatelessWidget {
             builder: (c, s) {
               if (s.hasData && s.data != null) {
                 return Text(
-                  "${s.data} ${appLocalization.get('is_typing')}",
+                  "${s.data} ${i18n.get('is_typing')}",
                   style: textStyle(context),
                 );
               } else {
                 return Text(
-                  "unKnown ${appLocalization.get("is_typing")}",
+                  "unKnown ${i18n.get("is_typing")}",
                   style: textStyle(context),
                 );
               }
             });
       } else {
         return Text(
-          appLocalization.get("is_typing"),
+          i18n.get("is_typing"),
           style: textStyle(context),
         );
       }
@@ -52,19 +52,19 @@ class ActivityStatus extends StatelessWidget {
             builder: (c, s) {
               if (s.hasData && s.data != null) {
                 return Text(
-                  "${s.data} ${appLocalization.get('record_audio_activity')} ",
+                  "${s.data} ${i18n.get('record_audio_activity')} ",
                   style: textStyle(context),
                 );
               } else {
                 return Text(
-                  "unKnown ${appLocalization.get("record_audio_activity")}",
+                  "unKnown ${i18n.get("record_audio_activity")}",
                   style: textStyle(context),
                 );
               }
             });
       }
       return Text(
-        appLocalization.get("record_audio_activity"),
+        i18n.get("record_audio_activity"),
         style: textStyle(context),
       );
     } else if (activity.typeOfActivity == ActivityType.SENDING_FILE) {
@@ -74,19 +74,19 @@ class ActivityStatus extends StatelessWidget {
             builder: (c, s) {
               if (s.hasData && s.data != null) {
                 return Text(
-                  "${s.data} ${appLocalization.get('sending_file_activity')} ",
+                  "${s.data} ${i18n.get('sending_file_activity')} ",
                   style: textStyle(context),
                 );
               } else {
                 return Text(
-                  "unKnown ${appLocalization.get("sending_file_activity")}",
+                  "unKnown ${i18n.get("sending_file_activity")}",
                   style: textStyle(context),
                 );
               }
             });
       } else {
         return Text(
-          appLocalization.get("sending_file_activity"),
+          i18n.get("sending_file_activity"),
           style: textStyle(context),
         );
       }

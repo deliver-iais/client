@@ -18,13 +18,13 @@ class StickerMessageWidget extends StatefulWidget {
 
 class _StickerMessageWidgetState extends State<StickerMessageWidget> {
   var fileRepo = GetIt.I.get<FileRepo>();
-  I18N appLocalization;
+  I18N i18n;
 
   @override
   Widget build(BuildContext context) {
     return Container();
     // FileProto.File stickerMessage = widget.message.json.toFile();
-    // appLocalization = AppLocalization.of(context);
+    // i18n = AppLocalization.of(context);
     // return Container(
     //     color: Theme.of(context).backgroundColor,
     //     child: Stack(
@@ -76,7 +76,7 @@ class _StickerMessageWidgetState extends State<StickerMessageWidget> {
     //                               actions: <Widget>[
     //                                 GestureDetector(
     //                                   child: Text(
-    //                                     appLocalization
+    //                                     i18n
     //                                         .getTraslateValue("close"),
     //                                     style: TextStyle(
     //                                         fontSize: 16, color: Colors.blue),
@@ -147,7 +147,7 @@ class _StickerMessageWidgetState extends State<StickerMessageWidget> {
     //                                       Center(
     //                                         child: GestureDetector(
     //                                           child: Text(
-    //                                             appLocalization
+    //                                             i18n
     //                                                 .getTraslateValue(
     //                                                     "add_sticker"),
     //                                             style: TextStyle(

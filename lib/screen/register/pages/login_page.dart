@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   PhoneNumber phoneNumber;
 
   checkAndGoNext() async {
-    I18N appLocalization = I18N.of(context);
+    I18N i18n = I18N.of(context);
     var isValidated = _formKey?.currentState?.validate() ?? false;
     if (isValidated && phoneNumber != null) {
       try {
@@ -37,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
         else
           Fluttertoast.showToast(
 //          TODO more detailed error message needed here.
-              msg: appLocalization.get("error_occurred"),
+              msg: i18n.get("error_occurred"),
               toastLength: Toast.LENGTH_SHORT,
               backgroundColor: Colors.black,
               textColor: Colors.white,
@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
         _logger.e(e);
         Fluttertoast.showToast(
 //          TODO more detailed error message needed here.
-            msg: appLocalization.get("error_occurred"),
+            msg: i18n.get("error_occurred"),
             toastLength: Toast.LENGTH_SHORT,
             backgroundColor: Colors.black,
             textColor: Colors.white,
@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    I18N appLocalization = I18N.of(context);
+    I18N i18n = I18N.of(context);
     return FluidWidget(
       child: Form(
         key: _formKey,
@@ -73,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
           backgroundColor: Theme.of(context).backgroundColor,
           appBar: AppBar(
             title: Text(
-              appLocalization.get("login"),
+              i18n.get("login"),
               style: TextStyle(
                 color: Theme.of(context).primaryColor,
                 fontWeight: FontWeight.bold,
@@ -100,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                             : "",
                         validator: (value) => value.length != 10 ||
                                 (value.length > 0 && value[0] == '0')
-                            ? appLocalization
+                            ? i18n
                                 .get("invalid_mobile_number")
                             : null,
                         onChanged: (p) {
@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       SizedBox(height: 15),
                       Text(
-                        appLocalization.get("insert_phone_and_code"),
+                        i18n.get("insert_phone_and_code"),
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
                           color: Theme.of(context).primaryColor,
@@ -139,7 +139,7 @@ class _LoginPageState extends State<LoginPage> {
                     alignment: Alignment.bottomRight,
                     child: RaisedButton(
                         child: Text(
-                          appLocalization.get("next"),
+                          i18n.get("next"),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).primaryColor,

@@ -51,11 +51,11 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   @override
   Widget build(BuildContext context) {
-    I18N appLocalization = I18N.of(context);
+    I18N i18n = I18N.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          appLocalization.get("scan_qr_code"),
+          i18n.get("scan_qr_code"),
           style: TextStyle(color: ExtraTheme.of(context).textField),
         ),
         leading: _routingServices.backButtonLeading(),
@@ -278,7 +278,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     String botId,
     String token,
   ) async {
-    I18N appLocalization = I18N.of(context);
+    I18N i18n = I18N.of(context);
     PrivateDataType privateDataType;
     String type = pdType;
     type.contains("PHONE_NUMBER")
@@ -306,7 +306,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                 ),
               ),
               Text(
-                appLocalization.get(
+                i18n.get(
                     "get_private_data_access_${privateDataType.name}"),
                 style: TextStyle(
                   color: ExtraTheme.of(context).textField,
