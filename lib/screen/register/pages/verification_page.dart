@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
@@ -24,7 +23,7 @@ class _VerificationPageState extends State<VerificationPage> {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
-  final focusNode = FocusNode();
+  final _focusNode = FocusNode();
   bool _showError = false;
   String _verificationCode;
 
@@ -33,19 +32,14 @@ class _VerificationPageState extends State<VerificationPage> {
 
   _sendVerificationCode() {
     if ((_verificationCode?.length ?? 0) < 5) {
-      setState(() {
-        _showError = true;
-      });
+      setState(() => _showError = true);
       return;
     }
-    setState(() {
-      _showError = false;
-    });
+    setState(() => _showError = false);
     FocusScope.of(context).requestFocus(FocusNode());
     var result = _authRepo.sendVerificationCode(_verificationCode);
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
-        _authRepo.saveTokens(accessTokenResponse);
         _fireBaseServices.sendFireBaseToken();
         _navigationToHome();
       } else if (accessTokenResponse.status ==
@@ -53,9 +47,7 @@ class _VerificationPageState extends State<VerificationPage> {
         Fluttertoast.showToast(msg: "PASSWORD_PROTECTED");
         // TODO navigate to password validation page
       } else {
-        Fluttertoast.showToast(
-            msg: _i18n
-                .get("verification_Code_Not_Valid"));
+        Fluttertoast.showToast(msg: _i18n.get("verification_code_not_valid"));
         _setErrorAndResetCode();
       }
     }).catchError((e) {
@@ -76,7 +68,7 @@ class _VerificationPageState extends State<VerificationPage> {
     setState(() {
       _showError = true;
       _verificationCode = "";
-      FocusScope.of(context).requestFocus(focusNode);
+      FocusScope.of(context).requestFocus(_focusNode);
     });
   }
 
@@ -144,7 +136,7 @@ class _VerificationPageState extends State<VerificationPage> {
                         const EdgeInsets.only(left: 30, right: 30, bottom: 30),
                     child: PinFieldAutoFill(
                       autofocus: true,
-                      focusNode: focusNode,
+                      focusNode: _focusNode,
                       codeLength: 5,
                       decoration: UnderlineDecoration(
                           colorBuilder: PinListenColorBuilder(

@@ -40,7 +40,7 @@
   "wrong_code": "کد اشتباه است.",
   "we_have_send_a_code": "ما پیامکی حاوی کد فعال سازی برای شما ارسال کردیم.",
   "verification": "کد اعتبار",
-  "verification_Code_Not_Valid": "کد اعتباری معتبر نیست.",
+  "verification_code_not_valid": "کد اعتباری معتبر نیست.",
   "done": "انجام",
   "avatar": "عکس پروفایل",
   "select": "انتخاب",

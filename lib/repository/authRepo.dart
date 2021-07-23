@@ -104,9 +104,7 @@ class AuthRepo {
     return platform;
   }
 
-  Future sendVerificationCode(String code) async {
-    Pb.Platform platform = await getPlatformDetails();
-
+  Future<String> getDeviceName() async {
     String device;
 
     if (Platform.isAndroid) {
@@ -124,14 +122,47 @@ class AuthRepo {
     } else {
       device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
     }
+    return device;
+  }
 
-    return await _authServiceClient.verifyAndGetToken(VerifyCodeReq()
+  Future<AccessTokenRes> sendVerificationCode(String code) async {
+    Pb.Platform platform = await getPlatformDetails();
+
+    String device = await getDeviceName();
+
+    var res = await _authServiceClient.verifyAndGetToken(VerifyCodeReq()
       ..phoneNumber = this.phoneNumber
       ..code = code
       ..device = device
       ..platform = platform
       //  TODO add password mechanism
       ..password = "");
+
+    if (res.status == AccessTokenRes_Status.OK) {
+      _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
+    }
+
+    return res;
+  }
+
+  Future<AccessTokenRes> checkQrCodeToken(String token) async {
+    Pb.Platform platform = await getPlatformDetails();
+
+    String device = await getDeviceName();
+
+    var res = await _authServiceClient
+        .checkQrCodeIsVerifiedAndLogin(CheckQrCodeIsVerifiedAndLoginReq()
+          ..token = token
+          ..device = device
+          ..platform = platform
+          //  TODO add password mechanism
+          ..password = "");
+
+    if (res.status == AccessTokenRes_Status.OK) {
+      _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
+    }
+
+    return res;
   }
 
   Future _getAccessToken(String refreshToken) async {
@@ -161,10 +192,6 @@ class AuthRepo {
 
   bool _isExpired(accessToken) {
     return JwtDecoder.isExpired(accessToken);
-  }
-
-  void saveTokens(AccessTokenRes res) {
-    _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
   }
 
   void _saveTokens(RenewAccessTokenRes res) {
