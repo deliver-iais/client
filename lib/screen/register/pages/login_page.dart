@@ -33,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
 
   var loginWithQrCode = isDesktop();
-  var loginToken = BehaviorSubject.seeded("seedValue");
+  var loginToken = BehaviorSubject.seeded(randomString(36));
   Timer checkTimer;
   Timer tokenGeneratorTimer;
   PhoneNumber phoneNumber;
@@ -138,18 +138,23 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 200,
-            height: 200,
-            padding: const EdgeInsets.all(8.0),
-            color: Colors.white,
-            child: QrImage(
-              data:
-                  "https://deliver-co.ir/login/cyvguhbfcgvhb1k2j3102936129830912397bjkals",
-              version: QrVersions.auto,
-              padding: EdgeInsets.zero,
-              foregroundColor: Colors.black,
-            ),
+          StreamBuilder<String>(
+            stream: loginToken.stream,
+            builder: (context, snapshot) {
+              return Container(
+                width: 200,
+                height: 200,
+                padding: const EdgeInsets.all(8.0),
+                color: Colors.white,
+                child: QrImage(
+                  data:
+                      "https://deliver-co.ir/login/${snapshot.data}",
+                  version: QrVersions.auto,
+                  padding: EdgeInsets.zero,
+                  foregroundColor: Colors.black,
+                ),
+              );
+            }
           ),
           SizedBox(height: 30),
           Text("1. Open Deliver on your phone"),

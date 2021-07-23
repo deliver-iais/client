@@ -3,11 +3,10 @@ import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
-import 'package:deliver_flutter/shared/constants.dart';
-
 import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
+import 'package:lottie/lottie.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -67,28 +66,14 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).backgroundColor,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0xFFFFFFFF).withAlpha(190),
-                    blurRadius: 500.0,
-                    spreadRadius: 10.0,
-                  ),
-                ]),
-            child: Image.asset(
-                "assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png"),
-          ),
-          Text(APPLICATION_NAME, style: Theme.of(context).textTheme.headline2),
-          SizedBox(
-            height: 50,
-          )
-        ],
+      color: Colors.white,
+      child: Center(
+        child: Lottie.asset(
+          'assets/animations/loading.json',
+          width: 300,
+          height: 300,
+          // repeat: false,
+        ),
       ),
     );
   }

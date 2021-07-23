@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
@@ -20,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:lottie/lottie.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:fixnum/fixnum.dart';
 
@@ -37,6 +40,7 @@ class _ScanQrCode extends State<ScanQrCode> {
   final _logger = GetIt.I.get<Logger>();
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   final _routingServices = GetIt.I.get<RoutingService>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
@@ -132,6 +136,28 @@ class _ScanQrCode extends State<ScanQrCode> {
           context, uri.queryParameters["botId"], uri.queryParameters["text"]);
     } else if (segments.first == "join") {
       handleJoinUri(context, url);
+    } else if (segments.first == "login") {
+      handleLogin(context, segments[1]);
+    }
+  }
+
+  Future<void> handleLogin(BuildContext context, String token) async {
+    bool verified = await _accountRepo.verifyQrCodeToken(token);
+
+    if (verified) {
+      Timer(Duration(milliseconds: 500), () {
+        controller.pauseCamera();
+        showFloatingModalBottomSheet(
+            context: context,
+            builder: (context) => Container(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Lottie.asset(
+                  'assets/animations/done.json',
+                  width: 150,
+                  height: 150,
+                  repeat: false,
+                )));
+      });
     }
   }
 
@@ -142,10 +168,9 @@ class _ScanQrCode extends State<ScanQrCode> {
       String nationalNumber,
       BuildContext context}) async {
     var res = await _contactRepo.contactIsExist(countryCode, nationalNumber);
-    if (!res) {
+    if (res) {
       Fluttertoast.showToast(
-          msg:
-              "$firstName $lastName ${I18N.of(context).get("contact_exist")}");
+          msg: "$firstName $lastName ${I18N.of(context).get("contact_exist")}");
     } else {
       showFloatingModalBottomSheet(
         context: context,
@@ -155,8 +180,7 @@ class _ScanQrCode extends State<ScanQrCode> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Text(
-                I18N.of(context)
-                    .get("sure_add_contact"),
+                I18N.of(context).get("sure_add_contact"),
                 style: TextStyle(
                   color: ExtraTheme.of(context).textField,
                   fontWeight: FontWeight.w600,
@@ -184,8 +208,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                 children: [
                   TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: Text(I18N.of(context)
-                          .get("skip"))),
+                      child: Text(I18N.of(context).get("skip"))),
                   TextButton(
                     onPressed: () async {
                       var res = await _contactRepo.addContact(C.Contact()
@@ -201,8 +224,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                         Navigator.of(context).pop();
                       }
                     },
-                    child: Text(I18N.of(context)
-                        .get("add_contact")),
+                    child: Text(I18N.of(context).get("add_contact")),
                   ),
                 ],
               ),
@@ -215,6 +237,8 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   void handleSendMsgToBot(
       BuildContext context, String botId, String text) async {
+    controller.pauseCamera();
+
     showFloatingModalBottomSheet(
       context: context,
       builder: (context) => Padding(
@@ -245,9 +269,11 @@ class _ScanQrCode extends State<ScanQrCode> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(
-                        I18N.of(context).get("skip"))),
+                    onPressed: () {
+                      controller.resumeCamera();
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(I18N.of(context).get("skip"))),
                 TextButton(
                   onPressed: () async {
                     Navigator.of(context).pop();
@@ -261,8 +287,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                           ..node = botId,
                         text);
                   },
-                  child: Text(
-                      I18N.of(context).get("send")),
+                  child: Text(I18N.of(context).get("send")),
                 ),
               ],
             ),
@@ -278,6 +303,8 @@ class _ScanQrCode extends State<ScanQrCode> {
     String botId,
     String token,
   ) async {
+    controller.pauseCamera();
+
     I18N i18n = I18N.of(context);
     PrivateDataType privateDataType;
     String type = pdType;
@@ -289,64 +316,62 @@ class _ScanQrCode extends State<ScanQrCode> {
                 ? privateDataType = PrivateDataType.EMAIL
                 : privateDataType = PrivateDataType.NAME;
 
-    Future.delayed(Duration.zero, () {
-      showFloatingModalBottomSheet(
-        context: context,
-        builder: (context) => Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(
-                botId,
-                style: TextStyle(
-                  color: ExtraTheme.of(context).textField,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 20,
-                ),
+    showFloatingModalBottomSheet(
+      context: context,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              botId,
+              style: TextStyle(
+                color: ExtraTheme.of(context).textField,
+                fontWeight: FontWeight.w600,
+                fontSize: 20,
               ),
-              Text(
-                i18n.get(
-                    "get_private_data_access_${privateDataType.name}"),
-                style: TextStyle(
-                  color: ExtraTheme.of(context).textField,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 20,
-                ),
+            ),
+            Text(
+              i18n.get("get_private_data_access_${privateDataType.name}"),
+              style: TextStyle(
+                color: ExtraTheme.of(context).textField,
+                fontWeight: FontWeight.w600,
+                fontSize: 20,
               ),
-              SizedBox(
-                height: 40,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text(I18N.of(context)
-                          .get("skip"))),
-                  TextButton(
-                    onPressed: () async {
-                      _messageRepo.sendPrivateMessageAccept(
-                          Uid()
-                            ..category = Categories.BOT
-                            ..node = botId,
-                          privateDataType,
-                          token);
-                      _routingServices.openRoom((Uid.create()
-                            ..node = botId
-                            ..category = Categories.BOT)
-                          .asString());
+            ),
+            SizedBox(
+              height: 40,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                    onPressed: () {
+                      controller.resumeCamera();
                       Navigator.of(context).pop();
                     },
-                    child: Text(
-                        I18N.of(context).get("ok")),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                    child: Text(I18N.of(context).get("skip"))),
+                TextButton(
+                  onPressed: () async {
+                    _messageRepo.sendPrivateMessageAccept(
+                        Uid()
+                          ..category = Categories.BOT
+                          ..node = botId,
+                        privateDataType,
+                        token);
+                    _routingServices.openRoom((Uid.create()
+                          ..node = botId
+                          ..category = Categories.BOT)
+                        .asString());
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(I18N.of(context).get("ok")),
+                ),
+              ],
+            ),
+          ],
         ),
-      );
-    });
+      ),
+    );
   }
 }

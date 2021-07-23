@@ -52,6 +52,7 @@ dependencies:
   dots_indicator: 1.2.0
 
   flare_flutter: 2.0.6 # Animation Viewer Library
+  lottie: 1.1.0
   date_time_format: 1.0.0+4
 
   emojis:
@@ -216,6 +217,9 @@ flutter:
     - assets/icons/mention.png
     - assets/icons/channel_icon.png
     - assets/bac/a.png
+    - assets/animations/done.json
+    - assets/animations/loading.json
+    - assets/animations/error.json
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

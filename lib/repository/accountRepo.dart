@@ -120,8 +120,8 @@ class AccountRepo {
     _sharedDao.put(SHARED_DAO_EMAIL, email);
   }
 
-
-  Future<String> get notification => _sharedDao.get(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED);
+  Future<String> get notification =>
+      _sharedDao.get(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED);
 
   Future<void> fetchProfile() async {
     if (null == await _sharedDao.get(SHARED_DAO_USERNAME)) {
@@ -130,20 +130,31 @@ class AccountRepo {
       await getProfile(retry: true);
     }
   }
-   Future<List<Session>> getSessions ()async{
+
+  Future<List<Session>> getSessions() async {
     var res = await _sessionServicesClient.getMySessions(GetMySessionsReq());
     return res.sessions;
-
   }
-  Future<bool> deleteSessions(List<String> sessions)async {
-    try{
-      await _sessionServicesClient.revokeSession(RevokeSessionReq(sessionIds:sessions) );
-      return true;
-    }
-     catch(e){
-      return false;
-     }
 
+  Future<bool> verifyQrCodeToken(String token) async {
+    try {
+      await _sessionServicesClient.verifyQrCodeToken(VerifyQrCodeTokenReq()
+        ..platform = await _authRepo.getPlatformDetails()
+        ..token = token);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> deleteSessions(List<String> sessions) async {
+    try {
+      await _sessionServicesClient
+          .revokeSession(RevokeSessionReq(sessionIds: sessions));
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<String> getName() async {
@@ -151,6 +162,4 @@ class AccountRepo {
 
     return buildName(account.firstName, account.lastName);
   }
-
-
 }
