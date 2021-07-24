@@ -159,9 +159,9 @@ class AvatarRepo {
 
     try {
       await _avatarServices.addAvatar(addAvatarReq);
-      await _avatarDao.saveAvatars(_authRepo.currentUserUid.asString(), [
+      await _avatarDao.saveAvatars(uid.asString(), [
         Avatar(
-            uid: _authRepo.currentUserUid.asString(),
+            uid: uid.asString(),
             createdOn: createOn,
             fileId: fileInfo.uuid,
             fileName: fileInfo.name)
