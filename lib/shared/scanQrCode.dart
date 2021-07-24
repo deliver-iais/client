@@ -150,14 +150,21 @@ class _ScanQrCode extends State<ScanQrCode> {
         controller.pauseCamera();
         showFloatingModalBottomSheet(
             context: context,
-            builder: (context) => Container(
-                padding: const EdgeInsets.symmetric(vertical: 40),
-                child: Lottie.asset(
-                  'assets/animations/done.json',
-                  width: 150,
-                  height: 150,
-                  repeat: false,
-                )));
+            isDismissible: false,
+            builder: (BuildContext ctx) {
+              return Container(
+                  padding: const EdgeInsets.symmetric(vertical: 40),
+                  child: Lottie.asset(
+                    'assets/animations/done.json',
+                    width: 150,
+                    height: 150,
+                    repeat: false,
+                  ));
+            });
+      });
+      Timer(Duration(seconds: 5), () {
+        Navigator.of(context).pop();
+        _routingServices.pop();
       });
     }
   }

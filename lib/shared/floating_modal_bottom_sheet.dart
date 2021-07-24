@@ -36,10 +36,12 @@ Future<T> showFloatingModalBottomSheet<T>({
   BuildContext context,
   WidgetBuilder builder,
   Color backgroundColor,
+  bool isDismissible = true
 }) async {
   final result = await showCustomModalBottomSheet(
       context: context,
       builder: builder,
+      isDismissible: isDismissible,
       containerWidget: (_, animation, child) => FloatingModal(
             child: child,
           ),
