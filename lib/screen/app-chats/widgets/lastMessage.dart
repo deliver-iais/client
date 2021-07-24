@@ -17,10 +17,16 @@ class LastMessage extends StatelessWidget {
   final Message message;
   final int lastMessageId;
   final bool hasMentioned;
+  final bool showSender;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
-  LastMessage({Key key, this.message, this.lastMessageId, this.hasMentioned})
+  LastMessage(
+      {Key key,
+      this.message,
+      this.lastMessageId,
+      this.hasMentioned,
+      this.showSender = true})
       : super(key: key);
 
   messageText(BuildContext context) {
@@ -63,16 +69,15 @@ class LastMessage extends StatelessWidget {
     return Row(
       // crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!isReceivedMessage)
+        if (!isReceivedMessage && showSender)
           Padding(
             padding: const EdgeInsets.only(right: 4.0),
             child: SeenStatus(message),
           ),
         if (message.roomUid.asUid().category == Categories.GROUP &&
-            message.type != MessageType.PERSISTENT_EVENT)
+            message.type != MessageType.PERSISTENT_EVENT && showSender)
           !isReceivedMessage
-              ? _fromDisplayName(
-                  _i18n.get("you"), context)
+              ? _fromDisplayName(_i18n.get("you"), context)
               : FutureBuilder<String>(
                   future: _roomRepo.getName(message.from.asUid()),
                   builder:

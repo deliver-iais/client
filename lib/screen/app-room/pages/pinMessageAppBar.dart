@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/message_type.dart';
+import 'package:deliver_flutter/screen/app-chats/widgets/lastMessage.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,12 +14,20 @@ import 'package:sorted_list/sorted_list.dart';
 
 class PinMessageAppBar extends StatelessWidget {
   final BehaviorSubject<int> lastPinedMessage;
-  final SortedList pinMessages;
+  final SortedList<Message> pinMessages;
   final Function onTap;
+  final Function onNext;
+  final Function onPrev;
   final Function onCancel;
 
   PinMessageAppBar(
-      {Key key, this.lastPinedMessage, this.pinMessages, this.onTap,this.onCancel})
+      {Key key,
+      this.lastPinedMessage,
+      this.pinMessages,
+      this.onTap,
+      this.onCancel,
+      this.onNext,
+      this.onPrev})
       : super(key: key);
 
   @override
@@ -26,95 +37,79 @@ class PinMessageAppBar extends StatelessWidget {
         stream: lastPinedMessage.stream,
         builder: (c, id) {
           if (id.hasData && id.data > 0) {
-            var body = "";
             Message mes;
             pinMessages.forEach((m) {
               if (m.id == id.data) {
                 mes = m;
               }
             });
-            switch (mes.type) {
-              case MessageType.TEXT:
-                body = mes.json.toText().text;
-                break;
-              case MessageType.FILE:
-                body = "File";
-                break;
-              case MessageType.STICKER:
-                body = "Sticker";
-                break;
-              case MessageType.LOCATION:
-                body = "Location";
-                break;
-              case MessageType.LIVE_LOCATION:
-                body = "Live Location";
-                break;
-              case MessageType.POLL:
-                body = "Poll";
-                break;
-              case MessageType.FORM:
-                body = "Form";
-                break;
-              case MessageType.PERSISTENT_EVENT:
-                // TODO: Handle this case.
-                break;
-              case MessageType.NOT_SET:
-                // TODO: Handle this case.
-                break;
-              case MessageType.BUTTONS:
-                body = "From";
-                break;
-              case MessageType.SHARE_UID:
-                body = "contact";
-                break;
-              case MessageType.FORM_RESULT:
-                // TODO: Handle this case.
-                break;
-              case MessageType.SHARE_PRIVATE_DATA_REQUEST:
-                body = "Private Data";
-                break;
-              case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
-                // TODO: Handle this case.
-                break;
-            }
+
             return GestureDetector(
-              onTap: () {
-                onTap(id.data, mes);
-              },
+              onTap: onTap,
               child: Container(
-                padding:
-                    const EdgeInsets.only(left: 8, right: 3, bottom: 8, top: 0),
+                height: 52,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
                 color: ExtraTheme.of(context).pinMessageTheme,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    Divider(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
                       children: [
-                        Text(
-                          i18n.get("pinned_message"),
-                          style: TextStyle(color: Colors.blue, fontSize: 13),
-                        ),
-                        IconButton(
-                            onPressed: () {
-                              onCancel();
-                            },
-                            icon: Icon(
-                              Icons.close,
-                              size: 14,
-                              color: Colors.blue,
-                            ))
+                        if (pinMessages.length > 2)
+                          Container(
+                            width: 3,
+                            height:
+                                (52 / min(pinMessages.length.toDouble(), 3)) -
+                                    4,
+                            margin: const EdgeInsets.symmetric(vertical: 2.0),
+                            color: color(context, 0),
+                          ),
+                        if (pinMessages.length > 1)
+                          Container(
+                            width: 3,
+                            height:
+                                (52 / min(pinMessages.length.toDouble(), 3)) -
+                                    4,
+                            margin: const EdgeInsets.symmetric(vertical: 2.0),
+                            color: color(context, 1),
+                          ),
+                        if (pinMessages.length > 1)
+                          Container(
+                            width: 3,
+                            height:
+                                (52 / min(pinMessages.length.toDouble(), 3)) -
+                                    4,
+                            margin: const EdgeInsets.symmetric(vertical: 2.0),
+                            color: color(context, 2),
+                          ),
                       ],
                     ),
-                    Container(
-                        child: Text(
-                      body,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: ExtraTheme.of(context).textField,
+                    SizedBox(width: 8.0),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            i18n.get("pinned_message"),
+                            style: TextStyle(color: Colors.blue, fontSize: 13),
+                          ),
+                          LastMessage(
+                              message: mes,
+                              lastMessageId: mes.id,
+                              hasMentioned: false,
+                              showSender: false),
+                        ],
                       ),
-                    )),
+                    ),
+                    IconButton(
+                        iconSize: 20,
+                        onPressed: () {
+                          onCancel();
+                        },
+                        icon: Icon(
+                          Icons.close,
+                          color: Theme.of(context).primaryColor,
+                        ))
                   ],
                 ),
               ),
@@ -122,5 +117,21 @@ class PinMessageAppBar extends StatelessWidget {
           } else
             return SizedBox.shrink();
         });
+  }
+
+  Color color(BuildContext context, int index) {
+    return highlight(index, lastPinedMessage.value)
+        ? Theme.of(context).primaryColor
+        : Theme.of(context).dividerColor;
+  }
+
+  bool highlight(int index, int id) {
+    return (index == 2 && id == pinMessages.last.id) ||
+        (index == 0 && id == pinMessages.first.id) ||
+        (index == 1 && pinMessages.length == 2 && id == pinMessages.first.id) ||
+        (index == 1 &&
+            pinMessages.length > 2 &&
+            id != pinMessages.first.id &&
+            id != pinMessages.last.id);
   }
 }

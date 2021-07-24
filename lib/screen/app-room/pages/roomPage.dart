@@ -196,8 +196,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           else
             Clipboard.setData(
                 ClipboardData(text: message.json.toFile().caption ?? ""));
-          Fluttertoast.showToast(
-              msg: _i18n.get("copied"));
+          Fluttertoast.showToast(msg: _i18n.get("copied"));
           break;
         case OperationOnMessage.FORWARD:
           _repliedMessage.add(null);
@@ -254,8 +253,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _pinMessages.add(message);
             _lastPinedMessage.add(_pinMessages.last.id);
           } else {
-            Fluttertoast.showToast(
-                msg: _i18n.get("error_occurred"));
+            Fluttertoast.showToast(msg: _i18n.get("error_occurred"));
           }
           break;
         case OperationOnMessage.UN_PIN_MESSAGE:
@@ -384,6 +382,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     _mucRepo.watchMuc(widget.roomId).listen((muc) {
       if (muc != null && (muc.showPinMessage == null || muc.showPinMessage)) {
         List<int> pm = muc.pinMessagesIdList;
+        _pinMessages.clear();
         if (pm != null)
           pm.forEach((element) async {
             if (element != null) {
@@ -748,14 +747,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           searchMessage(str, checkSearchResult);
                         },
                         decoration: InputDecoration(
-                            hintText:
-                                _i18n.get("search"),
+                            hintText: _i18n.get("search"),
                             suffix: StreamBuilder(
                               stream: checkSearchResult.stream,
                               builder: (c, s) {
                                 if (s.hasData && s.data) {
-                                  return Text(_i18n
-                                      .get("not_found"));
+                                  return Text(_i18n.get("not_found"));
                                 } else {
                                   return SizedBox.shrink();
                                 }
@@ -1272,16 +1269,17 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     return PinMessageAppBar(
         lastPinedMessage: _lastPinedMessage,
         pinMessages: _pinMessages,
-        onTap: (int id, Message mes) {
+        onTap: () {
+          setState(() => _replayMessageId = _lastPinedMessage.value);
           _itemScrollController.scrollTo(
-              index: _lastPinedMessage.valueWrapper.value,
+              index: _lastPinedMessage.value,
+              alignment: 0.5,
               duration: Duration(microseconds: 1));
-          setState(() {
-            _replayMessageId = id;
-          });
           if (_pinMessages.length > 1) {
-            _lastPinedMessage
-                .add(_pinMessages[_pinMessages.indexOf(mes) - 1].id);
+            _lastPinedMessage.add(_pinMessages[_pinMessages
+                        .indexWhere((e) => e.id == _lastPinedMessage.value) -
+                    1]
+                .id);
           }
         },
         onCancel: () {
