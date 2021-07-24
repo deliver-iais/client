@@ -137,11 +137,12 @@ class _ScanQrCode extends State<ScanQrCode> {
     } else if (segments.first == "join") {
       handleJoinUri(context, url);
     } else if (segments.first == "login") {
-      handleLogin(context, segments[1]);
+      handleLogin(context, uri.queryParameters["token"]);
     }
   }
 
   Future<void> handleLogin(BuildContext context, String token) async {
+    _logger.wtf(token);
     bool verified = await _accountRepo.verifyQrCodeToken(token);
 
     if (verified) {

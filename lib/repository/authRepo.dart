@@ -32,9 +32,10 @@ class AuthRepo {
     ..category = Categories.USER
     ..node = "";
   Avatar avatar;
-  PhoneNumber phoneNumber;
   String _accessToken;
   String _refreshToken;
+  
+  PhoneNumber _tmpPhoneNumber;
 
   Future<void> init() async {
     var accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
@@ -53,8 +54,7 @@ class AuthRepo {
       PhoneNumber phone = PhoneNumber()
         ..countryCode = int.parse(countryCode)
         ..nationalNumber = Int64.parseInt(nationalNumber);
-      this.phoneNumber = phone;
-      _savePhoneNumber();
+      this._tmpPhoneNumber = phone;
       var verificationCode =
           await _authServiceClient.getVerificationCode(GetVerificationCodeReq()
             ..phoneNumber = phone
@@ -131,7 +131,7 @@ class AuthRepo {
     String device = await getDeviceName();
 
     var res = await _authServiceClient.verifyAndGetToken(VerifyCodeReq()
-      ..phoneNumber = this.phoneNumber
+      ..phoneNumber = this._tmpPhoneNumber
       ..code = code
       ..device = device
       ..platform = platform
@@ -222,13 +222,6 @@ class AuthRepo {
       _logger.d(currentUserUid);
       _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, currentUserUid.asString());
     }
-  }
-
-  _savePhoneNumber() {
-    _sharedDao.put(
-        SHARED_DAO_COUNTRY_CODE, this.phoneNumber.countryCode.toString());
-    _sharedDao.put(
-        SHARED_DAO_NATIONAL_NUMBER, this.phoneNumber.nationalNumber.toString());
   }
 
   bool isCurrentUser(String uid) => uid.isSameEntity(currentUserUid);
