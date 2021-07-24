@@ -44,73 +44,86 @@ class PinMessageAppBar extends StatelessWidget {
               }
             });
 
-            return GestureDetector(
-              onTap: onTap,
-              child: Container(
-                height: 52,
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                color: ExtraTheme.of(context).pinMessageTheme,
-                child: Row(
-                  children: [
-                    Column(
-                      children: [
-                        if (pinMessages.length > 2)
-                          Container(
-                            width: 3,
-                            height:
-                                (52 / min(pinMessages.length.toDouble(), 3)) -
-                                    4,
-                            margin: const EdgeInsets.symmetric(vertical: 2.0),
-                            color: color(context, 0),
-                          ),
-                        if (pinMessages.length > 1)
-                          Container(
-                            width: 3,
-                            height:
-                                (52 / min(pinMessages.length.toDouble(), 3)) -
-                                    4,
-                            margin: const EdgeInsets.symmetric(vertical: 2.0),
-                            color: color(context, 1),
-                          ),
-                        if (pinMessages.length > 1)
-                          Container(
-                            width: 3,
-                            height:
-                                (52 / min(pinMessages.length.toDouble(), 3)) -
-                                    4,
-                            margin: const EdgeInsets.symmetric(vertical: 2.0),
-                            color: color(context, 2),
-                          ),
-                      ],
-                    ),
-                    SizedBox(width: 8.0),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+            return MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: onTap,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: ExtraTheme.of(context).pinMessageTheme,
+                    // borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).dividerColor,
+                        blurRadius: 2,
+                        offset: Offset(2, 2), // Shadow position
+                      ),
+                    ],
+                  ),
+                  height: 52,
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Row(
+                    children: [
+                      Column(
                         children: [
-                          Text(
-                            i18n.get("pinned_message"),
-                            style: TextStyle(color: Colors.blue, fontSize: 13),
-                          ),
-                          LastMessage(
-                              message: mes,
-                              lastMessageId: mes.id,
-                              hasMentioned: false,
-                              showSender: false),
+                          if (pinMessages.length > 2)
+                            Container(
+                              width: 3,
+                              height:
+                                  (52 / min(pinMessages.length.toDouble(), 3)) -
+                                      4,
+                              margin: const EdgeInsets.symmetric(vertical: 2.0),
+                              color: color(context, 0),
+                            ),
+                          if (pinMessages.length > 1)
+                            Container(
+                              width: 3,
+                              height:
+                                  (52 / min(pinMessages.length.toDouble(), 3)) -
+                                      4,
+                              margin: const EdgeInsets.symmetric(vertical: 2.0),
+                              color: color(context, 1),
+                            ),
+                          if (pinMessages.length > 1)
+                            Container(
+                              width: 3,
+                              height:
+                                  (52 / min(pinMessages.length.toDouble(), 3)) -
+                                      4,
+                              margin: const EdgeInsets.symmetric(vertical: 2.0),
+                              color: color(context, 2),
+                            ),
                         ],
                       ),
-                    ),
-                    IconButton(
-                        iconSize: 20,
-                        onPressed: () {
-                          onCancel();
-                        },
-                        icon: Icon(
-                          Icons.close,
-                          color: Theme.of(context).primaryColor,
-                        ))
-                  ],
+                      SizedBox(width: 8.0),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              i18n.get("pinned_message"),
+                              style: TextStyle(color: Colors.blue, fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                            LastMessage(
+                                message: mes,
+                                lastMessageId: mes.id,
+                                hasMentioned: false,
+                                showSender: false),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                          iconSize: 20,
+                          onPressed: () {
+                            onCancel();
+                          },
+                          icon: Icon(
+                            Icons.close,
+                            color: Theme.of(context).primaryColor,
+                          ))
+                    ],
+                  ),
                 ),
               ),
             );
