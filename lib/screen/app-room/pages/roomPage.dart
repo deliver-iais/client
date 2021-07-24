@@ -383,7 +383,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       if (muc != null && (muc.showPinMessage == null || muc.showPinMessage)) {
         List<int> pm = muc.pinMessagesIdList;
         _pinMessages.clear();
-        if (pm != null)
+        if (pm != null && pm.length > 0)
           pm.forEach((element) async {
             if (element != null) {
               try {
@@ -1039,7 +1039,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       }
       if (newTime && !showTimeDown) {
         _upTimeMap[messages[0].packetId] =
-            date(currentSearchResultMessage.time);
+            date(currentSearchResultMessage?.time);
       }
     } catch (e) {
       _logger.e(e);

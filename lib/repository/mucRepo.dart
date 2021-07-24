@@ -162,7 +162,7 @@ class MucRepo {
 
         fetchGroupMembers(mucUid, group.population.toInt());
         if (m != null)
-          _checkShowPin(mucUid, group.pinMessages, m.pinMessagesIdList??[]);
+          _checkShowPin(mucUid, group.pinMessages, m.pinMessagesIdList ?? []);
         return muc;
       }
       return null;
@@ -177,7 +177,7 @@ class MucRepo {
             lastMessageId: channel.lastMessageId.toInt(),
             info: channel.info.info,
             token: channel.token,
-            showPinMessage: c!= null ? c.showPinMessage:true,
+            showPinMessage: c != null ? c.showPinMessage : true,
             pinMessagesIdList:
                 channel.pinMessages.map((e) => e.toInt()).toList(),
             id: channel.info.id);
@@ -189,8 +189,8 @@ class MucRepo {
               mucUid: mucUid.asString(),
               role: getLocalRole(channel.requesterRole))
         ]);
-        if(c!=null)
-          _checkShowPin(mucUid, channel.pinMessages,c.pinMessagesIdList??[]);
+        if (c != null)
+          _checkShowPin(mucUid, channel.pinMessages, c.pinMessagesIdList ?? []);
         if (channel.requesterRole != MucPro.Role.NONE)
           fetchChannelMembers(mucUid, channel.population.toInt());
         return muc;
@@ -563,6 +563,7 @@ class MucRepo {
   }
 
   _checkShowPin(Uid mucUid, List<Int64> pinMessages, List<int> pm) async {
+    if (pinMessages.length <= 0) return;
     bool showPin = pinMessages.last.toInt() > pm.last;
     if (showPin)
       _mucDao

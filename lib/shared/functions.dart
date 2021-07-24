@@ -20,6 +20,7 @@ bool isOnline(int time) {
 }
 
 DateTime date(int time) {
+  if (time == null) time = 0;
   return DateTime.fromMillisecondsSinceEpoch(time);
 }
 
@@ -115,8 +116,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                     MaterialButton(
                         color: Colors.blueAccent,
                         onPressed: () => Navigator.of(context).pop(),
-                        child: Text(I18N.of(context)
-                            .get("skip"))),
+                        child: Text(I18N.of(context).get("skip"))),
                     MaterialButton(
                       color: Colors.blueAccent,
                       onPressed: () async {
@@ -139,8 +139,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                           }
                         }
                       },
-                      child: Text(
-                          I18N.of(context).get("join")),
+                      child: Text(I18N.of(context).get("join")),
                     ),
                   ],
                 ),
