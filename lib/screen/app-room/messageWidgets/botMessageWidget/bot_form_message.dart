@@ -149,16 +149,13 @@ class _BotFormMessageState extends State<BotFormMessage> {
             SizedBox(
               height: 5,
             ),
-            FlatButton(
-              color: Colors.blueAccent,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18.0),
-                  side: BorderSide(color: Colors.blue)),
+            TextButton(
               onPressed: () {
                 var validate = true;
 
                 for (var field in formFieldsKey.values) {
-                  if (!field.currentState?.validate()) {
+                  if (field.currentState == null ||
+                      !field.currentState.validate()) {
                     validate = false;
                     break;
                   }

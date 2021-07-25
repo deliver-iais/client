@@ -2,14 +2,12 @@ import 'dart:math';
 
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/message.dart';
-import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/lastMessage.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
 import 'package:sorted_list/sorted_list.dart';
 
 class PinMessageAppBar extends StatelessWidget {

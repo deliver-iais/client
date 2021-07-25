@@ -35,7 +35,6 @@ import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/subjects.dart';
 
 class Page {
@@ -363,10 +362,6 @@ class RoutingService {
       _stack.removeLast();
       _route.add(_stack.last.path);
     }
-  }
-
-  Page _top() {
-    return _stack.last;
   }
 
   reset() {

@@ -1,36 +1,20 @@
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/Localization/appLocalization.dart';
-import 'package:deliver_flutter/box/muc.dart';
-import 'package:deliver_flutter/models/muc_type.dart';
-import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
-import 'package:deliver_flutter/repository/mucRepo.dart';
-import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/shared/box.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
-import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/helper_classes.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import 'package:rxdart/rxdart.dart';
 
-import '../constants.dart';
 
 class ProfileAvatar extends StatefulWidget {
   @required

@@ -1,6 +1,5 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/member.dart';
-import 'package:deliver_flutter/models/account.dart';
 import 'package:deliver_flutter/box/role.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
@@ -9,7 +8,6 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

@@ -1,4 +1,3 @@
-import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
@@ -24,7 +23,6 @@ class _LogSettingsPageState extends State<LogSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = I18N.of(context);
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),

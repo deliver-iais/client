@@ -15,7 +15,8 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
   final bool isSeen;
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
-  SharePrivateDataRequestMessageWidget({this.message, this.isSender, this.isSeen});
+  SharePrivateDataRequestMessageWidget(
+      {this.message, this.isSender, this.isSeen});
 
   I18N _i18n;
   SharePrivateDataRequest _sharePrivateDataRequest;
@@ -31,14 +32,12 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
               ? "آیا اجازه دسترسی به  شماره تلفن را می دهید؟"
               : " آیا اجازه دسترسی به  نام کاربری را می دهید؟"),
           GestureDetector(
-              child: FlatButton(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-                side: BorderSide(color: Colors.blue)),
-            color: Colors.blueAccent,
+              child: TextButton(
             onPressed: () {
               _messageRepo.sendPrivateMessageAccept(
-                  message.from.asUid(), _sharePrivateDataRequest.data,_sharePrivateDataRequest.token);
+                  message.from.asUid(),
+                  _sharePrivateDataRequest.data,
+                  _sharePrivateDataRequest.token);
             },
             child: Text(_i18n.get("ok")),
           ))

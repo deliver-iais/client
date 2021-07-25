@@ -249,7 +249,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     controller: controller,
                                     autocorrect: true,
                                     onChanged: (str) {
-                                      if (str?.length > 0)
+                                      if (str != null && str.length > 0)
                                         isTypingActivitySubject
                                             .add(ActivityType.TYPING);
                                       else
@@ -262,8 +262,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                           const EdgeInsets.symmetric(
                                               vertical: 15, horizontal: 5),
                                       border: InputBorder.none,
-                                      hintText: i18n
-                                          .get("message"),
+                                      hintText: i18n.get("message"),
                                     ),
                                   ),
                                 ),
@@ -315,7 +314,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                           Icons.send,
                                           color: Colors.blue,
                                         ),
-                                        onPressed: controller.text?.isEmpty &&
+                                        onPressed: controller.text != null &&
+                                                controller.text.isEmpty &&
                                                 (widget.waitingForForward ==
                                                         null ||
                                                     widget.waitingForForward ==

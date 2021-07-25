@@ -1,8 +1,8 @@
-import 'package:audioplayer/audioplayer.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/audio_progress_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/time_progress_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/size_formater.dart';
 import 'package:deliver_flutter/services/audio_player_service.dart';
+import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/shared/methods/find_file_type.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';

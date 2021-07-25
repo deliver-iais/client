@@ -28,11 +28,7 @@ class BotButtonsWidget extends StatelessWidget {
                 return Center(
                   child: Column(
                     children: [
-                      FlatButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                              side: BorderSide(color: Colors.blue)),
-                          color: Colors.blueAccent,
+                      OutlinedButton(
                           onPressed: () {
                             _messageRepo.sendTextMessage(
                                 message.from.asUid(), buttons.buttons[index]);

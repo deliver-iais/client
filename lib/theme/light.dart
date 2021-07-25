@@ -1,4 +1,3 @@
-import 'package:deliver_flutter/shared/functions.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 

@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:audioplayer/audioplayer.dart';
-
+import 'package:audioplayers/audioplayers.dart';
+import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 
 import 'package:open_file/open_file.dart';
@@ -14,28 +14,25 @@ class AudioPlayerService {
   String audioName;
   String audioPath;
 
-  BehaviorSubject<AudioPlayerState> currentState = BehaviorSubject.seeded(AudioPlayerState.STOPPED);
+  BehaviorSubject<AudioPlayerState> currentState =
+      BehaviorSubject.seeded(AudioPlayerState.STOPPED);
 
   BehaviorSubject<bool> isOn = BehaviorSubject.seeded(false);
-
 
   BehaviorSubject currentAudioId = BehaviorSubject.seeded("");
 
   Stream<AudioPlayerState> audioPlayerState(String audioId) {
-      return currentState.stream;
+    return currentState.stream;
   }
 
-
-
-  setAudioDetails(String path,String name, String uuid) {
+  setAudioDetails(String path, String name, String uuid) {
     this.audioPath = path;
     this.audioName = name;
     this.audioUuid = uuid;
   }
 
-
   void seekToSecond(int second) {
-    this.audioPlayer.seek(second.toDouble());
+    this.audioPlayer.seek(Duration(seconds: second));
   }
 
   BehaviorSubject<Duration> audioCurrentPosition =
@@ -44,8 +41,8 @@ class AudioPlayerService {
   void onPlay(String path, String uuid, String name) async {
     setAudioDetails(path, name, uuid);
     currentState.add(AudioPlayerState.PLAYING);
-     isOn.add(true);
-    if(!uuid.contains(currentAudioId.valueWrapper.value)){
+    isOn.add(true);
+    if (!uuid.contains(currentAudioId.valueWrapper.value)) {
       await audioPlayer.stop();
       currentAudioId.add(uuid);
     }
@@ -62,9 +59,8 @@ class AudioPlayerService {
     }
   }
 
-  onPause(String audioId,{bool hideAppBar = false}) {
-    if(hideAppBar)
-      isOn.add(false);
+  onPause(String audioId, {bool hideAppBar = false}) {
+    if (hideAppBar) isOn.add(false);
     currentState.add(AudioPlayerState.PAUSED);
     currentAudioId.add(audioId);
     this.audioPlayer.pause();

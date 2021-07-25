@@ -8,7 +8,6 @@ import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app-chats/widgets/chatsPage.dart';
-import 'package:deliver_flutter/screen/contacts/contacts_page.dart';
 import 'package:deliver_flutter/services/audioPlayerAppBar.dart';
 import 'package:deliver_flutter/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver_flutter/services/audio_service.dart';

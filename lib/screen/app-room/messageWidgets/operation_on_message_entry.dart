@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/message_type.dart';
@@ -111,7 +109,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
         children: [
           if (widget.hasPermissionInChannel && widget.message.id != null)
             Expanded(
-              child: FlatButton(
+              child: TextButton(
                   onPressed: () {
                     onReply();
                   },
@@ -130,7 +128,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   widget.hasPermissionInChannel))
             if (!widget.isPined)
               Expanded(
-                child: FlatButton(
+                child: TextButton(
                     onPressed: () {
                       onPinMessage();
                     },
@@ -145,7 +143,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
               )
             else
               Expanded(
-                child: FlatButton(
+                child: TextButton(
                     onPressed: () {
                       onUnPinMessage();
                     },
@@ -162,7 +160,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
           if (widget.message.type == MessageType.TEXT ||
               widget.message.type == MessageType.FILE)
             Expanded(
-              child: FlatButton(
+              child: TextButton(
                   onPressed: () {
                     onCopy();
                   },
@@ -185,12 +183,12 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     _fileIsExist.add(true);
                     model.File f = widget.message.json.toFile();
                     return Expanded(
-                      child: FlatButton(
+                      child: TextButton(
                           onPressed: () {
                             if (f.type.contains("image")) {
                               onSaveTOGallery();
                             } else if (f.type.contains("audio") ||
-                                f.type.contains("mp3")) {
+                                f.type.contains("mp3")) { // TODO ?????
                               onSaveToMusic();
                             } else {
                               onSaveTODownloads();
@@ -208,14 +206,11 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                             ),
                             SizedBox(width: 8),
                             f.type.contains("image")
-                                ? Text(i18n
-                                    .get("save_to_gallery"))
+                                ? Text(i18n.get("save_to_gallery"))
                                 : f.type.contains("audio") ||
                                         f.type.contains("mp3")
-                                    ? Text(i18n
-                                        .get("save_in_music"))
-                                    : Text(i18n
-                                        .get("save_to_downloads")),
+                                    ? Text(i18n.get("save_in_music"))
+                                    : Text(i18n.get("save_to_downloads")),
                           ])),
                     );
                   } else {
@@ -230,7 +225,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   if (s.hasData && s.data) {
                     _fileIsExist.add(true);
                     return Expanded(
-                      child: FlatButton(
+                      child: TextButton(
                           onPressed: () {
                             onShare();
                           },
@@ -249,7 +244,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
           if (widget.message.id != null)
             Expanded(
-              child: FlatButton(
+              child: TextButton(
                   onPressed: () {
                     onForward();
                   },
@@ -271,7 +266,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       snapshot.data.failed != null &&
                       snapshot.data.failed) {
                     return Expanded(
-                      child: FlatButton(
+                      child: TextButton(
                           onPressed: () {
                             onResend();
                           },
@@ -297,7 +292,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       snapshot.data.failed != null &&
                       snapshot.data.failed) {
                     return Expanded(
-                      child: FlatButton(
+                      child: TextButton(
                           onPressed: () {
                             onDeletePendingMessage();
                           },
