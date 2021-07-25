@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Future<void> initUniLinks(BuildContext context) async {
     try {
       final initialLink = await getInitialLink();
-      if (initialLink.isNotEmpty) await handleUri(initialLink, context);
+      if (initialLink.isNotEmpty) await handleJoinUri(context, initialLink);
     } catch (e) {
       _logger.e(e);
     }

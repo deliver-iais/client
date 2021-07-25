@@ -75,7 +75,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   Widget build(BuildContext context) {
-    var _appLocalization = AppLocalization.of(context);
+    var _i18n = I18N.of(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(56),
@@ -123,7 +123,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       return buildText(context);
                     } else if (snapshot.data ==
                         TitleStatusConditions.Updating) {
-                      return Text(_appLocalization.getTraslateValue("updating"),
+                      return Text(_i18n.get("updating"),
                           style: TextStyle(
                               fontSize: 20,
                               color:
@@ -131,7 +131,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     } else if (snapshot.data ==
                         TitleStatusConditions.Connecting) {
                       return Text(
-                          _appLocalization.getTraslateValue("connecting"),
+                          _i18n.get("connecting"),
                           style: TextStyle(
                               fontSize: 20,
                               color:
@@ -145,7 +145,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           SizedBox(
                             width: 7,
                           ),
-                          Text(_appLocalization.getTraslateValue("disconnect"),
+                          Text(_i18n.get("disconnect"),
                               style: TextStyle(fontSize: 16, color: Colors.red))
                         ],
                       );
@@ -206,7 +206,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
           ),
           AudioPlayerAppBar(),
           _searchMode
-              ? searchResult(_appLocalization)
+              ? searchResult(_i18n)
               : Expanded(child: ChatsPage(scrollController: scrollController)),
         ],
       ),
@@ -215,13 +215,13 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   Text buildText(BuildContext context) {
     return Text(
-      AppLocalization.of(context).getTraslateValue("chats"),
+      I18N.of(context).get("chats"),
       style: Theme.of(context).textTheme.headline2,
     );
   }
 
   Widget buildMenu(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N i18n = I18N.of(context);
     return Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -252,7 +252,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                             width: 15,
                           ),
                           Text(
-                            appLocalization.getTraslateValue("newGroup"),
+                            i18n.get("newGroup"),
                             style: TextStyle(
                                 fontSize: 15,
                                 color: ExtraTheme.of(context)
@@ -277,7 +277,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                           width: 15,
                         ),
                         Text(
-                          appLocalization.getTraslateValue("newChannel"),
+                          i18n.get("newChannel"),
                           style: TextStyle(
                               fontSize: 15,
                               color: ExtraTheme.of(context)
@@ -292,9 +292,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   selectChatMenu(String key) {
     switch (key) {
-      case "newChat":
-        initialDataBase();
-        break;
       case "newGroup":
         _routingService.openMemberSelection(isChannel: false);
         break;
@@ -308,7 +305,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     GetIt.I.get<MessageRepo>().sendTextMessage(randomUid(), '0');
   }
 
-  Widget searchResult(AppLocalization _appLocalization) {
+  Widget searchResult(I18N _i18n) {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -323,8 +320,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                             child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          Text(_appLocalization
-                              .getTraslateValue("global_search")),
+                          Text(_i18n
+                              .get("global_search")),
                           //    searchResultWidget(snaps, c),
                           SizedBox(
                             height: 10,
@@ -342,7 +339,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   if (bot.hasData && bot.data != null && bot.data.length > 0) {
                     return Column(
                       children: [
-                        Text(_appLocalization.getTraslateValue("bots")),
+                        Text(_i18n.get("bots")),
                         Container(
                             height: 200, child: searchResultWidget(bot, c))
                       ],
@@ -363,7 +360,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                                 child: Column(
                       children: [
                         Text(
-                          _appLocalization.getTraslateValue("local_search"),
+                          _i18n.get("local_search"),
                           style: TextStyle(
                               color: ExtraTheme.of(context).textDetails),
                         ),

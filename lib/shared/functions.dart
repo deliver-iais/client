@@ -20,6 +20,7 @@ bool isOnline(int time) {
 }
 
 DateTime date(int time) {
+  if (time == null) time = 0;
   return DateTime.fromMillisecondsSinceEpoch(time);
 }
 
@@ -76,9 +77,9 @@ String buildPhoneNumber(String countryCode, String nationalNumber) =>
 
 String buildShareUserUrl(String countryCode, String nationalNumber,
         String firstName, String lastName) =>
-    "$APPLICATION_DOMAIN/ac?cc=$countryCode&nn=$nationalNumber&fn=$firstName&ln=$lastName";
+    "https://$APPLICATION_DOMAIN/ac?cc=$countryCode&nn=$nationalNumber&fn=$firstName&ln=$lastName";
 
-Future<void> handleUri(String initialLink, BuildContext context) async {
+Future<void> handleJoinUri(BuildContext context, String initialLink) async {
   var _mucDao = GetIt.I.get<MucDao>();
   var _messageRepo = GetIt.I.get<MessageRepo>();
   var _mucRepo = GetIt.I.get<MucRepo>();
@@ -100,51 +101,53 @@ Future<void> handleUri(String initialLink, BuildContext context) async {
     if (muc != null) {
       _routingService.openRoom(mucUid.asString());
     } else {
-      showFloatingModalBottomSheet(
-        context: context,
-        builder: (context) => Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              CircleAvatarWidget(mucUid, 40, forceText: "un"),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  MaterialButton(
+      Future.delayed(Duration.zero, () {
+        showFloatingModalBottomSheet(
+          context: context,
+          builder: (context) => Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                CircleAvatarWidget(mucUid, 40, forceText: "un"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    MaterialButton(
+                        color: Colors.blueAccent,
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(I18N.of(context).get("skip"))),
+                    MaterialButton(
                       color: Colors.blueAccent,
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text(AppLocalization.of(context)
-                          .getTraslateValue("skip"))),
-                  MaterialButton(
-                    color: Colors.blueAccent,
-                    onPressed: () async {
-                      if (mucUid.category == Categories.GROUP) {
-                        Muc muc =
-                            await _mucRepo.joinGroup(mucUid, m[6].toString());
-                        if (muc != null) {
-                          _messageRepo.updateNewMuc(mucUid, muc.lastMessageId);
-                          _routingService.openRoom(mucUid.asString());
-                          Navigator.of(context).pop();
+                      onPressed: () async {
+                        if (mucUid.category == Categories.GROUP) {
+                          Muc muc =
+                              await _mucRepo.joinGroup(mucUid, m[6].toString());
+                          if (muc != null) {
+                            _messageRepo.updateNewMuc(
+                                mucUid, muc.lastMessageId);
+                            _routingService.openRoom(mucUid.asString());
+                            Navigator.of(context).pop();
+                          }
+                        } else {
+                          Muc muc = await _mucRepo.joinChannel(mucUid, m[6]);
+                          if (muc != null) {
+                            _messageRepo.updateNewMuc(
+                                mucUid, muc.lastMessageId);
+                            _routingService.openRoom(mucUid.asString());
+                            Navigator.of(context).pop();
+                          }
                         }
-                      } else {
-                        Muc muc = await _mucRepo.joinChannel(mucUid, m[6]);
-                        if (muc != null) {
-                          _messageRepo.updateNewMuc(mucUid, muc.lastMessageId);
-                          _routingService.openRoom(mucUid.asString());
-                          Navigator.of(context).pop();
-                        }
-                      }
-                    },
-                    child: Text(
-                        AppLocalization.of(context).getTraslateValue("join")),
-                  ),
-                ],
-              ),
-            ],
+                      },
+                      child: Text(I18N.of(context).get("join")),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      );
+        );
+      });
     }
   }
 }

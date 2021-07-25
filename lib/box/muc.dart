@@ -30,6 +30,9 @@ class Muc {
   @HiveField(7)
   int lastMessageId;
 
+  @HiveField(8)
+  bool showPinMessage = true;
+
   Muc({
     this.uid,
     this.name,
@@ -38,7 +41,8 @@ class Muc {
     this.info,
     this.pinMessagesIdList,
     this.population,
-    this.lastMessageId
+    this.lastMessageId,
+    this.showPinMessage
   });
 
   Muc copy(Muc muc) => Muc(
@@ -49,6 +53,7 @@ class Muc {
         info: muc.info ?? this.info,
         lastMessageId: muc.lastMessageId??this.lastMessageId,
         pinMessagesIdList: muc.pinMessagesIdList ?? this.pinMessagesIdList,
+        showPinMessage: muc.showPinMessage??this.showPinMessage,
         population: muc.population ?? this.population,
       );
 
@@ -61,6 +66,7 @@ class Muc {
     int lastMessageId,
     List<int> pinMessagesIdList,
     int population,
+    bool showPinMessage
   }) =>
       Muc(
         uid: uid ?? this.uid,
@@ -71,5 +77,6 @@ class Muc {
         lastMessageId: lastMessageId??this.lastMessageId,
         pinMessagesIdList: pinMessagesIdList ?? this.pinMessagesIdList,
         population: population ?? this.population,
+        showPinMessage: showPinMessage??this.showPinMessage
       );
 }

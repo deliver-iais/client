@@ -42,7 +42,7 @@ class _IntroPageState extends State<IntroPage> {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N i18n = I18N.of(context);
     double animationSize = ANIMATION_SQUARE_SIZE(context);
     double paddingTop = ANIMATION_TOP_PADDING(context);
     return FluidWidget(
@@ -202,9 +202,9 @@ class _IntroPageState extends State<IntroPage> {
                 ),
               ],
               widthDoneBtn: 300,
-              nameDoneBtn: appLocalization.getTraslateValue("done"),
-              nameSkipBtn: appLocalization.getTraslateValue("skip"),
-              nameNextBtn: appLocalization.getTraslateValue("next"),
+              nameDoneBtn: i18n.get("done"),
+              nameSkipBtn: i18n.get("skip"),
+              nameNextBtn: i18n.get("next"),
               onDonePress: navigateToLoginPage,
               styleNameSkipBtn:
               TextStyle(color: Theme.of(context).primaryColor),

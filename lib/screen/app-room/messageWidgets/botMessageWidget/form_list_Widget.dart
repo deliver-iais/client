@@ -19,11 +19,11 @@ class FormListWidget extends StatefulWidget {
 class _FormListWidgetState extends State<FormListWidget> {
   String selectedItem;
 
-  AppLocalization _appLocalization;
+  I18N _i18n;
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    _i18n = I18N.of(context);
     return Padding(
       padding: const EdgeInsets.only(left: 7, right: 7),
       child: Container(
@@ -61,8 +61,8 @@ class _FormListWidgetState extends State<FormListWidget> {
                       return null;
                     } else {
                       if (value == null)
-                        return _appLocalization
-                            .getTraslateValue("this_filed_not_empty");
+                        return _i18n
+                            .get("this_filed_not_empty");
                       else
                         return null;
                     }

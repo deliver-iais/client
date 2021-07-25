@@ -44,7 +44,7 @@ class _RadioButtonFieldWisgetState extends State<RadioButtonFieldWisget> {
     //                   if (value == null && !widget.formField.isOptional) {
     //                     return null;
     //                   } else if (value == null) {
-    //                     return _appLocalization
+    //                     return _i18n
     //                         .getTraslateValue("please_select_one");
     //                   }
     //                   return null;

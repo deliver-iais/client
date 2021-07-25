@@ -113,7 +113,7 @@ class Router extends RouterBase {
         builder: (context) => ShowImagePage(
           key: args.key,
           imageFile: args.imageFile,
-          contactUid: args.contactUid,
+          roomUid: args.contactUid,
         ),
         settings: data,
       );

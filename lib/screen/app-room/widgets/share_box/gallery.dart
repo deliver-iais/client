@@ -3,10 +3,11 @@ import 'dart:io';
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-
+import 'package:deliver_flutter/services/routing_service.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
 
 import 'package:image_picker/image_picker.dart';
@@ -26,7 +27,7 @@ class ShareBoxGallery extends StatefulWidget {
       @required this.scrollController,
       @required this.onClick,
       @required this.selectedImages,
-      @required this.roomUid })
+      @required this.roomUid})
       : super(key: key);
 
   @override
@@ -34,7 +35,8 @@ class ShareBoxGallery extends StatefulWidget {
 }
 
 class _ShareBoxGalleryState extends State<ShareBoxGallery> {
-  AppLocalization appLocalization;
+  I18N i18n;
+  var _routingServices = GetIt.I.get<RoutingService>();
   var _future;
 
   @override
@@ -53,7 +55,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
               ],
         cropStyle: CropStyle.rectangle,
         androidUiSettings: AndroidUiSettings(
-            toolbarTitle: appLocalization.getTraslateValue("avatar"),
+            toolbarTitle: i18n.get("avatar"),
             toolbarColor: Colors.blueAccent,
             hideBottomControls: true,
             showCropGrid: false,
@@ -61,7 +63,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
             initAspectRatio: CropAspectRatioPreset.original,
             lockAspectRatio: false),
         iosUiSettings: IOSUiSettings(
-          title: appLocalization.getTraslateValue("avatar"),
+          title: i18n.get("avatar"),
         ));
     if (croppedFile != null) {
       widget.onClick(croppedFile);
@@ -70,18 +72,18 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
 
   @override
   Widget build(BuildContext context) {
-    appLocalization = AppLocalization.of(context);
+    i18n = I18N.of(context);
     return FutureBuilder<List<ImageItem>>(
         future: _future,
         builder: (context, images) {
-          if (images.hasData && images.data != null && images.data.length>0) {
+          if (images.hasData && images.data != null && images.data.length > 0) {
             return GridView.builder(
                 controller: widget.scrollController,
-                itemCount: images.data.length+1,
+                itemCount: images.data.length + 1,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3),
                 itemBuilder: (context, index) {
-                  var image = index>0?images.data[index-1]:null;
+                  var image = index > 0 ? images.data[index - 1] : null;
                   if (index <= 0) {
                     return Container(
                       width: 50,
@@ -92,18 +94,18 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                       ),
                       child: IconButton(
-                        icon: Icon(Icons.photo_camera, color: Colors.white, size: 40),
+                        icon: Icon(Icons.photo_camera,
+                            color: Colors.white, size: 40),
                         onPressed: () async {
                           try {
+                            Navigator.pop(context);
                             final picker = ImagePicker();
                             final pickedFile = await picker.getImage(
                                 source: ImageSource.camera);
                             widget.selectGallery
-                                ? ExtendedNavigator.of(context).push(
-                                    Routes.showImagePage,
-                                    arguments: ShowImagePageArguments(
-                                        imageFile: File(pickedFile.path),
-                                        contactUid: widget.roomUid))
+                                ? _routingServices.openImagePage(
+                                    roomUid: widget.roomUid,
+                                    file: File(pickedFile.path))
                                 : cropAvatar(image.path);
                           } catch (e) {}
                         },
@@ -116,11 +118,10 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                             ? () {
                                 if (!widget.selectedImages
                                     .containsValue(true)) {
-                                  ExtendedNavigator.of(context).push(
-                                      Routes.showImagePage,
-                                      arguments: ShowImagePageArguments(
-                                          imageFile: File(image.path),
-                                          contactUid:widget.roomUid ));
+                                  Navigator.pop(context);
+                                  _routingServices.openImagePage(
+                                      roomUid: widget.roomUid,
+                                      file: File(image.path));
                                 } else {
                                   widget.onClick(index, image.path);
                                 }
@@ -150,9 +151,12 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                       child: IconButton(
                                         onPressed: () =>
                                             widget.onClick(index, image.path),
-                                        icon: Icon(selected
-                                            ? Icons.check_circle_outline
-                                            : Icons.panorama_fish_eye, color: Colors.white,),
+                                        icon: Icon(
+                                          selected
+                                              ? Icons.check_circle_outline
+                                              : Icons.panorama_fish_eye,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     )
                                   : SizedBox.shrink(),

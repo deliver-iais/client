@@ -22,7 +22,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N i18n = I18N.of(context);
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
@@ -32,7 +32,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
               // elevation: 0,
               titleSpacing: 8,
               title: Text(
-                appLocalization.getTraslateValue("language"),
+                i18n.get("language"),
                 style: Theme.of(context).textTheme.headline2,
               ),
               leading: _routingService.backButtonLeading(),

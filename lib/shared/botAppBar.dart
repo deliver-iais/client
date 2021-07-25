@@ -20,21 +20,24 @@ class BotAppbar extends StatelessWidget {
     return Container(
         color: Theme.of(context).appBarTheme.color,
         child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
           child: Row(
             children: [
               CircleAvatarWidget(botUid, 23),
               SizedBox(
                 width: 15,
               ),
-              FutureBuilder<String>(
-                  future: _roomRepo.getName(botUid),
-                  builder: (c, name) {
-                    if (name.hasData && name.data != null)
-                      return buildColumn(name.data, context);
-                    else {
-                      return buildColumn(botUid.node, context);
-                    }
-                  })
+              Expanded(
+                child: FutureBuilder<String>(
+                    future: _roomRepo.getName(botUid),
+                    builder: (c, name) {
+                      if (name.hasData && name.data != null)
+                        return buildColumn(name.data, context);
+                      else {
+                        return buildColumn(botUid.node, context);
+                      }
+                    }),
+              )
             ],
           ),
           onTap: () {
@@ -49,6 +52,9 @@ class BotAppbar extends StatelessWidget {
       children: [
         Text(
           name,
+          maxLines: 1,
+          overflow: TextOverflow.fade,
+          softWrap: false,
           style: Theme.of(context).textTheme.headline2,
         ),
         TitleStatus(

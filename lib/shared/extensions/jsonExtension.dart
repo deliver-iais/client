@@ -2,10 +2,10 @@ import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/payment_transaction.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/poll.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/transaction.pb.dart';
 
 extension JsonMapper on String {
   File toFile() {

@@ -21,14 +21,18 @@ class AccountRepo {
   final _authRepo = GetIt.I.get<AuthRepo>();
 
   Future<bool> getProfile({bool retry = false}) async {
-    if (null != await _sharedDao.get(SHARED_DAO_FIRST_NAME)) {
+    if (await _sharedDao.get(SHARED_DAO_COUNTRY_CODE) != null) {
       return true;
     }
     try {
       var result =
           await _profileServiceClient.getUserProfile(GetUserProfileReq());
+
+      _savePhoneNumber(result.profile.phoneNumber.countryCode,
+          result.profile.phoneNumber.nationalNumber.toInt());
+
       if (result.hasProfile() && result.profile.firstName.isNotEmpty) {
-        _saveProfilePrivateDate(
+        _saveProfilePrivateData(
             firstName: result.profile.firstName,
             lastName: result.profile.lastName,
             email: result.profile.email);
@@ -99,7 +103,7 @@ class AccountRepo {
       }
 
       _profileServiceClient.saveUserProfile(saveUserProfileReq);
-      _saveProfilePrivateDate(
+      _saveProfilePrivateData(
           username: username,
           firstName: firstName,
           lastName: lastName,
@@ -112,7 +116,12 @@ class AccountRepo {
     }
   }
 
-  _saveProfilePrivateDate(
+  _savePhoneNumber(int countryCode, int nationalNumber) {
+    _sharedDao.put(SHARED_DAO_COUNTRY_CODE, countryCode.toString());
+    _sharedDao.put(SHARED_DAO_NATIONAL_NUMBER, nationalNumber.toString());
+  }
+
+  _saveProfilePrivateData(
       {String username, String firstName, String lastName, String email}) {
     if (username != null) _sharedDao.put(SHARED_DAO_USERNAME, username);
     _sharedDao.put(SHARED_DAO_FIRST_NAME, firstName);
@@ -120,8 +129,8 @@ class AccountRepo {
     _sharedDao.put(SHARED_DAO_EMAIL, email);
   }
 
-
-  Future<String> get notification => _sharedDao.get(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED);
+  Future<String> get notification =>
+      _sharedDao.get(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED);
 
   Future<void> fetchProfile() async {
     if (null == await _sharedDao.get(SHARED_DAO_USERNAME)) {
@@ -130,20 +139,31 @@ class AccountRepo {
       await getProfile(retry: true);
     }
   }
-   Future<List<Session>> getSessions ()async{
+
+  Future<List<Session>> getSessions() async {
     var res = await _sessionServicesClient.getMySessions(GetMySessionsReq());
     return res.sessions;
-
   }
-  Future<bool> deleteSessions(List<String> sessions)async {
-    try{
-      await _sessionServicesClient.revokeSession(RevokeSessionReq(sessionIds:sessions) );
-      return true;
-    }
-     catch(e){
-      return false;
-     }
 
+  Future<bool> verifyQrCodeToken(String token) async {
+    try {
+      await _sessionServicesClient.verifyQrCodeToken(VerifyQrCodeTokenReq()
+        ..platform = await _authRepo.getPlatformDetails()
+        ..token = token);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> deleteSessions(List<String> sessions) async {
+    try {
+      await _sessionServicesClient
+          .revokeSession(RevokeSessionReq(sessionIds: sessions));
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<String> getName() async {
@@ -151,6 +171,4 @@ class AccountRepo {
 
     return buildName(account.firstName, account.lastName);
   }
-
-
 }

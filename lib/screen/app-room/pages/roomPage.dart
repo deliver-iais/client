@@ -5,6 +5,7 @@ import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/box/message.dart';
+import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/box/pending_message.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
@@ -44,6 +45,7 @@ import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -92,7 +94,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
   String _searchMessagePattern;
   int _lastSeenMessageId = -1;
   bool _isMuc;
-  AppLocalization _appLocalization;
+  I18N _i18n;
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
   bool _scrollToNewMessage = true;
@@ -194,8 +196,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
           else
             Clipboard.setData(
                 ClipboardData(text: message.json.toFile().caption ?? ""));
-          Fluttertoast.showToast(
-              msg: _appLocalization.getTraslateValue("Copied"));
+          Fluttertoast.showToast(msg: _i18n.get("copied"));
           break;
         case OperationOnMessage.FORWARD:
           _repliedMessage.add(null);
@@ -224,13 +225,21 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               break;
             }
           }
-
           break;
         case OperationOnMessage.SAVE_TO_GALLERY:
-          // TODO: Handle this case.
+          var file = message.json.toFile();
+          _fileRepo.saveFileInDownloadDir(
+              file.uuid, file.name, ExtStorage.DIRECTORY_PICTURES);
           break;
         case OperationOnMessage.SAVE_TO_DOWNLOADS:
-          // TODO: Handle this case.
+          var file = message.json.toFile();
+          _fileRepo.saveFileInDownloadDir(
+              file.uuid, file.name, ExtStorage.DIRECTORY_DOWNLOADS);
+          break;
+        case OperationOnMessage.SAVE_TO_MUSIC:
+          var file = message.json.toFile();
+          _fileRepo.saveFileInDownloadDir(
+              file.uuid, file.name, ExtStorage.DIRECTORY_MUSIC);
           break;
         case OperationOnMessage.RESEND:
           _messageRepo.resendMessage(message);
@@ -244,8 +253,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
             _pinMessages.add(message);
             _lastPinedMessage.add(_pinMessages.last.id);
           } else {
-            Fluttertoast.showToast(
-                msg: _appLocalization.getTraslateValue("occurred_Error"));
+            Fluttertoast.showToast(msg: _i18n.get("error_occurred"));
           }
           break;
         case OperationOnMessage.UN_PIN_MESSAGE:
@@ -372,9 +380,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Future<void> watchPinMessages() async {
     _mucRepo.watchMuc(widget.roomId).listen((muc) {
-      if (muc != null) {
+      if (muc != null && (muc.showPinMessage == null || muc.showPinMessage)) {
         List<int> pm = muc.pinMessagesIdList;
-        if (pm != null)
+        _pinMessages.clear();
+        if (pm != null && pm.length > 0)
           pm.forEach((element) async {
             if (element != null) {
               try {
@@ -382,6 +391,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 _pinMessages.add(m);
                 _lastPinedMessage.add(_pinMessages.last.id);
               } catch (e) {
+                print(e.toString());
                 _logger.e(e);
                 _logger.d(element);
               }
@@ -412,7 +422,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    _i18n = I18N.of(context);
     double _maxWidth = MediaQuery.of(context).size.width * 0.7;
     _menuColor = ExtraTheme.of(context).popupMenuButton;
     if (isLarge(context)) {
@@ -737,14 +747,12 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           searchMessage(str, checkSearchResult);
                         },
                         decoration: InputDecoration(
-                            hintText:
-                                _appLocalization.getTraslateValue("search"),
+                            hintText: _i18n.get("search"),
                             suffix: StreamBuilder(
                               stream: checkSearchResult.stream,
                               builder: (c, s) {
                                 if (s.hasData && s.data) {
-                                  return Text(_appLocalization
-                                      .getTraslateValue("not_found"));
+                                  return Text(_i18n.get("not_found"));
                                 } else {
                                   return SizedBox.shrink();
                                 }
@@ -795,7 +803,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     itemBuilder: (_) => <PopupMenuItem<String>>[
                       new PopupMenuItem<String>(
                           child: Text(
-                            _appLocalization.getTraslateValue("search"),
+                            _i18n.get("search"),
                             style: TextStyle(
                               color:
                                   ExtraTheme.of(context).popupMenuButtonDetails,
@@ -810,6 +818,10 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 }
               }),
         ],
+        bottom: PreferredSize(
+          child: Divider(),
+          preferredSize: Size.fromHeight(1),
+        ),
       ),
     );
   }
@@ -924,15 +936,19 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                       Icon(Icons.keyboard_arrow_down,
                           color: Theme.of(context).primaryColor),
                       Text(
-                        _appLocalization.getTraslateValue("UnreadMessages"),
+                        _i18n.get("unread_messages"),
                         style: TextStyle(color: Theme.of(context).primaryColor),
                       ),
                     ],
                   ),
                 ),
-              if (_upTimeMap.containsKey(messages[0].packetId) &&
-                  !_downTimeMap.containsKey(messages[0].packetId))
-                ChatTime(currentMessageTime: _upTimeMap[messages[0].packetId]),
+              if (messages[0].id == 1 ||
+                  _upTimeMap.containsKey(messages[0].packetId) &&
+                      !_downTimeMap.containsValue(messages[0].time) &&
+                      !_downTimeMap.containsKey(messages[0].packetId))
+                ChatTime(
+                    currentMessageTime: _upTimeMap[messages[0].packetId] ??
+                        date(messages[0].time)),
               messages[0].packetId == null
                   ? SizedBox.shrink()
                   : messages[0].type != MessageType.PERSISTENT_EVENT
@@ -964,6 +980,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                           ],
                         ),
               if (_downTimeMap.containsKey(messages[0].packetId) &&
+                  !_upTimeMap.containsValue(messages[0].time) &&
                   !_upTimeMap.containsKey(messages[0].packetId))
                 ChatTime(
                     currentMessageTime: _downTimeMap[messages[0].packetId]),
@@ -1016,17 +1033,13 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         showTimeDown = false;
       }
 
-      if (newTime &&
-          showTimeDown &&
-          _currentMessageForCheckTime != null &&
-          !_upTimeMap.containsValue(_currentMessageForCheckTime.time)) {
+      if (newTime && showTimeDown && _currentMessageForCheckTime != null) {
         _downTimeMap[messages[0].packetId] =
             date(_currentMessageForCheckTime.time);
       }
-      if (newTime &&
-          !showTimeDown &&
-          !_downTimeMap.containsValue(messages[0].time)) {
-        _upTimeMap[messages[0].packetId] = date(messages[0].time);
+      if (newTime && !showTimeDown) {
+        _upTimeMap[messages[0].packetId] =
+            date(currentSearchResultMessage?.time);
       }
     } catch (e) {
       _logger.e(e);
@@ -1069,7 +1082,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         onSecondaryTap: !isDesktop()
             ? null
             : () {
-                if (!_selectMultiMessageSubject.stream.value )
+                if (!_selectMultiMessageSubject.stream.value)
                   _showCustomMenu(message);
               },
         onDoubleTap: !isDesktop() ? null : () => onReply(message),
@@ -1133,7 +1146,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Tooltip(
-          message: _appLocalization.getTraslateValue("cancel"),
+          message: _i18n.get("cancel"),
           child: Badge(
             animationType: BadgeAnimationType.fade,
             badgeColor: Theme.of(context).primaryColor,
@@ -1151,7 +1164,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
         ),
         SizedBox(width: 10),
         Tooltip(
-          message: _appLocalization.getTraslateValue("Forward"),
+          message: _i18n.get("forward"),
           child: Badge(
             animationType: BadgeAnimationType.fade,
             badgeColor: Theme.of(context).primaryColor,
@@ -1254,19 +1267,25 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   Widget pinMessageWidget() {
     return PinMessageAppBar(
-      lastPinedMessage: _lastPinedMessage,
-      pinMessages: _pinMessages,
-      onTap: (int id, Message mes) {
-        _itemScrollController.scrollTo(
-            index: _lastPinedMessage.valueWrapper.value,
-            duration: Duration(microseconds: 1));
-        setState(() {
-          _replayMessageId = id;
+        lastPinedMessage: _lastPinedMessage,
+        pinMessages: _pinMessages,
+        onTap: () {
+          setState(() => _replayMessageId = _lastPinedMessage.value);
+          _itemScrollController.scrollTo(
+              index: _lastPinedMessage.value,
+              alignment: 0.5,
+              duration: Duration(microseconds: 1));
+          if (_pinMessages.length > 1) {
+            _lastPinedMessage.add(_pinMessages[_pinMessages
+                        .indexWhere((e) => e.id == _lastPinedMessage.value) -
+                    1]
+                .id);
+          }
+        },
+        onCancel: () {
+          _lastPinedMessage.add(0);
+          _mucRepo.updateMuc(
+              Muc().copyWith(uid: widget.roomId, showPinMessage: false));
         });
-        if (_pinMessages.length > 1) {
-          _lastPinedMessage.add(_pinMessages[_pinMessages.indexOf(mes) - 1].id);
-        }
-      },
-    );
   }
 }

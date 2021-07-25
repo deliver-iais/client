@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,9 +12,9 @@ import 'package:get_it/get_it.dart';
 
 class ShowImagePage extends StatefulWidget {
   final File imageFile;
-  final Uid contactUid;
+  final Uid roomUid;
 
-  const ShowImagePage({Key key, this.imageFile, this.contactUid})
+  const ShowImagePage({Key key, this.imageFile, this.roomUid})
       : super(key: key);
 
   @override
@@ -25,10 +26,11 @@ class _ImageWidget extends State<ShowImagePage> {
 
   var _messageRepo = GetIt.I.get<MessageRepo>();
   var _roomRepo = GetIt.I.get<RoomRepo>();
+  var _routingServices = GetIt.I.get<RoutingService>();
 
   @override
   Widget build(BuildContext context) {
-    AppLocalization appLocalization = AppLocalization.of(context);
+    I18N i18n = I18N.of(context);
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.blue,
@@ -38,16 +40,16 @@ class _ImageWidget extends State<ShowImagePage> {
           ),
           onPressed: () {
             _messageRepo.sendMultipleFilesMessages(
-                widget.contactUid, [widget.imageFile.path],
+                widget.roomUid, [widget.imageFile.path],
                 caption: _controller.value.text);
-            ExtendedNavigator.of(context).pop();
-          },
+           _routingServices.pop();
+           },
           splashColor: Colors.blue,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         appBar: AppBar(
           title: FutureBuilder<String>(
-            future: _roomRepo.getName(widget.contactUid),
+            future: _roomRepo.getName(widget.roomUid),
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
               if (snapshot.data != null) {
                 return Text(
@@ -62,6 +64,7 @@ class _ImageWidget extends State<ShowImagePage> {
               }
             },
           ),
+          leading: _routingServices.backButtonLeading(),
           backgroundColor: Colors.blue,
         ),
         backgroundColor: Theme.of(context).backgroundColor,
@@ -84,7 +87,7 @@ class _ImageWidget extends State<ShowImagePage> {
                     controller: _controller,
                     decoration: InputDecoration(
                         hintText:
-                            appLocalization.getTraslateValue("typeSomeThing")),
+                            i18n.get("typeSomeThing")),
                   ),
                 ),
                 SizedBox(height: 40,)

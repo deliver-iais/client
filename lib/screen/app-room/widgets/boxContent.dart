@@ -58,11 +58,11 @@ class _BoxContentState extends State<BoxContent> {
     last = c;
   }
 
-  AppLocalization _appLocalization;
+  I18N _i18n;
 
   @override
   Widget build(BuildContext context) {
-    _appLocalization = AppLocalization.of(context);
+    _i18n = I18N.of(context);
     return Column(
       crossAxisAlignment: last,
       children: [
@@ -130,7 +130,7 @@ class _BoxContentState extends State<BoxContent> {
           if (snapshot.hasData && snapshot.data != null) {
             return GestureDetector(
               child: Text(
-                  "${_appLocalization.getTraslateValue("Forwarded_From")} ${snapshot.data}",
+                  "${_i18n.get("Forwarded_From")} ${snapshot.data}",
                   style: TextStyle(
                       color: ExtraTheme.of(context).messageDetails,
                       fontSize: 13)),
@@ -140,7 +140,7 @@ class _BoxContentState extends State<BoxContent> {
             );
           } else {
             return Text(
-                "${_appLocalization.getTraslateValue("Forwarded_From")} Unknown",
+                "${_i18n.get("Forwarded_From")} Unknown",
                 style: TextStyle(
                     color: ExtraTheme.of(context).messageDetails,
                     fontSize: 13));

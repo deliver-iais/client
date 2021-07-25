@@ -166,12 +166,12 @@ class MessageRepo {
     rooms.forEach((r) async {
       var category = r.lastMessage.to.asUid().category;
       if (r.lastMessage.id == null) return;
-      if (_authRepo.isCurrentUser(r.lastMessage.from) &&
+      if (!_authRepo.isCurrentUser(r.lastMessage.from) &&
           (category == Categories.GROUP || category == Categories.USER)) {
         var othersSeen = await _seenDao.getOthersSeen(r.lastMessage.to);
         if (othersSeen == null || othersSeen.messageId < r.lastMessage.id) {
-          var rm = await _queryServiceClient.getUserRoomMeta(
-              GetUserRoomMetaReq()..roomUid = r.lastMessage.to.asUid());
+          var rm = await _queryServiceClient
+              .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = r.uid.asUid());
           fetchLastSeen(rm.roomMeta);
         }
       }
@@ -331,7 +331,6 @@ class MessageRepo {
 
     await _fileRepo.cloneFileInLocalDirectory(
         file, packetId, path.split('.').last);
-
 
     var pm = _createPendingMessage(msg, SendingStatus.SENDING_FILE);
 
@@ -630,9 +629,12 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  void sendPrivateMessageAccept(Uid to, PrivateDataType privateDataType,String token) async {
+  void sendPrivateMessageAccept(
+      Uid to, PrivateDataType privateDataType, String token) async {
     SharePrivateDataAcceptance sharePrivateDataAcceptance =
-        SharePrivateDataAcceptance()..data = privateDataType..token = token;
+        SharePrivateDataAcceptance()
+          ..data = privateDataType
+          ..token = token;
     String json = sharePrivateDataAcceptance.writeToJson();
 
     Message msg = _createMessage(to)

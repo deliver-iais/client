@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
+import 'package:ext_storage/ext_storage.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'package:deliver_flutter/services/check_permissions_service.dart';
@@ -85,6 +86,15 @@ class FileService {
     final file = await localFile(uuid, filename.split('.').last);
     file.writeAsBytesSync(res.data);
     return file;
+  }
+
+  saveFileInDownloadFolder(File file, String name, String directory) async {
+    var downloadDir =
+        await ExtStorage.getExternalStoragePublicDirectory(directory);
+    File f = File('$downloadDir/$name');
+    try {
+      await f.writeAsBytes(file.readAsBytesSync());
+    } catch (e) {}
   }
 
   Future<File> _getFileThumbnail(

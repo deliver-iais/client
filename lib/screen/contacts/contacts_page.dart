@@ -54,14 +54,14 @@ class ContactsPage extends StatelessWidget {
               content: Container(
                 width: 200,
                 child: Text(
-                    AppLocalization.of(context)
-                        .getTraslateValue("send_contacts_message"),
+                    I18N.of(context)
+                        .get("send_contacts_message"),
                     style: TextStyle(color: Colors.black, fontSize: 18)),
               ),
               actions: <Widget>[
                 GestureDetector(
                   child: Text(
-                    AppLocalization.of(context).getTraslateValue("continue"),
+                    I18N.of(context).get("continue"),
                     style: TextStyle(fontSize: 16, color: Colors.blue),
                   ),
                   onTap: () {
@@ -87,7 +87,7 @@ class ContactsPage extends StatelessWidget {
             backgroundColor: ExtraTheme.of(context).boxBackground,
             titleSpacing: 8,
             title: Text(
-              AppLocalization.of(context).getTraslateValue("contacts"),
+              I18N.of(context).get("contacts"),
               style: Theme.of(context).textTheme.headline2,
             ),
             leading: _routingService.backButtonLeading(),
@@ -160,8 +160,8 @@ class ContactsPage extends StatelessWidget {
                           onPressed: () {
                             _routingService.openCreateNewContactPage();
                           },
-                          label: Text(AppLocalization.of(context)
-                              .getTraslateValue("add_new_contact")),
+                          label: Text(I18N.of(context)
+                              .get("add_new_contact")),
                         ),
                       ),
                     ],
