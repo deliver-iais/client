@@ -130,6 +130,7 @@ dependencies:
 
   audioplayer: 0.8.1
   audioplayers: 0.19.0
+  dart_vlc: 0.0.9
 
   video_player: 1.0.1
   open_file: 3.2.1 # Open file in OS
@@ -210,13 +211,11 @@ flutter:
     - assets/ic_launcher/web_hi_res_512.png
     - assets/icons/stickerIcon.png
     - assets/icons/emojiIcon.png
-    - assets/audios/r.mp3
-    - assets/audios/ack.mp3
+    - assets/audios/sound_in.wav
+    - assets/audios/sound_out.wav
     - lib/lang/fa.json
     - lib/lang/en.json
-    - assets/icons/mention.png
-    - assets/icons/channel_icon.png
-    - assets/bac/a.png
+    - assets/backgrounds/a.png
     - assets/animations/done.json
     - assets/animations/loading.json
     - assets/animations/error.json

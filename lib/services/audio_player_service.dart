@@ -14,7 +14,6 @@ class AudioPlayerService {
   String audioName;
   String audioPath;
 
-
   BehaviorSubject<AudioPlayerState> currentState = BehaviorSubject.seeded(AudioPlayerState.STOPPED);
 
   BehaviorSubject<bool> isOn = BehaviorSubject.seeded(false);

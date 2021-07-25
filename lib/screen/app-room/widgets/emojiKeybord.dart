@@ -54,8 +54,6 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                                   : Colors.transparent,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8.0, vertical: 4.0),
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 4.0),
                               child: IconButton(
                                 icon: Text("🙂"),
                                 onPressed: () {
@@ -78,8 +76,6 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                                   : Colors.transparent,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8.0, vertical: 4.0),
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 4.0),
                               child: IconButton(
                                 icon: Text("🖐"),
                                 onPressed: () {
@@ -105,8 +101,6 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                                   : Colors.transparent,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8.0, vertical: 4.0),
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 4.0),
                               child: IconButton(
                                 icon: Text("🐸"),
                                 onPressed: () {
@@ -129,8 +123,6 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                                   : Colors.transparent,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8.0, vertical: 4.0),
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 4.0),
                               child: IconButton(
                                 icon: Text("🏁"),
                                 onPressed: () {
@@ -155,8 +147,6 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                                   : Colors.transparent,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8.0, vertical: 4.0),
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 4.0),
                               child: IconButton(
                                 icon: Text("💎"),
                                 onPressed: () {
@@ -178,8 +168,6 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                                   : Colors.transparent,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8.0, vertical: 4.0),
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 4.0),
                               child: IconButton(
                                 icon: Text("🚑"),
                                 onPressed: () {
@@ -200,8 +188,6 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                                   : Colors.transparent,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8.0, vertical: 4.0),
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 4.0),
                               child: IconButton(
                                 icon: Text("✅"),
                                 onPressed: () {
@@ -223,8 +209,6 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                                   : Colors.transparent,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8.0, vertical: 4.0),
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 4.0),
                               child: IconButton(
                                 icon: Text("🍎"),
                                 onPressed: () {

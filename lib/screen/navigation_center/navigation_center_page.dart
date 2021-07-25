@@ -11,6 +11,7 @@ import 'package:deliver_flutter/screen/app-chats/widgets/chatsPage.dart';
 import 'package:deliver_flutter/screen/contacts/contacts_page.dart';
 import 'package:deliver_flutter/services/audioPlayerAppBar.dart';
 import 'package:deliver_flutter/screen/navigation_center/widgets/search_box.dart';
+import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
 import 'package:deliver_flutter/shared/methods/helper.dart';
@@ -44,10 +45,11 @@ class NavigationCenter extends StatefulWidget {
 class _NavigationCenterState extends State<NavigationCenter> {
   final void Function(String) tapOnSelectChat;
 
-  var rootingServices = GetIt.I.get<RoutingService>();
-  var contactRepo = GetIt.I.get<ContactRepo>();
-  var _messageRepo = GetIt.I.get<MessageRepo>();
-  final ScrollController scrollController = ScrollController();
+  final _rootingServices = GetIt.I.get<RoutingService>();
+  final _contactRepo = GetIt.I.get<ContactRepo>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _audioService = GetIt.I.get<AudioService>();
+  final ScrollController _scrollController = ScrollController();
 
   final Function tapOnCurrentUserAvatar;
 
@@ -83,7 +85,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
           padding: const EdgeInsets.symmetric(horizontal: 0.0),
           child: GestureDetector(
             onTap: () {
-              scrollController.animateTo(
+              _scrollController.animateTo(
                 0.0,
                 curve: Curves.easeOut,
                 duration: const Duration(milliseconds: 300),
@@ -130,8 +132,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                                   Theme.of(context).textTheme.headline2.color));
                     } else if (snapshot.data ==
                         TitleStatusConditions.Connecting) {
-                      return Text(
-                          _i18n.get("connecting"),
+                      return Text(_i18n.get("connecting"),
                           style: TextStyle(
                               fontSize: 20,
                               color:
@@ -207,16 +208,19 @@ class _NavigationCenterState extends State<NavigationCenter> {
           AudioPlayerAppBar(),
           _searchMode
               ? searchResult(_i18n)
-              : Expanded(child: ChatsPage(scrollController: scrollController)),
+              : Expanded(child: ChatsPage(scrollController: _scrollController)),
         ],
       ),
     );
   }
 
-  Text buildText(BuildContext context) {
-    return Text(
-      I18N.of(context).get("chats"),
-      style: Theme.of(context).textTheme.headline2,
+  Widget buildText(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _audioService.playSoundOut(),
+      child: Text(
+        I18N.of(context).get("chats"),
+        style: Theme.of(context).textTheme.headline2,
+      ),
     );
   }
 
@@ -267,12 +271,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Image.asset(
-                          "assets/icons/channel_icon.png",
-                          width: 25,
-                          height: 25,
-                          color: ExtraTheme.of(context).popupMenuButtonDetails,
-                        ),
+                        Icon(Icons.rss_feed_rounded,
+                            color:
+                                ExtraTheme.of(context).popupMenuButtonDetails),
                         SizedBox(
                           width: 15,
                         ),
@@ -312,7 +313,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
         child: Column(
           children: [
             FutureBuilder<List<Uid>>(
-                future: contactRepo.searchUser(query),
+                future: _contactRepo.searchUser(query),
                 builder: (BuildContext c, AsyncSnapshot<List<Uid>> snaps) {
                   if (snaps.data != null && snaps.data.length > 0) {
                     return Container(
@@ -320,8 +321,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                             child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          Text(_i18n
-                              .get("global_search")),
+                          Text(_i18n.get("global_search")),
                           //    searchResultWidget(snaps, c),
                           SizedBox(
                             height: 10,
@@ -387,7 +387,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
         return GestureDetector(
           onTap: () {
             _roomRepo.insertRoom(snaps.data[index].asString());
-            rootingServices.openRoom(snaps.data[index].asString());
+            _rootingServices.openRoom(snaps.data[index].asString());
           },
           child: _contactResultWidget(uid: snaps.data[index], context: c),
         );

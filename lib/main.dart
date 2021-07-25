@@ -42,6 +42,7 @@ import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/repository/stickerRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart' as R;
 import 'package:deliver_flutter/services/audio_player_service.dart';
+import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
@@ -82,6 +83,7 @@ import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
 import 'box/media.dart';
 import 'repository/mucRepo.dart';
+import 'package:dart_vlc/dart_vlc.dart';
 
 Future<void> setupDI() async {
   // Setup Logger
@@ -187,6 +189,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<CoreServices>(CoreServices());
   GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
   GetIt.I.registerSingleton<AudioPlayerService>(AudioPlayerService());
+  GetIt.I.registerSingleton<AudioService>(AudioService());
   GetIt.I.registerSingleton<VideoPlayerService>(VideoPlayerService());
   GetIt.I.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
   GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
@@ -210,6 +213,10 @@ void main() async {
     } catch (e) {
       Logger().e(e);
     }
+  }
+
+  if (isLinux() || isWindows()) {
+    DartVLC.initialize();
   }
 
   // TODO add IOS and MacOS too

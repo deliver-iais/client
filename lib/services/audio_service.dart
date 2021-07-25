@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:dart_vlc/dart_vlc.dart';
+import 'package:deliver_flutter/theme/constants.dart';
 import 'package:rxdart/rxdart.dart';
 
 enum AudioPlayerState {
@@ -21,57 +24,205 @@ enum AudioPlayerState {
   COMPLETED,
 }
 
+abstract class AudioPlayerInterface {
+  Stream<AudioPlayerState> get audioCurrentState;
+
+  Stream<Duration> get audioCurrentPosition;
+
+  play(String path);
+
+  void seek(Duration duration) {}
+
+  void pause() {}
+
+  void stop() {}
+
+  void playSoundOut();
+
+  void playSoundIn();
+}
+
+class AudioPlayerOne implements AudioPlayerInterface {
+  AudioPlayer _audioPlayer = AudioPlayer();
+
+  AudioCache _fastAudioPlayer = AudioCache(prefix: 'assets/audios/');
+
+  @override
+  Stream<Duration> get audioCurrentPosition =>
+      _audioPlayer.onAudioPositionChanged;
+
+  @override
+  Stream<AudioPlayerState> get audioCurrentState =>
+      _audioPlayer.onPlayerStateChanged.map((event) {
+        switch (event) {
+          case PlayerState.STOPPED:
+            return AudioPlayerState.STOPPED;
+            break;
+          case PlayerState.PLAYING:
+            return AudioPlayerState.PLAYING;
+            break;
+          case PlayerState.PAUSED:
+            return AudioPlayerState.PAUSED;
+            break;
+          case PlayerState.COMPLETED:
+            return AudioPlayerState.COMPLETED;
+            break;
+          default:
+            return AudioPlayerState.STOPPED;
+        }
+      });
+
+  @override
+  play(String path) {
+    _audioPlayer.play(path, isLocal: false);
+  }
+
+  @override
+  void seek(Duration duration) {
+    _audioPlayer.seek(duration);
+  }
+
+  @override
+  void pause() {
+    _audioPlayer.pause();
+  }
+
+  @override
+  void stop() {
+    _audioPlayer.stop();
+  }
+
+  @override
+  void playSoundOut() {
+    _fastAudioPlayer.play("sound_out.wav", mode: PlayerMode.LOW_LATENCY);
+  }
+
+  @override
+  void playSoundIn() {
+    _fastAudioPlayer.play("sound_in.wav", mode: PlayerMode.LOW_LATENCY);
+  }
+}
+
+class AudioPlayerTwo implements AudioPlayerInterface {
+  Player _audioPlayer = Player(id: 0);
+  Player _fastAudioPlayerOut = Player(id: 1);
+  Player _fastAudioPlayerIn = Player(id: 1);
+
+  @override
+  Stream<Duration> get audioCurrentPosition =>
+      _audioPlayer.positionStream.map((event) => event.position);
+
+  @override
+  Stream<AudioPlayerState> get audioCurrentState =>
+      _audioPlayer.playbackStream.map((event) {
+        if (event.isCompleted) {
+          return AudioPlayerState.COMPLETED;
+        }
+        if (event.isPlaying) {
+          return AudioPlayerState.PLAYING;
+        }
+        return AudioPlayerState.PAUSED;
+      });
+
+  AudioPlayerTwo() {
+    _fastAudioPlayerOut.open(Media.asset("assets/audios/sound_out.wav"));
+    _fastAudioPlayerIn.open(Media.asset("assets/audios/sound_in.wav"));
+  }
+
+  @override
+  play(String path) {
+    _audioPlayer.open(Media.file(File(path)));
+    _audioPlayer.play();
+  }
+
+  @override
+  void seek(Duration duration) {
+    _audioPlayer.seek(duration);
+  }
+
+  @override
+  void pause() {
+    _audioPlayer.pause();
+  }
+
+  @override
+  void stop() {
+    _audioPlayer.stop();
+  }
+
+  @override
+  void playSoundOut() {
+    _fastAudioPlayerOut.play();
+  }
+
+  @override
+  void playSoundIn() {
+    _fastAudioPlayerIn.play();
+  }
+}
+
 class AudioService {
-  String _audioUuid;
+  // ignore: close_sinks
+  BehaviorSubject<String> _audioUuid = BehaviorSubject.seeded("");
+
   String _audioName;
   String _audioPath;
 
   // ignore: close_sinks
-  BehaviorSubject<bool> _isOn = BehaviorSubject.seeded(false);
+  BehaviorSubject<bool> _audioCenterIsOn = BehaviorSubject.seeded(false);
 
-  // ignore: close_sinks
-  BehaviorSubject<AudioPlayerState> _currentState =
-      BehaviorSubject.seeded(AudioPlayerState.STOPPED);
-
-  // ignore: close_sinks
-  BehaviorSubject<Duration> _audioCurrentPosition =
-      BehaviorSubject.seeded(Duration(seconds: 0));
-
-  String get audioUuid => _audioUuid;
+  AudioPlayerInterface _player;
 
   String get audioName => _audioName;
 
   String get audioPath => _audioPath;
 
-  Stream<bool> get isOn => _isOn.stream;
+  Stream<String> get audioUuid => _audioUuid.stream;
 
-  Stream<AudioPlayerState> get currentState => _currentState.stream;
+  Stream<bool> get audioCenterIsOn => _audioCenterIsOn.stream;
 
-  Stream<Duration> get audioCurrentPosition => _audioCurrentPosition.stream;
+  Stream<AudioPlayerState> audioCurrentState() => _player?.audioCurrentState;
 
-  // AudioPlayer _audioPlayer = AudioPlayer();
+  Stream<Duration> audioCurrentPosition() => _player?.audioCurrentPosition;
 
-  AudioCache _fastAudioPlayer = AudioCache(prefix: 'assets/audios/');
+  AudioService() {
+    if (isLinux() || isWindows()) {
+      _player = AudioPlayerTwo();
+    } else {
+      _player = AudioPlayerOne();
+    }
+  }
 
   void play(String path, String uuid, String name) async {
+    _audioUuid.add(uuid);
     _audioPath = path;
-    _audioUuid = uuid;
     _audioName = name;
-
-
+    _audioCenterIsOn.add(false);
+    _player.play(path);
   }
 
-  void seekToSecond(int second) {}
-
-  void pause() {}
-
-  void close() {}
-
-  void playAckSound() {
-    _fastAudioPlayer.play("ack.mp3", mode: PlayerMode.LOW_LATENCY);
+  void seek(Duration duration) {
+    _player.seek(duration);
   }
 
-  void playReceivedSound() {
-    _fastAudioPlayer.play("r.mp3", mode: PlayerMode.LOW_LATENCY);
+  void pause() {
+    _player.pause();
+  }
+
+  void stop() {
+    _player.stop();
+  }
+
+  void close() {
+    _player.pause();
+    _audioCenterIsOn.add(false);
+  }
+
+  void playSoundOut() {
+    _player.playSoundOut();
+  }
+
+  void playSoundIn() {
+    _player.playSoundIn();
   }
 }
