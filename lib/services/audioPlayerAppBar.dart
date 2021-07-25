@@ -3,17 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:marquee/marquee.dart';
 
-import 'audio_player_service.dart';
-
 class AudioPlayerAppBar extends StatelessWidget {
-  final audioPlayerService = GetIt.I.get<AudioPlayerService>();
+  final audioPlayerService = GetIt.I.get<AudioService>();
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Theme.of(context).accentColor.withAlpha(50),
       child: StreamBuilder(
-          stream: audioPlayerService.isOn,
+          stream: audioPlayerService.audioCenterIsOn,
           builder: (c, s) {
             if (s.hasData && s.data) {
               return Row(
@@ -21,21 +19,21 @@ class AudioPlayerAppBar extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   StreamBuilder<AudioPlayerState>(
-                      stream: audioPlayerService.currentState.stream,
+                      stream: audioPlayerService.audioCurrentState(),
                       builder: (c, cs) {
                         if (cs.hasData && cs.data == AudioPlayerState.PLAYING) {
                           return IconButton(
                               onPressed: () {
-                                audioPlayerService
-                                    .onPause(audioPlayerService.audioUuid);
+                                audioPlayerService.pause();
                               },
                               icon: Icon(Icons.pause));
                         } else
                           return IconButton(
-                              onPressed: () {
-                                audioPlayerService.onPlay(
+                              onPressed: () async {
+                                audioPlayerService.play(
                                     audioPlayerService.audioPath,
-                                    audioPlayerService.audioUuid,
+                                    // TODO ????? update service for better api
+                                    await audioPlayerService.audioUuid.single,
                                     audioPlayerService.audioName);
                               },
                               icon: Icon(Icons.play_arrow));
@@ -64,7 +62,7 @@ class AudioPlayerAppBar extends StatelessWidget {
                   ),
                   IconButton(
                       onPressed: () {
-                        audioPlayerService.onStop(audioPlayerService.audioUuid);
+                        audioPlayerService.stop();
                       },
                       icon: Icon(Icons.close))
                 ],

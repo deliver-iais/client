@@ -1,4 +1,3 @@
-import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
@@ -16,23 +15,23 @@ class TimeProgressIndicator extends StatefulWidget {
 }
 
 class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
-  AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
+  final audioPlayerService = GetIt.I.get<AudioService>();
   Duration currentPos;
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<AudioPlayerState>(
-        stream: audioPlayerService.audioPlayerState(widget.audioUuid),
+        stream: audioPlayerService.audioCurrentState(),
         builder: (c, state) {
           if (state.hasData &&
               state.data != null &&
               state.data == AudioPlayerState.PLAYING) {
             return StreamBuilder(
-                stream: audioPlayerService.currentAudioId.stream,
+                stream: audioPlayerService.audioUuid,
                 builder: (c, uuid) {
                   if (uuid.hasData && uuid.data.toString().contains(widget.audioUuid)) {
                     return StreamBuilder<Duration>(
-                        stream: audioPlayerService.audioCurrentPosition.stream,
+                        stream: audioPlayerService.audioCurrentPosition(),
                         builder: (context, snapshot2) {
                           currentPos = audioPlayerService.audioName == null
                               ? Duration.zero

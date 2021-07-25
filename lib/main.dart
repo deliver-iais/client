@@ -41,7 +41,6 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_flutter/repository/stickerRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart' as R;
-import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/core_services.dart';
@@ -188,7 +187,6 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<RoomRepo>(RoomRepo());
   GetIt.I.registerSingleton<CoreServices>(CoreServices());
   GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
-  GetIt.I.registerSingleton<AudioPlayerService>(AudioPlayerService());
   GetIt.I.registerSingleton<AudioService>(AudioService());
   GetIt.I.registerSingleton<VideoPlayerService>(VideoPlayerService());
   GetIt.I.registerSingleton<MediaQueryRepo>(MediaQueryRepo());

@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/services/audio_player_service.dart';
+import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -14,7 +14,7 @@ class AudioProgressIndicator extends StatefulWidget {
 }
 
 class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
-  AudioPlayerService audioPlayerService = GetIt.I.get<AudioPlayerService>();
+  final audioPlayerService = GetIt.I.get<AudioService>();
   Duration currentPos;
   Duration dur;
 
@@ -25,25 +25,25 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
 
   @override
   Widget build(BuildContext context) {
-    return
-       StreamBuilder<Duration>(
-          stream: audioPlayerService.audioCurrentPosition,
-          builder: (context, snapshot1) {
-            return StreamBuilder<Duration>(
-                stream: audioPlayerService.audioCurrentPosition,
-                builder: (context, snapshot2) {
-                  currentPos = snapshot2.data ?? currentPos ?? Duration.zero;
-                      return Slider(
-                        value: currentPos.inSeconds.toDouble(),
-                        min: 0.0,
-                        max: widget.duration,
-                        onChanged: (double value) {
-                          setState(() {
-                            audioPlayerService.seekToSecond(value.toInt());
-                            value = value;
-                          });
-                        });
-                });
-          });
+    return StreamBuilder<Duration>(
+        stream: audioPlayerService.audioCurrentPosition(),
+        builder: (context, snapshot1) {
+          return StreamBuilder<Duration>(
+              stream: audioPlayerService.audioCurrentPosition(),
+              builder: (context, snapshot2) {
+                currentPos = snapshot2.data ?? currentPos ?? Duration.zero;
+                return Slider(
+                    value: currentPos.inSeconds.toDouble(),
+                    min: 0.0,
+                    max: widget.duration,
+                    onChanged: (double value) {
+                      setState(() {
+                        audioPlayerService
+                            .seek(Duration(seconds: value.toInt()));
+                        value = value;
+                      });
+                    });
+              });
+        });
   }
 }

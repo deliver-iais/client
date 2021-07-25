@@ -1,7 +1,6 @@
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/audio_progress_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/audio_message/time_progress_indicator.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/size_formater.dart';
-import 'package:deliver_flutter/services/audio_player_service.dart';
 import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/shared/methods/find_file_type.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -12,26 +11,26 @@ import 'package:get_it/get_it.dart';
 class AudioPlayProgress extends StatelessWidget {
   final File audio;
   final String audioUuid;
-  final _audioPlayerService = GetIt.I.get<AudioPlayerService>();
+  final _audioPlayerService = GetIt.I.get<AudioService>();
 
   AudioPlayProgress({Key key, this.audioUuid, this.audio}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<bool>(
-        stream: _audioPlayerService.isOn,
+        stream: _audioPlayerService.audioCenterIsOn,
         builder: (context, snapshot) {
           return Stack(
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(top: 3.0),
                 child: StreamBuilder<AudioPlayerState>(
-                    stream: _audioPlayerService.audioPlayerState(audioUuid),
+                    stream: _audioPlayerService.audioCurrentState(),
                     builder: (c, state) {
                       if (state.data != null &&
                           state.data == AudioPlayerState.PLAYING) {
                         return StreamBuilder(
-                            stream: _audioPlayerService.currentAudioId.stream,
+                            stream: _audioPlayerService.audioUuid,
                             builder: (c, uuid) {
                               if (uuid.hasData && uuid.data.toString().isNotEmpty && uuid.data.toString().contains(audioUuid))
                                 return AudioProgressIndicator(
