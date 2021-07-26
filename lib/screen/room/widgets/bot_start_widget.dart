@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/Localization/i18n.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:android_intent/android_intent.dart';
 
-import 'package:deliver_flutter/Localization/i18n.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/room/widgets/share_box/file.dart';
 import 'package:deliver_flutter/screen/room/widgets/share_box/gallery.dart';

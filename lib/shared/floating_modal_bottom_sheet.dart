@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:deliver_flutter/Localization/i18n.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:qr_flutter/qr_flutter.dart';

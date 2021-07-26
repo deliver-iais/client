@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/Localization/i18n.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/models/account.dart';
 
 import 'package:deliver_flutter/repository/accountRepo.dart';

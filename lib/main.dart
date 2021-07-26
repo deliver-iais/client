@@ -1,5 +1,5 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/Localization/i18n.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/box/avatar.dart';
 import 'package:deliver_flutter/box/bot_info.dart';
 import 'package:deliver_flutter/box/contact.dart';

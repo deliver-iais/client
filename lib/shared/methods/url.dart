@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/Localization/i18n.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/box/dao/muc_dao.dart';
 import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
