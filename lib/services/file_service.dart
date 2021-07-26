@@ -5,7 +5,7 @@ import 'package:ext_storage/ext_storage.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'package:deliver_flutter/services/check_permissions_service.dart';
-import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
+import 'package:deliver_flutter/shared/methods/enum.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';

@@ -8,6 +8,9 @@ import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
+import 'package:deliver_flutter/shared/methods/name.dart';
+import 'package:deliver_flutter/shared/methods/phone.dart';
+import 'package:deliver_flutter/shared/methods/url.dart';
 
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -25,8 +28,6 @@ import 'package:logger/logger.dart';
 import 'package:lottie/lottie.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:fixnum/fixnum.dart';
-
-import 'functions.dart';
 
 class ScanQrCode extends StatefulWidget {
   @override

@@ -9,7 +9,7 @@ import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver_flutter/shared/methods/dateTimeFormat.dart';
+import 'package:deliver_flutter/shared/methods/time.dart';
 
 class DevicesPage extends StatefulWidget {
   DevicesPage({Key key}) : super(key: key);
@@ -89,8 +89,7 @@ class _DevicesPageState extends State<DevicesPage> {
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        _i18n
-                            .get("terminate_all_other_sessions"),
+                        _i18n.get("terminate_all_other_sessions"),
                         style: TextStyle(color: Colors.red, fontSize: 15),
                       ),
                     ),
@@ -181,9 +180,7 @@ class _DevicesPageState extends State<DevicesPage> {
                     Text("Created On: "),
                     Text(session.createdOn.toInt() == 0
                         ? "No Time Provided"
-                        : DateTime.fromMillisecondsSinceEpoch(
-                                session.createdOn.toInt())
-                            .dateTimeFormat()),
+                        : dateTimeFormat(date(session.createdOn.toInt()))),
                   ],
                 ),
               )
@@ -217,8 +214,7 @@ class _DevicesPageState extends State<DevicesPage> {
                 children: [
                   Text(
                       sessions.length > 1
-                          ? _i18n
-                              .get("terminate_all_other_sessions")
+                          ? _i18n.get("terminate_all_other_sessions")
                           : _i18n.get("delete_session"),
                       style: TextStyle(color: Colors.black, fontSize: 18)),
                 ],

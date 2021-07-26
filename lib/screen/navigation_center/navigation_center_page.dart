@@ -13,7 +13,6 @@ import 'package:deliver_flutter/screen/navigation_center/widgets/search_box.dart
 import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/circleAvatar.dart';
-import 'package:deliver_flutter/shared/methods/helper.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 

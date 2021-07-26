@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:deliver_flutter/box/dao/file_dao.dart';
 import 'package:deliver_flutter/box/file_info.dart';
 import 'package:deliver_flutter/services/file_service.dart';
-import 'package:deliver_flutter/shared/methods/enum_helper_methods.dart';
+import 'package:deliver_flutter/shared/methods/enum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
     as FileProto;
 

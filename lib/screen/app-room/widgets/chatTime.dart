@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/shared/methods/dateTimeFormat.dart';
+import 'package:deliver_flutter/shared/methods/time.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -26,14 +26,13 @@ class ChatTime extends StatelessWidget {
             if (currentDay == currentMessageTime.day &&
                 currentMonth == currentMessageTime.month) {
               outT = ' Today ';
-            } else if(currentDay - currentMessageTime.day<2 && currentMonth ==currentMessageTime.month
-            ){
+            } else if (currentDay - currentMessageTime.day < 2 &&
+                currentMonth == currentMessageTime.month) {
               outT = ' Yesterday ';
-            }
-              else
-              outT = currentMessageTime.dateTimeFormat();
-            return  Text(
-               outT ,
+            } else
+              outT = dateTimeFormat(currentMessageTime);
+            return Text(
+              outT,
               style: TextStyle(
                 color: ExtraTheme.of(context).textDetails,
                 fontSize: 13,

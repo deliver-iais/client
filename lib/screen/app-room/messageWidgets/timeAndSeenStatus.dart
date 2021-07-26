@@ -1,6 +1,6 @@
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
-import 'package:deliver_flutter/shared/functions.dart';
+import 'package:deliver_flutter/shared/methods/time.dart';
 import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:flutter/material.dart';
 
