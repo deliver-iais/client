@@ -15,7 +15,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-
+// TODO Move to profile folder, it is not shared widget
 class ProfileAvatar extends StatefulWidget {
   @required
   final Uid roomUid;

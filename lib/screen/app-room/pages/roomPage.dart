@@ -55,7 +55,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
+import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 import 'package:share/share.dart';
 import 'package:sorted_list/sorted_list.dart';
 import 'package:vibration/vibration.dart';

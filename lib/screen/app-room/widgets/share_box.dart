@@ -161,7 +161,7 @@ class _ShareBoxState extends State<ShareBox> {
                           Stack(
                             children: <Widget>[
                               Container(
-                                child: CircleButton(() {
+                                child: circleButton(() {
                                   if (widget.replyMessageId != null) {
                                     messageRepo.sendMultipleFilesMessages(
                                         widget.currentRoomId,
@@ -238,7 +238,7 @@ class _ShareBoxState extends State<ShareBox> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: <Widget>[
-                              CircleButton(() async {
+                              circleButton(() async {
                                 var res = await ImageItem.getImages();
                                 if(res == null  || res.length<1){
                                   FilePickerResult result =
@@ -262,7 +262,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   i18n.get("gallery"),
                                   40,
                                   context: context),
-                              CircleButton(() async {
+                              circleButton(() async {
                                 FilePickerResult result =
                                     await FilePicker.platform.pickFiles(
                                         allowMultiple: true,
@@ -288,7 +288,7 @@ class _ShareBoxState extends State<ShareBox> {
                               }, Icons.file_upload,
                                   i18n.get("file"), 40,
                                   context: context),
-                              CircleButton(() async {
+                              circleButton(() async {
                                 if (await _checkPermissionsService
                                         .checkLocationPermission() ||
                                     isIOS()) {
@@ -319,7 +319,7 @@ class _ShareBoxState extends State<ShareBox> {
                                   i18n.get("location"),
                                   40,
                                   context: context),
-                              CircleButton(() async {
+                              circleButton(() async {
                                 FilePickerResult result =
                                     await FilePicker.platform.pickFiles(
                                         allowMultiple: true,
@@ -352,7 +352,7 @@ class _ShareBoxState extends State<ShareBox> {
   isSelected() => finalSelected.values.length > 0;
 }
 
-Widget CircleButton(Function onTap, IconData icon, String text, double size,
+Widget circleButton(Function onTap, IconData icon, String text, double size,
     {BuildContext context}) {
   return Column(
     mainAxisAlignment: MainAxisAlignment.center,

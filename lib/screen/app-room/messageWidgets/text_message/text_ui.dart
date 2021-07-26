@@ -8,7 +8,7 @@ import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
+import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 

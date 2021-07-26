@@ -6,7 +6,7 @@ import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
+import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
 
 class SharePrivateDataAcceptMessageWidget extends StatelessWidget {

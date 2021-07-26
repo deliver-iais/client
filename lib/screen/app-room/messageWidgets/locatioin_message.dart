@@ -7,7 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
+import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
 class LocationMessageWidget extends StatelessWidget {

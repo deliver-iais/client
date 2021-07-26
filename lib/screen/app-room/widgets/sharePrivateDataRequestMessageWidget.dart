@@ -4,7 +4,7 @@ import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
+import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -23,7 +23,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _sharePrivateDataRequest = message.json.toSharePrivateDataReauest();
+    _sharePrivateDataRequest = message.json.toSharePrivateDataRequest();
     _i18n = I18N.of(context);
     return Stack(
       children: [

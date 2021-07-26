@@ -9,7 +9,7 @@ import 'package:deliver_flutter/shared/seenStatus.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
+import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
 

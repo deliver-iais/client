@@ -44,20 +44,23 @@ extension JsonMapper on String {
     return PersistentEvent.fromJson(this);
   }
 
-  FormResult toFormResult(){
+  FormResult toFormResult() {
     return FormResult.fromJson(this);
   }
 
-  Buttons toButtons (){
+  Buttons toButtons() {
     return Buttons.fromJson(this);
   }
-  ShareUid toShareUid(){
+
+  ShareUid toShareUid() {
     return ShareUid.fromJson(this);
   }
-  SharePrivateDataAcceptance toSharePrivateDataAcceptance(){
+
+  SharePrivateDataAcceptance toSharePrivateDataAcceptance() {
     return SharePrivateDataAcceptance.fromJson(this);
   }
-  SharePrivateDataRequest toSharePrivateDataReauest(){
+
+  SharePrivateDataRequest toSharePrivateDataRequest() {
     return SharePrivateDataRequest.fromJson(this);
   }
 }

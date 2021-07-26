@@ -95,14 +95,14 @@ class _TitleStatusState extends State<TitleStatus> {
       I18N i18n, TitleStatusConditions statusConditions) {
     switch (statusConditions) {
       case TitleStatusConditions.Disconnected:
-        return i18n.get("disconnected").inCaps;
+        return i18n.get("disconnected").capitalCase;
       case TitleStatusConditions.Connecting:
-        return i18n.get("connecting").inCaps;
+        return i18n.get("connecting").capitalCase;
       case TitleStatusConditions.Updating:
-        return i18n.get("updating").inCaps;
+        return i18n.get("updating").capitalCase;
       case TitleStatusConditions.Normal:
         if (widget.currentRoomUid.category == Categories.BOT)
-          return i18n.get("bot").inCaps;
+          return i18n.get("bot").capitalCase;
         return i18n.get("connected");
     }
   }

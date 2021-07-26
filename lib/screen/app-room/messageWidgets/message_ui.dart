@@ -7,7 +7,7 @@ import 'package:deliver_flutter/screen/app-room/messageWidgets/text_message/text
 import 'package:deliver_flutter/screen/app-room/messageWidgets/video_message/video_message.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_flutter/shared/extensions/jsonExtension.dart';
+import 'package:deliver_flutter/shared/extensions/json_extension.dart';
 
 class FileMessageUi extends StatefulWidget {
   final Message message;

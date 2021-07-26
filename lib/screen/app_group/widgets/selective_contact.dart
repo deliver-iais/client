@@ -1,5 +1,5 @@
 import 'package:deliver_flutter/box/contact.dart';
-import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
+import 'package:deliver_flutter/shared/widgets/contacts_widget.dart';
 import 'package:flutter/material.dart';
 
 class SelectiveContact extends StatefulWidget {

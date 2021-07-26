@@ -4,7 +4,7 @@ import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/Widget/contactsWidget.dart';
+import 'package:deliver_flutter/shared/widgets/contacts_widget.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver_flutter/shared/fluid_container.dart';
