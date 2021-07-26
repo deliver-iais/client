@@ -2,17 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 
 class I18N {
-  final Locale locale;
-
-  I18N(this.locale);
-
   Map<String, String> _values;
 
-  Future load() async {
+  Future load(Locale locale) async {
     String jsonValues =
-        await rootBundle.loadString('lib/lang/${locale.languageCode}.json');
+    await rootBundle.loadString('lib/lang/${locale.languageCode}.json');
 
     Map<String, dynamic> mappedJson = json.decode(jsonValues);
 
@@ -27,12 +24,11 @@ class I18N {
     return Localizations.of<I18N>(context, I18N);
   }
 
-  static const LocalizationsDelegate<I18N> delegate = _MyLocalizationDelegate();
+  static LocalizationsDelegate<I18N> delegate = _MyLocalizationDelegate();
 }
 
 class _MyLocalizationDelegate extends LocalizationsDelegate<I18N> {
-
-  const _MyLocalizationDelegate();
+  final _i18n = GetIt.I.get<I18N>();
 
   @override
   bool isSupported(Locale locale) {
@@ -41,9 +37,8 @@ class _MyLocalizationDelegate extends LocalizationsDelegate<I18N> {
 
   @override
   Future<I18N> load(Locale locale) async {
-    I18N localization = I18N(locale);
-    await localization.load();
-    return localization;
+    await _i18n.load(locale);
+    return _i18n;
   }
 
   @override

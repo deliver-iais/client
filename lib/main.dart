@@ -128,6 +128,8 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<MediaDao>(MediaDaoImpl());
   GetIt.I.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
 
+  GetIt.I.registerSingleton<I18N>(I18N());
+
   // Order is important, don't change it!
   GetIt.I.registerSingleton<AuthServiceClient>(
       AuthServiceClient(ProfileServicesClientChannel));
