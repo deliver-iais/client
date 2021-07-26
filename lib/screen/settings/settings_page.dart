@@ -8,9 +8,9 @@ import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
-import 'package:deliver_flutter/shared/fluid_container.dart';
+import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
 import 'package:deliver_flutter/shared/language.dart';
 import 'package:deliver_flutter/shared/methods/phone.dart';
 import 'package:deliver_flutter/shared/methods/url.dart';

@@ -5,7 +5,7 @@ import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
 import 'package:deliver_flutter/screen/app-room/widgets/share_box/helper_classes.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';

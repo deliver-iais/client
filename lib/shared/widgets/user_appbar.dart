@@ -2,7 +2,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/shared/title_status.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';

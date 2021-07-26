@@ -1,5 +1,5 @@
 import 'package:deliver_flutter/box/uid_id_name.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';

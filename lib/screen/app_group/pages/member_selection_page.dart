@@ -3,7 +3,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/app_group/widgets/selective_contact_list.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/fluid_container.dart';
+import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';

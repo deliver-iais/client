@@ -1,6 +1,6 @@
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/screen/app-room/messageWidgets/timeAndSeenStatus.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:flutter/cupertino.dart';

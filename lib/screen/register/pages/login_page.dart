@@ -8,7 +8,7 @@ import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver_flutter/screen/register/widgets/phone_number.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
-import 'package:deliver_flutter/shared/fluid.dart';
+import 'package:deliver_flutter/shared/widgets/fluid.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 

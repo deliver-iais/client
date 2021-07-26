@@ -4,7 +4,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/services/create_muc_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/fluid_container.dart';
+import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';

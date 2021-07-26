@@ -4,7 +4,7 @@ import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';

@@ -1,6 +1,6 @@
 import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/fluid_container.dart';
+import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 

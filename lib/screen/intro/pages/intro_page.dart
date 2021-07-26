@@ -3,7 +3,7 @@ import 'package:deliver_flutter/Localization/appLocalization.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/intro/custom_library/intro_slider.dart';
 import 'package:deliver_flutter/screen/intro/custom_library/slide_object.dart';
-import 'package:deliver_flutter/shared/fluid.dart';
+import 'package:deliver_flutter/shared/widgets/fluid.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';

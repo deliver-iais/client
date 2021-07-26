@@ -3,7 +3,7 @@ import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/repository/lastActivityRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
-import 'package:deliver_flutter/shared/activity_status.dart';
+import 'package:deliver_flutter/shared/widgets/activity_status.dart';
 import 'package:deliver_flutter/shared/methods/time.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';

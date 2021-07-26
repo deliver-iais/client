@@ -4,7 +4,7 @@ import 'package:deliver_flutter/screen/app-room/widgets/msgTime.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:deliver_flutter/shared/methods/time.dart';
 import 'package:deliver_flutter/shared/methods/url.dart';
-import 'package:deliver_flutter/shared/seenStatus.dart';
+import 'package:deliver_flutter/shared/widgets/seen_status.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 
 import 'package:flutter/material.dart';

@@ -6,7 +6,7 @@ import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/circleAvatar.dart';
+import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
