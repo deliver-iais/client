@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
-import 'package:deliver_flutter/screen/app-chats/widgets/contactPic.dart';
+import 'package:deliver_flutter/screen/navigation_center/chats/widgets/contactPic.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';

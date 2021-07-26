@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:deliver_flutter/repository/avatarRepo.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/share_box/gallery.dart';
-import 'package:deliver_flutter/screen/app-room/widgets/share_box/helper_classes.dart';
+import 'package:deliver_flutter/screen/room/widgets/share_box/gallery.dart';
+import 'package:deliver_flutter/screen/room/widgets/share_box/helper_classes.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/shared/constants.dart';
