@@ -16,6 +16,16 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
+abstract class Notifier {
+  notify(pro.Message message);
+}
+
+class AndroidIosMacosNotifier implements Notifier {
+  @override
+  notify(pro.Message message) {
+  }
+}
+
 class NotificationServices {
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();

@@ -279,7 +279,7 @@ class CoreServices {
   }
 
   _saveIncomingMessage(Message message) async {
-    Uid roomUid = getRoomId(_authRepo, message);
+    Uid roomUid = getRoomUid(_authRepo, message);
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
       return;
     }
@@ -439,7 +439,8 @@ DB.Message extractMessage(AuthRepo authRepo, Message message) {
       type: getMessageType(message.whichType()));
 }
 
-Uid getRoomId(AuthRepo authRepo, Message message) {
+// TODO refactor to using just currentUser Uid instead of repo dependency
+Uid getRoomUid(AuthRepo authRepo, Message message) {
   bool isCurrentUser = message.from.node.contains(authRepo.currentUserUid.node);
   var roomUid = isCurrentUser
       ? message.to

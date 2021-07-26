@@ -175,6 +175,18 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<FileService>(FileService());
   GetIt.I.registerSingleton<MucServices>(MucServices());
   GetIt.I.registerSingleton<CreateMucService>(CreateMucService());
+  GetIt.I.registerSingleton<BotRepo>(BotRepo());
+  GetIt.I.registerSingleton<StickerRepo>(StickerRepo());
+  GetIt.I.registerSingleton<FileRepo>(FileRepo());
+  GetIt.I.registerSingleton<ContactRepo>(ContactRepo());
+  GetIt.I.registerSingleton<AvatarRepo>(AvatarRepo());
+  GetIt.I.registerSingleton<RoutingService>(RoutingService());
+  GetIt.I.registerSingleton<MucRepo>(MucRepo());
+  GetIt.I.registerSingleton<RoomRepo>(RoomRepo());
+  GetIt.I.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
+  GetIt.I.registerSingleton<LastActivityRepo>(LastActivityRepo());
+
+  GetIt.I.registerSingleton<VideoPlayerService>(VideoPlayerService());
 
   if (isLinux() || isWindows()) {
     DartVLC.initialize();
@@ -184,21 +196,12 @@ Future<void> setupDI() async {
   }
   GetIt.I.registerSingleton<AudioService>(AudioService());
 
-  GetIt.I.registerSingleton<BotRepo>(BotRepo());
-  GetIt.I.registerSingleton<StickerRepo>(StickerRepo());
-  GetIt.I.registerSingleton<FileRepo>(FileRepo());
-  GetIt.I.registerSingleton<ContactRepo>(ContactRepo());
-  GetIt.I.registerSingleton<AvatarRepo>(AvatarRepo());
-  GetIt.I.registerSingleton<RoutingService>(RoutingService());
   GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
-  GetIt.I.registerSingleton<MucRepo>(MucRepo());
-  GetIt.I.registerSingleton<RoomRepo>(RoomRepo());
+
   GetIt.I.registerSingleton<CoreServices>(CoreServices());
-  GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
-  GetIt.I.registerSingleton<VideoPlayerService>(VideoPlayerService());
-  GetIt.I.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
   GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
-  GetIt.I.registerSingleton<LastActivityRepo>(LastActivityRepo());
+
+  GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
 }
 
 Future setupFlutterNotification() async {

@@ -107,7 +107,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
   if (message.data.containsKey('body')) {
     M.Message msg = _decodeMessage(message.data["body"]);
     String roomName = message.data['title'];
-    Uid roomUid = getRoomId(_authRepo, msg);
+    Uid roomUid = getRoomUid(_authRepo, msg);
 
     try {
       if (_uxService.isAllNotificationDisabled ||
@@ -127,7 +127,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
     }
 
     _notificationServices.showNotification(
-        msg, getRoomId(_authRepo, msg).asString(), roomName);
+        msg, getRoomUid(_authRepo, msg).asString(), roomName);
 
     // TODO, this is needed ??!!
     await Hive.close();

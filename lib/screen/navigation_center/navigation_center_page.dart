@@ -301,10 +301,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
     }
   }
 
-  initialDataBase() {
-    GetIt.I.get<MessageRepo>().sendTextMessage(randomUid(), '0');
-  }
-
   Widget searchResult(I18N _i18n) {
     return Expanded(
       child: Padding(
