@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/Localization/i18n.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';

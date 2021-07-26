@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/Localization/i18n.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
 import 'package:fixnum/fixnum.dart';

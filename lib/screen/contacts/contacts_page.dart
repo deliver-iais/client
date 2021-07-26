@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/Localization/i18n.dart';
 import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';

@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/Localization/i18n.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as formModel;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

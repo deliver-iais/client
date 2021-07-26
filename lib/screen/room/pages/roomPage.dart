@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
-import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/Localization/i18n.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/box/pending_message.dart';

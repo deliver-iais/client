@@ -5,7 +5,7 @@ import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 
-import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/Localization/i18n.dart';
 import 'package:deliver_flutter/screen/room/widgets/bot_commandsWidget.dart';
 import 'package:deliver_flutter/screen/room/widgets/emojiKeybord.dart';
 import 'package:deliver_flutter/screen/room/widgets/recordAudioAnimation.dart';

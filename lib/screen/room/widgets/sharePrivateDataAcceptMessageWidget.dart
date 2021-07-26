@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/Localization/i18n.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/screen/room/widgets/msgTime.dart';
 import 'package:deliver_flutter/shared/methods/time.dart';

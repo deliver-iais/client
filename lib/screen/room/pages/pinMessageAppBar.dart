@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:deliver_flutter/Localization/appLocalization.dart';
+import 'package:deliver_flutter/Localization/i18n.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/screen/navigation_center/chats/widgets/lastMessage.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
