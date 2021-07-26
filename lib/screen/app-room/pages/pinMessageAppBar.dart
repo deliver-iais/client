@@ -54,7 +54,7 @@ class PinMessageAppBar extends StatelessWidget {
                       BoxShadow(
                         color: Theme.of(context).dividerColor,
                         blurRadius: 2,
-                        offset: Offset(2, 2), // Shadow position
+                        offset: Offset(1, 1), // Shadow position
                       ),
                     ],
                   ),

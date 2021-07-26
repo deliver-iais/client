@@ -1,4 +1,6 @@
 import 'package:deliver_flutter/services/audio_service.dart';
+import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:marquee/marquee.dart';
@@ -8,13 +10,23 @@ class AudioPlayerAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).accentColor.withAlpha(50),
-      child: StreamBuilder(
-          stream: audioPlayerService.audioCenterIsOn,
-          builder: (c, s) {
-            if (s.hasData && s.data) {
-              return Row(
+    return StreamBuilder<bool>(
+        stream: audioPlayerService.audioCenterIsOn,
+        builder: (c, s) {
+          if (s.hasData && s.data) {
+            return Container(
+              height: 45,
+              decoration: BoxDecoration(
+                color: ExtraTheme.of(context).pinMessageTheme,
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).dividerColor,
+                    blurRadius: 2,
+                    offset: Offset(1, 1), // Shadow position
+                  ),
+                ],
+              ),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -30,11 +42,7 @@ class AudioPlayerAppBar extends StatelessWidget {
                         } else
                           return IconButton(
                               onPressed: () async {
-                                audioPlayerService.play(
-                                    audioPlayerService.audioPath,
-                                    // TODO ????? update service for better api
-                                    await audioPlayerService.audioUuid.single,
-                                    audioPlayerService.audioName);
+                                audioPlayerService.resume();
                               },
                               icon: Icon(Icons.play_arrow));
                       }),
@@ -42,34 +50,52 @@ class AudioPlayerAppBar extends StatelessWidget {
                     child: Center(
                       child: Container(
                         height: 20,
-                        child: RepaintBoundary(
-                          child: Marquee(
-                            text: audioPlayerService.audioName,
-                            style: TextStyle(fontSize: 17),
-                            scrollAxis: Axis.horizontal,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            blankSpace: 20.0,
-                            velocity: 100.0,
-                            pauseAfterRound: Duration(seconds: 1),
-                            accelerationDuration: Duration(seconds: 1),
-                            accelerationCurve: Curves.linear,
-                            decelerationDuration: Duration(milliseconds: 500),
-                            decelerationCurve: Curves.easeOut,
-                          ),
-                        ),
+                        child: LayoutBuilder(
+                            builder: (BuildContext context,
+                                    BoxConstraints constraints) =>
+                                RepaintBoundary(
+                                  child: audioPlayerService.audioName.length >
+                                          (constraints.maxWidth / 10)
+                                      ? Marquee(
+                                          text: audioPlayerService.audioName,
+                                          style: TextStyle(fontSize: 16),
+                                          scrollAxis: Axis.horizontal,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          blankSpace: constraints.maxWidth / 2,
+                                          velocity: 100.0,
+                                          pauseAfterRound: Duration(seconds: 1),
+                                          accelerationDuration:
+                                              Duration(seconds: 1),
+                                          // accelerationCurve: Curves.linear,
+                                          decelerationDuration:
+                                              Duration(milliseconds: 500),
+                                          // decelerationCurve: Curves.easeOut,
+                                        )
+                                      : Container(
+                                          width: double.infinity,
+                                          child: Text(
+                                              audioPlayerService.audioName,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.fade,
+                                              softWrap: false,
+                                              style: TextStyle(fontSize: 16)),
+                                        ),
+                                )),
                       ),
                     ),
                   ),
                   IconButton(
                       onPressed: () {
-                        audioPlayerService.stop();
+                        audioPlayerService.close();
                       },
                       icon: Icon(Icons.close))
                 ],
-              );
-            } else
-              return SizedBox.shrink();
-          }),
-    );
+              ),
+            );
+          } else {
+            return SizedBox.shrink();
+          }
+        });
   }
 }

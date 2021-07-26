@@ -204,7 +204,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
               });
             }),
           ),
-          AudioPlayerAppBar(),
+          if (!isLarge(context)) AudioPlayerAppBar(),
           _searchMode
               ? searchResult(_i18n)
               : Expanded(child: ChatsPage(scrollController: _scrollController)),

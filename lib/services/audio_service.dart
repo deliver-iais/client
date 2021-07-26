@@ -40,6 +40,8 @@ abstract class AudioPlayerInterface {
   void playSoundOut();
 
   void playSoundIn();
+
+  void resume() {}
 }
 
 class AudioPlayerOne implements AudioPlayerInterface {
@@ -101,6 +103,11 @@ class AudioPlayerOne implements AudioPlayerInterface {
   void playSoundIn() {
     _fastAudioPlayer.play("sound_in.wav", mode: PlayerMode.LOW_LATENCY);
   }
+
+  @override
+  void resume() {
+    _audioPlayer.resume();
+  }
 }
 
 class AudioPlayerTwo implements AudioPlayerInterface {
@@ -159,6 +166,11 @@ class AudioPlayerTwo implements AudioPlayerInterface {
   void playSoundIn() {
     _fastAudioPlayerIn.play();
   }
+
+  @override
+  void resume() {
+    _audioPlayer.play();
+  }
 }
 
 class AudioService {
@@ -173,6 +185,14 @@ class AudioService {
 
   AudioPlayerInterface _player;
 
+  // ignore: close_sinks
+  BehaviorSubject<AudioPlayerState> _audioCurrentState =
+      BehaviorSubject.seeded(AudioPlayerState.STOPPED);
+
+  // ignore: close_sinks
+  BehaviorSubject<Duration> _audioCurrentPosition =
+      BehaviorSubject.seeded(Duration.zero);
+
   String get audioName => _audioName;
 
   String get audioPath => _audioPath;
@@ -181,9 +201,9 @@ class AudioService {
 
   Stream<bool> get audioCenterIsOn => _audioCenterIsOn.stream;
 
-  Stream<AudioPlayerState> audioCurrentState() => _player?.audioCurrentState;
+  Stream<AudioPlayerState> audioCurrentState() => _audioCurrentState.stream;
 
-  Stream<Duration> audioCurrentPosition() => _player?.audioCurrentPosition;
+  Stream<Duration> audioCurrentPosition() => _audioCurrentPosition.stream;
 
   AudioService() {
     if (isLinux() || isWindows()) {
@@ -191,13 +211,22 @@ class AudioService {
     } else {
       _player = AudioPlayerOne();
     }
+    _player.audioCurrentState.listen((event) => _audioCurrentState.add(event));
+    _player.audioCurrentPosition
+        .listen((event) => _audioCurrentPosition.add(event));
   }
 
   void play(String path, String uuid, String name) async {
+    // check if this the current audio which is playing or paused recently
+    if (_audioUuid.value == uuid) {
+      _audioCenterIsOn.add(true);
+      _player.resume();
+      return;
+    }
     _audioUuid.add(uuid);
     _audioPath = path;
     _audioName = name;
-    _audioCenterIsOn.add(false);
+    _audioCenterIsOn.add(true);
     _player.play(path);
   }
 
@@ -224,5 +253,9 @@ class AudioService {
 
   void playSoundIn() {
     _player.playSoundIn();
+  }
+
+  void resume() {
+    _player.resume();
   }
 }

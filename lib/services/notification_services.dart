@@ -18,13 +18,12 @@ import 'package:logger/logger.dart';
 class NotificationServices {
   final _logger = GetIt.I.get<Logger>();
   var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
-  NotificationDetails _notificationDetails;
 
   Map<String, List<int>> _notificationMessage = Map();
   ToastService _windowsNotificationServices;
 
   NotificationServices() {
-    if (!isDesktop()) Firebase.initializeApp();
+    if (isAndroid() || isIOS() || isMacOS()) Firebase.initializeApp();
     if (isWindows()) {
       try {
         _windowsNotificationServices = new ToastService(
@@ -36,21 +35,23 @@ class NotificationServices {
         _logger.e(e);
       }
     }
-    var androidNotificationSetting =
-        new AndroidInitializationSettings('@mipmap/ic_launcher');
-    var iosNotificationSetting = new IOSInitializationSettings(
-        onDidReceiveLocalNotification: onDidReceiveLocalNotification);
-    var macNotificationSetting = new MacOSInitializationSettings();
+    if (isAndroid() || isIOS() || isMacOS()) {
+      var androidNotificationSetting =
+          new AndroidInitializationSettings('@mipmap/ic_launcher');
+      var iosNotificationSetting = new IOSInitializationSettings(
+          onDidReceiveLocalNotification: onDidReceiveLocalNotification);
+      var macNotificationSetting = new MacOSInitializationSettings();
 
-    var initializationSettings = InitializationSettings(
-        android: androidNotificationSetting,
-        iOS: iosNotificationSetting,
-        macOS: macNotificationSetting);
-    flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: (room) {
-      if (room != null && room.isNotEmpty) {}
-      return;
-    });
+      var initializationSettings = InitializationSettings(
+          android: androidNotificationSetting,
+          iOS: iosNotificationSetting,
+          macOS: macNotificationSetting);
+      flutterLocalNotificationsPlugin.initialize(initializationSettings,
+          onSelectNotification: (room) {
+        if (room != null && room.isNotEmpty) {}
+        return;
+      });
+    }
   }
 
   Future onDidReceiveLocalNotification(
@@ -152,11 +153,14 @@ class NotificationServices {
         'channel_ID', 'cs', 'desc',
         styleInformation: bigPictureStyleInformation);
     var iOSNotificationDetails = IOSNotificationDetails();
-    _notificationDetails = NotificationDetails(
-        android: androidNotificationDetails, iOS: iOSNotificationDetails);
+    var macOSNotificationDetails = MacOSNotificationDetails();
+    var notificationDetails = NotificationDetails(
+        android: androidNotificationDetails,
+        iOS: iOSNotificationDetails,
+        macOS: macOSNotificationDetails);
 
     await flutterLocalNotificationsPlugin.show(
-        notificationId, roomName, imagePath, _notificationDetails,
+        notificationId, roomName, imagePath, notificationDetails,
         payload: roomId);
   }
 
@@ -272,9 +276,5 @@ class NotificationServices {
       });
   }
 
-  void playSoundNotification() async {
-    // AssetsAudioPlayer.newPlayer().open(
-    //   Audio("assets/audios/sound_out.mp3"),
-    // );
-  }
+  void playSoundNotification() async {}
 }

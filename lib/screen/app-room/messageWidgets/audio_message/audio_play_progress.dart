@@ -28,11 +28,14 @@ class AudioPlayProgress extends StatelessWidget {
                     stream: _audioPlayerService.audioCurrentState(),
                     builder: (c, state) {
                       if (state.data != null &&
-                          state.data == AudioPlayerState.PLAYING) {
+                          (state.data == AudioPlayerState.PLAYING ||
+                              state.data == AudioPlayerState.PAUSED)) {
                         return StreamBuilder(
                             stream: _audioPlayerService.audioUuid,
                             builder: (c, uuid) {
-                              if (uuid.hasData && uuid.data.toString().isNotEmpty && uuid.data.toString().contains(audioUuid))
+                              if (uuid.hasData &&
+                                  uuid.data.toString().isNotEmpty &&
+                                  uuid.data.toString().contains(audioUuid))
                                 return AudioProgressIndicator(
                                   duration: audio.duration,
                                   audioUuid: audioUuid,
@@ -40,8 +43,6 @@ class AudioPlayProgress extends StatelessWidget {
                               else
                                 return buildPadding(context);
                             });
-
-
                       } else {
                         return buildPadding(context);
                       }
@@ -61,15 +62,11 @@ class AudioPlayProgress extends StatelessWidget {
 
   Padding buildPadding(BuildContext context) {
     return Padding(
-                        padding: const EdgeInsets.only(top: 26.0, left: 20),
-                        child: Text(
-                          sizeFormater(audio.size.toInt()) +
-                              " " +
-                              findFileType(audio.name),
-                          style: TextStyle(
-                              fontSize: 10,
-                              color: ExtraTheme.of(context).textField),
-                        ),
-                      );
+      padding: const EdgeInsets.only(top: 26.0, left: 20),
+      child: Text(
+        sizeFormater(audio.size.toInt()) + " " + findFileType(audio.name),
+        style: TextStyle(fontSize: 10, color: ExtraTheme.of(context).textField),
+      ),
+    );
   }
 }

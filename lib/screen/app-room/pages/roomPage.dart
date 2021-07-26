@@ -484,8 +484,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    pinMessageWidget(),
                                     AudioPlayerAppBar(),
+                                    Divider(),
+                                    pinMessageWidget(),
                                   ],
                                 ),
                                 StreamBuilder(
