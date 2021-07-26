@@ -3,7 +3,7 @@ import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
-import 'package:deliver_flutter/shared/title_status.dart';
+import 'package:deliver_flutter/shared/widgets/title_status.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
