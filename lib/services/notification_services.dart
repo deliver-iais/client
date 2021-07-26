@@ -8,7 +8,6 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:desktoasts/desktoasts.dart';
 import 'package:desktop_notifications/desktop_notifications.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
@@ -20,12 +19,6 @@ abstract class Notifier {
   notify(pro.Message message);
 }
 
-class AndroidIosMacosNotifier implements Notifier {
-  @override
-  notify(pro.Message message) {
-  }
-}
-
 class NotificationServices {
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
@@ -35,7 +28,6 @@ class NotificationServices {
   ToastService _windowsNotificationServices;
 
   NotificationServices() {
-    if (isAndroid() || isIOS() || isMacOS()) Firebase.initializeApp();
     if (isWindows()) {
       try {
         _windowsNotificationServices = ToastService(
@@ -286,5 +278,23 @@ class NotificationServices {
 
   void playSoundOut() {
     _audioService.playSoundOut();
+  }
+}
+
+class WindowsNotifier implements Notifier {
+  @override
+  notify(pro.Message message) {
+  }
+}
+
+class LinuxNotifier implements Notifier {
+  @override
+  notify(pro.Message message) {
+  }
+}
+
+class AndroidIOSMacOSNotifier implements Notifier {
+  @override
+  notify(pro.Message message) {
   }
 }

@@ -41,7 +41,89 @@ abstract class AudioPlayerModule {
 
   void playSoundIn();
 
-  void resume() {}
+  void resume();
+}
+
+class AudioService {
+  final _playerModule = GetIt.I.get<AudioPlayerModule>();
+
+  // ignore: close_sinks
+  final _audioCenterIsOn = BehaviorSubject.seeded(false);
+
+  // ignore: close_sinks
+  final _audioCurrentState = BehaviorSubject.seeded(AudioPlayerState.STOPPED);
+
+  // ignore: close_sinks
+  final _audioUuid = BehaviorSubject.seeded("");
+
+  // ignore: close_sinks
+  final _audioCurrentPosition = BehaviorSubject.seeded(Duration.zero);
+
+  String _audioName;
+
+  String _audioPath;
+
+  String get audioName => _audioName;
+
+  String get audioPath => _audioPath;
+
+  Stream<String> get audioUuid => _audioUuid.stream;
+
+  Stream<bool> get audioCenterIsOn => _audioCenterIsOn.stream;
+
+  Stream<AudioPlayerState> audioCurrentState() => _audioCurrentState.stream;
+
+  Stream<Duration> audioCurrentPosition() => _audioCurrentPosition.stream;
+
+  AudioService() {
+    _playerModule.audioCurrentState.listen((event) => _audioCurrentState.add(event));
+    _playerModule.audioCurrentPosition
+        .listen((event) => _audioCurrentPosition.add(event));
+  }
+
+  void play(String path, String uuid, String name) async {
+    // check if this the current audio which is playing or paused recently
+    // and if played recently, just resume it
+    if (_audioUuid.value == uuid) {
+      _audioCenterIsOn.add(true);
+      _playerModule.resume();
+      return;
+    }
+    _audioUuid.add(uuid);
+    _audioPath = path;
+    _audioName = name;
+    _audioCenterIsOn.add(true);
+    _playerModule.play(path);
+  }
+
+  void seek(Duration duration) {
+    _playerModule.seek(duration);
+  }
+
+  void pause() {
+    _playerModule.pause();
+  }
+
+  void stop() {
+    _playerModule.stop();
+  }
+
+  void close() {
+    _playerModule.pause();
+    _audioCenterIsOn.add(false);
+  }
+
+  void playSoundOut() {
+    _playerModule.playSoundOut();
+  }
+
+  void playSoundIn() {
+    _playerModule.playSoundIn();
+  }
+
+  void resume() {
+    _playerModule.resume();
+  }
 }
 
 class NormalAudioPlayer implements AudioPlayerModule {
@@ -170,86 +252,5 @@ class VlcAudioPlayer implements AudioPlayerModule {
   @override
   void resume() {
     _audioPlayer.play();
-  }
-}
-
-class AudioService {
-  final _player = GetIt.I.get<AudioPlayerModule>();
-
-  // ignore: close_sinks
-  final _audioCenterIsOn = BehaviorSubject.seeded(false);
-
-  // ignore: close_sinks
-  final _audioCurrentState = BehaviorSubject.seeded(AudioPlayerState.STOPPED);
-
-  // ignore: close_sinks
-  final _audioUuid = BehaviorSubject.seeded("");
-
-  // ignore: close_sinks
-  final _audioCurrentPosition = BehaviorSubject.seeded(Duration.zero);
-
-  String _audioName;
-
-  String _audioPath;
-
-  String get audioName => _audioName;
-
-  String get audioPath => _audioPath;
-
-  Stream<String> get audioUuid => _audioUuid.stream;
-
-  Stream<bool> get audioCenterIsOn => _audioCenterIsOn.stream;
-
-  Stream<AudioPlayerState> audioCurrentState() => _audioCurrentState.stream;
-
-  Stream<Duration> audioCurrentPosition() => _audioCurrentPosition.stream;
-
-  AudioService() {
-    _player.audioCurrentState.listen((event) => _audioCurrentState.add(event));
-    _player.audioCurrentPosition
-        .listen((event) => _audioCurrentPosition.add(event));
-  }
-
-  void play(String path, String uuid, String name) async {
-    // check if this the current audio which is playing or paused recently
-    if (_audioUuid.value == uuid) {
-      _audioCenterIsOn.add(true);
-      _player.resume();
-      return;
-    }
-    _audioUuid.add(uuid);
-    _audioPath = path;
-    _audioName = name;
-    _audioCenterIsOn.add(true);
-    _player.play(path);
-  }
-
-  void seek(Duration duration) {
-    _player.seek(duration);
-  }
-
-  void pause() {
-    _player.pause();
-  }
-
-  void stop() {
-    _player.stop();
-  }
-
-  void close() {
-    _player.pause();
-    _audioCenterIsOn.add(false);
-  }
-
-  void playSoundOut() {
-    _player.playSoundOut();
-  }
-
-  void playSoundIn() {
-    _player.playSoundIn();
-  }
-
-  void resume() {
-    _player.resume();
   }
 }
