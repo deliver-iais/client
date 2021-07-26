@@ -8,10 +8,6 @@ class I18N {
 
   I18N(this.locale);
 
-  static I18N of(BuildContext context) {
-    return Localizations.of<I18N>(context, I18N);
-  }
-
   Map<String, String> _values;
 
   Future load() async {
@@ -25,6 +21,10 @@ class I18N {
 
   String get(String key) {
     return _values[key];
+  }
+
+  static I18N of(BuildContext context) {
+    return Localizations.of<I18N>(context, I18N);
   }
 
   static const LocalizationsDelegate<I18N> delegate = _MyLocalizationDelegate();
@@ -41,7 +41,7 @@ class _MyLocalizationDelegate extends LocalizationsDelegate<I18N> {
 
   @override
   Future<I18N> load(Locale locale) async {
-    I18N localization = new I18N(locale);
+    I18N localization = I18N(locale);
     await localization.load();
     return localization;
   }
