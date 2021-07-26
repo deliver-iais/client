@@ -176,6 +176,14 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<MucServices>(MucServices());
   GetIt.I.registerSingleton<CreateMucService>(CreateMucService());
 
+  if (isLinux() || isWindows()) {
+    DartVLC.initialize();
+    GetIt.I.registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
+  } else {
+    GetIt.I.registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
+  }
+  GetIt.I.registerSingleton<AudioService>(AudioService());
+
   GetIt.I.registerSingleton<BotRepo>(BotRepo());
   GetIt.I.registerSingleton<StickerRepo>(StickerRepo());
   GetIt.I.registerSingleton<FileRepo>(FileRepo());
@@ -187,7 +195,6 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<RoomRepo>(RoomRepo());
   GetIt.I.registerSingleton<CoreServices>(CoreServices());
   GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
-  GetIt.I.registerSingleton<AudioService>(AudioService());
   GetIt.I.registerSingleton<VideoPlayerService>(VideoPlayerService());
   GetIt.I.registerSingleton<MediaQueryRepo>(MediaQueryRepo());
   GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
@@ -211,10 +218,6 @@ void main() async {
     } catch (e) {
       Logger().e(e);
     }
-  }
-
-  if (isLinux() || isWindows()) {
-    DartVLC.initialize();
   }
 
   // TODO add IOS and MacOS too

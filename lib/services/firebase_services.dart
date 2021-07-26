@@ -117,13 +117,13 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
       }
     } catch (e) {}
 
-    if (msg.to.category == Categories.USER) {
-      var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
-      if (uidName != null) roomName = uidName.name ?? uidName.id ?? "unknown";
-    } else if (msg.from.category == Categories.SYSTEM) {
+    if (msg.from.category == Categories.SYSTEM) {
       roomName = APPLICATION_NAME;
     } else if (msg.from.category == Categories.BOT) {
       roomName = msg.from.node;
+    } else if (msg.to.category == Categories.USER) {
+      var uidName = await _uidIdNameDao.getByUid(msg.from.asString());
+      if (uidName != null) roomName = uidName.name ?? uidName.id ?? "Unknown";
     }
 
     _notificationServices.showNotification(

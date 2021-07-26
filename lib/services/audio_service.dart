@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:dart_vlc/dart_vlc.dart';
-import 'package:deliver_flutter/theme/constants.dart';
+import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 enum AudioPlayerState {
@@ -24,7 +24,7 @@ enum AudioPlayerState {
   COMPLETED,
 }
 
-abstract class AudioPlayerInterface {
+abstract class AudioPlayerModule {
   Stream<AudioPlayerState> get audioCurrentState;
 
   Stream<Duration> get audioCurrentPosition;
@@ -44,7 +44,7 @@ abstract class AudioPlayerInterface {
   void resume() {}
 }
 
-class AudioPlayerOne implements AudioPlayerInterface {
+class NormalAudioPlayer implements AudioPlayerModule {
   AudioPlayer _audioPlayer = AudioPlayer();
 
   AudioCache _fastAudioPlayer = AudioCache(prefix: 'assets/audios/');
@@ -110,7 +110,7 @@ class AudioPlayerOne implements AudioPlayerInterface {
   }
 }
 
-class AudioPlayerTwo implements AudioPlayerInterface {
+class VlcAudioPlayer implements AudioPlayerModule {
   Player _audioPlayer = Player(id: 0);
   Player _fastAudioPlayerOut = Player(id: 1);
   Player _fastAudioPlayerIn = Player(id: 1);
@@ -131,7 +131,7 @@ class AudioPlayerTwo implements AudioPlayerInterface {
         return AudioPlayerState.PAUSED;
       });
 
-  AudioPlayerTwo() {
+  VlcAudioPlayer() {
     _fastAudioPlayerOut.open(Media.asset("assets/audios/sound_out.wav"));
     _fastAudioPlayerIn.open(Media.asset("assets/audios/sound_in.wav"));
   }
@@ -174,24 +174,23 @@ class AudioPlayerTwo implements AudioPlayerInterface {
 }
 
 class AudioService {
+  final _player = GetIt.I.get<AudioPlayerModule>();
+
   // ignore: close_sinks
-  BehaviorSubject<String> _audioUuid = BehaviorSubject.seeded("");
+  final _audioCenterIsOn = BehaviorSubject.seeded(false);
+
+  // ignore: close_sinks
+  final _audioCurrentState = BehaviorSubject.seeded(AudioPlayerState.STOPPED);
+
+  // ignore: close_sinks
+  final _audioUuid = BehaviorSubject.seeded("");
+
+  // ignore: close_sinks
+  final _audioCurrentPosition = BehaviorSubject.seeded(Duration.zero);
 
   String _audioName;
+
   String _audioPath;
-
-  // ignore: close_sinks
-  BehaviorSubject<bool> _audioCenterIsOn = BehaviorSubject.seeded(false);
-
-  AudioPlayerInterface _player;
-
-  // ignore: close_sinks
-  BehaviorSubject<AudioPlayerState> _audioCurrentState =
-      BehaviorSubject.seeded(AudioPlayerState.STOPPED);
-
-  // ignore: close_sinks
-  BehaviorSubject<Duration> _audioCurrentPosition =
-      BehaviorSubject.seeded(Duration.zero);
 
   String get audioName => _audioName;
 
@@ -206,11 +205,6 @@ class AudioService {
   Stream<Duration> audioCurrentPosition() => _audioCurrentPosition.stream;
 
   AudioService() {
-    if (isLinux() || isWindows()) {
-      _player = AudioPlayerTwo();
-    } else {
-      _player = AudioPlayerOne();
-    }
     _player.audioCurrentState.listen((event) => _audioCurrentState.add(event));
     _player.audioCurrentPosition
         .listen((event) => _audioCurrentPosition.add(event));

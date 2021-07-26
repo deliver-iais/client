@@ -337,7 +337,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     });
 
     _roomRepo.resetMention(widget.roomId);
-    _notificationServices.reset(widget.roomId);
+    _notificationServices.cancelAllNotifications(widget.roomId);
     _isMuc = widget.roomId.asUid().category == Categories.GROUP ||
             widget.roomId.asUid().category == Categories.CHANNEL
         ? true

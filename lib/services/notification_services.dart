@@ -1,5 +1,6 @@
 import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
+import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/theme/constants.dart';
@@ -17,16 +18,17 @@ import 'package:logger/logger.dart';
 
 class NotificationServices {
   final _logger = GetIt.I.get<Logger>();
-  var flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+  final _audioService = GetIt.I.get<AudioService>();
 
-  Map<String, List<int>> _notificationMessage = Map();
+  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final Map<String, List<int>> _notificationMessage = Map();
   ToastService _windowsNotificationServices;
 
   NotificationServices() {
     if (isAndroid() || isIOS() || isMacOS()) Firebase.initializeApp();
     if (isWindows()) {
       try {
-        _windowsNotificationServices = new ToastService(
+        _windowsNotificationServices = ToastService(
           appName: APPLICATION_NAME,
           companyName: "we",
           productName: "deliver",
@@ -38,8 +40,7 @@ class NotificationServices {
     if (isAndroid() || isIOS() || isMacOS()) {
       var androidNotificationSetting =
           new AndroidInitializationSettings('@mipmap/ic_launcher');
-      var iosNotificationSetting = new IOSInitializationSettings(
-          onDidReceiveLocalNotification: onDidReceiveLocalNotification);
+      var iosNotificationSetting = new IOSInitializationSettings();
       var macNotificationSetting = new MacOSInitializationSettings();
 
       var initializationSettings = InitializationSettings(
@@ -53,9 +54,6 @@ class NotificationServices {
       });
     }
   }
-
-  Future onDidReceiveLocalNotification(
-      int id, String title, String body, String payload) async {}
 
   cancelNotification(notificationId) async {
     try {
@@ -167,114 +165,116 @@ class NotificationServices {
   void showNotification(
       pro.Message message, String roomUid, String roomName) async {
     try {
-      if (_notificationMessage[roomUid] == null) {
-        _notificationMessage[roomUid] = [];
-      }
-      _notificationMessage[roomUid].add(message.id.toInt());
+      String text = "";
+
       switch (message.whichType()) {
         case pro.Message_Type.text:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, message.text.text);
+          text = message.text.text;
           break;
         case pro.Message_Type.file:
-          showTextNotification(message.id.toInt(), roomUid, roomName, "File");
+          text = "File";
           break;
         case pro.Message_Type.sticker:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, "sticker");
+          text = "Sticker";
           break;
         case pro.Message_Type.liveLocation:
         case pro.Message_Type.location:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, "Location");
+          text = "Location";
           break;
-
         case pro.Message_Type.poll:
-          showTextNotification(message.id.toInt(), roomUid, roomName, "poll");
+          text = "Poll";
           break;
         case pro.Message_Type.buttons:
+          text = "Buttons";
+          break;
         case pro.Message_Type.form:
-          showTextNotification(message.id.toInt(), roomUid, roomName, "from");
+          text = "Form";
           break;
         case pro.Message_Type.shareUid:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, message.shareUid.name);
+          text = message.shareUid.name;
           break;
         case pro.Message_Type.formResult:
-          showTextNotification(message.id.toInt(), roomUid, roomName, "from");
+          text = "Form Result";
           break;
         case pro.Message_Type.sharePrivateDataRequest:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, "Private");
+          text = "Access Question on Private Data";
           break;
         case pro.Message_Type.sharePrivateDataAcceptance:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, "Private");
+          text = "Acceptance on Private Data";
           break;
-
         case pro.Message_Type.paymentTransaction:
-          showTextNotification(
-              message.id.toInt(), roomUid, roomName, "Transaction");
+          text = "Payment Transaction";
           break;
         case pro.Message_Type.persistEvent:
-          String s = "";
           switch (message.persistEvent.whichType()) {
             case PersistentEvent_Type.mucSpecificPersistentEvent:
               switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
                 case MucSpecificPersistentEvent_Issue.ADD_USER:
-                  s = " عضو اضافه شد.";
+                  text = " عضو اضافه شد.";
                   break;
-
                 case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-                  s = "عکس پروفایل عوض شد";
+                  text = "عکس پروفایل عوض شد";
                   break;
                 case MucSpecificPersistentEvent_Issue.JOINED_USER:
-                  s = "به گروه پیوست.";
+                  text = "به گروه پیوست.";
                   break;
-
                 case MucSpecificPersistentEvent_Issue.KICK_USER:
-                  s = "مخاطب از گروه حذف شد.";
+                  text = "مخاطب از گروه حذف شد.";
                   break;
                 case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-                  s = "مخاطب  گروه  را ترک کرد.";
+                  text = "مخاطب  گروه  را ترک کرد.";
                   break;
                 case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-                  s = " گروه  ساخته شد.";
+                  text = " گروه  ساخته شد.";
                   break;
                 case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-                  s = " نام تغییر پیدا کرد.";
+                  text = " نام تغییر پیدا کرد.";
                   break;
                 case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-                  s = "پیام پین شد.";
+                  text = "پیام پین شد.";
                   break;
               }
               break;
             case PersistentEvent_Type.messageManipulationPersistentEvent:
-              //
               break;
             case PersistentEvent_Type.adminSpecificPersistentEvent:
-              s = "به دلیور پیوست";
-
+              text = "به دلیور پیوست";
               break;
             case PersistentEvent_Type.notSet:
-              // TODO: Handle this case.
               break;
           }
-          showTextNotification(message.id.toInt(), roomUid, roomName, s);
-
           break;
         default:
           break;
       }
+
+      if (text == null || text.isEmpty) return;
+
+      if (_notificationMessage[roomUid] == null) {
+        _notificationMessage[roomUid] = [];
+      }
+      _notificationMessage[roomUid].add(message.id.toInt());
+
+      if (isLinux()) {
+        playIncomingMsg();
+      }
+
+      showTextNotification(message.id.toInt(), roomUid, roomName, text);
     } catch (e) {}
   }
 
-  void reset(String roomId) {
+  void cancelAllNotifications(String roomId) {
     if (_notificationMessage[roomId] != null)
       _notificationMessage[roomId].forEach((element) async {
         await cancelNotification(element);
       });
   }
 
-  void playSoundNotification() async {}
+  void playSoundIn() async {}
+
+  void playIncomingMsg() async {}
+
+  void playSoundOut() {
+    _audioService.playSoundOut();
+  }
 }

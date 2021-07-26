@@ -274,7 +274,7 @@ class CoreServices {
     _roomDao.updateRoom(Room(uid: msg.roomUid, lastMessage: msg));
 
     if (_routingServices.isInRoom(messageDeliveryAck.to.asString())) {
-      _notificationServices.playSoundNotification();
+      _notificationServices.playSoundOut();
     }
   }
 
@@ -361,7 +361,7 @@ class CoreServices {
   Future showNotification(Uid roomUid, Message message) async {
     String roomName = await _roomRepo.getName(roomUid);
     if (_routingServices.isInRoom(roomUid.asString()) && !isDesktop()) {
-      _notificationServices.playSoundNotification();
+      _notificationServices.playSoundIn();
     } else {
       _notificationServices.showNotification(
           message, roomUid.asString(), roomName);
