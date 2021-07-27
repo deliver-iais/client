@@ -54,7 +54,7 @@ class I18N {
   }
 
   String verb(String key, {isFirstPerson = false}) {
-    return get(key) + (_values["_first_person_verb_extra_"] ?? "");
+    return get(key) + (isFirstPerson ? (_values["_first_person_verb_extra_"] ?? "") : "");
   }
 
   changeLanguage(Language language) {
