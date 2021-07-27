@@ -291,20 +291,22 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   @override
   void dispose() {
-    _repliedMessage.close();
-    _currentRoom.close();
-    _searchMode.close();
-    _showOtherMessage.close();
-    _showP.close();
-    _lastPinedMessage.close();
-    _itemCountSubject.close();
-    _waitingForForwardedMessage.close();
-    _selectMultiMessageSubject.close();
-    _lastSeenSubject.close();
-    _positionSubject.close();
-    _hasPermissionInChannel.close();
-    _hasPermissionInGroup.close();
-    _unReadMessageScrollSubject.close();
+    if (false) {
+      _repliedMessage.close();
+      _currentRoom.close();
+      _searchMode.close();
+      _showOtherMessage.close();
+      _showP.close();
+      _lastPinedMessage.close();
+      _itemCountSubject.close();
+      _waitingForForwardedMessage.close();
+      _selectMultiMessageSubject.close();
+      _lastSeenSubject.close();
+      _positionSubject.close();
+      _hasPermissionInChannel.close();
+      _hasPermissionInGroup.close();
+      _unReadMessageScrollSubject.close();
+    }
     super.dispose();
   }
 
@@ -391,7 +393,6 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 _pinMessages.add(m);
                 _lastPinedMessage.add(_pinMessages.last.id);
               } catch (e) {
-                print(e.toString());
                 _logger.e(e);
                 _logger.d(element);
               }
@@ -1277,9 +1278,11 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
               alignment: 0.5,
               duration: Duration(microseconds: 1));
           if (_pinMessages.length > 1) {
-            _lastPinedMessage.add(_pinMessages[_pinMessages
-                        .indexWhere((e) => e.id == _lastPinedMessage.value) -
-                    1]
+            _lastPinedMessage.add(_pinMessages[max(
+                    _pinMessages.indexWhere(
+                            (e) => e.id == _lastPinedMessage.value) -
+                        1,
+                    0)]
                 .id);
           }
         },
