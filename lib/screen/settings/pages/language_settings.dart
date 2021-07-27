@@ -1,6 +1,5 @@
 import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
 import 'package:deliver_flutter/shared/language.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
@@ -18,7 +17,6 @@ class LanguageSettingsPage extends StatefulWidget {
 
 class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
   final _routingService = GetIt.I.get<RoutingService>();
-  final _uxService = GetIt.I.get<UxService>();
 
   @override
   Widget build(BuildContext context) {
@@ -50,28 +48,30 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                     SettingsTile(
                       title: 'English',
                       leading: Icon(Icons.language),
-                      trailing:
-                          _uxService.locale.languageCode == English.languageCode
-                              ? Icon(Icons.done)
-                              : SizedBox.shrink(),
-                      titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
+                      trailing: I18N.of(context).locale.languageCode ==
+                              English.languageCode
+                          ? Icon(Icons.done)
+                          : SizedBox.shrink(),
+                      titleTextStyle:
+                          TextStyle(color: ExtraTheme.of(context).textField),
                       onPressed: (BuildContext context) {
                         setState(() {
-                          _uxService.changeLanguage(English);
+                          I18N.of(context).changeLanguage(English);
                         });
                       },
                     ),
                     SettingsTile(
                       title: 'فارسی',
                       leading: Icon(Icons.language),
-                      trailing:
-                          _uxService.locale.languageCode == Farsi.languageCode
-                              ? Icon(Icons.done)
-                              : SizedBox.shrink(),
-                      titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
+                      trailing: I18N.of(context).locale.languageCode ==
+                              Farsi.languageCode
+                          ? Icon(Icons.done)
+                          : SizedBox.shrink(),
+                      titleTextStyle:
+                          TextStyle(color: ExtraTheme.of(context).textField),
                       onPressed: (BuildContext context) {
                         setState(() {
-                          _uxService.changeLanguage(Farsi);
+                          I18N.of(context).changeLanguage(Farsi);
                         });
                       },
                     ),

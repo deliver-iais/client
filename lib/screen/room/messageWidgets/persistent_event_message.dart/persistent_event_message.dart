@@ -1,7 +1,6 @@
 import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
-import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -18,7 +17,6 @@ class PersistentEventMessage extends StatelessWidget {
   final bool showLastMessage;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _uxService = GetIt.I.get<UxService>();
 
   PersistentEventMessage({Key key, this.message, this.showLastMessage})
       : super(key: key);
@@ -40,7 +38,7 @@ class PersistentEventMessage extends StatelessWidget {
         builder: (c, s) {
           if (s.hasData) {
             return Directionality(
-                textDirection: _uxService.isPersian
+                textDirection: I18N.of(context).isPersian
                     ? TextDirection.rtl
                     : TextDirection.ltr,
                 child: Text(

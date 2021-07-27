@@ -251,17 +251,19 @@ _setWindowSize() async {
 }
 
 class MyApp extends StatelessWidget {
+  final _uxService = GetIt.I.get<UxService>();
+  final _i18n = GetIt.I.get<I18N>();
+
   @override
   Widget build(BuildContext context) {
-    var uxService = GetIt.I.get<UxService>();
     return StreamBuilder(
       stream: MergeStream([
-        uxService.themeStream as Stream,
-        uxService.localeStream as Stream,
+        _uxService.themeStream,
+        _i18n.localeStream,
       ]),
       builder: (context, snapshot) {
         return ExtraTheme(
-          extraThemeData: uxService.extraTheme,
+          extraThemeData: _uxService.extraTheme,
           child: Focus(
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
               onKey: (_, RawKeyEvent event) {
@@ -272,8 +274,8 @@ class MyApp extends StatelessWidget {
               child: MaterialApp(
                 debugShowCheckedModeBanner: false,
                 title: 'Deliver',
-                locale: uxService.locale,
-                theme: uxService.theme,
+                locale: _i18n.locale,
+                theme: _uxService.theme,
                 supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],
                 localizationsDelegates: [
                   I18N.delegate,

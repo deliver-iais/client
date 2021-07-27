@@ -210,7 +210,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: i18n.get("language"),
                     titleTextStyle:
                         TextStyle(color: ExtraTheme.of(context).textField),
-                    subtitle: _uxService.locale.language().name,
+                    subtitle: I18N.of(context).locale.language().name,
                     leading: Icon(Icons.language),
                     onPressed: (BuildContext context) {
                       _routingService.openLanguageSettings();
@@ -232,15 +232,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: i18n.get("devices"),
                     leading: Icon(Icons.devices),
                     titleTextStyle:
-                    TextStyle(color: ExtraTheme.of(context).textField),
-                    onPressed: (c){
+                        TextStyle(color: ExtraTheme.of(context).textField),
+                    onPressed: (c) {
                       _routingService.openDevicesPage();
                     },
                   ),
                   if (isDesktop())
                     SettingsTile.switchTile(
-                      title: i18n
-                          .get("send_by_shift_enter"),
+                      title: i18n.get("send_by_shift_enter"),
                       titleTextStyle:
                           TextStyle(color: ExtraTheme.of(context).textField),
                       leading: Icon(Icons.keyboard),
@@ -327,8 +326,7 @@ class _SettingsPageState extends State<SettingsPage> {
         ));
   }
 
-  void openLogoutAlertDialog(
-      BuildContext context, I18N i18n) {
+  void openLogoutAlertDialog(BuildContext context, I18N i18n) {
     showDialog(
         context: context,
         builder: (context) {
