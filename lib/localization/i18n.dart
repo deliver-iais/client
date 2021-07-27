@@ -19,9 +19,9 @@ class I18N {
     String jsonValues =
         await rootBundle.loadString('lib/lang/${locale.languageCode}.json');
 
-    _values = json
-        .decode(jsonValues)
-        .map((key, value) => MapEntry(key, value.toString()));
+    Map<String, dynamic> mappedJson = json.decode(jsonValues);
+
+    _values = mappedJson.map((key, value) => MapEntry(key, value.toString()));
   }
 
   String get(String key) {
