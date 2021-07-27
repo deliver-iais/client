@@ -165,6 +165,7 @@ flutter:
     - assets/icons/emojiIcon.png
     - assets/audios/sound_in.wav
     - assets/audios/sound_out.wav
+    - assets/audios/incoming-msg.mp3
     - lib/lang/fa.json
     - lib/lang/en.json
     - assets/backgrounds/a.png
