@@ -23,11 +23,6 @@ class MessageBrief {
   final String text;
   final bool senderIsAUserOrBot;
 
-  // no sender and type of message should be shown
-  final bool justShowText;
-
-  final bool highlightText;
-
   // Should not notify user
   final bool ignoreNotification;
 
@@ -39,8 +34,6 @@ class MessageBrief {
       this.type,
       this.typeDetails,
       this.text,
-      this.justShowText,
-      this.highlightText,
       this.ignoreNotification});
 }
 
@@ -53,8 +46,6 @@ Future<MessageBrief> extractMessageBrief(
   String typeDetails = "";
   String text = "";
   bool ignoreNotification = authRepo.isCurrentUser(msg.from.asString());
-  bool justShowText = false;
-  bool highlightText = false;
 
   switch (msg.whichType()) {
     case PB.Message_Type.text:
@@ -108,64 +99,13 @@ Future<MessageBrief> extractMessageBrief(
           msg.paymentTransaction.description; // TODO needs more details maybe
       break;
     case PB.Message_Type.persistEvent:
-      justShowText = true;
-      highlightText = true;
-      switch (msg.persistEvent.whichType()) {
-        case PersistentEvent_Type.mucSpecificPersistentEvent:
-          switch (msg.persistEvent.mucSpecificPersistentEvent.issue) {
-            case MucSpecificPersistentEvent_Issue.ADD_USER:
-              typeDetails = "عضو اضافه شد.";
-              // TODO, add name of user or entity as text
-              break;
-            case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-              typeDetails = "عکس پروفایل عوض شد";
-              break;
-            case MucSpecificPersistentEvent_Issue.JOINED_USER:
-              typeDetails = "به گروه پیوست.";
-              // TODO, add name of user or entity as text
-              break;
-            case MucSpecificPersistentEvent_Issue.KICK_USER:
-              typeDetails = "مخاطب از گروه حذف شد.";
-              // TODO, add name of user or entity as text
-              break;
-            case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-              typeDetails = "مخاطب  گروه  را ترک کرد.";
-              // TODO, add name of user or entity as text
-              break;
-            case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-              typeDetails = "گروه  ساخته شد.";
-              break;
-            case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-              typeDetails = "نام تغییر پیدا کرد.";
-              // TODO, add name of user or entity as text
-              break;
-            case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-              typeDetails = "پیام پین شد.";
-              // TODO, add name of user or entity as text
-              break;
-          }
-          break;
-        case PersistentEvent_Type.messageManipulationPersistentEvent:
-          ignoreNotification = true;
-          break;
-        case PersistentEvent_Type.adminSpecificPersistentEvent:
-          switch (msg.persistEvent.adminSpecificPersistentEvent.event) {
-            case AdminSpecificPersistentEvent_Event.NEW_CONTACT_ADDED:
-              typeDetails = "به دلیور پیوست";
-              // TODO, add name of user or entity as text
-              break;
-            default:
-              ignoreNotification = true;
-              break;
-          }
-          break;
-        default:
-          ignoreNotification = true;
-          break;
+      typeDetails = await getPersistentEventText(
+          i18n, roomRepo, msg.persistEvent, msg.from, msg.to);
+      if (typeDetails == null) {
+        ignoreNotification = true;
       }
       break;
     default:
-      justShowText = true;
       ignoreNotification = true;
       if (kDebugMode) {
         text = "____NO_TYPE_OF_MESSAGE_PROVIDED!!!!____";
@@ -174,16 +114,82 @@ Future<MessageBrief> extractMessageBrief(
   }
 
   return MessageBrief(
-      roomUid: roomUid,
-      roomName: roomName,
-      sender: sender,
-      senderIsAUserOrBot: msg.from.isUser() || msg.from.isBot(),
-      type: type,
-      typeDetails: typeDetails,
-      text: text,
-      ignoreNotification: ignoreNotification,
-      justShowText: justShowText,
-      highlightText: highlightText);
+    roomUid: roomUid,
+    roomName: roomName,
+    sender: sender,
+    senderIsAUserOrBot: msg.from.isUser() || msg.from.isBot(),
+    type: type,
+    typeDetails: typeDetails,
+    text: text,
+    ignoreNotification: ignoreNotification,
+  );
+}
+
+Future<String> getPersistentEventText(
+    I18N i18n, RoomRepo roomRepo, PersistentEvent pe, Uid from, Uid to) async {
+  switch (pe.whichType()) {
+    case PersistentEvent_Type.mucSpecificPersistentEvent:
+      String issuer = (pe.mucSpecificPersistentEvent.issue ==
+                  MucSpecificPersistentEvent_Issue.PIN_MESSAGE) &&
+              to.isChannel()
+          ? ""
+          : await roomRepo.getSlangName(pe.mucSpecificPersistentEvent.issuer);
+      String assignee = pe.mucSpecificPersistentEvent.issue !=
+              MucSpecificPersistentEvent_Issue.PIN_MESSAGE
+          ? await roomRepo.getSlangName(pe.mucSpecificPersistentEvent.assignee)
+          : "";
+      switch (pe.mucSpecificPersistentEvent.issue) {
+        case MucSpecificPersistentEvent_Issue.ADD_USER:
+          return "عضو اضافه شد.";
+          // TODO, add name of user or entity as text
+          break;
+        case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
+          return "عکس پروفایل عوض شد";
+          break;
+        case MucSpecificPersistentEvent_Issue.JOINED_USER:
+          return "به گروه پیوست.";
+          // TODO, add name of user or entity as text
+          break;
+        case MucSpecificPersistentEvent_Issue.KICK_USER:
+          return "مخاطب از گروه حذف شد.";
+          // TODO, add name of user or entity as text
+          break;
+        case MucSpecificPersistentEvent_Issue.LEAVE_USER:
+          return "مخاطب  گروه  را ترک کرد.";
+          // TODO, add name of user or entity as text
+          break;
+        case MucSpecificPersistentEvent_Issue.MUC_CREATED:
+          return "گروه ساخته شد.";
+          break;
+        case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
+          return "نام تغییر پیدا کرد.";
+          // TODO, add name of user or entity as text
+          break;
+        case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
+          return "پیام پین شد.";
+          // TODO, add name of user or entity as text
+          break;
+      }
+      break;
+    case PersistentEvent_Type.messageManipulationPersistentEvent:
+      return null;
+      break;
+    case PersistentEvent_Type.adminSpecificPersistentEvent:
+      switch (pe.adminSpecificPersistentEvent.event) {
+        case AdminSpecificPersistentEvent_Event.NEW_CONTACT_ADDED:
+          return "به دلیور پیوست";
+          // TODO, add name of user or entity as text
+          break;
+        default:
+          return null;
+          break;
+      }
+      break;
+    default:
+      return null;
+      break;
+  }
+  return null;
 }
 
 PB.Message extractProtocolBufferMessage(Message message) {
