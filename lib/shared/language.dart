@@ -17,6 +17,8 @@ class Language {
   static List<Language> languageList() {
     return <Language>[Farsi, English];
   }
+
+  Locale get locale => Locale(languageCode, countryCode);
 }
 
 extension LanguageOnLocale on Locale {

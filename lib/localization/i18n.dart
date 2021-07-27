@@ -15,39 +15,42 @@ class I18N {
 
   Map<String, String> _values;
 
-  Future load(Locale locale) async {
+  I18N() {
+    _language.listen((lang) {
+      _loadLanguageResource(lang);
+    });
+    _sharedDao.getStream(SHARED_DAO_LANGUAGE).map((code) async {
+      if (code != null) {
+        if (code.contains(Farsi.countryCode)) {
+          _language.add(Farsi);
+        } else {
+          _language.add(English);
+        }
+      }
+    });
+  }
+
+  Future<void> _loadLanguageResource(Language language) async {
     String jsonValues =
-        await rootBundle.loadString('lib/lang/${locale.languageCode}.json');
+        await rootBundle.loadString('lib/lang/${language.languageCode}.json');
 
     Map<String, dynamic> mappedJson = json.decode(jsonValues);
 
     _values = mappedJson.map((key, value) => MapEntry(key, value.toString()));
   }
 
+  bool get isPersian => _language.value.countryCode.contains(Farsi.countryCode);
+
+  Stream get localeStream => _language.stream.map((e) => e.locale);
+
+  Locale get locale => _language.value.locale;
+
   String get(String key) {
     return _values[key];
   }
 
-  bool get isPersian => _language.value.countryCode.contains(Farsi.countryCode);
-
-  Stream get localeStream =>
-      _sharedDao.getStream(SHARED_DAO_LANGUAGE).map((event) {
-        if (event != null) {
-          var code = event;
-          if (code.contains(Farsi.countryCode)) {
-            _language.add(Farsi);
-          } else if (code.contains(English.countryCode)) {
-            _language.add(English);
-          }
-        }
-      });
-
-  Locale get locale =>
-      Locale(_language.value.languageCode, _language.value.countryCode);
-
   changeLanguage(Language language) {
     _sharedDao.put(SHARED_DAO_LANGUAGE, language.countryCode);
-    _language.add(language);
   }
 
   static I18N of(BuildContext context) {
@@ -67,7 +70,6 @@ class _MyLocalizationDelegate extends LocalizationsDelegate<I18N> {
 
   @override
   Future<I18N> load(Locale locale) async {
-    await _i18n.load(locale);
     return _i18n;
   }
 
