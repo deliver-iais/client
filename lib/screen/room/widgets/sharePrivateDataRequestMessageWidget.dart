@@ -18,28 +18,23 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
   SharePrivateDataRequestMessageWidget(
       {this.message, this.isSender, this.isSeen});
 
-  I18N _i18n;
-  SharePrivateDataRequest _sharePrivateDataRequest;
-
   @override
   Widget build(BuildContext context) {
-    _sharePrivateDataRequest = message.json.toSharePrivateDataRequest();
-    _i18n = I18N.of(context);
+    var sharePrivateDataRequest = message.json.toSharePrivateDataRequest();
+    var i18n = I18N.of(context);
     return Stack(
       children: [
         Column(children: [
-          Text(_sharePrivateDataRequest.data == PrivateDataType.PHONE_NUMBER
+          Text(sharePrivateDataRequest.data == PrivateDataType.PHONE_NUMBER
               ? "آیا اجازه دسترسی به  شماره تلفن را می دهید؟"
               : " آیا اجازه دسترسی به  نام کاربری را می دهید؟"),
           GestureDetector(
               child: TextButton(
             onPressed: () {
-              _messageRepo.sendPrivateMessageAccept(
-                  message.from.asUid(),
-                  _sharePrivateDataRequest.data,
-                  _sharePrivateDataRequest.token);
+              _messageRepo.sendPrivateMessageAccept(message.from.asUid(),
+                  sharePrivateDataRequest.data, sharePrivateDataRequest.token);
             },
-            child: Text(_i18n.get("ok")),
+            child: Text(i18n.get("ok")),
           ))
         ]),
         TimeAndSeenStatus(message, isSender, false, isSeen)
