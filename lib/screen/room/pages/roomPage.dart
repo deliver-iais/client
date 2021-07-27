@@ -33,13 +33,13 @@ import 'package:deliver_flutter/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/shared/widgets/bot_app_bar.dart';
+import 'package:deliver_flutter/shared/widgets/bot_appbar_title.dart';
 import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/shared/custom_context_menu.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/shared/methods/time.dart';
-import 'package:deliver_flutter/shared/widgets/mucAppbarTitle.dart';
-import 'package:deliver_flutter/shared/widgets/user_appbar.dart';
+import 'package:deliver_flutter/shared/widgets/muc_appbar_title.dart';
+import 'package:deliver_flutter/shared/widgets/user_appbar_title.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -775,9 +775,9 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                     if (_isMuc)
                       return MucAppbarTitle(mucUid: widget.roomId);
                     else if (widget.roomId.asUid().category == Categories.BOT)
-                      return BotAppbar(botUid: widget.roomId.asUid());
+                      return BotAppbarTitle(botUid: widget.roomId.asUid());
                     else
-                      return UserAppbar(
+                      return UserAppbarTitle(
                         userUid: widget.roomId.asUid(),
                       );
                   }

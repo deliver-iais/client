@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 
-class BotAppbar extends StatelessWidget {
+class BotAppbarTitle extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
   final Uid botUid;
 
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  BotAppbar({Key key, this.botUid}) : super(key: key);
+  BotAppbarTitle({Key key, this.botUid}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

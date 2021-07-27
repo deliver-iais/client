@@ -16,18 +16,21 @@ class I18N {
   Map<String, String> _values;
 
   I18N() {
-    _language.listen((lang) {
-      _loadLanguageResource(lang);
-    });
-    _sharedDao.getStream(SHARED_DAO_LANGUAGE).map((code) async {
-      if (code != null) {
-        if (code.contains(Farsi.countryCode)) {
-          _language.add(Farsi);
-        } else {
-          _language.add(English);
-        }
-      }
-    });
+    _loadLanguageResource(DefaultLanguage);
+    _sharedDao
+        .getStream(SHARED_DAO_LANGUAGE,
+            defaultValue: DefaultLanguage.countryCode)
+        .map((code) {
+          if (code != null && code.contains(Farsi.countryCode)) {
+            return Farsi;
+          }
+          return English;
+        })
+        .distinct()
+        .listen((lang) async {
+          await _loadLanguageResource(lang);
+          _language.add(lang);
+        });
   }
 
   Future<void> _loadLanguageResource(Language language) async {
@@ -41,7 +44,7 @@ class I18N {
 
   bool get isPersian => _language.value.countryCode.contains(Farsi.countryCode);
 
-  Stream get localeStream => _language.stream.map((e) => e.locale);
+  Stream get localeStream => _language.stream.distinct().map((e) => e.locale);
 
   Locale get locale => _language.value.locale;
 
