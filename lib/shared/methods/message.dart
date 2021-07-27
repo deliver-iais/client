@@ -5,6 +5,7 @@ import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as PB;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -100,7 +101,7 @@ Future<MessageBrief> extractMessageBrief(
       break;
     case PB.Message_Type.persistEvent:
       typeDetails = await getPersistentEventText(
-          i18n, roomRepo, msg.persistEvent, msg.from, msg.to);
+          i18n, roomRepo, authRepo, msg.persistEvent, msg.to.isChannel());
       if (typeDetails == null) {
         ignoreNotification = true;
       }
@@ -125,49 +126,86 @@ Future<MessageBrief> extractMessageBrief(
   );
 }
 
-Future<String> getPersistentEventText(
-    I18N i18n, RoomRepo roomRepo, PersistentEvent pe, Uid from, Uid to) async {
+Future<String> getPersistentEventText(I18N i18n, RoomRepo roomRepo,
+    AuthRepo authRepo, PersistentEvent pe, bool isChannel) async {
   switch (pe.whichType()) {
     case PersistentEvent_Type.mucSpecificPersistentEvent:
-      String issuer = (pe.mucSpecificPersistentEvent.issue ==
-                  MucSpecificPersistentEvent_Issue.PIN_MESSAGE) &&
-              to.isChannel()
-          ? ""
-          : await roomRepo.getSlangName(pe.mucSpecificPersistentEvent.issuer);
-      String assignee = pe.mucSpecificPersistentEvent.issue !=
-              MucSpecificPersistentEvent_Issue.PIN_MESSAGE
-          ? await roomRepo.getSlangName(pe.mucSpecificPersistentEvent.assignee)
-          : "";
+      String issuer =
+          await roomRepo.getSlangName(pe.mucSpecificPersistentEvent.issuer);
+      String assignee =
+          await roomRepo.getSlangName(pe.mucSpecificPersistentEvent.assignee);
       switch (pe.mucSpecificPersistentEvent.issue) {
         case MucSpecificPersistentEvent_Issue.ADD_USER:
-          return "عضو اضافه شد.";
-          // TODO, add name of user or entity as text
+          return [
+            issuer,
+            i18n.verb("added",
+                isFirstPerson: authRepo.isCurrentUser(
+                    pe.mucSpecificPersistentEvent.issuer.asString())),
+            assignee
+          ].join(" ").trim();
           break;
         case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-          return "عکس پروفایل عوض شد";
+          return [
+            issuer,
+            i18n.verb("changed_avatar",
+                isFirstPerson: authRepo.isCurrentUser(
+                    pe.mucSpecificPersistentEvent.issuer.asString())),
+            assignee
+          ].join(" ").trim();
           break;
         case MucSpecificPersistentEvent_Issue.JOINED_USER:
-          return "به گروه پیوست.";
-          // TODO, add name of user or entity as text
+          return [
+            issuer,
+            i18n.verb("joined",
+                isFirstPerson: authRepo.isCurrentUser(
+                    pe.mucSpecificPersistentEvent.issuer.asString())),
+            assignee
+          ].join(" ").trim();
           break;
         case MucSpecificPersistentEvent_Issue.KICK_USER:
-          return "مخاطب از گروه حذف شد.";
-          // TODO, add name of user or entity as text
+          return [
+            issuer,
+            i18n.verb("kicked",
+                isFirstPerson: authRepo.isCurrentUser(
+                    pe.mucSpecificPersistentEvent.issuer.asString())),
+            assignee
+          ].join(" ").trim();
           break;
         case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-          return "مخاطب  گروه  را ترک کرد.";
-          // TODO, add name of user or entity as text
+          return [
+            issuer,
+            i18n.verb("left",
+                isFirstPerson: authRepo.isCurrentUser(
+                    pe.mucSpecificPersistentEvent.issuer.asString())),
+            assignee
+          ].join(" ").trim();
           break;
         case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-          return "گروه ساخته شد.";
+          return [
+            issuer,
+            i18n.verb("created",
+                isFirstPerson: authRepo.isCurrentUser(
+                    pe.mucSpecificPersistentEvent.issuer.asString())),
+            assignee
+          ].join(" ").trim();
           break;
         case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-          return "نام تغییر پیدا کرد.";
-          // TODO, add name of user or entity as text
+          return [
+            issuer,
+            i18n.verb("changed_name",
+                isFirstPerson: authRepo.isCurrentUser(
+                    pe.mucSpecificPersistentEvent.issuer.asString())),
+            assignee
+          ].join(" ").trim();
           break;
         case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-          return "پیام پین شد.";
-          // TODO, add name of user or entity as text
+          return [
+            issuer,
+            i18n.verb("pinned",
+                isFirstPerson: authRepo.isCurrentUser(
+                    pe.mucSpecificPersistentEvent.issuer.asString())),
+            assignee
+          ].join(" ").trim();
           break;
       }
       break;
@@ -177,8 +215,7 @@ Future<String> getPersistentEventText(
     case PersistentEvent_Type.adminSpecificPersistentEvent:
       switch (pe.adminSpecificPersistentEvent.event) {
         case AdminSpecificPersistentEvent_Event.NEW_CONTACT_ADDED:
-          return "به دلیور پیوست";
-          // TODO, add name of user or entity as text
+          return [i18n.get("joined_to_app"), APPLICATION_NAME].join(" ").trim();
           break;
         default:
           return null;

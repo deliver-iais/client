@@ -63,64 +63,7 @@ class PersistentEventMessage extends StatelessWidget {
 
   Future<String> getPersistentMessage(
       BuildContext context, PersistentEvent persistentEventMessage) async {
-    switch (persistentEventMessage.whichType()) {
-      case PersistentEvent_Type.mucSpecificPersistentEvent:
-        String issuer =
-            (persistentEventMessage.mucSpecificPersistentEvent.issue ==
-                        MucSpecificPersistentEvent_Issue.PIN_MESSAGE) &&
-                    message.to.asUid().category == Categories.CHANNEL
-                ? ""
-                : await _roomRepo.getSlangName(
-                    persistentEventMessage.mucSpecificPersistentEvent.issuer);
-        String assignee =
-            persistentEventMessage.mucSpecificPersistentEvent.issue !=
-                    MucSpecificPersistentEvent_Issue.PIN_MESSAGE
-                ? await _roomRepo.getSlangName(
-                    persistentEventMessage.mucSpecificPersistentEvent.assignee)
-                : "";
-        bool isMe = persistentEventMessage.mucSpecificPersistentEvent.issuer
-            .isSameEntity(_authRepo.currentUserUid.asString());
-        switch (persistentEventMessage.mucSpecificPersistentEvent.issue) {
-          case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-            return "$issuer ${_i18n.get("pin_message")}";
-            break;
-          case MucSpecificPersistentEvent_Issue.ADD_USER:
-            return " $issuer ${isMe ? _i18n.get("you_add_user_to_muc") : _i18n.get("add_user_to_muc")} $assignee";
-
-          case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-            return message.from.asUid().category == Categories.CHANNEL
-                ? "$issuer } ${_i18n.get("change_channel_avatar")}"
-                : "$issuer  ${_i18n.get("change_group_avatar")}";
-          case MucSpecificPersistentEvent_Issue.JOINED_USER:
-            return "$issuer ${_i18n.get("joined_to_group")}";
-            break;
-
-          case MucSpecificPersistentEvent_Issue.KICK_USER:
-            return "$issuer ،  ${_i18n.get("kick_from_muc")} $assignee";
-            break;
-          case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-            return "$issuer ${_i18n.get("left_the_group")}";
-            break;
-          case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-            return message.from.asUid().category == Categories.CHANNEL
-                ? "$issuer  ${isMe ? _i18n.get("you_create_channel") : _i18n.get("create_channel")}"
-                : "$issuer  ${isMe ? _i18n.get("you_create_group") : _i18n.get("create_group")}";
-            break;
-          case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-            return "$issuer  ${_i18n.get("change_muc_name")}";
-            break;
-        }
-
-        break;
-      case PersistentEvent_Type.messageManipulationPersistentEvent:
-        break;
-      case PersistentEvent_Type.adminSpecificPersistentEvent:
-        var user = await _roomRepo.getName(message.from.asUid());
-        return "$user ${_i18n.get("new_contact_add")}";
-        break;
-      case PersistentEvent_Type.notSet:
-        break;
-    }
-    return "";
+    return getPersistentEventText(_i18n, _roomRepo, _authRepo,
+        persistentEventMessage, message.to.asUid().isChannel());
   }
 }

@@ -53,6 +53,10 @@ class I18N {
     return _values[key] ?? (kDebugMode ? "____NO TRANSLATION____" : "");
   }
 
+  String verb(String key, {isFirstPerson = false}) {
+    return get(key) + (_values["_first_person_verb_extra_"] ?? "");
+  }
+
   changeLanguage(Language language) {
     _sharedDao.put(SHARED_DAO_LANGUAGE, language.countryCode);
   }

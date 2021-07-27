@@ -1,4 +1,5 @@
 {
+  "_first_person_verb_extra_": "ید",
   "setting": "تنظیمات",
   "username": "شناسه ",
   "phone_number": "شماره تلفن",
@@ -125,7 +126,6 @@
   "contact_not_exist": "مخاطب وجود ندارد.",
   "contact_information": "اطلاعات کاربر",
   "contactAdd": "مخاطب اضافه شد.",
-  "new_contact_add": "وارد دلیور شد.",
   "add_user_to_muc": "اضافه کرد",
   "you_add_user_to_muc": "اضافه کردید ",
   "change_group_avatar": "عکس گروه را تغیر داد.",
@@ -231,5 +231,14 @@
   "private_data_granted": "اجازه دسترسی به شماره اطلاعات شخصی  داده شد.",
   "save_to_gallery": "ذخیره در گالری",
   "save_to_downloads": "ذخیره در دانلود ها",
-  "save_in_music": "ذخیره ددر موسیقی"
+  "save_in_music": "ذخیره ددر موسیقی",
+  "added": "اضافه کرد",
+  "joined": "عضو شد",
+  "pinned": "پیام را سنجاق کرد",
+  "left": "خارج شد",
+  "kicked": "اخراج کرد",
+  "created": "ساخت",
+  "changed_avatar": "آواتار را کرد",
+  "changed_name": "اسم را عوض کرد",
+  "joined_to_app": "پیوست به"
 }

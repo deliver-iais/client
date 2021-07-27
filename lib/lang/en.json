@@ -1,4 +1,5 @@
 {
+  "_first_person_verb_extra_": "",
   "username": "Username",
   "phone_number": "PhoneNumber",
   "language": "Language",
@@ -141,7 +142,7 @@
   "inter_muc_name": "inter name",
   "close": "Close",
   "add_sticker": "Add Stickers",
-  "add": "ADD",
+  "add": "Add",
   "add_sticker_pack": " Add StickerPack",
   "unblock_room": "un Block Room",
   "blockRoom": "block Room",
@@ -185,7 +186,7 @@
   "version": "Version",
   "pin": "pin message",
   "unpin": "unpin message",
-  "pinned_message": "Pinned Message",
+  "pinned_message": "Pinned Messages",
   "create_invite_link": "Invite Link",
   "send_by_shift_enter": "Send Message by Shift + Enter",
   "scan_qr_code": "Scan QR Code",
@@ -221,5 +222,14 @@
   "private_data_granted": "Access to private data granted",
   "save_to_gallery": "Save in Gallery",
   "save_to_downloads": "Save in Downloads",
-  "save_in_music": "Save in Music"
+  "save_in_music": "Save in Music",
+  "added": "added",
+  "joined": "joined",
+  "pinned": "pinned message",
+  "left": "left",
+  "kicked": "kicked",
+  "created": "created",
+  "changed_avatar": "changed avatar",
+  "changed_name": "changed name",
+  "joined_to_app": "join to"
 }

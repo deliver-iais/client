@@ -61,7 +61,7 @@
 //                                                 RaisedButton(
 //                                                     child: Text(_i18n
 //                                                         .getTraslateValue(
-//                                                             "add")),
+//                                                             "add_sticker_pack")),
 //                                                     onPressed: () {
 //                                                       _stickerRepo
 //                                                           .InsertStickerPack(
