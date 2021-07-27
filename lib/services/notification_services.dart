@@ -3,6 +3,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/shared/constants.dart';
+import 'package:deliver_flutter/shared/methods/message.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
@@ -16,7 +17,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
 abstract class Notifier {
-  notify(pro.Message message);
+  notify(MessageBrief message);
 }
 
 class NotificationServices {
@@ -283,18 +284,18 @@ class NotificationServices {
 
 class WindowsNotifier implements Notifier {
   @override
-  notify(pro.Message message) {
+  notify(MessageBrief message) {
   }
 }
 
 class LinuxNotifier implements Notifier {
   @override
-  notify(pro.Message message) {
+  notify(MessageBrief message) {
   }
 }
 
 class AndroidIOSMacOSNotifier implements Notifier {
   @override
-  notify(pro.Message message) {
+  notify(MessageBrief message) {
   }
 }

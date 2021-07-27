@@ -17,7 +17,7 @@ ThemeData LightTheme =
         focusColor: Colors.lightBlue[300].withOpacity(0.6),
         cardColor: Colors.white,
         popupMenuTheme: PopupMenuThemeData(
-            textStyle: TextStyle(color: Colors.black, fontSize: 14)),
+            textStyle: TextStyle(color: Colors.black, fontSize: 14, fontFamily: 'Vazir')),
         textTheme: TextTheme(
           headline1: TextStyle(color: Colors.black, fontSize: 40),
           headline2: TextStyle(color: Colors.black, fontSize: 25),
@@ -25,9 +25,9 @@ ThemeData LightTheme =
           headline4: TextStyle(color: Colors.black, fontSize: 18),
           headline6: TextStyle(color: Colors.black, fontSize: 15),
           bodyText2: TextStyle(color: Colors.black, fontSize: 15),
-        ),
+        ).apply(fontFamily: "Vazir"),
         dialogTheme: DialogTheme(
-            titleTextStyle: TextStyle(color: Colors.black, fontSize: 18)),
+            titleTextStyle: TextStyle(color: Colors.black, fontSize: 18, fontFamily: 'Vazir')),
         appBarTheme: AppBarTheme(
             color: Colors.white,
             elevation: 0,

@@ -53,7 +53,11 @@ Future<MessageBrief> extractMessageBrief(
       text = msg.text.text;
       break;
     case PB.Message_Type.file:
-      typeDetails = i18n.get(msg.file.type);
+      var type = msg.file.type.split("/").first;
+      if (type == "application")
+        typeDetails = msg.file.name;
+      else
+        typeDetails = i18n.get(type);
       text = msg.file.caption;
       break;
     case PB.Message_Type.sticker:
@@ -109,7 +113,7 @@ Future<MessageBrief> extractMessageBrief(
     default:
       ignoreNotification = true;
       if (kDebugMode) {
-        text = "____NO_TYPE_OF_MESSAGE_PROVIDED!!!!____";
+        text = "____NO_TYPE_OF_MESSAGE_PROVIDED____";
       }
       break;
   }
@@ -237,9 +241,11 @@ PB.Message extractProtocolBufferMessage(Message message) {
     ..to = message.to.asUid()
     ..time = Int64(message.time)
     ..replyToId = Int64(message.replyToId)
-    ..forwardFrom = message.forwardedFrom.asUid()
-    ..edited = message.edited
-    ..encrypted = message.encrypted;
+    ..edited = message.edited ?? false
+    ..encrypted = message.encrypted ?? false;
+
+  if (message.forwardedFrom != null)
+    msg..forwardFrom = message.forwardedFrom.asUid();
 
   switch (message.type) {
     case MessageType.TEXT:

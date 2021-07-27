@@ -55,10 +55,7 @@ class _ChatItemState extends State<ChatItem> {
               color: widget.isSelected
                   ? Theme.of(context).focusColor
                   : Colors.transparent,
-              height:
-                  widget.room.lastMessage.type == MessageType.PERSISTENT_EVENT
-                      ? 82
-                      : 70,
+              height: 70,
               child: Row(
                 children: <Widget>[
                   ContactPic(widget.room.uid.asUid()),
@@ -113,8 +110,7 @@ class _ChatItemState extends State<ChatItem> {
                                             .isCurrentUser(widget.room.uid)
                                         ? _showDisplayName(
                                             widget.room.uid.asUid(),
-                                            _i18n.get(
-                                                "saved_message"),
+                                            _i18n.get("saved_message"),
                                             context)
                                         : _showDisplayName(
                                             widget.room.uid.asUid(),

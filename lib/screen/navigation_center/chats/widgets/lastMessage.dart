@@ -5,6 +5,7 @@ import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
+import 'package:deliver_flutter/shared/methods/message.dart';
 import 'package:deliver_flutter/shared/widgets/seen_status.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -29,117 +30,81 @@ class LastMessage extends StatelessWidget {
       this.showSender = true})
       : super(key: key);
 
-  messageText(BuildContext context) {
-    I18N _i18n = I18N.of(context);
-    switch (message.type) {
-      case MessageType.TEXT:
-        return (message.json.toText().text.trim().split('\n'))[0];
-      case MessageType.PERSISTENT_EVENT:
-        return message.json
-            .toPersistentEvent()
-            .mucSpecificPersistentEvent
-            .issue
-            .name;
-      case MessageType.FILE:
-        var file = this.message.json.toFile();
-        return file.name;
-      case MessageType.LOCATION:
-        return _i18n.get("location");
-      case MessageType.SHARE_UID:
-        if (message.json.toShareUid().uid.category == Categories.USER)
-          return message.json.toShareUid().name;
-        else
-          return _i18n.get("invite_link") +
-              " " +
-              message.json.toShareUid().name;
-        break;
-      default:
-        return "Message";
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     I18N _i18n = I18N.of(context);
-    String oneLine = messageText(context);
-    bool shouldHighlight = message.type != MessageType.TEXT;
 
     var isReceivedMessage = !_authRepo.isCurrentUser(message.from);
 
-    return Row(
-      // crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (!isReceivedMessage && showSender)
-          Padding(
-            padding: const EdgeInsets.only(right: 4.0),
-            child: SeenStatus(message),
-          ),
-        if (message.roomUid.asUid().category == Categories.GROUP &&
-            message.type != MessageType.PERSISTENT_EVENT && showSender)
-          !isReceivedMessage
-              ? _fromDisplayName(_i18n.get("you"), context)
-              : FutureBuilder<String>(
-                  future: _roomRepo.getName(message.from.asUid()),
-                  builder:
-                      (BuildContext context, AsyncSnapshot<String> snapshot) {
-                    if (snapshot.data != null) {
-                      return _fromDisplayName(snapshot.data, context);
-                    } else {
-                      return _fromDisplayName("Unknown", context);
-                    }
-                  },
+    return FutureBuilder<MessageBrief>(
+        future: extractMessageBrief(
+            _i18n, _roomRepo, _authRepo, extractProtocolBufferMessage(message)),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return SizedBox.shrink();
+          final mb = snapshot.data;
+          return Row(
+            children: [
+              if (!isReceivedMessage && showSender)
+                Padding(
+                  padding: const EdgeInsets.only(right: 4.0),
+                  child: SeenStatus(message),
                 ),
-        message.type == MessageType.PERSISTENT_EVENT
-            ? Expanded(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: PersistentEventMessage(
-                    message: message,
-                    showLastMessage: true,
-                  ),
-                ),
-              )
-            : Expanded(
-                child: Text(
-                  oneLine,
-                  maxLines: 1,
-                  overflow: TextOverflow.fade,
-                  softWrap: false,
-                  style: TextStyle(
-                    color: shouldHighlight
-                        ? ExtraTheme.of(context).username
-                        : ExtraTheme.of(context).chatOrContactItemDetails,
-                    fontSize: 14,
-                  ),
-                ),
+              Expanded(
+                child: RichText(
+                    maxLines: 1,
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
+                    text: TextSpan(children: [
+                      if (mb.senderIsAUserOrBot && showSender)
+                        TextSpan(
+                            text: "${mb.sender.trim()}: ",
+                            style: TextStyle(
+                                color: ExtraTheme.of(context).username,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500)),
+                      if (mb.typeDetails.isNotEmpty)
+                        TextSpan(
+                            text: "${mb.typeDetails}",
+                            style: TextStyle(
+                                color: ExtraTheme.of(context).username,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500)),
+                      if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty)
+                        TextSpan(
+                            text: ", ",
+                            style: TextStyle(
+                                color: ExtraTheme.of(context).username,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500)),
+                      if (mb.text.isNotEmpty)
+                        TextSpan(
+                            text: mb.text.split("\n").first,
+                            style: TextStyle(
+                                color: ExtraTheme.of(context)
+                                    .chatOrContactItemDetails,
+                                fontSize: 14)),
+                    ])),
               ),
-        if (hasMentioned)
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor, shape: BoxShape.circle),
-            child: Icon(
-              Icons.alternate_email,
-              size: 15,
-            ),
-          ),
-        if (!_authRepo.isCurrentUser(message.from))
-          Padding(
-            padding: const EdgeInsets.only(left: 4.0),
-            child: UnreadMessageCounterWidget(message.roomUid, lastMessageId),
-          )
-      ],
-    );
-  }
-
-  Widget _fromDisplayName(String from, BuildContext context) {
-    return Text(
-      "$from: ",
-      style: TextStyle(
-          color: ExtraTheme.of(context).username,
-          fontSize: 14,
-          fontWeight: FontWeight.w500),
-    );
+              if (hasMentioned)
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      shape: BoxShape.circle),
+                  child: Icon(
+                    Icons.alternate_email,
+                    size: 15,
+                  ),
+                ),
+              if (!_authRepo.isCurrentUser(message.from))
+                Padding(
+                  padding: const EdgeInsets.only(left: 4.0),
+                  child: UnreadMessageCounterWidget(
+                      message.roomUid, lastMessageId),
+                )
+            ],
+          );
+        });
   }
 }
