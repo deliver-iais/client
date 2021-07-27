@@ -23,6 +23,23 @@ Color lighten(Color c, [int percent = 10]) {
       c.blue + ((255 - c.blue) * p).round());
 }
 
+Color changeColor(Color color,
+        {double saturation = 0.5, double lightness = 0.5, alpha = 1.0}) =>
+    HSLColor.fromColor(color)
+        .withSaturation(saturation)
+        .withLightness(lightness)
+        .withAlpha(alpha)
+        .toColor();
+
+Color changeColorHue(Color color, double hue) =>
+    HSLColor.fromColor(color).withHue(hue).toColor();
+
+Color changeColorSaturation(Color color, double saturation) =>
+    HSLColor.fromColor(color).withSaturation(saturation).toColor();
+
+Color changeColorLightness(Color color, double lightness) =>
+    HSLColor.fromColor(color).withLightness(lightness).toColor();
+
 class RandomColor {
   /// Constructor for random generator
   /// [seed] Random seed to use for generating colors

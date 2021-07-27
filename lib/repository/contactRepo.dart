@@ -152,8 +152,9 @@ class ContactRepo {
     }
   }
 
-  Future<String> getIdByUid(Uid uid) async {
+  Future<String> getUserIdByUid(Uid uid) async {
     try {
+      // For now, Group and Bot not supported in server side!!
       var result =
           await _queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
       _uidIdNameDao.update(uid.asString(), id: result.id);
@@ -164,9 +165,10 @@ class ContactRepo {
     }
   }
 
-  fetchMemberId(Member member) async {
+  Future<void> fetchMemberId(Member member) async {
+    if (!member.memberUid.asUid().isUser()) return;
     var m = await _uidIdNameDao.getByUid(member.memberUid);
-    if (m == null || m.id == null) getIdByUid(member.memberUid.asUid());
+    if (m == null || m.id == null) getUserIdByUid(member.memberUid.asUid());
   }
 
   Future<List<Uid>> searchUser(String query) async {

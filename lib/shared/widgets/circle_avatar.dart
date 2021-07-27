@@ -58,25 +58,28 @@ class CircleAvatarWidget extends StatelessWidget {
       showSavedMessageLogoIfNeeded &&
       _authRepo.isCurrentUser(contactUid.asString());
 
+  bool isSystem() => contactUid.category == Categories.SYSTEM;
+
   @override
   Widget build(BuildContext context) {
     var color = colorFor(context, contactUid.asString());
 
     if (isSavedMessage()) color = Colors.blue;
-    if (contactUid.category == Categories.SYSTEM) color = Colors.grey[300];
+    if (isSystem()) color = Colors.blue;
 
     var textColor =
-        color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+        changeColor(color, saturation: 0.8, lightness: 0.5).computeLuminance() >
+                0.5
+            ? Colors.black
+            : Colors.white;
 
     return Container(
       decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: LinearGradient(colors: [
-            darken(color,
-                Theme.of(context).brightness == Brightness.dark ? 35 : 30),
-            color,
-            lighten(color,
-                Theme.of(context).brightness == Brightness.dark ? 25 : 30),
+            changeColor(color, saturation: 0.8, lightness: 0.4),
+            changeColor(color, saturation: 0.8, lightness: 0.5),
+            changeColor(color, saturation: 0.8, lightness: 0.7),
           ], begin: Alignment.bottomCenter, end: Alignment.topCenter)),
       child: CircleAvatar(
         radius: radius,
