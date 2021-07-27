@@ -113,7 +113,6 @@ class LastMessage extends StatelessWidget {
                   ),
                 ),
               ),
-        SizedBox.shrink(),
         if (hasMentioned)
           Container(
             width: 24,

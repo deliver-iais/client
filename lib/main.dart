@@ -246,6 +246,7 @@ void main() async {
 _setWindowSize() async {
   var platformWindow = await getWindowInfo();
   setWindowMinSize(Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
+  // TODO, its better to removed
   setWindowMaxSize(Size(
       platformWindow.screen.frame.width, platformWindow.screen.frame.height));
 }

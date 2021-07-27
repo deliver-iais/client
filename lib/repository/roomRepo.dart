@@ -9,6 +9,7 @@ import 'package:deliver_flutter/box/dao/uid_id_name_dao.dart';
 import 'package:deliver_flutter/box/muc.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
@@ -32,6 +33,7 @@ Cache<String, String> roomNameCache =
 
 class RoomRepo {
   final _logger = GetIt.I.get<Logger>();
+  final _i18n = GetIt.I.get<I18N>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _seenDao = GetIt.I.get<SeenDao>();
   final _muteDao = GetIt.I.get<MuteDao>();
@@ -47,6 +49,15 @@ class RoomRepo {
   final Map<String, BehaviorSubject<Activity>> activityObject = Map();
 
   insertRoom(String uid) => _roomDao.updateRoom(Room(uid: uid));
+
+  Future<String> getSlangName(Uid uid) async {
+    if (uid == null) return "";
+    if (uid.isSameEntity(_authRepo.currentUserUid.asString()))
+      return _i18n.get("you");
+    else {
+      return getName(uid);
+    }
+  }
 
   Future<String> getName(Uid uid) async {
     // Is System Id

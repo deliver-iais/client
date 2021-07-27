@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:deliver_flutter/box/dao/shared_dao.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/language.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -49,7 +50,7 @@ class I18N {
   Locale get locale => _language.value.locale;
 
   String get(String key) {
-    return _values[key];
+    return _values[key] ?? (kDebugMode ? "____NO TRANSLATION____" : "");
   }
 
   changeLanguage(Language language) {

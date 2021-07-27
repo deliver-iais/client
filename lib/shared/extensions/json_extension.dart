@@ -12,9 +12,9 @@ extension JsonMapper on String {
     return File.fromJson(this);
   }
 
-  // Sticker toSticker() {
-  //   return Sticker.fromJson(this);
-  // }
+  File toSticker() {
+    return File.fromJson(this);
+  }
 
   Text toText() {
     return Text.fromJson(this);

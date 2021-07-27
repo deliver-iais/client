@@ -8,9 +8,9 @@ import 'package:deliver_flutter/main.dart';
 
 import 'package:deliver_flutter/repository/authRepo.dart';
 
-import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/constants.dart';
+import 'package:deliver_flutter/shared/methods/message.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';

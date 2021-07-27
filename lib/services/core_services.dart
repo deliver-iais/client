@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:deliver_flutter/box/dao/last_activity_dao.dart';
 import 'package:deliver_flutter/box/dao/room_dao.dart';
@@ -11,8 +10,6 @@ import 'package:deliver_flutter/box/last_activity.dart';
 import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/box/seen.dart';
-import 'package:deliver_flutter/models/account.dart';
-import 'package:deliver_flutter/box/message_type.dart';
 import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -20,6 +17,7 @@ import 'package:deliver_flutter/services/notification_services.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
+import 'package:deliver_flutter/shared/methods/message.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
@@ -298,7 +296,8 @@ class CoreServices {
                 pinMessages.add(message
                     .persistEvent.mucSpecificPersistentEvent.messageId
                     .toInt());
-                _mucDao.update(muc.copyWith(pinMessagesIdList: pinMessages,showPinMessage: true));
+                _mucDao.update(muc.copyWith(
+                    pinMessagesIdList: pinMessages, showPinMessage: true));
                 break;
               }
 
@@ -334,19 +333,17 @@ class CoreServices {
           }
           break;
         case PersistentEvent_Type.messageManipulationPersistentEvent:
-        // TODO: Handle this case.
+          // TODO: Handle this case.
           break;
         case PersistentEvent_Type.adminSpecificPersistentEvent:
-        // TODO: Handle this case.
+          // TODO: Handle this case.
           break;
         case PersistentEvent_Type.notSet:
-        // TODO: Handle this case.
+          // TODO: Handle this case.
           break;
       }
     }
-    saveMessage(
-        _authRepo, _accountRepo, _messageDao, _roomDao, message, roomUid);
-
+    saveMessage(message, roomUid);
 
     if (!_authRepo.isCurrentUser(message.from.asString()) &&
         !_uxService.isAllNotificationDisabled &&
@@ -368,22 +365,27 @@ class CoreServices {
     }
   }
 
-  static Future<Uid> saveMessage(
-      AuthRepo authRepo,
-      AccountRepo accountRepo,
-      MessageDao messageDao,
-      RoomDao roomDao,
-      Message message,
-      Uid roomUid) async {
-    var msg = await saveMessageInMessagesDB(authRepo, messageDao, message);
+  void updateLastActivityTime(
+      LastActivityDao lastActivityDao, Uid userUid, int time) {
+    lastActivityDao.save(LastActivity(
+        uid: userUid.asString(),
+        time: time,
+        lastUpdate: DateTime.now().millisecondsSinceEpoch));
+  }
+
+  Future<Uid> saveMessage(Message message, Uid roomUid) async {
+    var msg = await saveMessageInMessagesDB(_authRepo, _messageDao, message);
 
     bool isMention = false;
     if (roomUid.category == Categories.GROUP) {
-      if (message.text.text.contains("@")) {
-        isMention = await checkMention(message.text.text, accountRepo);
+      // TODO, bug: username1 = hasan , username2 = hasan2 => isMention will be triggered if @hasan2 be into the text.
+      if (message.text.text
+          .contains("@${(await _accountRepo.getAccount()).userName}")) {
+        isMention = true;
       }
     }
-    roomDao.updateRoom(
+
+    _roomDao.updateRoom(
       Room(uid: roomUid.asString(), lastMessage: msg, mentioned: isMention),
     );
 
@@ -391,142 +393,10 @@ class CoreServices {
   }
 }
 
-void updateLastActivityTime(
-    LastActivityDao lastActivityDao, Uid userUid, int time) {
-  lastActivityDao.save(LastActivity(
-      uid: userUid.asString(),
-      time: time,
-      lastUpdate: DateTime.now().millisecondsSinceEpoch));
-}
-
-Future<bool> checkMention(String text, AccountRepo accountRepo) async {
-  Account account = await accountRepo.getAccount();
-  return text.contains(account.userName);
-}
-
+// TODO, refactor this!!!, we don't need this be functional
 Future<DB.Message> saveMessageInMessagesDB(
     AuthRepo authRepo, MessageDao messageDao, Message message) async {
-  var msg = extractMessage(authRepo, message);
+  final msg = extractMessage(authRepo, message);
   await messageDao.saveMessage(msg);
   return msg;
-}
-
-DB.Message extractMessage(AuthRepo authRepo, Message message) {
-  var json = "";
-
-  try {
-    json = messageToJson(message);
-  } catch (ignore) {}
-
-  return DB.Message(
-      id: message.id.toInt(),
-      roomUid: message.whichType() == Message_Type.persistEvent
-          ? message.from.asString()
-          : message.from.node.contains(authRepo.currentUserUid.node)
-              ? message.to.asString()
-              : message.to.category == Categories.USER
-                  ? message.from.asString()
-                  : message.to.asString(),
-      packetId: message.packetId,
-      time: message.time.toInt(),
-      to: message.to.asString(),
-      from: message.from.asString(),
-      replyToId: message.replyToId.toInt(),
-      forwardedFrom: message.forwardFrom.asString(),
-      json: json,
-      edited: message.edited,
-      encrypted: message.encrypted,
-      type: getMessageType(message.whichType()));
-}
-
-// TODO refactor to using just currentUser Uid instead of repo dependency
-Uid getRoomUid(AuthRepo authRepo, Message message) {
-  bool isCurrentUser = message.from.node.contains(authRepo.currentUserUid.node);
-  var roomUid = isCurrentUser
-      ? message.to
-      : (message.to.category == Categories.USER ? message.from : message.to);
-  return roomUid;
-}
-
-String messageToJson(Message message) {
-  var type = getMessageType(message.whichType());
-  var jsonString = Object();
-  switch (type) {
-    case MessageType.TEXT:
-      return message.text.writeToJson();
-      break;
-    case MessageType.FILE:
-      return message.file.writeToJson();
-      break;
-    case MessageType.STICKER:
-      return message.sticker.writeToJson();
-      break;
-    case MessageType.LOCATION:
-      return message.location.writeToJson();
-      break;
-    case MessageType.LIVE_LOCATION:
-      return message.liveLocation.writeToJson();
-      break;
-    case MessageType.POLL:
-      return message.poll.writeToJson();
-      break;
-    case MessageType.FORM:
-      return message.form.writeToJson();
-      break;
-    case MessageType.PERSISTENT_EVENT:
-      return message.persistEvent.writeToJson();
-      break;
-    case MessageType.BUTTONS:
-      return message.buttons.writeToJson();
-      break;
-    case MessageType.SHARE_UID:
-      return message.shareUid.writeToJson();
-      break;
-    case MessageType.FORM_RESULT:
-      return message.formResult.writeToJson();
-      break;
-    case MessageType.SHARE_PRIVATE_DATA_REQUEST:
-      return message.sharePrivateDataRequest.writeToJson();
-      break;
-    case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
-      return message.sharePrivateDataAcceptance.writeToJson();
-
-    case MessageType.NOT_SET:
-      return "";
-      break;
-  }
-  return jsonEncode(jsonString);
-}
-
-MessageType getMessageType(Message_Type messageType) {
-  switch (messageType) {
-    case Message_Type.text:
-      return MessageType.TEXT;
-    case Message_Type.file:
-      return MessageType.FILE;
-    case Message_Type.sticker:
-      return MessageType.STICKER;
-    case Message_Type.location:
-      return MessageType.LOCATION;
-    case Message_Type.liveLocation:
-      return MessageType.LIVE_LOCATION;
-    case Message_Type.poll:
-      return MessageType.POLL;
-    case Message_Type.form:
-      return MessageType.FORM;
-    case Message_Type.persistEvent:
-      return MessageType.PERSISTENT_EVENT;
-    case Message_Type.formResult:
-      return MessageType.FORM_RESULT;
-    case Message_Type.buttons:
-      return MessageType.BUTTONS;
-    case Message_Type.shareUid:
-      return MessageType.SHARE_UID;
-    case Message_Type.sharePrivateDataRequest:
-      return MessageType.SHARE_PRIVATE_DATA_REQUEST;
-    case Message_Type.sharePrivateDataAcceptance:
-      return MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE;
-    default:
-      return MessageType.NOT_SET;
-  }
 }

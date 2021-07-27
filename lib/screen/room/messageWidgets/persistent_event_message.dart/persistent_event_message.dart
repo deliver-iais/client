@@ -2,6 +2,7 @@ import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
+import 'package:deliver_flutter/shared/methods/message.dart';
 import 'package:deliver_flutter/theme/extra_colors.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
@@ -17,6 +18,7 @@ class PersistentEventMessage extends StatelessWidget {
   final bool showLastMessage;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _i18n = GetIt.I.get<I18N>();
 
   PersistentEventMessage({Key key, this.message, this.showLastMessage})
       : super(key: key);
@@ -38,9 +40,8 @@ class PersistentEventMessage extends StatelessWidget {
         builder: (c, s) {
           if (s.hasData) {
             return Directionality(
-                textDirection: I18N.of(context).isPersian
-                    ? TextDirection.rtl
-                    : TextDirection.ltr,
+                textDirection:
+                    _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
                 child: Text(
                   s.data,
                   maxLines: 1,
@@ -62,8 +63,6 @@ class PersistentEventMessage extends StatelessWidget {
 
   Future<String> getPersistentMessage(
       BuildContext context, PersistentEvent persistentEventMessage) async {
-    var _i18n = I18N.of(context);
-
     switch (persistentEventMessage.whichType()) {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
         String issuer =
@@ -71,17 +70,13 @@ class PersistentEventMessage extends StatelessWidget {
                         MucSpecificPersistentEvent_Issue.PIN_MESSAGE) &&
                     message.to.asUid().category == Categories.CHANNEL
                 ? ""
-                : await getName(
-                    context,
-                    persistentEventMessage.mucSpecificPersistentEvent.issuer,
-                    message.to.asUid());
+                : await _roomRepo.getSlangName(
+                    persistentEventMessage.mucSpecificPersistentEvent.issuer);
         String assignee =
             persistentEventMessage.mucSpecificPersistentEvent.issue !=
                     MucSpecificPersistentEvent_Issue.PIN_MESSAGE
-                ? await getName(
-                    context,
-                    persistentEventMessage.mucSpecificPersistentEvent.assignee,
-                    message.to.asUid())
+                ? await _roomRepo.getSlangName(
+                    persistentEventMessage.mucSpecificPersistentEvent.assignee)
                 : "";
         bool isMe = persistentEventMessage.mucSpecificPersistentEvent.issuer
             .isSameEntity(_authRepo.currentUserUid.asString());
@@ -127,15 +122,5 @@ class PersistentEventMessage extends StatelessWidget {
         break;
     }
     return "";
-  }
-
-  Future<String> getName(BuildContext context, Uid uid, Uid to) async {
-    var _i18n = I18N.of(context);
-    if (uid == null) return "";
-    if (uid.isSameEntity(_authRepo.currentUserUid.asString()))
-      return _i18n.get("you");
-    else {
-      return _roomRepo.getName(uid);
-    }
   }
 }
