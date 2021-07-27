@@ -1,21 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as formModel;
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
+    as formModel;
 
-
-class RadioButtonFieldWisget extends StatefulWidget {
-  formModel.Form_Field formField;
-
-  Function selected;
+class RadioButtonFieldWidget extends StatefulWidget {
+  final formModel.Form_Field formField;
+  final Function selected;
   final GlobalKey<FormState> formValidator;
 
-  RadioButtonFieldWisget({this.formField, this.selected, this.formValidator});
+  RadioButtonFieldWidget({this.formField, this.selected, this.formValidator});
 
   @override
-  _RadioButtonFieldWisgetState createState() => _RadioButtonFieldWisgetState();
+  _RadioButtonFieldWidgetState createState() => _RadioButtonFieldWidgetState();
 }
 
-class _RadioButtonFieldWisgetState extends State<RadioButtonFieldWisget> {
+class _RadioButtonFieldWidgetState extends State<RadioButtonFieldWidget> {
   String selected;
 
   @override

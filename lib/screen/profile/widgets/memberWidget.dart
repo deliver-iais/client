@@ -1,7 +1,6 @@
 import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/box/member.dart';
 import 'package:deliver_flutter/box/role.dart';
-import 'package:deliver_flutter/repository/accountRepo.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
@@ -27,7 +26,6 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   final _routingServices = GetIt.I.get<RoutingService>();
   final _mucRepo = GetIt.I.get<MucRepo>();
 
-  final _accountRepo = GetIt.I.get<AccountRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
   static const String CHANGE_ROLE = "changeRole";

@@ -291,22 +291,21 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
 
   @override
   void dispose() {
-    if (false) {
-      _repliedMessage.close();
-      _currentRoom.close();
-      _searchMode.close();
-      _showOtherMessage.close();
-      _showP.close();
-      _lastPinedMessage.close();
-      _itemCountSubject.close();
-      _waitingForForwardedMessage.close();
-      _selectMultiMessageSubject.close();
-      _lastSeenSubject.close();
-      _positionSubject.close();
-      _hasPermissionInChannel.close();
-      _hasPermissionInGroup.close();
-      _unReadMessageScrollSubject.close();
-    }
+    // TODO there is some bugs when we close some of them
+    // _repliedMessage.close();
+    // _currentRoom.close();
+    // _searchMode.close();
+    // _showOtherMessage.close();
+    // _showP.close();
+    // _lastPinedMessage.close();
+    // _itemCountSubject.close();
+    // _waitingForForwardedMessage.close();
+    // _selectMultiMessageSubject.close();
+    // _lastSeenSubject.close();
+    // _positionSubject.close();
+    // _hasPermissionInChannel.close();
+    // _hasPermissionInGroup.close();
+    // _unReadMessageScrollSubject.close();
     super.dispose();
   }
 

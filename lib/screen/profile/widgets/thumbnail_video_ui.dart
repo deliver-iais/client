@@ -7,20 +7,21 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class VideoThumbnail extends StatelessWidget {
-  File thumbnail;
-  int videoCount;
-  String videoLength;
-  bool isExist;
-  Uid userUid;
-  bool showPlayIcon;
-  int mediaPosition;
-  Function onClick;
   final _routingService = GetIt.I.get<RoutingService>();
 
+  final Uid userUid;
+  final int mediaPosition;
+  final String videoLength;
+  final File thumbnail;
+  final int videoCount;
+  final Function onClick;
+  final bool showPlayIcon;
+  final bool isExist;
+
   VideoThumbnail(
-      {@required this.userUid,
-      @required this.mediaPosition,
-      @required this.videoLength,
+      {this.userUid,
+      this.mediaPosition,
+      this.videoLength,
       this.thumbnail,
       this.videoCount,
       this.onClick,

@@ -1,24 +1,21 @@
 import 'package:deliver_flutter/localization/i18n.dart';
-import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as formModel;
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
+    as formModel;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class FormInputTextFieldWidget extends StatelessWidget {
-  formModel.Form_Field formField;
+  final _i18n = GetIt.I.get<I18N>();
+  final formModel.Form_Field formField;
   final GlobalKey<FormState> formValidator;
-
-  Function setResult;
+  final Function setResult;
 
   FormInputTextFieldWidget(
       {this.formField, this.setResult, this.formValidator});
 
-  I18N _i18n;
-  formModel.Form_Field_Type formFieldType;
-
   @override
   Widget build(BuildContext context) {
-    formFieldType = formField.whichType();
-    _i18n = I18N.of(context);
     return Column(
       children: [
         SizedBox(
@@ -29,25 +26,27 @@ class FormInputTextFieldWidget extends StatelessWidget {
           child: Container(
             child: Form(
               key: formValidator,
-              child: formFieldType == formModel.Form_Field_Type.textField ||
-                      formFieldType == formModel.Form_Field_Type.numberField
+              child: formField.whichType() ==
+                          formModel.Form_Field_Type.textField ||
+                      formField.whichType() ==
+                          formModel.Form_Field_Type.numberField
                   ? TextFormField(
                       minLines: 1,
-                      maxLength:
-                          formFieldType == formModel.Form_Field_Type.textField
-                              ? formField.textField.max
-                              : formField.numberField.max,
+                      maxLength: formField.whichType() ==
+                              formModel.Form_Field_Type.textField
+                          ? formField.textField.max
+                          : formField.numberField.max,
                       validator: validateFormTextField,
                       onChanged: (str) {
                         setResult(str);
                       },
-                      keyboardType:
-                          formFieldType == formModel.Form_Field_Type.textField
-                              ? TextInputType.text
-                              : TextInputType.number,
+                      keyboardType: formField.whichType() ==
+                              formModel.Form_Field_Type.textField
+                          ? TextInputType.text
+                          : TextInputType.number,
                       decoration: buildInputDecoration(),
                     )
-                  : formFieldType == formModel.Form_Field_Type.dateField
+                  : formField.whichType() == formModel.Form_Field_Type.dateField
                       ? TextFormField(
                           minLines: 1,
                           validator: validateFormTextField,
@@ -102,10 +101,10 @@ class FormInputTextFieldWidget extends StatelessWidget {
   }
 
   String validateFormTextField(String value) {
-    int max = formFieldType == formModel.Form_Field_Type.textField
+    int max = formField.whichType() == formModel.Form_Field_Type.textField
         ? formField.textField.max
         : formField.textField.max;
-    int min = formFieldType == formModel.Form_Field_Type.textField
+    int min = formField.whichType() == formModel.Form_Field_Type.textField
         ? formField.textField.min
         : formField.textField.min;
     if (value.isEmpty && !formField.isOptional) {

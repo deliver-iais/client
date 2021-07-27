@@ -3,11 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
     as formModel;
+import 'package:get_it/get_it.dart';
 
 class FormListWidget extends StatefulWidget {
-  formModel.Form_Field formField;
-
-  Function selected;
+  final formModel.Form_Field formField;
+  final Function selected;
   final GlobalKey<FormState> formValidator;
 
   FormListWidget({this.formField, this.selected, this.formValidator});
@@ -17,13 +17,12 @@ class FormListWidget extends StatefulWidget {
 }
 
 class _FormListWidgetState extends State<FormListWidget> {
-  String selectedItem;
+  final _i18n = GetIt.I.get<I18N>();
 
-  I18N _i18n;
+  String selectedItem;
 
   @override
   Widget build(BuildContext context) {
-    _i18n = I18N.of(context);
     return Padding(
       padding: const EdgeInsets.only(left: 7, right: 7),
       child: Container(
@@ -61,8 +60,7 @@ class _FormListWidgetState extends State<FormListWidget> {
                       return null;
                     } else {
                       if (value == null)
-                        return _i18n
-                            .get("this_filed_not_empty");
+                        return _i18n.get("this_filed_not_empty");
                       else
                         return null;
                     }

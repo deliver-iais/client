@@ -166,47 +166,35 @@ class _ProfilePageState extends State<ProfilePage>
                                           widget.roomUid.category ==
                                               Categories.CHANNEL)
                                         Tab(
-                                          text: _locale
-                                              .get("members"),
+                                          text: _locale.get("members"),
                                         ),
                                       if (snapshot.hasData &&
                                           snapshot.data.imagesCount != 0)
                                         Tab(
-                                          text: _locale
-                                              .get("images"),
+                                          text: _locale.get("images"),
                                         ),
                                       if (snapshot.hasData &&
                                           snapshot.data.videosCount != 0)
                                         Tab(
-                                          text: _locale
-                                              .get("videos"),
+                                          text: _locale.get("videos"),
                                         ),
                                       if (snapshot.hasData &&
                                           snapshot.data.filesCount != 0)
                                         Tab(
-                                          text:
-                                              _locale.get("file"),
+                                          text: _locale.get("file"),
                                         ),
                                       if (snapshot.hasData &&
                                           snapshot.data.linkCount != 0)
-                                        Tab(
-                                            text: _locale
-                                                .get("links")),
+                                        Tab(text: _locale.get("links")),
                                       if (snapshot.hasData &&
                                           snapshot.data.documentsCount != 0)
-                                        Tab(
-                                            text: _locale
-                                                .get("documents")),
+                                        Tab(text: _locale.get("documents")),
                                       if (snapshot.hasData &&
                                           snapshot.data.musicsCount != 0)
-                                        Tab(
-                                            text: _locale
-                                                .get("musics")),
+                                        Tab(text: _locale.get("musics")),
                                       if (snapshot.hasData &&
                                           snapshot.data.audiosCount != 0)
-                                        Tab(
-                                            text: _locale
-                                                .get("audios")),
+                                        Tab(text: _locale.get("audios")),
                                     ],
                                     controller: _tabController,
                                   ),
@@ -300,11 +288,13 @@ class _ProfilePageState extends State<ProfilePage>
                       padding: const EdgeInsets.only(top: 8.0),
                       child: SettingsTile(
                         title: _locale.get("username"),
-                        titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
+                        titleTextStyle:
+                            TextStyle(color: ExtraTheme.of(context).textField),
                         subtitle: "${snapshot.data}",
                         leading: Icon(Icons.alternate_email),
                         trailing: Icon(Icons.copy),
-                        subtitleTextStyle: TextStyle(color: ExtraTheme.of(context).username),
+                        subtitleTextStyle:
+                            TextStyle(color: ExtraTheme.of(context).username),
                         onPressed: (_) => Clipboard.setData(
                             ClipboardData(text: "@${snapshot.data}")),
                       ),
@@ -324,10 +314,12 @@ class _ProfilePageState extends State<ProfilePage>
                       padding: const EdgeInsets.only(top: 8.0),
                       child: SettingsTile(
                         title: _locale.get("phone"),
-                        titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
+                        titleTextStyle:
+                            TextStyle(color: ExtraTheme.of(context).textField),
                         subtitle: buildPhoneNumber(snapshot.data.countryCode,
                             snapshot.data.nationalNumber),
-                        subtitleTextStyle: TextStyle(color: ExtraTheme.of(context).username),
+                        subtitleTextStyle:
+                            TextStyle(color: ExtraTheme.of(context).username),
                         leading: Icon(Icons.phone),
                         trailing: Icon(Icons.call),
                         onPressed: (_) => launch(
@@ -343,7 +335,8 @@ class _ProfilePageState extends State<ProfilePage>
               padding: const EdgeInsets.only(top: 8.0),
               child: SettingsTile(
                   title: _locale.get("send_message"),
-                  titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
+                  titleTextStyle:
+                      TextStyle(color: ExtraTheme.of(context).textField),
                   leading: Icon(Icons.message),
                   onPressed: (_) =>
                       _routingService.openRoom(widget.roomUid.asString())),
@@ -354,7 +347,8 @@ class _ProfilePageState extends State<ProfilePage>
                 if (snapshot.hasData && snapshot.data != null) {
                   return SettingsTile.switchTile(
                       title: _locale.get("notification"),
-                      titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
+                      titleTextStyle:
+                          TextStyle(color: ExtraTheme.of(context).textField),
                       leading: Icon(Icons.notifications_active),
                       switchValue: !snapshot.data,
                       onToggle: (state) {
@@ -377,12 +371,15 @@ class _ProfilePageState extends State<ProfilePage>
                         muc.data != null &&
                         muc.data.info.isNotEmpty) {
                       return Padding(
-                        padding: const EdgeInsets.only(top:8.0),
+                        padding: const EdgeInsets.only(top: 8.0),
                         child: SettingsTile(
                             title: _locale.get("description"),
-                            titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
+                            titleTextStyle: TextStyle(
+                                color: ExtraTheme.of(context).textField),
                             subtitle: muc.data.info,
-                            subtitleTextStyle: TextStyle(color: ExtraTheme.of(context).username,fontSize: 16),
+                            subtitleTextStyle: TextStyle(
+                                color: ExtraTheme.of(context).username,
+                                fontSize: 16),
                             leading: Icon(Icons.info),
                             trailing: SizedBox.shrink()),
                       );
@@ -391,10 +388,11 @@ class _ProfilePageState extends State<ProfilePage>
                   }),
             if (widget.roomUid.isMuc())
               Padding(
-                padding: const EdgeInsets.only(top:8.0),
+                padding: const EdgeInsets.only(top: 8.0),
                 child: SettingsTile(
                   title: _locale.get("add_member"),
-                  titleTextStyle: TextStyle(color: ExtraTheme.of(context).textField),
+                  titleTextStyle:
+                      TextStyle(color: ExtraTheme.of(context).textField),
                   leading: Icon(Icons.person_add),
                   onPressed: (_) => _routingService.openMemberSelection(
                       isChannel: true, mucUid: widget.roomUid),
@@ -589,8 +587,7 @@ class _ProfilePageState extends State<ProfilePage>
                       onPressed: () {
                         Clipboard.setData(
                             ClipboardData(text: generateInviteLink(token)));
-                        Fluttertoast.showToast(
-                            msg: _locale.get("copied"));
+                        Fluttertoast.showToast(msg: _locale.get("copied"));
                         Navigator.pop(context);
                       },
                       child: Text(
@@ -854,8 +851,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 initialValue: name.data,
                                 validator: (s) {
                                   if (s.isEmpty) {
-                                    return _locale
-                                        .get("name_not_empty");
+                                    return _locale.get("name_not_empty");
                                   } else {
                                     return null;
                                   }
@@ -871,8 +867,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 decoration: buildInputDecoration(
                                   widget.roomUid.category == Categories.GROUP
                                       ? _locale.get("group_name")
-                                      : _locale
-                                          .get("channel_name"),
+                                      : _locale.get("channel_name"),
                                 ),
                               )),
                         );
@@ -908,16 +903,15 @@ class _ProfilePageState extends State<ProfilePage>
                                         }
                                       },
                                       keyboardType: TextInputType.text,
-                                      decoration: buildInputDecoration(_locale
-                                          .get("channel_id")),
+                                      decoration: buildInputDecoration(
+                                          _locale.get("channel_id")),
                                     )),
                                 StreamBuilder(
                                     stream: _showChannelIdError.stream,
                                     builder: (c, e) {
                                       if (e.hasData && e.data) {
                                         return Text(
-                                          _locale.get(
-                                              "channel_id_is_exist"),
+                                          _locale.get("channel_id_is_exist"),
                                           style: TextStyle(color: Colors.red),
                                         );
                                       } else {
@@ -954,8 +948,7 @@ class _ProfilePageState extends State<ProfilePage>
                           decoration: buildInputDecoration(
                             widget.roomUid.category == Categories.GROUP
                                 ? _locale.get("enter_group_desc")
-                                : _locale
-                                    .get("enter_channel_desc"),
+                                : _locale.get("enter_channel_desc"),
                           ),
                         );
                       } else {
@@ -980,7 +973,8 @@ class _ProfilePageState extends State<ProfilePage>
                           ElevatedButton(
                             onPressed: change.data
                                 ? () async {
-                                    if (nameFormKey?.currentState?.validate()) {
+                                    if (nameFormKey?.currentState != null &&
+                                        nameFormKey.currentState.validate()) {
                                       if (widget.roomUid.category ==
                                           Categories.GROUP) {
                                         _mucRepo.modifyGroup(
@@ -1003,8 +997,10 @@ class _ProfilePageState extends State<ProfilePage>
                                               mucName ?? _currentName);
                                           Navigator.pop(context);
                                         } else if (channelIdFormKey
-                                            ?.currentState
-                                            ?.validate()) {
+                                                    ?.currentState !=
+                                                null &&
+                                            channelIdFormKey.currentState
+                                                .validate()) {
                                           if (await checkChannelD(channelId)) {
                                             _mucRepo.modifyChannel(
                                                 widget.roomUid.asString(),

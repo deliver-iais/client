@@ -180,11 +180,18 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     if (media == null) {
       widget.heroTag = "btn$i";
       return FutureBuilder<List<Media>>(
-          future: _mediaQueryRepo.getMedia(widget.userUid,
-              MediaType.IMAGE,widget.mediasLength,),
+          future: _mediaQueryRepo.getMedia(
+            widget.userUid,
+            MediaType.IMAGE,
+            widget.mediasLength,
+          ),
           builder: (context, snapshot) {
             if (!snapshot.hasData || snapshot.data == null) {
-              return Center(child: CircularProgressIndicator(color: Colors.blueAccent,),);
+              return Center(
+                child: CircularProgressIndicator(
+                  color: Colors.blueAccent,
+                ),
+              );
             } else {
               setMediaUrlCache(i, snapshot.data);
               buildMediaPropertise(snapshot.data[i]);
@@ -235,7 +242,7 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
         child: Stack(
           alignment: Alignment.center,
           children: <Widget>[
-           Hero(
+            Hero(
               tag: tag,
               child: Image.file(
                 mediaFile,
@@ -253,8 +260,8 @@ class _MediaDetailsPageState extends State<MediaDetailsPage> {
     var media = _mediaCache.get("$i");
     if (media == null) {
       return FutureBuilder<List<Media>>(
-          future: _mediaQueryRepo.getMediaAround(widget.userUid.asString(), i,
-              MediaType.VIDEO),
+          future: _mediaQueryRepo.getMediaAround(
+              widget.userUid.asString(), i, MediaType.VIDEO),
           builder: (context, snapshot) {
             if (!snapshot.hasData || snapshot.data == null) {
               return Center();

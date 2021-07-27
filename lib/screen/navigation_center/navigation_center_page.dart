@@ -47,6 +47,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _audioService = GetIt.I.get<AudioService>();
+  final _i18n = GetIt.I.get<I18N>();
   final ScrollController _scrollController = ScrollController();
 
   final Function tapOnCurrentUserAvatar;
@@ -75,7 +76,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   Widget build(BuildContext context) {
-    var _i18n = I18N.of(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(56),
