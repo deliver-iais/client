@@ -235,7 +235,7 @@ Future<String> getPersistentEventText(I18N i18n, RoomRepo roomRepo,
 
 PB.Message extractProtocolBufferMessage(Message message) {
   final msg = PB.Message()
-    ..id = Int64(message.id)
+    ..id = Int64(message.id ?? 0)
     ..packetId = message.packetId
     ..from = message.from.asUid()
     ..to = message.to.asUid()
