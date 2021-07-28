@@ -1,40 +1,37 @@
 import 'package:flutter/material.dart';
 
 class ExtraThemeData {
-  Color centerPageDetails = Color(0xFF9D9D9D);
-  Color circleAvatarIcon = Colors.white;
-
-  // Color text = Color(0xFFBCE0FD);
-  Color blueOfProfilePage = Color(0xFF2699FB);
-  Color backgroundOfProfilePage = Color(0xFF424242);
-  Color borderOfProfilePage = Color(0xFF9D9D9D);
+  Color centerPageDetails;
+  Color circleAvatarIcon;
   Color boxDetails = Colors.white;
   Color boxOuterBackground = Color(0xfde2f8f0);
   Color boxBackground = Color(0xfde2f8f0);
-  Color activeSwitch = Color(0xff15786c);
-  Color textDetails; //light green - blue
-  Color bottomNavigationAppbar;
   Color titleStatus;
-  Color activePageIcon;
-  Color inactivePageIcon;
   Color menuIconButton;
   Color popupMenuButton;
   Color popupMenuButtonDetails;
   Color chatOrContactItemDetails;
   Color searchBox;
-  Color username;
   Color sentMessageBox;
   Color receivedMessageBox;
-  Color textMessage;
   Color seenStatus; //green white
   Color messageDetails;
   Color persistentEventMessage;
   Color circularFileStatus;
   Color fileMessageDetails;
-  Color textField; //green white
   Color inputBoxBackground;
+
+  // TODO Should be remove
   Color border;
+
+  // TODO should be remove
   Color mentionAutoCompleter;
+
+  // TODO refactor all of these
+  Color username; // primary
+  Color textMessage; // -> normal
+  Color textField; //green white -> normal
+  Color textDetails; //light green - blue -> accent
 
   ExtraThemeData({
     this.centerPageDetails,
@@ -42,11 +39,7 @@ class ExtraThemeData {
     this.boxDetails,
     this.boxOuterBackground,
     this.boxBackground,
-    this.activeSwitch,
     this.textDetails,
-    this.bottomNavigationAppbar,
-    this.activePageIcon,
-    this.inactivePageIcon,
     this.menuIconButton,
     this.popupMenuButton,
     this.popupMenuButtonDetails,

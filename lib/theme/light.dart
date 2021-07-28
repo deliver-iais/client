@@ -3,15 +3,18 @@ import 'package:flutter/material.dart';
 
 const LightThemeName = "Light";
 
+const primary = Color(0xFF2699FB);
+const accent = Color(0xff002121);
+
 // ignore: non_constant_identifier_names
 ThemeData LightTheme =
     ThemeData(brightness: Brightness.light, fontFamily: "Vazir").copyWith(
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        primaryColor: Color(0xFF2699FB),
-        accentColor: Color(0xff002121),
+        primaryColor: primary,
+        accentColor: accent,
         scaffoldBackgroundColor: Colors.white,
         backgroundColor: Color(0xfde2f8f0),
-        buttonColor: Color(0xFF2699FB),
+        buttonColor: primary,
         dividerTheme: DividerThemeData(
             space: 1.0, thickness: 1.0, color: Color(0xFFf0f0f0)),
         focusColor: Colors.lightBlue[300].withOpacity(0.6),
@@ -19,6 +22,24 @@ ThemeData LightTheme =
         popupMenuTheme: PopupMenuThemeData(
             textStyle: TextStyle(
                 color: Colors.black, fontSize: 14, fontFamily: 'Vazir')),
+        primaryTextTheme: TextTheme(
+          headline1: TextStyle(color: Colors.black, fontSize: 40),
+          headline2: TextStyle(color: Colors.black, fontSize: 25),
+          headline3: TextStyle(color: Colors.black, fontSize: 20),
+          headline4: TextStyle(color: Colors.black, fontSize: 18),
+          headline6: TextStyle(color: Colors.black, fontSize: 15),
+          bodyText1: TextStyle(color: Colors.black, fontSize: 15),
+          bodyText2: TextStyle(color: Colors.black, fontSize: 14),
+        ).apply(fontFamily: "Vazir", displayColor: primary, bodyColor: primary),
+        accentTextTheme: TextTheme(
+          headline1: TextStyle(color: Colors.black, fontSize: 40),
+          headline2: TextStyle(color: Colors.black, fontSize: 25),
+          headline3: TextStyle(color: Colors.black, fontSize: 20),
+          headline4: TextStyle(color: Colors.black, fontSize: 18),
+          headline6: TextStyle(color: Colors.black, fontSize: 15),
+          bodyText1: TextStyle(color: Colors.black, fontSize: 15),
+          bodyText2: TextStyle(color: Colors.black, fontSize: 14),
+        ).apply(fontFamily: "Vazir", displayColor: accent, bodyColor: accent),
         textTheme: TextTheme(
           headline1: TextStyle(color: Colors.black, fontSize: 40),
           headline2: TextStyle(color: Colors.black, fontSize: 25),
@@ -27,42 +48,41 @@ ThemeData LightTheme =
           headline6: TextStyle(color: Colors.black, fontSize: 15),
           bodyText1: TextStyle(color: Colors.black, fontSize: 15),
           bodyText2: TextStyle(color: Colors.black, fontSize: 14),
-        ).apply(fontFamily: "Vazir"),
+        ).apply(
+            fontFamily: "Vazir",
+            displayColor: Colors.black,
+            bodyColor: Colors.black),
         dialogTheme: DialogTheme(
             titleTextStyle:
                 TextStyle(color: Colors.black, fontSize: 18, inherit: true)),
         appBarTheme: AppBarTheme(
             color: Colors.white,
             elevation: 0,
-            iconTheme: IconThemeData(color: Color(0xff002121))),
+            iconTheme: IconThemeData(color: accent)),
         sliderTheme: SliderThemeData(
-          thumbColor: Color(0xFF2699FB),
+          thumbColor: primary,
           trackHeight: 2.25,
-          activeTrackColor: Color(0xFF2699FB),
+          activeTrackColor: primary,
           inactiveTrackColor: Colors.white,
           thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
         ),
-        iconTheme: IconThemeData(color: Color(0xff002121)),
+        iconTheme: IconThemeData(color: accent),
         tabBarTheme: TabBarTheme(
           indicator: UnderlineTabIndicator(
-              borderSide: BorderSide(width: 2.0, color: Color(0xFF2699FB)),
+              borderSide: BorderSide(width: 2.0, color: primary),
               insets: EdgeInsets.zero),
-          labelColor: Color(0xFF2699FB),
+          labelColor: primary,
           unselectedLabelColor: Color(0xbb002121),
         ));
 
 // ignore: non_constant_identifier_names
 ExtraThemeData LightExtraTheme = ExtraThemeData(
   centerPageDetails: Color(0xff0b796c),
-  circleAvatarIcon: Color(0xFF2699FB),
+  circleAvatarIcon: primary,
   boxDetails: Color(0xff15786c),
   boxOuterBackground: Colors.white,
   boxBackground: Color(0xFFEFEFF4),
-  activeSwitch: Color(0xff15786c),
   textDetails: Colors.black,
-  bottomNavigationAppbar: LightTheme.appBarTheme.color,
-  activePageIcon: LightTheme.accentColor,
-  inactivePageIcon: LightTheme.accentColor.withAlpha(100),
   menuIconButton: LightTheme.accentColor.withAlpha(50),
   popupMenuButton: Colors.white,
   popupMenuButtonDetails: LightTheme.accentColor,
