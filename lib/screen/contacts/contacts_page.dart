@@ -10,7 +10,7 @@ import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
 import 'package:deliver_flutter/shared/methods/url.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

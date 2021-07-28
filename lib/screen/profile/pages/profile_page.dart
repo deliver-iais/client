@@ -24,7 +24,7 @@ import 'package:deliver_flutter/shared/widgets/profile_avatar.dart';
 import 'package:deliver_flutter/shared/widgets/box.dart';
 import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
 import 'package:deliver_flutter/shared/methods/phone.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';

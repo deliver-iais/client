@@ -12,7 +12,7 @@ import 'package:deliver_flutter/shared/methods/name.dart';
 import 'package:deliver_flutter/shared/methods/phone.dart';
 import 'package:deliver_flutter/shared/methods/url.dart';
 
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as C;
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';

@@ -3,7 +3,7 @@ import 'package:deliver_flutter/screen/room/messageWidgets/audio_message/time_pr
 import 'package:deliver_flutter/screen/room/messageWidgets/size_formater.dart';
 import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/shared/methods/find_file_type.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

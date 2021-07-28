@@ -4,7 +4,7 @@ import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/widgets/box.dart';
 import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

@@ -3,7 +3,7 @@ import 'package:deliver_flutter/box/message.dart';
 import 'package:deliver_flutter/screen/room/widgets/msgTime.dart';
 import 'package:deliver_flutter/shared/methods/time.dart';
 import 'package:deliver_flutter/shared/widgets/seen_status.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';

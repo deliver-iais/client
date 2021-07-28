@@ -17,7 +17,7 @@ import 'package:deliver_flutter/screen/room/widgets/sharePrivateDataRequestMessa
 import 'package:deliver_flutter/screen/room/widgets/share_uid_message_widget.dart';
 
 import 'package:deliver_flutter/services/routing_service.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

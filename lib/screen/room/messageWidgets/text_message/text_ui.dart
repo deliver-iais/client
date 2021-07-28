@@ -5,7 +5,7 @@ import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:deliver_flutter/shared/methods/time.dart';
 import 'package:deliver_flutter/shared/methods/url.dart';
 import 'package:deliver_flutter/shared/widgets/seen_status.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';

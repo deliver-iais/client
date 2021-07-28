@@ -3,7 +3,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/circular_file_status_indicator.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/header_details.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/timeAndSeenStatus.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/methods/isPersian.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';

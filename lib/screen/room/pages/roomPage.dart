@@ -41,7 +41,7 @@ import 'package:deliver_flutter/shared/methods/time.dart';
 import 'package:deliver_flutter/shared/widgets/muc_appbar_title.dart';
 import 'package:deliver_flutter/shared/widgets/user_appbar_title.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/theme/extra_colors.dart';
+import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
