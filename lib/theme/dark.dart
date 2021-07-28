@@ -18,12 +18,12 @@ ThemeData DarkTheme =
         focusColor: Color(0xFF2699FB).withOpacity(0.5),
         cardColor: Color(0xFF2699FB),
         textTheme: TextTheme(
-          headline1: TextStyle(color: Colors.white, fontSize: 40),
-          headline2: TextStyle(color: Colors.white, fontSize: 25),
-          headline3: TextStyle(color: Colors.white, fontSize: 20),
-          headline4: TextStyle(color: Colors.white, fontSize: 18),
-          headline6: TextStyle(color: Colors.white, fontSize: 15),
-          bodyText2: TextStyle(color: Colors.white, fontSize: 15),
+          headline1: TextStyle(color: Colors.white, fontSize: 40, inherit: true),
+          headline2: TextStyle(color: Colors.white, fontSize: 25, inherit: true),
+          headline3: TextStyle(color: Colors.white, fontSize: 20, inherit: true),
+          headline4: TextStyle(color: Colors.white, fontSize: 18, inherit: true),
+          headline6: TextStyle(color: Colors.white, fontSize: 15, inherit: true),
+          bodyText2: TextStyle(color: Colors.white, fontSize: 15, inherit: true),
         ),
         dialogTheme: DialogTheme(
             titleTextStyle: TextStyle(color: Colors.white, fontSize: 18)),

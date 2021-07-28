@@ -53,36 +53,37 @@ class LastMessage extends StatelessWidget {
                 child: RichText(
                     maxLines: 1,
                     overflow: TextOverflow.fade,
+                    textDirection: TextDirection.ltr,
                     softWrap: false,
                     text: TextSpan(children: [
                       if (mb.senderIsAUserOrBot && showSender)
                         TextSpan(
                             text: "${mb.sender.trim()}: ",
-                            style: TextStyle(
-                                color: ExtraTheme.of(context).username,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500)),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyText2
+                                .copyWith(
+                                    color: ExtraTheme.of(context).username)),
                       if (mb.typeDetails.isNotEmpty)
                         TextSpan(
                             text: "${mb.typeDetails}",
-                            style: TextStyle(
-                                color: ExtraTheme.of(context).username,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500)),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyText2
+                                .copyWith(
+                                    color: ExtraTheme.of(context).username)),
                       if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty)
                         TextSpan(
                             text: ", ",
-                            style: TextStyle(
-                                color: ExtraTheme.of(context).username,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500)),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyText2
+                                .copyWith(
+                                    color: ExtraTheme.of(context).username)),
                       if (mb.text.isNotEmpty)
                         TextSpan(
                             text: mb.text.split("\n").first,
-                            style: TextStyle(
-                                color: ExtraTheme.of(context)
-                                    .chatOrContactItemDetails,
-                                fontSize: 14)),
+                            style: Theme.of(context).textTheme.bodyText2),
                     ])),
               ),
               if (hasMentioned)

@@ -260,7 +260,7 @@ Widget _textWidget(
       ParsedText(
         textDirection: text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
         text: text,
-        style: TextStyle(color: color, fontSize: 16),
+        style: Theme.of(context).textTheme.bodyText2,
         parse: <MatchText>[
           MatchText(
             type: ParsedType.CUSTOM,

@@ -163,7 +163,7 @@ Future<String> getPersistentEventText(I18N i18n, RoomRepo roomRepo,
             i18n.verb("joined",
                 isFirstPerson: authRepo.isCurrentUser(
                     pe.mucSpecificPersistentEvent.issuer.asString())),
-            assignee
+            // assignee
           ].join(" ").trim();
           break;
         case MucSpecificPersistentEvent_Issue.KICK_USER:
@@ -181,7 +181,7 @@ Future<String> getPersistentEventText(I18N i18n, RoomRepo roomRepo,
             i18n.verb("left",
                 isFirstPerson: authRepo.isCurrentUser(
                     pe.mucSpecificPersistentEvent.issuer.asString())),
-            assignee
+            // assignee
           ].join(" ").trim();
           break;
         case MucSpecificPersistentEvent_Issue.MUC_CREATED:
