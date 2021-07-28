@@ -38,7 +38,7 @@ class _DevicesPageState extends State<DevicesPage> {
             titleSpacing: 8,
             title: Text(
               _i18n.get("devices"),
-              style: Theme.of(context).textTheme.headline2,
+              style: Theme.of(context).textTheme.headline5,
             ),
             leading: _routingService.backButtonLeading(),
           ),

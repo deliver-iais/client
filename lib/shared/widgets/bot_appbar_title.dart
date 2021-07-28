@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
@@ -25,7 +26,7 @@ class BotAppbarTitle extends StatelessWidget {
             children: [
               CircleAvatarWidget(botUid, 23),
               SizedBox(
-                width: 15,
+                width: 16,
               ),
               Expanded(
                 child: FutureBuilder<String>(
@@ -55,10 +56,18 @@ class BotAppbarTitle extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.fade,
           softWrap: false,
-          style: Theme.of(context).textTheme.headline2,
+          style: Theme.of(context).textTheme.subtitle1,
         ),
         TitleStatus(
           currentRoomUid: botUid,
+          style: Theme.of(context).textTheme.caption,
+          normalConditionWidget: Text(
+            I18N.of(context).get("bot"),
+            maxLines: 1,
+            overflow: TextOverflow.fade,
+            softWrap: false,
+            style: Theme.of(context).textTheme.caption,
+          ),
         )
       ],
     );

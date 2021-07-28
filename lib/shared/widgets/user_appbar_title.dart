@@ -4,7 +4,6 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/shared/widgets/title_status.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +34,7 @@ class UserAppbarTitle extends StatelessWidget {
                 showSavedMessageLogoIfNeeded: true,
               ),
               SizedBox(
-                width: 15,
+                width: 16,
               ),
               _authRepo.isCurrentUser(userUid.asString())
                   ? Expanded(
@@ -44,7 +43,7 @@ class UserAppbarTitle extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.fade,
                         softWrap: false,
-                        style: Theme.of(context).textTheme.headline3,
+                        style: Theme.of(context).textTheme.subtitle1,
                       ),
                     )
                   : Expanded(
@@ -61,7 +60,7 @@ class UserAppbarTitle extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.fade,
                                   softWrap: false,
-                                  style: Theme.of(context).textTheme.headline2,
+                                  style: Theme.of(context).textTheme.subtitle1,
                                 ),
                                 TitleStatus(
                                   currentRoomUid: userUid,
@@ -71,10 +70,9 @@ class UserAppbarTitle extends StatelessWidget {
                                               maxLines: 1,
                                               overflow: TextOverflow.fade,
                                               softWrap: false,
-                                              style: TextStyle(
-                                                  fontSize: 11,
-                                                  color: ExtraTheme.of(context)
-                                                      .textDetails))
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .caption)
                                           : const SizedBox.shrink(),
                                 )
                               ],

@@ -702,7 +702,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     TextEditingController controller = TextEditingController();
     BehaviorSubject<bool> checkSearchResult = BehaviorSubject.seeded(false);
     return PreferredSize(
-      preferredSize: Size.fromHeight(60),
+      preferredSize: Size.fromHeight(54),
       child: AppBar(
         leading: GestureDetector(
           child: StreamBuilder(

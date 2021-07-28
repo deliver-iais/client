@@ -100,10 +100,8 @@ class PinMessageAppBar extends StatelessWidget {
                           children: [
                             Text(
                               i18n.get("pinned_message"),
-                              style: TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold),
+                              style:
+                                  Theme.of(context).primaryTextTheme.subtitle2,
                             ),
                             LastMessage(
                                 message: mes,

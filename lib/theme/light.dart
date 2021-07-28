@@ -3,77 +3,49 @@ import 'package:flutter/material.dart';
 
 const LightThemeName = "Light";
 
-const primary = Color(0xFF2699FB);
-const accent = Color(0xff002121);
+final primary = Color(0xFF2699FB);
+final accent = Colors.grey[800];
 
 // ignore: non_constant_identifier_names
-ThemeData LightTheme =
-    ThemeData(brightness: Brightness.light, fontFamily: "Vazir").copyWith(
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        primaryColor: primary,
-        accentColor: accent,
-        scaffoldBackgroundColor: Colors.white,
-        backgroundColor: Color(0xfde2f8f0),
-        buttonColor: primary,
-        dividerTheme: DividerThemeData(
-            space: 1.0, thickness: 1.0, color: Color(0xFFf0f0f0)),
-        focusColor: Colors.lightBlue[300].withOpacity(0.6),
-        cardColor: Colors.white,
-        popupMenuTheme: PopupMenuThemeData(
-            textStyle: TextStyle(
-                color: Colors.black, fontSize: 14, fontFamily: 'Vazir')),
-        primaryTextTheme: TextTheme(
-          headline1: TextStyle(color: Colors.black, fontSize: 40),
-          headline2: TextStyle(color: Colors.black, fontSize: 25),
-          headline3: TextStyle(color: Colors.black, fontSize: 20),
-          headline4: TextStyle(color: Colors.black, fontSize: 18),
-          headline6: TextStyle(color: Colors.black, fontSize: 15),
-          bodyText1: TextStyle(color: Colors.black, fontSize: 15),
-          bodyText2: TextStyle(color: Colors.black, fontSize: 14),
-        ).apply(fontFamily: "Vazir", displayColor: primary, bodyColor: primary),
-        accentTextTheme: TextTheme(
-          headline1: TextStyle(color: Colors.black, fontSize: 40),
-          headline2: TextStyle(color: Colors.black, fontSize: 25),
-          headline3: TextStyle(color: Colors.black, fontSize: 20),
-          headline4: TextStyle(color: Colors.black, fontSize: 18),
-          headline6: TextStyle(color: Colors.black, fontSize: 15),
-          bodyText1: TextStyle(color: Colors.black, fontSize: 15),
-          bodyText2: TextStyle(color: Colors.black, fontSize: 14),
-        ).apply(fontFamily: "Vazir", displayColor: accent, bodyColor: accent),
-        textTheme: TextTheme(
-          headline1: TextStyle(color: Colors.black, fontSize: 40),
-          headline2: TextStyle(color: Colors.black, fontSize: 25),
-          headline3: TextStyle(color: Colors.black, fontSize: 20),
-          headline4: TextStyle(color: Colors.black, fontSize: 18),
-          headline6: TextStyle(color: Colors.black, fontSize: 15),
-          bodyText1: TextStyle(color: Colors.black, fontSize: 15),
-          bodyText2: TextStyle(color: Colors.black, fontSize: 14),
-        ).apply(
-            fontFamily: "Vazir",
-            displayColor: Colors.black,
-            bodyColor: Colors.black),
-        dialogTheme: DialogTheme(
-            titleTextStyle:
-                TextStyle(color: Colors.black, fontSize: 18, inherit: true)),
-        appBarTheme: AppBarTheme(
-            color: Colors.white,
-            elevation: 0,
-            iconTheme: IconThemeData(color: accent)),
-        sliderTheme: SliderThemeData(
-          thumbColor: primary,
-          trackHeight: 2.25,
-          activeTrackColor: primary,
-          inactiveTrackColor: Colors.white,
-          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
-        ),
-        iconTheme: IconThemeData(color: accent),
-        tabBarTheme: TabBarTheme(
-          indicator: UnderlineTabIndicator(
-              borderSide: BorderSide(width: 2.0, color: primary),
-              insets: EdgeInsets.zero),
-          labelColor: primary,
-          unselectedLabelColor: Color(0xbb002121),
-        ));
+ThemeData LightTheme = ThemeData(
+  brightness: Brightness.light,
+  fontFamily: "Vazir",
+  primaryTextTheme: Typography.blackCupertino
+      .apply(fontFamily: "Vazir", displayColor: primary, bodyColor: primary),
+  accentTextTheme: Typography.blackCupertino
+      .apply(fontFamily: "Vazir", displayColor: accent, bodyColor: accent),
+  textTheme: Typography.blackCupertino.apply(
+      fontFamily: "Vazir", displayColor: Colors.black, bodyColor: Colors.black),
+).copyWith(
+    visualDensity: VisualDensity.adaptivePlatformDensity,
+    primaryColor: primary,
+    accentColor: accent,
+    scaffoldBackgroundColor: Colors.white,
+    backgroundColor: Color(0xfde2f8f0),
+    buttonColor: primary,
+    dividerTheme:
+        DividerThemeData(space: 1.0, thickness: 1.0, color: Color(0xFFf0f0f0)),
+    focusColor: Colors.lightBlue[300].withOpacity(0.6),
+    cardColor: Colors.white,
+    appBarTheme: AppBarTheme(
+        color: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: accent)),
+    sliderTheme: SliderThemeData(
+      thumbColor: primary,
+      trackHeight: 2.25,
+      activeTrackColor: primary,
+      inactiveTrackColor: Colors.white,
+      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
+    ),
+    iconTheme: IconThemeData(color: accent),
+    tabBarTheme: TabBarTheme(
+      indicator: UnderlineTabIndicator(
+          borderSide: BorderSide(width: 2.0, color: primary),
+          insets: EdgeInsets.zero),
+      labelColor: primary,
+      unselectedLabelColor: Color(0xbb002121),
+    ));
 
 // ignore: non_constant_identifier_names
 ExtraThemeData LightExtraTheme = ExtraThemeData(

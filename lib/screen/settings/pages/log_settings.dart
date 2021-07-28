@@ -33,7 +33,7 @@ class _LogSettingsPageState extends State<LogSettingsPage> {
               titleSpacing: 8,
               title: Text(
                 "Log Level",
-                style: Theme.of(context).textTheme.headline2,
+                style: Theme.of(context).textTheme.headline5,
               ),
               leading: _routingService.backButtonLeading(),
             ),

@@ -117,7 +117,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               titleSpacing: 8,
               title: Column(children: [
                 Text(_i18n.get("account_info"),
-                    style: Theme.of(context).textTheme.headline2),
+                    style: Theme.of(context).textTheme.headline5),
                 if (widget.forceToSetUsernameAndName)
                   Text(
                     _i18n

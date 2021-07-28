@@ -136,6 +136,7 @@ class RoutingService {
         smallPageMain: widget,
         path: "/language_settings"));
   }
+
   void openDevicesPage() {
     var widget = DevicesPage(key: ValueKey("/devices_page"));
     _push(Page(
@@ -311,7 +312,8 @@ class RoutingService {
         smallPageMain: widget,
         path: "/scan_qr_code"));
   }
-  void openImagePage({Uid roomUid,File file}) {
+
+  void openImagePage({Uid roomUid, File file}) {
     var widget = ShowImagePage(
       roomUid: roomUid,
       imageFile: file,
@@ -463,12 +465,12 @@ class Empty extends StatelessWidget {
       ),
       child: Center(
         child: Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderRadius: BorderRadius.all(Radius.circular(20)),
                 color: Theme.of(context).dividerColor.withOpacity(0.1)),
             child: Text("Please select a chat to start messaging",
-                style: Theme.of(context).textTheme.headline6)),
+                style: Theme.of(context).textTheme.subtitle2)),
       ),
     );
   }

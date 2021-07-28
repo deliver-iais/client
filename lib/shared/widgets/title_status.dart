@@ -5,7 +5,6 @@ import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/shared/widgets/activity_status.dart';
 import 'package:deliver_flutter/shared/methods/time.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -38,9 +37,11 @@ class _TitleStatusState extends State<TitleStatus> {
 
   @override
   void initState() {
-    if (widget.currentRoomUid.category == Categories.USER)
-      _lastActivityRepo.updateLastActivity(widget.currentRoomUid);
-    _roomRepo.initActivity(widget.currentRoomUid.node);
+    if (widget.currentRoomUid != null) {
+      if (widget.currentRoomUid.category == Categories.USER)
+        _lastActivityRepo.updateLastActivity(widget.currentRoomUid);
+      _roomRepo.initActivity(widget.currentRoomUid.node);
+    }
     super.initState();
   }
 
@@ -52,18 +53,6 @@ class _TitleStatusState extends State<TitleStatus> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             switch (snapshot.data) {
-              case TitleStatusConditions.Normal:
-                if (widget.currentRoomUid.category == Categories.BOT)
-                  return Text(title(i18n, snapshot.data),
-                      maxLines: 1,
-                      overflow: TextOverflow.fade,
-                      softWrap: false,
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: ExtraTheme.of(context).textDetails));
-                else
-                  return activityWidget();
-                break;
               case TitleStatusConditions.Updating:
               case TitleStatusConditions.Disconnected:
               case TitleStatusConditions.Connecting:
@@ -71,28 +60,21 @@ class _TitleStatusState extends State<TitleStatus> {
                     maxLines: 1,
                     overflow: TextOverflow.fade,
                     softWrap: false,
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: ExtraTheme.of(context).textDetails));
+                    style: widget.style);
                 break;
-            }
-            if (snapshot.data == TitleStatusConditions.Normal &&
-                this.widget.normalConditionWidget != null) {
-              return this.widget.normalConditionWidget;
-            } else {
-              return Text(title(i18n, snapshot.data),
-                  maxLines: 1,
-                  overflow: TextOverflow.fade,
-                  softWrap: false,
-                  style: this.widget.style);
+              case TitleStatusConditions.Normal:
+                if (widget.currentRoomUid != null)
+                  return activityWidget();
+                else
+                  return this.widget.normalConditionWidget;
+                break;
             }
           }
           return widget.normalConditionWidget;
         });
   }
 
-  title(
-      I18N i18n, TitleStatusConditions statusConditions) {
+  title(I18N i18n, TitleStatusConditions statusConditions) {
     switch (statusConditions) {
       case TitleStatusConditions.Disconnected:
         return i18n.get("disconnected").capitalCase;
@@ -101,8 +83,6 @@ class _TitleStatusState extends State<TitleStatus> {
       case TitleStatusConditions.Updating:
         return i18n.get("updating").capitalCase;
       case TitleStatusConditions.Normal:
-        if (widget.currentRoomUid.category == Categories.BOT)
-          return i18n.get("bot").capitalCase;
         return i18n.get("connected");
     }
   }
@@ -137,17 +117,16 @@ class _TitleStatusState extends State<TitleStatus> {
               if (isOnline(userInfo.data.time)) {
                 return Text(
                   i18n.get("online"),
-                  style: TextStyle(
-                      fontSize: 14, color: ExtraTheme.of(context).titleStatus),
+                  style: widget.style
+                      .copyWith(color: Theme.of(context).primaryColor),
                 );
               } else {
                 String lastActivityTime =
                     dateTimeFormat(date(userInfo.data.time));
                 return Text(
-                  "${i18n.get("last_seen")} ${lastActivityTime.contains("just now") ? i18n.get("just_now") : lastActivityTime} ",
-                  style: TextStyle(
-                      fontSize: 12, color: ExtraTheme.of(context).titleStatus),
-                );
+                    "${i18n.get("last_seen")} ${lastActivityTime.contains("just now") ? i18n.get("just_now") : lastActivityTime} ",
+                    style: widget.style
+                        .copyWith(color: Theme.of(context).primaryColor));
               }
             }
             return SizedBox.shrink();

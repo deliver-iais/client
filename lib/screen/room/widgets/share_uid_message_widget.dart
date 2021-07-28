@@ -101,7 +101,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                                     forceText: _shareUid.name),
                                 Text(
                                   _shareUid.name,
-                                  style: Theme.of(context).textTheme.headline3,
+                                  style: Theme.of(context).textTheme.headline6,
                                 ),
                                 SizedBox(height: 10),
                                 Row(

@@ -31,7 +31,7 @@
 //               alignment: Alignment.centerLeft,
 //               child: Text(
 //                 _i18n.getTraslateValue("add_sticker_pack"),
-//                 style: Theme.of(context).textTheme.headline3,
+//                 style: Theme.of(context).textTheme.headline5,
 //               ),
 //             ),
 //             leading: _routingService.backButtonLeading()),

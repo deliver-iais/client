@@ -5,14 +5,13 @@ import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/repository/authRepo.dart';
 import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
-import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/navigation_center/chats/widgets/chatsPage.dart';
 import 'package:deliver_flutter/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver_flutter/screen/navigation_center/widgets/search_box.dart';
-import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
+import 'package:deliver_flutter/shared/widgets/title_status.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_theme.dart';
 
@@ -45,8 +44,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   final _rootingServices = GetIt.I.get<RoutingService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _audioService = GetIt.I.get<AudioService>();
   final _i18n = GetIt.I.get<I18N>();
   final ScrollController _scrollController = ScrollController();
 
@@ -115,43 +112,13 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 ],
               ),
               titleSpacing: 8.0,
-              title: StreamBuilder<TitleStatusConditions>(
-                  stream: _messageRepo.updatingStatus.stream,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data == TitleStatusConditions.Normal) {
-                      return buildText(context);
-                    } else if (snapshot.data ==
-                        TitleStatusConditions.Updating) {
-                      return Text(_i18n.get("updating"),
-                          style: TextStyle(
-                              fontSize: 20,
-                              color:
-                                  Theme.of(context).textTheme.headline2.color));
-                    } else if (snapshot.data ==
-                        TitleStatusConditions.Connecting) {
-                      return Text(_i18n.get("connecting"),
-                          style: TextStyle(
-                              fontSize: 20,
-                              color:
-                                  Theme.of(context).textTheme.headline2.color));
-                    } else if (snapshot.hasData &&
-                        snapshot.data == TitleStatusConditions.Disconnected) {
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          buildText(context),
-                          SizedBox(
-                            width: 7,
-                          ),
-                          Text(_i18n.get("disconnect"),
-                              style: TextStyle(fontSize: 16, color: Colors.red))
-                        ],
-                      );
-                    } else {
-                      return buildText(context);
-                    }
-                  }),
+              title: TitleStatus(
+                style: Theme.of(context).accentTextTheme.headline6,
+                normalConditionWidget: Text(
+                  I18N.of(context).get("chats"),
+                  style: Theme.of(context).textTheme.headline5,
+                ),
+              ),
               actions: [
                 if (!isDesktop())
                   Container(
@@ -208,16 +175,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
               ? searchResult(_i18n)
               : Expanded(child: ChatsPage(scrollController: _scrollController)),
         ],
-      ),
-    );
-  }
-
-  Widget buildText(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _audioService.playSoundOut(),
-      child: Text(
-        I18N.of(context).get("chats"),
-        style: Theme.of(context).textTheme.headline2,
       ),
     );
   }

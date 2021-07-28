@@ -4,7 +4,6 @@ import 'package:deliver_flutter/repository/mucRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/shared/widgets/title_status.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -27,7 +26,7 @@ class MucAppbarTitle extends StatelessWidget {
             children: [
               CircleAvatarWidget(mucUid.asUid(), 23),
               SizedBox(
-                width: 20,
+                width: 16,
               ),
               Expanded(
                 child: StreamBuilder<Muc>(
@@ -42,7 +41,7 @@ class MucAppbarTitle extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.fade,
                               softWrap: false,
-                              style: Theme.of(context).textTheme.headline2,
+                              style: Theme.of(context).textTheme.subtitle1,
                             ),
                             TitleStatus(
                               normalConditionWidget: Text(
@@ -50,9 +49,7 @@ class MucAppbarTitle extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.fade,
                                 softWrap: false,
-                                style: TextStyle(
-                                    fontSize: 11,
-                                    color: ExtraTheme.of(context).textDetails),
+                                style: Theme.of(context).textTheme.caption,
                               ),
                               currentRoomUid: mucUid.asUid(),
                             )
@@ -63,22 +60,22 @@ class MucAppbarTitle extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
-                                width: 200,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                    color: Theme.of(context).brightness == Brightness.light
-                                        ? Colors.grey[200]
-                                        : Colors.grey[800])
-                              ),
+                                  width: 200,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                      color: Theme.of(context).brightness ==
+                                              Brightness.light
+                                          ? Colors.grey[200]
+                                          : Colors.grey[800])),
                               SizedBox(height: 6),
                               Container(
                                   width: 100,
                                   height: 11,
                                   decoration: BoxDecoration(
-                                      color: Theme.of(context).brightness == Brightness.light
+                                      color: Theme.of(context).brightness ==
+                                              Brightness.light
                                           ? Colors.grey[200]
-                                          : Colors.grey[800])
-                              ),
+                                          : Colors.grey[800])),
                             ]);
                     }),
               )

@@ -416,7 +416,7 @@ class _ProfilePageState extends State<ProfilePage>
               future: _roomRepo.getName(widget.roomUid),
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 var name = snapshot.data ?? "Loading...";
-                return Text(name, style: Theme.of(context).textTheme.headline2);
+                return Text(name, style: Theme.of(context).textTheme.headline5);
               },
             ),
           ),

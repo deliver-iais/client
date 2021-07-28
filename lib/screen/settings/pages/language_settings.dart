@@ -31,7 +31,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
               titleSpacing: 8,
               title: Text(
                 i18n.get("language"),
-                style: Theme.of(context).textTheme.headline2,
+                style: Theme.of(context).textTheme.headline5,
               ),
               leading: _routingService.backButtonLeading(),
             ),

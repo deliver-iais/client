@@ -144,7 +144,7 @@ class _VerificationPageState extends State<VerificationPage> {
                               Theme.of(context).accentColor),
                           textStyle: Theme.of(context)
                               .primaryTextTheme
-                              .headline4
+                              .headline5
                               .copyWith(color: Theme.of(context).primaryColor)),
                       currentCode: _verificationCode,
                       onCodeSubmitted: (code) {
