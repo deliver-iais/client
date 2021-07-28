@@ -76,6 +76,5 @@ ExtraThemeData DarkExtraTheme = ExtraThemeData(
     username: Colors.yellowAccent,
     seenStatus: Colors.white,
     inputBoxBackground: DarkTheme.accentColor.withAlpha(50),
-    pinMessageTheme: Color(0xFF263238),
-    mentionWidget: Color(0xFF263238),
+    mentionAutoCompleter: Color(0xFF263238),
     border: DarkTheme.primaryColor);

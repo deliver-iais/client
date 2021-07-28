@@ -3,11 +3,13 @@ import 'package:deliver_flutter/screen/room/messageWidgets/sender_and_content.da
 import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
-class ReplyWidget extends StatelessWidget {
+class ReplyPreview extends StatelessWidget {
   final Message message;
   final Function resetRoomPageDetails;
-  const ReplyWidget({Key key, this.message, this.resetRoomPageDetails})
+
+  const ReplyPreview({Key key, this.message, this.resetRoomPageDetails})
       : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(

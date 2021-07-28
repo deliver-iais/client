@@ -1,5 +1,4 @@
 import 'package:deliver_flutter/services/audio_service.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:marquee/marquee.dart';
@@ -16,7 +15,7 @@ class AudioPlayerAppBar extends StatelessWidget {
             return Container(
               height: 45,
               decoration: BoxDecoration(
-                color: ExtraTheme.of(context).pinMessageTheme,
+                color: Theme.of(context).appBarTheme.backgroundColor,
                 boxShadow: [
                   BoxShadow(
                     color: Theme.of(context).dividerColor,

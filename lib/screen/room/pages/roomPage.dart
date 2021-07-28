@@ -20,7 +20,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/forward_widgets/forward_widget.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/reply_widgets/reply-widget.dart';
+import 'package:deliver_flutter/screen/room/messageWidgets/reply_widgets/reply_preview.dart';
 import 'package:deliver_flutter/screen/room/pages/pinMessageAppBar.dart';
 import 'package:deliver_flutter/screen/room/pages/searchInMessageButtom.dart';
 import 'package:deliver_flutter/screen/room/widgets/bot_start_widget.dart';
@@ -549,7 +549,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
                 stream: _repliedMessage.stream,
                 builder: (c, rm) {
                   if (rm.hasData && rm.data != null) {
-                    return ReplyWidget(
+                    return ReplyPreview(
                         message: _repliedMessage.value,
                         resetRoomPageDetails: _resetRoomPageDetails);
                   } else {

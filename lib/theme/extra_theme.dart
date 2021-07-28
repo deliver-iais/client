@@ -34,9 +34,7 @@ class ExtraThemeData {
   Color textField; //green white
   Color inputBoxBackground;
   Color border;
-  Color pinMessageTheme;
-  Color mentionWidget;
-  TextStyle verificationPinCode;
+  Color mentionAutoCompleter;
 
   ExtraThemeData({
     this.centerPageDetails,
@@ -65,11 +63,9 @@ class ExtraThemeData {
     this.circularFileStatus,
     this.fileMessageDetails,
     this.textField,
-    this.pinMessageTheme,
     this.inputBoxBackground,
     this.border,
-    this.mentionWidget,
-    this.verificationPinCode,
+    this.mentionAutoCompleter,
   });
 }
 

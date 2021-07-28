@@ -79,8 +79,7 @@ ExtraThemeData LightExtraTheme = ExtraThemeData(
   username: Colors.blue[900],
   titleStatus: Colors.blue,
   seenStatus: Colors.blue,
-  pinMessageTheme: Colors.white,
   inputBoxBackground: Colors.white,
-  mentionWidget: Colors.white,
+  mentionAutoCompleter: Colors.white,
   border: Color(0xff174b45),
 );

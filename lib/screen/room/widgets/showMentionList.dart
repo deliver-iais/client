@@ -31,7 +31,7 @@ class ShowMentionList extends StatelessWidget {
                         ? 180
                         : double.parse((members.data.length * 50).toString()),
                     child: Container(
-                        color: ExtraTheme.of(context).mentionWidget,
+                        color: ExtraTheme.of(context).mentionAutoCompleter,
                         child: ListView.builder(
                           itemCount: members.data.length,
                           shrinkWrap: true,

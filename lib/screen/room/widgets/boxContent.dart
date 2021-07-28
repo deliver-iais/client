@@ -9,7 +9,7 @@ import 'package:deliver_flutter/screen/room/messageWidgets/botMessageWidget/bot_
 
 import 'package:deliver_flutter/screen/room/messageWidgets/locatioin_message.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/message_ui.dart';
-import 'package:deliver_flutter/screen/room/messageWidgets/reply_widgets/reply_widget_in_message.dart';
+import 'package:deliver_flutter/screen/room/messageWidgets/reply_widgets/reply_brief.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/stickerMessgeWidget.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/text_message/text_ui.dart';
 import 'package:deliver_flutter/screen/room/widgets/sharePrivateDataAcceptMessageWidget.dart';
@@ -86,7 +86,7 @@ class _BoxContentState extends State<BoxContent> {
       onTap: () {
         widget.scrollToMessage(widget.message.replyToId);
       },
-      child: ReplyWidgetInMessage(
+      child: ReplyBrief(
         roomId: widget.message.roomUid,
         replyToId: widget.message.replyToId,
       ),

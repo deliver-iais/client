@@ -5,12 +5,12 @@ import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class ReplyWidgetInMessage extends StatelessWidget {
+class ReplyBrief extends StatelessWidget {
   final String roomId;
   final int replyToId;
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
-  ReplyWidgetInMessage({
+  ReplyBrief({
     Key key,
     this.roomId,
     this.replyToId,
