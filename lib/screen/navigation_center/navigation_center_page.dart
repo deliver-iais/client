@@ -187,38 +187,17 @@ class _NavigationCenterState extends State<NavigationCenter> {
           color: ExtraTheme.of(context).menuIconButton,
         ),
         child: PopupMenuButton(
-            color: ExtraTheme.of(context).popupMenuButton,
-            icon: Icon(
-              Icons.create,
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white
-                  : Colors.black,
-            ),
+            icon: Icon(Icons.create),
             onSelected: selectChatMenu,
             itemBuilder: (context) => [
                   PopupMenuItem<String>(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.group,
-                            color:
-                                ExtraTheme.of(context).popupMenuButtonDetails,
-                          ),
-                          SizedBox(
-                            width: 15,
-                          ),
-                          Text(
-                            i18n.get("newGroup"),
-                            style: TextStyle(
-                                fontSize: 15,
-                                color: ExtraTheme.of(context)
-                                    .popupMenuButtonDetails),
-                          ),
-                        ],
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(Icons.group),
+                        SizedBox(width: 8),
+                        Text(i18n.get("newGroup")),
+                      ],
                     ),
                     value: "newGroup",
                   ),
@@ -226,18 +205,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon(Icons.rss_feed_rounded,
-                            color:
-                                ExtraTheme.of(context).popupMenuButtonDetails),
-                        SizedBox(
-                          width: 15,
-                        ),
+                        Icon(Icons.rss_feed_rounded),
+                        SizedBox(width: 8),
                         Text(
                           i18n.get("newChannel"),
-                          style: TextStyle(
-                              fontSize: 15,
-                              color: ExtraTheme.of(context)
-                                  .popupMenuButtonDetails),
                         )
                       ],
                     ),
@@ -312,8 +283,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       children: [
                         Text(
                           _i18n.get("local_search"),
-                          style: TextStyle(
-                              color: ExtraTheme.of(context).textDetails),
+                          style: Theme.of(context).primaryTextTheme.caption,
                         ),
                         Container(
                           height: MediaQuery.of(context).size.height,
@@ -334,7 +304,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   ListView searchResultWidget(AsyncSnapshot<List<Uid>> snaps, BuildContext c) {
     return ListView.builder(
       itemCount: snaps.data.length,
-      itemBuilder: (BuildContext ctxt, int index) {
+      itemBuilder: (BuildContext ctx, int index) {
         return GestureDetector(
           onTap: () {
             _roomRepo.insertRoom(snaps.data[index].asString());
@@ -359,23 +329,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
             FutureBuilder(
                 future: _roomRepo.getName(uid),
                 builder: (BuildContext c, AsyncSnapshot<String> snaps) {
-                  if (snaps.hasData && snaps.data != null) {
-                    return Text(
-                      snaps.data,
-                      style: TextStyle(
-                        color: ExtraTheme.of(context).chatOrContactItemDetails,
-                        fontSize: 18,
-                      ),
-                    );
-                  } else {
-                    return Text(
-                      "unKnown",
-                      style: TextStyle(
-                        color: ExtraTheme.of(context).chatOrContactItemDetails,
-                        fontSize: 18,
-                      ),
-                    );
-                  }
+                  return Text(
+                    snaps.data ?? "",
+                    style: Theme.of(context).textTheme.subtitle1,
+                  );
                 }),
           ],
         ),

@@ -64,6 +64,7 @@ class UserAppbarTitle extends StatelessWidget {
                                 ),
                                 TitleStatus(
                                   currentRoomUid: userUid,
+                                  style: Theme.of(context).textTheme.caption,
                                   normalConditionWidget:
                                       userUid.category == Categories.SYSTEM
                                           ? Text("Notification Service",

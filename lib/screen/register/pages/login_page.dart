@@ -74,6 +74,7 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     loginToken.close();
     checkTimer.cancel();
+    tokenGeneratorTimer.cancel();
     super.dispose();
   }
 
@@ -118,10 +119,7 @@ class _LoginPageState extends State<LoginPage> {
           appBar: AppBar(
             title: Text(
               i18n.get("login"),
-              style: TextStyle(
-                color: Theme.of(context).primaryColor,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.headline5,
             ),
             backgroundColor: Theme.of(context).backgroundColor,
           ),
@@ -139,23 +137,21 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           StreamBuilder<String>(
-            stream: loginToken.stream,
-            builder: (context, snapshot) {
-              return Container(
-                width: 200,
-                height: 200,
-                padding: const EdgeInsets.all(8.0),
-                color: Colors.white,
-                child: QrImage(
-                  data:
-                      "https://deliver-co.ir/login?token=${snapshot.data}",
-                  version: QrVersions.auto,
-                  padding: EdgeInsets.zero,
-                  foregroundColor: Colors.black,
-                ),
-              );
-            }
-          ),
+              stream: loginToken.stream,
+              builder: (context, snapshot) {
+                return Container(
+                  width: 200,
+                  height: 200,
+                  padding: const EdgeInsets.all(8.0),
+                  color: Colors.white,
+                  child: QrImage(
+                    data: "https://deliver-co.ir/login?token=${snapshot.data}",
+                    version: QrVersions.auto,
+                    padding: EdgeInsets.zero,
+                    foregroundColor: Colors.black,
+                  ),
+                );
+              }),
           SizedBox(height: 30),
           Text("1. Open Deliver on your phone"),
           SizedBox(height: 10),
@@ -176,11 +172,6 @@ class _LoginPageState extends State<LoginPage> {
           TextButton(
               child: Text(
                 "Don't you have access to an authenticated phone?",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor,
-                  fontSize: 13,
-                ),
               ),
               onPressed: () {
                 setState(() {

@@ -44,6 +44,7 @@ class MucAppbarTitle extends StatelessWidget {
                               style: Theme.of(context).textTheme.subtitle1,
                             ),
                             TitleStatus(
+                              style: Theme.of(context).textTheme.caption,
                               normalConditionWidget: Text(
                                 "${snapshot.data.population} ${i18n.get("members")}",
                                 maxLines: 1,

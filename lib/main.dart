@@ -263,48 +263,44 @@ class MyApp extends StatelessWidget {
         _i18n.localeStream,
       ]),
       builder: (context, snapshot) {
-        return DefaultTextStyle(
-          style: TextStyle(fontFamily: "Vazir"),
-          child: ExtraTheme(
-            extraThemeData: _uxService.extraTheme,
-            child: Focus(
-                focusNode:
-                    FocusNode(skipTraversal: true, canRequestFocus: false),
-                onKey: (_, RawKeyEvent event) {
-                  return event.physicalKey == PhysicalKeyboardKey.shiftRight
-                      ? KeyEventResult.handled
-                      : KeyEventResult.ignored;
-                },
-                child: MaterialApp(
-                  debugShowCheckedModeBanner: false,
-                  title: 'Deliver',
-                  locale: _i18n.locale,
-                  theme: _uxService.theme,
-                  supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],
-                  localizationsDelegates: [
-                    I18N.delegate,
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate
-                  ],
-                  localeResolutionCallback: (deviceLocale, supportedLocale) {
-                    for (var locale in supportedLocale) {
-                      if (locale.languageCode == deviceLocale.languageCode &&
-                          locale.countryCode == deviceLocale.countryCode) {
-                        return deviceLocale;
-                      }
+        return ExtraTheme(
+          extraThemeData: _uxService.extraTheme,
+          child: Focus(
+              focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
+              onKey: (_, RawKeyEvent event) {
+                return event.physicalKey == PhysicalKeyboardKey.shiftRight
+                    ? KeyEventResult.handled
+                    : KeyEventResult.ignored;
+              },
+              child: MaterialApp(
+                debugShowCheckedModeBanner: false,
+                title: 'Deliver',
+                locale: _i18n.locale,
+                theme: _uxService.theme,
+                supportedLocales: [Locale('en', 'US'), Locale('fa', 'IR')],
+                localizationsDelegates: [
+                  I18N.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate
+                ],
+                localeResolutionCallback: (deviceLocale, supportedLocale) {
+                  for (var locale in supportedLocale) {
+                    if (locale.languageCode == deviceLocale.languageCode &&
+                        locale.countryCode == deviceLocale.countryCode) {
+                      return deviceLocale;
                     }
-                    return supportedLocale.first;
-                  },
-                  onGenerateRoute: R.Router(),
-                  builder: (x, c) => Directionality(
-                    textDirection: TextDirection.ltr,
-                    child: ExtendedNavigator<R.Router>(
-                      router: R.Router(),
-                    ),
+                  }
+                  return supportedLocale.first;
+                },
+                onGenerateRoute: R.Router(),
+                builder: (x, c) => Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: ExtendedNavigator<R.Router>(
+                    router: R.Router(),
                   ),
-                )),
-          ),
+                ),
+              )),
         );
       },
     );

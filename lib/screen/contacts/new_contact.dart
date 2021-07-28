@@ -6,7 +6,6 @@ import 'package:deliver_flutter/repository/contactRepo.dart';
 
 import 'package:deliver_flutter/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver_flutter/screen/register/widgets/phone_number.dart' as p;
-import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -79,7 +78,7 @@ class _NewContactState extends State<NewContact> {
                 onChanged: (firstName) {
                   _firstName = firstName;
                 },
-                style: TextStyle(color: ExtraTheme.of(context).textField),
+                style: Theme.of(context).textTheme.bodyText1,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: _i18n.get("firstName")),
@@ -94,7 +93,7 @@ class _NewContactState extends State<NewContact> {
                 onChanged: (lastName) {
                   _lastName = lastName;
                 },
-                style: TextStyle(color: ExtraTheme.of(context).textField),
+                style: Theme.of(context).textTheme.bodyText1,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: _i18n.get("lastName")),
@@ -108,7 +107,7 @@ class _NewContactState extends State<NewContact> {
                   value.length != 10 || (value.length > 0 && value[0] == '0')
                       ? _i18n.get("invalid_mobile_number")
                       : null,
-              style: TextStyle(color: ExtraTheme.of(context).textField),
+              style: Theme.of(context).textTheme.bodyText1,
               onChanged: (ph) {
                 _phoneNumber = ph;
               },

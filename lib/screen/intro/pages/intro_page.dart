@@ -22,7 +22,7 @@ class IntroPage extends StatefulWidget {
 
 class _IntroPageState extends State<IntroPage> {
   IntroAnimationController introAnimationController =
-  IntroAnimationController();
+      IntroAnimationController();
 
   final subject = ReplaySubject<double>();
 
@@ -74,11 +74,7 @@ class _IntroPageState extends State<IntroPage> {
                       Container(
                         child: Text(
                           'Deliver',
-                          style: TextStyle(
-                            color: Color(0xFF2699FB),
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).primaryTextTheme.headline5,
                         ),
                       ),
                       Padding(
@@ -87,10 +83,7 @@ class _IntroPageState extends State<IntroPage> {
                           width: animationSize,
                           child: Text(
                             'The world`s fastest messaging app. It is free and secure.',
-                            style: TextStyle(
-                              color: Color(0xFF2699FB),
-                              fontSize: 14,
-                            ),
+                            style: Theme.of(context).primaryTextTheme.subtitle1,
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -106,11 +99,7 @@ class _IntroPageState extends State<IntroPage> {
                         child: Container(
                           child: Text(
                             'Fast',
-                            style: TextStyle(
-                              color: Color(0xFF2699FB),
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).primaryTextTheme.headline5,
                           ),
                         ),
                       ),
@@ -120,10 +109,7 @@ class _IntroPageState extends State<IntroPage> {
                           width: animationSize,
                           child: Text(
                             'WeWork delivers messages fastest than any other application.',
-                            style: TextStyle(
-                              color: Color(0xFF2699FB),
-                              fontSize: 14,
-                            ),
+                            style: Theme.of(context).primaryTextTheme.subtitle1,
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -139,11 +125,7 @@ class _IntroPageState extends State<IntroPage> {
                         child: Container(
                           child: Text(
                             'Powerful',
-                            style: TextStyle(
-                              color: Color(0xFF2699FB),
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).primaryTextTheme.headline5,
                           ),
                         ),
                       ),
@@ -153,10 +135,7 @@ class _IntroPageState extends State<IntroPage> {
                           width: animationSize,
                           child: Text(
                             'Messenger has no limits on the size of your media and chats.',
-                            style: TextStyle(
-                              color: Color(0xFF2699FB),
-                              fontSize: 14,
-                            ),
+                            style: Theme.of(context).primaryTextTheme.subtitle1,
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -175,11 +154,7 @@ class _IntroPageState extends State<IntroPage> {
                         child: Container(
                           child: Text(
                             'Secure',
-                            style: TextStyle(
-                              color: Color(0xFF2699FB),
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).primaryTextTheme.headline5,
                           ),
                         ),
                       ),
@@ -189,10 +164,7 @@ class _IntroPageState extends State<IntroPage> {
                           width: animationSize,
                           child: Text(
                             'Messenger keeps your messages safe from hacker attacks.',
-                            style: TextStyle(
-                              color: Color(0xFF2699FB),
-                              fontSize: 14,
-                            ),
+                            style: Theme.of(context).primaryTextTheme.subtitle1,
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -206,12 +178,9 @@ class _IntroPageState extends State<IntroPage> {
               nameSkipBtn: i18n.get("skip"),
               nameNextBtn: i18n.get("next"),
               onDonePress: navigateToLoginPage,
-              styleNameSkipBtn:
-              TextStyle(color: Theme.of(context).primaryColor),
-              styleNameDoneBtn:
-              TextStyle(color: Theme.of(context).primaryColor),
-              styleNamePrevBtn:
-              TextStyle(color: Theme.of(context).primaryColor),
+              styleNameSkipBtn: Theme.of(context).primaryTextTheme.button,
+              styleNameDoneBtn: Theme.of(context).primaryTextTheme.button,
+              styleNamePrevBtn: Theme.of(context).primaryTextTheme.button,
               colorDot: Color(0xFFBCE0FD),
               colorActiveDot: Theme.of(context).primaryColor,
               onSkipPress: navigateToLoginPage,
