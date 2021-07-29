@@ -113,7 +113,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
               ),
               titleSpacing: 8.0,
               title: TitleStatus(
-                style: Theme.of(context).accentTextTheme.headline6,
+                style: Theme.of(context).textTheme.headline6,
                 normalConditionWidget: Text(
                   I18N.of(context).get("chats"),
                   style: Theme.of(context).textTheme.headline5,
@@ -132,9 +132,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
                         },
                         icon: Icon(
                           Icons.qr_code,
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? Colors.white
-                              : Colors.black,
                         )),
                   ),
                 SizedBox(

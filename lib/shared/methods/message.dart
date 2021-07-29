@@ -239,8 +239,8 @@ PB.Message extractProtocolBufferMessage(Message message) {
     ..packetId = message.packetId
     ..from = message.from.asUid()
     ..to = message.to.asUid()
-    ..time = Int64(message.time)
-    ..replyToId = Int64(message.replyToId)
+    ..time = Int64(message.time ?? 0)
+    ..replyToId = Int64(message.replyToId ?? 0)
     ..edited = message.edited ?? false
     ..encrypted = message.encrypted ?? false;
 

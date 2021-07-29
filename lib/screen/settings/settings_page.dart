@@ -60,7 +60,6 @@ class _SettingsPageState extends State<SettingsPage> {
               titleSpacing: 8,
               title: Text(
                 i18n.get("settings"),
-                style: Theme.of(context).textTheme.headline5,
               ),
               leading: _routingService.backButtonLeading(),
             ),

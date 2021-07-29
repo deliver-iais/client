@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 class ExtraThemeData {
   Color centerPageDetails;
-  Color circleAvatarIcon;
-  Color boxDetails = Colors.white;
   Color boxOuterBackground = Color(0xfde2f8f0);
   Color boxBackground = Color(0xfde2f8f0);
   Color titleStatus;
@@ -35,8 +33,6 @@ class ExtraThemeData {
 
   ExtraThemeData({
     this.centerPageDetails,
-    this.circleAvatarIcon,
-    this.boxDetails,
     this.boxOuterBackground,
     this.boxBackground,
     this.textDetails,

@@ -27,7 +27,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<File>(
-      future: _fileRepo.getFile(widget.uuid, widget.name + "png",
+      future: _fileRepo.getFile(widget.uuid, widget.name + ".png",
           thumbnailSize: ThumbnailSize.small),
       builder: (c, thumbnail) {
         if (thumbnail.hasData && thumbnail.data != null) {

@@ -1,5 +1,4 @@
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:emojis/emoji.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -35,8 +34,9 @@ class _Emojikeybord extends State<EmojiKeyboard> {
         child: emojiState
             ? Column(
                 children: <Widget>[
+                  Divider(),
                   Container(
-                    color: ExtraTheme.of(context).boxDetails,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     child: DefaultTextStyle(
                       style: TextStyle(fontSize: 20),
                       child: Container(
@@ -228,7 +228,7 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                   ),
                   Expanded(
                     child: Container(
-                      color: ExtraTheme.of(context).boxBackground,
+                      color: Theme.of(context).backgroundColor,
                       child: GridView.builder(
                           itemCount: emojis.length,
                           gridDelegate:

@@ -6,16 +6,25 @@ const DarkThemeName = "Dark";
 final primary = Color(0xFF2699FB);
 final accent = Color(0x8bc1e0FF);
 
+final primaryTextTheme = Typography.whiteCupertino
+    .apply(fontFamily: "Vazir", displayColor: primary, bodyColor: primary);
+
+final accentTextTheme = Typography.whiteCupertino
+    .apply(fontFamily: "Vazir", displayColor: accent, bodyColor: accent);
+
+final textTheme = Typography.whiteCupertino.apply(
+    fontFamily: "Vazir", displayColor: Colors.white, bodyColor: Colors.white);
+
+final TextTheme appbarTextTheme =
+    textTheme.merge(TextTheme(headline6: TextStyle(fontSize: 24)));
+
 // ignore: non_constant_identifier_names
 ThemeData DarkTheme = ThemeData(
   brightness: Brightness.dark,
   fontFamily: "Vazir",
-  primaryTextTheme: Typography.blackCupertino
-      .apply(fontFamily: "Vazir", displayColor: primary, bodyColor: primary),
-  accentTextTheme: Typography.blackCupertino
-      .apply(fontFamily: "Vazir", displayColor: accent, bodyColor: accent),
-  textTheme: Typography.whiteCupertino.apply(
-      fontFamily: "Vazir", displayColor: Colors.white, bodyColor: Colors.white),
+  primaryTextTheme: primaryTextTheme,
+  accentTextTheme: accentTextTheme,
+  textTheme: textTheme,
 ).copyWith(
     visualDensity: VisualDensity.adaptivePlatformDensity,
     primaryColor: primary,
@@ -29,9 +38,7 @@ ThemeData DarkTheme = ThemeData(
     focusColor: primary.withOpacity(0.5),
     cardColor: primary,
     appBarTheme: AppBarTheme(
-      color: Color(0xFF03151d),
-      elevation: 0,
-    ),
+        color: Color(0xFF03151d), elevation: 0, textTheme: appbarTextTheme),
     sliderTheme: SliderThemeData(
       thumbColor: Colors.white,
       trackHeight: 2.25,
@@ -39,7 +46,6 @@ ThemeData DarkTheme = ThemeData(
       inactiveTrackColor: Color(0xFFBCE0FD),
       thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
     ),
-    iconTheme: IconThemeData(color: Colors.white),
     tabBarTheme: TabBarTheme(
         indicator: UnderlineTabIndicator(
             borderSide: BorderSide(width: 2.0, color: Colors.blue),
@@ -50,8 +56,6 @@ ThemeData DarkTheme = ThemeData(
 // ignore: non_constant_identifier_names
 ExtraThemeData DarkExtraTheme = ExtraThemeData(
     centerPageDetails: Color(0xFF9D9D9D),
-    circleAvatarIcon: Colors.white,
-    boxDetails: Colors.white,
     boxOuterBackground: Color(0xFF03151d),
     boxBackground: Color(0xFF032738),
     textDetails: DarkTheme.primaryColor,

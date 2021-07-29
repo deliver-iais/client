@@ -2,7 +2,6 @@ import 'package:deliver_flutter/box/contact.dart';
 import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/shared/methods/name.dart';
 import 'package:deliver_flutter/theme/constants.dart';
-import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
@@ -46,10 +45,7 @@ class ContactWidget extends StatelessWidget {
               overflow: TextOverflow.fade,
               maxLines: 1,
               softWrap: false,
-              style: TextStyle(
-                color: ExtraTheme.of(context).chatOrContactItemDetails,
-                fontSize: 18,
-              ),
+              style: Theme.of(context).textTheme.subtitle1,
             ),
           ),
           if (circleIcon != null)
@@ -57,7 +53,6 @@ class ContactWidget extends StatelessWidget {
               onPressed: () => onCircleIcon?.call(),
               icon: Icon(
                 circleIcon,
-                color: ExtraTheme.of(context).circleAvatarIcon,
                 size: 21,
               ),
             ),

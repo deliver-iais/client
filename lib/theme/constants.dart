@@ -3,6 +3,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+// TODO move all things of here to shared
+
 // Constraints
 const double BREAKDOWN_SIZE = 768;
 const double FLUID_CONTAINER_MAX_WIDTH = 768;

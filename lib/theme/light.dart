@@ -6,16 +6,25 @@ const LightThemeName = "Light";
 final primary = Color(0xFF2699FB);
 final accent = Colors.grey[800];
 
+final primaryTextTheme = Typography.blackCupertino
+    .apply(fontFamily: "Vazir", displayColor: primary, bodyColor: primary);
+
+final accentTextTheme = Typography.blackCupertino
+    .apply(fontFamily: "Vazir", displayColor: accent, bodyColor: accent);
+
+final textTheme = Typography.blackCupertino.apply(
+    fontFamily: "Vazir", displayColor: Colors.black, bodyColor: Colors.black);
+
+final TextTheme appbarTextTheme =
+    textTheme.merge(TextTheme(headline6: TextStyle(fontSize: 24)));
+
 // ignore: non_constant_identifier_names
 ThemeData LightTheme = ThemeData(
   brightness: Brightness.light,
   fontFamily: "Vazir",
-  primaryTextTheme: Typography.blackCupertino
-      .apply(fontFamily: "Vazir", displayColor: primary, bodyColor: primary),
-  accentTextTheme: Typography.blackCupertino
-      .apply(fontFamily: "Vazir", displayColor: accent, bodyColor: accent),
-  textTheme: Typography.blackCupertino.apply(
-      fontFamily: "Vazir", displayColor: Colors.black, bodyColor: Colors.black),
+  primaryTextTheme: primaryTextTheme,
+  accentTextTheme: accentTextTheme,
+  textTheme: textTheme,
 ).copyWith(
     visualDensity: VisualDensity.adaptivePlatformDensity,
     primaryColor: primary,
@@ -30,7 +39,8 @@ ThemeData LightTheme = ThemeData(
     appBarTheme: AppBarTheme(
         color: Colors.white,
         elevation: 0,
-        iconTheme: IconThemeData(color: accent)),
+        textTheme: appbarTextTheme,
+        iconTheme: IconThemeData(color: Colors.black)),
     sliderTheme: SliderThemeData(
       thumbColor: primary,
       trackHeight: 2.25,
@@ -38,7 +48,6 @@ ThemeData LightTheme = ThemeData(
       inactiveTrackColor: Colors.white,
       thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.5),
     ),
-    iconTheme: IconThemeData(color: accent),
     tabBarTheme: TabBarTheme(
       indicator: UnderlineTabIndicator(
           borderSide: BorderSide(width: 2.0, color: primary),
@@ -50,8 +59,6 @@ ThemeData LightTheme = ThemeData(
 // ignore: non_constant_identifier_names
 ExtraThemeData LightExtraTheme = ExtraThemeData(
   centerPageDetails: Color(0xff0b796c),
-  circleAvatarIcon: primary,
-  boxDetails: Color(0xff15786c),
   boxOuterBackground: Colors.white,
   boxBackground: Color(0xFFEFEFF4),
   textDetails: Colors.black,

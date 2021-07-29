@@ -158,21 +158,26 @@ class _VideoMessageState extends State<VideoMessage> {
 
   Widget size(String len, int size) {
     return Container(
-      height: 40,
+      // height: 40,
+      margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+      padding:
+          const EdgeInsets.only(top: 4.0, bottom: 2.0, right: 6.0, left: 6.0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(7)),
-        color: Colors.black45,
+        borderRadius: BorderRadius.all(Radius.circular(4)),
+        color: Colors.black87,
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             len,
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white, fontSize: 10),
           ),
           Text(
             sizeFormater(size),
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white, fontSize: 10),
           ),
         ],
       ),
