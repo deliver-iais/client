@@ -113,6 +113,7 @@ class MacOSNotifier implements Notifier {
         InitializationSettings(macOS: macNotificationSetting);
     _flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: (room) {
+      _logger.wtf(room);
       if (room != null && room.isNotEmpty) {
         _logger.wtf(room);
       }
@@ -124,30 +125,18 @@ class MacOSNotifier implements Notifier {
   notify(MessageBrief message) {
     if (message.ignoreNotification) return;
 
-    var macOSPlatformChannelSpecifics = MacOSNotificationDetails();
+    var macOSPlatformChannelSpecifics = MacOSNotificationDetails(attachments: [
+      MacOSNotificationAttachment(
+          'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png'),
+    ], badgeNumber: 0);
     var platformChannelSpecifics =
         NotificationDetails(macOS: macOSPlatformChannelSpecifics);
 
-    _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
-        message.roomName, _createText(message), platformChannelSpecifics);
-  }
-
-  String _createText(MessageBrief mb) {
-    var text = "";
-    if (!(mb.roomUid.isBot() || mb.roomUid.isUser()) && mb.senderIsAUserOrBot) {
-      text += "${mb.sender.trim()}: ";
-    }
-    if (mb.typeDetails.isNotEmpty) {
-      text += mb.typeDetails;
-    }
-    if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty) {
-      text += ", ";
-    }
-    if (mb.text.isNotEmpty) {
-      text += mb.text;
-    }
-
-    return text;
+    _flutterLocalNotificationsPlugin.show(
+        message.roomUid.asString().hashCode,
+        message.roomName,
+        createNotificationTextFromMessageBrief(message),
+        platformChannelSpecifics);
   }
 
   @override
@@ -167,4 +156,22 @@ class MacOSNotifier implements Notifier {
       _logger.e(e);
     }
   }
+}
+
+String createNotificationTextFromMessageBrief(MessageBrief mb) {
+  var text = "";
+  if (!(mb.roomUid.isBot() || mb.roomUid.isUser()) && mb.senderIsAUserOrBot) {
+    text += "${mb.sender.trim()}: ";
+  }
+  if (mb.typeDetails.isNotEmpty) {
+    text += mb.typeDetails;
+  }
+  if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty) {
+    text += ", ";
+  }
+  if (mb.text.isNotEmpty) {
+    text += mb.text;
+  }
+
+  return text;
 }
