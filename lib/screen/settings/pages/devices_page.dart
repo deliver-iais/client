@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver_flutter/shared/methods/time.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 
 class DevicesPage extends StatefulWidget {
   DevicesPage({Key key}) : super(key: key);
@@ -69,7 +70,7 @@ class _DevicesPageState extends State<DevicesPage> {
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
                             _i18n.get("this_device"),
-                            style: TextStyle(color: Colors.blueAccent),
+                            style: Theme.of(context).primaryTextTheme.subtitle2,
                           ),
                         ),
                         sessionWidget(currentSession),
@@ -83,12 +84,9 @@ class _DevicesPageState extends State<DevicesPage> {
                   width: double.infinity,
                   child: TextButton(
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        _i18n.get("terminate_all_other_sessions"),
-                        style: TextStyle(color: Colors.red, fontSize: 15),
-                      ),
-                    ),
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(_i18n.get("terminate_all_other_sessions"))),
+                    style: TextButton.styleFrom(primary: Colors.red),
                     onPressed: () {
                       _showTerminateSession(otherSessions, context);
                     },
@@ -100,13 +98,8 @@ class _DevicesPageState extends State<DevicesPage> {
                     padding: const EdgeInsets.symmetric(
                         vertical: 16.0, horizontal: 24.0),
                     child: Center(
-                      child: Text(
-                        _i18n.get("active_sessions"),
-                        style: TextStyle(
-                            color: Colors.blueAccent,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15),
-                      ),
+                      child: Text(_i18n.get("active_sessions"),
+                          style: Theme.of(context).primaryTextTheme.subtitle1),
                     ),
                   ),
                 if (otherSessions.length > 0)
@@ -142,9 +135,10 @@ class _DevicesPageState extends State<DevicesPage> {
   }
 
   Widget sessionWidget(Session session) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
       child: Container(
+        padding: const EdgeInsets.all(8.0),
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
@@ -155,22 +149,21 @@ class _DevicesPageState extends State<DevicesPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(session.device,
-                  maxLines: 1,
-                  overflow: TextOverflow.fade,
-                  softWrap: false,
-                  style: TextStyle(color: ExtraTheme.of(context).textField)),
-              // Text(session.sessionId),
+              Text(
+                session.device,
+                maxLines: 1,
+                overflow: TextOverflow.fade,
+                softWrap: false,
+                style: Theme.of(context).textTheme.subtitle2,
+              ),
               Text(
                 session.ip.isEmpty
                     ? "No IP Provided"
                     : session.ip ?? "No IP Provided",
-                style: TextStyle(
-                    color: ExtraTheme.of(context).textField.withOpacity(0.5)),
+                style: Theme.of(context).textTheme.caption,
               ),
               DefaultTextStyle(
-                style: TextStyle(
-                    color: ExtraTheme.of(context).textField.withOpacity(0.5)),
+                style: Theme.of(context).textTheme.caption,
                 child: Row(
                   children: [
                     Text("Created On: "),
@@ -195,24 +188,13 @@ class _DevicesPageState extends State<DevicesPage> {
             titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
             actionsPadding: EdgeInsets.only(bottom: 10, right: 5),
             backgroundColor: Colors.white,
-            title: Container(
-              height: 50,
-              color: Colors.blue,
-              child: Icon(
-                Icons.delete,
-                color: Colors.white,
-                size: 40,
-              ),
-            ),
             content: Container(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                      sessions.length > 1
-                          ? _i18n.get("terminate_all_other_sessions")
-                          : _i18n.get("delete_session"),
-                      style: TextStyle(color: Colors.black, fontSize: 18)),
+                  Text(sessions.length > 1
+                      ? _i18n.get("terminate_all_other_sessions")
+                      : _i18n.get("delete_session")),
                 ],
               ),
             ),
@@ -220,24 +202,15 @@ class _DevicesPageState extends State<DevicesPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  GestureDetector(
-                    child: Text(
-                      _i18n.get("cancel"),
-                      style: TextStyle(fontSize: 16, color: Colors.blue),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                  TextButton(
+                    child: Text(_i18n.get("cancel")),
+                    onPressed: () => Navigator.pop(context),
                   ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  GestureDetector(
-                    child: Text(
-                      _i18n.get("delete"),
-                      style: TextStyle(fontSize: 16, color: Colors.red),
-                    ),
-                    onTap: () async {
+                  SizedBox(width: 20),
+                  TextButton(
+                    child: Text(_i18n.get("delete")),
+                    style: TextButton.styleFrom(primary: Colors.red),
+                    onPressed: () async {
                       List<String> sessionIds = [];
                       sessions.forEach((element) {
                         sessionIds.add(element.sessionId.toString());

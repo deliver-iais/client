@@ -218,7 +218,7 @@
   "NAME": "نام",
   "devices": "دستگاه ها",
   "this_device": "دستگاته کنونی",
-  "delete_session": "حذف  دستگاه",
+  "delete_session": "آیا از حذف این دستگاه مطمئن هستید؟",
   "active_sessions": "حساب‌های فعال",
   "terminate_all_other_sessions": "حذف دیگر حساب های فعال",
   "send": "ارسال پیام",

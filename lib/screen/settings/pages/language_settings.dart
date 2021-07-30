@@ -48,8 +48,6 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                               English.languageCode
                           ? Icon(Icons.done)
                           : SizedBox.shrink(),
-                      titleTextStyle:
-                          TextStyle(color: ExtraTheme.of(context).textField),
                       onPressed: (BuildContext context) {
                         setState(() {
                           I18N.of(context).changeLanguage(English);
@@ -63,8 +61,6 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                               Farsi.languageCode
                           ? Icon(Icons.done)
                           : SizedBox.shrink(),
-                      titleTextStyle:
-                          TextStyle(color: ExtraTheme.of(context).textField),
                       onPressed: (BuildContext context) {
                         setState(() {
                           I18N.of(context).changeLanguage(Farsi);

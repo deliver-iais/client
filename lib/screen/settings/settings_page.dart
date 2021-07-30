@@ -302,9 +302,7 @@ class _SettingsPageState extends State<SettingsPage> {
               TextButton(
                 onPressed: () => _routingService.logout(context),
                 child: Text(i18n.get("logout")),
-                style: TextButton.styleFrom(
-                  primary: Colors.red, // This is a custom color variable
-                ),
+                style: TextButton.styleFrom(primary: Colors.red),
               ),
             ],
           );

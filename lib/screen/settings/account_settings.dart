@@ -32,7 +32,7 @@ class AccountSettings extends StatefulWidget {
 }
 
 class _AccountSettingsState extends State<AccountSettings> {
-  I18N _i18n;
+  final _i18n = GetIt.I.get<I18N>();
   final subject = new BehaviorSubject<String>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -101,7 +101,6 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   @override
   Widget build(BuildContext context) {
-    _i18n = I18N.of(context);
     return WillPopScope(
       onWillPop: () async {
         if (widget.forceToSetUsernameAndName) return false;
