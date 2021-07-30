@@ -5,15 +5,15 @@ import 'package:flutter/material.dart';
 
 class Box extends StatelessWidget {
   final Widget child;
-  final EdgeInsetsGeometry padding;
-  final EdgeInsetsGeometry largePagePadding;
+  final EdgeInsetsGeometry margin;
+  final EdgeInsetsGeometry largePageMargin;
   final BorderRadius borderRadius;
   final BorderRadius largePageBorderRadius;
 
   Box({
     this.child,
-    this.padding,
-    this.largePagePadding = const EdgeInsets.symmetric(horizontal: 24),
+    this.margin,
+    this.largePageMargin = const EdgeInsets.symmetric(horizontal: 24),
     this.borderRadius,
     this.largePageBorderRadius = const BorderRadius.all(Radius.circular(24)),
   });
@@ -22,7 +22,7 @@ class Box extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding:
-          padding ?? (isLarge(context) ? largePagePadding : EdgeInsets.zero),
+          margin ?? (isLarge(context) ? largePageMargin : EdgeInsets.zero),
       child: ClipRRect(
         borderRadius: borderRadius ??
             (isLarge(context) ? largePageBorderRadius : BorderRadius.zero),
@@ -53,8 +53,8 @@ class BoxList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Box(
-        padding: padding,
-        largePagePadding: largePagePadding,
+        margin: padding,
+        largePageMargin: largePagePadding,
         borderRadius: borderRadius,
         largePageBorderRadius: largePageBorderRadius,
         child: Column(children: children));

@@ -113,7 +113,6 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                 onChanged: (value) {
                   filterSearchResults(value);
                 },
-                style: TextStyle(color: ExtraTheme.of(context).textField),
                 controller: editingController),
             Expanded(
                 child: FutureBuilder(
@@ -130,24 +129,31 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                           items = contacts;
                         }
 
-                        return StreamBuilder<int>(
-                            stream: _createMucService.selectedLengthStream(),
-                            builder: (context, snapshot) {
-                              if (!snapshot.hasData) {
-                                return SizedBox.shrink();
-                              }
-                              return ListView.builder(
-                                itemCount: items.length,
-                                itemBuilder: _getListItemTile,
-                              );
-                            });
+                        if (items.length > 0) {
+                          return StreamBuilder<int>(
+                              stream: _createMucService.selectedLengthStream(),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return SizedBox.shrink();
+                                }
+                                return ListView.builder(
+                                  itemCount: items.length,
+                                  itemBuilder: _getListItemTile,
+                                );
+                              });
+                        } else {
+                          return Center(
+                            child: Text(
+                              i18n.get("no_results"),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .subtitle1
+                                  .copyWith(color: Colors.red),
+                            ),
+                          );
+                        }
                       } else {
-                        return Center(
-                          child: Text(
-                            i18n.get("no_results"),
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        );
+                        return SizedBox.shrink();
                       }
                     })),
           ],
@@ -190,8 +196,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
                               } else {
                                 Fluttertoast.showToast(
-                                    msg: i18n
-                                        .get("error_occurred"));
+                                    msg: i18n.get("error_occurred"));
                                 // _routingService.pop();
                               }
                             })
