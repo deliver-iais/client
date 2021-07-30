@@ -45,8 +45,6 @@ class _SettingsPageState extends State<SettingsPage> {
   bool isDeveloperMode = false || kDebugMode;
   int developerModeCounterCountDown = 10;
 
-  final _routingServices = GetIt.I.get<RoutingService>();
-
   @override
   Widget build(BuildContext context) {
     I18N i18n = I18N.of(context);
@@ -79,7 +77,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     await _avatarRepo.getLastAvatar(
                                         _authRepo.currentUserUid, false);
                                 if (lastAvatar.createdOn != null) {
-                                  _routingServices.openShowAllAvatars(
+                                  _routingService.openShowAllAvatars(
                                       uid: _authRepo.currentUserUid,
                                       hasPermissionToDeleteAvatar: true,
                                       heroTag: "avatar");
@@ -303,9 +301,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               TextButton(
                 onPressed: () => _routingService.logout(context),
-                child: Text(
-                  i18n.get("logout"),
-                ),
+                child: Text(i18n.get("logout")),
                 style: TextButton.styleFrom(
                   primary: Colors.red, // This is a custom color variable
                 ),
