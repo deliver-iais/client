@@ -1,3 +1,4 @@
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:emojis/emoji.dart';
 import 'package:flutter/cupertino.dart';
@@ -236,7 +237,7 @@ class _Emojikeybord extends State<EmojiKeyboard> {
                                   crossAxisCount:
                                       (MediaQuery.of(context).size.width -
                                               (isLarge(context)
-                                                  ? navigationPanelSize()
+                                                  ? NAVIGATION_PANEL_SIZE
                                                   : 0)) ~/
                                           50),
                           itemBuilder: (context, index) {

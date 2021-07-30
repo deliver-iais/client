@@ -57,3 +57,5 @@ const double FLUID_MAX_HEIGHT = 540;
 
 const double FLUID_CONTAINER_MAX_WIDTH = 768;
 const double BREAKDOWN_SIZE = 768;
+
+const NAVIGATION_PANEL_SIZE = 384;

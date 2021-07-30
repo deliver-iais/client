@@ -29,6 +29,7 @@ import 'package:deliver_flutter/screen/room/widgets/mute_and_unmute_room_widget.
 import 'package:deliver_flutter/screen/room/widgets/newMessageInput.dart';
 import 'package:deliver_flutter/screen/room/widgets/recievedMessageBox.dart';
 import 'package:deliver_flutter/screen/room/widgets/sendedMessageBox.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
 import 'package:deliver_flutter/services/notification_services.dart';
@@ -420,7 +421,7 @@ class _RoomPageState extends State<RoomPage> with CustomPopupMenu {
     double _maxWidth = MediaQuery.of(context).size.width * 0.7;
     if (isLarge(context)) {
       _maxWidth =
-          (MediaQuery.of(context).size.width - navigationPanelSize()) * 0.7;
+          (MediaQuery.of(context).size.width - NAVIGATION_PANEL_SIZE) * 0.7;
     }
     _maxWidth = min(_maxWidth, 300);
     return Scaffold(

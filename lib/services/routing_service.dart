@@ -24,6 +24,7 @@ import 'package:deliver_flutter/screen/settings/settings_page.dart';
 import 'package:deliver_flutter/screen/share_input_file/share_input_file.dart';
 import 'package:deliver_flutter/services/core_services.dart';
 import 'package:deliver_flutter/services/firebase_services.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
@@ -423,7 +424,7 @@ class RoutingService {
       children: [
         Container(
             width: isLarge(context)
-                ? navigationPanelSize()
+                ? NAVIGATION_PANEL_SIZE
                 : MediaQuery.of(context).size.width,
             child: isLarge(context)
                 ? _largePageNavigator(context)
