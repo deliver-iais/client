@@ -206,10 +206,7 @@ class _ChatItemState extends State<ChatItem> {
   _showDisplayName(Uid uid, String name, BuildContext context) {
     return Text(
       name.trim(),
-      style: TextStyle(
-        color: ExtraTheme.of(context).chatOrContactItemDetails,
-        fontSize: 16,
-      ),
+      style: Theme.of(context).textTheme.subtitle2,
       maxLines: 1,
       softWrap: false,
       overflow: TextOverflow.fade,
