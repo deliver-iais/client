@@ -1,3 +1,7 @@
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+
 const APPLICATION_NAME = "Deliver";
 const APPLICATION_DOMAIN = "deliver-co.ir";
 
@@ -59,3 +63,16 @@ const double FLUID_CONTAINER_MAX_WIDTH = 768;
 const double BREAKDOWN_SIZE = 768;
 
 const double NAVIGATION_PANEL_SIZE = 384;
+
+// Screen Breakdown
+bool isLargeWidth(double width) => width > BREAKDOWN_SIZE;
+
+bool isLarge(BuildContext context) =>
+    isLargeWidth(MediaQuery.of(context).size.width);
+
+// Dynamics
+// ignore: non_constant_identifier_names
+double animationSquareSize(BuildContext context) => isLarge(context)
+    ? min(FLUID_MAX_WIDTH * 0.7, FLUID_MAX_HEIGHT * 0.4)
+    : min(MediaQuery.of(context).size.width * 0.7,
+        MediaQuery.of(context).size.height * 0.7);

@@ -5,7 +5,7 @@ import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
 import 'package:deliver_flutter/screen/room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver_flutter/services/file_service.dart';
-import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:deliver_flutter/shared/extensions/json_extension.dart';

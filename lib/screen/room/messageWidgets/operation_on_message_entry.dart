@@ -5,7 +5,7 @@ import 'package:deliver_flutter/box/pending_message.dart';
 import 'package:deliver_flutter/models/operation_on_message.dart';
 import 'package:deliver_flutter/repository/fileRepo.dart';
 import 'package:deliver_flutter/repository/messageRepo.dart';
-import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as model;
 import 'package:flutter/material.dart';

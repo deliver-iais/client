@@ -3,8 +3,8 @@ import 'package:deliver_flutter/localization/i18n.dart';
 import 'package:deliver_flutter/routes/router.gr.dart';
 import 'package:deliver_flutter/screen/intro/custom_library/intro_slider.dart';
 import 'package:deliver_flutter/screen/intro/custom_library/slide_object.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/widgets/fluid.dart';
-import 'package:deliver_flutter/theme/constants.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
@@ -43,7 +43,7 @@ class _IntroPageState extends State<IntroPage> {
   @override
   Widget build(BuildContext context) {
     I18N i18n = I18N.of(context);
-    double animationSize = ANIMATION_SQUARE_SIZE(context);
+    double animationSize = animationSquareSize(context);
     double paddingTop = 40;
     return FluidWidget(
       child: Stack(

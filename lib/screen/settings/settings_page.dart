@@ -8,13 +8,13 @@ import 'package:deliver_flutter/repository/avatarRepo.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 
 import 'package:deliver_flutter/services/ux_service.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver_flutter/shared/widgets/fluid_container.dart';
 import 'package:deliver_flutter/shared/language.dart';
 import 'package:deliver_flutter/shared/methods/phone.dart';
 import 'package:deliver_flutter/shared/methods/url.dart';
-import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/dark.dart';
 import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/foundation.dart';

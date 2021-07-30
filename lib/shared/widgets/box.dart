@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

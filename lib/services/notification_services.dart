@@ -4,7 +4,7 @@ import 'package:deliver_flutter/services/audio_service.dart';
 import 'package:deliver_flutter/services/file_service.dart';
 import 'package:deliver_flutter/shared/constants.dart';
 import 'package:deliver_flutter/shared/methods/message.dart';
-import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:desktoasts/desktoasts.dart';

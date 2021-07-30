@@ -8,7 +8,7 @@ import 'package:deliver_flutter/repository/roomRepo.dart';
 
 import 'package:contacts_service/contacts_service.dart' as OsContact;
 import 'package:deliver_flutter/services/check_permissions_service.dart';
-import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';

@@ -1,4 +1,4 @@
-import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/shared/constants.dart';
 import 'package:flutter/material.dart';
 
 import 'slide_object.dart';
@@ -774,7 +774,7 @@ class IntroSliderState extends State<IntroSlider>
     Color backgroundOpacityColor,
     BlendMode backgroundBlendMode,
   ) {
-    double animationSize = ANIMATION_SQUARE_SIZE(context);
+    double animationSize = animationSquareSize(context);
     return Container(
       padding: EdgeInsets.only(top: animationSize + 40),
       width: double.infinity,

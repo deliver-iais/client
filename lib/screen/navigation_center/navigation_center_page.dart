@@ -7,12 +7,13 @@ import 'package:deliver_flutter/repository/botRepo.dart';
 import 'package:deliver_flutter/repository/contactRepo.dart';
 import 'package:deliver_flutter/repository/roomRepo.dart';
 import 'package:deliver_flutter/screen/navigation_center/chats/widgets/chatsPage.dart';
+import 'package:deliver_flutter/shared/constants.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:deliver_flutter/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver_flutter/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/shared/widgets/circle_avatar.dart';
 import 'package:deliver_flutter/shared/widgets/title_status.dart';
-import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_theme.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:deliver_flutter/box/room.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 
@@ -16,7 +17,6 @@ import 'package:deliver_flutter/services/check_permissions_service.dart';
 import 'package:deliver_flutter/services/routing_service.dart';
 
 import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
-import 'package:deliver_flutter/theme/constants.dart';
 import 'package:deliver_flutter/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';

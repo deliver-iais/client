@@ -18,7 +18,7 @@ import 'package:deliver_flutter/services/routing_service.dart';
 import 'package:deliver_flutter/services/ux_service.dart';
 import 'package:deliver_flutter/shared/extensions/uid_extension.dart';
 import 'package:deliver_flutter/shared/methods/message.dart';
-import 'package:deliver_flutter/theme/constants.dart';
+import 'package:deliver_flutter/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
