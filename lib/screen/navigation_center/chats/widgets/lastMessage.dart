@@ -61,7 +61,7 @@ class LastMessage extends StatelessWidget {
                                     color: ExtraTheme.of(context).username)),
                       if (mb.typeDetails.isNotEmpty)
                         TextSpan(
-                            text: "${mb.typeDetails}",
+                            text: mb.typeDetails,
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyText2

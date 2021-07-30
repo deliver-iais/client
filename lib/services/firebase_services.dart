@@ -126,8 +126,7 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
       if (uidName != null) roomName = uidName.name ?? uidName.id ?? "Unknown";
     }
 
-    _notificationServices.showNotification(
-        msg, getRoomUid(_authRepo, msg).asString(), roomName);
+    _notificationServices.showNotification(msg, roomName: roomName);
 
     // TODO, this is needed ??!!
     await Hive.close();

@@ -198,6 +198,18 @@ Future<void> setupDI() async {
   }
   GetIt.I.registerSingleton<AudioService>(AudioService());
 
+  if (isMacOS()) {
+    GetIt.I.registerSingleton<Notifier>(MacOSNotifier());
+  } else if (isAndroid() || isIOS()) {
+    GetIt.I.registerSingleton<Notifier>(AndroidIOSNotifier());
+  } else if (isLinux()) {
+    GetIt.I.registerSingleton<Notifier>(LinuxNotifier());
+  } else if (isWindows()) {
+    GetIt.I.registerSingleton<Notifier>(WindowsNotifier());
+  } else {
+    GetIt.I.registerSingleton<Notifier>(FakeNotifier());
+  }
+
   GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
 
   GetIt.I.registerSingleton<CoreServices>(CoreServices());

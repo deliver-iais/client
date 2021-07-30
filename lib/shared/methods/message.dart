@@ -36,6 +36,26 @@ class MessageBrief {
       this.typeDetails,
       this.text,
       this.ignoreNotification});
+
+  MessageBrief copyWith(
+      {Uid roomUid,
+      String sender,
+      String roomName,
+      bool senderIsAUserOrBot,
+      MessageType type,
+      String typeDetails,
+      String text,
+      bool ignoreNotification}) {
+    return MessageBrief(
+        roomUid: roomUid ?? this.roomUid,
+        sender: sender ?? this.sender,
+        roomName: roomName ?? this.roomName,
+        senderIsAUserOrBot: senderIsAUserOrBot ?? this.senderIsAUserOrBot,
+        type: type ?? this.type,
+        typeDetails: typeDetails ?? this.typeDetails,
+        text: text ?? this.text,
+        ignoreNotification: ignoreNotification ?? this.ignoreNotification);
+  }
 }
 
 Future<MessageBrief> extractMessageBrief(

@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     _coreServices.initStreamConnection();
-    _notificationServices.cancelAllNotification();
+    _notificationServices.cancelAllNotifications();
     checkIfUsernameIsSet();
 
     if (isAndroid()) {

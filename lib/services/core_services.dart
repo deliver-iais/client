@@ -356,12 +356,10 @@ class CoreServices {
   }
 
   Future showNotification(Uid roomUid, Message message) async {
-    String roomName = await _roomRepo.getName(roomUid);
     if (_routingServices.isInRoom(roomUid.asString()) && !isDesktop()) {
       _notificationServices.playSoundIn();
     } else {
-      _notificationServices.showNotification(
-          message, roomUid.asString(), roomName);
+      _notificationServices.showNotification(message);
     }
   }
 
